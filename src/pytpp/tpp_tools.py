@@ -379,7 +379,6 @@ def samcode(num): return bin(int(num))[2:].zfill(8)[::-1]
 
 def template_counts(ref,sam,bcfile,vars):
   headers,seqs = read_fasta(ref)
-  barcodes = {}
 
   fil1 = open(bcfile)
   fil2 = open(sam)
@@ -394,12 +393,12 @@ def template_counts(ref,sam,bcfile,vars):
     if idx==2: break
     idx+=1
 
-  '''
+  barcodes = {}
   for line in open(bcfile):
     line = line.rstrip()
     if line[0]=='>': id = line[1:]
     else: barcodes[id] = line
-  '''
+
   hits = {}
   vars.tot_tgtta,vars.mapped = 0,0
   vars.r1 = vars.r2 = 0
@@ -407,11 +406,12 @@ def template_counts(ref,sam,bcfile,vars):
   #for line in open(sam):
   bcline=''
   for line in fil2:
-    try:
-      bcline = fil1.next().rstrip()
-      if bcline[0] !='>': bc = bcline
-    except StopIteration:
-      pass
+# use hash table instead of trying read barcodes file in parallel, since might be multiple @ lines
+#    try:
+#      bcline = fil1.next().rstrip()
+#      if bcline[0] !='>': bc = bcline
+#    except StopIteration:
+#      pass
     if line[0]=='@': continue
     else:
       w = line.split('\t')
@@ -431,14 +431,14 @@ def template_counts(ref,sam,bcfile,vars):
         if code[4]=="1": strand,delta = 'R',readlen
 
         pos += delta
-        #bc = barcodes[w[0]]
+        bc = barcodes[w[0]] # hash table approach
         contig = w[2]
-        if pos not in hits: hits[(contig,pos)] = []
+        if (contig,pos) not in hits: hits[(contig,pos)] = []
         hits[(contig,pos)].append((strand,size,bc))
 
   sites = []
   for c in range(len(headers)):
-   contig = headers[c][1:].strip().split()[0] # contig id is first symbol after '>'
+   contig = headers[c][1:].strip().split()[0] # contig id is first symbol after '>'; like BWA does in sam files
    genome = seqs[c]
    for i in range(len(genome)-1):
     if vars.transposon=="Himar1" and genome[i:i+2].upper()!="TA": continue
@@ -907,14 +907,14 @@ def generate_output(vars):
     if Himar1[:-5] in line and Himar1 not in line: misprimed += 1
 
 
-  rcounts = [x[5] for x in counts]
-  tcounts = [x[6] for x in counts]
+  rcounts = [x[5] for x in counts] # read counts
+  tcounts = [x[6] for x in counts] # template counts
   rc,tc = sum(rcounts),sum(tcounts)
   ratio = rc/float(tc) if (rc != 0 and tc !=0) else 0
   ta_sites = len(rcounts)
   tas_hit = len(filter(lambda x: x>0,rcounts))
   density = tas_hit/float(ta_sites)
-  counts.sort(key=lambda x: x[-1])
+  counts.sort(key=lambda x: x[6])
   max_tc = counts[-1][6]
   max_coord = counts[-1][0]
   NZmean = tc/float(tas_hit)
