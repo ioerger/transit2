@@ -35,10 +35,10 @@ import pytransit.stat_tools as stat_tools
 
 ############# GUI ELEMENTS ##################
 
-short_name = "essentiality"
-long_name = "Essentiality"
-short_desc = "Relative degree of essentiality of each gene (in a single condition)"
-long_desc = """Relative degree of essentiality of each gene (in a single condition)."""
+short_name = "relative_essentiality"
+long_name = "Relative Essentiality"
+short_desc = "Degree of essentiality of each gene (in a single condition)"
+long_desc = """Degree of essentiality of each gene. Ratio (FoldChange) of insertion counts in gene to the global average (1.0=NE, 0.0=ES), with significance (p-value) based on a sampling distribution."""
 
 transposons = ["himar1", "tn5"]
 columns = ["ORF","Gene","Annotation","TAsites","Sum","Mean","Sat","NZsites","NZmean","ExpecSum","FoldChange","Pval","Padj"]
@@ -55,7 +55,7 @@ class EssentialityAnalysis(base.TransitAnalysis):
 class EssentialityFile(base.TransitFile):
 
     def __init__(self):
-        base.TransitFile.__init__(self, "#Essentiality", columns)
+        base.TransitFile.__init__(self, "#RelativeEssentiality", columns)
 
     def getHeader(self, path):
         DE=0; poslogfc=0; neglogfc=0;
@@ -70,7 +70,7 @@ class EssentialityFile(base.TransitFile):
                     neglogfc+=1
 
         text = """Results:
-    Conditionally - Essentials: %s
+    Conditionally - Essentials: %s                     #TRI update this
         Less Essential in Experimental datasets: %s
         More Essential in Experimental datasets: %s
             """ % (DE, poslogfc, neglogfc)
@@ -472,7 +472,7 @@ class EssentialityMethod(base.DualConditionMethod):
             self.doHistogram = False
 
 
-        self.transit_message("Starting Essentiality Method")
+        self.transit_message("Starting Relative Essentiality Method")
         start_time = time.time()
 
         #Get orf data
@@ -487,13 +487,10 @@ class EssentialityMethod(base.DualConditionMethod):
             conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
             data, conditions = self.filter_wigs_by_conditions(data, conditions, self.combinedWigParams['conditions'])
             data_ctrl = numpy.array([d for i, d in enumerate(data) if conditions[i].lower() == self.combinedWigParams['conditions'][0]])
-            #data_exp = numpy.array([d for i, d in enumerate(data) if conditions[i].lower() == self.combinedWigParams['conditions'][1]])
             position_ctrl, position_exp = position, position
         else:
             (data_ctrl, position_ctrl) = transit_tools.get_validated_data(self.ctrldata, wxobj=self.wxobj)
-            #(data_exp, position_exp) = transit_tools.get_validated_data(self.expdata, wxobj=self.wxobj)
         (K_ctrl, N_ctrl) = data_ctrl.shape
-        #(K_exp, N_exp) = data_exp.shape
 
 #TRI handle diff num of sites
 #        if not self.diffStrains and (N_ctrl != N_exp):
@@ -501,16 +498,7 @@ class EssentialityMethod(base.DualConditionMethod):
         self.transit_message("Preprocessing Ctrl data...")
         data_ctrl = self.preprocess_data(position_ctrl, data_ctrl) # call normalization
 
-        #self.transit_message("Preprocessing Exp data...")
-        #data_exp = self.preprocess_data(position_exp, data_exp)
-
         G_ctrl = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignoreCodon=self.ignoreCodon, nterm=self.NTerminus, cterm=self.CTerminus, data=data_ctrl, position=position_ctrl)
-        #G_exp = tnseq_tools.Genes(self.expdata, self.annotation_path_exp, ignoreCodon=self.ignoreCodon, nterm=self.NTerminus, cterm=self.CTerminus, data=data_exp, position=position_exp)
-
-#TRI handling libraries, from resampling code
-#        doLibraryResampling = False
-#        # If library string not empty
-#        if self.ctrl_lib_str or self.exp_lib_str: ...
 
         self.transit_message("creating pools of counts in non-essential regions")
         count_pools = []
@@ -528,11 +516,11 @@ class EssentialityMethod(base.DualConditionMethod):
         self.write_output(results, start_time)
 
         self.finish()
-        self.transit_message("Finished Essentiality Method")
+        self.transit_message("Finished Relative Essentiality Method")
 
     def write_output(self, results, start_time):
 
-        self.output.write("#Essentiality\n")
+        self.output.write("#RelativeEssentiality\n")
         if self.wxobj:
             members = sorted([attr for attr in dir(self) if not callable(getattr(self,attr)) and not attr.startswith("__")])
             memberstr = ""
@@ -552,7 +540,7 @@ class EssentialityMethod(base.DualConditionMethod):
         self.output.close()
 
         self.transit_message("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Essentiality")
+        self.add_file(filetype="RelativeEssentiality")
 
     def run_essentiality(self, G_ctrl, count_pools):
         results = []
@@ -596,7 +584,7 @@ class EssentialityMethod(base.DualConditionMethod):
             results.append(vals)
             
             # Update progress
-            text = "Running Essentiality Method... %5.1f%%" % (100.0*count/Ngenes)
+            text = "Running Relative Essentiality Method... %5.1f%%" % (100.0*count/Ngenes)
             self.progress_update(text, count)
 
 
@@ -610,7 +598,7 @@ class EssentialityMethod(base.DualConditionMethod):
     @classmethod
     def usage_string(self):
         return """
-        python %s essentiality <comma-separated-list-of-wig-files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        python %s relative_essentiality <comma-separated-list-of-wig-files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
 
         Optional Arguments:
         -s <integer>    :=  Number of samples. Default: -s 10000

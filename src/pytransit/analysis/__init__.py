@@ -22,7 +22,7 @@ from pytransit.analysis import pathway_enrichment
 from pytransit.analysis import anova
 from pytransit.analysis import zinb
 from pytransit.analysis import tnseq_stats
-from pytransit.analysis import essentiality
+from pytransit.analysis import relative_essentiality
 
 methods = {}
 methods["example"] = example.ExampleAnalysis()
@@ -43,7 +43,7 @@ methods["zinb"] = zinb.ZinbAnalysis()
 methods["normalize"] = normalize.Normalize()
 methods["pathway_enrichment"]=pathway_enrichment.GSEAAnalysis()
 methods["tnseq_stats"]=tnseq_stats.TnseqStats()
-methods["relative_essentiality"]=essentiality.EssentialityAnalysis()
+methods["relative_essentiality"]=relative_essentiality.EssentialityAnalysis()
 
 # EXPORT METHODS
 from pytransit.analysis import norm
