@@ -43,7 +43,7 @@ methods["zinb"] = zinb.ZinbAnalysis()
 methods["normalize"] = normalize.Normalize()
 methods["pathway_enrichment"]=pathway_enrichment.GSEAAnalysis()
 methods["tnseq_stats"]=tnseq_stats.TnseqStats()
-methods["essentiality"]=essentiality.EssentialityAnalysis()
+methods["relative_essentiality"]=essentiality.EssentialityAnalysis()
 
 # EXPORT METHODS
 from pytransit.analysis import norm

@@ -516,12 +516,12 @@ class EssentialityMethod(base.DualConditionMethod):
         count_pools = []
         for i,counts in enumerate(data_ctrl):
           counts = list(counts)
-          n,sat = len(counts),self.saturation(counts)
+          n,sat = len(counts),tnseq_tools.saturation(counts)
           R = tnseq_tools.ExpectedRuns(n,1.0-sat) # pnon
           varR = tnseq_tools.VarR(n,1.0-sat) # pnon
           W = R-varR
           pool = self.remove_essential_regions(counts,W)
-          print("%s: saturation=%0.1f%%, E[R]=%0.1f, var(R)=%0.1f, run-length for filtering out essential regions=%0.1f, pool: sites=%s, sat=%0.1f%%" % (self.ctrldata[i],100.*sat,R,varR,W,len(pool),100.*self.saturation(pool)))
+          print("%s: saturation=%0.1f%%, E[R]=%0.1f, var(R)=%0.1f, run-length for filtering out essential regions=%0.1f, pool: sites=%s, sat=%0.1f%%" % (self.ctrldata[i],100.*sat,R,varR,W,len(pool),100.*tnseq_tools.saturation(pool)))
           count_pools.append(pool)
 
         results = self.run_essentiality(G_ctrl,count_pools)
