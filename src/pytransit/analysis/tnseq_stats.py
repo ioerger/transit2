@@ -106,6 +106,12 @@ class TnseqStatsMethod(base.SingleConditionMethod):
 
         return self(self.wigs,outfile=self.outfile)
 
+    # Pickands, J. (1975). "Statistical Inference Using Extreme Order Statistics". 
+    # The Annals of Statistics. 3 (1): 119–131. 
+    # basically, it is the log of the ratio of M'th-2M'th highest counts to 2M'th-4M'th
+    # e.g. log((10th-20th)/(20th-40th))
+    # I take the median for M in 10..100
+
     def pickands_tail_index(self,vals):
         srt = sorted(vals,reverse=True)
         PTIs = []
