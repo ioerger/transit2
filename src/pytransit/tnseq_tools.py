@@ -1643,6 +1643,11 @@ def get_genes_in_range(pos_hash, start, end):
     return list(sorted(genes))
 
 
+def saturation(self,counts): 
+  nonzeros = [counts[x] for x in numpy.nonzero(counts)[0]]
+  sat = len(nonzeros)/float(len(counts))
+  return sat
+
 
 if __name__ == "__main__":
 

@@ -430,7 +430,6 @@ class EssentialityMethod(base.DualConditionMethod):
         return (numpy.array(d_filtered), numpy.array(cond_filtered))
 
     # remove all runs of zeros of length >= W
-    # should move this to tnseq_tools.py
 
     def remove_essential_regions(self, wig,W):
       runs = []
@@ -450,13 +449,8 @@ class EssentialityMethod(base.DualConditionMethod):
           counts += wig[j:next]
       return counts
 
-    # move to tnseq_tools.py
-    def saturation(self,cnts): 
-      nonzeros = [cnts[x] for x in numpy.nonzero(cnts)[0]]
-      sat = len(nonzeros)/float(len(cnts))
-      return sat
-
     # given k pools of counts, draw n from each and concatenate them; repeat N times
+
     def sample_count_pools(self,count_pools,size,times):
       samples = []
       for i in range(times):
