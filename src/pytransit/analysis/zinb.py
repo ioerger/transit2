@@ -237,6 +237,482 @@ class ZinbMethod(base.MultiConditionMethod):
 
     def def_r_zinb_signif(self):
         r('''
+	    model_offset_2 <- function(x, terms = NULL, offset = TRUE)
+	    ## allow optionally different terms
+	    ## potentially exclude "(offset)"
+	    {
+	      if(is.null(terms)) terms <- attr(x, "terms")
+	      offsets <- attr(terms, "offset")
+	      if(length(offsets) > 0) {
+		ans <- if(offset) x$"(offset)" else NULL
+		if(is.null(ans)) ans <- 0
+		for(i in offsets) ans <- ans + x[[deparse(attr(terms, "variables")[[i + 1]])]]
+		ans
+	      }
+	      else {
+		ans <- if(offset) x$"(offset)" else NULL
+	      }
+	      if(!is.null(ans) && !is.numeric(ans)) stop("'offset' must be numeric")
+	      ans
+	    }
+
+            ######################################
+            # Sid copied this from the pscl library and updated how control args such as upper/lower are passed to the optimizer
+	    zeroinfl_sid = function (formula, data, subset, na.action, weights, offset,
+                                     dist = c("poisson", "negbin", "geometric"), 
+                                     link = c("logit", "probit", "cloglog", "cauchit", "log"), control = zeroinfl.control(...),
+                                     model = TRUE, y = TRUE, x = FALSE, ...)
+	    {
+	      ziPoisson <- function(parms) {
+		mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
+		phi <- as.vector(linkinv(Z %*% parms[(kx + 1):(kx + kz)] +
+					   offsetz))
+		loglik0 <- log(phi + exp(log(1 - phi) - mu))
+		loglik1 <- log(1 - phi) + dpois(Y, lambda = mu, log = TRUE)
+		loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] *
+								 loglik1[Y1])
+		loglik
+	      }
+	      ziNegBin <- function(parms) {
+		mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
+		phi <- as.vector(linkinv(Z %*% parms[(kx + 1):(kx + kz)] +
+					   offsetz))
+		theta <- exp(parms[(kx + kz) + 1])
+		loglik0 <- log(phi + exp(log(1 - phi) + suppressWarnings(dnbinom(0,
+										 size = theta, mu = mu, log = TRUE))))
+		loglik1 <- log(1 - phi) + suppressWarnings(dnbinom(Y,
+								   size = theta, mu = mu, log = TRUE))
+		loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] *
+								 loglik1[Y1])
+		loglik
+	      }
+	      ziGeom <- function(parms) ziNegBin(c(parms, 0))
+	      gradPoisson <- function(parms) {
+		eta <- as.vector(X %*% parms[1:kx] + offsetx)
+		mu <- exp(eta)
+		etaz <- as.vector(Z %*% parms[(kx + 1):(kx + kz)] + offsetz)
+		muz <- linkinv(etaz)
+		clogdens0 <- -mu
+		dens0 <- muz * (1 - as.numeric(Y1)) + exp(log(1 - muz) +
+							    clogdens0)
+		wres_count <- ifelse(Y1, Y - mu, -exp(-log(dens0) + log(1 -
+									  muz) + clogdens0 + log(mu)))
+		wres_zero <- ifelse(Y1, -1/(1 - muz) * linkobj$mu.eta(etaz),
+				    (linkobj$mu.eta(etaz) - exp(clogdens0) * linkobj$mu.eta(etaz))/dens0)
+		colSums(cbind(wres_count * weights * X, wres_zero * weights *
+				Z))
+	      }
+	      gradGeom <- function(parms) {
+		eta <- as.vector(X %*% parms[1:kx] + offsetx)
+		mu <- exp(eta)
+		etaz <- as.vector(Z %*% parms[(kx + 1):(kx + kz)] + offsetz)
+		muz <- linkinv(etaz)
+		clogdens0 <- dnbinom(0, size = 1, mu = mu, log = TRUE)
+		dens0 <- muz * (1 - as.numeric(Y1)) + exp(log(1 - muz) +
+							    clogdens0)
+		wres_count <- ifelse(Y1, Y - mu * (Y + 1)/(mu + 1), -exp(-log(dens0) +
+									   log(1 - muz) + clogdens0 - log(mu + 1) + log(mu)))
+		wres_zero <- ifelse(Y1, -1/(1 - muz) * linkobj$mu.eta(etaz),
+				    (linkobj$mu.eta(etaz) - exp(clogdens0) * linkobj$mu.eta(etaz))/dens0)
+		colSums(cbind(wres_count * weights * X, wres_zero * weights *
+				Z))
+	      }
+	      gradNegBin <- function(parms) {
+		eta <- as.vector(X %*% parms[1:kx] + offsetx)
+		mu <- exp(eta)
+		etaz <- as.vector(Z %*% parms[(kx + 1):(kx + kz)] + offsetz)
+		muz <- linkinv(etaz)
+		theta <- exp(parms[(kx + kz) + 1])
+		clogdens0 <- dnbinom(0, size = theta, mu = mu, log = TRUE)
+		dens0 <- muz * (1 - as.numeric(Y1)) + exp(log(1 - muz) +
+							    clogdens0)
+		wres_count <- ifelse(Y1, Y - mu * (Y + theta)/(mu + theta),
+				     -exp(-log(dens0) + log(1 - muz) + clogdens0 + log(theta) -
+					    log(mu + theta) + log(mu)))
+		wres_zero <- ifelse(Y1, -1/(1 - muz) * linkobj$mu.eta(etaz),
+				    (linkobj$mu.eta(etaz) - exp(clogdens0) * linkobj$mu.eta(etaz))/dens0)
+		wres_theta <- theta * ifelse(Y1, digamma(Y + theta) -
+					       digamma(theta) + log(theta) - log(mu + theta) + 1 -
+					       (Y + theta)/(mu + theta), exp(-log(dens0) + log(1 -
+												 muz) + clogdens0) * (log(theta) - log(mu + theta) +
+															1 - theta/(mu + theta)))
+		colSums(cbind(wres_count * weights * X, wres_zero * weights *
+				Z, wres_theta))
+	      }
+	      dist <- match.arg(dist)
+	      loglikfun <- switch(dist, poisson = ziPoisson, geometric = ziGeom,
+				  negbin = ziNegBin)
+	      gradfun <- switch(dist, poisson = gradPoisson, geometric = gradGeom,
+				negbin = gradNegBin)
+	      linkstr <- match.arg(link)
+	      linkobj <- make.link(linkstr)
+	      linkinv <- linkobj$linkinv
+	      if (control$trace)
+		cat("Zero-inflated Count Model\n", paste("count model:",
+							 dist, "with log link\n"), paste("zero-inflation model: binomial with",
+											 linkstr, "link\n"), sep = "")
+	      cl <- match.call()
+	      if (missing(data))
+		data <- environment(formula)
+	      mf <- match.call(expand.dots = FALSE)
+	      m <- match(c("formula", "data", "subset", "na.action", "weights",
+			   "offset"), names(mf), 0)
+	      mf <- mf[c(1, m)]
+	      mf$drop.unused.levels <- TRUE
+	      if (length(formula[[3]]) > 1 && identical(formula[[3]][[1]],
+							as.name("|"))) {
+		ff <- formula
+		formula[[3]][1] <- call("+")
+		mf$formula <- formula
+		ffc <- . ~ .
+		ffz <- ~.
+		ffc[[2]] <- ff[[2]]
+		ffc[[3]] <- ff[[3]][[2]]
+		ffz[[3]] <- ff[[3]][[3]]
+		ffz[[2]] <- NULL
+	      }
+	      else {
+		ffz <- ffc <- ff <- formula
+		ffz[[2]] <- NULL
+	      }
+	      if (inherits(try(terms(ffz), silent = TRUE), "try-error")) {
+		ffz <- eval(parse(text = sprintf(paste("%s -", deparse(ffc[[2]])),
+						 deparse(ffz))))
+	      }
+	      mf[[1]] <- as.name("model.frame")
+	      mf <- eval(mf, parent.frame())
+	      mt <- attr(mf, "terms")
+	      mtX <- terms(ffc, data = data)
+	      X <- model.matrix(mtX, mf)
+	      mtZ <- terms(ffz, data = data)
+	      mtZ <- terms(update(mtZ, ~.), data = data)
+	      Z <- model.matrix(mtZ, mf)
+	      Y <- model.response(mf, "numeric")
+	      if (length(Y) < 1)
+		stop("empty model")
+	      if (all(Y > 0))
+		stop("invalid dependent variable, minimum count is not zero")
+	      if (!isTRUE(all.equal(as.vector(Y), as.integer(round(Y +
+								   0.001)))))
+		stop("invalid dependent variable, non-integer values")
+	      Y <- as.integer(round(Y + 0.001))
+	      if (any(Y < 0))
+		stop("invalid dependent variable, negative counts")
+	      if (control$trace) {
+		cat("dependent variable:\n")
+		tab <- table(factor(Y, levels = 0:max(Y)), exclude = NULL)
+		names(dimnames(tab)) <- NULL
+		print(tab)
+	      }
+	      n <- length(Y)
+	      kx <- NCOL(X)
+	      kz <- NCOL(Z)
+	      Y0 <- Y <= 0
+	      Y1 <- Y > 0
+	      weights <- model.weights(mf)
+	      if (is.null(weights))
+		weights <- 1
+	      if (length(weights) == 1)
+		weights <- rep.int(weights, n)
+	      weights <- as.vector(weights)
+	      names(weights) <- rownames(mf)
+	      offsetx <- model_offset_2(mf, terms = mtX, offset = TRUE)
+	      if (is.null(offsetx))
+		offsetx <- 0
+	      if (length(offsetx) == 1)
+		offsetx <- rep.int(offsetx, n)
+	      offsetx <- as.vector(offsetx)
+	      offsetz <- model_offset_2(mf, terms = mtZ, offset = FALSE)
+	      if (is.null(offsetz))
+		offsetz <- 0
+	      if (length(offsetz) == 1)
+		offsetz <- rep.int(offsetz, n)
+	      offsetz <- as.vector(offsetz)
+	      start <- control$start
+	      if (!is.null(start)) {
+		valid <- TRUE
+		if (!("count" %in% names(start))) {
+		  valid <- FALSE
+		  warning("invalid starting values, count model coefficients not specified")
+		  start$count <- rep.int(0, kx)
+		}
+		if (!("zero" %in% names(start))) {
+		  valid <- FALSE
+		  warning("invalid starting values, zero-inflation model coefficients not specified")
+		  start$zero <- rep.int(0, kz)
+		}
+		if (length(start$count) != kx) {
+		  valid <- FALSE
+		  warning("invalid starting values, wrong number of count model coefficients")
+		}
+		if (length(start$zero) != kz) {
+		  valid <- FALSE
+		  warning("invalid starting values, wrong number of zero-inflation model coefficients")
+		}
+		if (dist == "negbin") {
+		  if (!("theta" %in% names(start)))
+		    start$theta <- 1
+		  start <- list(count = start$count, zero = start$zero,
+				theta = as.vector(start$theta[1]))
+		}
+		else {
+		  start <- list(count = start$count, zero = start$zero)
+		}
+		if (!valid)
+		  start <- NULL
+	      }
+	      if (is.null(start)) {
+		if (control$trace)
+		  cat("generating starting values...")
+		model_count <- glm.fit(X, Y, family = poisson(), weights = weights,
+				       offset = offsetx)
+		model_zero <- glm.fit(Z, as.integer(Y0), weights = weights,
+				      family = binomial(link = linkstr), offset = offsetz)
+		start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
+		if (dist == "negbin")
+		  start$theta <- 1
+		if (control$EM & dist == "poisson") {
+		  mui <- model_count$fitted
+		  probi <- model_zero$fitted
+		  probi <- probi/(probi + (1 - probi) * dpois(0, mui))
+		  probi[Y1] <- 0
+		  ll_new <- loglikfun(c(start$count, start$zero))
+		  ll_old <- 2 * ll_new
+		  while (abs((ll_old - ll_new)/ll_old) > control$reltol) {
+		    ll_old <- ll_new
+		    model_count <- glm.fit(X, Y, weights = weights *
+					     (1 - probi), offset = offsetx, family = poisson(),
+					   start = start$count)
+		    model_zero <- suppressWarnings(glm.fit(Z, probi,
+							   weights = weights, offset = offsetz, family = binomial(link = linkstr),
+							   start = start$zero))
+		    mui <- model_count$fitted
+		    probi <- model_zero$fitted
+		    probi <- probi/(probi + (1 - probi) * dpois(0,
+								mui))
+		    probi[Y1] <- 0
+		    start <- list(count = model_count$coefficients,
+				  zero = model_zero$coefficients)
+		    ll_new <- loglikfun(c(start$count, start$zero))
+		  }
+		}
+		if (control$EM & dist == "geometric") {
+		  mui <- model_count$fitted
+		  probi <- model_zero$fitted
+		  probi <- probi/(probi + (1 - probi) * dnbinom(0,
+								size = 1, mu = mui))
+		  probi[Y1] <- 0
+		  ll_new <- loglikfun(c(start$count, start$zero))
+		  ll_old <- 2 * ll_new
+		  while (abs((ll_old - ll_new)/ll_old) > control$reltol) {
+		    ll_old <- ll_new
+		    model_count <- suppressWarnings(glm.fit(X, Y,
+							    weights = weights * (1 - probi), offset = offsetx,
+							    family = MASS::negative.binomial(1), start = start$count))
+		    model_zero <- suppressWarnings(glm.fit(Z, probi,
+							   weights = weights, offset = offsetz, family = binomial(link = linkstr),
+							   start = start$zero))
+		    start <- list(count = model_count$coefficients,
+				  zero = model_zero$coefficients)
+		    mui <- model_count$fitted
+		    probi <- model_zero$fitted
+		    probi <- probi/(probi + (1 - probi) * dnbinom(0,
+								  size = 1, mu = mui))
+		    probi[Y1] <- 0
+		    ll_new <- loglikfun(c(start$count, start$zero))
+		  }
+		}
+		if (control$EM & dist == "negbin") {
+		  mui <- model_count$fitted
+		  probi <- model_zero$fitted
+		  probi <- probi/(probi + (1 - probi) * dnbinom(0,
+								size = start$theta, mu = mui))
+		  probi[Y1] <- 0
+		  ll_new <- loglikfun(c(start$count, start$zero, log(start$theta)))
+		  ll_old <- 2 * ll_new
+		  offset <- offsetx
+		  while (abs((ll_old - ll_new)/ll_old) > control$reltol) {
+		    ll_old <- ll_new
+		    model_count <- suppressWarnings(glm.nb(Y ~ 0 +
+							     X + offset(offset), weights = weights * (1 -
+													probi), start = start$count, init.theta = start$theta))
+		    model_zero <- suppressWarnings(glm.fit(Z, probi,
+							   weights = weights, offset = offsetz, family = binomial(link = linkstr),
+							   start = start$zero))
+		    start <- list(count = model_count$coefficients,
+				  zero = model_zero$coefficients, theta = model_count$theta)
+		    mui <- model_count$fitted
+		    probi <- model_zero$fitted
+		    probi <- probi/(probi + (1 - probi) * dnbinom(0,
+								  size = start$theta, mu = mui))
+		    probi[Y1] <- 0
+		    ll_new <- loglikfun(c(start$count, start$zero,
+					  log(start$theta)))
+		  }
+		}
+		if (control$trace)
+		  cat("done\n")
+	      }
+	      if (control$trace)
+		cat("calling optim() for ML estimation:\n")
+	      method <- control$method
+	      hessian <- control$hessian
+	      ocontrol <- control
+	      control$method <- control$hessian <- control$EM <- control$start <- NULL
+	      fit <- optim(fn = loglikfun, gr = gradfun, par = c(start$count,
+								 start$zero, if (dist == "negbin") log(start$theta) else NULL),
+			   method = method, hessian = hessian, control = control, upper = control$upper, lower=control$lower)
+	      if (fit$convergence > 0)
+		warning("optimization failed to converge")
+	      coefc <- fit$par[1:kx]
+	      names(coefc) <- names(start$count) <- colnames(X)
+	      coefz <- fit$par[(kx + 1):(kx + kz)]
+	      names(coefz) <- names(start$zero) <- colnames(Z)
+	      vc <- -solve(as.matrix(fit$hessian))
+	      if (dist == "negbin") {
+		np <- kx + kz + 1
+		theta <- as.vector(exp(fit$par[np]))
+		SE.logtheta <- as.vector(sqrt(diag(vc)[np]))
+		vc <- vc[-np, -np, drop = FALSE]
+	      }
+	      else {
+		theta <- NULL
+		SE.logtheta <- NULL
+	      }
+	      colnames(vc) <- rownames(vc) <- c(paste("count", colnames(X),
+						      sep = "_"), paste("zero", colnames(Z), sep = "_"))
+	      mu <- exp(X %*% coefc + offsetx)[, 1]
+	      phi <- linkinv(Z %*% coefz + offsetz)[, 1]
+	      Yhat <- (1 - phi) * mu
+	      res <- sqrt(weights) * (Y - Yhat)
+	      nobs <- sum(weights > 0)
+	      rval <- list(coefficients = list(count = coefc, zero = coefz),
+			   residuals = res, fitted.values = Yhat, optim = fit, method = method,
+			   control = ocontrol, start = start, weights = if (identical(as.vector(weights),
+										      rep.int(1L, n))) NULL else weights, offset = list(count = if (identical(offsetx,
+																			      rep.int(0, n))) NULL else offsetx, zero = if (identical(offsetz,
+																										      rep.int(0, n))) NULL else offsetz), n = nobs, df.null = nobs -
+			     2, df.residual = nobs - (kx + kz + (dist == "negbin")),
+			   terms = list(count = mtX, zero = mtZ, full = mt), theta = theta,
+			   SE.logtheta = SE.logtheta, loglik = fit$value, vcov = vc,
+			   dist = dist, link = linkstr, linkinv = linkinv, converged = fit$convergence <
+			     1, call = cl, formula = ff, levels = .getXlevels(mt,
+									      mf), contrasts = list(count = attr(X, "contrasts"),
+												    zero = attr(Z, "contrasts")))
+	      if (model)
+		rval$model <- mf
+	      if (y)
+		rval$y <- Y
+	      if (x)
+		rval$x <- list(count = X, zero = Z)
+	      class(rval) <- "zeroinfl"
+	      return(rval)
+	    }
+            ######################################
+
+            zinb_signif = function(df,
+                zinbMod1,
+                zinbMod0,
+                nbMod1,
+                nbMod0, DEBUG = F) {
+              suppressMessages(require(pscl))
+              suppressMessages(require(MASS))
+              melted = df
+
+              # filter out genes that have low saturation across all conditions, since pscl sometimes does not fit params well (resulting in large negative intercepts and high std errors)
+              NZpercs = aggregate(melted$cnt,by=list(melted$cond),FUN=function(x) { sum(x>0)/length(x) })
+              # if (max(NZpercs$x)<=0.15) { return(c(pval=1,status="low saturation (near-essential) across all conditions, not analyzed")) }
+
+              sums = aggregate(melted$cnt,by=list(melted$cond),FUN=sum)
+              # to avoid model failing due to singular condition, add fake counts of 1 to all conds if any cond is all 0s
+              if (0 %in% sums[,2]) {
+                # print("adding pseudocounts")
+                for (i in 1:length(sums[,1])) {
+                  subset = melted[melted$cond==sums[i,1],]
+                  newvec = subset[1,]
+                  newvec$cnt = 1 # note: NZmean and NZperc are copied from last dataset in condition
+                  #newvec$cnt = as.integer(mean(subset$cnt))+1 # add the mean for each condition as a pseudocount
+                  melted = rbind(melted,newvec) }
+              }
+              status = "-"
+              minCount = min(melted$cnt)
+              f1 = ""
+              mod1 = tryCatch(
+                {
+                  if (minCount == 0) {
+                    f1 = zinbMod1
+                    #mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin")
+                    # to do: check whether upper/lower are defined when call optim() above...
+                    mod = zeroinfl_sid(as.formula(zinbMod1),data=melted,dist="negbin", method="L-BFGS-B", upper=5, lower=-5) # also consider: trace=T
+                    coeffs = summary(mod)$coefficients
+                    # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
+                    if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod1' }
+                    mod
+                  } else {
+                    f1 = nbMod1
+                    glm.nb(as.formula(nbMod1),data=melted)
+                  }
+                },
+                error=function(err) {
+                  status <<- err$message
+                  return(NULL)
+                })
+              f0 = ""
+              mod0 = tryCatch( # null model, independent of conditions
+                {
+                  if (minCount == 0) {
+                    f0 = zinbMod0
+                    #mod = zeroinfl(as.formula(zinbMod0),data=melted,dist="negbin")
+                    mod = zeroinfl_sid(as.formula(zinbMod0),data=melted,dist="negbin", method="L-BFGS-B", upper=5, lower=-5)
+                    coeffs = summary(mod)$coefficients
+                    # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
+                    #if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod0' }
+                    mod
+                  } else {
+                    f0 = nbMod0
+                    glm.nb(as.formula(nbMod0),data=melted)
+                  }
+                },
+                error=function(err) {
+                  status <<- err$message
+                  return(NULL)
+                })
+              if (DEBUG) {
+                  print("Model 1:")
+                  print(f1)
+                  print(summary(mod1))
+                  print("Model 0:")
+                  print(f0)
+                  print(summary(mod0))
+              }
+
+              if (is.null(mod1) | is.null(mod0)) { return (c(1, paste0("Model Error. ", status))) }
+              if ((minCount == 0) && (sum(is.na(coef(summary(mod1))$count[,4]))>0)) { return(c(1, "Has Coefs, pvals are NAs")) } # rare failure mode - has coefs, but pvals are NA
+              df1 = attr(logLik(mod1),"df"); df0 = attr(logLik(mod0),"df") # should be (2*ngroups+1)-3
+              pval = pchisq(2*(logLik(mod1)-logLik(mod0)),df=df1-df0,lower.tail=F) # alternatively, could use lrtest()
+              # this gives same answer, but I would need to extract the Pvalue...
+              #require(lmtest)
+              #print(lrtest(mod1,mod0))
+              tryCatch(
+               if (DEBUG) {
+                coeffs1 = summary(mod1)$coefficients
+                a1 = max(abs(c(coeffs1$count[,1],coeffs1$zero[,1])))
+                a2 = max(coeffs1$count[,2],coeffs1$zero[,2])
+                coeffs0 = summary(mod0)$coefficients
+                b1 = max(abs(c(coeffs0$count[,1],coeffs0$zero[,1])))
+                b2 = max(coeffs0$count[,2],coeffs0$zero[,2])
+                print(sprintf("coefficients: max(abs(mod1))=%0.2f, max(stderr(mod1)=%0.2f, max(abs(mod0))=%0.2f, max(stderr(mod0))=%0.2f", a1,a2,b1,b2)) }
+               ,error=function(err) {
+                  status <<- err$message
+                  return(NULL)
+               })
+              return (c(pval, status))
+            }
+        ''')
+        return globalenv['zinb_signif']
+
+    def def_r_zinb_signif_tom(self):
+        r('''
             zinb_signif = function(df,
                 zinbMod1,
                 zinbMod0,
@@ -268,7 +744,10 @@ class ZinbMethod(base.MultiConditionMethod):
                 {
                   if (minCount == 0) {
                     f1 = zinbMod1
-                    mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin")
+                    #mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin")
+                    #mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin",EM=TRUE)
+                    #mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin",start=list(count=c(-1,0,0,0,0,0),zero=c(-1,0,0,0,0,0)))
+                    mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin",control=list(method="L-BFGS-B",trace=T))#,lower=rep(-3,13),upper=rep(3,13)))
                     coeffs = summary(mod)$coefficients
                     # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
                     if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod1' }
