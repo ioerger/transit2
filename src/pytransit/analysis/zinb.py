@@ -982,7 +982,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
         TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
         RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(genes, TASiteindexMap, nterm=self.NTerminus, cterm=self.CTerminus)
-        statsByRv, statGroupNames = self.stats_by_rv(data, RvSiteindexesMap, genes, conditions, interactions)
+        # statsByRv, statGroupNames = self.stats_by_rv(data, RvSiteindexesMap, genes, conditions, interactions)
         LogZPercByRep, NZMeanByRep = self.global_stats_for_rep(data)
 
         self.transit_message("Running ZINB")
@@ -1007,15 +1007,15 @@ class ZinbMethod(base.MultiConditionMethod):
                 return (orderingMetadata['interaction'].index(i1) - orderingMetadata['interaction'].index(i2))
             return condDiff
 
-        orderedStatGroupNames = sorted(statGroupNames, key=functools.cmp_to_key(orderStats))
-        headersStatGroupNames = [x.replace(SEPARATOR,'_') for x in orderedStatGroupNames]
+        # orderedStatGroupNames = sorted(statGroupNames, key=functools.cmp_to_key(orderStats))
+        # headersStatGroupNames = [x.replace(SEPARATOR,'_') for x in orderedStatGroupNames]
 
         self.transit_message("Adding File: %s" % (self.output))
         file = open(self.output,"w")
         head = ("Rv Gene TAs".split() +
-                list(map(lambda v: "Mean_" + v, headersStatGroupNames)) +
-                list(map(lambda v: "NZmean_" + v, headersStatGroupNames)) +
-                list(map(lambda v: "NZperc_" + v, headersStatGroupNames)) +
+                # list(map(lambda v: "Mean_" + v, headersStatGroupNames)) +
+                # list(map(lambda v: "NZmean_" + v, headersStatGroupNames)) +
+                # list(map(lambda v: "NZperc_" + v, headersStatGroupNames)) +
                 "pval padj".split() + ["status"])
 
         file.write("#Console: python %s\n" % " ".join(sys.argv))
@@ -1023,9 +1023,9 @@ class ZinbMethod(base.MultiConditionMethod):
         for gene in genes:
             Rv = gene["rv"]
             vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
-                    ["%0.2f" % statsByRv[Rv]['mean'][group] for group in orderedStatGroupNames] +
-                    ["%0.2f" % statsByRv[Rv]['nz_mean'][group] for group in orderedStatGroupNames] +
-                    ["%0.2f" % statsByRv[Rv]['nz_perc'][group] for group in orderedStatGroupNames] +
+                    # ["%0.2f" % statsByRv[Rv]['mean'][group] for group in orderedStatGroupNames] +
+                    # ["%0.2f" % statsByRv[Rv]['nz_mean'][group] for group in orderedStatGroupNames] +
+                    # ["%0.2f" % statsByRv[Rv]['nz_perc'][group] for group in orderedStatGroupNames] +
                     ["%f" % x for x in [pvals[Rv], qvals[Rv]]]) + [run_status[Rv]]
             file.write('\t'.join(vals)+EOL)
         file.close()
