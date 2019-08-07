@@ -647,6 +647,10 @@ class ZinbMethod(base.MultiConditionMethod):
                     coeffs = summary(mod)$coefficients
                     # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
                     if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod1' }
+                    coeffs1 = summary(mod)$coefficients
+                    a1 = max(abs(c(coeffs1$count[,1],coeffs1$zero[,1])))
+                    a2 = max(coeffs1$count[,2],coeffs1$zero[,2])
+                    status = paste("A1", round(a1, 2), "A2", round(a2, 2))
                     mod
                   } else {
                     f1 = nbMod1
@@ -667,6 +671,10 @@ class ZinbMethod(base.MultiConditionMethod):
                     coeffs = summary(mod)$coefficients
                     # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
                     #if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod0' }
+                    coeffs0 = summary(mod)$coefficients
+                    b1 = max(abs(c(coeffs0$count[,1],coeffs0$zero[,1])))
+                    b2 = max(coeffs0$count[,2],coeffs0$zero[,2])
+                    status = paste(status, "B1", round(b1, 2), "B2", round(b2, 2))
                     mod
                   } else {
                     f0 = nbMod0
