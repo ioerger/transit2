@@ -257,7 +257,10 @@ class ZinbMethod(base.MultiConditionMethod):
 	    }
 
             ######################################
-            # Sid copied this from the pscl library and updated how control args such as upper/lower are passed to the optimizer
+            # this code was copied from the pscl library (v1.5.2) by Simon Jackman
+            #   and updated how control args such as upper/lower are passed to the optimizer
+            # https://github.com/cran/pscl/tree/master/R
+
 	    zeroinfl_sid = function (formula, data, subset, na.action, weights, offset,
                                      dist = c("poisson", "negbin", "geometric"), 
                                      link = c("logit", "probit", "cloglog", "cauchit", "log"), control = zeroinfl.control(...),
@@ -561,6 +564,9 @@ class ZinbMethod(base.MultiConditionMethod):
 	      control$method <- control$hessian <- control$EM <- control$start <- NULL
 	      fit <- optim(fn = loglikfun, gr = gradfun, par = c(start$count,
 								 start$zero, if (dist == "negbin") log(start$theta) else NULL),
+                           # this is the only line that changed...
+                           # for generality, should also check whether control$upper/lower are defined
+			   #method = method, hessian = hessian, control = control)
 			   method = method, hessian = hessian, control = control, upper = control$upper, lower=control$lower)
 	      if (fit$convergence > 0)
 		warning("optimization failed to converge")
@@ -608,6 +614,8 @@ class ZinbMethod(base.MultiConditionMethod):
 	      class(rval) <- "zeroinfl"
 	      return(rval)
 	    }
+
+            # end of modified pscl code
             ######################################
 
             zinb_signif = function(df,
@@ -695,7 +703,7 @@ class ZinbMethod(base.MultiConditionMethod):
               }
 
               if (is.null(mod1) | is.null(mod0)) { return (c(1, paste0("Model Error. ", status))) }
-              if ((minCount == 0) && (sum(is.na(coef(summary(mod1))$count[,4]))>0)) { return(c(1, "Has Coefs, pvals are NAs")) } # rare failure mode - has coefs, but pvals are NA
+              if ((minCount == 0) && (sum(is.na(coef(summary(mod1))$count[,4]))>0)) { return(c(1, "Model has coefs, but some pvals are NAs")) } # rare failure mode - has coefs, but pvals are NA
               df1 = attr(logLik(mod1),"df"); df0 = attr(logLik(mod0),"df") # should be (2*ngroups+1)-3
               pval = pchisq(2*(logLik(mod1)-logLik(mod0)),df=df1-df0,lower.tail=F) # alternatively, could use lrtest()
               # this gives same answer, but I would need to extract the Pvalue...
