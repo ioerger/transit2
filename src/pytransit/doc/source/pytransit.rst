@@ -19,10 +19,10 @@ pytransit.draw_trash module
     :undoc-members:
     :show-inheritance:
 
-pytransit.fileDisplay module
+pytransit.file_display module
 ----------------------------
 
-.. automodule:: pytransit.fileDisplay
+.. automodule:: pytransit.file_display
     :members:
     :undoc-members:
     :show-inheritance:
@@ -43,10 +43,10 @@ pytransit.norm_tools module
     :undoc-members:
     :show-inheritance:
 
-pytransit.qcDisplay module
+pytransit.qc_display module
 --------------------------
 
-.. automodule:: pytransit.qcDisplay
+.. automodule:: pytransit.qc_display
     :members:
     :undoc-members:
     :show-inheritance:

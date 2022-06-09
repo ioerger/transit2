@@ -45,8 +45,8 @@ import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
-import pytransit.fileDisplay as fileDisplay
-import pytransit.qcDisplay as qcDisplay
+import pytransit.file_display as file_display
+import pytransit.qc_display as qc_display
 import pytransit.images as images
 
 
@@ -1724,7 +1724,7 @@ class TnSeekFrame(MainFrame):
         elif nfiles >= 1:
             transit_tools.transit_message("Displaying results: %s" % datasets[0])
             try:
-                qcWindow = qcDisplay.qcFrame(self, datasets)
+                qcWindow = qc_display.qcFrame(self, datasets)
                 qcWindow.Show()
             except Exception as e:
                 transit_tools.transit_message(
@@ -1935,8 +1935,8 @@ along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
                 )
 
             try:
-                # fileWindow = fileDisplay.FileFrame(self, dataset, self.list_files.GetItem(next, 1).GetText())
-                fileWindow = fileDisplay.TransitGridFrame(self, dataset)
+                # fileWindow = file_display.FileFrame(self, dataset, self.list_files.GetItem(next, 1).GetText())
+                fileWindow = file_display.TransitGridFrame(self, dataset)
                 fileWindow.Show()
             except Exception as e:
                 transit_tools.transit_message(

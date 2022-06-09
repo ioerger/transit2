@@ -120,7 +120,7 @@ class ResamplingFile(base.TransitFile):
         )
         filename = os.path.join(filepath, gene + ".png")
         if os.path.exists(filename):
-            imgWindow = pytransit.fileDisplay.ImgFrame(None, filename)
+            imgWindow = pytransit.file_display.ImgFrame(None, filename)
             imgWindow.Show()
         else:
             transit_tools.ShowError(
