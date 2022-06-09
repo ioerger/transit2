@@ -9,6 +9,7 @@ import sys
 import collections
 
 from pytransit.analysis import base
+from pytransit.utils import write_dat
 import pytransit
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
@@ -20,7 +21,6 @@ short_name = "anova"
 long_name = "anova"
 short_desc = "Perform Anova analysis"
 long_desc = """Perform Anova analysis"""
-EOL = "\n"
 
 transposons = ["", ""]
 columns = []
@@ -270,7 +270,7 @@ class AnovaMethod(base.MultiConditionMethod):
             p[rv], q[rv], statusMap[rv] = pvals[i], qvals[i], status[i]
         return (p, q, statusMap)
 
-    def calcLFCs(self, means, refs=[], PC=1):
+    def calc_lf_cs(self, means, refs=[], PC=1):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
         grandmean = numpy.mean(refs)
@@ -345,18 +345,13 @@ class AnovaMethod(base.MultiConditionMethod):
             + "pval padj".split()
             + ["status"]
         )
-        file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        file.write(
-            "#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n"
-            % (self.normalization, self.NTerminus, self.CTerminus, self.PC)
-        )
-        file.write("#" + "\t".join(heads) + EOL)
+        table = []
         for gene in genes:
             Rv = gene["rv"]
             if Rv in MeansByRv:
                 means = [MeansByRv[Rv][c] for c in conditionsList]
                 refs = [MeansByRv[Rv][c] for c in self.refs]
-                LFCs = self.calcLFCs(means, refs, self.PC)
+                LFCs = self.calc_lf_cs(means, refs, self.PC)
                 vals = (
                     [Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))]
                     + ["%0.2f" % x for x in means]
@@ -364,23 +359,35 @@ class AnovaMethod(base.MultiConditionMethod):
                     + ["%f" % x for x in [pvals[Rv], qvals[Rv]]]
                     + [run_status[Rv]]
                 )
-                file.write("\t".join(vals) + EOL)
-        file.close()
+                table.append(vals)
+        
+        write_dat(
+            path=self.output,
+            heading=(
+                ("Console: python3 %s\n" % " ".join(sys.argv)) + 
+                ("parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n" % (self.normalization, self.NTerminus, self.CTerminus, self.PC)) +
+                ("#" + "\t".join(heads))
+            ),
+            table=table,
+        )
+        
         self.transit_message("Finished Anova analysis")
         self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
 
     @classmethod
     def usage_string(self):
-        usage = """Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
- Optional Arguments:
-  -n <string>         :=  Normalization method. Default: -n TTR
-  --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-  --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-  --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-  -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-  -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-  -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-  -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)"""
+        usage = '\n'.join([
+            """Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]""",
+            """Optional Arguments:""",
+            """  -n <string>         :=  Normalization method. Default: -n TTR""",
+            """  --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)""",
+            """  --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)""",
+            """  --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)""",
+            """  -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0""",
+            """  -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0""",
+            """  -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5""",
+            """  -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)""",
+        ])
         return usage
 
 
