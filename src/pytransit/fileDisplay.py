@@ -21,6 +21,7 @@ try:
     import wx
     import wx.xrc
     import wx.lib.mixins.listctrl as listmix
+
     hasWx = True
 except Exception as e:
     hasWx = False
@@ -44,45 +45,51 @@ import pytransit.analysis
 ########################################################################
 class SortableListCtrl(wx.ListCtrl):
 
-    #----------------------------------------------------------------------
-    def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition,
-                 size=wx.DefaultSize, style=0):
+    # ----------------------------------------------------------------------
+    def __init__(
+        self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0
+    ):
         wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
 
 
-
 #########################################
-#menu_titles = [ "Display Histogram",
+# menu_titles = [ "Display Histogram",
 #                "Display Tracks",]
 #
-#menu_title_by_id = {}
-#for title in menu_titles:
+# menu_title_by_id = {}
+# for title in menu_titles:
 #    menu_title_by_id[ wx.NewId() ] = title
 #
 ##########################################
 
 
 class ImgFrame(wx.Frame):
-
     def __init__(self, parent, filePath):
-        wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = "%s" % (filePath), pos = wx.DefaultPosition, size = wx.Size( 1150,740 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
-        self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
-        bSizer1 = wx.BoxSizer( wx.VERTICAL )
-       
-        self.m_bitmap1 = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
-        bSizer1.Add( self.m_bitmap1, 1, wx.ALL|wx.EXPAND, 5 )
-        self.SetSizer( bSizer1 )
+        wx.Frame.__init__(
+            self,
+            parent,
+            id=wx.ID_ANY,
+            title="%s" % (filePath),
+            pos=wx.DefaultPosition,
+            size=wx.Size(1150, 740),
+            style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL,
+        )
+        self.SetSizeHintsSz(wx.DefaultSize, wx.DefaultSize)
+        bSizer1 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_bitmap1 = wx.StaticBitmap(
+            self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0
+        )
+        bSizer1.Add(self.m_bitmap1, 1, wx.ALL | wx.EXPAND, 5)
+        self.SetSizer(bSizer1)
         self.Layout()
-        self.Centre( wx.BOTH )
+        self.Centre(wx.BOTH)
 
         img = wx.Image(filePath, wx.BITMAP_TYPE_ANY)
         self.m_bitmap1.SetBitmap(wx.BitmapFromImage(img))
-        
+
         self.Refresh()
         self.Fit()
- 
-
-
 
 
 def unknownColNames(path):
@@ -105,12 +112,13 @@ def unknownTableData(path, colnames):
     row = 0
     data = []
     for line in open(path):
-        if line.startswith("#"): continue
+        if line.startswith("#"):
+            continue
         tmp = line.split("\t")
         tmp[-1] = tmp[-1].strip()
         rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
         data.append((row, rowdict))
-        row+=1
+        row += 1
     return data
 
 
@@ -127,12 +135,12 @@ def getInfoFromFileType(X):
 
     return ("unknown", pytransit.analysis.base.TransitFile())
 
-    
 
 class TransitTable(wx.grid.GridTableBase):
     """
     A custom wx.Grid Table using user supplied data
     """
+
     def __init__(self, data, colnames):
         """data is a list of the form
         [(rowname, dictionary),
@@ -150,8 +158,6 @@ class TransitTable(wx.grid.GridTableBase):
         self._cols = self.GetNumberCols()
         self.sorted_col = None
         self.sorted_dir = None
-
-
 
     def GetNumberCols(self):
         return len(self.colnames)
@@ -173,7 +179,6 @@ class TransitTable(wx.grid.GridTableBase):
 
     def SetValue(self, row, col, value):
         self.data[row][1][self.GetColLabelValue(col)] = value
-
 
     def SortColumn(self, col):
         if self.sorted_col == col:
@@ -200,22 +205,18 @@ class TransitTable(wx.grid.GridTableBase):
             self.data.append(row)
 
 
-
-
-
 class TransitGridFrame(wx.Frame):
-
-    def __init__(self, parent, path, size=(-1,-1)):
+    def __init__(self, parent, path, size=(-1, -1)):
 
         wx.Frame.__init__(self, parent, size=size)
 
-
         self.SetTitle(path)
 
-        bSizer1 = wx.BoxSizer( wx.VERTICAL )
+        bSizer1 = wx.BoxSizer(wx.VERTICAL)
 
-        sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Information" ), wx.HORIZONTAL )
-
+        sbSizer1 = wx.StaticBoxSizer(
+            wx.StaticBox(self, wx.ID_ANY, u"Information"), wx.HORIZONTAL
+        )
 
         self.parent = parent
         self.path = path
@@ -225,13 +226,11 @@ class TransitGridFrame(wx.Frame):
         self.expdata = self.parent.expSelected()
         self.annotation = self.parent.annotation
 
-
         line = open(self.path).readline().strip()
         (method, FT) = getInfoFromFileType(line)
 
-          
-        self.filetype = FT 
-        
+        self.filetype = FT
+
         if self.filetype.identifier == "#Unknown":
             self.columnlabels = unknownColNames(self.path)
         else:
@@ -241,17 +240,18 @@ class TransitGridFrame(wx.Frame):
 
         wxheader_list = []
         text = self.filetype.getHeader(self.path)
-        wxheader_list.append(wx.StaticText( self, wx.ID_ANY, text, wx.DefaultPosition, wx.DefaultSize, 0 ))
-        wxheader_list[-1].Wrap( -1 )
-        sbSizer1.Add( wxheader_list[-1], 0, wx.ALL, 5 )
-
+        wxheader_list.append(
+            wx.StaticText(self, wx.ID_ANY, text, wx.DefaultPosition, wx.DefaultSize, 0)
+        )
+        wxheader_list[-1].Wrap(-1)
+        sbSizer1.Add(wxheader_list[-1], 0, wx.ALL, 5)
 
         self.grid = wx.grid.Grid(self, -1)
 
-        bSizer1.Add( sbSizer1, 0, wx.EXPAND, 5 )
-        bSizer1.Add( self.grid, 1, wx.EXPAND, 5 )
-        self.SetSizer( bSizer1 )
-        self.Centre( wx.BOTH )
+        bSizer1.Add(sbSizer1, 0, wx.EXPAND, 5)
+        bSizer1.Add(self.grid, 1, wx.EXPAND, 5)
+        self.SetSizer(bSizer1)
+        self.Centre(wx.BOTH)
 
         self.Bind(wx.grid.EVT_GRID_LABEL_LEFT_DCLICK, self.OnLabelDoubleClicked)
         self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.OnCellRightClicked)
@@ -270,22 +270,20 @@ class TransitGridFrame(wx.Frame):
         (width, height) = bSizer1.GetMinSize()
         max_width = 1500
         max_height = 800
-        width = min(width+50, max_width)
+        width = min(width + 50, max_width)
         height = min(height, max_height)
-        
+
         self.SetMinSize((width, height))
-        
 
         self.Layout()
-        #self.Show()
-
+        # self.Show()
 
     def AutoResizeCols(self):
         max_column_size = 200
         min_column_size = 100
         self.grid.AutoSizeColumns(False)
-        for i,label in enumerate(self.columnlabels):
-            size = self.grid.GetColSize(i)            
+        for i, label in enumerate(self.columnlabels):
+            size = self.grid.GetColSize(i)
             if size > max_column_size:
                 self.grid.SetColSize(i, max_column_size)
             elif size < min_column_size:
@@ -296,8 +294,6 @@ class TransitGridFrame(wx.Frame):
         if col != -1:
             self.grid.GetTable().SortColumn(col)
             self.grid.ForceRefresh()
-
-
 
     def OnCellRightClicked(self, evt):
 
@@ -314,11 +310,8 @@ class TransitGridFrame(wx.Frame):
         for (menuname, menufunc) in self.filetype.getMenus():
             newid = wx.NewId()
             menu.Append(newid, menuname)
-            newmenufunc = partial(menufunc,  self)
+            newmenufunc = partial(menufunc, self)
             self.Bind(wx.EVT_MENU, newmenufunc, id=newid)
 
         self.PopupMenu(menu)
         menu.Destroy()
-
-
-

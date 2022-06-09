@@ -1,9 +1,10 @@
-#__all__ = []
+# __all__ = []
 
 from os.path import dirname, basename, isfile
 import glob
-modules = glob.glob(dirname(__file__)+"/*.py")
-__all__ = [ basename(f)[:-3] for f in modules if isfile(f)]
+
+modules = glob.glob(dirname(__file__) + "/*.py")
+__all__ = [basename(f)[:-3] for f in modules if isfile(f)]
 
 from pytransit.analysis import base
 
@@ -39,19 +40,18 @@ methods["utest"] = utest.UTestAnalysis()
 methods["GI"] = gi.GIAnalysis()
 methods["anova"] = anova.AnovaAnalysis()
 methods["zinb"] = zinb.ZinbAnalysis()
-#methods["mcce"] = mcce.MCCEAnalysis()
-#methods["mcce2"] = mcce2.MCCE2Analysis()
-#methods["motifhmm"] = motifhmm.MotifHMMAnalysis()
+# methods["mcce"] = mcce.MCCEAnalysis()
+# methods["mcce2"] = mcce2.MCCE2Analysis()
+# methods["motifhmm"] = motifhmm.MotifHMMAnalysis()
 methods["normalize"] = normalize.Normalize()
-methods["pathway_enrichment"]=pathway_enrichment.PathwayAnalysis()
-methods["tnseq_stats"]=tnseq_stats.TnseqStats()
-methods["corrplot"]=corrplot.Corrplot()
-methods["heatmap"]=heatmap.Heatmap()
-methods["ttnfitness"]=ttnfitness.TTNFitnessAnalysis()
+methods["pathway_enrichment"] = pathway_enrichment.PathwayAnalysis()
+methods["tnseq_stats"] = tnseq_stats.TnseqStats()
+methods["corrplot"] = corrplot.Corrplot()
+methods["heatmap"] = heatmap.Heatmap()
+methods["ttnfitness"] = ttnfitness.TTNFitnessAnalysis()
 
 # EXPORT METHODS
 from pytransit.analysis import norm
 
 export_methods = {}
 export_methods["norm"] = norm.NormAnalysis()
-

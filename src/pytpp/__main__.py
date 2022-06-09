@@ -38,14 +38,17 @@ def run_main():
     (args, kwargs) = cleanargs(sys.argv[1:])
     main(*args, **kwargs)
 
+
 def main(*args, **kwargs):
     # Check python version
-    if (sys.version_info[0] < 3):
-        print("TRANSIT v3.0+ requires python3.6+. To use with python2, please install TRANSIT version < 3.0")
+    if sys.version_info[0] < 3:
+        print(
+            "TRANSIT v3.0+ requires python3.6+. To use with python2, please install TRANSIT version < 3.0"
+        )
         sys.exit(0)
     vars = Globals()
     # Check for arguements
-    if not args and not kwargs and hasWx:        
+    if not args and not kwargs and hasWx:
         app = wx.App(False)
         form = MyForm(vars)
         form.update_dataset_list()
@@ -56,11 +59,13 @@ def main(*args, **kwargs):
 
         # vars.action not defined, quit...
 
-        if hasattr(vars, 'action'):
-            if vars.action=="start":
+        if hasattr(vars, "action"):
+            if vars.action == "start":
                 verify_inputs(vars)
-                if vars.fq2=="": msg = 'running pre-processing on %s' % (vars.fq1)
-                else: msg = 'running pre-processing on %s and %s' % (vars.fq1,vars.fq2)
+                if vars.fq2 == "":
+                    msg = "running pre-processing on %s" % (vars.fq1)
+                else:
+                    msg = "running pre-processing on %s and %s" % (vars.fq1, vars.fq2)
                 message(msg)
                 message("transposon type: %s" % vars.transposon)
                 message("protocol: %s" % vars.protocol)
@@ -83,10 +88,29 @@ def main(*args, **kwargs):
             sys.exit()
 
         # Check for strange flags
-        known_flags = set(["tn5", "help", "himar1", "protocol", "primer", "reads1",
-                           "reads2", "bwa", "ref", "maxreads", "output", "mismatches", "flags",
-                           "barseq_catalog_in", "barseq_catalog_out",
-                           "window-size", "bwa-alg", "replicon-ids","primer-start-window"])
+        known_flags = set(
+            [
+                "tn5",
+                "help",
+                "himar1",
+                "protocol",
+                "primer",
+                "reads1",
+                "reads2",
+                "bwa",
+                "ref",
+                "maxreads",
+                "output",
+                "mismatches",
+                "flags",
+                "barseq_catalog_in",
+                "barseq_catalog_out",
+                "window-size",
+                "bwa-alg",
+                "replicon-ids",
+                "primer-start-window",
+            ]
+        )
         unknown_flags = set(kwargs.keys()) - known_flags
         if unknown_flags:
             print("error: unrecognized flags:", ", ".join(unknown_flags))
@@ -98,12 +122,12 @@ def main(*args, **kwargs):
 
         # Check inputs make sense
         verify_inputs(vars)
-        
+
         # Print some messages
         if vars.fq2:
-            msg = 'running pre-processing on %s' % (vars.fq1)
+            msg = "running pre-processing on %s" % (vars.fq1)
         else:
-            msg = 'running pre-processing on %s and %s' % (vars.fq1, vars.fq2)
+            msg = "running pre-processing on %s and %s" % (vars.fq1, vars.fq2)
 
         message(msg)
         message("protocol: %s" % vars.protocol)
@@ -111,11 +135,10 @@ def main(*args, **kwargs):
 
         # Save configuration file
         save_config(vars)
-        
+
         # Run TPP
         driver(vars)
 
 
 if __name__ == "__main__":
     run_main()
-

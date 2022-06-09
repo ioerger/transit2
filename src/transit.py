@@ -20,12 +20,8 @@
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 import pytransit.__main__
 
 
 if __name__ == "__main__":
     pytransit.__main__.run_main()
-
-
-
