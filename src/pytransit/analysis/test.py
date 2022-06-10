@@ -22,10 +22,10 @@ import pytransit.stat_tools as stat_tools
 
 ############# GUI ELEMENTS ##################
 
-short_name = "resampling"
-long_name = "Resampling (Permutation test)"
-short_desc = "Resampling test of conditional essentiality between two conditions"
-long_desc = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
+short_name = "test1"
+long_name = "Test1 (Permutation test)"
+short_desc = "Test1 test of conditional essentiality between two conditions"
+long_desc = """Method for determining conditional essentiality based on test1 (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
 
 transposons = ["himar1", "tn5"]
 columns = [
@@ -53,18 +53,18 @@ class Analysis(base.TransitAnalysis):
             short_desc,
             long_desc,
             transposons,
-            ResamplingMethod,
-            ResamplingGUI,
-            [ResamplingFile],
+            Test1Method,
+            Test1GUI,
+            [Test1File],
         )
 
 
 ############# FILE ##################
 
 
-class ResamplingFile(base.TransitFile):
+class Test1File(base.TransitFile):
     def __init__(self):
-        base.TransitFile.__init__(self, "#Resampling", columns)
+        base.TransitFile.__init__(self, "#Test1", columns)
 
     def getHeader(self, path):
         DE = 0
@@ -118,10 +118,10 @@ class ResamplingFile(base.TransitFile):
 ############# GUI ##################
 
 
-class ResamplingGUI(base.AnalysisGUI):
+class Test1GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
-        resamplingPanel = wx.Panel(
+        test1Panel = wx.Panel(
             self.wxobj.optionsWindow,
             wx.ID_ANY,
             wx.DefaultPosition,
@@ -129,51 +129,51 @@ class ResamplingGUI(base.AnalysisGUI):
             wx.TAB_TRAVERSAL,
         )
 
-        resamplingSizer = wx.BoxSizer(wx.VERTICAL)
+        test1Sizer = wx.BoxSizer(wx.VERTICAL)
 
-        resamplingLabel = wx.StaticText(
-            resamplingPanel,
+        test1Label = wx.StaticText(
+            test1Panel,
             wx.ID_ANY,
-            u"resampling Options",
+            u"test1 Options",
             wx.DefaultPosition,
             (160, -1),
             0,
         )
-        resamplingLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        resamplingSizer.Add(resamplingLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        test1Label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        test1Sizer.Add(test1Label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        resamplingTopSizer = wx.BoxSizer(wx.HORIZONTAL)
+        test1TopSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        resamplingTopSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        test1TopSizer2 = wx.BoxSizer(wx.HORIZONTAL)
 
-        resamplingLabelSizer = wx.BoxSizer(wx.VERTICAL)
+        test1LabelSizer = wx.BoxSizer(wx.VERTICAL)
 
         mainSizer1 = wx.BoxSizer(wx.VERTICAL)
 
-        # (, , Sizer) = self.defineChoiceBox(resamplingPanel, u"", u"", "")
+        # (, , Sizer) = self.defineChoiceBox(test1Panel, u"", u"", "")
         # mainSizer1.Add(Sizer, 1, wx.EXPAND, 5 )
 
         # Samples
         (
-            resamplingSampleLabel,
-            self.wxobj.resamplingSampleText,
+            test1SampleLabel,
+            self.wxobj.test1SampleText,
             sampleSizer,
         ) = self.defineTextBox(
-            resamplingPanel,
+            test1Panel,
             u"Samples:",
             u"10000",
-            "Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.",
+            "Number of samples to take when estimating the test1 histogram. More samples give more accurate estimates of the p-values at the cost of computation time.",
         )
         mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
 
         # Pseudocount - changing the semantics on 3/5/20
-        # (resamplingPseudocountLabel, self.wxobj.resamplingPseudocountText, pseudoSizer) = self.defineTextBox(resamplingPanel, u"Pseudocount:", u"0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
+        # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1Panel, u"Pseudocount:", u"0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
         (
-            resamplingPseudocountLabel,
-            self.wxobj.resamplingPseudocountText,
+            test1PseudocountLabel,
+            self.wxobj.test1PseudocountText,
             pseudoSizer,
         ) = self.defineTextBox(
-            resamplingPanel,
+            test1Panel,
             u"Pseudocount:",
             u"0.0",
             "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
@@ -181,7 +181,7 @@ class ResamplingGUI(base.AnalysisGUI):
         mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
 
         # Norm
-        resamplingNormChoiceChoices = [
+        test1NormChoiceChoices = [
             u"TTR",
             u"nzmean",
             u"totreads",
@@ -191,89 +191,89 @@ class ResamplingGUI(base.AnalysisGUI):
             u"nonorm",
         ]
         (
-            resamplingNormLabel,
-            self.wxobj.resamplingNormChoice,
+            test1NormLabel,
+            self.wxobj.test1NormChoice,
             normSizer,
         ) = self.defineChoiceBox(
-            resamplingPanel,
+            test1Panel,
             u"Normalization: ",
-            resamplingNormChoiceChoices,
+            test1NormChoiceChoices,
             "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
         mainSizer1.Add(normSizer, 1, wx.EXPAND, 5)
 
-        resamplingSizer.Add(mainSizer1, 1, wx.EXPAND, 5)
+        test1Sizer.Add(mainSizer1, 1, wx.EXPAND, 5)
 
         # LOESS Check
-        (self.wxobj.resamplingLoessCheck, loessCheckSizer) = self.defineCheckBox(
-            resamplingPanel,
+        (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
+            test1Panel,
             labelText="Correct for Genome Positional Bias",
             widgetCheck=False,
             widgetSize=(-1, -1),
             tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
         )
-        resamplingSizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
+        test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
 
         # LOESS Button
-        self.wxobj.resamplingLoessPrev = wx.Button(
-            resamplingPanel,
+        self.wxobj.test1LoessPrev = wx.Button(
+            test1Panel,
             wx.ID_ANY,
             u"Preview LOESS fit",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
         )
-        resamplingSizer.Add(self.wxobj.resamplingLoessPrev, 0, wx.ALL | wx.CENTER, 5)
+        test1Sizer.Add(self.wxobj.test1LoessPrev, 0, wx.ALL | wx.CENTER, 5)
 
         # Adaptive Check
-        (self.wxobj.resamplingAdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
-            resamplingPanel,
-            labelText="Adaptive Resampling (Faster)",
+        (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
+            test1Panel,
+            labelText="Adaptive Test1 (Faster)",
             widgetCheck=False,
             widgetSize=(-1, -1),
             tooltipText="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.",
         )
-        resamplingSizer.Add(adaptiveSizer, 0, wx.EXPAND, 5)
+        test1Sizer.Add(adaptiveSizer, 0, wx.EXPAND, 5)
 
         # Histogram Check
-        (self.wxobj.resamplingHistogramCheckBox, histSizer) = self.defineCheckBox(
-            resamplingPanel,
-            labelText="Generate Resampling Histograms",
+        (self.wxobj.test1HistogramCheckBox, histSizer) = self.defineCheckBox(
+            test1Panel,
+            labelText="Generate Test1 Histograms",
             widgetCheck=False,
             widgetSize=(-1, -1),
-            tooltipText="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.",
+            tooltipText="Creates .png images with the test1 histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.",
         )
-        resamplingSizer.Add(histSizer, 0, wx.EXPAND, 5)
+        test1Sizer.Add(histSizer, 0, wx.EXPAND, 5)
 
         # Zeros Check
-        (self.wxobj.resamplingZeroCheckBox, zeroSizer) = self.defineCheckBox(
-            resamplingPanel,
+        (self.wxobj.test1ZeroCheckBox, zeroSizer) = self.defineCheckBox(
+            test1Panel,
             labelText="Include sites with all zeros",
             widgetCheck=True,
             widgetSize=(-1, -1),
             tooltipText="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).",
         )
-        resamplingSizer.Add(zeroSizer, 0, wx.EXPAND, 5)
+        test1Sizer.Add(zeroSizer, 0, wx.EXPAND, 5)
 
-        resamplingButton = wx.Button(
-            resamplingPanel,
+        test1Button = wx.Button(
+            test1Panel,
             wx.ID_ANY,
-            u"Run resampling",
+            u"Run test1",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
         )
-        resamplingSizer.Add(resamplingButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        test1Sizer.Add(test1Button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        resamplingPanel.SetSizer(resamplingSizer)
-        resamplingPanel.Layout()
-        resamplingSizer.Fit(resamplingPanel)
+        test1Panel.SetSizer(test1Sizer)
+        test1Panel.Layout()
+        test1Sizer.Fit(test1Panel)
 
         # Connect events
-        resamplingButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-        self.wxobj.resamplingLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+        test1Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
+        self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
 
-        self.panel = resamplingPanel
+        self.panel = test1Panel
 
     def GlobalEnable(self):
         self.wxobj.ctrlLibText.Enable()
@@ -287,9 +287,9 @@ class ResamplingGUI(base.AnalysisGUI):
 ########## CLASS #######################
 
 
-class ResamplingMethod(base.DualConditionMethod):
+class Test1Method(base.DualConditionMethod):
     """
-    resampling
+    test1
 
     """
 
@@ -385,17 +385,17 @@ class ResamplingMethod(base.DualConditionMethod):
 
         # Read the parameters from the wxPython widgets
         ignoreCodon = True
-        samples = int(wxobj.resamplingSampleText.GetValue())
-        normalization = wxobj.resamplingNormChoice.GetString(
-            wxobj.resamplingNormChoice.GetCurrentSelection()
+        samples = int(wxobj.test1SampleText.GetValue())
+        normalization = wxobj.test1NormChoice.GetString(
+            wxobj.test1NormChoice.GetCurrentSelection()
         )
         replicates = "Sum"
-        adaptive = wxobj.resamplingAdaptiveCheckBox.GetValue()
-        doHistogram = wxobj.resamplingHistogramCheckBox.GetValue()
+        adaptive = wxobj.test1AdaptiveCheckBox.GetValue()
+        doHistogram = wxobj.test1HistogramCheckBox.GetValue()
 
-        includeZeros = wxobj.resamplingZeroCheckBox.GetValue()
-        pseudocount = float(wxobj.resamplingPseudocountText.GetValue())
-        LOESS = wxobj.resamplingLoessCheck.GetValue()
+        includeZeros = wxobj.test1ZeroCheckBox.GetValue()
+        pseudocount = float(wxobj.test1PseudocountText.GetValue())
+        LOESS = wxobj.test1LoessCheck.GetValue()
 
         # Global Parameters
         NTerminus = float(wxobj.globalNTerminusText.GetValue())
@@ -404,11 +404,11 @@ class ResamplingMethod(base.DualConditionMethod):
         exp_lib_str = wxobj.expLibText.GetValue()
 
         # Get output path
-        # defaultFileName = "resampling_output_s%d_pc%1.2f" % (samples, pseudocount)
+        # defaultFileName = "test1_output_s%d_pc%1.2f" % (samples, pseudocount)
         # if adaptive: defaultFileName+= "_adaptive"
         # if includeZeros: defaultFileName+= "_iz"
         # defaultFileName+=".dat"
-        defaultFileName = "resampling_output.dat"  # simplified
+        defaultFileName = "test1_output.dat"  # simplified
 
         defaultDir = os.getcwd()
         output_path = wxobj.SaveFile(defaultDir, defaultFileName)
@@ -595,7 +595,7 @@ class ResamplingMethod(base.DualConditionMethod):
             print("Error: cannot do histograms")
             self.doHistogram = False
 
-        self.transit_message("Starting resampling Method")
+        self.transit_message("Starting test1 Method")
         start_time = time.time()
         if self.winz:
             self.transit_message("Winsorizing insertion counts")
@@ -688,7 +688,7 @@ class ResamplingMethod(base.DualConditionMethod):
             position=position_exp,
         )
 
-        doLibraryResampling = False
+        doLibraryTest1 = False
         # If library string not empty
         if self.ctrl_lib_str or self.exp_lib_str:
             letters_ctrl = set(self.ctrl_lib_str)
@@ -702,24 +702,24 @@ class ResamplingMethod(base.DualConditionMethod):
                 lib_diff = letters_ctrl ^ letters_exp
                 # Check that their differences
                 if not lib_diff:
-                    doLibraryResampling = True
+                    doLibraryTest1 = True
                 else:
                     transit_tools.transit_error(
-                        "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
+                        "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with test1 assuming all datasets belong to the same library."
                         % (self.ctrl_lib_str, self.exp_lib_str)
                     )
                     self.ctrl_lib_str = ""
                     self.exp_lib_str = ""
 
-        (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
+        (data, qval) = self.run_test1(G_ctrl, G_exp, doLibraryTest1, histPath)
         self.write_output(data, qval, start_time)
 
         self.finish()
-        self.transit_message("Finished resampling Method")
+        self.transit_message("Finished test1 Method")
 
     def write_output(self, data, qval, start_time):
 
-        self.output.write("#Resampling\n")
+        self.output.write("#Test1\n")
         if self.wxobj:
             members = sorted(
                 [
@@ -773,7 +773,7 @@ class ResamplingMethod(base.DualConditionMethod):
             )
         )
         self.output.write("#Time: %s\n" % (time.time() - start_time))
-        # Z = True # include Z-score column in resampling output?
+        # Z = True # include Z-score column in test1 output?
         global columns  # consider redefining columns above (for GUI)
         if self.Z == True:
             columns = [
@@ -810,7 +810,7 @@ class ResamplingMethod(base.DualConditionMethod):
             if self.Z == True:
                 p = pval_2tail / 2  # convert from 2-sided back to 1-sided
                 if p == 0:
-                    p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
+                    p = 1e-5  # or 1 level deeper the num of iterations of test1, which is 1e-4=1/10000, by default
                 if p == 1:
                     p = 1 - 1e-5
                 z = scipy.stats.norm.ppf(p)
@@ -855,9 +855,9 @@ class ResamplingMethod(base.DualConditionMethod):
         self.output.close()
 
         self.transit_message("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Resampling")
+        self.add_file(filetype="Test1")
 
-    def winsorize_resampling(self, counts):
+    def winsorize_test1(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array
         counts = counts.tolist()
         if len(counts) < 3:
@@ -875,8 +875,8 @@ class ResamplingMethod(base.DualConditionMethod):
         #  result = [[ n_minus_1 if count == n else count for count in wig] for wig in counts]
         #  return numpy.array(result)
 
-    def run_resampling(
-        self, G_ctrl, G_exp=None, doLibraryResampling=False, histPath=""
+    def run_test1(
+        self, G_ctrl, G_exp=None, doLibraryTest1=False, histPath=""
     ):
         data = []
         N = len(G_ctrl)
@@ -933,10 +933,10 @@ class ResamplingMethod(base.DualConditionMethod):
                 data1 = gene.reads[:, ii_ctrl].flatten()
                 data2 = gene_exp.reads[:, ii_exp].flatten()
                 if self.winz:
-                    data1 = self.winsorize_resampling(data1)
-                    data2 = self.winsorize_resampling(data2)
+                    data1 = self.winsorize_test1(data1)
+                    data2 = self.winsorize_test1(data2)
 
-                if doLibraryResampling:
+                if doLibraryTest1:
                     (
                         test_obs,
                         mean1,
@@ -946,7 +946,7 @@ class ResamplingMethod(base.DualConditionMethod):
                         pval_utail,
                         pval_2tail,
                         testlist,
-                    ) = stat_tools.resampling(
+                    ) = stat_tools.test1(
                         data1,
                         data2,
                         S=self.samples,
@@ -967,7 +967,7 @@ class ResamplingMethod(base.DualConditionMethod):
                         pval_utail,
                         pval_2tail,
                         testlist,
-                    ) = stat_tools.resampling(
+                    ) = stat_tools.test1(
                         data1,
                         data2,
                         S=self.samples,
@@ -1020,7 +1020,7 @@ class ResamplingMethod(base.DualConditionMethod):
             )
 
             # Update progress
-            text = "Running Resampling Method... %5.1f%%" % (100.0 * count / N)
+            text = "Running Test1 Method... %5.1f%%" % (100.0 * count / N)
             self.progress_update(text, count)
 
         #
@@ -1034,18 +1034,18 @@ class ResamplingMethod(base.DualConditionMethod):
     @classmethod
     def usage_string(self):
         return """
-        python3 %s resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        python3 %s test1 <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
         ---
         OR
         ---
-        python3 %s resampling -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
+        python3 %s test1 -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
         NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
 
         Optional Arguments:
         -s <integer>    :=  Number of samples. Default: -s 10000
         -n <string>     :=  Normalization method. Default: -n TTR
         -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
-        -a              :=  Perform adaptive resampling. Default: Turned Off.
+        -a              :=  Perform adaptive test1. Default: Turned Off.
         -ez             :=  Exclude rows with zero across conditions. Default: Turned off
                             (i.e. include rows with zeros).
         -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
@@ -1055,11 +1055,11 @@ class ResamplingMethod(base.DualConditionMethod):
         -iC <int>       :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
         --ctrl_lib      :=  String of letters representing library of control files in order
                             e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
+                            If non-empty, test1 will limit permutations to within-libraries.
 
         --exp_lib       :=  String of letters representing library of experimental files in order
                             e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
+                            If non-empty, test1 will limit permutations to within-libraries.
         -winz           :=  winsorize insertion counts for each gene in each condition 
                             (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
         """ % (
@@ -1074,7 +1074,7 @@ if __name__ == "__main__":
 
     # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
 
-    G = ResamplingMethod.fromargs(sys.argv[1:])
+    G = Test1Method.fromargs(sys.argv[1:])
 
     G.console_message("Printing the member variables:")
     G.print_members()

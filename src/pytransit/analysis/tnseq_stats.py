@@ -44,7 +44,7 @@ columns = ["Position", "Reads", "Genes"]
 ############# Analysis Method ##############
 
 
-class TnseqStats(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,

@@ -48,7 +48,7 @@ transposons = ["", ""]
 columns = []
 
 
-class ZinbAnalysis(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self, short_name, long_name, short_desc, long_desc, transposons, ZinbMethod

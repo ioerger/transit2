@@ -52,7 +52,7 @@ columns = ["[ID][descr]", "Total genes", "score", "pval", "padj", "rank of genes
 ############# Analysis Method ##############
 
 
-class PathwayAnalysis(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,

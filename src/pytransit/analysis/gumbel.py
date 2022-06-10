@@ -47,7 +47,7 @@ columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
 ############# Analysis Method ##############
 
 
-class GumbelAnalysis(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,

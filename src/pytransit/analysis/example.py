@@ -1,20 +1,6 @@
 import sys
 
-try:
-    import wx
-
-    WX_VERSION = int(wx.version()[0])
-    HAS_WX = True
-
-except Exception as e:
-    HAS_WX = False
-    WX_VERSION = 0
-
-if HAS_WX:
-    import wx.xrc
-    from wx.lib.buttons import GenBitmapTextButton
-    from pubsub import pub
-    import wx.adv
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
 import os
 import time
@@ -43,7 +29,7 @@ columns = ["Orf", "Name", "Desc", "k", "n", "mean", "nzmean"]
 ############# Analysis Method ##############
 
 
-class ExampleAnalysis(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,

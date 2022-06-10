@@ -53,7 +53,7 @@ columns = ["Orf", "Name", "Desc", "k", "n", "mean", "nzmean"]
 ############# Analysis Method ##############
 
 
-class TTNFitnessAnalysis(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,

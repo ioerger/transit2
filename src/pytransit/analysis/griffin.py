@@ -59,7 +59,7 @@ columns = [
 ############# Analysis Method ##############
 
 
-class GriffinAnalysis(base.TransitAnalysis):
+class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,
