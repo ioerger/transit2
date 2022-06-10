@@ -7,7 +7,6 @@ import pytransit.analysis
 import pytransit.export
 import pytransit.convert
 
-method_wrap_width = 250
 methods = pytransit.analysis.methods
 export_methods = pytransit.export.methods
 convert_methods = pytransit.convert.methods

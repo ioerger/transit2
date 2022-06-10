@@ -17,16 +17,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import wx
-    import wx.xrc
-    import wx.lib.mixins.listctrl as listmix
-
-    HAS_WX = True
-except Exception as e:
-    HAS_WX = False
-
-
 import ntpath
 import subprocess
 import os
@@ -34,6 +24,7 @@ import sys
 
 from functools import partial
 
+from pytransit.transit_tools import HAS_WX, wx, listmix
 import pytransit.trash
 
 import wx.grid

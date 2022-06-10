@@ -24,6 +24,11 @@ import os
 
 try:
     import wx
+    import wx.xrc
+    import wx.adv
+    import wx.lib.mixins.listctrl as listmix
+    from wx.lib.buttons import GenBitmapTextButton
+    from pubsub import pub
 
     WX_VERSION = int(wx.version()[0])
     HAS_WX = True
@@ -31,12 +36,10 @@ try:
 except Exception as e:
     HAS_WX = False
     WX_VERSION = 0
-
-if HAS_WX:
-    import wx.xrc
-    from wx.lib.buttons import GenBitmapTextButton
-    from pubsub import pub
-    import wx.adv
+    wx                  = None
+    GenBitmapTextButton = None
+    pub                 = None
+    listmix             = None
 
 import math
 import ntpath
@@ -50,6 +53,15 @@ import pytransit
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 
+
+def write_dat(path, heading, table, eol="\n"):
+    if len(heading) != 0:
+        heading = "#" + heading
+    heading = heading.replace("\n", "\n#")
+    body = eol.join([ "\t".join(each_row) for each_row in table ])
+    string = heading + eol + body
+    with open(path, 'w') as outfile:
+        outfile.write(string, outfile)
 
 if HAS_WX:
 
