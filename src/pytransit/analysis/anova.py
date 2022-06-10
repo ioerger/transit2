@@ -9,7 +9,7 @@ import sys
 import collections
 
 from pytransit.analysis import base
-from pytransit.utils import write_dat
+from pytransit.transit_tools import write_dat
 import pytransit
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
