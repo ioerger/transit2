@@ -38,16 +38,16 @@ class Analysis(base.TransitAnalysis):
             short_desc,
             long_desc,
             transposons,
-            ExampleMethod,
-            ExampleGUI,
-            [ExampleFile],
+            Method,
+            GUI,
+            [File],
         )
 
 
 ################## FILE ###################
 
 
-class ExampleFile(base.TransitFile):
+class File(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Example", columns)
 
@@ -59,7 +59,7 @@ class ExampleFile(base.TransitFile):
 ################# GUI ##################
 
 
-class ExampleGUI(base.AnalysisGUI):
+class GUI(base.AnalysisGUI):
     def __init__(self):
         base.AnalysisGUI.__init__(self)
 
@@ -67,7 +67,7 @@ class ExampleGUI(base.AnalysisGUI):
 ########## METHOD #######################
 
 
-class ExampleMethod(base.SingleConditionMethod):
+class Method(base.SingleConditionMethod):
     """   
     Example
  

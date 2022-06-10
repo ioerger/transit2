@@ -62,7 +62,7 @@ class Analysis(base.TransitAnalysis):
 ############# FILE ##################
 
 
-class Test1File(base.TransitFile):
+class File(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Test1", columns)
 
@@ -118,7 +118,7 @@ class Test1File(base.TransitFile):
 ############# GUI ##################
 
 
-class Test1GUI(base.AnalysisGUI):
+class GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
         test1Panel = wx.Panel(
@@ -128,146 +128,179 @@ class Test1GUI(base.AnalysisGUI):
             wx.DefaultSize,
             wx.TAB_TRAVERSAL,
         )
+        
+        # 
+        # container: parameters
+        # 
+        if True:
+            test1Sizer = wx.BoxSizer(wx.VERTICAL)
+            
+            # 
+            # label
+            # 
+            if True:
+                test1Label = wx.StaticText(
+                    test1Panel,
+                    wx.ID_ANY,
+                    u"test1 Options",
+                    wx.DefaultPosition,
+                    (160, -1),
+                    0,
+                )
+                test1Label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                test1Sizer.Add(test1Label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+            
+            # 
+            # main sizer
+            # 
+            if True:
+                mainSizer1 = wx.BoxSizer(wx.VERTICAL)
+                
+                # 
+                # text input: samples
+                # 
+                if True:
+                    (
+                        test1SampleLabel,
+                        self.wxobj.test1SampleText,
+                        sampleSizer,
+                    ) = self.defineTextBox(
+                        test1Panel,
+                        u"Samples:",
+                        u"10000",
+                        "Number of samples to take when estimating the test1 histogram. More samples give more accurate estimates of the p-values at the cost of computation time.",
+                    )
+                    mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
 
-        test1Sizer = wx.BoxSizer(wx.VERTICAL)
 
-        test1Label = wx.StaticText(
-            test1Panel,
-            wx.ID_ANY,
-            u"test1 Options",
-            wx.DefaultPosition,
-            (160, -1),
-            0,
-        )
-        test1Label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        test1Sizer.Add(test1Label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+                # 
+                # text input: Pseudocount
+                # 
+                if True:
+                    # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1Panel, u"Pseudocount:", u"0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
+                    (
+                        test1PseudocountLabel,
+                        self.wxobj.test1PseudocountText,
+                        pseudoSizer,
+                    ) = self.defineTextBox(
+                        test1Panel,
+                        u"Pseudocount:",
+                        u"0.0",
+                        "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
+                    )
+                    mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
+                
+                # 
+                # dropdown
+                # 
+                if True:
+                    test1NormChoiceChoices = [
+                        u"TTR",
+                        u"nzmean",
+                        u"totreads",
+                        u"zinfnb",
+                        u"quantile",
+                        u"betageom",
+                        u"nonorm",
+                    ]
+                    (
+                        test1NormLabel,
+                        self.wxobj.test1NormChoice,
+                        normSizer,
+                    ) = self.defineChoiceBox(
+                        test1Panel,
+                        u"Normalization: ",
+                        test1NormChoiceChoices,
+                        "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+                    )
+                    mainSizer1.Add(normSizer, 1, wx.EXPAND, 5)
 
-        test1TopSizer = wx.BoxSizer(wx.HORIZONTAL)
+                test1Sizer.Add(mainSizer1, 1, wx.EXPAND, 5)
+            
+            # 
+            # checkbox: Correct for Genome Positional Bias
+            # 
+            if True:
+                # LOESS Check
+                (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
+                    test1Panel,
+                    labelText="Correct for Genome Positional Bias",
+                    widgetCheck=False,
+                    widgetSize=(-1, -1),
+                    tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
+                )
+                test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
+            
+            # 
+            # button: LOESS
+            # 
+            if True:
+                self.wxobj.test1LoessPrev = wx.Button(
+                    test1Panel,
+                    wx.ID_ANY,
+                    u"Preview LOESS fit",
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    0,
+                )
+                test1Sizer.Add(self.wxobj.test1LoessPrev, 0, wx.ALL | wx.CENTER, 5)
+            
+            # 
+            # checkbox: Adaptive Check
+            # 
+            if True:
+                (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
+                    test1Panel,
+                    labelText="Adaptive Test1 (Faster)",
+                    widgetCheck=False,
+                    widgetSize=(-1, -1),
+                    tooltipText="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.",
+                )
+                test1Sizer.Add(adaptiveSizer, 0, wx.EXPAND, 5)
+            
+            # 
+            # checkbox: Generate Histograms
+            # 
+            if True:
+                (self.wxobj.test1HistogramCheckBox, histSizer) = self.defineCheckBox(
+                    test1Panel,
+                    labelText="Generate Test1 Histograms",
+                    widgetCheck=False,
+                    widgetSize=(-1, -1),
+                    tooltipText="Creates .png images with the test1 histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.",
+                )
+                test1Sizer.Add(histSizer, 0, wx.EXPAND, 5)
 
-        test1TopSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+            # 
+            # checkbox: Include all-zero sites
+            # 
+            if True:
+                (self.wxobj.test1ZeroCheckBox, zeroSizer) = self.defineCheckBox(
+                    test1Panel,
+                    labelText="Include sites with all zeros",
+                    widgetCheck=True,
+                    widgetSize=(-1, -1),
+                    tooltipText="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).",
+                )
+                test1Sizer.Add(zeroSizer, 0, wx.EXPAND, 5)
+            
+            # 
+            # button: RUN
+            # 
+            if True:
+                test1Button = wx.Button(
+                    test1Panel,
+                    wx.ID_ANY,
+                    u"Run test1",
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    0,
+                )
+                test1Sizer.Add(test1Button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        test1LabelSizer = wx.BoxSizer(wx.VERTICAL)
-
-        mainSizer1 = wx.BoxSizer(wx.VERTICAL)
-
-        # (, , Sizer) = self.defineChoiceBox(test1Panel, u"", u"", "")
-        # mainSizer1.Add(Sizer, 1, wx.EXPAND, 5 )
-
-        # Samples
-        (
-            test1SampleLabel,
-            self.wxobj.test1SampleText,
-            sampleSizer,
-        ) = self.defineTextBox(
-            test1Panel,
-            u"Samples:",
-            u"10000",
-            "Number of samples to take when estimating the test1 histogram. More samples give more accurate estimates of the p-values at the cost of computation time.",
-        )
-        mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
-
-        # Pseudocount - changing the semantics on 3/5/20
-        # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1Panel, u"Pseudocount:", u"0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
-        (
-            test1PseudocountLabel,
-            self.wxobj.test1PseudocountText,
-            pseudoSizer,
-        ) = self.defineTextBox(
-            test1Panel,
-            u"Pseudocount:",
-            u"0.0",
-            "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
-        )
-        mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
-
-        # Norm
-        test1NormChoiceChoices = [
-            u"TTR",
-            u"nzmean",
-            u"totreads",
-            u"zinfnb",
-            u"quantile",
-            u"betageom",
-            u"nonorm",
-        ]
-        (
-            test1NormLabel,
-            self.wxobj.test1NormChoice,
-            normSizer,
-        ) = self.defineChoiceBox(
-            test1Panel,
-            u"Normalization: ",
-            test1NormChoiceChoices,
-            "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
-        )
-        mainSizer1.Add(normSizer, 1, wx.EXPAND, 5)
-
-        test1Sizer.Add(mainSizer1, 1, wx.EXPAND, 5)
-
-        # LOESS Check
-        (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
-            test1Panel,
-            labelText="Correct for Genome Positional Bias",
-            widgetCheck=False,
-            widgetSize=(-1, -1),
-            tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
-        )
-        test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
-
-        # LOESS Button
-        self.wxobj.test1LoessPrev = wx.Button(
-            test1Panel,
-            wx.ID_ANY,
-            u"Preview LOESS fit",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        test1Sizer.Add(self.wxobj.test1LoessPrev, 0, wx.ALL | wx.CENTER, 5)
-
-        # Adaptive Check
-        (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
-            test1Panel,
-            labelText="Adaptive Test1 (Faster)",
-            widgetCheck=False,
-            widgetSize=(-1, -1),
-            tooltipText="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.",
-        )
-        test1Sizer.Add(adaptiveSizer, 0, wx.EXPAND, 5)
-
-        # Histogram Check
-        (self.wxobj.test1HistogramCheckBox, histSizer) = self.defineCheckBox(
-            test1Panel,
-            labelText="Generate Test1 Histograms",
-            widgetCheck=False,
-            widgetSize=(-1, -1),
-            tooltipText="Creates .png images with the test1 histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.",
-        )
-        test1Sizer.Add(histSizer, 0, wx.EXPAND, 5)
-
-        # Zeros Check
-        (self.wxobj.test1ZeroCheckBox, zeroSizer) = self.defineCheckBox(
-            test1Panel,
-            labelText="Include sites with all zeros",
-            widgetCheck=True,
-            widgetSize=(-1, -1),
-            tooltipText="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).",
-        )
-        test1Sizer.Add(zeroSizer, 0, wx.EXPAND, 5)
-
-        test1Button = wx.Button(
-            test1Panel,
-            wx.ID_ANY,
-            u"Run test1",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        test1Sizer.Add(test1Button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        test1Panel.SetSizer(test1Sizer)
-        test1Panel.Layout()
-        test1Sizer.Fit(test1Panel)
+            test1Panel.SetSizer(test1Sizer)
+            test1Panel.Layout()
+            test1Sizer.Fit(test1Panel)
 
         # Connect events
         test1Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
@@ -287,7 +320,7 @@ class Test1GUI(base.AnalysisGUI):
 ########## CLASS #######################
 
 
-class Test1Method(base.DualConditionMethod):
+class Method(base.DualConditionMethod):
     """
     test1
 
