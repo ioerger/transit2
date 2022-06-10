@@ -53,9 +53,9 @@ class Analysis(base.TransitAnalysis):
             short_desc,
             long_desc,
             transposons,
-            Test1Method,
-            Test1GUI,
-            [Test1File],
+            Method,
+            GUI,
+            [File],
         )
 
 
@@ -244,6 +244,7 @@ class GUI(base.AnalysisGUI):
                     0,
                 )
                 test1Sizer.Add(self.wxobj.test1LoessPrev, 0, wx.ALL | wx.CENTER, 5)
+                self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
             
             # 
             # checkbox: Adaptive Check
@@ -296,15 +297,12 @@ class GUI(base.AnalysisGUI):
                     wx.DefaultSize,
                     0,
                 )
+                test1Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
                 test1Sizer.Add(test1Button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
             test1Panel.SetSizer(test1Sizer)
             test1Panel.Layout()
             test1Sizer.Fit(test1Panel)
-
-        # Connect events
-        test1Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-        self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
 
         self.panel = test1Panel
 
@@ -1107,7 +1105,7 @@ if __name__ == "__main__":
 
     # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
 
-    G = Test1Method.fromargs(sys.argv[1:])
+    G = Method.fromargs(sys.argv[1:])
 
     G.console_message("Printing the member variables:")
     G.print_members()
