@@ -3,10 +3,10 @@
 # 
     # you can search for them here: https://search.nixos.org/packages
     #
-    # if you find a package like: nixpkg.python38Packages.setuptools
+    # if you find a package like: nixpkg.python39Packages.setuptools
     # then add a section like this:
     #    [[packages]]
-    #    load = [ "python38Packages", "setuptools",]
+    #    load = [ "python39Packages", "setuptools",]
     # 
     # if you need a specific version 
     # search for the package (e.g. "setuptools") on here: https://lazamar.co.uk/nix-versions/
@@ -15,7 +15,7 @@
     # once you copy the hash, you can add the package below like
     # 
     #    [[packages]]
-    #    load = [ "python38Packages", "setuptools",]
+    #    load = [ "python39Packages", "setuptools",]
 
 # 
 # Complex packages
@@ -40,6 +40,7 @@
 
 [[packages]]
 load = [ "rPackages", "zinbwave", ]
+onlyIf = [ [ "stdenv", "isLinux",],]
 
 [[packages]]
 load = [ "rPackages", "lazyeval", ]
@@ -61,46 +62,53 @@ load = [ "ftgl", ]
 load = [ "python38",]
 
 [[packages]]
-load = [ "python38Packages", "setuptools",]
+load = [ "python39Packages", "setuptools",]
 
 [[packages]]
-load = [ "python38Packages", "pip",]
+load = [ "python39Packages", "pip",]
 
 [[packages]]
-load = [ "python38Packages", "virtualenv",]
+load = [ "python39Packages", "virtualenv",]
 
 [[packages]]
-load = [ "python38Packages", "wheel",]
+load = [ "python39Packages", "wheel",]
 
 [[packages]]
-load = [ "python38Packages", "scipy",]
+load = [ "python39Packages", "scipy",]
 
 [[packages]]
-load = [ "python38Packages", "rpy2",]
+load = [ "python39Packages", "rpy2",]
 
 [[packages]]
-load = [ "python38Packages", "pillow",]
+load = [ "python39Packages", "pillow",]
 
 [[packages]]
-load = [ "python38Packages", "matplotlib",]
+load = [ "python39Packages", "matplotlib",]
 
 [[packages]]
-load = [ "python38Packages", "statsmodels",]
+load = [ "python39Packages", "statsmodels",]
 
 [[packages]]
-load = [ "python38Packages", "numpy",]
+load = [ "python39Packages", "numpy",]
 
 [[packages]]
-load = [ "python38Packages", "pypubsub",]
+load = [ "python39Packages", "scikit-learn",]
 
 [[packages]]
-load = [ "python38Packages", "scikit-learn",]
+load = [ "python39Packages", "pypubsub",]
 
 [[packages]]
-load = [ "python38Packages", "wxPython_4_0",]
+load = [ "python39Packages", "scikit-learn",]
 
 [[packages]]
-load = [ "python38Packages", "poetry",]
+load = [ "python39Packages", "wxPython_4_0",]
+
+[[packages]]
+load = [ "wxmac",]
+onlyIf = [ ["stdenv", "isDarwin"] ]
+
+[[packages]]
+load = [ "python39Packages", "poetry",]
 
 [[packages]]
 onlyIf = [ [ "stdenv", "isLinux",],]
@@ -196,6 +204,11 @@ onlyIf = [ [ "stdenv", "isDarwin",],]
 
 [[packages]]
 load = [ "darwin", "apple_sdk", "frameworks", "WebKit" ]
+asNativeBuildInput = true
+onlyIf = [ [ "stdenv", "isDarwin",],]
+
+[[packages]]
+load = [ "darwin", "apple_sdk", "frameworks", "IOKit" ]
 asNativeBuildInput = true
 onlyIf = [ [ "stdenv", "isDarwin",],]
 
