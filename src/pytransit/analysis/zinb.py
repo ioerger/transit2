@@ -130,7 +130,7 @@ class ZinbMethod(base.MultiConditionMethod):
             )
             sys.exit(0)
 
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
             print(ZinbMethod.usage_string())

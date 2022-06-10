@@ -4,13 +4,13 @@ try:
     import wx
 
     WX_VERSION = int(wx.version()[0])
-    hasWx = True
+    HAS_WX = True
 
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
     WX_VERSION = 0
 
-if hasWx:
+if HAS_WX:
     import wx.xrc
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -121,7 +121,7 @@ class NormMethod(base.SingleConditionMethod):
 
     @classmethod
     def fromargs(self, rawargs):
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if len(args) < 3:
             raise base.InvalidArgumentException("Must provide all necessary arguments")
@@ -180,7 +180,7 @@ python3 %s norm <comma-separated .wig files> <annotation .prot_table or GFF3> <o
 
 if __name__ == "__main__":
 
-    (args, kwargs) = transit_tools.cleanargs(sys.argv[1:])
+    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
 
     G = Norm.fromargs(sys.argv[1:])
     G.Run()

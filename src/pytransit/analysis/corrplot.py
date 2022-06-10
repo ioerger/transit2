@@ -143,7 +143,7 @@ class CorrplotMethod(base.SingleConditionMethod):
 
     @classmethod
     def fromargs(self, rawargs):
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+        (args, kwargs) = transit_tools.clean_args(rawargs)
         if kwargs.get("-help", False):
             print(self.usage_string())
             sys.exit(0)
@@ -252,7 +252,7 @@ dev.off()
 
 if __name__ == "__main__":
 
-    (args, kwargs) = transit_tools.cleanargs(sys.argv[1:])
+    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
 
     G = Norm.fromargs(sys.argv[1:])
     G.Run()

@@ -20,9 +20,9 @@
 try:
     import wx
 
-    hasWx = True
+    HAS_WX = True
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
 
 import pytransit.view_trash as view_trash
 import pytransit.draw_trash as draw_trash

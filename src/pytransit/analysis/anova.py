@@ -85,7 +85,7 @@ class AnovaMethod(base.MultiConditionMethod):
 
     @classmethod
     def fromargs(self, rawargs):
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
             print(AnovaMethod.usage_string())

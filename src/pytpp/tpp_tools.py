@@ -28,7 +28,7 @@ import subprocess
 from collections import defaultdict
 
 
-def cleanargs(rawargs):
+def clean_args(rawargs):
     # TODO: Write docstring
     args = []
     kwargs = {}

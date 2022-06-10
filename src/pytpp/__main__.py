@@ -35,7 +35,7 @@ from pytpp.tpp_gui import *
 
 
 def run_main():
-    (args, kwargs) = cleanargs(sys.argv[1:])
+    (args, kwargs) = clean_args(sys.argv[1:])
     main(*args, **kwargs)
 
 
@@ -48,7 +48,7 @@ def main(*args, **kwargs):
         sys.exit(0)
     vars = Globals()
     # Check for arguements
-    if not args and not kwargs and hasWx:
+    if not args and not kwargs and HAS_WX:
         app = wx.App(False)
         form = MyForm(vars)
         form.update_dataset_list()
@@ -75,7 +75,7 @@ def main(*args, **kwargs):
         else:
             pass
 
-    elif not args and not kwargs and not hasWx:
+    elif not args and not kwargs and not HAS_WX:
         print("Please install wxPython to run in GUI Mode.")
         print("To run in Console Mode please follow these instructions:")
         print("")

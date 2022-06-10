@@ -13,9 +13,9 @@ try:
     import wx
     import wx.xrc
 
-    hasWx = True
+    HAS_WX = True
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
 
 
 # import pytransit.images

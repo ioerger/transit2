@@ -33,13 +33,13 @@ try:
     import wx
     import wx.lib.filebrowsebutton
 
-    hasWx = True
+    HAS_WX = True
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
 
 from pytpp.tpp_tools import *
 
-if hasWx:
+if HAS_WX:
 
     class TPPIcon(wx.StaticBitmap):
         def __init__(self, panel, flag, bmp, tooltip=""):

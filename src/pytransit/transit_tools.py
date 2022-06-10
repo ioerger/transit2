@@ -26,13 +26,13 @@ try:
     import wx
 
     WX_VERSION = int(wx.version()[0])
-    hasWx = True
+    HAS_WX = True
 
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
     WX_VERSION = 0
 
-if hasWx:
+if HAS_WX:
     import wx.xrc
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -51,7 +51,7 @@ import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 
 
-if hasWx:
+if HAS_WX:
 
     class AssumeZerosDialog(wx.Dialog):
         def __init__(self, *args, **kw):
@@ -111,20 +111,6 @@ One or more of your .wig files does not include any empty sites (i.e. sites with
                 self.Close()
 
 
-def aton(aa):
-    # TODO: Write docstring
-    return ((aa - 1) * 3) + 1
-
-
-def parseCoords(strand, aa_start, aa_end, start, end):
-    # TODO: Write docstring
-    if strand == "+":
-        return (aton(aa_start) + start, aton(aa_end) + start)
-    # Coordinates are Reversed... to match with Trash FILE TA coordinates
-    if strand == "-":
-        return (end - aton(aa_end), end - aton(aa_start))
-
-
 def fetch_name(filepath):
     # TODO: Write docstring
     return os.path.splitext(ntpath.basename(filepath))[0]
@@ -139,7 +125,7 @@ def dirname(filepath):
     return os.path.dirname(os.path.abspath(filepath))
 
 
-def cleanargs(rawargs):
+def clean_args(rawargs):
     """Returns a list and a dictionary with positional and keyword arguments.
 
     -This function assumes flags must start with a "-" and and cannot be a 
@@ -319,7 +305,7 @@ def validate_wig_format(wig_list, wxobj=None):
 
     if sum(includesZeros) < len(includesZeros):
         # If console mode, just print(a warning)
-        if not wxobj or not hasWx:
+        if not wxobj or not HAS_WX:
             warnings.warn(
                 "\nOne or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). Proceeding as if data was Tn5 (all other sites assumed to be zero)!\n"
             )

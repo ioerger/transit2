@@ -1,24 +1,8 @@
 import sys
 
-try:
-    import wx
-
-    WX_VERSION = int(wx.version()[0])
-    hasWx = True
-
-except Exception as e:
-    hasWx = False
-    WX_VERSION = 0
-
-if hasWx:
-    import wx.xrc
-    from wx.lib.buttons import GenBitmapTextButton
-    from pubsub import pub
-    import wx.adv
-
-
 import pytransit
 from pytransit import transit_tools
+from pytransit.transit_tools import HAS_WX, pub, GenBitmapTextButton, wx
 import pytransit.analysis
 import pytransit.export
 import pytransit.convert
@@ -30,52 +14,56 @@ convert_methods = pytransit.convert.methods
 all_methods = {}
 all_methods.update(methods)
 
-# all_methods.update(export_methods)
-
 wildcard = "Python source (*.py)|*.py|" "All files (*.*)|*.*"
 transit_prefix = "[TRANSIT]"
 
 
 def run_main():
-    (args, kwargs) = transit_tools.cleanargs(sys.argv[1:])
+    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
     main(*args, **kwargs)
 
 
 def main(*args, **kwargs):
+    # 
     # Check python version
+    # 
     if sys.version_info[0] < 3:
-        print(
-            "TRANSIT v3.0+ requires python3.6+. To use with python2, please install TRANSIT version < 3.0"
-        )
+        print("TRANSIT v3.0+ requires python3.6+. To use with python2, please install TRANSIT version < 3.0")
         sys.exit(0)
-    # If no arguments, show GUI:
-    DEBUG = "--debug" in sys.argv
-    if DEBUG:
-        sys.argv.remove("--debug")
-        kwargs.pop("-debug")
+    
+    # 
+    # parse args
+    # 
+    if True:
+        # If no arguments, show GUI:
+        DEBUG = "--debug" in sys.argv
+        if DEBUG:
+            sys.argv.remove("--debug")
+            kwargs.pop("-debug")
 
-    if not args and ("v" in kwargs or "-version" in kwargs):
-        print("Version: {0}".format(pytransit.__version__))
-        sys.exit(0)
-    if not args and ("h" in kwargs or "-help" in kwargs):
-        print(
-            "For commandline mode, please use one of the known methods (or see documentation to add a new one):"
-        )
-        print("Analysis methods: ")
-        for m in all_methods:
-            ## TODO :: Move normalize to separate subcommand?
-            if m == "normalize":
-                continue
-            print("\t - %s" % m)
-        print("Other functions: ")
-        print("\t - normalize")
-        print("\t - convert")
-        print("\t - export")
-        print("Usage: python %s <method>" % sys.argv[0])
-        sys.exit(0)
-
-    # Check if running in GUI Mode
-    if not (args or kwargs) and hasWx:
+        if not args and ("v" in kwargs or "-version" in kwargs):
+            print("Version: {0}".format(pytransit.__version__))
+            sys.exit(0)
+        
+        if not args and ("h" in kwargs or "-help" in kwargs):
+            print("For commandline mode, please use one of the known methods (or see documentation to add a new one):")
+            print("Analysis methods: ")
+            for m in all_methods:
+                ## TODO :: Move normalize to separate subcommand?
+                if m == "normalize":
+                    continue
+                print("\t - %s" % m)
+            print("Other functions: ")
+            print("\t - normalize")
+            print("\t - convert")
+            print("\t - export")
+            print("Usage: python %s <method>" % sys.argv[0])
+            sys.exit(0)
+        
+    # 
+    # GUI Mode
+    # 
+    if not (args or kwargs) and HAS_WX:
 
         import matplotlib
 
@@ -94,17 +82,19 @@ def main(*args, **kwargs):
 
         # start the applications
         app.MainLoop()
-
-    # Tried GUI mode but has no wxPython
-    elif not (args or kwargs) and not hasWx:
+    
+    # 
+    # Tried GUI but no wxPython
+    # 
+    elif not (args or kwargs) and not HAS_WX:
         print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
         print("")
-        print(
-            "To run in Console Mode, try 'transit <method>' with one of the following methods:"
-        )
+        print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
         for m in methods:
             print("\t - %s" % m)
-    # Running in Console mode
+    # 
+    # Console mode
+    # 
     else:
         import matplotlib
 

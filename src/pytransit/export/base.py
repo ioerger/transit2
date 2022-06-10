@@ -5,13 +5,13 @@ try:
     import wx
 
     WX_VERSION = int(wx.version()[0])
-    hasWx = True
+    HAS_WX = True
 
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
     WX_VERSION = 0
 
-if hasWx:
+if HAS_WX:
     import wx.xrc
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -33,7 +33,7 @@ class InvalidArgumentException(Exception):
 
 #
 
-if hasWx:
+if HAS_WX:
 
     class InfoIcon(wx.StaticBitmap):
         def __init__(self, panel, flag, bmp=None, tooltip=""):

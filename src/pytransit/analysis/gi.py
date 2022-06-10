@@ -4,13 +4,13 @@ try:
     import wx
 
     WX_VERSION = int(wx.version()[0])
-    hasWx = True
+    HAS_WX = True
 
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
     WX_VERSION = 0
 
-if hasWx:
+if HAS_WX:
     import wx.xrc
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -233,7 +233,7 @@ class GIGUI(base.AnalysisGUI):
         self.panel = giPanel
 
 
-if hasWx:
+if HAS_WX:
 
     class DatasetDialog(wx.Dialog):
         def __init__(self, *args, **kw):
@@ -721,7 +721,7 @@ class GIMethod(base.QuadConditionMethod):
     @classmethod
     def fromargs(self, rawargs):
 
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         # ctrl-vs-exp = condition 1-vs-2
         # originally, MAD defined order of CL args this way: strA/cond1, strB/cond1, strA/cond2, strB/cond
@@ -1202,7 +1202,7 @@ class GIMethod(base.QuadConditionMethod):
 
 if __name__ == "__main__":
 
-    (args, kwargs) = transit_tools.cleanargs(sys.argv)
+    (args, kwargs) = transit_tools.clean_args(sys.argv)
 
     # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
 

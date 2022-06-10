@@ -4,13 +4,13 @@ try:
     import wx
 
     WX_VERSION = int(wx.version()[0])
-    hasWx = True
+    HAS_WX = True
 
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
     WX_VERSION = 0
 
-if hasWx:
+if HAS_WX:
     import wx.xrc
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -378,7 +378,7 @@ class GumbelMethod(base.SingleConditionMethod):
     @classmethod
     def fromargs(self, rawargs):
 
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         ctrldata = args[0].split(",")
         annotationPath = args[1]
@@ -783,7 +783,7 @@ class GumbelMethod(base.SingleConditionMethod):
 
 if __name__ == "__main__":
 
-    (args, kwargs) = transit_tools.cleanargs(sys.argv)
+    (args, kwargs) = transit_tools.clean_args(sys.argv)
 
     G = GumbelMethod.fromargs(sys.argv[1:])
 

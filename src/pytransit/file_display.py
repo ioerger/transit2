@@ -22,9 +22,9 @@ try:
     import wx.xrc
     import wx.lib.mixins.listctrl as listmix
 
-    hasWx = True
+    HAS_WX = True
 except Exception as e:
-    hasWx = False
+    HAS_WX = False
 
 
 import ntpath
