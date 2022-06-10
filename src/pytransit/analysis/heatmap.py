@@ -1,6 +1,6 @@
 import sys
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
 
 import os
 import time
@@ -16,24 +16,6 @@ import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 
-hasR = False
-try:
-    import rpy2.robjects
-
-    hasR = True
-except Exception as e:
-    hasR = False
-
-if hasR:
-    from rpy2.robjects import (
-        r,
-        DataFrame,
-        globalenv,
-        IntVector,
-        FloatVector,
-        StrVector,
-        packages as rpackages,
-    )
 
 ############# Description ##################
 

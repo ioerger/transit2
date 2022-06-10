@@ -17,11 +17,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
+DEBUG = False
+EOL = "\n"
+SEPARATOR = "\1"  # for making names that combine conditions and interactions; try not to use a char a user might have in a condition name
 
 import sys
 import os
 
-
+# 
+# optional import: wx
+# 
 try:
     import wx
     import wx.xrc
@@ -40,6 +45,33 @@ except Exception as e:
     GenBitmapTextButton = None
     pub                 = None
     listmix             = None
+
+# 
+# optional import: R
+# 
+try:
+    import rpy2.robjects
+    from rpy2.robjects import (
+        r,
+        DataFrame,
+        globalenv,
+        IntVector,
+        FloatVector,
+        StrVector,
+        packages as rpackages,
+    )
+    HAS_R = True
+except Exception as e:
+    HAS_R = False
+    r = None
+    DataFrame   = None
+    globalenv   = None
+    IntVector   = None
+    FloatVector = None
+    StrVector   = None
+    rpackages   = None
+
+    
 
 import math
 import ntpath

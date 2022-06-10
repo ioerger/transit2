@@ -8,24 +8,7 @@ import sys
 import collections
 import functools
 
-hasR = False
-try:
-    import rpy2.robjects
-
-    hasR = True
-except Exception as e:
-    hasR = False
-
-if hasR:
-    from rpy2.robjects import (
-        r,
-        DataFrame,
-        globalenv,
-        IntVector,
-        FloatVector,
-        StrVector,
-        packages as rpackages,
-    )
+from pytransit.transit_tools import DEBUG, EOL, SEPARATOR, HAS_WX, wx, GenBitmapTextButton, pub, HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
 
 from pytransit.analysis import base
 import pytransit
@@ -39,10 +22,7 @@ short_name = "ZINB"
 long_name = "ZINB"
 short_desc = "Perform ZINB analysis"
 long_desc = """Perform ZINB analysis"""
-EOL = "\n"
-DEBUG = False
 GENE = None
-SEPARATOR = "\1"  # for making names that combine conditions and interactions; try not to use a char a user might have in a condition name
 
 transposons = ["", ""]
 columns = []
@@ -123,7 +103,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
     @classmethod
     def fromargs(self, rawargs):
-        if not hasR:
+        if not HAS_R:
             print("Error: R and rpy2 (~= 3.0) required to run ZINB analysis.")
             print(
                 "After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\""
