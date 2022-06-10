@@ -37,6 +37,9 @@
 
 
 # [[ you can add tools for your project right here or at the bottom ]]
+[[packages]]
+load = [ "python38Packages", "numpy",]
+# from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
 
 [[packages]]
 load = [ "rPackages", "zinbwave", ]

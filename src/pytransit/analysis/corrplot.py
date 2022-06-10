@@ -4,13 +4,13 @@ try:
     import wx
 
     WX_VERSION = int(wx.version()[0])
-    hasWx = True
+    has_wx = True
 
 except Exception as e:
-    hasWx = False
+    has_wx = False
     WX_VERSION = 0
 
-if hasWx:
+if has_wx:
     import wx.xrc
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -33,15 +33,15 @@ import pytransit.stat_tools as stat_tools
 
 ### because corrplot.py depends on R...
 
-hasR = False
+has_r = False
 try:
     import rpy2.robjects
 
-    hasR = True
+    has_r = True
 except Exception as e:
-    hasR = False
+    has_r = False
 
-if hasR:
+if has_r:
     from rpy2.robjects import (
         r,
         DataFrame,
@@ -55,12 +55,12 @@ if hasR:
 
 ############# Description ##################
 
-short_name = "corrplot"
-long_name = "Corrplot"
-short_desc = "Correlation among TnSeq datasets"
-long_desc = "Correlation among TnSeq datasets"
-transposons = ["himar1", "tn5"]
-columns = ["Position", "Reads", "Genes"]
+short_name  = "corrplot"
+long_name   = "Corrplot"
+short_desc  = "Correlation among TnSeq datasets"
+long_desc   = "Correlation among TnSeq datasets"
+transposons = ["himar1"  , "tn5"]
+columns     = ["Position", "Reads", "Genes"]
 
 
 ############# Analysis Method ##############
