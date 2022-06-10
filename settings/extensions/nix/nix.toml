@@ -37,9 +37,6 @@
 
 
 # [[ you can add tools for your project right here or at the bottom ]]
-[[packages]]
-load = [ "python38Packages", "numpy",]
-# from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
 
 [[packages]]
 load = [ "rPackages", "zinbwave", ]
@@ -94,10 +91,13 @@ load = [ "python38Packages", "statsmodels",]
 load = [ "python38Packages", "numpy",]
 
 [[packages]]
+load = [ "python38Packages", "pypubsub",]
+
+[[packages]]
 load = [ "python38Packages", "scikit-learn",]
 
 [[packages]]
-load = [ "python38Packages", "wxPython",]
+load = [ "python38Packages", "wxPython_4_0",]
 
 [[packages]]
 load = [ "python38Packages", "poetry",]
