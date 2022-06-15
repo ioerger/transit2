@@ -129,6 +129,14 @@ class GUI(base.AnalysisGUI):
             wx.TAB_TRAVERSAL,
         )
         
+        # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+        # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+        # --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+        # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+        # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+        # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
+        # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+        
         # 
         # container: parameters
         # 
@@ -157,20 +165,52 @@ class GUI(base.AnalysisGUI):
                 mainSizer1 = wx.BoxSizer(wx.VERTICAL)
                 
                 # 
-                # text input: samples
+                # text input: includeConditionsInput
                 # 
                 if True:
                     (
-                        test1SampleLabel,
-                        self.wxobj.test1SampleText,
-                        sampleSizer,
+                        _,
+                        self.wxobj.includeConditionsInput,
+                        sizer,
                     ) = self.defineTextBox(
-                        test1Panel,
-                        u"Samples:",
-                        u"10000",
-                        "Number of samples to take when estimating the test1 histogram. More samples give more accurate estimates of the p-values at the cost of computation time.",
+                        panel=test1Panel,
+                        labelText=u"Includen\nConditions",
+                        widgetText=u"",
+                        tooltipText="comma seperated list (default=all)",
                     )
-                    mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
+                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
+
+                # 
+                # text input: excludeConditionsInput
+                # 
+                if True:
+                    (
+                        _,
+                        self.wxobj.excludeConditionsInput,
+                        sizer,
+                    ) = self.defineTextBox(
+                        panel=test1Panel,
+                        labelText=u"Exclude\nConditions",
+                        widgetText=u"",
+                        tooltipText="comma seperated list (default=none)",
+                    )
+                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
+                
+                # 
+                # text input: refInput
+                # 
+                if True:
+                    (
+                        _,
+                        self.wxobj.refInput,
+                        sizer,
+                    ) = self.defineTextBox(
+                        panel=test1Panel,
+                        labelText=u"Ref",
+                        widgetText=u"",
+                        tooltipText="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+                    )
+                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
 
 
                 # 
@@ -416,7 +456,7 @@ class Method(base.DualConditionMethod):
 
         # Read the parameters from the wxPython widgets
         ignoreCodon = True
-        samples = int(wxobj.test1SampleText.GetValue())
+        samples = int(wxobj.normalizationMethodInput.GetValue())
         normalization = wxobj.test1NormChoice.GetString(
             wxobj.test1NormChoice.GetCurrentSelection()
         )
