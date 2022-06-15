@@ -150,7 +150,7 @@ class GUI(base.AnalysisGUI):
                 test1Label = wx.StaticText(
                     test1Panel,
                     wx.ID_ANY,
-                    u"test1 Options",
+                    u"Local Options",
                     wx.DefaultPosition,
                     (160, -1),
                     0,
@@ -174,7 +174,7 @@ class GUI(base.AnalysisGUI):
                         sizer,
                     ) = self.defineTextBox(
                         panel=test1Panel,
-                        labelText=u"Includen\nConditions",
+                        labelText=u"Include\nConditions\n",
                         widgetText=u"",
                         tooltipText="comma seperated list (default=all)",
                     )
@@ -190,7 +190,7 @@ class GUI(base.AnalysisGUI):
                         sizer,
                     ) = self.defineTextBox(
                         panel=test1Panel,
-                        labelText=u"Exclude\nConditions",
+                        labelText=u"Exclude\nConditions\n",
                         widgetText=u"",
                         tooltipText="comma seperated list (default=none)",
                     )
@@ -231,6 +231,39 @@ class GUI(base.AnalysisGUI):
                     mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
                 
                 # 
+                # text input: 
+                # 
+                if True:
+                    # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+                    (
+                        _,
+                        self.wxobj.nTerminusInput,
+                        sizer,
+                    ) = self.defineTextBox(
+                        test1Panel,
+                        u"N Terminus\nTruncate",
+                        u"0.0",
+                        "Ignore TAs within given percentage (e.g. 5) of N terminus. Default: 0",
+                    )
+                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
+                
+                # 
+                # text input: 
+                # 
+                if True:
+                    (
+                        _,
+                        self.wxobj.cTerminusInput,
+                        sizer,
+                    ) = self.defineTextBox(
+                        test1Panel,
+                        u"C Terminus\nTruncate",
+                        u"0.0",
+                        "Ignore TAs within given percentage (e.g. 5) of C terminus. Default: 0",
+                    )
+                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
+                
+                # 
                 # dropdown
                 # 
                 if True:
@@ -260,85 +293,60 @@ class GUI(base.AnalysisGUI):
             # 
             # checkbox: Correct for Genome Positional Bias
             # 
-            if True:
+            # if True:
                 # LOESS Check
-                (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
-                    test1Panel,
-                    labelText="Correct for Genome Positional Bias",
-                    widgetCheck=False,
-                    widgetSize=(-1, -1),
-                    tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
-                )
-                test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
+                # (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
+                #     test1Panel,
+                #     labelText="Correct for Genome Positional Bias",
+                #     widgetCheck=False,
+                #     widgetSize=(-1, -1),
+                #     tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
+                # )
+                # test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
             
             # 
             # button: LOESS
             # 
-            if True:
-                self.wxobj.test1LoessPrev = wx.Button(
-                    test1Panel,
-                    wx.ID_ANY,
-                    u"Preview LOESS fit",
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    0,
-                )
-                test1Sizer.Add(self.wxobj.test1LoessPrev, 0, wx.ALL | wx.CENTER, 5)
-                self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+            # if True:
+            #     self.wxobj.test1LoessPrev = wx.Button(
+            #         test1Panel,
+            #         wx.ID_ANY,
+            #         u"Preview LOESS fit",
+            #         wx.DefaultPosition,
+            #         wx.DefaultSize,
+            #         0,
+            #     )
+            #     self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
             
             # 
-            # checkbox: Adaptive Check
+            # checkbox: winsorize
             # 
             if True:
                 (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
                     test1Panel,
-                    labelText="Adaptive Test1 (Faster)",
+                    labelText="winsorize",
                     widgetCheck=False,
                     widgetSize=(-1, -1),
-                    tooltipText="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.",
+                    tooltipText="winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)",
                 )
                 test1Sizer.Add(adaptiveSizer, 0, wx.EXPAND, 5)
-            
-            # 
-            # checkbox: Generate Histograms
-            # 
-            if True:
-                (self.wxobj.test1HistogramCheckBox, histSizer) = self.defineCheckBox(
-                    test1Panel,
-                    labelText="Generate Test1 Histograms",
-                    widgetCheck=False,
-                    widgetSize=(-1, -1),
-                    tooltipText="Creates .png images with the test1 histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.",
-                )
-                test1Sizer.Add(histSizer, 0, wx.EXPAND, 5)
-
-            # 
-            # checkbox: Include all-zero sites
-            # 
-            if True:
-                (self.wxobj.test1ZeroCheckBox, zeroSizer) = self.defineCheckBox(
-                    test1Panel,
-                    labelText="Include sites with all zeros",
-                    widgetCheck=True,
-                    widgetSize=(-1, -1),
-                    tooltipText="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).",
-                )
-                test1Sizer.Add(zeroSizer, 0, wx.EXPAND, 5)
             
             # 
             # button: RUN
             # 
             if True:
-                test1Button = wx.Button(
+                runButton = wx.Button(
                     test1Panel,
                     wx.ID_ANY,
-                    u"Run test1",
+                    u"Run",
                     wx.DefaultPosition,
                     wx.DefaultSize,
                     0,
                 )
-                test1Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-                test1Sizer.Add(test1Button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+                # runButton.SetBackgroundColour((0, 230, 200, 255)) # rgba(0, 230, 200, 255)
+                # runButton.SetForegroundColour((70, 70, 70, 255)) # rgba(70, 70, 70, 255)
+                runButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
+                test1Sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
             test1Panel.SetSizer(test1Sizer)
             test1Panel.Layout()
