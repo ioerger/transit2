@@ -200,6 +200,7 @@ class GUI(base.AnalysisGUI):
                 # text input: refInput
                 # 
                 if True:
+                    # TODO: could be dropdown
                     (
                         _,
                         self.wxobj.refInput,
