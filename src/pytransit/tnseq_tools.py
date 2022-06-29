@@ -45,6 +45,9 @@ def rv_siteindexes_map(genes, TASiteindexMap, nterm=0.0, cterm=0.0):
 #   counts lines contain the following columns: TA coord, counts, other info like gene/annotation
 #   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
 
+class Wig(tuple):
+    pass
+
 class CombinedWig(tuple):
     @property
     def sites(self):
@@ -57,6 +60,81 @@ class CombinedWig(tuple):
     @property
     def files(self):
         return self[2]
+    
+    @classmethod
+    def gather_wig_data(cls, list_of_paths):
+        """ Returns a tuple of (data, position) containing a matrix of raw read-counts
+            , and list of coordinates.
+
+        Arguments:
+            wig_list (list): List of paths to wig files.
+
+        Returns:
+            tuple: Two lists containing data and positions of the wig files given.
+
+        :Example:
+
+            >>> from pytransit.tnseq_tools import CombinedWig
+            >>> (data, position) = CombinedWig.gather_wig_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
+            >>> print(data)
+            array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
+                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
+
+        .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.norm_tools.normalize_data`
+        """
+        # If empty just quickly return empty lists
+        if not list_of_paths:
+            return (numpy.zeros((1, 0)), numpy.zeros(0), [])
+
+        # Check size of all wig file matches
+        size_list = []
+        for _, path in enumerate(list_of_paths):
+            line_count = 0
+            for line in open(path):
+                if line[0] not in "0123456789":
+                    continue
+                line_count += 1
+            size_list.append(line_count)
+
+        # If it doesn't match, report an error and quit
+        if sum(size_list) != (line_count * len(size_list)):
+            raise Exception(f'''
+            
+                Error:
+                    Not all wig files have the same number of sites.
+                    Make sure all .wig files come from the same strain.
+                
+                counts: {list(zip(list_of_paths, size_list))}
+            ''')
+
+        data = numpy.zeros((len(list_of_paths), line_count))
+        position = numpy.zeros(line_count, dtype=int)
+        for path_index, path in enumerate(list_of_paths):
+            line_index = 0
+            prev_pos   = 0
+            for line in open(path):
+                if line[0] not in "0123456789": # not sure why this is here -- Jeff
+                    continue
+                
+                tmp      = line.split()
+                pos      = int(tmp[0])
+                rd       = float(tmp[1])
+                prev_pos = pos
+
+                try:
+                    data[path_index, line_index] = rd
+                except Exception as error:
+                    raise Exception(f'''
+                        
+                        Make sure that all wig files have the same number of TA sites (i.e. same strain)
+                        
+                        Original Error:\n{error}
+                        
+                    ''')
+                position[line_index] = pos
+                line_index += 1
+        
+        return data, position
     
     @classmethod
     def read(cls, fname):
@@ -75,7 +153,7 @@ class CombinedWig(tuple):
                 # 
                 # handle yaml
                 # 
-                if line.startswith("#yaml:")
+                if line.startswith("#yaml:"):
                     yaml_mode_is_on = True
                     continue
                 if yaml_mode_is_on and line.startswith("# "):
@@ -86,7 +164,8 @@ class CombinedWig(tuple):
                     # add to the metadata dict when its done
                     if len(yaml_string) > 0:
                         metadata.update(ez_yaml.to_object(string=yaml_string)["metadata"])
-                        
+                        files += metadata.get('files',[])
+                        files = list(set(files)) # remove any duplicate entries
                 
                 # 
                 # handle older file method
@@ -120,7 +199,9 @@ class CombinedWig(tuple):
                         counts_by_wig.append([])
                     counts_by_wig[index].append(count)
         
-        return CombinedWig(numpy.array(sites), numpy.array(counts_by_wig), files)
+        combined_wig = CombinedWig(numpy.array(sites), numpy.array(counts_by_wig), files)
+        combined_wig.metadata = metadata
+        return combined_wig
 
 # backwards compatibility
 read_combined_wig = CombinedWig.read
@@ -1023,76 +1104,7 @@ def get_unknown_file_types(wig_list, transposons):
 
 #
 
-
-def get_data(wig_list):
-    """ Returns a tuple of (data, position) containing a matrix of raw read-counts
-        , and list of coordinates.
-
-    Arguments:
-        wig_list (list): List of paths to wig files.
-
-    Returns:
-        tuple: Two lists containing data and positions of the wig files given.
-
-    :Example:
-
-        >>> import pytransit.tnseq_tools as tnseq_tools
-        >>> (data, position) = tnseq_tools.get_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
-        >>> print(data)
-        array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
-               [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
-
-    .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.norm_tools.normalize_data`
-    """
-    K = len(wig_list)
-
-    # If empty just quickly return empty lists
-    if not wig_list:
-        return (numpy.zeros((1, 0)), numpy.zeros(0), [])
-
-    # Check size of all wig file matches
-    size_list = []
-    for j, path in enumerate(wig_list):
-        T = 0
-        for line in open(path):
-            if line[0] not in "0123456789":
-                continue
-            T += 1
-        size_list.append(T)
-
-    # If it doesn't match, report an error and quit
-    if sum(size_list) != (T * len(size_list)):
-        print("Error: Not all wig files have the same number of sites.")
-        print("       Make sure all .wig files come from the same strain.")
-        sys.exit()
-
-    data = numpy.zeros((K, T))
-    position = numpy.zeros(T, dtype=int)
-    for j, path in enumerate(wig_list):
-        reads = []
-        i = 0
-        prev_pos = 0
-        for line in open(path):
-            if line[0] not in "0123456789":
-                continue
-            tmp = line.split()
-            pos = int(tmp[0])
-            rd = float(tmp[1])
-            prev_pos = pos
-
-            try:
-                data[j, i] = rd
-            except Exception as e:
-                print("Error: %s" % e)
-                print("")
-                print(
-                    "Make sure that all wig files have the same number of TA sites (i.e. same strain)"
-                )
-                sys.exit()
-            position[i] = pos
-            i += 1
-    return (data, position)
-
+get_data = CombinedWig.gather_wig_data
 
 #
 
