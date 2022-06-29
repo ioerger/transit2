@@ -257,10 +257,10 @@ class CombinedWig(tuple):
                 else:
                     yaml_mode_is_on = False
                     # add to the metadata dict when its done
-                    if len(yaml_string) > 0:
-                        metadata.update(ez_yaml.to_object(string=yaml_string)["metadata"])
-                        files += metadata.get('files',[])
-                        files = list(set(files)) # remove any duplicate entries
+                    # if len(yaml_string) > 0:
+                    #     metadata.update(ez_yaml.to_object(string=yaml_string)["metadata"])
+                    #     files += metadata.get('files',[])
+                    #     files = list(set(files)) # remove any duplicate entries
                 
                 # 
                 # handle older file method
@@ -294,7 +294,7 @@ class CombinedWig(tuple):
                         counts_by_wig.append([])
                     counts_by_wig[index].append(count)
         
-        combined_wig = CombinedWig(numpy.array(sites), numpy.array(counts_by_wig), files)
+        combined_wig = CombinedWig((numpy.array(sites), numpy.array(counts_by_wig), files))
         combined_wig.metadata = metadata
         return combined_wig
         

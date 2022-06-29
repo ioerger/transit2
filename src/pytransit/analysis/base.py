@@ -1,7 +1,7 @@
 # __all__ = []
 import sys
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, WX_VERSION
 
 import traceback
 import datetime
