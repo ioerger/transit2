@@ -92,9 +92,9 @@ class AnovaMethod(base.MultiConditionMethod):
             sys.exit(0)
 
         combined_wig = args[0]
-        annotation = args[2]
-        metadata = args[1]
-        output_file = args[3]
+        annotation   = args[2]
+        metadata     = args[1]
+        output_file  = args[3]
         normalization = kwargs.get("n", "TTR")
         NTerminus = float(kwargs.get("iN", 0.0))
         CTerminus = float(kwargs.get("iC", 0.0))

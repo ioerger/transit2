@@ -4,7 +4,7 @@
 import sys
 from collections import defaultdict
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename
 
 import os
 import time
@@ -237,9 +237,23 @@ class MainFrame(wx.Frame):
                                 1,
                                 bmp,
                                 "[Click to add Control Dataset(s)]",
-                                size=wx.Size(500, -1),
+                                size=wx.Size(250, -1),
                             )
                             ctrlBoxSizer2.Add(self.ctrlFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                        
+                        # 
+                        # combinedWigFilePicker
+                        # 
+                        if True:
+                            self.combinedWigFilePicker = GenBitmapTextButton(
+                                self.mainWindow,
+                                1,
+                                bmp,
+                                "Add Combined Wig Files",
+                                size=wx.Size(250, -1),
+                            )
+                            self.combinedWigFilePicker.SetBackgroundColour(color.green)
+                            ctrlBoxSizer2.Add(self.combinedWigFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
 
                         ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
                     
@@ -761,166 +775,153 @@ class MainFrame(wx.Frame):
                 self.optionsWindow.Fit()
 
         windowWrapper.Add(self.optionsWindow, 0, wx.ALL, 5)
-
         # --------------------#
+        
+        # TODO: cleanup formatting of nested items
+        if True:
+            self.SetSizer(windowWrapper)
+            self.Layout()
+            self.m_menubar1 = wx.MenuBar(0)
+            self.fileMenuItem = wx.Menu()
+            self.exportMenuItem = wx.Menu()
+            self.selectedExportMenuItem = wx.Menu()
 
-        self.SetSizer(windowWrapper)
-        self.Layout()
-        self.m_menubar1 = wx.MenuBar(0)
-        self.fileMenuItem = wx.Menu()
-        self.exportMenuItem = wx.Menu()
-        self.selectedExportMenuItem = wx.Menu()
+            # Selected datasets
+            self.exportMenuItem.AppendSubMenu(
+                self.selectedExportMenuItem, u"Selected Datasets"
+            )
 
-        # Selected datasets
-        self.exportMenuItem.AppendSubMenu(
-            self.selectedExportMenuItem, u"Selected Datasets"
-        )
+            self.fileMenuItem.AppendSubMenu(self.exportMenuItem, u"Export")
 
-        self.fileMenuItem.AppendSubMenu(self.exportMenuItem, u"Export")
+            self.convertMenuItem = wx.Menu()
+            self.annotationConvertPTToPTTMenu = wx.MenuItem(
+                self.convertMenuItem,
+                wx.ID_ANY,
+                u"prot_table to PTT",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            self.convertMenuItem.Append(self.annotationConvertPTToPTTMenu)
 
-        self.convertMenuItem = wx.Menu()
-        self.annotationConvertPTToPTTMenu = wx.MenuItem(
-            self.convertMenuItem,
-            wx.ID_ANY,
-            u"prot_table to PTT",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        self.convertMenuItem.Append(self.annotationConvertPTToPTTMenu)
+            self.annotationConvertPTToGFF3Menu = wx.MenuItem(
+                self.convertMenuItem,
+                wx.ID_ANY,
+                u"prot_table to GFF3",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            self.convertMenuItem.Append(self.annotationConvertPTToGFF3Menu)
 
-        self.annotationConvertPTToGFF3Menu = wx.MenuItem(
-            self.convertMenuItem,
-            wx.ID_ANY,
-            u"prot_table to GFF3",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        self.convertMenuItem.Append(self.annotationConvertPTToGFF3Menu)
+            self.annotationConvertPTTToPT = wx.MenuItem(
+                self.convertMenuItem,
+                wx.ID_ANY,
+                u"PTT to prot_table",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
 
-        self.annotationConvertPTTToPT = wx.MenuItem(
-            self.convertMenuItem,
-            wx.ID_ANY,
-            u"PTT to prot_table",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
+            self.convertMenuItem.Append(self.annotationConvertPTTToPT)
 
-        self.convertMenuItem.Append(self.annotationConvertPTTToPT)
+            # self.annotationConvertGFF3ToPT = wx.MenuItem( self.convertMenuItem, wx.ID_ANY, u"GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
+            # self.convertMenuItem.Append( self.annotationConvertGFF3ToPT )
+            self.fileMenuItem.AppendSubMenu(self.convertMenuItem, u"Convert")
 
-        # self.annotationConvertGFF3ToPT = wx.MenuItem( self.convertMenuItem, wx.ID_ANY, u"GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
-        # self.convertMenuItem.Append( self.annotationConvertGFF3ToPT )
-        self.fileMenuItem.AppendSubMenu(self.convertMenuItem, u"Convert")
+            self.fileExitMenuItem = wx.MenuItem(
+                self.fileMenuItem, wx.ID_ANY, u"&Exit", wx.EmptyString, wx.ITEM_NORMAL
+            )
+            self.fileMenuItem.Append(self.fileExitMenuItem)
+            self.m_menubar1.Append(self.fileMenuItem, u"&File")
 
-        self.fileExitMenuItem = wx.MenuItem(
-            self.fileMenuItem, wx.ID_ANY, u"&Exit", wx.EmptyString, wx.ITEM_NORMAL
-        )
-        self.fileMenuItem.Append(self.fileExitMenuItem)
-        self.m_menubar1.Append(self.fileMenuItem, u"&File")
+            self.viewMenuItem = wx.Menu()
+            self.scatterMenuItem = wx.MenuItem(
+                self.viewMenuItem,
+                wx.ID_ANY,
+                u"&Scatter Plot",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
 
-        self.viewMenuItem = wx.Menu()
-        self.scatterMenuItem = wx.MenuItem(
-            self.viewMenuItem,
-            wx.ID_ANY,
-            u"&Scatter Plot",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
+            self.viewMenuItem.Append(self.scatterMenuItem)
 
-        self.viewMenuItem.Append(self.scatterMenuItem)
+            self.trackMenuItem = wx.MenuItem(
+                self.viewMenuItem, wx.ID_ANY, u"&Track View", wx.EmptyString, wx.ITEM_NORMAL
+            )
 
-        self.trackMenuItem = wx.MenuItem(
-            self.viewMenuItem, wx.ID_ANY, u"&Track View", wx.EmptyString, wx.ITEM_NORMAL
-        )
+            self.viewMenuItem.Append(self.trackMenuItem)
+            self.qcMenuItem = wx.MenuItem(
+                self.viewMenuItem,
+                wx.ID_ANY,
+                u"&Quality Control",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
 
-        self.viewMenuItem.Append(self.trackMenuItem)
-        self.qcMenuItem = wx.MenuItem(
-            self.viewMenuItem,
-            wx.ID_ANY,
-            u"&Quality Control",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
+            self.viewMenuItem.Append(self.qcMenuItem)
+            self.m_menubar1.Append(self.viewMenuItem, u"&View")
 
-        self.viewMenuItem.Append(self.qcMenuItem)
-        self.m_menubar1.Append(self.viewMenuItem, u"&View")
+            #
+            self.methodsMenuItem = wx.Menu()
+            self.himar1MenuItem = wx.Menu()
+            self.tn5MenuItem = wx.Menu()
 
-        #
-        self.methodsMenuItem = wx.Menu()
-        self.himar1MenuItem = wx.Menu()
-        self.tn5MenuItem = wx.Menu()
+            self.methodsMenuItem.AppendSubMenu(self.himar1MenuItem, "&Himar1 Methods")
+            self.methodsMenuItem.AppendSubMenu(self.tn5MenuItem, "&Tn5 Methods")
+            self.m_menubar1.Append(self.methodsMenuItem, u"&Analysis")
 
-        self.methodsMenuItem.AppendSubMenu(self.himar1MenuItem, "&Himar1 Methods")
-        self.methodsMenuItem.AppendSubMenu(self.tn5MenuItem, "&Tn5 Methods")
-        self.m_menubar1.Append(self.methodsMenuItem, u"&Analysis")
+            self.SetMenuBar(self.m_menubar1)
 
-        self.SetMenuBar(self.m_menubar1)
+            self.helpMenuItem = wx.Menu()
+            self.documentationMenuItem = wx.MenuItem(
+                self.helpMenuItem,
+                wx.ID_ANY,
+                u"&Documentation",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            self.helpMenuItem.Append(self.documentationMenuItem)
+            self.aboutMenuItem = wx.MenuItem(
+                self.helpMenuItem, wx.ID_ANY, u"&About", wx.EmptyString, wx.ITEM_NORMAL
+            )
+            self.helpMenuItem.Append(self.aboutMenuItem)
 
-        self.helpMenuItem = wx.Menu()
-        self.documentationMenuItem = wx.MenuItem(
-            self.helpMenuItem,
-            wx.ID_ANY,
-            u"&Documentation",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        self.helpMenuItem.Append(self.documentationMenuItem)
-        self.aboutMenuItem = wx.MenuItem(
-            self.helpMenuItem, wx.ID_ANY, u"&About", wx.EmptyString, wx.ITEM_NORMAL
-        )
-        self.helpMenuItem.Append(self.aboutMenuItem)
+            self.m_menubar1.Append(self.helpMenuItem, u"&Help")
 
-        self.m_menubar1.Append(self.helpMenuItem, u"&Help")
+            self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
 
-        self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
-
-        self.Centre(wx.BOTH)
-
+            self.Centre(wx.BOTH)
+        
+        # 
         # Connect Events
+        # 
+        if True:
+            self.annotationFilePicker.Bind(       wx.EVT_FILEPICKER_CHANGED, self.annotationFileFunc     )
+            self.ctrlRemoveButton.Bind(           wx.EVT_BUTTON            , self.ctrlRemoveFunc         )
+            self.ctrlViewButton.Bind(             wx.EVT_BUTTON            , self.allViewFunc            )
+            self.ctrlScatterButton.Bind(          wx.EVT_BUTTON            , self.scatterFunc            )
+            self.ctrlFilePicker.Bind(             wx.EVT_BUTTON            , self.loadCtrlFileFunc       )
+            self.combinedWigFilePicker.Bind(      wx.EVT_BUTTON            , self.loadCombinedWigFileFunc)
+            self.experimentRemoveButton.Bind(     wx.EVT_BUTTON            , self.expRemoveFunc          )
+            self.experimentTrackViewButton.Bind(  wx.EVT_BUTTON            , self.allViewFunc            )
+            self.experimentScatterButton.Bind(    wx.EVT_BUTTON            , self.scatterFunc            )
+            self.experimentFilePickerButton.Bind( wx.EVT_BUTTON            , self.loadExpFileFunc        )
+            self.displayButton.Bind(              wx.EVT_BUTTON            , self.displayFileFunc        )
+            self.fileActionButton.Bind(           wx.EVT_BUTTON            , self.fileActionFunc         )
+            self.addFileButton.Bind(              wx.EVT_BUTTON            , self.addFileFunc            )
+            self.fileActionChoice.Bind(           wx.EVT_CHOICE            , self.fileActionFunc         )
+            self.listFiles.Bind(                  wx.EVT_LIST_ITEM_SELECTED, self.fileSelected           )
 
-        self.annotationFilePicker.Bind(
-            wx.EVT_FILEPICKER_CHANGED, self.annotationFileFunc
-        )
-        self.ctrlRemoveButton.Bind(wx.EVT_BUTTON, self.ctrlRemoveFunc)
-        self.ctrlViewButton.Bind(wx.EVT_BUTTON, self.allViewFunc)
-        self.ctrlScatterButton.Bind(wx.EVT_BUTTON, self.scatterFunc)
-        self.ctrlFilePicker.Bind(wx.EVT_BUTTON, self.loadCtrlFileFunc)
-        self.experimentRemoveButton.Bind(wx.EVT_BUTTON, self.expRemoveFunc)
-        self.experimentTrackViewButton.Bind(wx.EVT_BUTTON, self.allViewFunc)
-        self.experimentScatterButton.Bind(wx.EVT_BUTTON, self.scatterFunc)
-        self.experimentFilePickerButton.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
-        self.displayButton.Bind(wx.EVT_BUTTON, self.displayFileFunc)
-        self.fileActionButton.Bind(wx.EVT_BUTTON, self.fileActionFunc)
-        self.addFileButton.Bind(wx.EVT_BUTTON, self.addFileFunc)
-        self.fileActionChoice.Bind(wx.EVT_CHOICE, self.fileActionFunc)
-        self.listFiles.Bind(wx.EVT_LIST_ITEM_SELECTED, self.fileSelected)
-
-        self.Bind(
-            wx.EVT_MENU,
-            self.annotationPT_to_PTT,
-            id=self.annotationConvertPTToPTTMenu.GetId(),
-        )
-        self.Bind(
-            wx.EVT_MENU,
-            self.annotationPT_to_GFF3,
-            id=self.annotationConvertPTToGFF3Menu.GetId(),
-        )
-        self.Bind(
-            wx.EVT_MENU,
-            self.annotationPTT_to_PT,
-            id=self.annotationConvertPTTToPT.GetId(),
-        )
-        # self.Bind( wx.EVT_MENU, self.annotationGFF3_to_PT, id = self.annotationConvertGFF3ToPT.GetId() )
-        self.Bind(wx.EVT_MENU, self.Exit, id=self.fileExitMenuItem.GetId())
-        self.Bind(wx.EVT_MENU, self.scatterFunc, id=self.scatterMenuItem.GetId())
-        self.Bind(wx.EVT_MENU, self.allViewFunc, id=self.trackMenuItem.GetId())
-        self.Bind(wx.EVT_MENU, self.qcFunc, id=self.qcMenuItem.GetId())
-
-        self.Bind(wx.EVT_MENU, self.aboutFunc, id=self.aboutMenuItem.GetId())
-        self.Bind(
-            wx.EVT_MENU, self.documentationFunc, id=self.documentationMenuItem.GetId()
-        )
-        self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
+            self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=self.annotationConvertPTToPTTMenu.GetId(),  )
+            self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=self.annotationConvertPTToGFF3Menu.GetId(), )
+            self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=self.annotationConvertPTTToPT.GetId(),      )
+            self.Bind(wx.EVT_MENU, self.Exit                , id=self.fileExitMenuItem.GetId()               )
+            self.Bind(wx.EVT_MENU, self.scatterFunc         , id=self.scatterMenuItem.GetId()                )
+            self.Bind(wx.EVT_MENU, self.allViewFunc         , id=self.trackMenuItem.GetId()                  )
+            self.Bind(wx.EVT_MENU, self.qcFunc              , id=self.qcMenuItem.GetId()                     )
+            self.Bind(wx.EVT_MENU, self.aboutFunc           , id=self.aboutMenuItem.GetId()                  )
+            self.Bind(wx.EVT_MENU, self.documentationFunc   , id=self.documentationMenuItem.GetId()          )
+            
+            self.timer = wx.Timer(self)
+            self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
 
     def __del__(self):
         pass
@@ -948,6 +949,9 @@ class MainFrame(wx.Frame):
         event.Skip()
 
     def loadCtrlFileFunc(self, event):
+        event.Skip()
+    
+    def loadCombinedWigFileFunc(self, event):
         event.Skip()
 
     def expRemoveFunc(self, event):
@@ -1511,6 +1515,7 @@ class TnSeekFrame(MainFrame):
         if not DIR:
             DIR = os.getcwd()
 
+        
         dlg = wx.FileDialog(
             self,
             message="Save file as ...",
@@ -1535,6 +1540,7 @@ class TnSeekFrame(MainFrame):
         Create and show the Open FileDialog
         """
         path = ""
+        
         dlg = wx.FileDialog(
             self,
             message="Save file as ...",
@@ -1668,6 +1674,7 @@ class TnSeekFrame(MainFrame):
         self.statusBar.SetStatusText("Loading Control Dataset(s)...")
         try:
 
+            
             dlg = wx.FileDialog(
                 self,
                 message="Choose a file",
@@ -1689,13 +1696,45 @@ class TnSeekFrame(MainFrame):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
         self.statusBar.SetStatusText("")
+    
+    def loadCombinedWigFileFunc(self, event): # BOOKMARK: cwig_callback
+        try:
+            fileDialog = wx.FileDialog(
+                self,
+                message="Choose a cwig file",
+                defaultDir=self.workdir,
+                defaultFile="",
+                wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+            )
+            if fileDialog.ShowModal() == wx.ID_OK:
+                paths = fileDialog.GetPaths()
+                print("You chose the following Control file(s):")
+                for fullpath in paths:
+                    metadataDialog = wx.FileDialog(
+                        self,
+                        message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
+                        defaultDir=self.workdir,
+                        defaultFile="",
+                        wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                    )
+                    if metadataDialog.ShowModal() == wx.ID_OK:
+                        metdataPath = paths[0]
+                        print(f'''fullpath, = {fullpath}, {metdataPath}''')
+                    
+            fileDialog.Destroy()
+        except Exception as e:
+            transit_tools.transit_message("Error: %s" % e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
 
     #
 
     def loadExpFileFunc(self, event):
         self.statusBar.SetStatusText("Loading Experimental Dataset(s)...")
         try:
-
             dlg = wx.FileDialog(
                 self,
                 message="Choose a file",
@@ -2355,6 +2394,7 @@ along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
     def addFileFunc(self, event):
 
         try:
+            
             dlg = wx.FileDialog(
                 self,
                 message="Choose a file",

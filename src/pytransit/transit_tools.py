@@ -23,6 +23,7 @@ SEPARATOR = "\1"  # for making names that combine conditions and interactions; t
 
 import sys
 import os
+from typing import NamedTuple
 
 # 
 # optional import: wx
@@ -154,6 +155,11 @@ One or more of your .wig files does not include any empty sites (i.e. sites with
             else:
                 self.Close()
 
+def rgba(*args):
+    return tuple(args)
+
+class color(NamedTuple):
+    green = rgba(187, 237, 181, 255)
 
 def fetch_name(filepath):
     # TODO: Write docstring
@@ -161,7 +167,6 @@ def fetch_name(filepath):
 
 
 def basename(filepath):
-    # TODO: Write docstring
     return ntpath.basename(filepath)
 
 
