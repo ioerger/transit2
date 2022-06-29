@@ -69,7 +69,7 @@ if HAS_WX:
 
             sizer = wx.BoxSizer(wx.VERTICAL)
 
-            self.list_ctrl = None
+            self.listCtrl = None
             self.InitMenu()
             self.InitFiles(panel, sizer)
 
@@ -614,32 +614,32 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
         #
 
         def InitList(self, panel, sizer):
-            self.list_ctrl = wx.ListCtrl(
+            self.listCtrl = wx.ListCtrl(
                 panel, size=(500, 210), style=wx.LC_REPORT | wx.BORDER_SUNKEN
             )
-            self.list_ctrl.InsertColumn(0, "Dataset (*.tn_stats)", width=300)
-            self.list_ctrl.InsertColumn(
+            self.listCtrl.InsertColumn(0, "Dataset (*.tn_stats)", width=300)
+            self.listCtrl.InsertColumn(
                 1, "total reads", wx.LIST_FORMAT_RIGHT, width=125
             )
-            self.list_ctrl.InsertColumn(2, "Tn prefix", wx.LIST_FORMAT_RIGHT, width=125)
-            self.list_ctrl.InsertColumn(3, "R1_mapped", wx.LIST_FORMAT_RIGHT, width=90)
-            self.list_ctrl.InsertColumn(4, "R2_mapped", wx.LIST_FORMAT_RIGHT, width=90)
-            self.list_ctrl.InsertColumn(
+            self.listCtrl.InsertColumn(2, "Tn prefix", wx.LIST_FORMAT_RIGHT, width=125)
+            self.listCtrl.InsertColumn(3, "R1_mapped", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(4, "R2_mapped", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(
                 5, "mapped\nreads", wx.LIST_FORMAT_RIGHT, width=90
             )
-            self.list_ctrl.InsertColumn(
+            self.listCtrl.InsertColumn(
                 6, "template\ncount", wx.LIST_FORMAT_RIGHT, width=90
             )
-            self.list_ctrl.InsertColumn(7, "TAs hit", wx.LIST_FORMAT_RIGHT, width=90)
-            self.list_ctrl.InsertColumn(
+            self.listCtrl.InsertColumn(7, "TAs hit", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(
                 8, "insertion\ndensity", wx.LIST_FORMAT_RIGHT, width=90
             )
-            self.list_ctrl.InsertColumn(9, "NZmean", wx.LIST_FORMAT_RIGHT, width=90)
-            self.list_ctrl.InsertColumn(10, "maxcount", wx.LIST_FORMAT_RIGHT, width=90)
-            self.list_ctrl.InsertColumn(11, "primer", wx.LIST_FORMAT_RIGHT, width=90)
-            self.list_ctrl.InsertColumn(12, "vector", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(9, "NZmean", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(10, "maxcount", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(11, "primer", wx.LIST_FORMAT_RIGHT, width=90)
+            self.listCtrl.InsertColumn(12, "vector", wx.LIST_FORMAT_RIGHT, width=90)
 
-            sizer.Add(self.list_ctrl, 0, wx.ALL | wx.EXPAND, 10)
+            sizer.Add(self.listCtrl, 0, wx.ALL | wx.EXPAND, 10)
 
         #
 
@@ -675,9 +675,9 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
         #
 
         def update_dataset_list(self):
-            if self.list_ctrl == None:
+            if self.listCtrl == None:
                 return
-            self.list_ctrl.DeleteAllItems()
+            self.listCtrl.DeleteAllItems()
             self.index = 0
             datasets = []
             for fname in glob.glob("*.tn_stats"):
@@ -725,9 +725,9 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
         #
 
         def add_data(self, dataset, vals):
-            self.list_ctrl.InsertItem(self.index, dataset)
+            self.listCtrl.InsertItem(self.index, dataset)
             for i in range(1, len(vals) + 1):
-                self.list_ctrl.SetItem(self.index, i, vals[i - 1])
+                self.listCtrl.SetItem(self.index, i, vals[i - 1])
             self.index += 1
 
         #

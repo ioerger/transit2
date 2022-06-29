@@ -68,19 +68,19 @@ class MainFrame(wx.Frame):
 
         # Define Text
         self.instructions_text = """
-1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
-2. Add the desired Control and Experimental datasets.
-3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
-4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
-"""
+            1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
+            2. Add the desired Control and Experimental datasets.
+            3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
+            4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
+        """.replace("\n            ","\n")
 
         # Define ART
         bmp = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
-
-        # self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
-
-        bSizer1 = wx.BoxSizer(wx.HORIZONTAL)
-
+        
+        
+        # 
+        # main window
+        # 
         self.mainWindow = wx.ScrolledWindow(
             self,
             wx.ID_ANY,
@@ -90,524 +90,681 @@ class MainFrame(wx.Frame):
         )
         self.mainWindow.SetScrollRate(5, 5)
         self.mainWindow.SetMinSize(wx.Size(700, -1))
-
-        bSizer4 = wx.BoxSizer(wx.VERTICAL)
-
-        orgSizer = wx.StaticBoxSizer(
-            wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Organism"), wx.VERTICAL
-        )
-
-        # ANNOTATION
-        annot_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        label_annot = wx.StaticText(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Annotation File:",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        annot_sizer.Add(label_annot, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        self.annotationFilePicker = wx.FilePickerCtrl(
-            self.mainWindow,
-            id=wx.ID_ANY,
-            size=(400, 30),
-            wildcard=u"prot_table or GFF3 files (*.gff3;*.gff;*.prot_table;*.txt)|*.gff3;*.gff;*.prot_table;*.txt",
-            message="Select Annotation file (.prot_table or .gff3)",
-            style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL | wx.FD_MULTIPLE,
-        )
-        self.annotationFilePicker.SetInitialDirectory(os.getcwd())
-        annot_sizer.Add(
-            self.annotationFilePicker, proportion=1, flag=wx.EXPAND | wx.ALL, border=5
-        )
-
-        orgSizer.Add(annot_sizer, 1, wx.EXPAND, 5)
-
-        # ANNOTATION
-
-        # bSizer10 = wx.BoxSizer( wx.HORIZONTAL )
-
-        # self.m_staticText5 = wx.StaticText( self.mainWindow, wx.ID_ANY, u"Annotation File:", wx.DefaultPosition, wx.DefaultSize, 0 )
-        # self.m_staticText5.Wrap( -1 )
-        # bSizer10.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-
-        # self.annotationFilePicker = GenBitmapTextButton(self.mainWindow, 1, bmp, '[Click to add Annotation File (.prot_table or .gff3)]', size= wx.Size(500, -1))
-
-        # bSizer10.Add( self.annotationFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5 )
-
-        # orgSizer.Add( bSizer10, 1, wx.EXPAND, 5 )
-
-        bSizer4.Add(orgSizer, 0, wx.EXPAND, 5)
-
-        # CONTROL
-        ctrlSizer = wx.StaticBoxSizer(
-            wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Control Samples"), wx.VERTICAL
-        )
-
-        bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.ctrlRemoveButton = wx.Button(
-            self.mainWindow, wx.ID_ANY, u"Remove", wx.DefaultPosition, (96, -1), 0
-        )
-        bSizer2.Add(self.ctrlRemoveButton, 0, wx.ALL, 5)
-
-        self.ctrlView = wx.Button(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Track View",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.ctrlView.Hide()
-
-        bSizer2.Add(self.ctrlView, 0, wx.ALL, 5)
-
-        self.ctrlScatter = wx.Button(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Scatter",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.ctrlScatter.Hide()
-
-        bSizer2.Add(self.ctrlScatter, 0, wx.ALL, 5)
-
-        self.ctrlFilePicker = GenBitmapTextButton(
-            self.mainWindow,
-            1,
-            bmp,
-            "[Click to add Control Dataset(s)]",
-            size=wx.Size(500, -1),
-        )
-        bSizer2.Add(self.ctrlFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-
-        ctrlSizer.Add(bSizer2, 0, wx.EXPAND, 5)
-
-        self.list_ctrl = wx.ListCtrl(
-            self.mainWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.LC_REPORT | wx.SUNKEN_BORDER,
-        )
-
-        self.list_ctrl.SetMaxSize(wx.Size(-1, 200))
-        ctrlSizer.Add(self.list_ctrl, 1, wx.ALL | wx.EXPAND, 5)
-
-        bSizer4.Add(ctrlSizer, 1, wx.EXPAND, 5)
-
-        # EXPERIMENTAL
-        expSizer1 = wx.StaticBoxSizer(
-            wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Experimental Samples"),
-            wx.VERTICAL,
-        )
-
-        bSizer3 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.expSizer = wx.Button(
-            self.mainWindow, wx.ID_ANY, u"Remove", wx.DefaultPosition, (96, -1), 0
-        )
-        bSizer3.Add(self.expSizer, 0, wx.ALL, 5)
-
-        self.expView = wx.Button(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Track View",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.expView.Hide()
-
-        bSizer3.Add(self.expView, 0, wx.ALL, 5)
-
-        self.expScatter = wx.Button(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Scatter",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.expScatter.Hide()
-
-        bSizer3.Add(self.expScatter, 0, wx.ALL, 5)
-
-        self.expFilePicker = GenBitmapTextButton(
-            self.mainWindow,
-            1,
-            bmp,
-            "[Click to add Experimental Dataset(s)]",
-            size=wx.Size(500, -1),
-        )
-        bSizer3.Add(self.expFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-
-        expSizer1.Add(bSizer3, 0, wx.EXPAND, 5)
-
-        self.list_exp = wx.ListCtrl(
-            self.mainWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.LC_REPORT | wx.SUNKEN_BORDER,
-        )
-        self.list_exp.SetMaxSize(wx.Size(-1, 200))
-        expSizer1.Add(self.list_exp, 1, wx.ALL | wx.EXPAND, 5)
-
-        bSizer4.Add(expSizer1, 1, wx.EXPAND, 5)
-
-        # RESULTS
-        filesSizer = wx.StaticBoxSizer(
-            wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Results Files"), wx.VERTICAL
-        )
-
-        bSizer141 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.displayButton = wx.Button(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Display Table",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        bSizer141.Add(self.displayButton, 0, wx.ALL, 5)
-
-        self.fileActionButton = wx.Button(
-            self.mainWindow,
-            wx.ID_ANY,
-            u"Display Graph",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.fileActionButton.Hide()
-
-        bSizer141.Add(self.fileActionButton, 0, wx.ALL, 5)
-
-        self.addFileButton = GenBitmapTextButton(
-            self.mainWindow, 1, bmp, "Add Results File", size=wx.Size(150, 30)
-        )
-
-        bSizer141.Add(self.addFileButton, 0, wx.ALL, 5)
-
-        fileActionChoiceChoices = [u"[Choose Action]"]
-        self.fileActionChoice = wx.Choice(
-            self.mainWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            fileActionChoiceChoices,
-            0,
-        )
-        self.fileActionChoice.SetSelection(0)
-        bSizer141.Add(self.fileActionChoice, 0, wx.ALL, 5)
-
-        filesSizer.Add(bSizer141, 0, 0, 5)
-
-        self.list_files = wx.ListCtrl(
-            self.mainWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.LC_REPORT | wx.SUNKEN_BORDER,
-        )
-        self.list_files.SetMaxSize(wx.Size(-1, 200))
-        filesSizer.Add(self.list_files, 1, wx.ALL | wx.EXPAND, 5)
-
-        bSizer4.Add(filesSizer, 1, wx.EXPAND, 5)
-
-        self.mainWindow.SetSizer(bSizer4)
-        self.mainWindow.Layout()
-        bSizer4.Fit(self.mainWindow)
-        bSizer1.Add(self.mainWindow, 1, wx.ALL | wx.EXPAND, 5)
-
-        self.m_panel5 = wx.Panel(
-            self,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.DOUBLE_BORDER | wx.TAB_TRAVERSAL,
-        )
-        self.m_panel5.SetMaxSize(wx.Size(2, -1))
-
-        bSizer1.Add(self.m_panel5, 0, wx.ALL | wx.EXPAND, 5)
-
-        self.optionsWindow = wx.ScrolledWindow(
-            self,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.Size(-1, -1),
-            wx.HSCROLL | wx.VSCROLL | wx.EXPAND,
-        )
-        self.optionsWindow.SetScrollRate(5, 5)
-        self.optionsWindow.SetMinSize(wx.Size(310, 1000))
-
-        self.optionsSizer = wx.BoxSizer(wx.VERTICAL)
-
-        # Logo Section
-        self.logoImg = wx.StaticBitmap(
-            self.optionsWindow,
-            wx.ID_ANY,
-            wx.NullBitmap,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.optionsSizer.Add(self.logoImg, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-
-        self.versionLabel = wx.StaticText(
-            self.optionsWindow,
-            wx.ID_ANY,
-            u"",
-            wx.DefaultPosition,
-            (100, 25),
-            wx.ALIGN_CENTRE,
-        )
-        self.versionLabel.Wrap(-1)
-        self.versionLabel.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
-
-        self.optionsSizer.Add(
-            self.versionLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
-
-        # Method Information
-        self.methodInfoText = wx.StaticBox(
-            self.optionsWindow, wx.ID_ANY, u"Instructions"
-        )
-        self.methodInfoText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        self.methodInfoSizer = wx.StaticBoxSizer(self.methodInfoText, wx.VERTICAL)
-
-        self.methodShortText = wx.StaticText(
-            self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        self.methodShortText.Wrap(250)
-        self.methodShortText.Hide()
-        self.methodInfoSizer.Add(
-            self.methodShortText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
-        self.methodLongText = wx.StaticText(
-            self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        self.methodLongText.Wrap(250)
-        self.methodLongText.Hide()
-        self.methodInfoSizer.Add(
-            self.methodLongText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
-
-        self.methodDescText = wx.StaticText(
-            self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        self.methodDescText.Wrap(250)
-        self.methodDescText.Hide()
-        self.methodInfoSizer.Add(
-            self.methodDescText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
-
-        self.methodTnText = wx.StaticText(
-            self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        self.methodTnText.Wrap(250)
-
-        font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
-        self.methodTnText.SetFont(font)
-        self.methodTnText.Hide()
-
-        self.methodInfoSizer.Add(
-            self.methodTnText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
-
-        self.methodInstructions = wx.StaticText(
-            self.optionsWindow,
-            wx.ID_ANY,
-            self.instructions_text,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.methodInstructions.Wrap(250)
-        self.methodInfoSizer.Add(
-            self.methodInstructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
-        self.optionsSizer.Add(self.methodInfoSizer, 0, wx.ALL | wx.EXPAND, 5)
-
-        # Method Options
-        self.methodSizerText = wx.StaticBox(
-            self.optionsWindow, wx.ID_ANY, u"Method Options"
-        )
-        self.methodSizerText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        self.methodSizer = wx.StaticBoxSizer(self.methodSizerText, wx.VERTICAL)
-
-        self.m_panel1 = wx.Panel(
-            self.optionsWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
-        self.m_panel1.SetMinSize(wx.Size(50, 1))
-
-        self.methodSizer.Add(self.m_panel1, 0, wx.ALL, 5)
-
-        self.globalLabel = wx.StaticText(
-            self.optionsWindow,
-            wx.ID_ANY,
-            u"Global Options",
-            wx.DefaultPosition,
-            (130, 20),
-            0,
-        )
-        self.globalLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        self.methodSizer.Add(self.globalLabel, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        self.globalPanel = wx.Panel(
-            self.optionsWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
-        self.globalPanel.SetMinSize(wx.Size(280, 150))
-        self.globalPanel.SetMaxSize(wx.Size(-1, -1))
-
-        globalSizerVT = wx.BoxSizer(wx.VERTICAL)
-        nTermSizer = wx.BoxSizer(wx.HORIZONTAL)
-        cTermSizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        # N TERMINUS - GLOBAL
-        self.globalNTerminusLabel = wx.StaticText(
-            self.globalPanel,
-            wx.ID_ANY,
-            u"Ignore N-Terminus %:",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.globalNTerminusLabel.Wrap(-1)
-
-        self.globalNTerminusText = wx.TextCtrl(
-            self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        self.globalNTerminusIcon = pytransit.analysis.base.InfoIcon(
-            self.globalPanel,
-            wx.ID_ANY,
-            tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
-        )
-        nTermSizer.Add(self.globalNTerminusLabel, 1, wx.ALIGN_CENTER, 5)
-        nTermSizer.Add(self.globalNTerminusText, 1, wx.ALIGN_CENTER, 5)
-        nTermSizer.Add(self.globalNTerminusIcon, 1, wx.ALIGN_CENTER, 5)
-
-        # C TERMINUS - GLOBAL
-        self.globalCTerminusLabel = wx.StaticText(
-            self.globalPanel,
-            wx.ID_ANY,
-            u"Ignore C-Terminus %:",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.globalCTerminusLabel.Wrap(-1)
-        self.globalCTerminusText = wx.TextCtrl(
-            self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        self.globalCTerminusIcon = pytransit.analysis.base.InfoIcon(
-            self.globalPanel,
-            wx.ID_ANY,
-            tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
-        )
-
-        cTermSizer.Add(self.globalCTerminusLabel, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-        cTermSizer.Add(self.globalCTerminusText, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-        cTermSizer.Add(self.globalCTerminusIcon, 1, wx.ALIGN_CENTER, 5)
-
-        # Control Libraries text - GLOBAL
-        ctrlLibSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.ctrlLibLabel = wx.StaticText(
-            self.globalPanel,
-            wx.ID_ANY,
-            u"Control Libraries:",
-            wx.DefaultPosition,
-            (170, -1),
-            0,
-        )
-        self.ctrlLibLabel.Wrap(-1)
-        self.ctrlLibText = wx.TextCtrl(
-            self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
-        )
-        self.ctrlLibTip = pytransit.analysis.base.InfoIcon(
-            self.globalPanel,
-            wx.ID_ANY,
-            tooltip="String of letters representing an \
-            identifier for the libraries the datasets belong to. For example, if adding three \
-            datasets of different libraries, change the string to 'ABC'. Set of letters used  \
-            must match those in Experimental datasets. Keep empty or with all letters equal, e.g. \
-            'AAA', to do regular resampling.",
-        )
-
-        self.ctrlLibText.Disable()
-        ctrlLibSizer.Add(self.ctrlLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-        ctrlLibSizer.Add(self.ctrlLibText, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-        ctrlLibSizer.Add(self.ctrlLibTip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-
-        # Experimental Libraries text - GLOBAL
-        expLibSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.expLibLabel = wx.StaticText(
-            self.globalPanel,
-            wx.ID_ANY,
-            u"Experimental Libraries:",
-            wx.DefaultPosition,
-            (170, -1),
-            0,
-        )
-        self.expLibLabel.Wrap(-1)
-        self.expLibText = wx.TextCtrl(
-            self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
-        )
-        self.expLibTip = pytransit.analysis.base.InfoIcon(
-            self.globalPanel,
-            wx.ID_ANY,
-            tooltip="String of letters representing an identifier for the libraries the datasets \
-            belong to. For example, if adding three datasets of different libraries, change the \
-            string to 'ABC'. Set  of letters used must match those in Control datasets. Keep \
-            empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
-        )
-
-        self.expLibText.Disable()
-        expLibSizer.Add(self.expLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-        expLibSizer.Add(self.expLibText, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-        expLibSizer.Add(self.expLibTip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-
-        # globalSizerVT.Add( nTermSizer, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
-        # globalSizerVT.Add( cTermSizer, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
-        # globalSizerVT.Add( ctrlLibSizer, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
-        # globalSizerVT.Add( expLibSizer, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
-        globalSizerVT.Add(nTermSizer, 1, wx.EXPAND, 5)
-        globalSizerVT.Add(cTermSizer, 1, wx.EXPAND, 5)
-        globalSizerVT.Add(ctrlLibSizer, 1, wx.EXPAND, 5)
-        globalSizerVT.Add(expLibSizer, 1, wx.EXPAND, 5)
-
-        self.globalPanel.SetSizer(globalSizerVT)
-        self.globalPanel.Layout()
-        globalSizerVT.Fit(self.globalPanel)
-        self.methodSizer.Add(self.globalPanel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
+        
+        # 
+        # windowWrapper
+        # 
+        if True:
+            windowWrapper = wx.BoxSizer(wx.HORIZONTAL)
+            # 
+            # windowSizer
+            # 
+            if True:
+                windowSizer = wx.BoxSizer(wx.VERTICAL)
+                
+                # 
+                # orgSizer
+                # 
+                if True:
+                    orgSizer = wx.StaticBoxSizer(
+                        wx.StaticBox(
+                            self.mainWindow,
+                            wx.ID_ANY,
+                            u"Organism"
+                        ),
+                        wx.VERTICAL,
+                    )
+                    
+                    # 
+                    # annotation sizer
+                    # 
+                    if True:
+                        annot_sizer = wx.BoxSizer(wx.HORIZONTAL)
+                        
+                        # 
+                        # text
+                        # 
+                        if True:
+                            label_annot = wx.StaticText(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Annotation File:",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            annot_sizer.Add(
+                                label_annot,
+                                0,
+                                wx.ALIGN_CENTER_VERTICAL,
+                                0
+                            )
+                        
+                        # 
+                        # picker
+                        # 
+                        if True:
+                            self.annotationFilePicker = wx.FilePickerCtrl(
+                                self.mainWindow,
+                                id=wx.ID_ANY,
+                                size=(400, 30),
+                                wildcard=u"prot_table or GFF3 files (*.gff3;*.gff;*.prot_table;*.txt)|*.gff3;*.gff;*.prot_table;*.txt",
+                                message="Select Annotation file (.prot_table or .gff3)",
+                                style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL | wx.FD_MULTIPLE,
+                            )
+                            self.annotationFilePicker.SetInitialDirectory(os.getcwd())
+                            annot_sizer.Add(
+                                self.annotationFilePicker,
+                                proportion=1,
+                                flag=wx.EXPAND | wx.ALL,
+                                border=5,
+                            )
+
+                        orgSizer.Add(annot_sizer, 1, wx.EXPAND, 5)
+
+                    windowSizer.Add(orgSizer, 0, wx.EXPAND, 5)
+
+                # 
+                # ctrlSizer
+                # 
+                if True:
+                    ctrlSizer = wx.StaticBoxSizer(
+                        wx.StaticBox(
+                            self.mainWindow,
+                            wx.ID_ANY,
+                            u"Control Samples"
+                        ),
+                        wx.VERTICAL,
+                    )
+                    
+                    # 
+                    # box
+                    # 
+                    if True:
+                        ctrlBoxSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+                        
+                        # 
+                        # ctrlRemoveButton
+                        # 
+                        if True:
+                            self.ctrlRemoveButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Remove",
+                                wx.DefaultPosition,
+                                (96, -1),
+                                0,
+                            )
+                            ctrlBoxSizer2.Add(self.ctrlRemoveButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # ctrlViewButton
+                        # 
+                        if True:
+                            self.ctrlViewButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Track View",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.ctrlViewButton.Hide()
+
+                            ctrlBoxSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
+
+                        # 
+                        # ctrlScatterButton
+                        # 
+                        if True:
+                            self.ctrlScatterButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Scatter",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.ctrlScatterButton.Hide()
+                            ctrlBoxSizer2.Add(self.ctrlScatterButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # ctrlFilePicker
+                        # 
+                        if True:
+                            self.ctrlFilePicker = GenBitmapTextButton(
+                                self.mainWindow,
+                                1,
+                                bmp,
+                                "[Click to add Control Dataset(s)]",
+                                size=wx.Size(500, -1),
+                            )
+                            ctrlBoxSizer2.Add(self.ctrlFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+
+                        ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
+                    
+                    # 
+                    # listCtrl
+                    # 
+                    if True:
+                        self.listCtrl = wx.ListCtrl(
+                            self.mainWindow,
+                            wx.ID_ANY,
+                            wx.DefaultPosition,
+                            wx.DefaultSize,
+                            wx.LC_REPORT | wx.SUNKEN_BORDER,
+                        )
+
+                        self.listCtrl.SetMaxSize(wx.Size(-1, 200))
+                        ctrlSizer.Add(self.listCtrl, 1, wx.ALL | wx.EXPAND, 5)
+
+                    windowSizer.Add(
+                        ctrlSizer,
+                        1,
+                        wx.EXPAND,
+                        5
+                    )
+                
+                # 
+                # experimentalSizer
+                # 
+                if True:
+                    experimentalSizer = wx.StaticBoxSizer(
+                        wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Experimental Samples"),
+                        wx.VERTICAL,
+                    )
+                    
+                    # 
+                    # box
+                    # 
+                    if True:
+                        boxSizer = wx.BoxSizer(wx.HORIZONTAL)
+                        
+                        # 
+                        # experimentRemoveButton
+                        # 
+                        if True:
+                            self.experimentRemoveButton = wx.Button(
+                                self.mainWindow, wx.ID_ANY, u"Remove", wx.DefaultPosition, (96, -1), 0
+                            )
+                            boxSizer.Add(self.experimentRemoveButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # experimentTrackViewButton
+                        # 
+                        if True:
+                            self.experimentTrackViewButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Track View",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.experimentTrackViewButton.Hide()
+                            boxSizer.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # experimentScatterButton
+                        # 
+                        if True:
+                            self.experimentScatterButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Scatter",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.experimentScatterButton.Hide()
+                            boxSizer.Add(self.experimentScatterButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # experimentFilePickerButton
+                        # 
+                        if True:
+                            self.experimentFilePickerButton = GenBitmapTextButton(
+                                self.mainWindow,
+                                1,
+                                bmp,
+                                "[Click to add Experimental Dataset(s)]",
+                                size=wx.Size(500, -1),
+                            )
+                            boxSizer.Add(self.experimentFilePickerButton, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+
+                        experimentalSizer.Add(boxSizer, 0, wx.EXPAND, 5)
+
+                    self.list_exp = wx.ListCtrl(
+                        self.mainWindow,
+                        wx.ID_ANY,
+                        wx.DefaultPosition,
+                        wx.DefaultSize,
+                        wx.LC_REPORT | wx.SUNKEN_BORDER,
+                    )
+                    self.list_exp.SetMaxSize(wx.Size(-1, 200))
+                    experimentalSizer.Add(self.list_exp, 1, wx.ALL | wx.EXPAND, 5)
+
+                    windowSizer.Add(experimentalSizer, 1, wx.EXPAND, 5)
+
+                # 
+                # filesSizer
+                # 
+                if True:
+                    filesSizer = wx.StaticBoxSizer(
+                        wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Results Files"), wx.VERTICAL
+                    )
+                    
+                    # 
+                    # Box
+                    # 
+                    if True:
+                        boxSizer4 = wx.BoxSizer(wx.HORIZONTAL)
+                        
+                        # 
+                        # displayButton
+                        # 
+                        if True:
+                            self.displayButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Display Table",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            boxSizer4.Add(self.displayButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # fileActionButton
+                        # 
+                        if True:
+                            self.fileActionButton = wx.Button(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                u"Display Graph",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.fileActionButton.Hide()
+
+                            boxSizer4.Add(self.fileActionButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # addFileButton
+                        # 
+                        if True:
+                            self.addFileButton = GenBitmapTextButton(
+                                self.mainWindow,
+                                1,
+                                bmp,
+                                "Add Results File",
+                                size=wx.Size(150, 30)
+                            )
+                            boxSizer4.Add(self.addFileButton, 0, wx.ALL, 5)
+                        
+                        # 
+                        # fileActionChoice
+                        # 
+                        if True:
+                            fileActionChoiceChoices = [  u"[Choose Action]"  ]
+                            self.fileActionChoice = wx.Choice(
+                                self.mainWindow,
+                                wx.ID_ANY,
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                fileActionChoiceChoices,
+                                0,
+                            )
+                            self.fileActionChoice.SetSelection(0)
+                            boxSizer4.Add(self.fileActionChoice, 0, wx.ALL, 5)
+
+                        filesSizer.Add(boxSizer4, 0, 0, 5)
+                    
+                    # 
+                    # listFiles
+                    # 
+                    if True:
+                        self.listFiles = wx.ListCtrl(
+                            self.mainWindow,
+                            wx.ID_ANY,
+                            wx.DefaultPosition,
+                            wx.DefaultSize,
+                            wx.LC_REPORT | wx.SUNKEN_BORDER,
+                        )
+                        self.listFiles.SetMaxSize(wx.Size(-1, 200))
+                        filesSizer.Add(self.listFiles, 1, wx.ALL | wx.EXPAND, 5)
+
+                windowSizer.Add(filesSizer, 1, wx.EXPAND, 5)
+                self.mainWindow.SetSizer(windowSizer)
+                self.mainWindow.Layout()
+                windowSizer.Fit(self.mainWindow)
+                windowWrapper.Add(self.mainWindow, 1, wx.ALL | wx.EXPAND, 5)
+            
+            # 
+            # m_panel5
+            # 
+            if True:
+                self.m_panel5 = wx.Panel(
+                    self,
+                    wx.ID_ANY,
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    wx.DOUBLE_BORDER | wx.TAB_TRAVERSAL,
+                )
+                self.m_panel5.SetMaxSize(wx.Size(2, -1))
+                windowWrapper.Add(self.m_panel5, 0, wx.ALL | wx.EXPAND, 5)
+            
+            # 
+            # options window
+            # 
+            if True:
+                self.optionsWindow = wx.ScrolledWindow(
+                    self,
+                    wx.ID_ANY,
+                    wx.DefaultPosition,
+                    wx.Size(-1, -1),
+                    wx.HSCROLL | wx.VSCROLL | wx.EXPAND,
+                )
+                self.optionsWindow.SetScrollRate(5, 5)
+                self.optionsWindow.SetMinSize(wx.Size(310, 1000))
+                
+                # 
+                # box
+                # 
+                if True:
+                    self.optionsSizer = wx.BoxSizer(wx.VERTICAL)
+                    
+                    # 
+                    # Logo Section
+                    # 
+                    if True:
+                        self.logoImg = wx.StaticBitmap(
+                            self.optionsWindow,
+                            wx.ID_ANY,
+                            wx.NullBitmap,
+                            wx.DefaultPosition,
+                            wx.DefaultSize,
+                            0,
+                        )
+                        self.optionsSizer.Add(self.logoImg, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+                    
+                    # 
+                    # versionLabel
+                    # 
+                    if True:
+                        self.versionLabel = wx.StaticText(
+                            self.optionsWindow,
+                            wx.ID_ANY,
+                            u"",
+                            wx.DefaultPosition,
+                            (100, 25),
+                            wx.ALIGN_CENTRE,
+                        )
+                        self.versionLabel.Wrap(-1)
+                        self.versionLabel.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
+
+                        self.optionsSizer.Add(
+                            self.versionLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                        )
+                    
+                    # 
+                    # methodInfoSizer
+                    # 
+                    if True:
+                        self.methodInfoText = wx.StaticBox(self.optionsWindow, wx.ID_ANY, u"Instructions")
+                        self.methodInfoText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                        self.methodInfoSizer = wx.StaticBoxSizer(self.methodInfoText, wx.VERTICAL)
+                        
+                        # 
+                        # methodShortText
+                        # 
+                        if True:
+                            self.methodShortText = wx.StaticText(
+                                self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                            )
+                            self.methodShortText.Wrap(250)
+                            self.methodShortText.Hide()
+                            self.methodInfoSizer.Add(
+                                self.methodShortText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                            )
+                        
+                        # 
+                        # methodLongText
+                        # 
+                        if True:
+                            self.methodLongText = wx.StaticText(
+                                self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                            )
+                            self.methodLongText.Wrap(250)
+                            self.methodLongText.Hide()
+                            self.methodInfoSizer.Add(
+                                self.methodLongText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                            )
+                        
+                        # 
+                        # methodDescText
+                        # 
+                        if True:
+
+                            self.methodDescText = wx.StaticText(
+                                self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                            )
+                            self.methodDescText.Wrap(250)
+                            self.methodDescText.Hide()
+                            self.methodInfoSizer.Add(
+                                self.methodDescText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                            )
+                        
+                        # 
+                        # methodTnText
+                        # 
+                        if True:
+                            self.methodTnText = wx.StaticText(
+                                self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                            )
+                            self.methodTnText.Wrap(250)
+
+                            font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+                            self.methodTnText.SetFont(font)
+                            self.methodTnText.Hide()
+
+                            self.methodInfoSizer.Add(
+                                self.methodTnText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                            )
+                        
+                        # 
+                        # methodInstructions
+                        # 
+                        if True:
+                            self.methodInstructions = wx.StaticText(
+                                self.optionsWindow,
+                                wx.ID_ANY,
+                                self.instructions_text,
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.methodInstructions.Wrap(250)
+                            self.methodInfoSizer.Add(
+                                self.methodInstructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                            )
+                        
+                        self.optionsSizer.Add(self.methodInfoSizer, 0, wx.ALL | wx.EXPAND, 5)
+                    
+                    # 
+                    # Method Options
+                    # 
+                    if True:
+                        self.methodSizerText = wx.StaticBox(self.optionsWindow, wx.ID_ANY, u"Method Options")
+                        self.methodSizerText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                        self.methodSizer = wx.StaticBoxSizer(self.methodSizerText, wx.VERTICAL)
+                        
+                        # 
+                        # methodPanel1
+                        # 
+                        if True:
+                            self.methodPanel1 = wx.Panel(
+                                self.optionsWindow,
+                                wx.ID_ANY,
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                wx.TAB_TRAVERSAL,
+                            )
+                            self.methodPanel1.SetMinSize(wx.Size(50, 1))
+                            self.methodSizer.Add(self.methodPanel1, 0, wx.ALL, 5)
+                        
+                        # 
+                        # globalLabel
+                        # 
+                        if True:
+                            self.globalLabel = wx.StaticText(
+                                self.optionsWindow,
+                                wx.ID_ANY,
+                                u"Global Options",
+                                wx.DefaultPosition,
+                                (130, 20),
+                                0,
+                            )
+                            self.globalLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                            self.methodSizer.Add(self.globalLabel, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
+                        
+                        # 
+                        # globalPanel
+                        # 
+                        if True:
+                            self.globalPanel = wx.Panel(
+                                self.optionsWindow,
+                                wx.ID_ANY,
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                wx.TAB_TRAVERSAL,
+                            )
+                            self.globalPanel.SetMinSize(wx.Size(280, 150))
+                            self.globalPanel.SetMaxSize(wx.Size(-1, -1))
+
+                            globalSizerVT = wx.BoxSizer(wx.VERTICAL)
+                            nTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
+                            cTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
+
+                            # N TERMINUS - GLOBAL
+                            self.globalNTerminusLabel = wx.StaticText(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                u"Ignore N-Terminus %:",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.globalNTerminusLabel.Wrap(-1)
+                            self.globalNTerminusText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                            self.globalNTerminusIcon = pytransit.analysis.base.InfoIcon(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
+                            )
+                            nTermSizer.Add(self.globalNTerminusLabel, 1, wx.ALIGN_CENTER, 5)
+                            nTermSizer.Add(self.globalNTerminusText , 1, wx.ALIGN_CENTER, 5)
+                            nTermSizer.Add(self.globalNTerminusIcon , 1, wx.ALIGN_CENTER, 5)
+
+                            # C TERMINUS - GLOBAL
+                            self.globalCTerminusLabel = wx.StaticText(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                u"Ignore C-Terminus %:",
+                                wx.DefaultPosition,
+                                wx.DefaultSize,
+                                0,
+                            )
+                            self.globalCTerminusLabel.Wrap(-1)
+                            self.globalCTerminusText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                            self.globalCTerminusIcon = pytransit.analysis.base.InfoIcon(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
+                            )
+
+                            cTermSizer.Add(self.globalCTerminusLabel, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                            cTermSizer.Add(self.globalCTerminusText, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                            cTermSizer.Add(self.globalCTerminusIcon, 1, wx.ALIGN_CENTER, 5)
+
+                            # Control Libraries text - GLOBAL
+                            ctrlLibSizer = wx.BoxSizer(wx.HORIZONTAL)
+                            self.ctrlLibLabel = wx.StaticText(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                u"Control Libraries:",
+                                wx.DefaultPosition,
+                                (170, -1),
+                                0,
+                            )
+                            self.ctrlLibLabel.Wrap(-1)
+                            self.ctrlLibText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
+                            self.ctrlLibTip = pytransit.analysis.base.InfoIcon(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                tooltip="String of letters representing an \
+                                identifier for the libraries the datasets belong to. For example, if adding three \
+                                datasets of different libraries, change the string to 'ABC'. Set of letters used  \
+                                must match those in Experimental datasets. Keep empty or with all letters equal, e.g. \
+                                'AAA', to do regular resampling.",
+                            )
+
+                            self.ctrlLibText.Disable()
+                            ctrlLibSizer.Add(self.ctrlLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                            ctrlLibSizer.Add(self.ctrlLibText, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                            ctrlLibSizer.Add(self.ctrlLibTip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+
+                            # Experimental Libraries text - GLOBAL
+                            expLibSizer = wx.BoxSizer(wx.HORIZONTAL)
+                            self.expLibLabel = wx.StaticText(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                u"Experimental Libraries:",
+                                wx.DefaultPosition,
+                                (170, -1),
+                                0,
+                            )
+                            self.expLibLabel.Wrap(-1)
+                            self.expLibText = wx.TextCtrl(
+                                self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
+                            )
+                            self.expLibTip = pytransit.analysis.base.InfoIcon(
+                                self.globalPanel,
+                                wx.ID_ANY,
+                                tooltip="String of letters representing an identifier for the libraries the datasets \
+                                belong to. For example, if adding three datasets of different libraries, change the \
+                                string to 'ABC'. Set  of letters used must match those in Control datasets. Keep \
+                                empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
+                            )
+
+                            self.expLibText.Disable()
+                            expLibSizer.Add(self.expLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                            expLibSizer.Add(self.expLibText , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                            expLibSizer.Add(self.expLibTip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+
+                            globalSizerVT.Add(nTermSizer  , 1, wx.EXPAND, 5)
+                            globalSizerVT.Add(cTermSizer  , 1, wx.EXPAND, 5)
+                            globalSizerVT.Add(ctrlLibSizer, 1, wx.EXPAND, 5)
+                            globalSizerVT.Add(expLibSizer , 1, wx.EXPAND, 5)
+
+                            self.globalPanel.SetSizer(globalSizerVT)
+                            self.globalPanel.Layout()
+                            globalSizerVT.Fit(self.globalPanel)
+                            self.methodSizer.Add(self.globalPanel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
+                        
+                    self.optionsSizer.Add(self.methodSizer, 0, wx.EXPAND, 5)
+
+                self.optionsWindow.SetSizer(self.optionsSizer)
+                self.optionsWindow.Layout()
+
+                self.optionsWindow.Fit()
+
+        windowWrapper.Add(self.optionsWindow, 0, wx.ALL, 5)
 
         # --------------------#
 
-        self.optionsSizer.Add(self.methodSizer, 0, wx.EXPAND, 5)
-
-        self.optionsWindow.SetSizer(self.optionsSizer)
-        self.optionsWindow.Layout()
-
-        self.optionsWindow.Fit()
-
-        bSizer1.Add(self.optionsWindow, 0, wx.ALL, 5)
-
-        # --------------------#
-
-        self.SetSizer(bSizer1)
+        self.SetSizer(windowWrapper)
         self.Layout()
         self.m_menubar1 = wx.MenuBar(0)
         self.fileMenuItem = wx.Menu()
@@ -724,18 +881,18 @@ class MainFrame(wx.Frame):
             wx.EVT_FILEPICKER_CHANGED, self.annotationFileFunc
         )
         self.ctrlRemoveButton.Bind(wx.EVT_BUTTON, self.ctrlRemoveFunc)
-        self.ctrlView.Bind(wx.EVT_BUTTON, self.allViewFunc)
-        self.ctrlScatter.Bind(wx.EVT_BUTTON, self.scatterFunc)
+        self.ctrlViewButton.Bind(wx.EVT_BUTTON, self.allViewFunc)
+        self.ctrlScatterButton.Bind(wx.EVT_BUTTON, self.scatterFunc)
         self.ctrlFilePicker.Bind(wx.EVT_BUTTON, self.loadCtrlFileFunc)
-        self.expSizer.Bind(wx.EVT_BUTTON, self.expRemoveFunc)
-        self.expView.Bind(wx.EVT_BUTTON, self.allViewFunc)
-        self.expScatter.Bind(wx.EVT_BUTTON, self.scatterFunc)
-        self.expFilePicker.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
+        self.experimentRemoveButton.Bind(wx.EVT_BUTTON, self.expRemoveFunc)
+        self.experimentTrackViewButton.Bind(wx.EVT_BUTTON, self.allViewFunc)
+        self.experimentScatterButton.Bind(wx.EVT_BUTTON, self.scatterFunc)
+        self.experimentFilePickerButton.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
         self.displayButton.Bind(wx.EVT_BUTTON, self.displayFileFunc)
         self.fileActionButton.Bind(wx.EVT_BUTTON, self.fileActionFunc)
         self.addFileButton.Bind(wx.EVT_BUTTON, self.addFileFunc)
         self.fileActionChoice.Bind(wx.EVT_CHOICE, self.fileActionFunc)
-        self.list_files.Bind(wx.EVT_LIST_ITEM_SELECTED, self.fileSelected)
+        self.listFiles.Bind(wx.EVT_LIST_ITEM_SELECTED, self.fileSelected)
 
         self.Bind(
             wx.EVT_MENU,
@@ -903,12 +1060,12 @@ class TnSeekFrame(MainFrame):
         self.methodSizerText.Hide()
 
         self.index_ctrl = 0
-        self.list_ctrl.InsertColumn(0, "File", width=210)
-        self.list_ctrl.InsertColumn(1, "Total Reads", width=85)
-        self.list_ctrl.InsertColumn(2, "Density", width=85)
-        self.list_ctrl.InsertColumn(3, "Mean Count", width=90)
-        self.list_ctrl.InsertColumn(4, "Max Count", width=85)
-        self.list_ctrl.InsertColumn(5, "Full Path", width=403)
+        self.listCtrl.InsertColumn(0, "File", width=210)
+        self.listCtrl.InsertColumn(1, "Total Reads", width=85)
+        self.listCtrl.InsertColumn(2, "Density", width=85)
+        self.listCtrl.InsertColumn(3, "Mean Count", width=90)
+        self.listCtrl.InsertColumn(4, "Max Count", width=85)
+        self.listCtrl.InsertColumn(5, "Full Path", width=403)
 
         self.index_exp = 0
         self.list_exp.InsertColumn(0, "File", width=210)
@@ -919,10 +1076,10 @@ class TnSeekFrame(MainFrame):
         self.list_exp.InsertColumn(5, "Full Path", width=403)
 
         self.index_file = 0
-        self.list_files.InsertColumn(0, "Name", width=350)
-        self.list_files.InsertColumn(1, "Type", width=100)
-        self.list_files.InsertColumn(2, "Date", width=230)
-        self.list_files.InsertColumn(3, "Full Path", width=403)
+        self.listFiles.InsertColumn(0, "Name", width=350)
+        self.listFiles.InsertColumn(1, "Type", width=100)
+        self.listFiles.InsertColumn(2, "Date", width=230)
+        self.listFiles.InsertColumn(3, "Full Path", width=403)
 
         self.verbose = True
 
@@ -1178,10 +1335,10 @@ class TnSeekFrame(MainFrame):
         name = transit_tools.basename(fullpath)
         type = data["type"]
         date = data["date"]
-        self.list_files.InsertItem(self.index_file, name)
-        self.list_files.SetItem(self.index_file, 1, "%s" % type)
-        self.list_files.SetItem(self.index_file, 2, "%s" % (date))
-        self.list_files.SetItem(self.index_file, 3, "%s" % (fullpath))
+        self.listFiles.InsertItem(self.index_file, name)
+        self.listFiles.SetItem(self.index_file, 1, "%s" % type)
+        self.listFiles.SetItem(self.index_file, 2, "%s" % (date))
+        self.listFiles.SetItem(self.index_file, 3, "%s" % (fullpath))
         self.index_file += 1
 
     #
@@ -1399,10 +1556,10 @@ class TnSeekFrame(MainFrame):
         selected_ctrl = []
         current = -1
         while True:
-            next = self.list_ctrl.GetNextSelected(current)
+            next = self.listCtrl.GetNextSelected(current)
             if next == -1:
                 break
-            path = self.list_ctrl.GetItem(next, col).GetText()
+            path = self.listCtrl.GetItem(next, col).GetText()
             selected_ctrl.append(path)
             current = next
         return selected_ctrl
@@ -1431,8 +1588,8 @@ class TnSeekFrame(MainFrame):
 
     def ctrlAll(self, col=5):
         all_ctrl = []
-        for i in range(self.list_ctrl.GetItemCount()):
-            all_ctrl.append(self.list_ctrl.GetItem(i, col).GetText())
+        for i in range(self.listCtrl.GetItemCount()):
+            all_ctrl.append(self.listCtrl.GetItem(i, col).GetText())
         return all_ctrl
 
     #
@@ -1457,14 +1614,14 @@ class TnSeekFrame(MainFrame):
             skew,
             kurtosis,
         ) = tnseq_tools.get_wig_stats(fullpath)
-        self.list_ctrl.InsertItem(self.index_ctrl, name)
-        self.list_ctrl.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
-        self.list_ctrl.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
-        self.list_ctrl.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
-        self.list_ctrl.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
-        self.list_ctrl.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
+        self.listCtrl.InsertItem(self.index_ctrl, name)
+        self.listCtrl.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
+        self.listCtrl.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
+        self.listCtrl.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
+        self.listCtrl.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
+        self.listCtrl.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
 
-        self.list_ctrl.Select(self.index_ctrl)
+        self.listCtrl.Select(self.index_ctrl)
         self.index_ctrl += 1
         try:
             self.ctrlLibText.SetValue(self.ctrlLibText.GetValue() + "A")
@@ -1566,12 +1723,12 @@ class TnSeekFrame(MainFrame):
     #
 
     def ctrlRemoveFunc(self, event):
-        next = self.list_ctrl.GetNextSelected(-1)
+        next = self.listCtrl.GetNextSelected(-1)
         while next != -1:
             if self.verbose:
                 transit_tools.transit_message(
                     "Removing control item (%d): %s"
-                    % (next, self.list_ctrl.GetItem(next, 0).GetText())
+                    % (next, self.listCtrl.GetItem(next, 0).GetText())
                 )
 
             # Update library string after removing wig file
@@ -1580,8 +1737,8 @@ class TnSeekFrame(MainFrame):
             self.ctrlLibText.SetValue(updated_lib_text)
 
             # Delete and Get next selected
-            self.list_ctrl.DeleteItem(next)
-            next = self.list_ctrl.GetNextSelected(-1)
+            self.listCtrl.DeleteItem(next)
+            next = self.listCtrl.GetNextSelected(-1)
             self.index_ctrl -= 1
 
     #
@@ -1629,7 +1786,7 @@ class TnSeekFrame(MainFrame):
 
     #
 
-    def ctrlViewFunc(self, event, gene=""):
+    def ctrlViewButtonFunc(self, event, gene=""):
         annotationpath = self.annotation
         datasets = self.ctrlSelected()
         if datasets and annotationpath:
@@ -1911,17 +2068,17 @@ along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
     #
 
     def displayFileFunc(self, event):
-        next = self.list_files.GetNextSelected(-1)
+        next = self.listFiles.GetNextSelected(-1)
         if next > -1:
-            dataset = self.list_files.GetItem(next, 3).GetText()
+            dataset = self.listFiles.GetItem(next, 3).GetText()
             if self.verbose:
                 transit_tools.transit_message(
                     "Displaying results: %s"
-                    % self.list_files.GetItem(next, 0).GetText()
+                    % self.listFiles.GetItem(next, 0).GetText()
                 )
 
             try:
-                # fileWindow = file_display.FileFrame(self, dataset, self.list_files.GetItem(next, 1).GetText())
+                # fileWindow = file_display.FileFrame(self, dataset, self.listFiles.GetItem(next, 1).GetText())
                 fileWindow = file_display.TransitGridFrame(self, dataset)
                 fileWindow.Show()
             except Exception as e:
@@ -1937,11 +2094,11 @@ along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
     #
 
     def fileSelected(self, event):
-        next = self.list_files.GetNextSelected(-1)
+        next = self.listFiles.GetNextSelected(-1)
         if next > -1:
-            dataset_path = self.list_files.GetItem(next, 3).GetText()
-            dataset_name = self.list_files.GetItem(next, 0).GetText()
-            dataset_type = self.list_files.GetItem(next, 1).GetText()
+            dataset_path = self.listFiles.GetItem(next, 3).GetText()
+            dataset_name = self.listFiles.GetItem(next, 0).GetText()
+            dataset_type = self.listFiles.GetItem(next, 1).GetText()
             self.updateGraphChoices(dataset_type)
         else:
             pass
@@ -1986,11 +2143,11 @@ along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
         plot_name = self.fileActionChoice.GetString(plot_choice)
         if plot_name == "[Choose Action]":
             return
-        next = self.list_files.GetNextSelected(-1)
+        next = self.listFiles.GetNextSelected(-1)
         if next > -1:
-            dataset_path = self.list_files.GetItem(next, 3).GetText()
-            dataset_name = self.list_files.GetItem(next, 0).GetText()
-            dataset_type = self.list_files.GetItem(next, 1).GetText()
+            dataset_path = self.listFiles.GetItem(next, 3).GetText()
+            dataset_name = self.listFiles.GetItem(next, 0).GetText()
+            dataset_type = self.listFiles.GetItem(next, 1).GetText()
 
             if self.verbose:
                 transit_tools.transit_message(

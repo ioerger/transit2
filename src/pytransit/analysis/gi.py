@@ -267,19 +267,19 @@ if HAS_WX:
             )
             bSizer2.Add(self.ctrlRemoveButton, 0, wx.ALL, 5)
 
-            self.ctrlView = wx.Button(
+            self.ctrlViewButton = wx.Button(
                 self, wx.ID_ANY, u"Track View", wx.DefaultPosition, wx.DefaultSize, 0
             )
-            self.ctrlView.Hide()
+            self.ctrlViewButton.Hide()
 
-            bSizer2.Add(self.ctrlView, 0, wx.ALL, 5)
+            bSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
 
-            self.ctrlScatter = wx.Button(
+            self.ctrlScatterButton = wx.Button(
                 self, wx.ID_ANY, u"Scatter", wx.DefaultPosition, wx.DefaultSize, 0
             )
-            self.ctrlScatter.Hide()
+            self.ctrlScatterButton.Hide()
 
-            bSizer2.Add(self.ctrlScatter, 0, wx.ALL, 5)
+            bSizer2.Add(self.ctrlScatterButton, 0, wx.ALL, 5)
 
             self.ctrlFilePicker = GenBitmapTextButton(
                 self, 1, bmp, "[Click to add Control Dataset(s)]", size=wx.Size(500, -1)
@@ -288,7 +288,7 @@ if HAS_WX:
 
             ctrlSizerB.Add(bSizer2, 0, wx.EXPAND, 5)
 
-            self.list_ctrl = wx.ListCtrl(
+            self.listCtrl = wx.ListCtrl(
                 self,
                 wx.ID_ANY,
                 wx.DefaultPosition,
@@ -296,8 +296,8 @@ if HAS_WX:
                 wx.LC_REPORT | wx.SUNKEN_BORDER,
             )
 
-            self.list_ctrl.SetMaxSize(wx.Size(940, 200))
-            ctrlSizerB.Add(self.list_ctrl, 1, wx.ALL | wx.EXPAND, 5)
+            self.listCtrl.SetMaxSize(wx.Size(940, 200))
+            ctrlSizerB.Add(self.listCtrl, 1, wx.ALL | wx.EXPAND, 5)
 
             # EXPERIMENTAL
 
@@ -313,28 +313,28 @@ if HAS_WX:
             )
             bSizer3.Add(self.expRemoveButton, 0, wx.ALL, 5)
 
-            self.expView = wx.Button(
+            self.experimentTrackViewButton = wx.Button(
                 self, wx.ID_ANY, u"Track View", wx.DefaultPosition, wx.DefaultSize, 0
             )
-            self.expView.Hide()
+            self.experimentTrackViewButton.Hide()
 
-            bSizer3.Add(self.expView, 0, wx.ALL, 5)
+            bSizer3.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
 
-            self.expScatter = wx.Button(
+            self.experimentScatterButton = wx.Button(
                 self, wx.ID_ANY, u"Scatter", wx.DefaultPosition, wx.DefaultSize, 0
             )
-            self.expScatter.Hide()
+            self.experimentScatterButton.Hide()
 
-            bSizer3.Add(self.expScatter, 0, wx.ALL, 5)
+            bSizer3.Add(self.experimentScatterButton, 0, wx.ALL, 5)
 
-            self.expFilePicker = GenBitmapTextButton(
+            self.experimentFilePickerButton = GenBitmapTextButton(
                 self,
                 1,
                 bmp,
                 "[Click to add Experimental Dataset(s)]",
                 size=wx.Size(500, -1),
             )
-            bSizer3.Add(self.expFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+            bSizer3.Add(self.experimentFilePickerButton, 1, wx.ALIGN_CENTER_VERTICAL, 5)
 
             expSizerB.Add(bSizer3, 0, wx.EXPAND, 5)
 
@@ -360,7 +360,7 @@ if HAS_WX:
             button_sizer.Add(doneButton, flag=wx.LEFT, border=5)
             button_sizer.Add(cancelButton, flag=wx.LEFT, border=5)
 
-            self.expFilePicker.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
+            self.experimentFilePickerButton.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
             self.ctrlFilePicker.Bind(wx.EVT_BUTTON, self.loadCtrlFileFunc)
 
             mainSizer.Add(
@@ -371,17 +371,17 @@ if HAS_WX:
             cancelButton.Bind(wx.EVT_BUTTON, self.OnClose)
 
             self.ctrlFilePicker.Bind(wx.EVT_BUTTON, self.loadCtrlFileFunc)
-            self.expFilePicker.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
+            self.experimentFilePickerButton.Bind(wx.EVT_BUTTON, self.loadExpFileFunc)
             self.ctrlRemoveButton.Bind(wx.EVT_BUTTON, self.ctrlRemoveFunc)
             self.expRemoveButton.Bind(wx.EVT_BUTTON, self.expRemoveFunc)
 
             self.index_ctrl = 0
-            self.list_ctrl.InsertColumn(0, "File", width=210)
-            self.list_ctrl.InsertColumn(1, "Total Reads", width=85)
-            self.list_ctrl.InsertColumn(2, "Density", width=85)
-            self.list_ctrl.InsertColumn(3, "Mean Count", width=90)
-            self.list_ctrl.InsertColumn(4, "Max Count", width=85)
-            self.list_ctrl.InsertColumn(5, "Full Path", width=403)
+            self.listCtrl.InsertColumn(0, "File", width=210)
+            self.listCtrl.InsertColumn(1, "Total Reads", width=85)
+            self.listCtrl.InsertColumn(2, "Density", width=85)
+            self.listCtrl.InsertColumn(3, "Mean Count", width=90)
+            self.listCtrl.InsertColumn(4, "Max Count", width=85)
+            self.listCtrl.InsertColumn(5, "Full Path", width=403)
 
             self.index_exp = 0
             self.list_exp.InsertColumn(0, "File", width=210)
@@ -403,10 +403,10 @@ if HAS_WX:
             selected_ctrl = []
             current = -1
             while True:
-                next = self.list_ctrl.GetNextSelected(current)
+                next = self.listCtrl.GetNextSelected(current)
                 if next == -1:
                     break
-                path = self.list_ctrl.GetItem(next, col).GetText()
+                path = self.listCtrl.GetItem(next, col).GetText()
                 selected_ctrl.append(path)
                 current = next
             return selected_ctrl
@@ -490,13 +490,13 @@ if HAS_WX:
                 kurtosis,
             ) = tnseq_tools.get_wig_stats(fullpath)
 
-            self.list_ctrl.InsertItem(self.index_ctrl, name)
-            self.list_ctrl.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
-            self.list_ctrl.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
-            self.list_ctrl.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
-            self.list_ctrl.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
-            self.list_ctrl.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
-            self.list_ctrl.Select(self.index_ctrl)
+            self.listCtrl.InsertItem(self.index_ctrl, name)
+            self.listCtrl.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
+            self.listCtrl.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
+            self.listCtrl.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
+            self.listCtrl.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
+            self.listCtrl.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
+            self.listCtrl.Select(self.index_ctrl)
             self.index_ctrl += 1
 
         #
@@ -526,15 +526,15 @@ if HAS_WX:
         #
 
         def ctrlRemoveFunc(self, event):
-            next = self.list_ctrl.GetNextSelected(-1)
+            next = self.listCtrl.GetNextSelected(-1)
             while next != -1:
                 if self.verbose:
                     transit_tools.transit_message(
                         "Removing control item (%d): %s"
-                        % (next, self.list_ctrl.GetItem(next, 0).GetText())
+                        % (next, self.listCtrl.GetItem(next, 0).GetText())
                     )
-                self.list_ctrl.DeleteItem(next)
-                next = self.list_ctrl.GetNextSelected(-1)
+                self.listCtrl.DeleteItem(next)
+                next = self.listCtrl.GetNextSelected(-1)
                 self.index_ctrl -= 1
 
         #
