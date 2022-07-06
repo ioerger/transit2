@@ -21,6 +21,7 @@ from pytransit.core_data import SessionData, universal
 from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.comwig_picker import create_comwig_picker
+from pytransit.components.table import create_table
 import pytransit
 import pytransit.analysis
 import pytransit.export
@@ -226,11 +227,11 @@ class TnSeekFrame(wx.Frame):
                                 
 
                             # 
-                            # combinedWigFilePicker
+                            # combined_wig_file_picker
                             # 
                             if True:
-                                self.combinedWigFilePicker = create_comwig_picker(window=self)
-                                ctrlBoxSizer2.Add(self.combinedWigFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                                self.combined_wig_file_picker = create_comwig_picker(window=self)
+                                ctrlBoxSizer2.Add(self.combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
                                 
                             ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
                         
@@ -238,16 +239,8 @@ class TnSeekFrame(wx.Frame):
                         # listCtrl
                         # 
                         if True:
-                            self.listCtrl = wx.ListCtrl(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                wx.DefaultPosition,
-                                wx.DefaultSize,
-                                wx.LC_REPORT | wx.SUNKEN_BORDER,
-                            )
-
-                            self.listCtrl.SetMaxSize(wx.Size(-1, 200))
-                            ctrlSizer.Add(self.listCtrl, 1, wx.ALL | wx.EXPAND, 5)
+                            self.wig_table = create_table()
+                            ctrlSizer.Add(self.wig_table.component, 1, wx.ALL | wx.EXPAND, 5)
 
                         windowSizer.Add(
                             ctrlSizer,
@@ -906,13 +899,6 @@ class TnSeekFrame(wx.Frame):
         self.versionLabel.SetLabel(pytransit.__version__)
         self.methodSizerText.Hide()
 
-        self.index_ctrl = 0
-        self.listCtrl.InsertColumn(0, "Wig File"  , width=210)
-        self.listCtrl.InsertColumn(1, "Condition" , width=85 )
-        self.listCtrl.InsertColumn(2, "Density"   , width=85 )
-        self.listCtrl.InsertColumn(3, "Mean Count", width=90 )
-        self.listCtrl.InsertColumn(4, "Max Count" , width=85 )
-        self.listCtrl.InsertColumn(5, "Full Path" , width=403)
 
         self.condition_index = 0
         self.conditions_enum = LazyDict({
