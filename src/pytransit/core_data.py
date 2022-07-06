@@ -49,7 +49,7 @@ class SessionData:
             )
     
     def add_cwig(self, cwig_path, metadata_path):
-        wig_group = WigGroup.load_from(cwig_path, metadata_path)
+        wig_group = WigGroup.load_from(cwig_path=cwig_path, metadata_path=metadata_path)
         self.wigs += wig_group.wigs
         # add conditions
         for each_wig in wig_group.wigs:
@@ -221,7 +221,7 @@ class CWigMetadata:
     
 class WigGroup:
     @staticmethod
-    def load_from(cls, cwig_path, metadata_path):
+    def load_from(cwig_path, metadata_path):
         return WigGroup(
             cwig=CombinedWig(path=cwig_path),
             metadata=CWigMetadata(path=metadata_path),

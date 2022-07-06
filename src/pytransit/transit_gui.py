@@ -226,9 +226,9 @@ class MainFrame(wx.Frame):
                                         style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                                     )
                                     if fileDialog.ShowModal() == wx.ID_OK:
-                                        paths = fileDialog.GetPaths()
-                                        print("You chose the following Control file(s):")
-                                        for fullpath in paths:
+                                        cwig_paths = fileDialog.GetPaths()
+                                        metadata_paths = []
+                                        for fullpath in cwig_paths:
                                             metadataDialog = wx.FileDialog(
                                                 self,
                                                 message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
@@ -238,10 +238,20 @@ class MainFrame(wx.Frame):
                                                 style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                                             )
                                             if metadataDialog.ShowModal() == wx.ID_OK:
-                                                metdataPath = paths[0]
-                                                print(f'''fullpath, = {fullpath}, {metdataPath}''')
+                                                metadata_path = metadataDialog.GetPaths()[0]
+                                                metadata_paths.append(
+                                                    metadata_path
+                                                )
+                                                print(f'''fullpath, = {fullpath}, {metadata_path}''')
                                             
+                                            metadataDialog.Destroy()
                                     fileDialog.Destroy()
+                                    for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
+                                        MainFrame.core_data.add_cwig(
+                                            cwig_path=each_cwig_path,
+                                            metadata_path=each_metadata_path,
+                                        )
+                                        
                                 except Exception as e:
                                     transit_tools.transit_message("Error: %s" % e)
                                     exc_type, exc_obj, exc_tb = sys.exc_info()
