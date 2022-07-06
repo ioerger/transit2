@@ -344,8 +344,6 @@ class GUI(base.AnalysisGUI):
                     wx.DefaultSize,
                     0,
                 )
-                # runButton.SetBackgroundColour((0, 230, 200, 255)) # rgba(0, 230, 200, 255)
-                # runButton.SetForegroundColour((70, 70, 70, 255)) # rgba(70, 70, 70, 255)
                 runButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
                 test1Sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 

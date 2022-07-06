@@ -7,6 +7,8 @@ import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.basics.named_list import named_list
 
+universal = LazyDict()
+
 class Wig(LazyDict):
     def __init__(self, path, is_part_of_cwig, id=None, condition=None):
         self.path            = path
@@ -116,6 +118,7 @@ class CombinedWig:
     
     def load(self):
         comments, headers, rows = csv.read(self.path, seperator="\t", first_row_is_headers=False)
+        comment_string = "\n".join(comments)
         
         sites, counts_by_wig, files, extra_data = [], [], [], {}
         yaml_switch_is_on = False
@@ -128,20 +131,11 @@ class CombinedWig:
                 yaml_switch_is_on = True
                 continue
             if yaml_switch_is_on and line.startswith("# "):
-                yaml_string += f"\n{line[-1:]}"
+                yaml_string += f"\n"+line[1:]
                 continue
             else:
                 yaml_switch_is_on = False
-                # add to the extra_data dict when its done
-                if len(yaml_string) > 0:
-                    self.extra_data.update(ez_yaml.to_object(string=yaml_string)["extra_data"])
-                    files += self.extra_data.get('files',[])
-                    no_duplicates = []
-                    # remove any duplicate entries while preserving order
-                    for each_file in files:
-                        if each_file not in no_duplicates:
-                            no_duplicates.append(each_file)
-                    files = no_duplicates
+                
             # 
             # handle older file method
             # 
@@ -153,6 +147,22 @@ class CombinedWig:
             # save other comments
             # 
             self.comments.append(line)
+        
+        # 
+        # process yaml
+        # 
+        if len(yaml_string) > len("extra_data:\n"):
+            extra = ez_yaml.to_object(string=yaml_string)["extra_data"]
+            self.extra_data.update(
+                extra or {}
+            )
+            files += self.extra_data.get('files',[])
+            no_duplicates = []
+            # remove any duplicate entries while preserving order
+            for each_file in files:
+                if each_file not in no_duplicates:
+                    no_duplicates.append(each_file)
+            files = no_duplicates
         
         # 
         # process data
@@ -173,7 +183,7 @@ class CombinedWig:
             read_counts = [ float(each) for each in read_counts ]
             
             # save
-            self.rows.append(CWigRow(position+read_counts+other))
+            self.rows.append(CWigRow([position]+read_counts+other))
             
             sites.append(position)
             for index, count in enumerate(read_counts):

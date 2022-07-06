@@ -23,12 +23,12 @@ class InvalidArgumentException(Exception):
 if HAS_WX:
 
     class InfoIcon(wx.StaticBitmap):
-        def __init__(self, panel, flag, bmp=None, tooltip=""):
-            if not bmp:
-                bmp = wx.ArtProvider.GetBitmap(
+        def __init__(self, panel, flag, bit_map=None, tooltip=""):
+            if not bit_map:
+                bit_map = wx.ArtProvider.GetBitmap(
                     wx.ART_INFORMATION, wx.ART_OTHER, (16, 16)
                 )
-            wx.StaticBitmap.__init__(self, panel, flag, bmp)
+            wx.StaticBitmap.__init__(self, panel, flag, bit_map)
             tp = wx.ToolTip(tooltip)
             self.SetToolTip(tp)
 

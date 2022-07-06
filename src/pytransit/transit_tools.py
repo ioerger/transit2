@@ -153,12 +153,6 @@ if HAS_WX:
             else:
                 self.Close()
 
-def rgba(*args):
-    return tuple(args)
-
-class color(NamedTuple):
-    green = rgba(187, 237, 181, 255)
-
 def fetch_name(filepath):
     # TODO: Write docstring
     return os.path.splitext(ntpath.basename(filepath))[0]
@@ -250,11 +244,6 @@ def getTabTableData(path, colnames):
         row += 1
 
     return data
-
-
-def ShowMessage(MSG=""):
-    # TODO: Write docstring
-    wx.MessageBox(MSG, "Info", wx.OK | wx.ICON_INFORMATION)
 
 
 def ShowAskWarning(MSG=""):

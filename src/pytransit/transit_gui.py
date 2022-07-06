@@ -16,15 +16,17 @@ import matplotlib
 import matplotlib.pyplot as plt
 import ez_yaml
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename
-from pytransit.core_data import SessionData
-from pytransit.gui_tools import bind_to
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+from pytransit.core_data import SessionData, universal
+from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
+from pytransit.components.comwig_picker import create_comwig_picker
 import pytransit
 import pytransit.analysis
 import pytransit.export
 import pytransit.convert
 import pytransit.trash as trash
+import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
@@ -66,7 +68,9 @@ class TnSeekFrame(wx.Frame):
     # constructor
     def __init__(self, parent, DEBUG=False):
         # data accessable to all analysis methods
-        TnSeekFrame.session_data = SessionData()
+        universal.session_data = SessionData()
+        gui_tools.window = self
+        gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         
         wx.Frame.__init__(
             self,
@@ -87,7 +91,7 @@ class TnSeekFrame(wx.Frame):
         """.replace("\n            ","\n")
 
         # Define ART
-        bmp = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
+        bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         
         
         # 
@@ -225,73 +229,9 @@ class TnSeekFrame(wx.Frame):
                             # combinedWigFilePicker
                             # 
                             if True:
-                                self.combinedWigFilePicker = GenBitmapTextButton(
-                                    self.mainWindow,
-                                    1,
-                                    bmp,
-                                    "Add Files",
-                                    size=wx.Size(250, -1),
-                                )
-                                self.combinedWigFilePicker.SetBackgroundColour(color.green)
+                                self.combinedWigFilePicker = create_comwig_picker(window=self)
                                 ctrlBoxSizer2.Add(self.combinedWigFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
                                 
-                                @bind_to(self.combinedWigFilePicker, wx.EVT_BUTTON)
-                                def loadCombinedWigFileFunc(event): # BOOKMARK: cwig_callback
-                                    try:
-                                        fileDialog = wx.FileDialog(
-                                            self,
-                                            message="Choose a cwig file",
-                                            defaultDir=self.workdir,
-                                            defaultFile="",
-                                            wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                                            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                                        )
-                                        if fileDialog.ShowModal() == wx.ID_OK:
-                                            cwig_paths = list(fileDialog.GetPaths())
-                                            metadata_paths = []
-                                            for fullpath in cwig_paths:
-                                                metadataDialog = wx.FileDialog(
-                                                    self,
-                                                    message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
-                                                    defaultDir=self.workdir,
-                                                    defaultFile="",
-                                                    wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                                                    style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                                                )
-                                                if metadataDialog.ShowModal() == wx.ID_OK:
-                                                    metadata_path = metadataDialog.GetPaths()[0]
-                                                    metadata_paths.append(
-                                                        metadata_path
-                                                    )
-                                                
-                                                metadataDialog.Destroy()
-                                            for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
-                                                TnSeekFrame.session_data.add_cwig(
-                                                    cwig_path=each_cwig_path,
-                                                    metadata_path=each_metadata_path,
-                                                )
-                                        fileDialog.Destroy()
-                                        
-                                        # 
-                                        # add graphical entries for each condition
-                                        # 
-                                        if True:
-                                            for each_condition in TnSeekFrame.session_data.conditions:
-                                                self.listConditions.InsertItem(self.condition_index, name)
-                                                self.listConditions.SetItem(self.condition_index, self.conditions_enum["Condition"], each_condition.name)
-                                                # self.listConditions.SetItem(self.condition_index, self.conditions_enum["Control"], each_condition.name)
-                                                # self.listConditions.SetItem(self.condition_index, self.conditions_enum["Experiment"], each_condition.name)
-                                                # self.listConditions.SetItem(self.condition_index, self.conditions_enum["Reference"], each_condition.name)
-                                                # self.listConditions.SetItem(self.condition_index, self.conditions_enum["Sample Count"], each_condition.name)
-                                                self.listConditions.Select(self.condition_index)
-                                                self.condition_index += 1
-
-                                    except Exception as e:
-                                        transit_tools.transit_message("Error: %s" % e)
-                                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                        print(exc_type, fname, exc_tb.tb_lineno)
-
                             ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
                         
                         # 
@@ -447,7 +387,7 @@ class TnSeekFrame(wx.Frame):
                                 self.addFileButton = GenBitmapTextButton(
                                     self.mainWindow,
                                     1,
-                                    bmp,
+                                    bit_map,
                                     "Add Results File",
                                     size=wx.Size(150, 30)
                                 )

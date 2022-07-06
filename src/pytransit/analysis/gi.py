@@ -229,7 +229,7 @@ if HAS_WX:
 
             from wx.lib.buttons import GenBitmapTextButton
 
-            bmp = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
+            bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
 
             wx.Dialog.__init__(self, None, title="Dataset Dialog")
 
@@ -282,7 +282,7 @@ if HAS_WX:
             bSizer2.Add(self.ctrlScatterButton, 0, wx.ALL, 5)
 
             self.ctrlFilePicker = GenBitmapTextButton(
-                self, 1, bmp, "[Click to add Control Dataset(s)]", size=wx.Size(500, -1)
+                self, 1, bit_map, "[Click to add Control Dataset(s)]", size=wx.Size(500, -1)
             )
             bSizer2.Add(self.ctrlFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -330,7 +330,7 @@ if HAS_WX:
             self.experimentFilePickerButton = GenBitmapTextButton(
                 self,
                 1,
-                bmp,
+                bit_map,
                 "[Click to add Experimental Dataset(s)]",
                 size=wx.Size(500, -1),
             )
