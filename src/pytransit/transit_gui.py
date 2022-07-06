@@ -13,7 +13,7 @@ import threading
 import time
 import traceback
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename, bind_to
 from pytransit.core_data import SessionData
 
 import numpy
@@ -52,6 +52,9 @@ transit_prefix = "[TRANSIT]"
 
 class MainFrame(wx.Frame):
     def __init__(self, parent):
+        # data accessable to all analysis methods
+        MainFrame.core_data = SessionData()
+        
         wx.Frame.__init__(
             self,
             parent,
@@ -163,14 +166,14 @@ class MainFrame(wx.Frame):
                     windowSizer.Add(orgSizer, 0, wx.EXPAND, 5)
 
                 # 
-                # ctrlSizer
+                # Samples
                 # 
                 if True:
                     ctrlSizer = wx.StaticBoxSizer(
                         wx.StaticBox(
                             self.mainWindow,
                             wx.ID_ANY,
-                            u"Control Samples"
+                            u"Samples"
                         ),
                         wx.VERTICAL,
                     )
@@ -180,20 +183,6 @@ class MainFrame(wx.Frame):
                     # 
                     if True:
                         ctrlBoxSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-                        
-                        # 
-                        # ctrlRemoveButton
-                        # 
-                        if True:
-                            self.ctrlRemoveButton = wx.Button(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                u"Remove",
-                                wx.DefaultPosition,
-                                (96, -1),
-                                0,
-                            )
-                            ctrlBoxSizer2.Add(self.ctrlRemoveButton, 0, wx.ALL, 5)
                         
                         # 
                         # ctrlViewButton
@@ -212,34 +201,6 @@ class MainFrame(wx.Frame):
                             ctrlBoxSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
 
                         # 
-                        # ctrlScatterButton
-                        # 
-                        if True:
-                            self.ctrlScatterButton = wx.Button(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                u"Scatter",
-                                wx.DefaultPosition,
-                                wx.DefaultSize,
-                                0,
-                            )
-                            self.ctrlScatterButton.Hide()
-                            ctrlBoxSizer2.Add(self.ctrlScatterButton, 0, wx.ALL, 5)
-                        
-                        # 
-                        # ctrlFilePicker
-                        # 
-                        if True:
-                            self.ctrlFilePicker = GenBitmapTextButton(
-                                self.mainWindow,
-                                1,
-                                bmp,
-                                "[Click to add Control Dataset(s)]",
-                                size=wx.Size(250, -1),
-                            )
-                            ctrlBoxSizer2.Add(self.ctrlFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                        
-                        # 
                         # combinedWigFilePicker
                         # 
                         if True:
@@ -247,11 +208,45 @@ class MainFrame(wx.Frame):
                                 self.mainWindow,
                                 1,
                                 bmp,
-                                "Add Combined Wig Files",
+                                "Add Files",
                                 size=wx.Size(250, -1),
                             )
                             self.combinedWigFilePicker.SetBackgroundColour(color.green)
                             ctrlBoxSizer2.Add(self.combinedWigFilePicker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                            
+                            @bind_to(self.combinedWigFilePicker, wx.EVT_BUTTON)
+                            def loadCombinedWigFileFunc(event): # BOOKMARK: cwig_callback
+                                try:
+                                    fileDialog = wx.FileDialog(
+                                        self,
+                                        message="Choose a cwig file",
+                                        defaultDir=self.workdir,
+                                        defaultFile="",
+                                        wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                                        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                                    )
+                                    if fileDialog.ShowModal() == wx.ID_OK:
+                                        paths = fileDialog.GetPaths()
+                                        print("You chose the following Control file(s):")
+                                        for fullpath in paths:
+                                            metadataDialog = wx.FileDialog(
+                                                self,
+                                                message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
+                                                defaultDir=self.workdir,
+                                                defaultFile="",
+                                                wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                                                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                                            )
+                                            if metadataDialog.ShowModal() == wx.ID_OK:
+                                                metdataPath = paths[0]
+                                                print(f'''fullpath, = {fullpath}, {metdataPath}''')
+                                            
+                                    fileDialog.Destroy()
+                                except Exception as e:
+                                    transit_tools.transit_message("Error: %s" % e)
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                                    print(exc_type, fname, exc_tb.tb_lineno)
 
                         ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
                     
@@ -278,11 +273,11 @@ class MainFrame(wx.Frame):
                     )
                 
                 # 
-                # experimentalSizer
+                # conditionsSizer
                 # 
                 if True:
-                    experimentalSizer = wx.StaticBoxSizer(
-                        wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Experimental Samples"),
+                    conditionsSizer = wx.StaticBoxSizer(
+                        wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Conditions"),
                         wx.VERTICAL,
                     )
                     
@@ -291,15 +286,6 @@ class MainFrame(wx.Frame):
                     # 
                     if True:
                         boxSizer = wx.BoxSizer(wx.HORIZONTAL)
-                        
-                        # 
-                        # experimentRemoveButton
-                        # 
-                        if True:
-                            self.experimentRemoveButton = wx.Button(
-                                self.mainWindow, wx.ID_ANY, u"Remove", wx.DefaultPosition, (96, -1), 0
-                            )
-                            boxSizer.Add(self.experimentRemoveButton, 0, wx.ALL, 5)
                         
                         # 
                         # experimentTrackViewButton
@@ -316,50 +302,23 @@ class MainFrame(wx.Frame):
                             self.experimentTrackViewButton.Hide()
                             boxSizer.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
                         
-                        # 
-                        # experimentScatterButton
-                        # 
-                        if True:
-                            self.experimentScatterButton = wx.Button(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                u"Scatter",
-                                wx.DefaultPosition,
-                                wx.DefaultSize,
-                                0,
-                            )
-                            self.experimentScatterButton.Hide()
-                            boxSizer.Add(self.experimentScatterButton, 0, wx.ALL, 5)
-                        
-                        # 
-                        # experimentFilePickerButton
-                        # 
-                        if True:
-                            self.experimentFilePickerButton = GenBitmapTextButton(
-                                self.mainWindow,
-                                1,
-                                bmp,
-                                "[Click to add Experimental Dataset(s)]",
-                                size=wx.Size(500, -1),
-                            )
-                            boxSizer.Add(self.experimentFilePickerButton, 1, wx.ALIGN_CENTER_VERTICAL, 5)
 
-                        experimentalSizer.Add(boxSizer, 0, wx.EXPAND, 5)
+                        conditionsSizer.Add(boxSizer, 0, wx.EXPAND, 5)
 
-                    self.list_exp = wx.ListCtrl(
+                    self.listConditions = wx.ListCtrl(
                         self.mainWindow,
                         wx.ID_ANY,
                         wx.DefaultPosition,
                         wx.DefaultSize,
                         wx.LC_REPORT | wx.SUNKEN_BORDER,
                     )
-                    self.list_exp.SetMaxSize(wx.Size(-1, 200))
-                    experimentalSizer.Add(self.list_exp, 1, wx.ALL | wx.EXPAND, 5)
+                    self.listConditions.SetMaxSize(wx.Size(-1, 200))
+                    conditionsSizer.Add(self.listConditions, 1, wx.ALL | wx.EXPAND, 5)
 
-                    windowSizer.Add(experimentalSizer, 1, wx.EXPAND, 5)
+                    windowSizer.Add(conditionsSizer, 1, wx.EXPAND, 5)
 
                 # 
-                # filesSizer
+                # Results
                 # 
                 if True:
                     filesSizer = wx.StaticBoxSizer(
@@ -893,15 +852,8 @@ class MainFrame(wx.Frame):
         # 
         if True:
             self.annotationFilePicker.Bind(       wx.EVT_FILEPICKER_CHANGED, self.annotationFileFunc     )
-            self.ctrlRemoveButton.Bind(           wx.EVT_BUTTON            , self.ctrlRemoveFunc         )
             self.ctrlViewButton.Bind(             wx.EVT_BUTTON            , self.allViewFunc            )
-            self.ctrlScatterButton.Bind(          wx.EVT_BUTTON            , self.scatterFunc            )
-            self.ctrlFilePicker.Bind(             wx.EVT_BUTTON            , self.loadCtrlFileFunc       )
-            self.combinedWigFilePicker.Bind(      wx.EVT_BUTTON            , self.loadCombinedWigFileFunc)
-            self.experimentRemoveButton.Bind(     wx.EVT_BUTTON            , self.expRemoveFunc          )
             self.experimentTrackViewButton.Bind(  wx.EVT_BUTTON            , self.allViewFunc            )
-            self.experimentScatterButton.Bind(    wx.EVT_BUTTON            , self.scatterFunc            )
-            self.experimentFilePickerButton.Bind( wx.EVT_BUTTON            , self.loadExpFileFunc        )
             self.displayButton.Bind(              wx.EVT_BUTTON            , self.displayFileFunc        )
             self.fileActionButton.Bind(           wx.EVT_BUTTON            , self.fileActionFunc         )
             self.addFileButton.Bind(              wx.EVT_BUTTON            , self.addFileFunc            )
@@ -946,16 +898,7 @@ class MainFrame(wx.Frame):
     def scatterFunc(self, event):
         event.Skip()
 
-    def loadCtrlFileFunc(self, event):
-        event.Skip()
-    
-    def loadCombinedWigFileFunc(self, event):
-        event.Skip()
-
     def expRemoveFunc(self, event):
-        event.Skip()
-
-    def loadExpFileFunc(self, event):
         event.Skip()
 
     def displayFileFunc(self, event):
@@ -1062,20 +1005,19 @@ class TnSeekFrame(MainFrame):
         self.methodSizerText.Hide()
 
         self.index_ctrl = 0
-        self.listCtrl.InsertColumn(0, "File", width=210)
-        self.listCtrl.InsertColumn(1, "Total Reads", width=85)
-        self.listCtrl.InsertColumn(2, "Density", width=85)
-        self.listCtrl.InsertColumn(3, "Mean Count", width=90)
-        self.listCtrl.InsertColumn(4, "Max Count", width=85)
-        self.listCtrl.InsertColumn(5, "Full Path", width=403)
+        self.listCtrl.InsertColumn(0, "Wig File"  , width=210)
+        self.listCtrl.InsertColumn(1, "Condition" , width=85 )
+        self.listCtrl.InsertColumn(2, "Density"   , width=85 )
+        self.listCtrl.InsertColumn(3, "Mean Count", width=90 )
+        self.listCtrl.InsertColumn(4, "Max Count" , width=85 )
+        self.listCtrl.InsertColumn(5, "Full Path" , width=403)
 
         self.index_exp = 0
-        self.list_exp.InsertColumn(0, "File", width=210)
-        self.list_exp.InsertColumn(1, "Total Reads", width=85)
-        self.list_exp.InsertColumn(2, "Density", width=85)
-        self.list_exp.InsertColumn(3, "Mean Count", width=90)
-        self.list_exp.InsertColumn(4, "Max Count", width=85)
-        self.list_exp.InsertColumn(5, "Full Path", width=403)
+        self.listConditions.InsertColumn(0, "Condition"   , width=210)
+        self.listConditions.InsertColumn(1, "Control"     , width=85)
+        self.listConditions.InsertColumn(2, "Experiment"  , width=85)
+        self.listConditions.InsertColumn(3, "Reference"   , width=90)
+        self.listConditions.InsertColumn(4, "Sample Count", width=85)
 
         self.index_file = 0
         self.listFiles.InsertColumn(0, "Name", width=350)
@@ -1574,10 +1516,10 @@ class TnSeekFrame(MainFrame):
         selected_exp = []
         current = -1
         while True:
-            next = self.list_exp.GetNextSelected(current)
+            next = self.listConditions.GetNextSelected(current)
             if next == -1:
                 break
-            path = self.list_exp.GetItem(next, col).GetText()
+            path = self.listConditions.GetItem(next, col).GetText()
             selected_exp.append(path)
             current = next
         return selected_exp
@@ -1600,8 +1542,8 @@ class TnSeekFrame(MainFrame):
 
     def expAll(self, col=5):
         all_exp = []
-        for i in range(self.list_exp.GetItemCount()):
-            all_exp.append(self.list_exp.GetItem(i, col).GetText())
+        for i in range(self.listConditions.GetItemCount()):
+            all_exp.append(self.listConditions.GetItem(i, col).GetText())
         return all_exp
 
     #
@@ -1649,13 +1591,13 @@ class TnSeekFrame(MainFrame):
             skew,
             kurtosis,
         ) = tnseq_tools.get_wig_stats(fullpath)
-        self.list_exp.InsertItem(self.index_exp, name)
-        self.list_exp.SetItem(self.index_exp, 1, "%1.1f" % (totalrd))
-        self.list_exp.SetItem(self.index_exp, 2, "%2.1f" % (density * 100))
-        self.list_exp.SetItem(self.index_exp, 3, "%1.1f" % (meanrd))
-        self.list_exp.SetItem(self.index_exp, 4, "%d" % (maxrd))
-        self.list_exp.SetItem(self.index_exp, 5, "%s" % (fullpath))
-        self.list_exp.Select(self.index_exp)
+        self.listConditions.InsertItem(self.index_exp, name)
+        self.listConditions.SetItem(self.index_exp, 1, "%1.1f" % (totalrd))
+        self.listConditions.SetItem(self.index_exp, 2, "%2.1f" % (density * 100))
+        self.listConditions.SetItem(self.index_exp, 3, "%1.1f" % (meanrd))
+        self.listConditions.SetItem(self.index_exp, 4, "%d" % (maxrd))
+        self.listConditions.SetItem(self.index_exp, 5, "%s" % (fullpath))
+        self.listConditions.Select(self.index_exp)
         self.index_exp += 1
 
         try:
@@ -1695,67 +1637,7 @@ class TnSeekFrame(MainFrame):
             print(exc_type, fname, exc_tb.tb_lineno)
         self.statusBar.SetStatusText("")
     
-    def loadCombinedWigFileFunc(self, event): # BOOKMARK: cwig_callback
-        try:
-            fileDialog = wx.FileDialog(
-                self,
-                message="Choose a cwig file",
-                defaultDir=self.workdir,
-                defaultFile="",
-                wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-            )
-            if fileDialog.ShowModal() == wx.ID_OK:
-                paths = fileDialog.GetPaths()
-                print("You chose the following Control file(s):")
-                for fullpath in paths:
-                    metadataDialog = wx.FileDialog(
-                        self,
-                        message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
-                        defaultDir=self.workdir,
-                        defaultFile="",
-                        wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                    )
-                    if metadataDialog.ShowModal() == wx.ID_OK:
-                        metdataPath = paths[0]
-                        print(f'''fullpath, = {fullpath}, {metdataPath}''')
-                    
-            fileDialog.Destroy()
-        except Exception as e:
-            transit_tools.transit_message("Error: %s" % e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-
     #
-
-    def loadExpFileFunc(self, event):
-        self.statusBar.SetStatusText("Loading Experimental Dataset(s)...")
-        try:
-            dlg = wx.FileDialog(
-                self,
-                message="Choose a file",
-                defaultDir=self.workdir,
-                defaultFile="",
-                wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-            )
-            if dlg.ShowModal() == wx.ID_OK:
-                paths = dlg.GetPaths()
-                print("You chose the following Experimental file(s):")
-                for fullpath in paths:
-                    print("\t%s" % fullpath)
-                    self.loadExpFile(fullpath)
-            dlg.Destroy()
-        except Exception as e:
-            transit_tools.transit_message("Error: %s" % e)
-            print("PATH", fullpath)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-
-        self.statusBar.SetStatusText("")
 
     #
 
@@ -1781,12 +1663,12 @@ class TnSeekFrame(MainFrame):
     #
 
     def expRemoveFunc(self, event):
-        next = self.list_exp.GetNextSelected(-1)
+        next = self.listConditions.GetNextSelected(-1)
         while next != -1:
             if self.verbose:
                 transit_tools.transit_message(
                     "Removing experimental item (%d): %s"
-                    % (next, self.list_exp.GetItem(next, 0).GetText())
+                    % (next, self.listConditions.GetItem(next, 0).GetText())
                 )
 
             # Update library string after removing wig file
@@ -1795,8 +1677,8 @@ class TnSeekFrame(MainFrame):
             self.expLibText.SetValue(updated_lib_text)
 
             # Delete and Get next selected
-            self.list_exp.DeleteItem(next)
-            next = self.list_exp.GetNextSelected(-1)
+            self.listConditions.DeleteItem(next)
+            next = self.listConditions.GetNextSelected(-1)
             self.index_exp -= 1
 
     #
