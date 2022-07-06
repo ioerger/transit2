@@ -1,5 +1,5 @@
 # reads .csv, .tsv, etc 
-def read(path, seperator=",", first_row_is_headers=False, skip_empty_lines=True):
+def read(path, *, seperator=",", use_headers=None, first_row_is_headers=False, skip_empty_lines=True):
     import json
     
     comments = []
@@ -72,8 +72,8 @@ def read(path, seperator=",", first_row_is_headers=False, skip_empty_lines=True)
             rows.append(cells_with_types)
     
     # if headers
-    if first_row_is_headers:
-        RowItem = named_list(headers)
+    if first_row_is_headers or use_headers:
+        RowItem = named_list(headers or use_headers)
         # tranform each into a named list (backwards compatible with regular list)
         rows = [ RowItem(each_row) for each_row in rows ]
     

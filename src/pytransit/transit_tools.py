@@ -23,7 +23,14 @@ SEPARATOR = "\1"  # for making names that combine conditions and interactions; t
 
 import sys
 import os
+import math
+import warnings
+import ntpath
 from typing import NamedTuple
+
+import numpy
+import scipy.optimize
+import scipy.stats
 
 # 
 # optional import: wx
@@ -72,20 +79,12 @@ except Exception as e:
     StrVector   = None
     rpackages   = None
 
-    
-
-import math
-import ntpath
-import numpy
-import scipy.optimize
-import scipy.stats
-
-import warnings
-
 import pytransit
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
-
+import pytransit.basics.csv as csv
+from pytransit.basics.lazy_dict import LazyDict
+from pytransit.basics.named_list import named_list
 
 def write_dat(path, heading, table, eol="\n"):
     if len(heading) != 0:
@@ -117,14 +116,14 @@ if HAS_WX:
 
             warningText = """
 
-One or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). The analysis methods in TRANSIT require knowing ALL possible insertion sites, even those without reads.
-    
-    Please indicate how you want to proceed:
+                One or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). The analysis methods in TRANSIT require knowing ALL possible insertion sites, even those without reads.
+                    
+                    Please indicate how you want to proceed:
 
-    As Himar1: You will need to provide the DNA sequence (.fasta format) and TRANSIT will automatically determine empty TA sites.
+                    As Himar1: You will need to provide the DNA sequence (.fasta format) and TRANSIT will automatically determine empty TA sites.
 
-    As Tn5: TRANSIT will assume all nucleotides are possible insertion sites. Those not included in the .wig file are assumed to be zero.
-    """
+                    As Tn5: TRANSIT will assume all nucleotides are possible insertion sites. Those not included in the .wig file are assumed to be zero.
+            """.replace("\n                ", "\n")
             warningStaticBox = wx.StaticText(
                 self, wx.ID_ANY, warningText, (-1, -1), (-1, -1), wx.ALL
             )
