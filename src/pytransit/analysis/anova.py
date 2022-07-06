@@ -56,6 +56,7 @@ class AnovaMethod(base.MultiConditionMethod):
         PC=1,
         winz=False,
         refs=[],
+        alpha=1000
     ):
         base.MultiConditionMethod.__init__(
             self,
@@ -73,7 +74,9 @@ class AnovaMethod(base.MultiConditionMethod):
             nterm=nterm,
             cterm=cterm,
         )
+
         self.PC = PC
+        self.alpha = alpha
         self.refs = refs
         self.winz = winz
 
@@ -100,20 +103,14 @@ class AnovaMethod(base.MultiConditionMethod):
         CTerminus = float(kwargs.get("iC", 0.0))
         winz = True if "winz" in kwargs else False
         PC = int(kwargs.get("PC", 5))
-        refs = kwargs.get(
-            "-ref", []
-        )  # list of condition names to use a reference for calculating LFCs
-        if refs != []:
-            refs = refs.split(",")
-        excluded_conditions = list(
-            filter(None, kwargs.get("-exclude-conditions", "").split(","))
-        )
-        included_conditions = list(
-            filter(None, kwargs.get("-include-conditions", "").split(","))
-        )
+        alpha = float(kwargs.get("alpha", 1000))
+        refs = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
+        if refs != []: refs = refs.split(",")
+        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
+        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
 
         # check for unrecognized flags
-        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz".split()
+        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 self.transit_error("flag unrecognized: %s" % arg)
@@ -133,7 +130,9 @@ class AnovaMethod(base.MultiConditionMethod):
             PC,
             winz,
             refs,
+            alpha
         )
+
 
     def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
         """
@@ -229,13 +228,13 @@ class AnovaMethod(base.MultiConditionMethod):
         count = 0
         self.progress_range(len(genes))
 
-        pvals, Rvs, status = [], [], []
+        MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
         for gene in genes:
             count += 1
             Rv = gene["rv"]
             if len(RvSiteindexesMap[Rv]) <= 1:
                 status.append("TA sites <= 1")
-                pvals.append(1)
+                msr,mse,Fstat,pval = 0,0,-1,1
             else:
                 countSum, countsVec = self.group_by_condition(
                     list(map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)),
@@ -245,13 +244,36 @@ class AnovaMethod(base.MultiConditionMethod):
                     countsVec = self.winsorize(countsVec)
 
                 if countSum == 0:
-                    pval = 1
+                    msr,mse,Fstat,pval = 0,0,-1,1
                     status.append("No counts in all conditions")
-                    pvals.append(pval)
                 else:
-                    stat, pval = scipy.stats.f_oneway(*countsVec)
+                    Fstat,pval = scipy.stats.f_oneway(*countsVec)
                     status.append("-")
-                    pvals.append(pval)
+                    # countsVec is a list of numpy arrays, or could be a list of lists
+                    # pooled counts for each condition, over TAs in gene and replicates
+                    if isinstance(countsVec[0],numpy.ndarray): 
+                      countsVecAsArrays = countsVec
+                      countsVecAsLists = [grp.tolist() for grp in countsVec]
+                    else:
+                      countsVecAsArrays = [numpy.array(grp) for grp in countsVec]
+                      countsVecAsLists = countsVec
+                    allcounts = [item for sublist in countsVecAsLists for item in sublist]
+                    grandmean = numpy.mean(allcounts)
+                    groupmeans = [numpy.mean(grp) for grp in countsVecAsArrays]
+                    k,n = len(countsVec),len(allcounts)
+                    dfBetween,dfWithin = k-1,n-k
+                    msr,mse = 0,0
+                    for grp in countsVecAsArrays: msr += grp.size*(numpy.mean(grp)-grandmean)**2/float(dfBetween)
+                    for grp,mn in zip(countsVecAsArrays,groupmeans): mse += numpy.sum((grp-mn)**2) 
+                    mse /= float(dfWithin)
+                    mse = mse+self.alpha ### moderation
+                    Fmod = msr/float(mse)
+                    Pmod = scipy.stats.f.sf(Fmod,dfBetween,dfWithin)
+                    Fstat,pval = Fmod,Pmod
+            pvals.append(pval)   
+            Fstats.append(Fstat) 
+            MSR.append(msr)
+            MSE.append(mse)
             Rvs.append(Rv)
 
             # Update progress
@@ -265,10 +287,10 @@ class AnovaMethod(base.MultiConditionMethod):
             1
         ]  # BH, alpha=0.05
 
-        p, q, statusMap = {}, {}, {}
-        for i, rv in enumerate(Rvs):
-            p[rv], q[rv], statusMap[rv] = pvals[i], qvals[i], status[i]
-        return (p, q, statusMap)
+        msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
+        for i,rv in enumerate(Rvs):
+          msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
+        return (msr, mse, f, p, q, statusMap)
 
     def calc_lf_cs(self, means, refs=[], PC=1):
         if len(refs) == 0:
@@ -331,46 +353,68 @@ class AnovaMethod(base.MultiConditionMethod):
         MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
         self.transit_message("Running Anova")
-        pvals, qvals, run_status = self.run_anova(
+        MSR, MSE, Fstats, pvals, qvals, run_status = self.run_anova(
             data, genes, MeansByRv, RvSiteindexesMap, conditions
         )
 
         self.transit_message("Adding File: %s" % (self.output))
         file = open(self.output, "w")
 
+        # heads = (
+        #     "Rv Gene TAs".split()
+        #     + ["Mean_%s" % x for x in conditionsList]
+        #     + ["LFC_%s" % x for x in conditionsList]
+        #     + "pval padj".split()
+        #     + ["status"]
+        # )
+        # table = []
+        # for gene in genes:
+        #     Rv = gene["rv"]
+        #     if Rv in MeansByRv:
+        #         means = [MeansByRv[Rv][c] for c in conditionsList]
+        #         refs = [MeansByRv[Rv][c] for c in self.refs]
+        #         LFCs = self.calc_lf_cs(means, refs, self.PC)
+        #         vals = (
+        #             [Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))]
+        #             + ["%0.2f" % x for x in means]
+        #             + ["%0.3f" % x for x in LFCs]
+        #             + ["%f" % x for x in [pvals[Rv], qvals[Rv]]]
+        #             + [run_status[Rv]]
+        #         )
+        #         table.append(vals)
+        # 
+        # write_dat(
+        #     path=self.output,
+        #     heading=(
+        #         ("Console: python3 %s\n" % " ".join(sys.argv)) + 
+        #         ("parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n" % (self.normalization, self.NTerminus, self.CTerminus, self.PC)) +
+        #         ("#" + "\t".join(heads))
+        #     ),
+        #     table=table,
+        # )
+        
         heads = (
-            "Rv Gene TAs".split()
-            + ["Mean_%s" % x for x in conditionsList]
-            + ["LFC_%s" % x for x in conditionsList]
-            + "pval padj".split()
-            + ["status"]
+            "Rv Gene TAs".split() +
+            ["Mean_%s" % x for x in conditionsList] +
+            ["LFC_%s" % x for x in conditionsList] +
+            "MSR MSE+alpha Fstat Pval Padj".split() + 
+            ["status"]
         )
-        table = []
+        file.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.NTerminus,self.CTerminus,self.PC,self.alpha))
+        file.write('#'+'\t'.join(heads)+EOL)
         for gene in genes:
             Rv = gene["rv"]
             if Rv in MeansByRv:
-                means = [MeansByRv[Rv][c] for c in conditionsList]
-                refs = [MeansByRv[Rv][c] for c in self.refs]
-                LFCs = self.calc_lf_cs(means, refs, self.PC)
-                vals = (
-                    [Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))]
-                    + ["%0.2f" % x for x in means]
-                    + ["%0.3f" % x for x in LFCs]
-                    + ["%f" % x for x in [pvals[Rv], qvals[Rv]]]
-                    + [run_status[Rv]]
-                )
-                table.append(vals)
-        
-        write_dat(
-            path=self.output,
-            heading=(
-                ("Console: python3 %s\n" % " ".join(sys.argv)) + 
-                ("parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n" % (self.normalization, self.NTerminus, self.CTerminus, self.PC)) +
-                ("#" + "\t".join(heads))
-            ),
-            table=table,
-        )
-        
+              means = [MeansByRv[Rv][c] for c in conditionsList]
+              refs = [MeansByRv[Rv][c] for c in self.refs]
+              LFCs = self.calc_lf_cs(means,refs,self.PC)
+              vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
+                      ["%0.2f" % x for x in means] + 
+                      ["%0.3f" % x for x in LFCs] + 
+                      ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
+              file.write('\t'.join(vals)+EOL)
+        file.close()
         self.transit_message("Finished Anova analysis")
         self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
 
@@ -386,6 +430,7 @@ class AnovaMethod(base.MultiConditionMethod):
             """  -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0""",
             """  -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0""",
             """  -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5""",
+            """  -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000""",
             """  -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)""",
         ])
         return usage
