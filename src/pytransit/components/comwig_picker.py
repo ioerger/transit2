@@ -61,7 +61,7 @@ def create_comwig_picker(window):
             if True:
                 print(f'''universal.session_data = {universal.session_data}''')
                 for each_condition in universal.session_data.conditions:
-                    # window.listConditions.InsertItem(window.condition_index, name)
+                    window.listConditions.InsertItem(window.condition_index, f"{window.condition_index}")
                     window.listConditions.SetItem(window.condition_index, window.conditions_enum["Condition"], each_condition.name)
                     # window.listConditions.SetItem(window.condition_index, window.conditions_enum["Control"], each_condition.name)
                     # window.listConditions.SetItem(window.condition_index, window.conditions_enum["Experiment"], each_condition.name)
