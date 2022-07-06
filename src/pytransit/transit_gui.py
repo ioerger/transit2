@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
 
 
-import sys
 from collections import defaultdict
+from functools import partial
+import datetime
+import math
+import multiprocessing as mp
+import os
+import subprocess
+import sys
+import threading
+import time
+import traceback
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename
+from pytransit.core_data import SessionData
 
-import os
-import time
-import datetime
-import threading
 import numpy
 import matplotlib
-
 import matplotlib.pyplot as plt
-import multiprocessing as mp
-import math
-import subprocess
-
-from functools import partial
-
-import traceback
 
 import pytransit
 import pytransit.analysis
@@ -37,10 +35,10 @@ import pytransit.images as images
 
 
 method_wrap_width = 250
-methods = pytransit.analysis.methods
-export_methods = pytransit.export.methods
-convert_methods = pytransit.convert.methods
-normmethods = norm_tools.methods
+methods           = pytransit.analysis.methods
+export_methods    = pytransit.export.methods
+convert_methods   = pytransit.convert.methods
+normmethods       = norm_tools.methods
 
 
 wildcard = "Python source (*.py)|*.py|" "All files (*.*)|*.*"

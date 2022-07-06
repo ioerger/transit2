@@ -1,6 +1,6 @@
 from random import random
 
-from file_system_py import FS
+import file_system_py as FS
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict
 
