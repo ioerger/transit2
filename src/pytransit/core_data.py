@@ -2,7 +2,7 @@ from random import random
 
 from file_system_py import FS
 import pytransit.basics.csv as csv
-import pytransit.basics.lazy_dict import LazyDict
+from pytransit.basics.lazy_dict import LazyDict
 
 class Wig:
     def __init__(self, path, is_part_of_cwig, id=None, condition=None):
@@ -13,11 +13,64 @@ class Wig:
             is_part_of_cwig=is_part_of_cwig,
             condition=condition,
             id=id or f"{self.condition}{random()}".replace(".", ""),
+            # chromosome may be added here later
         )
     
     def load(self):
         pass # TODO
 
+class Condition(LazyDict):
+    def __init__(self, name):
+        self.name = name
+        self.is_disabled   = False
+        self.is_reference  = False
+        self.is_control    = False
+        self.is_experiment = False
+
+class SessionData:
+    def __init__(self):
+        self.wigs = []
+        self.conditions = []
+    
+    @property
+    def condition_names(self):
+        return set([ each.name for each in self.conditions ])
+    
+    def add_wig(self, path, condition=None):
+        self.wigs.append(
+            Wig(path=path, is_part_of_cwig=False, condition=condition)
+        )
+        condition_name = self.wigs[-1].extra_data.condition
+        if condition_name not in self.condition_names:
+            self.conditions.append(
+                Condition(
+                    name=condition_name,
+                )
+            )
+    
+    def add_cwig(self, cwig_path, metadata_path):
+        wig_group = WigGroup.load_from(cwig_path, metadata_path)
+        self.wigs += wig_group.wigs
+        # add conditions
+        for each_wig in wig_group.wigs:
+            condition_name = each_wig.extra_data.condition
+            if condition_name not in self.condition_names:
+                self.conditions.append(
+                    Condition(
+                        name=condition_name,
+                    )
+                )
+    
+    @property
+    def files(self):
+        return [ self.path for each in self.wigs ]
+    
+    def import_session(self, path):
+        pass # TODO
+    
+    def export_session(self, path):
+        pass # TODO
+        
 
 class CombinedWig:
     def __init__(self, path, comments=None, extra_data=None):
@@ -190,35 +243,3 @@ class WigGroup:
     @property
     def wigs(self):
         return self.cwig.wigs
-
-class SessionData:
-    def __init__(self):
-        self.wigs = []
-        self.conditions = []
-    
-    def add_wig(self, path, condition=None):
-        self.wigs.append(
-            Wig(path=path, is_part_of_cwig=False, condition=condition)
-        )
-        condition = self.wigs[-1].extra_data.condition
-        if condition not in self.conditions:
-            self.conditions.append(condition)
-    
-    def add_cwig(self, cwig_path, metadata_path):
-        wig_group = WigGroup.load_from(cwig_path, metadata_path)
-        self.wigs += wig_group.wigs
-        # add conditions
-        for each_wig in wig_group.wigs:
-            condition = each_wig.extra_data.condition
-            if condition not in self.conditions:
-                self.conditions.append(condition)
-    
-    @property
-    def files(self):
-        return [ self.path for each in self.wigs ]
-    
-    def import_session(self, path):
-        pass # TODO
-    
-    def export_session(self, path):
-        pass # TODO
