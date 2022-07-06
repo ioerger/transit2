@@ -1,10 +1,13 @@
 from random import random
 
 import file_system_py as FS
+import ez_yaml
+
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict
+from pytransit.basics.named_list import named_list
 
-class Wig:
+class Wig(LazyDict):
     def __init__(self, path, is_part_of_cwig, id=None, condition=None):
         self.path            = path
         self.rows            = []
@@ -26,8 +29,9 @@ class Condition(LazyDict):
         self.is_reference  = False
         self.is_control    = False
         self.is_experiment = False
+        
 
-class SessionData:
+class SessionData(LazyDict):
     def __init__(self):
         self.wigs = []
         self.conditions = []
@@ -71,7 +75,6 @@ class SessionData:
     def export_session(self, path):
         pass # TODO
         
-
 class CombinedWig:
     def __init__(self, path, comments=None, extra_data=None):
         self.path          = path
@@ -79,6 +82,8 @@ class CombinedWig:
         self.comments      = comments or []
         self.extra_data    = extra_data or {}
         self.wigs          = []
+        
+        self.load()
     
     @property
     def sites(self):
@@ -184,13 +189,12 @@ class CombinedWig:
         return self
 
 class CWigMetadata:
+    # can contain more data
     def __init__(self, path):
         self.path = path
         self.comments = []
         self.headers = []
         self.rows = []
-    
-    def load(self):
         self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_headers=True)
     
     def condition_for(self, wig_path=None, id=None):
@@ -238,7 +242,7 @@ class WigGroup:
     
     @property
     def conditions(self):
-        self.metadata.conditions
+        return self.metadata.conditions
     
     @property
     def wigs(self):

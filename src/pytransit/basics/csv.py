@@ -1,3 +1,5 @@
+from pytransit.basics.named_list import named_list
+
 # reads .csv, .tsv, etc 
 def read(path, *, seperator=",", use_headers=None, first_row_is_headers=False, skip_empty_lines=True):
     import json
@@ -73,7 +75,7 @@ def read(path, *, seperator=",", use_headers=None, first_row_is_headers=False, s
     
     # if headers
     if first_row_is_headers or use_headers:
-        RowItem = named_list(headers or use_headers)
+        RowItem = named_list(headers[0] or use_headers)
         # tranform each into a named list (backwards compatible with regular list)
         rows = [ RowItem(each_row) for each_row in rows ]
     

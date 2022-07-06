@@ -96,12 +96,6 @@ def write_dat(path, heading, table, eol="\n"):
         outfile.write(string)
 
 if HAS_WX:
-    def bind_to(wxPythonObj, event):
-        def wrapper2(function_to_attach):
-            wxPythonObj.Bind(event, function_to_attach)
-            return function_to_attach
-        return wrapper2
-
     class AssumeZerosDialog(wx.Dialog):
         def __init__(self, *args, **kw):
 
