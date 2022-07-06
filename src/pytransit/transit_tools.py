@@ -93,7 +93,7 @@ def write_dat(path, heading, table, eol="\n"):
     body = eol.join([ "\t".join(each_row) for each_row in table ])
     string = heading + eol + body
     with open(path, 'w') as outfile:
-        outfile.write(string, outfile)
+        outfile.write(string)
 
 if HAS_WX:
 
