@@ -4,11 +4,11 @@
 #    method: TTR
 #    factors: [ 2.6365107688705036, 3.2329912278198036, 2.865270203473558, 2.286197257382532, 1.4371695843583265 ]
 #  files:
-#    - ./cholesterol_H37Rv_rep1.wig
-#    - ./cholesterol_H37Rv_rep2.wig
-#    - ./cholesterol_H37Rv_rep3.wig
-#    - ./glycerol_H37Rv_rep1.wig
-#    - ./glycerol_H37Rv_rep2.wig
+#    - src/pytransit/data/cholesterol_H37Rv_rep1.wig
+#    - src/pytransit/data/cholesterol_H37Rv_rep2.wig
+#    - src/pytransit/data/cholesterol_H37Rv_rep3.wig
+#    - src/pytransit/data/glycerol_H37Rv_rep1.wig
+#    - src/pytransit/data/glycerol_H37Rv_rep2.wig
 60	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)
 72	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)
 102	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)

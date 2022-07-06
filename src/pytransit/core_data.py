@@ -4,36 +4,47 @@ import file_system_py as FS
 import ez_yaml
 
 import pytransit.basics.csv as csv
-from pytransit.basics.lazy_dict import LazyDict
+from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 
 universal = LazyDict()
 
-class Wig(LazyDict):
-    def __init__(self, path, is_part_of_cwig, id=None, condition=None):
+class Wig:
+    def __init__(self, path, rows=None, extra_data=None):
         self.path            = path
-        self.rows            = []
+        self.rows            = rows or []
         self.comments        = []
-        self.extra_data      = LazyDict(
-            is_part_of_cwig=is_part_of_cwig,
-            condition=condition,
-            id=id or f"{self.condition}{random()}".replace(".", ""),
-            # chromosome may be added here later
-        )
-    
+        
+        self.extra_data = LazyDict(extra_data)
+        if self.extra_data.get("condition", None) is None:
+            self.extra_data["condition"] = FS.basename(path)
+        if self.extra_data.get("id", None) is None:
+            self.extra_data["id"] = f"{self.extra_data.get('condition', None)}{random()}".replace(".", "")
+        
     def load(self):
         pass # TODO
+    
+    def __repr__(self):
+        return f"""Wig(
+            path={self.path},
+            rows_shape=({len(self.rows)}, {len(self.rows[0])}),
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
 
-class Condition(LazyDict):
-    def __init__(self, name):
+class Condition:
+    def __init__(self, name, is_disabled=False, extra_data=None):
         self.name = name
-        self.is_disabled   = False
-        self.is_reference  = False
-        self.is_control    = False
-        self.is_experiment = False
-        
+        self.is_disabled = is_disabled
+        self.extra_data = LazyDict(extra_data or {})
+    
+    def __repr__(self):
+        return f"""Condition(
+            name={self.name},
+            is_disabled={self.is_disabled},
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
 
-class SessionData(LazyDict):
+class SessionData:
     def __init__(self):
         self.wigs = []
         self.conditions = []
@@ -44,7 +55,13 @@ class SessionData(LazyDict):
     
     def add_wig(self, path, condition=None):
         self.wigs.append(
-            Wig(path=path, is_part_of_cwig=False, condition=condition)
+            Wig(
+                path=path,
+                extra_data=LazyDict(
+                    is_part_of_cwig=False,
+                    condition=condition,
+                )
+            )
         )
         condition_name = self.wigs[-1].extra_data.condition
         if condition_name not in self.condition_names:
@@ -76,6 +93,13 @@ class SessionData(LazyDict):
     
     def export_session(self, path):
         pass # TODO
+    
+    def __repr__(self):
+        return f"""SessionData(
+            wigs={indent(self.wigs, by="            ", ignore_first=True)},
+            conditions={indent(self.conditions, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+
         
 class CombinedWig:
     def __init__(self, path, comments=None, extra_data=None):
@@ -89,7 +113,7 @@ class CombinedWig:
     
     @property
     def sites(self):
-        return numpy.array([ each.position for each in self.rows ])
+        return [ each.position for each in self.rows ]
     
     @property
     def files(self):
@@ -101,10 +125,10 @@ class CombinedWig:
     
     @property
     def read_counts_array(self):
-        return numpy.array([
+        return [
             each_row[1:len(self.files)] 
                 for each_row in self.rows 
-        ])
+        ]
     
     @property
     def read_counts_by_wig(self):
@@ -191,13 +215,28 @@ class CombinedWig:
                     counts_by_wig.append([])
                 counts_by_wig[index].append(count)
         
-        for each_file in self.files:
+        read_counts_by_wig = self.read_counts_by_wig
+        for each_path in self.files:
             self.wigs.append(
-                Wig(path=each_file, is_part_of_cwig=True)
+                Wig(
+                    path=each_path,
+                    rows=list(zip(self.sites, read_counts_by_wig[each_path])),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
             )
         
         return self
-
+    
+    def __repr__(self):
+        return f"""CombinedWig(
+            path={self.path},
+            rows_shape=({len(self.rows)}, {len(self.rows[0])}),
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+            wigs={      indent(self.wigs      , by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+        
 class CWigMetadata:
     # can contain more data
     def __init__(self, path):
@@ -210,6 +249,7 @@ class CWigMetadata:
     def condition_for(self, wig_path=None, id=None):
         if wig_path:
             for each_row in self.rows:
+                f = each_row["Filename"]
                 if each_row["Filename"] == wig_path:
                     return each_row["Condition"]
         if id:
@@ -231,9 +271,23 @@ class CWigMetadata:
     
     @property
     def conditions(self):
+        return list(set(
+            each_row["Condition"]
+                for each_row in self.rows
+        ))
+    
+    def __repr__(self):
+        return f"""CWigMetadata(
+            path={self.path},
+            rows_shape=({len(self.rows)}, {len(self.headers)}),
+            conditions={indent(self.conditions, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+    
+    @property
+    def conditions(self):
         return list(set(each_row["Condition"] for each_row in self.rows))
     
-class WigGroup:
+class WigGroup(LazyDict):
     @staticmethod
     def load_from(cwig_path, metadata_path):
         return WigGroup(
@@ -249,6 +303,7 @@ class WigGroup:
         for each_wig in self.cwig.wigs:
             each_wig.extra_data.condition = self.metadata.condition_for(each_wig.path)
             each_wig.extra_data.id = self.metadata.id_for(each_wig.path)
+        
     
     @property
     def conditions(self):
@@ -257,3 +312,10 @@ class WigGroup:
     @property
     def wigs(self):
         return self.cwig.wigs
+    
+    def __repr__(self):
+        return f"""WigGroup(
+            self.cwig={indent(self.self.cwig, by="            ", ignore_first=True)},
+            metadata={indent(self.metadata, by="            ", ignore_first=True)},
+            conditions={indent(self.conditions, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")

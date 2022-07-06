@@ -1,6 +1,8 @@
-def indent(string, by):
-    indent_string = (" "*by)
-    return indent_string + string.replace("\n", "\n"+indent_string)
+def indent(string, by, ignore_first=False):
+    indent_string = (" "*by) if isinstance(by, int) else by
+    string = string if isinstance(string, str) else stringify(string)
+    start = indent_string if not ignore_first else ""
+    return start + string.replace("\n", "\n"+indent_string)
 
 def stringify(value):
     class Map:
@@ -79,7 +81,7 @@ def stringify(value):
             from io import StringIO
             import builtins
             string_stream = StringIO()
-            builtins.print(*args, **kwargs, file=string_stream)
+            builtins.print(value, file=string_stream)
             debug_string = string_stream.getvalue()
         
         # TODO: handle "<slot wrapper '__repr__' of 'object' objects>"
