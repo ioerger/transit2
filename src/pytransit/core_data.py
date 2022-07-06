@@ -2,13 +2,18 @@ from random import random
 
 from file_system_py import FS
 import pytransit.basics.csv as csv
+import pytransit.basics.lazy_dict import LazyDict
 
 class Wig:
     def __init__(self, path, is_part_of_cwig, id=None, condition=None):
         self.path            = path
-        self.is_part_of_cwig = is_part_of_cwig
-        self.condition       = condition or FS.basename(path)
-        self.id              = id or f"{self.condition}{random()}".replace(".", "")
+        self.rows            = []
+        self.comments        = []
+        self.extra_data      = LazyDict(
+            is_part_of_cwig=is_part_of_cwig,
+            condition=condition,
+            id=id or f"{self.condition}{random()}".replace(".", ""),
+        )
     
     def load(self):
         pass # TODO
@@ -175,8 +180,8 @@ class WigGroup:
         
         # attach a condition to each wig
         for each_wig in self.cwig.wigs:
-            each_wig.condition = self.metadata.condition_for(each_wig.path)
-            each_wig.id = self.metadata.id_for(each_wig.path)
+            each_wig.extra_data.condition = self.metadata.condition_for(each_wig.path)
+            each_wig.extra_data.id = self.metadata.id_for(each_wig.path)
     
     @property
     def conditions(self):
@@ -195,7 +200,7 @@ class SessionData:
         self.wigs.append(
             Wig(path=path, is_part_of_cwig=False, condition=condition)
         )
-        condition = self.wigs[-1].condition
+        condition = self.wigs[-1].extra_data.condition
         if condition not in self.conditions:
             self.conditions.append(condition)
     
@@ -204,7 +209,7 @@ class SessionData:
         self.wigs += wig_group.wigs
         # add conditions
         for each_wig in wig_group.wigs:
-            condition = each_wig.condition
+            condition = each_wig.extra_data.condition
             if condition not in self.conditions:
                 self.conditions.append(condition)
     
