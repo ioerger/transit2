@@ -32,12 +32,12 @@ from pytransit.analysis.utest import UTestMethod
 # Genetic Interactions
 from pytransit.analysis.gi import GIMethod
 
-hasR = False
+has_r = False
 try:
     import rpy2.robjects
-    hasR = True
+    has_r = True
 except Exception as e:
-    hasR = False
+    has_r = False
 
 
 class TestMethods(TransitTestCase):
@@ -149,7 +149,7 @@ class TestMethods(TransitTestCase):
             28,
             "sig_qvals expected: %d, actual: %d" % (28, len(sig_qvals)))
 
-    @unittest.skipUnless(hasR, "requires R, rpy2")
+    @unittest.skipUnless(has_r, "requires R, rpy2")
     def test_zinb(self):
         args = [combined_wig, samples_metadata, small_annotation, output]
         G = ZinbMethod.fromargs(args)
@@ -166,7 +166,7 @@ class TestMethods(TransitTestCase):
             30,
             "sig_qvals expected: %d, actual: %d" % (30, len(sig_qvals)))
 
-    @unittest.skipUnless(hasR, "requires R, rpy2")
+    @unittest.skipUnless(has_r, "requires R, rpy2")
     def test_zinb_covariates(self):
         args = [combined_wig, samples_metadata_covariates, small_annotation, output, "--covars", "batch", "--condition", "NewConditionCol"]
         G = ZinbMethod.fromargs(args)
@@ -183,7 +183,7 @@ class TestMethods(TransitTestCase):
             10,
             "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
 
-    @unittest.skipUnless(hasR, "requires R, rpy2")
+    @unittest.skipUnless(has_r, "requires R, rpy2")
     def test_zinb_interactions(self):
         args = [combined_wig, samples_metadata_interactions, small_annotation, output, "--covars", "batch", "--interactions", "atm"]
         G = ZinbMethod.fromargs(args)
