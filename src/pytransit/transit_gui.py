@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 from collections import defaultdict
 from functools import partial
 import datetime
@@ -13,15 +11,15 @@ import threading
 import time
 import traceback
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename
-from pytransit.core_data import SessionData
-from pytransit.gui_tools import bind_to
-
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 import ez_yaml
 
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, rgba, color, basename
+from pytransit.core_data import SessionData
+from pytransit.gui_tools import bind_to
+from pytransit.basics.lazy_dict import LazyDict
 import pytransit
 import pytransit.analysis
 import pytransit.export
@@ -34,15 +32,12 @@ import pytransit.stat_tools as stat_tools
 import pytransit.file_display as file_display
 import pytransit.qc_display as qc_display
 import pytransit.images as images
-from pytransit.basics.lazy_dict import LazyDict
-
 
 method_wrap_width = 250
 methods           = pytransit.analysis.methods
 export_methods    = pytransit.export.methods
 convert_methods   = pytransit.convert.methods
 normmethods       = norm_tools.methods
-
 
 wildcard = "Python source (*.py)|*.py|" "All files (*.*)|*.*"
 transit_prefix = "[TRANSIT]"
@@ -66,8 +61,6 @@ transit_prefix = "[TRANSIT]"
 #
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
-
-
 
 class TnSeekFrame(wx.Frame):
     # constructor
@@ -179,6 +172,11 @@ class TnSeekFrame(wx.Frame):
                                     flag=wx.EXPAND | wx.ALL,
                                     border=5,
                                 )
+                                self.annotationFilePicker
+                                
+                                @bind_to(self.annotationFilePicker, wx.EVT_FILEPICKER_CHANGED)
+                                def annotationFileFunc(self, event):
+                                    self.annotation = event.GetPath()
 
                             orgSizer.Add(annot_sizer, 1, wx.EXPAND, 5)
 
@@ -216,8 +214,12 @@ class TnSeekFrame(wx.Frame):
                                     0,
                                 )
                                 self.ctrlViewButton.Hide()
-
                                 ctrlBoxSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
+                                
+                                @bind_to(self.ctrlViewButton, wx.EVT_BUTTON)
+                                def _(event):
+                                    self.allViewFunc(event)
+                                
 
                             # 
                             # combinedWigFilePicker
@@ -343,7 +345,10 @@ class TnSeekFrame(wx.Frame):
                                 )
                                 self.experimentTrackViewButton.Hide()
                                 boxSizer.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
-                            
+                                
+                                @bind_to(self.experimentTrackViewButton, wx.EVT_BUTTON)
+                                def _(event):
+                                    return self.allViewFunc(event)
 
                             conditionsSizer.Add(boxSizer, 0, wx.EXPAND, 5)
 
@@ -386,7 +391,33 @@ class TnSeekFrame(wx.Frame):
                                     0,
                                 )
                                 boxSizer4.Add(self.displayButton, 0, wx.ALL, 5)
-                            
+                                
+                                @bind_to(self.displayButton, wx.EVT_BUTTON)
+                                def displayFileFunc(event):
+                                    next = self.listFiles.GetNextSelected(-1)
+                                    if next > -1:
+                                        dataset = self.listFiles.GetItem(next, 3).GetText()
+                                        if self.verbose:
+                                            transit_tools.transit_message(
+                                                "Displaying results: %s"
+                                                % self.listFiles.GetItem(next, 0).GetText()
+                                            )
+
+                                        try:
+                                            # fileWindow = file_display.FileFrame(self, dataset, self.listFiles.GetItem(next, 1).GetText())
+                                            fileWindow = file_display.TransitGridFrame(self, dataset)
+                                            fileWindow.Show()
+                                        except Exception as e:
+                                            transit_tools.transit_message(
+                                                "Error occurred displaying file: %s" % str(e)
+                                            )
+                                            traceback.print_exc()
+
+                                    else:
+                                        if self.verbose:
+                                            transit_tools.transit_message("No results selected to display!")
+
+                                
                             # 
                             # fileActionButton
                             # 
@@ -402,7 +433,13 @@ class TnSeekFrame(wx.Frame):
                                 self.fileActionButton.Hide()
 
                                 boxSizer4.Add(self.fileActionButton, 0, wx.ALL, 5)
-                            
+                                
+                                @bind_to(self.fileActionButton, wx.EVT_BUTTON)
+                                def _(event):
+                                    self.fileActionFunc(event)
+                                
+                                
+                                
                             # 
                             # addFileButton
                             # 
@@ -415,7 +452,11 @@ class TnSeekFrame(wx.Frame):
                                     size=wx.Size(150, 30)
                                 )
                                 boxSizer4.Add(self.addFileButton, 0, wx.ALL, 5)
-                            
+                                
+                                @bind_to(self.addFileButton, wx.EVT_BUTTON)
+                                def _(event):
+                                    self.addFileFunc(event)
+                                
                             # 
                             # fileActionChoice
                             # 
@@ -431,7 +472,11 @@ class TnSeekFrame(wx.Frame):
                                 )
                                 self.fileActionChoice.SetSelection(0)
                                 boxSizer4.Add(self.fileActionChoice, 0, wx.ALL, 5)
-
+                                
+                                @bind_to(self.fileActionChoice, wx.EVT_CHOICE)
+                                def _(event):
+                                    self.fileActionFunc(event)
+                                
                             filesSizer.Add(boxSizer4, 0, 0, 5)
                         
                         # 
@@ -447,6 +492,10 @@ class TnSeekFrame(wx.Frame):
                             )
                             self.listFiles.SetMaxSize(wx.Size(-1, 200))
                             filesSizer.Add(self.listFiles, 1, wx.ALL | wx.EXPAND, 5)
+                            
+                            @bind_to(self.listFiles, wx.EVT_LIST_ITEM_SELECTED)
+                            def _(event):
+                                self.fileSelected(event)
 
                     windowSizer.Add(filesSizer, 1, wx.EXPAND, 5)
                     self.mainWindow.SetSizer(windowSizer)
@@ -890,18 +939,9 @@ class TnSeekFrame(wx.Frame):
             self.Centre(wx.BOTH)
         
         # 
-        # Connect Events
+        # Connect Menu Events
         # 
         if True:
-            self.annotationFilePicker.Bind(       wx.EVT_FILEPICKER_CHANGED, self.annotationFileFunc     )
-            self.ctrlViewButton.Bind(             wx.EVT_BUTTON            , self.allViewFunc            )
-            self.experimentTrackViewButton.Bind(  wx.EVT_BUTTON            , self.allViewFunc            )
-            self.displayButton.Bind(              wx.EVT_BUTTON            , self.displayFileFunc        )
-            self.fileActionButton.Bind(           wx.EVT_BUTTON            , self.fileActionFunc         )
-            self.addFileButton.Bind(              wx.EVT_BUTTON            , self.addFileFunc            )
-            self.fileActionChoice.Bind(           wx.EVT_CHOICE            , self.fileActionFunc         )
-            self.listFiles.Bind(                  wx.EVT_LIST_ITEM_SELECTED, self.fileSelected           )
-
             self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=self.annotationConvertPTToPTTMenu.GetId(),  )
             self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=self.annotationConvertPTToGFF3Menu.GetId(), )
             self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=self.annotationConvertPTTToPT.GetId(),      )
@@ -1714,8 +1754,7 @@ class TnSeekFrame(wx.Frame):
             error_text = """Error occurred opening documentation URL.\nYour browser or OS may not be configured correctly."""
             transit_tools.ShowError(MSG=error_text)
             traceback.print_exc()
-    def annotationFileFunc(self, event):
-        self.annotation = event.GetPath()
+    
 
     def MethodSelectFunc(self, selected_name, test=""):
         # If empty is selected
@@ -1805,30 +1844,6 @@ class TnSeekFrame(wx.Frame):
                 except Exception as e:
                     transit_tools.transit_message("Error: %s" % str(e))
                     traceback.print_exc()
-
-    def displayFileFunc(self, event):
-        next = self.listFiles.GetNextSelected(-1)
-        if next > -1:
-            dataset = self.listFiles.GetItem(next, 3).GetText()
-            if self.verbose:
-                transit_tools.transit_message(
-                    "Displaying results: %s"
-                    % self.listFiles.GetItem(next, 0).GetText()
-                )
-
-            try:
-                # fileWindow = file_display.FileFrame(self, dataset, self.listFiles.GetItem(next, 1).GetText())
-                fileWindow = file_display.TransitGridFrame(self, dataset)
-                fileWindow.Show()
-            except Exception as e:
-                transit_tools.transit_message(
-                    "Error occurred displaying file: %s" % str(e)
-                )
-                traceback.print_exc()
-
-        else:
-            if self.verbose:
-                transit_tools.transit_message("No results selected to display!")
 
     def fileSelected(self, event):
         next = self.listFiles.GetNextSelected(-1)
