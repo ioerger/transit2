@@ -8,5 +8,11 @@
         "**/Thumbs.db": true,
         "/pytransit/*": true,
         "/pytpp/*": true,
+        ".venv/*": true,
+        ".venv.ignore/*": true,
+        "*.ignore/*": true,
+        "*.ignore.*/*": true,
+        "*.ignore": true,
+        "*.ignore.*": true,
     },
 }

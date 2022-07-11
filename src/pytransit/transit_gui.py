@@ -16,12 +16,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import ez_yaml
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
 from pytransit.core_data import SessionData, universal
 from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
-from pytransit.components.comwig_picker import create_comwig_picker
-from pytransit.components.table import create_table
+from pytransit.wx_objects.comwig_picker import create_comwig_picker
+from pytransit.wx_objects.generic.table import Table
 import pytransit
 import pytransit.analysis
 import pytransit.export
@@ -236,11 +236,11 @@ class TnSeekFrame(wx.Frame):
                             ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
                         
                         # 
-                        # listCtrl
+                        # wig_table
                         # 
-                        if True:
-                            self.wig_table = create_table()
-                            ctrlSizer.Add(self.wig_table.component, 1, wx.ALL | wx.EXPAND, 5)
+                        with Table() as (wx_object, component):
+                            self.wig_table = wx_object
+                            ctrlSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
 
                         windowSizer.Add(
                             ctrlSizer,
@@ -284,24 +284,22 @@ class TnSeekFrame(wx.Frame):
                                     return self.allViewFunc(event)
 
                             conditionsSizer.Add(boxSizer, 0, wx.EXPAND, 5)
-
-                        self.listConditions = wx.ListCtrl(
-                            self.mainWindow,
-                            wx.ID_ANY,
-                            wx.DefaultPosition,
-                            wx.DefaultSize,
-                            wx.LC_REPORT | wx.SUNKEN_BORDER,
-                        )
-                        self.listConditions.SetMaxSize(wx.Size(-1, 200))
-                        conditionsSizer.Add(self.listConditions, 1, wx.ALL | wx.EXPAND, 5)
-
+                        
+                        # 
+                        # Conditions
+                        # 
+                        with Table() as (wx_object, component):
+                            wx_object.SetMaxSize(wx.Size(-1, 200))
+                            conditionsSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
+                            self.conditions_table = obj
+                        
                         windowSizer.Add(conditionsSizer, 1, wx.EXPAND, 5)
 
                     # 
                     # Results
                     # 
                     if True:
-                        filesSizer = wx.StaticBoxSizer(
+                        results_sizer = wx.StaticBoxSizer(
                             wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Results Files"), wx.VERTICAL
                         )
                         
@@ -327,17 +325,16 @@ class TnSeekFrame(wx.Frame):
                                 
                                 @bind_to(self.displayButton, wx.EVT_BUTTON)
                                 def displayFileFunc(event):
-                                    next = self.listFiles.GetNextSelected(-1)
+                                    next = self.results_table.GetNextSelected(-1)
                                     if next > -1:
-                                        dataset = self.listFiles.GetItem(next, 3).GetText()
+                                        dataset = self.results_table.GetItem(next, 3).GetText()
                                         if self.verbose:
                                             transit_tools.transit_message(
                                                 "Displaying results: %s"
-                                                % self.listFiles.GetItem(next, 0).GetText()
+                                                % self.results_table.GetItem(next, 0).GetText()
                                             )
 
                                         try:
-                                            # fileWindow = file_display.FileFrame(self, dataset, self.listFiles.GetItem(next, 1).GetText())
                                             fileWindow = file_display.TransitGridFrame(self, dataset)
                                             fileWindow.Show()
                                         except Exception as e:
@@ -386,9 +383,68 @@ class TnSeekFrame(wx.Frame):
                                 )
                                 boxSizer4.Add(self.addFileButton, 0, wx.ALL, 5)
                                 
+                                @subscribe("file")
+                                def add_file(data):
+                                    fullpath = data["path"]
+                                    type     = data["type"]
+                                    date     = data["date"]
+                                    name = transit_tools.basename(fullpath)
+                                    # FIXME
+                                    self.results_table.InsertItem(self.index_file, name)
+                                    self.results_table.SetItem(self.index_file, 1, f"{type}")
+                                    self.results_table.SetItem(self.index_file, 2, f"{date}")
+                                    self.results_table.SetItem(self.index_file, 3, f"{fullpath}")
+                                    self.index_file += 1
+                                
                                 @bind_to(self.addFileButton, wx.EVT_BUTTON)
                                 def _(event):
-                                    self.addFileFunc(event)
+                                    try:
+                                        dlg = wx.FileDialog(
+                                            self,
+                                            message="Choose a file",
+                                            defaultDir=self.workdir,
+                                            defaultFile="",
+                                            wildcard=u"Results Files (*.dat)|*.dat;|\nResults Files (*.txt)|*.txt;|\nAll files (*.*)|*.*",
+                                            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                                        )
+                                        if dlg.ShowModal() == wx.ID_OK:
+                                            paths = dlg.GetPaths()
+                                            print("You chose the following Results file(s):")
+                                            for fullpath in paths:
+                                                print("\t%s" % fullpath)
+                                                name = transit_tools.basename(fullpath)
+                                                line = open(fullpath).readline()
+                                                if line.startswith("#Gumbel"):
+                                                    type = "Gumbel"
+                                                elif line.startswith("#Binomial"):
+                                                    type = "Binomial"
+                                                elif line.startswith("#HMM - Sites"):
+                                                    type = "HMM - Sites"
+                                                elif line.startswith("#HMM - Genes"):
+                                                    type = "HMM - Genes"
+                                                elif line.startswith("#Resampling"):
+                                                    type = "Resampling"
+                                                elif line.startswith("#DE-HMM - Sites"):
+                                                    type = "DE-HMM - Sites"
+                                                elif line.startswith("#DE-HMM - Segments"):
+                                                    type = "DE-HMM - Segments"
+                                                elif line.startswith("#GI"):
+                                                    type = "GI"
+                                                else:
+                                                    type = "Unknown"
+                                                data = {
+                                                    "path": fullpath,
+                                                    "type": type,
+                                                    "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
+                                                }
+                                                wx.CallAfter(pub.sendMessage, "file", data=data)
+                                        dlg.Destroy()
+                                    except Exception as e:
+                                        transit_tools.transit_message("Error: %s" % e)
+                                        print("PATH", fullpath)
+                                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                                        print(exc_type, fname, exc_tb.tb_lineno)
                                 
                             # 
                             # fileActionChoice
@@ -407,30 +463,54 @@ class TnSeekFrame(wx.Frame):
                                 boxSizer4.Add(self.fileActionChoice, 0, wx.ALL, 5)
                                 
                                 @bind_to(self.fileActionChoice, wx.EVT_CHOICE)
-                                def _(event):
-                                    self.fileActionFunc(event)
+                                def fileActionFunc(event):
+                                    # 0 - nothing
+                                    # 1 - Volcano
+                                    # 2 - Hist gene counts ratio
+                                    plot_choice = self.fileActionChoice.GetCurrentSelection()
+                                    plot_name = self.fileActionChoice.GetString(plot_choice)
+                                    if plot_name == "[Choose Action]":
+                                        return
+                                    next = self.results_table.GetNextSelected(-1)
+                                    if next > -1:
+                                        dataset_path = self.results_table.GetItem(next, 3).GetText()
+                                        dataset_name = self.results_table.GetItem(next, 0).GetText()
+                                        dataset_type = self.results_table.GetItem(next, 1).GetText()
+
+                                        if self.verbose:
+                                            transit_tools.transit_message(
+                                                "Performing the '%s' action on dataset '%s'"
+                                                % (plot_name, dataset_name)
+                                            )
+
+                                        if plot_name == "Create a Volcano Plot":
+                                            self.graphVolcanoPlot(dataset_name, dataset_type, dataset_path)
+                                        elif plot_name == "Plot Histogram of logFC of Gene Counts":
+                                            self.graphGeneCounts(dataset_name, dataset_type, dataset_path)
+                                        elif plot_name == "Plot Ranked Probability of Essentiality":
+                                            self.graphRankedZbar(dataset_name, dataset_type, dataset_path)
+                                        else:
+                                            return
+
+                                        self.fileActionChoice.SetSelection(0)
+                                    else:
+                                        transit_tools.ShowError(MSG="Please select a results file to plot!")
+
                                 
-                            filesSizer.Add(boxSizer4, 0, 0, 5)
+                            results_sizer.Add(boxSizer4, 0, 0, 5)
                         
                         # 
-                        # listFiles
+                        # results_table
                         # 
-                        if True:
-                            self.listFiles = wx.ListCtrl(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                wx.DefaultPosition,
-                                wx.DefaultSize,
-                                wx.LC_REPORT | wx.SUNKEN_BORDER,
-                            )
-                            self.listFiles.SetMaxSize(wx.Size(-1, 200))
-                            filesSizer.Add(self.listFiles, 1, wx.ALL | wx.EXPAND, 5)
+                        with Table(
+                            initial_columns=[ "Name", "Type", "Date", "Full Path"],
+                            max_size=(-1, 200)
+                        ) as (wx_object, component):
                             
-                            @bind_to(self.listFiles, wx.EVT_LIST_ITEM_SELECTED)
-                            def _(event):
-                                self.fileSelected(event)
-
-                    windowSizer.Add(filesSizer, 1, wx.EXPAND, 5)
+                            self.results_table = obj
+                            results_sizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
+                            
+                    windowSizer.Add(results_sizer, 1, wx.EXPAND, 5)
                     self.mainWindow.SetSizer(windowSizer)
                     self.mainWindow.Layout()
                     windowSizer.Fit(self.mainWindow)
@@ -829,15 +909,6 @@ class TnSeekFrame(wx.Frame):
             )
 
             self.viewMenuItem.Append(self.trackMenuItem)
-            self.qcMenuItem = wx.MenuItem(
-                self.viewMenuItem,
-                wx.ID_ANY,
-                u"&Quality Control",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-
-            self.viewMenuItem.Append(self.qcMenuItem)
             self.m_menubar1.Append(self.viewMenuItem, u"&View")
 
             #
@@ -881,7 +952,6 @@ class TnSeekFrame(wx.Frame):
             self.Bind(wx.EVT_MENU, self.Exit                , id=self.fileExitMenuItem.GetId()               )
             self.Bind(wx.EVT_MENU, self.scatterFunc         , id=self.scatterMenuItem.GetId()                )
             self.Bind(wx.EVT_MENU, self.allViewFunc         , id=self.trackMenuItem.GetId()                  )
-            self.Bind(wx.EVT_MENU, self.qcFunc              , id=self.qcMenuItem.GetId()                     )
             self.Bind(wx.EVT_MENU, self.aboutFunc           , id=self.aboutMenuItem.GetId()                  )
             self.Bind(wx.EVT_MENU, self.documentationFunc   , id=self.documentationMenuItem.GetId()          )
             
@@ -900,25 +970,8 @@ class TnSeekFrame(wx.Frame):
         self.methodSizerText.Hide()
 
 
-        self.condition_index = 0
-        self.conditions_enum = LazyDict({
-            "Condition" : 1,
-            "Control" : 2,
-            "Experiment" : 3,
-            "Reference" : 4,
-            "Sample Count" : 5,
-        })
-        self.listConditions.InsertColumn(self.conditions_enum["Condition"   ], "Condition"   , width=210)
-        self.listConditions.InsertColumn(self.conditions_enum["Control"     ], "Control"     , width=85)
-        self.listConditions.InsertColumn(self.conditions_enum["Experiment"  ], "Experiment"  , width=85)
-        self.listConditions.InsertColumn(self.conditions_enum["Reference"   ], "Reference"   , width=90)
-        self.listConditions.InsertColumn(self.conditions_enum["Sample Count"], "Sample Count", width=85)
-
         self.index_file = 0
-        self.listFiles.InsertColumn(0, "Name", width=350)
-        self.listFiles.InsertColumn(1, "Type", width=100)
-        self.listFiles.InsertColumn(2, "Date", width=230)
-        self.listFiles.InsertColumn(3, "Full Path", width=403)
+        
 
         self.verbose = True
 
@@ -927,7 +980,6 @@ class TnSeekFrame(wx.Frame):
         pub.subscribe(self.setProgressRange, "progressrange")
         pub.subscribe(self.updateProgress, "progress")
         pub.subscribe(self.updateStatus, "status")
-        pub.subscribe(self.addFile, "file")
         pub.subscribe(self.finishRun, "finish")
         pub.subscribe(self.saveHistogram, "histogram")
 
@@ -1055,54 +1107,6 @@ class TnSeekFrame(wx.Frame):
         self.HideProgressSection()
         self.HideGlobalOptions()
 
-        self.DEBUG = DEBUG
-        if self.DEBUG:
-            ctrlData = ["glycerol_H37Rv_rep1.wig", "glycerol_H37Rv_rep2.wig"]
-            for dataset in ctrlData:
-                try:
-                    path = os.path.dirname(os.path.realpath(__file__))
-                    path = os.path.join(
-                        os.path.dirname(
-                            "/pacific/home/mdejesus/transit/src/transit.py"
-                        ),
-                        "pytransit/data",
-                        dataset,
-                    )
-                    transit_tools.transit_message("Adding Ctrl File: " + path)
-                    self.loadCtrlFile(path)
-                except Exception as e:
-                    print("Error:", str(e))
-
-            expData = [
-                "cholesterol_H37Rv_rep1.wig",
-                "cholesterol_H37Rv_rep2.wig",
-                "cholesterol_H37Rv_rep3.wig",
-            ]
-            for dataset in expData:
-                try:
-                    path = os.path.join(
-                        os.path.dirname(
-                            "/pacific/home/mdejesus/transit/src/transit.py"
-                        ),
-                        "pytransit/data",
-                        dataset,
-                    )
-                    transit_tools.transit_message("Adding Exp File: " + path)
-                    self.loadExpFile(path)
-                except Exception as e:
-                    print("Error:", str(e))
-
-            try:
-                self.annotation = os.path.join(
-                    os.path.dirname("/pacific/home/mdejesus/transit/src/transit.py"),
-                    "pytransit/genomes/H37Rv.prot_table",
-                )
-                transit_tools.transit_message(
-                    "Annotation File Selected: %s" % self.annotation
-                )
-            except Exception as e:
-                print("Error:", str(e))
-
     def Exit(self, event):
         """Exit Menu Item"""
         if self.verbose:
@@ -1154,17 +1158,6 @@ class TnSeekFrame(wx.Frame):
         genePath = os.path.join(path, orf + ".png")
         plt.savefig(genePath)
         plt.clf()
-
-    def addFile(self, data):
-        fullpath = data["path"]
-        name = transit_tools.basename(fullpath)
-        type = data["type"]
-        date = data["date"]
-        self.listFiles.InsertItem(self.index_file, name)
-        self.listFiles.SetItem(self.index_file, 1, "%s" % type)
-        self.listFiles.SetItem(self.index_file, 2, "%s" % (date))
-        self.listFiles.SetItem(self.index_file, 3, "%s" % (fullpath))
-        self.index_file += 1
 
     def finishRun(self, msg):
         try:
@@ -1339,45 +1332,10 @@ class TnSeekFrame(wx.Frame):
         dlg.Destroy()
         return path
 
-    def ctrlSelected(self, col=5):
-        selected_ctrl = []
-        current = -1
-        while True:
-            next = self.listCtrl.GetNextSelected(current)
-            if next == -1:
-                break
-            path = self.listCtrl.GetItem(next, col).GetText()
-            selected_ctrl.append(path)
-            current = next
-        return selected_ctrl
-
-    def expSelected(self, col=5):
-        selected_exp = []
-        current = -1
-        while True:
-            next = self.listConditions.GetNextSelected(current)
-            if next == -1:
-                break
-            path = self.listConditions.GetItem(next, col).GetText()
-            selected_exp.append(path)
-            current = next
-        return selected_exp
-
+    
     def allSelected(self, col=5):
         selected_all = self.ctrlSelected(col) + self.expSelected(col)
         return selected_all
-
-    def ctrlAll(self, col=5):
-        all_ctrl = []
-        for i in range(self.listCtrl.GetItemCount()):
-            all_ctrl.append(self.listCtrl.GetItem(i, col).GetText())
-        return all_ctrl
-
-    def expAll(self, col=5):
-        all_exp = []
-        for i in range(self.listConditions.GetItemCount()):
-            all_exp.append(self.listConditions.GetItem(i, col).GetText())
-        return all_exp
 
     def loadCtrlFile(self, fullpath):
         name = transit_tools.basename(fullpath)
@@ -1391,14 +1349,14 @@ class TnSeekFrame(wx.Frame):
             skew,
             kurtosis,
         ) = tnseq_tools.get_wig_stats(fullpath)
-        self.listCtrl.InsertItem(self.index_ctrl, name)
-        self.listCtrl.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
-        self.listCtrl.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
-        self.listCtrl.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
-        self.listCtrl.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
-        self.listCtrl.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
+        self.wig_table.InsertItem(self.index_ctrl, name)
+        self.wig_table.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
+        self.wig_table.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
+        self.wig_table.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
+        self.wig_table.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
+        self.wig_table.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
 
-        self.listCtrl.Select(self.index_ctrl)
+        self.wig_table.Select(self.index_ctrl)
         self.index_ctrl += 1
         try:
             self.ctrlLibText.SetValue(self.ctrlLibText.GetValue() + "A")
@@ -1408,69 +1366,13 @@ class TnSeekFrame(wx.Frame):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
 
-    def loadExpFile(self, fullpath):
-        name = transit_tools.basename(fullpath)
-        (
-            density,
-            meanrd,
-            nzmeanrd,
-            nzmedianrd,
-            maxrd,
-            totalrd,
-            skew,
-            kurtosis,
-        ) = tnseq_tools.get_wig_stats(fullpath)
-        self.listConditions.InsertItem(self.condition_index, name)
-        self.listConditions.SetItem(self.condition_index, 1, "%1.1f" % (totalrd))
-        self.listConditions.SetItem(self.condition_index, 2, "%2.1f" % (density * 100))
-        self.listConditions.SetItem(self.condition_index, 3, "%1.1f" % (meanrd))
-        self.listConditions.SetItem(self.condition_index, 4, "%d" % (maxrd))
-        self.listConditions.SetItem(self.condition_index, 5, "%s" % (fullpath))
-        self.listConditions.Select(self.condition_index)
-        self.condition_index += 1
-
-        try:
-            self.expLibText.SetValue(self.expLibText.GetValue() + "A")
-        except Exception as e:
-            transit_tools.transit_message("Error Modifying Ctrl Lib String: %s" % e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-
-    def loadCtrlFileFunc(self, event):
-        self.statusBar.SetStatusText("Loading Control Dataset(s)...")
-        try:
-
-            
-            dlg = wx.FileDialog(
-                self,
-                message="Choose a file",
-                defaultDir=self.workdir,
-                defaultFile="",
-                wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-            )
-            if dlg.ShowModal() == wx.ID_OK:
-                paths = dlg.GetPaths()
-                print("You chose the following Control file(s):")
-                for fullpath in paths:
-                    print("\t%s" % fullpath)
-                    self.loadCtrlFile(fullpath)
-            dlg.Destroy()
-        except Exception as e:
-            transit_tools.transit_message("Error: %s" % e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-        self.statusBar.SetStatusText("")
-    
     def ctrlRemoveFunc(self, event):
-        next = self.listCtrl.GetNextSelected(-1)
+        next = self.wig_table.GetNextSelected(-1)
         while next != -1:
             if self.verbose:
                 transit_tools.transit_message(
                     "Removing control item (%d): %s"
-                    % (next, self.listCtrl.GetItem(next, 0).GetText())
+                    % (next, self.wig_table.GetItem(next, 0).GetText())
                 )
 
             # Update library string after removing wig file
@@ -1479,28 +1381,9 @@ class TnSeekFrame(wx.Frame):
             self.ctrlLibText.SetValue(updated_lib_text)
 
             # Delete and Get next selected
-            self.listCtrl.DeleteItem(next)
-            next = self.listCtrl.GetNextSelected(-1)
+            self.wig_table.DeleteItem(next)
+            next = self.wig_table.GetNextSelected(-1)
             self.index_ctrl -= 1
-
-    def expRemoveFunc(self, event):
-        next = self.listConditions.GetNextSelected(-1)
-        while next != -1:
-            if self.verbose:
-                transit_tools.transit_message(
-                    "Removing experimental item (%d): %s"
-                    % (next, self.listConditions.GetItem(next, 0).GetText())
-                )
-
-            # Update library string after removing wig file
-            updated_lib_text = self.expLibText.GetValue()
-            updated_lib_text = updated_lib_text[:next] + updated_lib_text[(next + 1) :]
-            self.expLibText.SetValue(updated_lib_text)
-
-            # Delete and Get next selected
-            self.listConditions.DeleteItem(next)
-            next = self.listConditions.GetNextSelected(-1)
-            self.condition_index -= 1
 
     def allViewFunc(self, event, gene=""):
 
@@ -1521,42 +1404,6 @@ class TnSeekFrame(wx.Frame):
         else:
             transit_tools.ShowError("Error: No annotation file selected.")
             return
-
-    def ctrlViewButtonFunc(self, event, gene=""):
-        annotationpath = self.annotation
-        datasets = self.ctrlSelected()
-        if datasets and annotationpath:
-            if self.verbose:
-                transit_tools.transit_message(
-                    "Visualizing counts for: %s"
-                    % ", ".join([transit_tools.fetch_name(d) for d in datasets])
-                )
-            viewWindow = trash.TrashFrame(self, datasets, annotationpath, gene)
-            viewWindow.Show()
-        elif not datasets:
-            if self.verbose:
-                transit_tools.transit_message("No datasets selected to visualize!")
-        else:
-            if self.verbose:
-                transit_tools.transit_message("No annotation file selected")
-
-    def expViewFunc(self, event, gene=""):
-        annotationpath = self.annotation
-        datasets = self.expSelected()
-        if datasets and annotationpath:
-            if self.verbose:
-                transit_tools.transit_message(
-                    "Visualizing counts for: %s"
-                    % ", ".join([transit_tools.fetch_name(d) for d in datasets])
-                )
-            viewWindow = trash.TrashFrame(self, datasets, annotationpath, gene)
-            viewWindow.Show()
-        elif not datasets:
-            if self.verbose:
-                transit_tools.transit_message("No datasets selected to visualize!")
-        else:
-            if self.verbose:
-                transit_tools.transit_message("No annotation file selected")
 
     def scatterFunc(self, event):
         """ """
@@ -1581,29 +1428,6 @@ class TnSeekFrame(wx.Frame):
             transit_tools.ShowError(
                 MSG="Please make sure only two datasets are selected (across control and experimental datasets)."
             )
-
-    def qcFunc(self, event):
-        datasets = self.allSelected()
-        nfiles = len(datasets)
-
-        if nfiles == 0:
-            transit_tools.transit_message(
-                "You must select atleast one dataset control or experimental dataset."
-            )
-            transit_tools.ShowError(
-                MSG="You must select atleast one dataset control or experimental dataset."
-            )
-
-        elif nfiles >= 1:
-            transit_tools.transit_message("Displaying results: %s" % datasets[0])
-            try:
-                qcWindow = qc_display.qcFrame(self, datasets)
-                qcWindow.Show()
-            except Exception as e:
-                transit_tools.transit_message(
-                    "Error occured displaying file: %s" % str(e)
-                )
-                traceback.print_exc()
 
     def aboutFunc(self, event):
         description = """TRANSIT is a tool for analysing TnSeq data. It provides an easy to use graphical interface and access to several different analysis methods that allow the user to determine essentiality within a single condition as well as between two conditions.
@@ -1771,16 +1595,6 @@ class TnSeekFrame(wx.Frame):
                     transit_tools.transit_message("Error: %s" % str(e))
                     traceback.print_exc()
 
-    def fileSelected(self, event):
-        next = self.listFiles.GetNextSelected(-1)
-        if next > -1:
-            dataset_path = self.listFiles.GetItem(next, 3).GetText()
-            dataset_name = self.listFiles.GetItem(next, 0).GetText()
-            dataset_type = self.listFiles.GetItem(next, 1).GetText()
-            self.updateGraphChoices(dataset_type)
-        else:
-            pass
-
     def updateGraphChoices(self, dataset_type):
 
         empty_action = "[Choose Action]"
@@ -1807,41 +1621,6 @@ class TnSeekFrame(wx.Frame):
 
         self.fileActionChoice.SetItems(choices)
         self.fileActionChoice.SetSelection(0)
-
-    def fileActionFunc(self, event):
-        # 0 - nothing
-        # 1 - Volcano
-        # 2 - Hist gene counts ratio
-
-        plot_choice = self.fileActionChoice.GetCurrentSelection()
-        plot_name = self.fileActionChoice.GetString(plot_choice)
-        if plot_name == "[Choose Action]":
-            return
-        next = self.listFiles.GetNextSelected(-1)
-        if next > -1:
-            dataset_path = self.listFiles.GetItem(next, 3).GetText()
-            dataset_name = self.listFiles.GetItem(next, 0).GetText()
-            dataset_type = self.listFiles.GetItem(next, 1).GetText()
-
-            if self.verbose:
-                transit_tools.transit_message(
-                    "Performing the '%s' action on dataset '%s'"
-                    % (plot_name, dataset_name)
-                )
-
-            if plot_name == "Create a Volcano Plot":
-                self.graphVolcanoPlot(dataset_name, dataset_type, dataset_path)
-            elif plot_name == "Plot Histogram of logFC of Gene Counts":
-                self.graphGeneCounts(dataset_name, dataset_type, dataset_path)
-            elif plot_name == "Plot Ranked Probability of Essentiality":
-                self.graphRankedZbar(dataset_name, dataset_type, dataset_path)
-            else:
-                return
-
-            self.fileActionChoice.SetSelection(0)
-
-        else:
-            transit_tools.ShowError(MSG="Please select a results file to plot!")
 
     def graphGeneCounts(self, dataset_name, dataset_type, dataset_path):
         try:
@@ -2018,54 +1797,7 @@ class TnSeekFrame(wx.Frame):
 
     def addFileFunc(self, event):
 
-        try:
-            
-            dlg = wx.FileDialog(
-                self,
-                message="Choose a file",
-                defaultDir=self.workdir,
-                defaultFile="",
-                wildcard=u"Results Files (*.dat)|*.dat;|\nResults Files (*.txt)|*.txt;|\nAll files (*.*)|*.*",
-                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-            )
-            if dlg.ShowModal() == wx.ID_OK:
-                paths = dlg.GetPaths()
-                print("You chose the following Results file(s):")
-                for fullpath in paths:
-                    print("\t%s" % fullpath)
-                    name = transit_tools.basename(fullpath)
-                    line = open(fullpath).readline()
-                    if line.startswith("#Gumbel"):
-                        type = "Gumbel"
-                    elif line.startswith("#Binomial"):
-                        type = "Binomial"
-                    elif line.startswith("#HMM - Sites"):
-                        type = "HMM - Sites"
-                    elif line.startswith("#HMM - Genes"):
-                        type = "HMM - Genes"
-                    elif line.startswith("#Resampling"):
-                        type = "Resampling"
-                    elif line.startswith("#DE-HMM - Sites"):
-                        type = "DE-HMM - Sites"
-                    elif line.startswith("#DE-HMM - Segments"):
-                        type = "DE-HMM - Segments"
-                    elif line.startswith("#GI"):
-                        type = "GI"
-                    else:
-                        type = "Unknown"
-                    data = {
-                        "path": fullpath,
-                        "type": type,
-                        "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-                    }
-                    wx.CallAfter(pub.sendMessage, "file", data=data)
-            dlg.Destroy()
-        except Exception as e:
-            transit_tools.transit_message("Error: %s" % e)
-            print("PATH", fullpath)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+        
 
     def choseMethodsMenu(self, selected_name, event):
         if self.verbose:

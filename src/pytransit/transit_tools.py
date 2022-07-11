@@ -96,6 +96,22 @@ def write_dat(path, heading, table, eol="\n"):
         outfile.write(string)
 
 if HAS_WX:
+    def subscribe(*args):
+        """
+        Summary:
+            The old style:
+                pub.subscribe(self.setProgressRange, "progressrange")
+            
+            The new style enabled by this function:
+                @subscribe("progressrange")
+                def setProgressRange(self, *args):
+                    pass
+        """
+        def decorator(function_being_wrapped):
+            pub.subscribe(function_being_wrapped, *args)
+            return function_being_wrapped
+        return decorator
+    
     class AssumeZerosDialog(wx.Dialog):
         def __init__(self, *args, **kw):
 

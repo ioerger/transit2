@@ -42,8 +42,14 @@ def handle_error(error_obj):
                 handle_error
     """
     traceback.print_exc()
-    if window:
+    if window and hasattr(window, "statusBar") and hasattr(window.statusBar, "SetStatusText"):
         window.statusBar.SetStatusText("Error: "+str(error_obj.args))
+
+def handle_traceback(traceback_obj):
+    import traceback
+    print(''.join(traceback.format_tb(traceback_obj)))
+    if window and hasattr(window, "statusBar") and hasattr(window.statusBar, "SetStatusText"):
+        window.statusBar.SetStatusText("Error: "+str(error.args))
 
 def show_message(MSG=""):
     # TODO: Write docstring
