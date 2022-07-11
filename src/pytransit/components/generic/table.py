@@ -91,7 +91,7 @@ class Table:
         return self.length
     
     def __enter__(self):
-        return self.wx_object, self
+        return self
     
     def __exit__(self, _, error, traceback_obj):
         if error is not None:
