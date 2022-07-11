@@ -88,11 +88,6 @@ class TnSeekFrame(wx.Frame):
             
             self.frame = frame
 
-            # 
-            # windowWrapper
-            # 
-            # if True:
-            #     windowWrapper = wx.BoxSizer(wx.HORIZONTAL)
                 # 
                 # windowSizer
                 # 
@@ -814,11 +809,9 @@ class TnSeekFrame(wx.Frame):
 
                 #     self.optionsWindow.Fit()
 
-                # windowWrapper.Add(self.optionsWindow, 0, wx.ALL, 5)
         # --------------------#
         
         # TODO: cleanup formatting of nested items
-        # self.SetSizer(windowWrapper)
         # self.Layout()
         # if True:
         #     self.m_menubar1 = wx.MenuBar(0)

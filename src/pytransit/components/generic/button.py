@@ -20,8 +20,9 @@ class Button:
             if self._state.instance:
                 return self._state.instance
             else:
+                print(f'''window = {window}''')
                 delayed_wx_object = GenBitmapTextButton(
-                    parent,
+                    window,
                     -1,
                     gui_tools.bit_map,
                     text,

@@ -78,7 +78,7 @@ class Box:
         
         # some children need a parent before they can be created...for some reason
         if callable(wx_object):
-            wx_object(self.wx_object)
+            wx_object = wx_object(self.wx_object)
             
         self.wx_object.Add(
             wx_object,
