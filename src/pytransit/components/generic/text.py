@@ -9,9 +9,9 @@ class Text:
         Overview:
             self.wx_object
     """
-    def __init__(self, content):
+    def __init__(self, content, font_size=12, underline=False, bold=False, italic=False):
         window       = gui_tools.window
-        self.wx_object = wx.StaticText( # not actually static btw
+        wx_object = wx.StaticText( # not actually static btw
             self.mainWindow,
             wx.ID_ANY,
             content,
@@ -19,6 +19,13 @@ class Text:
             wx.DefaultSize,
             0,
         )
+        
+        font_info = wx.FontInfo(font_size)
+        if bold     : font_info = font_info.Bold()
+        if underline: font_info = font_info.Underline()
+        if italic   : font_info = font_info.Italic()
+        # TODO: font family: https://docs.wxpython.org/wx.FontFamily.enumeration.html#wx-fontfamily
+        wx_object.SetFont(wx.Font(font_info))
         
         self.wx_object = wx_object
         self.events = LazyDict(

@@ -29,7 +29,7 @@ class Button:
         
         self.wx_object = wx_object
         self.events = LazyDict(
-            on_select=lambda func: wx_object.Bind(wx.EVT_BUTTON, func),
+            on_click=lambda func: wx_object.Bind(wx.EVT_BUTTON, func),
         )
         self._state = LazyDict(
             # None
