@@ -38,7 +38,7 @@ class Box:
             self.wx_object
             self.add(component)
     """
-    def __init__(self, orientation=None, min_size=None, max_size=None, children=None):
+    def __init__(self, orientation=None, background_color=None, min_size=None, max_size=None, children=None):
         window       = gui_tools.window
         children     = children or []
         orientation  = orientation if orientation is not None else options_for.orientation.vertical
@@ -47,6 +47,7 @@ class Box:
         # wx_object
         # 
         wx_object = wx.BoxSizer(orient=orientation)
+        if background_color: wx_object.SetBackgroundColour(gui_tools.color.green)
         if max_size: wx_object.SetMaxSize(wx.Size(*max_size))
         if min_size: wx_object.SetMinSize(wx.Size(*min_size))
         
