@@ -8,7 +8,7 @@ class Button:
     """
         Overview:
             self.wx_object
-            self.add(component)
+            self.events.on_click
     """
     def __init__(self, text="", background_color=None, default_size=(250, -1), min_size=None, max_size=None):
         window       = gui_tools.window

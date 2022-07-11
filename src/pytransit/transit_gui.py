@@ -41,6 +41,7 @@ from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
 from pytransit.components.generic.box import Row, Column
+from pytransit.components.generic.frame import Frame
 from pytransit.components.annotation import Annotation
 from pytransit.components.comwig_picker import create_comwig_picker
 
@@ -81,31 +82,12 @@ class TnSeekFrame(wx.Frame):
         gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         
         
-        wx.Frame.__init__(
-            self,
-            parent,
-            id=wx.ID_ANY,
-            title=u"TRANSIT",
-            pos=wx.DefaultPosition,
-            size=wx.Size(1350, 975),
-            style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL,
-        )
-
-        # 
-        # main window
-        # 
-        with Column(
-            min_size=(700, -1),
-            children=[
-                Annotation()
-            ]
-        ) as window:
+        with Frame(parent, title="TRANSIT") as frame:
             
-            self.window = window
-        
-        self.SetSizer(self.window.wx_object)
-        self.Layout()
-        self.Centre(wx.BOTH)    
+            frame.add(Annotation())
+            
+            self.frame = frame
+
             # 
             # windowWrapper
             # 
