@@ -3,6 +3,7 @@ from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
 import pytransit.gui_tools as gui_tools
+from pytransit.components.generic.box import Column
 
 class WindowManager:
     """
@@ -20,71 +21,28 @@ class WindowManager:
         )
         wx_object.SetScrollRate(*scroll_rate)
         wx_object.SetMinSize(wx.Size(*min_size))
-        windowSizer = wx.BoxSizer(wx.VERTICAL)
-        
         
         self.wx_object = wx_object
         self.events = LazyDict(
             # None
         )
         self._state = LazyDict(
-            # None
+            sizer = Column(),
         )
     
-    def add(self, component, side, vertical_alignment, horizontal_alignment):
-        # side:
-            # wx.TOP
-            # wx.BOTTOM
-            # wx.LEFT
-            # wx.RIGHT
-            # wx.ALL
-
-        idk_what_this_is = 1
-        self.wx_object.Add(
-            component.wx_object,
-            idk_what_this_is,
-            wx.ALL | wx.EXPAND,
-            5
-        )
-        
-        self.SetSizer(windowWrapper)
-        self.Layout()
-        
-        self._state.index += 1
-        wx_object.InsertItem(self._state.index, f"")
-        if not isinstance(python_obj, dict):
-            python_obj = python_obj.__dict__
-        for each_key, each_value in python_obj.items():
-            column_index = self._key_to_column_index(each_key)
-            wx_object.SetItem(self._state.index, column_index, f"{each_value}")
+    def add(self, *args, **kwargs):
+        self.sizer.add(*args, **kwargs)
+        return self
     
     @property
     def length(self):
-        return self._state.index+1
-    
-    @property
-    def selected(self):
-        selected = []
-        current = -1
-        while True:
-            next = self.wx_object.GetNextSelected(current)
-            if next == -1:
-                break
-            path = self.wx_object.GetItem(next)
-            selected.append(path)
-            current = next
-        return selected
-    
-    # TODO: make a way to set the ones that are selected
-    # @selected.setter
-    # def selected(self, value):
-    #     self._selected = value
+        return self.sizer.length
     
     def __len__(self):
         return self.length
     
     def __enter__(self):
-        return self.wx_object, self
+        return self
     
     def __exit__(self, _, error, traceback_obj):
         if error is not None:

@@ -39,8 +39,10 @@ from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basena
 from pytransit.core_data import SessionData, universal
 from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
-from pytransit.components.comwig_picker import create_comwig_picker
+from pytransit.components.generic.window_manager import WindowManager
+from pytransit.components.generic.box import Row, Column
 from pytransit.components.generic.table import Table
+from pytransit.components.comwig_picker import create_comwig_picker
 import pytransit
 import pytransit.analysis
 import pytransit.export
@@ -91,16 +93,15 @@ class TnSeekFrame(wx.Frame):
         # 
         # main window
         # 
-        if True:
-            self.mainWindow = wx.ScrolledWindow(
-                self,
-                wx.ID_ANY,
-                wx.DefaultPosition,
-                wx.Size(-1, -1),
-                wx.HSCROLL | wx.VSCROLL,
-            )
-            self.mainWindow.SetScrollRate(5, 5)
-            self.mainWindow.SetMinSize(wx.Size(700, -1))
+        with WindowManager() as window:
+            
+            with Row() as outermost_row:
+                
+                
+                self.outermost_row = outermost_row
+            
+            
+            self.window = window
             
             # 
             # windowWrapper

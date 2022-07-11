@@ -75,6 +75,7 @@ class Box:
             flag=side | expand | horizontal_alignment,
             border=0,
         )
+        return self
         
     @property
     def length(self):
@@ -87,7 +88,7 @@ class Box:
         return self.length
     
     def __enter__(self):
-        return self.wx_object, self
+        return self
     
     def __exit__(self, _, error, traceback_obj):
         if error is not None:

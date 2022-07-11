@@ -58,21 +58,6 @@ def show_message(MSG=""):
 
 
 
-align = LazyDict(
-    top               = wx.ALIGN_TOP,
-    bottom            = wx.ALIGN_BOTTOM,
-    left              = wx.ALIGN_LEFT,
-    right             = wx.ALIGN_RIGHT,
-    center            = wx.ALIGN_CENTER,
-    center_horizontal = wx.ALIGN_CENTER_HORIZONTAL,
-    center_vertical   = wx.ALIGN_CENTER_VERTICAL,
-    expand            = wx.EXPAND,
-    centre            = wx.ALIGN_CENTRE,
-    centre_vertical   = wx.ALIGN_CENTRE_VERTICAL,
-    centre_horizontal = wx.ALIGN_CENTRE_HORIZONTAL,
-    mask              = wx.ALIGN_MASK,
-)
-
 class color(NamedTuple):
     green = rgba(187, 237, 181, 255)
 
