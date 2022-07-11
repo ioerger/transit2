@@ -57,10 +57,11 @@ def show_message(MSG=""):
 
 
 def ask_for_files(message):
+    import os
     file_dialog = wx.FileDialog(
         window,
         message=message,
-        defaultDir=window.workdir,
+        defaultDir=os.getcwd(),
         defaultFile="",
         style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
     )

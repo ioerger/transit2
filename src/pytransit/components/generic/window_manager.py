@@ -11,23 +11,24 @@ class WindowManager:
             self.wx_object
             self.add(python_obj)
     """
-    def __init__(self, default_size=(-1, -1), min_size=(700, -1), scroll_rate=(5,5)):
+    def __init__(self, default_size=(-1, -1), scroll_rate=(5,5), min_size=None, max_size=None, children=None):
         wx_object = wx.ScrolledWindow(
-            self,
+            gui_tools.window,
             wx.ID_ANY,
             wx.DefaultPosition,
-            wx.Size(*size),
+            wx.Size(*default_size),
             wx.HSCROLL | wx.VSCROLL,
         )
         wx_object.SetScrollRate(*scroll_rate)
-        wx_object.SetMinSize(wx.Size(*min_size))
+        if max_size        : wx_object.SetMaxSize(wx.Size(*max_size))
+        if min_size        : wx_object.SetMinSize(wx.Size(*min_size))
         
         self.wx_object = wx_object
         self.events = LazyDict(
             # None
         )
         self._state = LazyDict(
-            sizer = Column(),
+            sizer = Column(children=children),
         )
     
     def add(self, *args, **kwargs):
@@ -45,5 +46,9 @@ class WindowManager:
         return self
     
     def __exit__(self, _, error, traceback_obj):
+        # self.SetSizer(self._state.sizer)
+        # self.Layout()
+        # self.Centre(wx.BOTH)
+        
         if error is not None:
             gui_tools.handle_traceback(traceback_obj)

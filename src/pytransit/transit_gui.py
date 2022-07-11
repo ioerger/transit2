@@ -41,8 +41,9 @@ from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
 from pytransit.components.generic.box import Row, Column
-from pytransit.components.generic.table import Table
+from pytransit.components.annotation import Annotation
 from pytransit.components.comwig_picker import create_comwig_picker
+
 import pytransit
 import pytransit.analysis
 import pytransit.export
@@ -93,21 +94,23 @@ class TnSeekFrame(wx.Frame):
         # 
         # main window
         # 
-        with WindowManager() as window:
-            
-            with Row() as outermost_row:
-                
-                
-                self.outermost_row = outermost_row
-            
+        with Column(
+            min_size=(700, -1),
+            children=[
+                Annotation()
+            ]
+        ) as window:
             
             self.window = window
-            
+        
+        self.SetSizer(self.window.wx_object)
+        self.Layout()
+        self.Centre(wx.BOTH)    
             # 
             # windowWrapper
             # 
-            if True:
-                windowWrapper = wx.BoxSizer(wx.HORIZONTAL)
+            # if True:
+            #     windowWrapper = wx.BoxSizer(wx.HORIZONTAL)
                 # 
                 # windowSizer
                 # 
@@ -833,8 +836,8 @@ class TnSeekFrame(wx.Frame):
         # --------------------#
         
         # TODO: cleanup formatting of nested items
-        self.SetSizer(windowWrapper)
-        self.Layout()
+        # self.SetSizer(windowWrapper)
+        # self.Layout()
         # if True:
         #     self.m_menubar1 = wx.MenuBar(0)
         #     self.fileMenuItem = wx.Menu()
@@ -934,7 +937,7 @@ class TnSeekFrame(wx.Frame):
 
         #     self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
 
-        self.Centre(wx.BOTH)
+        # self.Centre(wx.BOTH)
         
         # 
         # Connect Menu Events

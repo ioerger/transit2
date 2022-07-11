@@ -16,28 +16,37 @@ class Button:
         # 
         # wx_object
         # 
-        wx_object = GenBitmapTextButton(
-            window,
-            1,
-            gui_tools.bit_map,
-            text,
-            size=wx.Size(*default_size),
-        )
-        if background_color: wx_object.SetBackgroundColour(gui_tools.color.green)
-        if max_size        : wx_object.SetMaxSize(wx.Size(*max_size))
-        if min_size        : wx_object.SetMinSize(wx.Size(*min_size))
+        def wx_object(parent):
+            if self._state.instance:
+                return self._state.instance
+            else:
+                delayed_wx_object = GenBitmapTextButton(
+                    parent,
+                    -1,
+                    gui_tools.bit_map,
+                    text,
+                    size=wx.Size(*default_size),
+                )
+                if background_color: delayed_wx_object.SetBackgroundColour(gui_tools.color.green)
+                if max_size        : delayed_wx_object.SetMaxSize(wx.Size(*max_size))
+                if min_size        : delayed_wx_object.SetMinSize(wx.Size(*min_size))
+                
+                delayed_wx_object.Bind(wx.EVT_BUTTON, lambda event: tuple(each(event) for each in self._state.callbacks))
+            return delayed_wx_object
         
         self.wx_object = wx_object
         self.events = LazyDict(
-            on_click=lambda func: wx_object.Bind(wx.EVT_BUTTON, func),
+            on_click=lambda func: self._state.callbacks.append(func),
         )
         self._state = LazyDict(
-            # None
+            instance=None,
+            callbacks=[],
         )
         
     def __enter__(self):
         return self
     
     def __exit__(self, _, error, traceback_obj):
+        self.Layout()
         if error is not None:
             gui_tools.handle_traceback(traceback_obj)

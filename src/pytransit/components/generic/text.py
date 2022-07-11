@@ -12,7 +12,7 @@ class Text:
     def __init__(self, content, font_size=12, underline=False, bold=False, italic=False):
         window       = gui_tools.window
         wx_object = wx.StaticText( # not actually static btw
-            self.mainWindow,
+            window,
             wx.ID_ANY,
             content,
             wx.DefaultPosition,

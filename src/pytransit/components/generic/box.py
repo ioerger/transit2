@@ -41,7 +41,7 @@ class Box:
     def __init__(self, orientation=None, background_color=None, min_size=None, max_size=None, children=None):
         window       = gui_tools.window
         children     = children or []
-        orientation  = orientation if orientation is not None else options_for.orientation.vertical
+        orientation  = options_for.orientation[orientation] if orientation is not None else options_for.orientation.vertical
         
         # 
         # wx_object
@@ -59,9 +59,15 @@ class Box:
             children=[],
         )
         for each in children:
-            self.add(children)
+            self.add(each)
         
     def add(self, component, proportion=1, side=None, expand=None, horizontal_alignment=None):
+        # handle multiple
+        if isinstance(component, (list, tuple)):
+            for each in component:
+                self.add(each, proportion, side, expand, horizontal_alignment)
+            return self
+        
         side                 = 0b00000000                            if side                 is None else options_for.sides[side]
         expand               = 0b00000000                            if expand               is None else options_for.expand[expand]
         horizontal_alignment = options_for.horizontal_alignment.left if horizontal_alignment is None else options_for.horizontal_alignment[horizontal_alignment]
@@ -70,6 +76,10 @@ class Box:
         
         wx_object = component.wx_object if hasattr(component, "wx_object") else component
         
+        # some children need a parent before they can be created...for some reason
+        if callable(wx_object):
+            wx_object(self.wx_object)
+            
         self.wx_object.Add(
             wx_object,
             proportion,
@@ -95,7 +105,7 @@ class Box:
         if error is not None:
             gui_tools.handle_traceback(traceback_obj)
 
-class Column:
+class Column(Box):
     """
         Overview:
             self.wx_object
@@ -104,7 +114,7 @@ class Column:
     def __init__(self, min_size=None, max_size=None, children=None):
         super(Column, self).__init__(orientation="vertical", min_size=min_size, max_size=max_size, children=children)
 
-class Row:
+class Row(Box):
     """
         Overview:
             self.wx_object

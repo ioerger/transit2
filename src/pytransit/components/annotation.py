@@ -33,7 +33,7 @@ class Annotation:
         self._as_row = Row(children=[
             prefix,
             file_path_text,
-            button,
+            # button,
         ])
         
         # 
