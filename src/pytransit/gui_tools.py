@@ -56,6 +56,19 @@ def show_message(MSG=""):
     wx.MessageBox(MSG, "Info", wx.OK | wx.ICON_INFORMATION)
 
 
+def ask_for_files(message):
+    file_dialog = wx.FileDialog(
+        window,
+        message=message,
+        defaultDir=window.workdir,
+        defaultFile="",
+        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+    )
+    output = None
+    if file_dialog.ShowModal() == wx.ID_OK:
+        output = list(file_dialog.GetPaths())
+    file_dialog.Destroy()
+    return output
 
 
 class color(NamedTuple):
