@@ -4,59 +4,52 @@ from pytransit.core_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
 import pytransit.gui_tools as gui_tools
 
-class Table:
+class WindowManager:
     """
         Overview:
             self.wx_object
-            self.events.on_select   # decorator (use @)
-            self.selected           # list of wx objects, TODO: have it return the python_obj
-            self.length
             self.add(python_obj)
     """
-    def __init__(self, initial_columns=None, column_width=None, max_size=(-1, 200)):
-        window       = gui_tools.window
-        column_width = column_width if column_width is not None else 100
-        
-        # 
-        # wx_object
-        # 
-        wx_object = wx.ListCtrl(
-            window.mainWindow,
+    def __init__(self, default_size=(-1, -1), min_size=(700, -1), scroll_rate=(5,5)):
+        wx_object = wx.ScrolledWindow(
+            self,
             wx.ID_ANY,
             wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.LC_REPORT | wx.SUNKEN_BORDER,
+            wx.Size(*size),
+            wx.HSCROLL | wx.VSCROLL,
         )
-        wx_object.SetMaxSize(wx.Size(*max_size))
-        wx_object.InsertColumn(0, "", width=0) # first one is some kind of special name. Were going to ignore it
+        wx_object.SetScrollRate(*scroll_rate)
+        wx_object.SetMinSize(wx.Size(*min_size))
+        windowSizer = wx.BoxSizer(wx.VERTICAL)
+        
         
         self.wx_object = wx_object
         self.events = LazyDict(
-            on_select=lambda func: wx_object.Bind(wx.EVT_LIST_ITEM_SELECTED, func),
+            # None
         )
-        
         self._state = LazyDict(
-            index               = -1,
-            key_to_column_index = {},
-            column_width        = column_width,
-            initial_columns     = initial_columns,
+            # None
+        )
+    
+    def add(self, component, side, vertical_alignment, horizontal_alignment):
+        # side:
+            # wx.TOP
+            # wx.BOTTOM
+            # wx.LEFT
+            # wx.RIGHT
+            # wx.ALL
+
+        idk_what_this_is = 1
+        self.wx_object.Add(
+            component.wx_object,
+            idk_what_this_is,
+            wx.ALL | wx.EXPAND,
+            5
         )
         
-        # create the inital columns
-        for each_key in self._state.initial_columns:
-            self._key_to_column_index(each_key)
+        self.SetSizer(windowWrapper)
+        self.Layout()
         
-    
-    def _key_to_column_index(self, key):
-        if key not in self._state.key_to_column_index:
-            index = len(self._state.key_to_column_index)+1
-            self._state.key_to_column_index[key] = index
-            wx_object.InsertColumn(index, key, width=self._state.column_width)
-            return index
-        else:
-            return self._state.key_to_column_index[key]
-    
-    def add(self, python_obj):
         self._state.index += 1
         wx_object.InsertItem(self._state.index, f"")
         if not isinstance(python_obj, dict):

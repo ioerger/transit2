@@ -1,4 +1,23 @@
 # -*- coding: utf-8 -*-
+# Copyright 2015.
+#   Michael A. DeJesus, Chaitra Ambadipudi, and  Thomas R. Ioerger.
+#
+#
+#    This file is part of TRANSIT.
+#
+#    TRANSIT is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License.
+#
+#
+#    TRANSIT is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
+
 from collections import defaultdict
 from functools import partial
 import datetime
@@ -20,8 +39,8 @@ from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basena
 from pytransit.core_data import SessionData, universal
 from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
-from pytransit.wx_objects.comwig_picker import create_comwig_picker
-from pytransit.wx_objects.generic.table import Table
+from pytransit.components.comwig_picker import create_comwig_picker
+from pytransit.components.generic.table import Table
 import pytransit
 import pytransit.analysis
 import pytransit.export
@@ -36,42 +55,28 @@ import pytransit.file_display as file_display
 import pytransit.qc_display as qc_display
 import pytransit.images as images
 
-method_wrap_width = 250
 methods           = pytransit.analysis.methods
 export_methods    = pytransit.export.methods
 convert_methods   = pytransit.convert.methods
-normmethods       = norm_tools.methods
-
-wildcard = "Python source (*.py)|*.py|" "All files (*.*)|*.*"
-transit_prefix = "[TRANSIT]"
-
-
-# Copyright 2015.
-#   Michael A. DeJesus, Chaitra Ambadipudi, and  Thomas R. Ioerger.
-#
-#
-#    This file is part of TRANSIT.
-#
-#    TRANSIT is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License.
-#
-#
-#    TRANSIT is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
+norm_methods      = norm_tools.methods
 
 class TnSeekFrame(wx.Frame):
+    instructions_text = """
+        1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
+        2. Add the desired Control and Experimental datasets.
+        3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
+        4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
+    """.replace("\n            ","\n")
+    
     # constructor
     def __init__(self, parent, DEBUG=False):
         # data accessable to all analysis methods
         universal.session_data = SessionData()
-        gui_tools.window = self
+        
+        # connect to GUI tools (otherwise they will not function)
+        gui_tools.window  = self
         gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
+        
         
         wx.Frame.__init__(
             self,
@@ -83,18 +88,6 @@ class TnSeekFrame(wx.Frame):
             style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL,
         )
 
-        # Define Text
-        self.instructions_text = """
-            1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
-            2. Add the desired Control and Experimental datasets.
-            3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
-            4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
-        """.replace("\n            ","\n")
-
-        # Define ART
-        bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
-        
-        
         # 
         # main window
         # 
@@ -117,995 +110,995 @@ class TnSeekFrame(wx.Frame):
                 # 
                 # windowSizer
                 # 
-                if True:
-                    windowSizer = wx.BoxSizer(wx.VERTICAL)
+                # if True:
+                #     windowSizer = wx.BoxSizer(wx.VERTICAL)
                     
-                    # 
-                    # orgSizer
-                    # 
-                    if True:
-                        orgSizer = wx.StaticBoxSizer(
-                            wx.StaticBox(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                u"Organism"
-                            ),
-                            wx.VERTICAL,
-                        )
+                #     # 
+                #     # orgSizer
+                #     # 
+                #     if True:
+                #         orgSizer = wx.StaticBoxSizer(
+                #             wx.StaticBox(
+                #                 self.mainWindow,
+                #                 wx.ID_ANY,
+                #                 u"Organism"
+                #             ),
+                #             wx.VERTICAL,
+                #         )
                         
-                        # 
-                        # annotation sizer
-                        # 
-                        if True:
-                            annot_sizer = wx.BoxSizer(wx.HORIZONTAL)
+                #         # 
+                #         # annotation sizer
+                #         # 
+                #         if True:
+                #             annot_sizer = wx.BoxSizer(wx.HORIZONTAL)
                             
-                            # 
-                            # text
-                            # 
-                            if True:
-                                label_annot = wx.StaticText(
-                                    self.mainWindow,
-                                    wx.ID_ANY,
-                                    u"Annotation File:",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                annot_sizer.Add(
-                                    label_annot,
-                                    0,
-                                    wx.ALIGN_CENTER_VERTICAL,
-                                    0
-                                )
+                #             # 
+                #             # text
+                #             # 
+                #             if True:
+                #                 label_annot = wx.StaticText(
+                #                     self.mainWindow,
+                #                     wx.ID_ANY,
+                #                     u"Annotation File:",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 annot_sizer.Add(
+                #                     label_annot,
+                #                     0,
+                #                     wx.ALIGN_CENTER_VERTICAL,
+                #                     0
+                #                 )
                             
-                            # 
-                            # picker
-                            # 
-                            if True:
-                                self.annotationFilePicker = wx.FilePickerCtrl(
-                                    self.mainWindow,
-                                    id=wx.ID_ANY,
-                                    size=(400, 30),
-                                    wildcard=u"prot_table or GFF3 files (*.gff3;*.gff;*.prot_table;*.txt)|*.gff3;*.gff;*.prot_table;*.txt",
-                                    message="Select Annotation file (.prot_table or .gff3)",
-                                    style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL | wx.FD_MULTIPLE,
-                                )
-                                self.annotationFilePicker.SetInitialDirectory(os.getcwd())
-                                annot_sizer.Add(
-                                    self.annotationFilePicker,
-                                    proportion=1,
-                                    flag=wx.EXPAND | wx.ALL,
-                                    border=5,
-                                )
-                                self.annotationFilePicker
+                #             # 
+                #             # picker
+                #             # 
+                #             if True:
+                #                 self.annotationFilePicker = wx.FilePickerCtrl(
+                #                     self.mainWindow,
+                #                     id=wx.ID_ANY,
+                #                     size=(400, 30),
+                #                     wildcard=u"prot_table or GFF3 files (*.gff3;*.gff;*.prot_table;*.txt)|*.gff3;*.gff;*.prot_table;*.txt",
+                #                     message="Select Annotation file (.prot_table or .gff3)",
+                #                     style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL | wx.FD_MULTIPLE,
+                #                 )
+                #                 self.annotationFilePicker.SetInitialDirectory(os.getcwd())
+                #                 annot_sizer.Add(
+                #                     self.annotationFilePicker,
+                #                     proportion=1,
+                #                     flag=wx.EXPAND | wx.ALL,
+                #                     border=5,
+                #                 )
+                #                 self.annotationFilePicker
                                 
-                                @bind_to(self.annotationFilePicker, wx.EVT_FILEPICKER_CHANGED)
-                                def annotationFileFunc(self, event):
-                                    self.annotation = event.GetPath()
+                #                 @bind_to(self.annotationFilePicker, wx.EVT_FILEPICKER_CHANGED)
+                #                 def annotationFileFunc(self, event):
+                #                     self.annotation = event.GetPath()
 
-                            orgSizer.Add(annot_sizer, 1, wx.EXPAND, 5)
+                #             orgSizer.Add(annot_sizer, 1, wx.EXPAND, 5)
 
-                        windowSizer.Add(orgSizer, 0, wx.EXPAND, 5)
+                #         windowSizer.Add(orgSizer, 0, wx.EXPAND, 5)
 
-                    # 
-                    # Samples
-                    # 
-                    if True:
-                        ctrlSizer = wx.StaticBoxSizer(
-                            wx.StaticBox(
-                                self.mainWindow,
-                                wx.ID_ANY,
-                                u"Samples"
-                            ),
-                            wx.VERTICAL,
-                        )
+                #     # 
+                #     # Samples
+                #     # 
+                #     if True:
+                #         ctrlSizer = wx.StaticBoxSizer(
+                #             wx.StaticBox(
+                #                 self.mainWindow,
+                #                 wx.ID_ANY,
+                #                 u"Samples"
+                #             ),
+                #             wx.VERTICAL,
+                #         )
                         
-                        # 
-                        # box
-                        # 
-                        if True:
-                            ctrlBoxSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+                #         # 
+                #         # box
+                #         # 
+                #         if True:
+                #             ctrlBoxSizer2 = wx.BoxSizer(wx.HORIZONTAL)
                             
-                            # 
-                            # ctrlViewButton
-                            # 
-                            if True:
-                                self.ctrlViewButton = wx.Button(
-                                    self.mainWindow,
-                                    wx.ID_ANY,
-                                    u"Track View",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                self.ctrlViewButton.Hide()
-                                ctrlBoxSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
+                #             # 
+                #             # ctrlViewButton
+                #             # 
+                #             if True:
+                #                 self.ctrlViewButton = wx.Button(
+                #                     self.mainWindow,
+                #                     wx.ID_ANY,
+                #                     u"Track View",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 self.ctrlViewButton.Hide()
+                #                 ctrlBoxSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
                                 
-                                @bind_to(self.ctrlViewButton, wx.EVT_BUTTON)
-                                def _(event):
-                                    self.allViewFunc(event)
+                #                 @bind_to(self.ctrlViewButton, wx.EVT_BUTTON)
+                #                 def _(event):
+                #                     self.allViewFunc(event)
                                 
 
-                            # 
-                            # combined_wig_file_picker
-                            # 
-                            if True:
-                                self.combined_wig_file_picker = create_comwig_picker(window=self)
-                                ctrlBoxSizer2.Add(self.combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                #             # 
+                #             # combined_wig_file_picker
+                #             # 
+                #             if True:
+                #                 self.combined_wig_file_picker = create_comwig_picker(window=self)
+                #                 ctrlBoxSizer2.Add(self.combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
                                 
-                            ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
+                #             ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
                         
-                        # 
-                        # wig_table
-                        # 
-                        with Table() as (wx_object, component):
-                            self.wig_table = wx_object
-                            ctrlSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
+                #         # 
+                #         # wig_table
+                #         # 
+                #         with Table() as (wx_object, component):
+                #             self.wig_table = wx_object
+                #             ctrlSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
 
-                        windowSizer.Add(
-                            ctrlSizer,
-                            1,
-                            wx.EXPAND,
-                            5
-                        )
+                #         windowSizer.Add(
+                #             ctrlSizer,
+                #             1,
+                #             wx.EXPAND,
+                #             5
+                #         )
                     
-                    # 
-                    # conditionsSizer
-                    # 
-                    if True:
-                        conditionsSizer = wx.StaticBoxSizer(
-                            wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Conditions"),
-                            wx.VERTICAL,
-                        )
+                #     # 
+                #     # conditionsSizer
+                #     # 
+                #     if True:
+                #         conditionsSizer = wx.StaticBoxSizer(
+                #             wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Conditions"),
+                #             wx.VERTICAL,
+                #         )
                         
-                        # 
-                        # box
-                        # 
-                        if True:
-                            boxSizer = wx.BoxSizer(wx.HORIZONTAL)
+                #         # 
+                #         # box
+                #         # 
+                #         if True:
+                #             boxSizer = wx.BoxSizer(wx.HORIZONTAL)
                             
-                            # 
-                            # experimentTrackViewButton
-                            # 
-                            if True:
-                                self.experimentTrackViewButton = wx.Button(
-                                    self.mainWindow,
-                                    wx.ID_ANY,
-                                    u"Track View",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                self.experimentTrackViewButton.Hide()
-                                boxSizer.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
+                #             # 
+                #             # experimentTrackViewButton
+                #             # 
+                #             if True:
+                #                 self.experimentTrackViewButton = wx.Button(
+                #                     self.mainWindow,
+                #                     wx.ID_ANY,
+                #                     u"Track View",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 self.experimentTrackViewButton.Hide()
+                #                 boxSizer.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
                                 
-                                @bind_to(self.experimentTrackViewButton, wx.EVT_BUTTON)
-                                def _(event):
-                                    return self.allViewFunc(event)
+                #                 @bind_to(self.experimentTrackViewButton, wx.EVT_BUTTON)
+                #                 def _(event):
+                #                     return self.allViewFunc(event)
 
-                            conditionsSizer.Add(boxSizer, 0, wx.EXPAND, 5)
+                #             conditionsSizer.Add(boxSizer, 0, wx.EXPAND, 5)
                         
-                        # 
-                        # Conditions
-                        # 
-                        with Table() as (wx_object, component):
-                            wx_object.SetMaxSize(wx.Size(-1, 200))
-                            conditionsSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
-                            self.conditions_table = obj
+                #         # 
+                #         # Conditions
+                #         # 
+                #         with Table() as (wx_object, component):
+                #             wx_object.SetMaxSize(wx.Size(-1, 200))
+                #             conditionsSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
+                #             self.conditions_table = obj
                         
-                        windowSizer.Add(conditionsSizer, 1, wx.EXPAND, 5)
+                #         windowSizer.Add(conditionsSizer, 1, wx.EXPAND, 5)
 
-                    # 
-                    # Results
-                    # 
-                    if True:
-                        results_sizer = wx.StaticBoxSizer(
-                            wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Results Files"), wx.VERTICAL
-                        )
+                #     # 
+                #     # Results
+                #     # 
+                #     if True:
+                #         results_sizer = wx.StaticBoxSizer(
+                #             wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Results Files"), wx.VERTICAL
+                #         )
                         
-                        # 
-                        # Box
-                        # 
-                        if True:
-                            boxSizer4 = wx.BoxSizer(wx.HORIZONTAL)
+                #         # 
+                #         # Box
+                #         # 
+                #         if True:
+                #             boxSizer4 = wx.BoxSizer(wx.HORIZONTAL)
                             
-                            # 
-                            # displayButton
-                            # 
-                            if True:
-                                self.displayButton = wx.Button(
-                                    self.mainWindow,
-                                    wx.ID_ANY,
-                                    u"Display Table",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                boxSizer4.Add(self.displayButton, 0, wx.ALL, 5)
+                #             # 
+                #             # displayButton
+                #             # 
+                #             if True:
+                #                 self.displayButton = wx.Button(
+                #                     self.mainWindow,
+                #                     wx.ID_ANY,
+                #                     u"Display Table",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 boxSizer4.Add(self.displayButton, 0, wx.ALL, 5)
                                 
-                                @bind_to(self.displayButton, wx.EVT_BUTTON)
-                                def displayFileFunc(event):
-                                    next = self.results_table.GetNextSelected(-1)
-                                    if next > -1:
-                                        dataset = self.results_table.GetItem(next, 3).GetText()
-                                        if self.verbose:
-                                            transit_tools.transit_message(
-                                                "Displaying results: %s"
-                                                % self.results_table.GetItem(next, 0).GetText()
-                                            )
+                #                 @bind_to(self.displayButton, wx.EVT_BUTTON)
+                #                 def displayFileFunc(event):
+                #                     next = self.results_table.GetNextSelected(-1)
+                #                     if next > -1:
+                #                         dataset = self.results_table.GetItem(next, 3).GetText()
+                #                         if self.verbose:
+                #                             transit_tools.transit_message(
+                #                                 "Displaying results: %s"
+                #                                 % self.results_table.GetItem(next, 0).GetText()
+                #                             )
 
-                                        try:
-                                            fileWindow = file_display.TransitGridFrame(self, dataset)
-                                            fileWindow.Show()
-                                        except Exception as e:
-                                            transit_tools.transit_message(
-                                                "Error occurred displaying file: %s" % str(e)
-                                            )
-                                            traceback.print_exc()
+                #                         try:
+                #                             fileWindow = file_display.TransitGridFrame(self, dataset)
+                #                             fileWindow.Show()
+                #                         except Exception as e:
+                #                             transit_tools.transit_message(
+                #                                 "Error occurred displaying file: %s" % str(e)
+                #                             )
+                #                             traceback.print_exc()
 
-                                    else:
-                                        if self.verbose:
-                                            transit_tools.transit_message("No results selected to display!")
-
-                                
-                            # 
-                            # fileActionButton
-                            # 
-                            if True:
-                                self.fileActionButton = wx.Button(
-                                    self.mainWindow,
-                                    wx.ID_ANY,
-                                    u"Display Graph",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                self.fileActionButton.Hide()
-
-                                boxSizer4.Add(self.fileActionButton, 0, wx.ALL, 5)
-                                
-                                @bind_to(self.fileActionButton, wx.EVT_BUTTON)
-                                def _(event):
-                                    self.fileActionFunc(event)
-                                
-                                
-                                
-                            # 
-                            # addFileButton
-                            # 
-                            if True:
-                                self.addFileButton = GenBitmapTextButton(
-                                    self.mainWindow,
-                                    1,
-                                    bit_map,
-                                    "Add Results File",
-                                    size=wx.Size(150, 30)
-                                )
-                                boxSizer4.Add(self.addFileButton, 0, wx.ALL, 5)
-                                
-                                @subscribe("file")
-                                def add_file(data):
-                                    fullpath = data["path"]
-                                    type     = data["type"]
-                                    date     = data["date"]
-                                    name = transit_tools.basename(fullpath)
-                                    # FIXME
-                                    self.results_table.InsertItem(self.index_file, name)
-                                    self.results_table.SetItem(self.index_file, 1, f"{type}")
-                                    self.results_table.SetItem(self.index_file, 2, f"{date}")
-                                    self.results_table.SetItem(self.index_file, 3, f"{fullpath}")
-                                    self.index_file += 1
-                                
-                                @bind_to(self.addFileButton, wx.EVT_BUTTON)
-                                def _(event):
-                                    try:
-                                        dlg = wx.FileDialog(
-                                            self,
-                                            message="Choose a file",
-                                            defaultDir=self.workdir,
-                                            defaultFile="",
-                                            wildcard=u"Results Files (*.dat)|*.dat;|\nResults Files (*.txt)|*.txt;|\nAll files (*.*)|*.*",
-                                            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                                        )
-                                        if dlg.ShowModal() == wx.ID_OK:
-                                            paths = dlg.GetPaths()
-                                            print("You chose the following Results file(s):")
-                                            for fullpath in paths:
-                                                print("\t%s" % fullpath)
-                                                name = transit_tools.basename(fullpath)
-                                                line = open(fullpath).readline()
-                                                if line.startswith("#Gumbel"):
-                                                    type = "Gumbel"
-                                                elif line.startswith("#Binomial"):
-                                                    type = "Binomial"
-                                                elif line.startswith("#HMM - Sites"):
-                                                    type = "HMM - Sites"
-                                                elif line.startswith("#HMM - Genes"):
-                                                    type = "HMM - Genes"
-                                                elif line.startswith("#Resampling"):
-                                                    type = "Resampling"
-                                                elif line.startswith("#DE-HMM - Sites"):
-                                                    type = "DE-HMM - Sites"
-                                                elif line.startswith("#DE-HMM - Segments"):
-                                                    type = "DE-HMM - Segments"
-                                                elif line.startswith("#GI"):
-                                                    type = "GI"
-                                                else:
-                                                    type = "Unknown"
-                                                data = {
-                                                    "path": fullpath,
-                                                    "type": type,
-                                                    "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-                                                }
-                                                wx.CallAfter(pub.sendMessage, "file", data=data)
-                                        dlg.Destroy()
-                                    except Exception as e:
-                                        transit_tools.transit_message("Error: %s" % e)
-                                        print("PATH", fullpath)
-                                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                        print(exc_type, fname, exc_tb.tb_lineno)
-                                
-                            # 
-                            # fileActionChoice
-                            # 
-                            if True:
-                                fileActionChoiceChoices = [  u"[Choose Action]"  ]
-                                self.fileActionChoice = wx.Choice(
-                                    self.mainWindow,
-                                    wx.ID_ANY,
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    fileActionChoiceChoices,
-                                    0,
-                                )
-                                self.fileActionChoice.SetSelection(0)
-                                boxSizer4.Add(self.fileActionChoice, 0, wx.ALL, 5)
-                                
-                                @bind_to(self.fileActionChoice, wx.EVT_CHOICE)
-                                def fileActionFunc(event):
-                                    # 0 - nothing
-                                    # 1 - Volcano
-                                    # 2 - Hist gene counts ratio
-                                    plot_choice = self.fileActionChoice.GetCurrentSelection()
-                                    plot_name = self.fileActionChoice.GetString(plot_choice)
-                                    if plot_name == "[Choose Action]":
-                                        return
-                                    next = self.results_table.GetNextSelected(-1)
-                                    if next > -1:
-                                        dataset_path = self.results_table.GetItem(next, 3).GetText()
-                                        dataset_name = self.results_table.GetItem(next, 0).GetText()
-                                        dataset_type = self.results_table.GetItem(next, 1).GetText()
-
-                                        if self.verbose:
-                                            transit_tools.transit_message(
-                                                "Performing the '%s' action on dataset '%s'"
-                                                % (plot_name, dataset_name)
-                                            )
-
-                                        if plot_name == "Create a Volcano Plot":
-                                            self.graphVolcanoPlot(dataset_name, dataset_type, dataset_path)
-                                        elif plot_name == "Plot Histogram of logFC of Gene Counts":
-                                            self.graphGeneCounts(dataset_name, dataset_type, dataset_path)
-                                        elif plot_name == "Plot Ranked Probability of Essentiality":
-                                            self.graphRankedZbar(dataset_name, dataset_type, dataset_path)
-                                        else:
-                                            return
-
-                                        self.fileActionChoice.SetSelection(0)
-                                    else:
-                                        transit_tools.ShowError(MSG="Please select a results file to plot!")
+                #                     else:
+                #                         if self.verbose:
+                #                             transit_tools.transit_message("No results selected to display!")
 
                                 
-                            results_sizer.Add(boxSizer4, 0, 0, 5)
+                #             # 
+                #             # fileActionButton
+                #             # 
+                #             if True:
+                #                 self.fileActionButton = wx.Button(
+                #                     self.mainWindow,
+                #                     wx.ID_ANY,
+                #                     u"Display Graph",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 self.fileActionButton.Hide()
+
+                #                 boxSizer4.Add(self.fileActionButton, 0, wx.ALL, 5)
+                                
+                #                 @bind_to(self.fileActionButton, wx.EVT_BUTTON)
+                #                 def _(event):
+                #                     self.fileActionFunc(event)
+                                
+                                
+                                
+                #             # 
+                #             # addFileButton
+                #             # 
+                #             if True:
+                #                 self.addFileButton = GenBitmapTextButton(
+                #                     self.mainWindow,
+                #                     1,
+                #                     bit_map,
+                #                     "Add Results File",
+                #                     size=wx.Size(150, 30)
+                #                 )
+                #                 boxSizer4.Add(self.addFileButton, 0, wx.ALL, 5)
+                                
+                #                 @subscribe("file")
+                #                 def add_file(data):
+                #                     fullpath = data["path"]
+                #                     type     = data["type"]
+                #                     date     = data["date"]
+                #                     name = transit_tools.basename(fullpath)
+                #                     # FIXME
+                #                     self.results_table.InsertItem(self.index_file, name)
+                #                     self.results_table.SetItem(self.index_file, 1, f"{type}")
+                #                     self.results_table.SetItem(self.index_file, 2, f"{date}")
+                #                     self.results_table.SetItem(self.index_file, 3, f"{fullpath}")
+                #                     self.index_file += 1
+                                
+                #                 @bind_to(self.addFileButton, wx.EVT_BUTTON)
+                #                 def _(event):
+                #                     try:
+                #                         dlg = wx.FileDialog(
+                #                             self,
+                #                             message="Choose a file",
+                #                             defaultDir=self.workdir,
+                #                             defaultFile="",
+                #                             wildcard=u"Results Files (*.dat)|*.dat;|\nResults Files (*.txt)|*.txt;|\nAll files (*.*)|*.*",
+                #                             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                #                         )
+                #                         if dlg.ShowModal() == wx.ID_OK:
+                #                             paths = dlg.GetPaths()
+                #                             print("You chose the following Results file(s):")
+                #                             for fullpath in paths:
+                #                                 print("\t%s" % fullpath)
+                #                                 name = transit_tools.basename(fullpath)
+                #                                 line = open(fullpath).readline()
+                #                                 if line.startswith("#Gumbel"):
+                #                                     type = "Gumbel"
+                #                                 elif line.startswith("#Binomial"):
+                #                                     type = "Binomial"
+                #                                 elif line.startswith("#HMM - Sites"):
+                #                                     type = "HMM - Sites"
+                #                                 elif line.startswith("#HMM - Genes"):
+                #                                     type = "HMM - Genes"
+                #                                 elif line.startswith("#Resampling"):
+                #                                     type = "Resampling"
+                #                                 elif line.startswith("#DE-HMM - Sites"):
+                #                                     type = "DE-HMM - Sites"
+                #                                 elif line.startswith("#DE-HMM - Segments"):
+                #                                     type = "DE-HMM - Segments"
+                #                                 elif line.startswith("#GI"):
+                #                                     type = "GI"
+                #                                 else:
+                #                                     type = "Unknown"
+                #                                 data = {
+                #                                     "path": fullpath,
+                #                                     "type": type,
+                #                                     "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
+                #                                 }
+                #                                 wx.CallAfter(pub.sendMessage, "file", data=data)
+                #                         dlg.Destroy()
+                #                     except Exception as e:
+                #                         transit_tools.transit_message("Error: %s" % e)
+                #                         print("PATH", fullpath)
+                #                         exc_type, exc_obj, exc_tb = sys.exc_info()
+                #                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                #                         print(exc_type, fname, exc_tb.tb_lineno)
+                                
+                #             # 
+                #             # fileActionChoice
+                #             # 
+                #             if True:
+                #                 fileActionChoiceChoices = [  u"[Choose Action]"  ]
+                #                 self.fileActionChoice = wx.Choice(
+                #                     self.mainWindow,
+                #                     wx.ID_ANY,
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     fileActionChoiceChoices,
+                #                     0,
+                #                 )
+                #                 self.fileActionChoice.SetSelection(0)
+                #                 boxSizer4.Add(self.fileActionChoice, 0, wx.ALL, 5)
+                                
+                #                 @bind_to(self.fileActionChoice, wx.EVT_CHOICE)
+                #                 def fileActionFunc(event):
+                #                     # 0 - nothing
+                #                     # 1 - Volcano
+                #                     # 2 - Hist gene counts ratio
+                #                     plot_choice = self.fileActionChoice.GetCurrentSelection()
+                #                     plot_name = self.fileActionChoice.GetString(plot_choice)
+                #                     if plot_name == "[Choose Action]":
+                #                         return
+                #                     next = self.results_table.GetNextSelected(-1)
+                #                     if next > -1:
+                #                         dataset_path = self.results_table.GetItem(next, 3).GetText()
+                #                         dataset_name = self.results_table.GetItem(next, 0).GetText()
+                #                         dataset_type = self.results_table.GetItem(next, 1).GetText()
+
+                #                         if self.verbose:
+                #                             transit_tools.transit_message(
+                #                                 "Performing the '%s' action on dataset '%s'"
+                #                                 % (plot_name, dataset_name)
+                #                             )
+
+                #                         if plot_name == "Create a Volcano Plot":
+                #                             self.graphVolcanoPlot(dataset_name, dataset_type, dataset_path)
+                #                         elif plot_name == "Plot Histogram of logFC of Gene Counts":
+                #                             self.graphGeneCounts(dataset_name, dataset_type, dataset_path)
+                #                         elif plot_name == "Plot Ranked Probability of Essentiality":
+                #                             self.graphRankedZbar(dataset_name, dataset_type, dataset_path)
+                #                         else:
+                #                             return
+
+                #                         self.fileActionChoice.SetSelection(0)
+                #                     else:
+                #                         transit_tools.ShowError(MSG="Please select a results file to plot!")
+
+                                
+                #             results_sizer.Add(boxSizer4, 0, 0, 5)
                         
-                        # 
-                        # results_table
-                        # 
-                        with Table(
-                            initial_columns=[ "Name", "Type", "Date", "Full Path"],
-                            max_size=(-1, 200)
-                        ) as (wx_object, component):
+                #         # 
+                #         # results_table
+                #         # 
+                #         with Table(
+                #             initial_columns=[ "Name", "Type", "Date", "Full Path"],
+                #             max_size=(-1, 200)
+                #         ) as (wx_object, component):
                             
-                            self.results_table = obj
-                            results_sizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
+                #             self.results_table = obj
+                #             results_sizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
                             
-                    windowSizer.Add(results_sizer, 1, wx.EXPAND, 5)
-                    self.mainWindow.SetSizer(windowSizer)
-                    self.mainWindow.Layout()
-                    windowSizer.Fit(self.mainWindow)
-                    windowWrapper.Add(self.mainWindow, 1, wx.ALL | wx.EXPAND, 5)
+                #     windowSizer.Add(results_sizer, 1, wx.EXPAND, 5)
+                #     self.mainWindow.SetSizer(windowSizer)
+                #     self.mainWindow.Layout()
+                #     windowSizer.Fit(self.mainWindow)
+                #     windowWrapper.Add(self.mainWindow, 1, wx.ALL | wx.EXPAND, 5)
                 
-                # 
-                # m_panel5
-                # 
-                if True:
-                    self.m_panel5 = wx.Panel(
-                        self,
-                        wx.ID_ANY,
-                        wx.DefaultPosition,
-                        wx.DefaultSize,
-                        wx.DOUBLE_BORDER | wx.TAB_TRAVERSAL,
-                    )
-                    self.m_panel5.SetMaxSize(wx.Size(2, -1))
-                    windowWrapper.Add(self.m_panel5, 0, wx.ALL | wx.EXPAND, 5)
+                # # 
+                # # m_panel5
+                # # 
+                # if True:
+                #     self.m_panel5 = wx.Panel(
+                #         self,
+                #         wx.ID_ANY,
+                #         wx.DefaultPosition,
+                #         wx.DefaultSize,
+                #         wx.DOUBLE_BORDER | wx.TAB_TRAVERSAL,
+                #     )
+                #     self.m_panel5.SetMaxSize(wx.Size(2, -1))
+                #     windowWrapper.Add(self.m_panel5, 0, wx.ALL | wx.EXPAND, 5)
                 
-                # 
-                # options window
-                # 
-                if True:
-                    self.optionsWindow = wx.ScrolledWindow(
-                        self,
-                        wx.ID_ANY,
-                        wx.DefaultPosition,
-                        wx.Size(-1, -1),
-                        wx.HSCROLL | wx.VSCROLL | wx.EXPAND,
-                    )
-                    self.optionsWindow.SetScrollRate(5, 5)
-                    self.optionsWindow.SetMinSize(wx.Size(310, 1000))
+                # # 
+                # # options window
+                # # 
+                # if True:
+                #     self.optionsWindow = wx.ScrolledWindow(
+                #         self,
+                #         wx.ID_ANY,
+                #         wx.DefaultPosition,
+                #         wx.Size(-1, -1),
+                #         wx.HSCROLL | wx.VSCROLL | wx.EXPAND,
+                #     )
+                #     self.optionsWindow.SetScrollRate(5, 5)
+                #     self.optionsWindow.SetMinSize(wx.Size(310, 1000))
                     
-                    # 
-                    # box
-                    # 
-                    if True:
-                        self.optionsSizer = wx.BoxSizer(wx.VERTICAL)
+                #     # 
+                #     # box
+                #     # 
+                #     if True:
+                #         self.optionsSizer = wx.BoxSizer(wx.VERTICAL)
                         
-                        # 
-                        # Logo Section
-                        # 
-                        if True:
-                            self.logoImg = wx.StaticBitmap(
-                                self.optionsWindow,
-                                wx.ID_ANY,
-                                wx.NullBitmap,
-                                wx.DefaultPosition,
-                                wx.DefaultSize,
-                                0,
-                            )
-                            self.optionsSizer.Add(self.logoImg, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+                #         # 
+                #         # Logo Section
+                #         # 
+                #         if True:
+                #             self.logoImg = wx.StaticBitmap(
+                #                 self.optionsWindow,
+                #                 wx.ID_ANY,
+                #                 wx.NullBitmap,
+                #                 wx.DefaultPosition,
+                #                 wx.DefaultSize,
+                #                 0,
+                #             )
+                #             self.optionsSizer.Add(self.logoImg, 0, wx.ALL | wx.ALIGN_CENTER, 5)
                         
-                        # 
-                        # versionLabel
-                        # 
-                        if True:
-                            self.versionLabel = wx.StaticText(
-                                self.optionsWindow,
-                                wx.ID_ANY,
-                                u"",
-                                wx.DefaultPosition,
-                                (100, 25),
-                                wx.ALIGN_CENTRE,
-                            )
-                            self.versionLabel.Wrap(-1)
-                            self.versionLabel.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
+                #         # 
+                #         # versionLabel
+                #         # 
+                #         if True:
+                #             self.versionLabel = wx.StaticText(
+                #                 self.optionsWindow,
+                #                 wx.ID_ANY,
+                #                 u"",
+                #                 wx.DefaultPosition,
+                #                 (100, 25),
+                #                 wx.ALIGN_CENTRE,
+                #             )
+                #             self.versionLabel.Wrap(-1)
+                #             self.versionLabel.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
 
-                            self.optionsSizer.Add(
-                                self.versionLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                            )
+                #             self.optionsSizer.Add(
+                #                 self.versionLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                #             )
                         
-                        # 
-                        # methodInfoSizer
-                        # 
-                        if True:
-                            self.methodInfoText = wx.StaticBox(self.optionsWindow, wx.ID_ANY, u"Instructions")
-                            self.methodInfoText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                            self.methodInfoSizer = wx.StaticBoxSizer(self.methodInfoText, wx.VERTICAL)
+                #         # 
+                #         # methodInfoSizer
+                #         # 
+                #         if True:
+                #             self.methodInfoText = wx.StaticBox(self.optionsWindow, wx.ID_ANY, u"Instructions")
+                #             self.methodInfoText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                #             self.methodInfoSizer = wx.StaticBoxSizer(self.methodInfoText, wx.VERTICAL)
                             
-                            # 
-                            # methodShortText
-                            # 
-                            if True:
-                                self.methodShortText = wx.StaticText(
-                                    self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                                )
-                                self.methodShortText.Wrap(250)
-                                self.methodShortText.Hide()
-                                self.methodInfoSizer.Add(
-                                    self.methodShortText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                                )
+                #             # 
+                #             # methodShortText
+                #             # 
+                #             if True:
+                #                 self.methodShortText = wx.StaticText(
+                #                     self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                #                 )
+                #                 self.methodShortText.Wrap(250)
+                #                 self.methodShortText.Hide()
+                #                 self.methodInfoSizer.Add(
+                #                     self.methodShortText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                #                 )
                             
-                            # 
-                            # methodLongText
-                            # 
-                            if True:
-                                self.methodLongText = wx.StaticText(
-                                    self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                                )
-                                self.methodLongText.Wrap(250)
-                                self.methodLongText.Hide()
-                                self.methodInfoSizer.Add(
-                                    self.methodLongText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                                )
+                #             # 
+                #             # methodLongText
+                #             # 
+                #             if True:
+                #                 self.methodLongText = wx.StaticText(
+                #                     self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                #                 )
+                #                 self.methodLongText.Wrap(250)
+                #                 self.methodLongText.Hide()
+                #                 self.methodInfoSizer.Add(
+                #                     self.methodLongText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                #                 )
                             
-                            # 
-                            # methodDescText
-                            # 
-                            if True:
+                #             # 
+                #             # methodDescText
+                #             # 
+                #             if True:
 
-                                self.methodDescText = wx.StaticText(
-                                    self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                                )
-                                self.methodDescText.Wrap(250)
-                                self.methodDescText.Hide()
-                                self.methodInfoSizer.Add(
-                                    self.methodDescText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                                )
+                #                 self.methodDescText = wx.StaticText(
+                #                     self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                #                 )
+                #                 self.methodDescText.Wrap(250)
+                #                 self.methodDescText.Hide()
+                #                 self.methodInfoSizer.Add(
+                #                     self.methodDescText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                #                 )
                             
-                            # 
-                            # methodTnText
-                            # 
-                            if True:
-                                self.methodTnText = wx.StaticText(
-                                    self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                                )
-                                self.methodTnText.Wrap(250)
+                #             # 
+                #             # methodTnText
+                #             # 
+                #             if True:
+                #                 self.methodTnText = wx.StaticText(
+                #                     self.optionsWindow, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                #                 )
+                #                 self.methodTnText.Wrap(250)
 
-                                font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
-                                self.methodTnText.SetFont(font)
-                                self.methodTnText.Hide()
+                #                 font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+                #                 self.methodTnText.SetFont(font)
+                #                 self.methodTnText.Hide()
 
-                                self.methodInfoSizer.Add(
-                                    self.methodTnText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                                )
+                #                 self.methodInfoSizer.Add(
+                #                     self.methodTnText, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                #                 )
                             
-                            # 
-                            # methodInstructions
-                            # 
-                            if True:
-                                self.methodInstructions = wx.StaticText(
-                                    self.optionsWindow,
-                                    wx.ID_ANY,
-                                    self.instructions_text,
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                self.methodInstructions.Wrap(250)
-                                self.methodInfoSizer.Add(
-                                    self.methodInstructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                                )
+                #             # 
+                #             # methodInstructions
+                #             # 
+                #             if True:
+                #                 self.methodInstructions = wx.StaticText(
+                #                     self.optionsWindow,
+                #                     wx.ID_ANY,
+                #                     self.instructions_text,
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 self.methodInstructions.Wrap(250)
+                #                 self.methodInfoSizer.Add(
+                #                     self.methodInstructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                #                 )
                             
-                            self.optionsSizer.Add(self.methodInfoSizer, 0, wx.ALL | wx.EXPAND, 5)
+                #             self.optionsSizer.Add(self.methodInfoSizer, 0, wx.ALL | wx.EXPAND, 5)
                         
-                        # 
-                        # Method Options
-                        # 
-                        if True:
-                            self.methodSizerText = wx.StaticBox(self.optionsWindow, wx.ID_ANY, u"Method Options")
-                            self.methodSizerText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                            self.methodSizer = wx.StaticBoxSizer(self.methodSizerText, wx.VERTICAL)
+                #         # 
+                #         # Method Options
+                #         # 
+                #         if True:
+                #             self.methodSizerText = wx.StaticBox(self.optionsWindow, wx.ID_ANY, u"Method Options")
+                #             self.methodSizerText.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                #             self.methodSizer = wx.StaticBoxSizer(self.methodSizerText, wx.VERTICAL)
                             
-                            # 
-                            # methodPanel1
-                            # 
-                            if True:
-                                self.methodPanel1 = wx.Panel(
-                                    self.optionsWindow,
-                                    wx.ID_ANY,
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    wx.TAB_TRAVERSAL,
-                                )
-                                self.methodPanel1.SetMinSize(wx.Size(50, 1))
-                                self.methodSizer.Add(self.methodPanel1, 0, wx.ALL, 5)
+                #             # 
+                #             # methodPanel1
+                #             # 
+                #             if True:
+                #                 self.methodPanel1 = wx.Panel(
+                #                     self.optionsWindow,
+                #                     wx.ID_ANY,
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     wx.TAB_TRAVERSAL,
+                #                 )
+                #                 self.methodPanel1.SetMinSize(wx.Size(50, 1))
+                #                 self.methodSizer.Add(self.methodPanel1, 0, wx.ALL, 5)
                             
-                            # 
-                            # globalLabel
-                            # 
-                            if True:
-                                self.globalLabel = wx.StaticText(
-                                    self.optionsWindow,
-                                    wx.ID_ANY,
-                                    u"Global Options",
-                                    wx.DefaultPosition,
-                                    (130, 20),
-                                    0,
-                                )
-                                self.globalLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                                self.methodSizer.Add(self.globalLabel, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
+                #             # 
+                #             # globalLabel
+                #             # 
+                #             if True:
+                #                 self.globalLabel = wx.StaticText(
+                #                     self.optionsWindow,
+                #                     wx.ID_ANY,
+                #                     u"Global Options",
+                #                     wx.DefaultPosition,
+                #                     (130, 20),
+                #                     0,
+                #                 )
+                #                 self.globalLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                #                 self.methodSizer.Add(self.globalLabel, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
                             
-                            # 
-                            # globalPanel
-                            # 
-                            if True:
-                                self.globalPanel = wx.Panel(
-                                    self.optionsWindow,
-                                    wx.ID_ANY,
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    wx.TAB_TRAVERSAL,
-                                )
-                                self.globalPanel.SetMinSize(wx.Size(280, 150))
-                                self.globalPanel.SetMaxSize(wx.Size(-1, -1))
+                #             # 
+                #             # globalPanel
+                #             # 
+                #             if True:
+                #                 self.globalPanel = wx.Panel(
+                #                     self.optionsWindow,
+                #                     wx.ID_ANY,
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     wx.TAB_TRAVERSAL,
+                #                 )
+                #                 self.globalPanel.SetMinSize(wx.Size(280, 150))
+                #                 self.globalPanel.SetMaxSize(wx.Size(-1, -1))
 
-                                globalSizerVT = wx.BoxSizer(wx.VERTICAL)
-                                nTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
-                                cTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
+                #                 globalSizerVT = wx.BoxSizer(wx.VERTICAL)
+                #                 nTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
+                #                 cTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
 
-                                # N TERMINUS - GLOBAL
-                                self.globalNTerminusLabel = wx.StaticText(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    u"Ignore N-Terminus %:",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                self.globalNTerminusLabel.Wrap(-1)
-                                self.globalNTerminusText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
-                                self.globalNTerminusIcon = pytransit.analysis.base.InfoIcon(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
-                                )
-                                nTermSizer.Add(self.globalNTerminusLabel, 1, wx.ALIGN_CENTER, 5)
-                                nTermSizer.Add(self.globalNTerminusText , 1, wx.ALIGN_CENTER, 5)
-                                nTermSizer.Add(self.globalNTerminusIcon , 1, wx.ALIGN_CENTER, 5)
+                #                 # N TERMINUS - GLOBAL
+                #                 self.globalNTerminusLabel = wx.StaticText(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     u"Ignore N-Terminus %:",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 self.globalNTerminusLabel.Wrap(-1)
+                #                 self.globalNTerminusText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                #                 self.globalNTerminusIcon = pytransit.analysis.base.InfoIcon(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
+                #                 )
+                #                 nTermSizer.Add(self.globalNTerminusLabel, 1, wx.ALIGN_CENTER, 5)
+                #                 nTermSizer.Add(self.globalNTerminusText , 1, wx.ALIGN_CENTER, 5)
+                #                 nTermSizer.Add(self.globalNTerminusIcon , 1, wx.ALIGN_CENTER, 5)
 
-                                # C TERMINUS - GLOBAL
-                                self.globalCTerminusLabel = wx.StaticText(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    u"Ignore C-Terminus %:",
-                                    wx.DefaultPosition,
-                                    wx.DefaultSize,
-                                    0,
-                                )
-                                self.globalCTerminusLabel.Wrap(-1)
-                                self.globalCTerminusText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
-                                self.globalCTerminusIcon = pytransit.analysis.base.InfoIcon(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
-                                )
+                #                 # C TERMINUS - GLOBAL
+                #                 self.globalCTerminusLabel = wx.StaticText(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     u"Ignore C-Terminus %:",
+                #                     wx.DefaultPosition,
+                #                     wx.DefaultSize,
+                #                     0,
+                #                 )
+                #                 self.globalCTerminusLabel.Wrap(-1)
+                #                 self.globalCTerminusText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                #                 self.globalCTerminusIcon = pytransit.analysis.base.InfoIcon(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
+                #                 )
 
-                                cTermSizer.Add(self.globalCTerminusLabel, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                                cTermSizer.Add(self.globalCTerminusText, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                                cTermSizer.Add(self.globalCTerminusIcon, 1, wx.ALIGN_CENTER, 5)
+                #                 cTermSizer.Add(self.globalCTerminusLabel, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 cTermSizer.Add(self.globalCTerminusText, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 cTermSizer.Add(self.globalCTerminusIcon, 1, wx.ALIGN_CENTER, 5)
 
-                                # Control Libraries text - GLOBAL
-                                ctrlLibSizer = wx.BoxSizer(wx.HORIZONTAL)
-                                self.ctrlLibLabel = wx.StaticText(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    u"Control Libraries:",
-                                    wx.DefaultPosition,
-                                    (170, -1),
-                                    0,
-                                )
-                                self.ctrlLibLabel.Wrap(-1)
-                                self.ctrlLibText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
-                                self.ctrlLibTip = pytransit.analysis.base.InfoIcon(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    tooltip="String of letters representing an \
-                                    identifier for the libraries the datasets belong to. For example, if adding three \
-                                    datasets of different libraries, change the string to 'ABC'. Set of letters used  \
-                                    must match those in Experimental datasets. Keep empty or with all letters equal, e.g. \
-                                    'AAA', to do regular resampling.",
-                                )
+                #                 # Control Libraries text - GLOBAL
+                #                 ctrlLibSizer = wx.BoxSizer(wx.HORIZONTAL)
+                #                 self.ctrlLibLabel = wx.StaticText(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     u"Control Libraries:",
+                #                     wx.DefaultPosition,
+                #                     (170, -1),
+                #                     0,
+                #                 )
+                #                 self.ctrlLibLabel.Wrap(-1)
+                #                 self.ctrlLibText = wx.TextCtrl(self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
+                #                 self.ctrlLibTip = pytransit.analysis.base.InfoIcon(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     tooltip="String of letters representing an \
+                #                     identifier for the libraries the datasets belong to. For example, if adding three \
+                #                     datasets of different libraries, change the string to 'ABC'. Set of letters used  \
+                #                     must match those in Experimental datasets. Keep empty or with all letters equal, e.g. \
+                #                     'AAA', to do regular resampling.",
+                #                 )
 
-                                self.ctrlLibText.Disable()
-                                ctrlLibSizer.Add(self.ctrlLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                                ctrlLibSizer.Add(self.ctrlLibText, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                                ctrlLibSizer.Add(self.ctrlLibTip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 self.ctrlLibText.Disable()
+                #                 ctrlLibSizer.Add(self.ctrlLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 ctrlLibSizer.Add(self.ctrlLibText, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 ctrlLibSizer.Add(self.ctrlLibTip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-                                # Experimental Libraries text - GLOBAL
-                                expLibSizer = wx.BoxSizer(wx.HORIZONTAL)
-                                self.expLibLabel = wx.StaticText(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    u"Experimental Libraries:",
-                                    wx.DefaultPosition,
-                                    (170, -1),
-                                    0,
-                                )
-                                self.expLibLabel.Wrap(-1)
-                                self.expLibText = wx.TextCtrl(
-                                    self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
-                                )
-                                self.expLibTip = pytransit.analysis.base.InfoIcon(
-                                    self.globalPanel,
-                                    wx.ID_ANY,
-                                    tooltip="String of letters representing an identifier for the libraries the datasets \
-                                    belong to. For example, if adding three datasets of different libraries, change the \
-                                    string to 'ABC'. Set  of letters used must match those in Control datasets. Keep \
-                                    empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
-                                )
+                #                 # Experimental Libraries text - GLOBAL
+                #                 expLibSizer = wx.BoxSizer(wx.HORIZONTAL)
+                #                 self.expLibLabel = wx.StaticText(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     u"Experimental Libraries:",
+                #                     wx.DefaultPosition,
+                #                     (170, -1),
+                #                     0,
+                #                 )
+                #                 self.expLibLabel.Wrap(-1)
+                #                 self.expLibText = wx.TextCtrl(
+                #                     self.globalPanel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
+                #                 )
+                #                 self.expLibTip = pytransit.analysis.base.InfoIcon(
+                #                     self.globalPanel,
+                #                     wx.ID_ANY,
+                #                     tooltip="String of letters representing an identifier for the libraries the datasets \
+                #                     belong to. For example, if adding three datasets of different libraries, change the \
+                #                     string to 'ABC'. Set  of letters used must match those in Control datasets. Keep \
+                #                     empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
+                #                 )
 
-                                self.expLibText.Disable()
-                                expLibSizer.Add(self.expLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                                expLibSizer.Add(self.expLibText , 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                                expLibSizer.Add(self.expLibTip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 self.expLibText.Disable()
+                #                 expLibSizer.Add(self.expLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 expLibSizer.Add(self.expLibText , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                #                 expLibSizer.Add(self.expLibTip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-                                globalSizerVT.Add(nTermSizer  , 1, wx.EXPAND, 5)
-                                globalSizerVT.Add(cTermSizer  , 1, wx.EXPAND, 5)
-                                globalSizerVT.Add(ctrlLibSizer, 1, wx.EXPAND, 5)
-                                globalSizerVT.Add(expLibSizer , 1, wx.EXPAND, 5)
+                #                 globalSizerVT.Add(nTermSizer  , 1, wx.EXPAND, 5)
+                #                 globalSizerVT.Add(cTermSizer  , 1, wx.EXPAND, 5)
+                #                 globalSizerVT.Add(ctrlLibSizer, 1, wx.EXPAND, 5)
+                #                 globalSizerVT.Add(expLibSizer , 1, wx.EXPAND, 5)
 
-                                self.globalPanel.SetSizer(globalSizerVT)
-                                self.globalPanel.Layout()
-                                globalSizerVT.Fit(self.globalPanel)
-                                self.methodSizer.Add(self.globalPanel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
+                #                 self.globalPanel.SetSizer(globalSizerVT)
+                #                 self.globalPanel.Layout()
+                #                 globalSizerVT.Fit(self.globalPanel)
+                #                 self.methodSizer.Add(self.globalPanel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
                             
-                        self.optionsSizer.Add(self.methodSizer, 0, wx.EXPAND, 5)
+                #         self.optionsSizer.Add(self.methodSizer, 0, wx.EXPAND, 5)
 
-                    self.optionsWindow.SetSizer(self.optionsSizer)
-                    self.optionsWindow.Layout()
+                #     self.optionsWindow.SetSizer(self.optionsSizer)
+                #     self.optionsWindow.Layout()
 
-                    self.optionsWindow.Fit()
+                #     self.optionsWindow.Fit()
 
-            windowWrapper.Add(self.optionsWindow, 0, wx.ALL, 5)
+                # windowWrapper.Add(self.optionsWindow, 0, wx.ALL, 5)
         # --------------------#
         
         # TODO: cleanup formatting of nested items
-        if True:
-            self.SetSizer(windowWrapper)
-            self.Layout()
-            self.m_menubar1 = wx.MenuBar(0)
-            self.fileMenuItem = wx.Menu()
-            self.exportMenuItem = wx.Menu()
-            self.selectedExportMenuItem = wx.Menu()
+        self.SetSizer(windowWrapper)
+        self.Layout()
+        # if True:
+        #     self.m_menubar1 = wx.MenuBar(0)
+        #     self.fileMenuItem = wx.Menu()
+        #     self.exportMenuItem = wx.Menu()
+        #     self.selectedExportMenuItem = wx.Menu()
 
-            # Selected datasets
-            self.exportMenuItem.AppendSubMenu(
-                self.selectedExportMenuItem, u"Selected Datasets"
-            )
+        #     # Selected datasets
+        #     self.exportMenuItem.AppendSubMenu(
+        #         self.selectedExportMenuItem, u"Selected Datasets"
+        #     )
 
-            self.fileMenuItem.AppendSubMenu(self.exportMenuItem, u"Export")
+        #     self.fileMenuItem.AppendSubMenu(self.exportMenuItem, u"Export")
 
-            self.convertMenuItem = wx.Menu()
-            self.annotationConvertPTToPTTMenu = wx.MenuItem(
-                self.convertMenuItem,
-                wx.ID_ANY,
-                u"prot_table to PTT",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            self.convertMenuItem.Append(self.annotationConvertPTToPTTMenu)
+        #     self.convertMenuItem = wx.Menu()
+        #     self.annotationConvertPTToPTTMenu = wx.MenuItem(
+        #         self.convertMenuItem,
+        #         wx.ID_ANY,
+        #         u"prot_table to PTT",
+        #         wx.EmptyString,
+        #         wx.ITEM_NORMAL,
+        #     )
+        #     self.convertMenuItem.Append(self.annotationConvertPTToPTTMenu)
 
-            self.annotationConvertPTToGFF3Menu = wx.MenuItem(
-                self.convertMenuItem,
-                wx.ID_ANY,
-                u"prot_table to GFF3",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            self.convertMenuItem.Append(self.annotationConvertPTToGFF3Menu)
+        #     self.annotationConvertPTToGFF3Menu = wx.MenuItem(
+        #         self.convertMenuItem,
+        #         wx.ID_ANY,
+        #         u"prot_table to GFF3",
+        #         wx.EmptyString,
+        #         wx.ITEM_NORMAL,
+        #     )
+        #     self.convertMenuItem.Append(self.annotationConvertPTToGFF3Menu)
 
-            self.annotationConvertPTTToPT = wx.MenuItem(
-                self.convertMenuItem,
-                wx.ID_ANY,
-                u"PTT to prot_table",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
+        #     self.annotationConvertPTTToPT = wx.MenuItem(
+        #         self.convertMenuItem,
+        #         wx.ID_ANY,
+        #         u"PTT to prot_table",
+        #         wx.EmptyString,
+        #         wx.ITEM_NORMAL,
+        #     )
 
-            self.convertMenuItem.Append(self.annotationConvertPTTToPT)
+        #     self.convertMenuItem.Append(self.annotationConvertPTTToPT)
 
-            # self.annotationConvertGFF3ToPT = wx.MenuItem( self.convertMenuItem, wx.ID_ANY, u"GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
-            # self.convertMenuItem.Append( self.annotationConvertGFF3ToPT )
-            self.fileMenuItem.AppendSubMenu(self.convertMenuItem, u"Convert")
+        #     # self.annotationConvertGFF3ToPT = wx.MenuItem( self.convertMenuItem, wx.ID_ANY, u"GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
+        #     # self.convertMenuItem.Append( self.annotationConvertGFF3ToPT )
+        #     self.fileMenuItem.AppendSubMenu(self.convertMenuItem, u"Convert")
 
-            self.fileExitMenuItem = wx.MenuItem(
-                self.fileMenuItem, wx.ID_ANY, u"&Exit", wx.EmptyString, wx.ITEM_NORMAL
-            )
-            self.fileMenuItem.Append(self.fileExitMenuItem)
-            self.m_menubar1.Append(self.fileMenuItem, u"&File")
+        #     self.fileExitMenuItem = wx.MenuItem(
+        #         self.fileMenuItem, wx.ID_ANY, u"&Exit", wx.EmptyString, wx.ITEM_NORMAL
+        #     )
+        #     self.fileMenuItem.Append(self.fileExitMenuItem)
+        #     self.m_menubar1.Append(self.fileMenuItem, u"&File")
 
-            self.viewMenuItem = wx.Menu()
-            self.scatterMenuItem = wx.MenuItem(
-                self.viewMenuItem,
-                wx.ID_ANY,
-                u"&Scatter Plot",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
+        #     self.viewMenuItem = wx.Menu()
+        #     self.scatterMenuItem = wx.MenuItem(
+        #         self.viewMenuItem,
+        #         wx.ID_ANY,
+        #         u"&Scatter Plot",
+        #         wx.EmptyString,
+        #         wx.ITEM_NORMAL,
+        #     )
 
-            self.viewMenuItem.Append(self.scatterMenuItem)
+        #     self.viewMenuItem.Append(self.scatterMenuItem)
 
-            self.trackMenuItem = wx.MenuItem(
-                self.viewMenuItem, wx.ID_ANY, u"&Track View", wx.EmptyString, wx.ITEM_NORMAL
-            )
+        #     self.trackMenuItem = wx.MenuItem(
+        #         self.viewMenuItem, wx.ID_ANY, u"&Track View", wx.EmptyString, wx.ITEM_NORMAL
+        #     )
 
-            self.viewMenuItem.Append(self.trackMenuItem)
-            self.m_menubar1.Append(self.viewMenuItem, u"&View")
+        #     self.viewMenuItem.Append(self.trackMenuItem)
+        #     self.m_menubar1.Append(self.viewMenuItem, u"&View")
 
-            #
-            self.methodsMenuItem = wx.Menu()
-            self.himar1MenuItem = wx.Menu()
-            self.tn5MenuItem = wx.Menu()
+        #     #
+        #     self.methodsMenuItem = wx.Menu()
+        #     self.himar1MenuItem = wx.Menu()
+        #     self.tn5MenuItem = wx.Menu()
 
-            self.methodsMenuItem.AppendSubMenu(self.himar1MenuItem, "&Himar1 Methods")
-            self.methodsMenuItem.AppendSubMenu(self.tn5MenuItem, "&Tn5 Methods")
-            self.m_menubar1.Append(self.methodsMenuItem, u"&Analysis")
+        #     self.methodsMenuItem.AppendSubMenu(self.himar1MenuItem, "&Himar1 Methods")
+        #     self.methodsMenuItem.AppendSubMenu(self.tn5MenuItem, "&Tn5 Methods")
+        #     self.m_menubar1.Append(self.methodsMenuItem, u"&Analysis")
 
-            self.SetMenuBar(self.m_menubar1)
+        #     self.SetMenuBar(self.m_menubar1)
 
-            self.helpMenuItem = wx.Menu()
-            self.documentationMenuItem = wx.MenuItem(
-                self.helpMenuItem,
-                wx.ID_ANY,
-                u"&Documentation",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            self.helpMenuItem.Append(self.documentationMenuItem)
-            self.aboutMenuItem = wx.MenuItem(
-                self.helpMenuItem, wx.ID_ANY, u"&About", wx.EmptyString, wx.ITEM_NORMAL
-            )
-            self.helpMenuItem.Append(self.aboutMenuItem)
+        #     self.helpMenuItem = wx.Menu()
+        #     self.documentationMenuItem = wx.MenuItem(
+        #         self.helpMenuItem,
+        #         wx.ID_ANY,
+        #         u"&Documentation",
+        #         wx.EmptyString,
+        #         wx.ITEM_NORMAL,
+        #     )
+        #     self.helpMenuItem.Append(self.documentationMenuItem)
+        #     self.aboutMenuItem = wx.MenuItem(
+        #         self.helpMenuItem, wx.ID_ANY, u"&About", wx.EmptyString, wx.ITEM_NORMAL
+        #     )
+        #     self.helpMenuItem.Append(self.aboutMenuItem)
 
-            self.m_menubar1.Append(self.helpMenuItem, u"&Help")
+        #     self.m_menubar1.Append(self.helpMenuItem, u"&Help")
 
-            self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
+        #     self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
 
-            self.Centre(wx.BOTH)
+        self.Centre(wx.BOTH)
         
         # 
         # Connect Menu Events
         # 
-        if True:
-            self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=self.annotationConvertPTToPTTMenu.GetId(),  )
-            self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=self.annotationConvertPTToGFF3Menu.GetId(), )
-            self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=self.annotationConvertPTTToPT.GetId(),      )
-            self.Bind(wx.EVT_MENU, self.Exit                , id=self.fileExitMenuItem.GetId()               )
-            self.Bind(wx.EVT_MENU, self.scatterFunc         , id=self.scatterMenuItem.GetId()                )
-            self.Bind(wx.EVT_MENU, self.allViewFunc         , id=self.trackMenuItem.GetId()                  )
-            self.Bind(wx.EVT_MENU, self.aboutFunc           , id=self.aboutMenuItem.GetId()                  )
-            self.Bind(wx.EVT_MENU, self.documentationFunc   , id=self.documentationMenuItem.GetId()          )
+        # if True:
+        #     self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=self.annotationConvertPTToPTTMenu.GetId(),  )
+        #     self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=self.annotationConvertPTToGFF3Menu.GetId(), )
+        #     self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=self.annotationConvertPTTToPT.GetId(),      )
+        #     self.Bind(wx.EVT_MENU, self.Exit                , id=self.fileExitMenuItem.GetId()               )
+        #     self.Bind(wx.EVT_MENU, self.scatterFunc         , id=self.scatterMenuItem.GetId()                )
+        #     self.Bind(wx.EVT_MENU, self.allViewFunc         , id=self.trackMenuItem.GetId()                  )
+        #     self.Bind(wx.EVT_MENU, self.aboutFunc           , id=self.aboutMenuItem.GetId()                  )
+        #     self.Bind(wx.EVT_MENU, self.documentationFunc   , id=self.documentationMenuItem.GetId()          )
             
-            self.timer = wx.Timer(self)
-            self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
+        #     self.timer = wx.Timer(self)
+        #     self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
 
         
-        self.SetIcon(images.transit_icon.GetIcon())
+        # self.SetIcon(images.transit_icon.GetIcon())
 
-        self.workdir = os.getcwd()
-        self.annotation = ""
-        self.transposons = ["himar1", "tn5"]
+        # self.workdir = os.getcwd()
+        # self.annotation = ""
+        # self.transposons = ["himar1", "tn5"]
 
-        self.logoImg.SetBitmap(images.transit_logo2.GetImage().ConvertToBitmap())
-        self.versionLabel.SetLabel(pytransit.__version__)
-        self.methodSizerText.Hide()
+        # self.logoImg.SetBitmap(images.transit_logo2.GetImage().ConvertToBitmap())
+        # self.versionLabel.SetLabel(pytransit.__version__)
+        # self.methodSizerText.Hide()
 
 
-        self.index_file = 0
+        # self.index_file = 0
         
 
-        self.verbose = True
+        # self.verbose = True
 
-        self.statusBar.SetStatusText("Welcome to TRANSIT")
-        self.progress_count = 0
-        pub.subscribe(self.setProgressRange, "progressrange")
-        pub.subscribe(self.updateProgress, "progress")
-        pub.subscribe(self.updateStatus, "status")
-        pub.subscribe(self.finishRun, "finish")
-        pub.subscribe(self.saveHistogram, "histogram")
+        # self.statusBar.SetStatusText("Welcome to TRANSIT")
+        # self.progress_count = 0
+        # pub.subscribe(self.setProgressRange, "progressrange")
+        # pub.subscribe(self.updateProgress, "progress")
+        # pub.subscribe(self.updateStatus, "status")
+        # pub.subscribe(self.finishRun, "finish")
+        # pub.subscribe(self.saveHistogram, "histogram")
 
-        # 
-        # Export Menu Items
-        # 
-        for name in export_methods:
-            export_methods[name].gui.defineMenuItem(self, export_methods[name].label)
-            tempMenuItem = export_methods[name].gui.menuitem
-            self.selectedExportMenuItem.Append(tempMenuItem)
+        # # 
+        # # Export Menu Items
+        # # 
+        # for name in export_methods:
+        #     export_methods[name].gui.defineMenuItem(self, export_methods[name].label)
+        #     tempMenuItem = export_methods[name].gui.menuitem
+        #     self.selectedExportMenuItem.Append(tempMenuItem)
 
-            self.Bind(
-                wx.EVT_MENU,
-                partial(self.ExportSelectFunc, export_methods[name].label),
-                tempMenuItem,
-            )
+        #     self.Bind(
+        #         wx.EVT_MENU,
+        #         partial(self.ExportSelectFunc, export_methods[name].label),
+        #         tempMenuItem,
+        #     )
 
-        # Convert Menu Items
-        for name in convert_methods:
-            convert_methods[name].gui.defineMenuItem(self, convert_methods[name].label)
-            tempMenuItem = convert_methods[name].gui.menuitem
-            self.convertMenuItem.Append(tempMenuItem)
+        # # Convert Menu Items
+        # for name in convert_methods:
+        #     convert_methods[name].gui.defineMenuItem(self, convert_methods[name].label)
+        #     tempMenuItem = convert_methods[name].gui.menuitem
+        #     self.convertMenuItem.Append(tempMenuItem)
 
-            self.Bind(
-                wx.EVT_MENU,
-                partial(self.ConvertSelectFunc, convert_methods[name].label),
-                tempMenuItem,
-            )
+        #     self.Bind(
+        #         wx.EVT_MENU,
+        #         partial(self.ConvertSelectFunc, convert_methods[name].label),
+        #         tempMenuItem,
+        #     )
 
-        # Method Panels
+        # # Method Panels
 
-        methodChoiceChoices = ["[Choose Method]"]
-        methodorder = [("gumbel", 1), ("resampling", 2), ("hmm", 3)]
-        order = defaultdict(lambda: 100)
-        for k, v in methodorder:
-            order[k] = v
+        # methodChoiceChoices = ["[Choose Method]"]
+        # methodorder = [("gumbel", 1), ("resampling", 2), ("hmm", 3)]
+        # order = defaultdict(lambda: 100)
+        # for k, v in methodorder:
+        #     order[k] = v
 
-        for name in sorted(methods.keys(), key=lambda x: order[x]):
-            methods[name].gui.definePanel(self)
-            # methods[name].gui.panel.BackgroundColour = (0, 200, 20)
-            self.methodSizer.Add(
-                methods[name].gui.panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-            )
-            methods[name].gui.Hide()
+        # for name in sorted(methods.keys(), key=lambda x: order[x]):
+        #     methods[name].gui.definePanel(self)
+        #     # methods[name].gui.panel.BackgroundColour = (0, 200, 20)
+        #     self.methodSizer.Add(
+        #         methods[name].gui.panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+        #     )
+        #     methods[name].gui.Hide()
 
-            if "himar1" in methods[name].transposons:
-                tempMenuItem = wx.MenuItem(
-                    self.himar1MenuItem,
-                    wx.ID_ANY,
-                    methods[name].fullname(),
-                    wx.EmptyString,
-                    wx.ITEM_NORMAL,
-                )
-                self.Bind(
-                    wx.EVT_MENU,
-                    partial(self.MethodSelectFunc, methods[name].fullname()),
-                    tempMenuItem,
-                )
+        #     if "himar1" in methods[name].transposons:
+        #         tempMenuItem = wx.MenuItem(
+        #             self.himar1MenuItem,
+        #             wx.ID_ANY,
+        #             methods[name].fullname(),
+        #             wx.EmptyString,
+        #             wx.ITEM_NORMAL,
+        #         )
+        #         self.Bind(
+        #             wx.EVT_MENU,
+        #             partial(self.MethodSelectFunc, methods[name].fullname()),
+        #             tempMenuItem,
+        #         )
 
-                self.himar1MenuItem.Append(tempMenuItem)
+        #         self.himar1MenuItem.Append(tempMenuItem)
 
-            if "tn5" in methods[name].transposons:
-                tempMenuItem = wx.MenuItem(
-                    self.tn5MenuItem,
-                    wx.ID_ANY,
-                    methods[name].fullname(),
-                    wx.EmptyString,
-                    wx.ITEM_NORMAL,
-                )
-                self.Bind(
-                    wx.EVT_MENU,
-                    partial(self.MethodSelectFunc, methods[name].fullname()),
-                    tempMenuItem,
-                )
-                self.tn5MenuItem.Append(tempMenuItem)
+        #     if "tn5" in methods[name].transposons:
+        #         tempMenuItem = wx.MenuItem(
+        #             self.tn5MenuItem,
+        #             wx.ID_ANY,
+        #             methods[name].fullname(),
+        #             wx.EmptyString,
+        #             wx.ITEM_NORMAL,
+        #         )
+        #         self.Bind(
+        #             wx.EVT_MENU,
+        #             partial(self.MethodSelectFunc, methods[name].fullname()),
+        #             tempMenuItem,
+        #         )
+        #         self.tn5MenuItem.Append(tempMenuItem)
 
-        # progress
-        self.progressPanel = wx.Panel(
-            self.optionsWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
-        progressSizer = wx.BoxSizer(wx.VERTICAL)
+        # # progress
+        # self.progressPanel = wx.Panel(
+        #     self.optionsWindow,
+        #     wx.ID_ANY,
+        #     wx.DefaultPosition,
+        #     wx.DefaultSize,
+        #     wx.TAB_TRAVERSAL,
+        # )
+        # progressSizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.progressLabel = wx.StaticText(
-            self.progressPanel,
-            wx.ID_ANY,
-            u"Progress",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        self.progressLabel.Wrap(-1)
-        progressSizer.Add(self.progressLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        # self.progressLabel = wx.StaticText(
+        #     self.progressPanel,
+        #     wx.ID_ANY,
+        #     u"Progress",
+        #     wx.DefaultPosition,
+        #     wx.DefaultSize,
+        #     0,
+        # )
+        # self.progressLabel.Wrap(-1)
+        # progressSizer.Add(self.progressLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        self.progress = wx.Gauge(
-            self.progressPanel,
-            wx.ID_ANY,
-            20,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.GA_HORIZONTAL | wx.GA_SMOOTH,
-        )
-        progressSizer.Add(self.progress, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        # self.progress = wx.Gauge(
+        #     self.progressPanel,
+        #     wx.ID_ANY,
+        #     20,
+        #     wx.DefaultPosition,
+        #     wx.DefaultSize,
+        #     wx.GA_HORIZONTAL | wx.GA_SMOOTH,
+        # )
+        # progressSizer.Add(self.progress, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        # self.progressPanel.BackgroundColour = (0, 0, 250)
-        self.progressPanel.SetSizer(progressSizer)
-        self.progressPanel.SetMaxSize(wx.Size(100, 100))
-        self.progressPanel.Layout()
+        # # self.progressPanel.BackgroundColour = (0, 0, 250)
+        # self.progressPanel.SetSizer(progressSizer)
+        # self.progressPanel.SetMaxSize(wx.Size(100, 100))
+        # self.progressPanel.Layout()
 
-        # progressSizer.Fit( self.progressPanel )
-        self.methodSizer.Add(
-            self.progressPanel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
+        # # progressSizer.Fit( self.progressPanel )
+        # self.methodSizer.Add(
+        #     self.progressPanel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+        # )
 
-        # self.methodSizer.Add( self.globalLabel, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-        # self.methodSizer.Hide()
-        self.progress.SetRange(50)
-        #########
+        # # self.methodSizer.Add( self.globalLabel, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        # # self.methodSizer.Hide()
+        # self.progress.SetRange(50)
+        # #########
 
-        self.optionsWindow.Fit()
+        # self.optionsWindow.Fit()
 
-        self.HideProgressSection()
-        self.HideGlobalOptions()
+        # self.HideProgressSection()
+        # self.HideGlobalOptions()
 
     def Exit(self, event):
         """Exit Menu Item"""
@@ -1509,6 +1502,7 @@ class TnSeekFrame(wx.Frame):
     def MethodSelectFunc(self, selected_name, test=""):
         # If empty is selected
         if selected_name == "[Choose Method]":
+            method_wrap_width = 250
             self.HideAllOptions()
             self.methodInfoText.SetLabel(u"Instructions")
             self.methodInstructions.Show()
@@ -1795,10 +1789,6 @@ class TnSeekFrame(wx.Frame):
             plt.title("LOESS Fit - %s" % transit_tools.basename(datasets_selected[j]))
             plt.show()
 
-    def addFileFunc(self, event):
-
-        
-
     def choseMethodsMenu(self, selected_name, event):
         if self.verbose:
             transit_tools.transit_message("Selected Method: %s" % (selected_name))
@@ -1806,7 +1796,7 @@ class TnSeekFrame(wx.Frame):
 
     def chooseNormalization(self):
 
-        norm_methods_choices = sorted(normmethods.keys())
+        norm_methods_choices = sorted(norm_methods.keys())
         dlg = wx.SingleChoiceDialog(
             self,
             "Choose how to normalize read-counts accross datasets.",
