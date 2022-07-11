@@ -25,6 +25,81 @@ long_desc = """Perform Anova analysis"""
 transposons = ["", ""]
 columns = []
 
+# used by CLI and GUI
+def run(global_data, local_data):
+    pass # TODO
+
+
+class Gui:
+    def when_selected(panel):
+        # Create things in the panel
+        # Make things being edited in the panel update the local data
+        pass
+    
+    def when_run_finishes():
+        # create any graphical stuff
+        pass
+
+class Cli:
+    usage_string = '''
+        Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+        Optional Arguments:
+            -n <string>         :=  Normalization method. Default: -n TTR
+            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
+            -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+            -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+    '''.replace("\n        ","\n")
+        
+    def from_args(self, raw_args):
+        (args, kwargs) = transit_tools.clean_args(raw_args)
+
+        if kwargs.get("-help", False) or kwargs.get("h", False):
+            print(self.usage_string)
+            sys.exit(0)
+
+        combined_wig, annotation, metadata, output_file, *_ = args
+        normalization = kwargs.get("n", "TTR")
+        NTerminus = float(kwargs.get("iN", 0.0))
+        CTerminus = float(kwargs.get("iC", 0.0))
+        winz = True if "winz" in kwargs else False
+        PC = int(kwargs.get("PC", 5))
+        alpha = float(kwargs.get("alpha", 1000))
+        refs = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
+        if refs != []: refs = refs.split(",")
+        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
+        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
+
+        # check for unrecognized flags
+        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
+        for arg in rawargs:
+            if arg[0] == "-" and arg not in flags:
+                self.transit_error("flag unrecognized: %s" % arg)
+                print(self.usage_string)
+                sys.exit(0)
+        
+        global_data = dict(
+            annotation=annotation,
+            wigs=[],        # combined_wig, metadata
+            conditions=[],  # excluded_conditions, included_conditions,
+        )
+        local_data = dict(
+            normalization=normalization,
+            output_file=output_file,
+            n_terminus=NTerminus,
+            c_terminus=CTerminus,
+            pc=PC,
+            winz=winz,
+            refs=refs,
+            alpha=alpha
+        )
+        
+        return global_data, local_data
+
 
 class Analysis(base.TransitAnalysis):
     def __init__(self):
@@ -32,9 +107,6 @@ class Analysis(base.TransitAnalysis):
             self, short_name, long_name, short_desc, long_desc, transposons, AnovaMethod
         )
 
-
-def main():
-    print("ANOVA example")
 
 
 class AnovaMethod(base.MultiConditionMethod):
@@ -91,7 +163,7 @@ class AnovaMethod(base.MultiConditionMethod):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
-            print(AnovaMethod.usage_string())
+            print(self.usage_string)
             sys.exit(0)
 
         combined_wig = args[0]
@@ -114,7 +186,7 @@ class AnovaMethod(base.MultiConditionMethod):
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 self.transit_error("flag unrecognized: %s" % arg)
-                print(AnovaMethod.usage_string())
+                print(self.usage_string)
                 sys.exit(0)
 
         return self(
@@ -417,24 +489,3 @@ class AnovaMethod(base.MultiConditionMethod):
         file.close()
         self.transit_message("Finished Anova analysis")
         self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
-
-    @classmethod
-    def usage_string(self):
-        usage = '\n'.join([
-            """Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]""",
-            """Optional Arguments:""",
-            """  -n <string>         :=  Normalization method. Default: -n TTR""",
-            """  --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)""",
-            """  --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)""",
-            """  --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)""",
-            """  -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0""",
-            """  -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0""",
-            """  -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5""",
-            """  -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000""",
-            """  -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)""",
-        ])
-        return usage
-
-
-if __name__ == "__main__":
-    main()

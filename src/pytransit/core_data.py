@@ -46,6 +46,7 @@ class Condition:
 
 class SessionData:
     def __init__(self):
+        self.annotation = None
         self.wigs = []
         self.conditions = []
     

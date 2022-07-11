@@ -702,12 +702,12 @@ class MultiConditionMethod(AnalysisMethod):
             annotation_path,
             wxobj,
         )
-        self.combined_wig = combined_wig
-        self.metadata = metadata
-        self.normalization = normalization
-        self.NTerminus = nterm
-        self.CTerminus = cterm
-        self.unknown_cond_flag = "FLAG-UNMAPPED-CONDITION-IN-WIG"
+        self.combined_wig        = combined_wig
+        self.metadata            = metadata
+        self.normalization       = normalization
+        self.NTerminus           = nterm
+        self.CTerminus           = cterm
+        self.unknown_cond_flag   = "FLAG-UNMAPPED-CONDITION-IN-WIG"
         self.excluded_conditions = excluded_conditions
         self.included_conditions = included_conditions
 
