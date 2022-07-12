@@ -1215,24 +1215,38 @@ const WigLoader = ({ children , style ,  })=>{
     }))));
 };
 document.body.append(html(Row, {
-    height: "100vh"
-}, html(Column, {
-    name: "GlobalPanel",
-    width: "70vw",
+    height: "100vh",
+    width: "100vw",
+    overflow: "hidden"
+}, html("style", null, `
+        .custom-header {
+            font-weight: 500;
+            font-size: 14pt;
+            color: gray;
+            margin-bottom: 2px;
+            margin-left: 2px;
+        }
+    `), html(Column, {
+    name: "FilePanel",
+    width: "27rem",
     background: "white",
     padding: "3rem",
     height: "100%",
-    "max-height": "100%",
-    overflow: "hidden"
-}, html("style", null, `
-            .custom-header {
-                font-weight: 500;
-                font-size: 14pt;
-                color: gray;
-                margin-bottom: 2px;
-                margin-left: 2px;
-            }
-        `), html(Annotation, null), html(Row, {
+    "max-height": "100%"
+}, html(Annotation, null), html(Row, {
+    height: `3rem`
+}), html(Row, {
+    "flex-grow": "1",
+    "min-height": "20rem",
+    height: "100%"
+}, html(WigLoader, null))), html(Column, {
+    name: "DataPanel",
+    width: "27rem",
+    background: "white",
+    padding: "3rem",
+    height: "100%",
+    "max-height": "100%"
+}, html(Annotation, null), html(Row, {
     height: `3rem`
 }), html(Row, {
     "flex-grow": "1",

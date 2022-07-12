@@ -4,9 +4,10 @@
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
 import { html } from "../elemental.js"
+import { Event, trigger, everyTime, once } from "https://deno.land/x/good@0.5.15/string.js"
 import { Column, Row, Input, Code, askForFiles } from "../elements.jsx"
 import { EasyFilePicker } from "./file_picker.jsx"
-import { data } from "../data.jsx"
+import { data, events } from "../data.jsx"
 
 export const Annotation = ({ children, style, }) => {
     return <Column>
@@ -27,6 +28,7 @@ export const Annotation = ({ children, style, }) => {
                     onChange={(file)=>{
                         data.annotation = file.name
                         console.log(`data.annotation is:`,data.annotation)
+                        trigger(events.annotationAdded)
                     }}
                     >
                         [Click to add Annotation File]
