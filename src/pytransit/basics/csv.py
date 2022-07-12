@@ -50,17 +50,22 @@ def read(path, *, seperator=",", use_headers=None, first_row_is_headers=False, s
                             cells_with_types.append(each_cell)
                     else: # if first_char == '"' or first_char == '[' or first_char == '{'
                         remaining_end_indicies = reversed(list(range(index, len(cells))))
+                        skip_to = 0
                         for each_remaining_end_index in remaining_end_indicies:
                             try:
                                 cells_with_types.append(
                                     json.loads(seperator.join(cells[index:each_remaining_end_index]))
                                 )
                                 skip_to = each_remaining_index
-                                continue
+                                break
                             except Exception as error:
                                 pass
-                        # if all fail, go with the default of the shortest cell as a string
-                        cells_with_types.append(each_cell)
+                        # continue the outer loop
+                        if skip_to != 0:
+                            continue
+                        else:
+                            # if all fail, go with the default of the shortest cell as a string
+                            cells_with_types.append(each_cell)
             
             # 
             # headers
