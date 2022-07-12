@@ -229,12 +229,18 @@ export const Column = Box
 
 export const Row = (arg)=>Box({...arg, row: true})
 
-export const Input = ({ children, style, ...otherArgs }) => {
-    return <input
+export const Input = ({ children, style, checked, value, ...otherArgs }) => {
+    const element = <input
         class={otherArgs.class}
         style={`${css(style)}; ${css(otherArgs)};`}
         {...otherArgs}
         />
+    // are not just html attributes
+    Object.assign(element, {
+        checked,
+        value,
+    })
+    return element
 }
 
 export const Code = ({ children, style, hoverStyle, onMouseOver, onMouseOut, onClick, ...otherArgs }) => {

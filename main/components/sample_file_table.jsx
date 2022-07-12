@@ -11,6 +11,27 @@ import { data, events } from "../data.jsx"
 
 const standardColumnNames = [ "disabled", "name", "condition", ]
 
+const createGridRowElements = ({ rowData, columns }) => {
+    console.debug(`rowData is:`,rowData)
+    let rowElements = [
+        <Input type="checkbox" checked={rowData.disabled} onChange={(event)=>{ rowData.disabled = event.target.checked }} />
+    ]
+    for (const eachColumn of columns) {
+        // skip disabled column, thats done manually
+        if (eachColumn == "disabled") {
+            continue
+        }
+        const value = rowData[eachColumn]
+        // if primitive, like string or number
+        if (value != null && !(rowData[eachColumn] instanceof Object)) {
+            rowElements.push(<div class="custom-grid-cell"> {rowData[eachColumn]} </div>)
+        } else {
+            rowElements.push(<div class="custom-grid-cell"> </div>)
+        }
+    }
+    return rowElements
+}
+
 export const GridElement = ({columnNames, children})=> {
     return <Column
             padding="1.2rem 1rem"
@@ -56,17 +77,7 @@ export const SampleFileTable = ({ children, style, }) => {
         }
         elements.push(headerElements)
         for (const eachSample of data.samples) {
-            let rowElements = []
-            for (const eachColumn of columns) {
-                const value = eachSample[eachColumn]
-                // if primitive, like string or number
-                if (value != null && !(eachSample[eachColumn] instanceof Object)) {
-                    rowElements.push(<div> {eachSample[eachColumn]} </div>)
-                } else {
-                    rowElements.push(<div> </div>)
-                }
-            }
-            elements.push(rowElements)
+            elements.push(createGridRowElements({ columns, rowData: eachSample }))
         }
         
         // create the new grid

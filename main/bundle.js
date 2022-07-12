@@ -1003,11 +1003,16 @@ const Row = (arg)=>Box({
         row: true
     })
 ;
-const Input = ({ children , style , ...otherArgs })=>{
-    return html1("input", Object.assign({
+const Input = ({ children , style , checked , value , ...otherArgs })=>{
+    const element = html1("input", Object.assign({
         class: otherArgs.class,
         style: `${css(style)}; ${css(otherArgs)};`
     }, otherArgs));
+    Object.assign(element, {
+        checked,
+        value
+    });
+    return element;
 };
 const Code = ({ children , style , hoverStyle , onMouseOver , onMouseOut , onClick , ...otherArgs })=>{
     const element = html1("code", Object.assign({
@@ -1298,6 +1303,34 @@ const standardColumnNames = [
     "name",
     "condition", 
 ];
+const createGridRowElements = ({ rowData , columns  })=>{
+    console.debug(`rowData is:`, rowData);
+    let rowElements = [
+        html(Input, {
+            type: "checkbox",
+            checked: rowData.disabled,
+            onChange: (event)=>{
+                rowData.disabled = event.target.checked;
+            }
+        })
+    ];
+    for (const eachColumn of columns){
+        if (eachColumn == "disabled") {
+            continue;
+        }
+        const value = rowData[eachColumn];
+        if (value != null && !(rowData[eachColumn] instanceof Object)) {
+            rowElements.push(html("div", {
+                class: "custom-grid-cell"
+            }, " ", rowData[eachColumn], " "));
+        } else {
+            rowElements.push(html("div", {
+                class: "custom-grid-cell"
+            }, " "));
+        }
+    }
+    return rowElements;
+};
 const GridElement = ({ columnNames , children  })=>{
     return html(Column, {
         padding: "1.2rem 1rem",
@@ -1338,16 +1371,10 @@ const SampleFileTable = ({ children , style ,  })=>{
         }
         elements.push(headerElements);
         for (const eachSample1 of data.samples){
-            let rowElements = [];
-            for (const eachColumn of columns){
-                const value = eachSample1[eachColumn];
-                if (value != null && !(eachSample1[eachColumn] instanceof Object)) {
-                    rowElements.push(html("div", null, " ", eachSample1[eachColumn], " "));
-                } else {
-                    rowElements.push(html("div", null, " "));
-                }
-            }
-            elements.push(rowElements);
+            elements.push(createGridRowElements({
+                columns,
+                rowData: eachSample1
+            }));
         }
         const newGrid = html(GridElement, {
             columnNames: [
@@ -1371,6 +1398,34 @@ const standardColumnNames1 = [
     "disabled",
     "name", 
 ];
+const createGridRowElements1 = ({ rowData , columns  })=>{
+    console.debug(`rowData is:`, rowData);
+    let rowElements = [
+        html(Input, {
+            type: "checkbox",
+            checked: rowData.disabled,
+            onChange: (event)=>{
+                rowData.disabled = event.target.checked;
+            }
+        })
+    ];
+    for (const eachColumn of columns){
+        if (eachColumn == "disabled") {
+            continue;
+        }
+        const value = rowData[eachColumn];
+        if (value != null && !(rowData[eachColumn] instanceof Object)) {
+            rowElements.push(html("div", {
+                class: "custom-grid-cell"
+            }, " ", rowData[eachColumn], " "));
+        } else {
+            rowElements.push(html("div", {
+                class: "custom-grid-cell"
+            }, " "));
+        }
+    }
+    return rowElements;
+};
 const GridElement1 = ({ columnNames , children  })=>{
     return html(Column, {
         padding: "1.2rem 1rem",
@@ -1410,17 +1465,11 @@ const ConditionsTable = ({ children , style ,  })=>{
             }, eachColumn));
         }
         elements.push(headerElements);
-        for (const eachSample1 of data.conditions){
-            let rowElements = [];
-            for (const eachColumn of columns){
-                const value = eachSample1[eachColumn];
-                if (value != null && !(eachSample1[eachColumn] instanceof Object)) {
-                    rowElements.push(html("div", null, " ", eachSample1[eachColumn], " "));
-                } else {
-                    rowElements.push(html("div", null, " "));
-                }
-            }
-            elements.push(rowElements);
+        for (const eachCondition of data.conditions){
+            elements.push(createGridRowElements1({
+                columns,
+                rowData: eachCondition
+            }));
         }
         const newGrid = html(GridElement1, {
             columnNames: [
