@@ -73,7 +73,28 @@ def ask_for_files(message):
 
 
 class color(NamedTuple):
-    green = rgba(187, 237, 181, 255)
+    black          =  rgba(0, 0, 0)
+    white          =  rgba(255, 255, 255)
+    light_gray     =  rgba(199, 203, 205)
+    gray           =  rgba(84, 110, 122)
+    rust           =  rgba(193, 126, 112)
+    orange         =  rgba(247, 140, 108)
+    yellow         =  rgba(254, 195, 85)
+    bananna_yellow =  rgba(221, 215, 144)
+    lime           =  rgba(195, 232, 141)
+    green           = rgba(187, 237, 181, 255)
+    bold_green     =  rgba(78, 201, 176, 209)
+    vibrant_green  =  rgba(4, 216, 149)
+    dim_green      =  rgba(128, 203, 171)
+    dark_slate     =  rgba(63, 132, 141)
+    light_slate    =  rgba(100, 186, 197)
+    light_blue     =  rgba(137, 221, 255)
+    blue           =  rgba(130, 170, 255)
+    electric_blue  =  rgba(0, 174, 255, 232)
+    light_purple   =  rgba(199, 146, 234)
+    pink           =  rgba(229, 126, 179)
+    red            =  rgba(255, 85, 114)
+    soft_red       =  rgba(240, 113, 120)
 
 class NiceErrorLog(object):
     """

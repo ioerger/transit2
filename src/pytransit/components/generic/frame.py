@@ -36,6 +36,12 @@ class Frame:
             instance=None,
         )
         self.wx_object = self._state.column.wx_object
+        self.refresh()
+    
+    def refresh(self):
+        self._state.window.SetSizer(self._state.column.wx_object)
+        self._state.window.Layout()
+        self._state.window.Center(wx.BOTH)
     
     def add(self, *args, **kwargs):
         self._state.column.add(*args, **kwargs)
@@ -44,9 +50,7 @@ class Frame:
         return self
     
     def __exit__(self, _, error, traceback_obj):
-        self._state.window.SetSizer(self._state.column.wx_object)
-        self._state.window.Layout()
-        self._state.window.Center(wx.BOTH)
+        self.refresh()
         
         if error is not None:
             gui_tools.handle_traceback(traceback_obj)

@@ -10,9 +10,14 @@
         "/pytpp/*": true,
         ".venv/*": true,
         ".venv.ignore/*": true,
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
         "*.ignore/*": true,
         "*.ignore.*/*": true,
         "*.ignore": true,
         "*.ignore.*": true,
-    },
+    }
 }

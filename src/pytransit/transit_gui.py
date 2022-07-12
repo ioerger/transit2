@@ -84,8 +84,11 @@ class TnSeekFrame(wx.Frame):
         
         with Frame(parent, title="TRANSIT") as frame:
             
-            frame.add(Annotation())
+            with Annotation() as annotation:
+                
+                self.annotation = annotation
             
+            frame.add(self.annotation)
             self.frame = frame
 
                 # 

@@ -30,11 +30,14 @@ class Annotation:
         button = Button(
             text="Select File",
         )
-        self._as_row = Row(children=[
-            prefix,
-            file_path_text,
-            button,
-        ])
+        self._as_row = Row(
+            background_color=gui_tools.color.blue,
+            children=[
+                prefix,
+                file_path_text,
+                button,
+            ]
+        )
         
         # 
         # define callbacks
@@ -62,9 +65,13 @@ class Annotation:
             on_file_callbacks=[],
         )
     
+    def refresh(self):
+        self._as_row.refresh()
+        
     def __enter__(self):
         return self
     
     def __exit__(self, _, error, traceback_obj):
+        self.refresh()
         if error is not None:
             gui_tools.handle_traceback(traceback_obj)

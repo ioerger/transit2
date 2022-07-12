@@ -28,7 +28,7 @@ class Button:
                     text,
                     size=wx.Size(*default_size),
                 )
-                if background_color: delayed_wx_object.SetBackgroundColour(gui_tools.color.green)
+                if background_color: delayed_wx_object.SetBackgroundColour(background_color)
                 if max_size        : delayed_wx_object.SetMaxSize(wx.Size(*max_size))
                 if min_size        : delayed_wx_object.SetMinSize(wx.Size(*min_size))
                 

@@ -47,19 +47,26 @@ class Box:
         # wx_object
         # 
         wx_object = wx.BoxSizer(orient=orientation)
-        if background_color: wx_object.SetBackgroundColour(gui_tools.color.green)
-        if max_size: wx_object.SetMaxSize(wx.Size(*max_size))
-        if min_size: wx_object.SetMinSize(wx.Size(*min_size))
+        panel = wx.Panel(window)
+        if background_color: panel.SetBackgroundColour(background_color)
+        sizer = wx.BoxSizer(orient=orientation)
+        if max_size: sizer.SetMaxSize(wx.Size(*max_size))
+        if min_size: sizer.SetMinSize(wx.Size(*min_size))
+        wx_object.Add(panel)
         
         self.wx_object = wx_object
         self.events = LazyDict(
             # None
         )
         self._state = LazyDict(
+            panel=panel,
+            sizer=sizer,
             children=[],
         )
         for each in children:
             self.add(each)
+        
+        self.refresh()
         
     def add(self, component, proportion=1, side=None, expand=None, horizontal_alignment=None):
         # handle multiple
@@ -80,7 +87,7 @@ class Box:
         if callable(wx_object):
             wx_object = wx_object(self.wx_object)
             
-        self.wx_object.Add(
+        self._state.sizer.Add(
             wx_object,
             proportion,
             flag=side | expand | horizontal_alignment,
@@ -92,6 +99,11 @@ class Box:
     def length(self):
         return len(self.children)
     
+    def refresh(self):
+        self._state.panel.SetSizer(self._state.sizer)
+        self._state.panel.Layout()
+        self._state.panel.Center(wx.BOTH)
+    
     # TODO: remove
     # TODO: insert
     
@@ -102,6 +114,7 @@ class Box:
         return self
     
     def __exit__(self, _, error, traceback_obj):
+        self.refresh()
         if error is not None:
             gui_tools.handle_traceback(traceback_obj)
 
@@ -111,8 +124,8 @@ class Column(Box):
             self.wx_object
             self.add(component)
     """
-    def __init__(self, min_size=None, max_size=None, children=None):
-        super(Column, self).__init__(orientation="vertical", min_size=min_size, max_size=max_size, children=children)
+    def __init__(self, background_color=None, min_size=None, max_size=None, children=None):
+        super(Column, self).__init__(orientation="vertical", background_color=background_color, min_size=min_size, max_size=max_size, children=children)
 
 class Row(Box):
     """
@@ -120,5 +133,5 @@ class Row(Box):
             self.wx_object
             self.add(component)
     """
-    def __init__(self, min_size=None, max_size=None, children=None):
-        super(Row, self).__init__(orientation="horizontal", min_size=min_size, max_size=max_size, children=children)
+    def __init__(self, background_color=None, min_size=None, max_size=None, children=None):
+        super(Row, self).__init__(orientation="horizontal", background_color=background_color, min_size=min_size, max_size=max_size, children=children)
