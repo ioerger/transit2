@@ -310,3 +310,79 @@ export const askForFiles = async ()=>{
         filePicker.click()
     })
 }
+
+export function Button({
+        children,
+        style,
+        hoverStyle,
+        row,
+        column=true,
+        center=false,
+        verticalAlignment=null,
+        horizontalAlignment=null,
+        onBlur,
+        onChange,
+        onClick,
+        onContextMenu,
+        onDblClick,
+        onMouseDown,
+        onMouseEnter,
+        onMouseLeave,
+        onMouseMove,
+        onMouseOut,
+        onMouseOver,
+        onMouseUp,
+        ...otherArgs
+    }) {
+        let justify, align, text, theClass
+        
+        if (!row) {
+            if (center) {
+                verticalAlignment = verticalAlignment || "center"
+                horizontalAlignment = horizontalAlignment || "center"
+            } else {
+                verticalAlignment = verticalAlignment || "top"
+                horizontalAlignment = horizontalAlignment || "left"
+            }
+            justify = verticalAlignment
+            align = horizontalAlignment
+            text = horizontalAlignment
+            theClass = classIds.column
+        } else {
+            if (center) {
+                verticalAlignment = verticalAlignment || "center"
+                horizontalAlignment = horizontalAlignment || "center"
+            } else {
+                verticalAlignment = verticalAlignment || "top"
+                horizontalAlignment = horizontalAlignment || "left"
+            }
+            justify = horizontalAlignment
+            align = verticalAlignment
+            text = horizontalAlignment
+            theClass = classIds.row
+        }
+        
+        const element = <button
+            class={combineClasses(theClass, otherArgs.class)}
+            style={`justify-content: ${translateAlignment(justify)}; align-items: ${translateAlignment(align)}; text-align: ${text}; ${css(style)}; ${css(otherArgs)};`}
+            onBlur={onBlur}
+            onChange={onChange}
+            onClick={onClick}
+            onContextMenu={onContextMenu}
+            onDblClick={onDblClick}
+            onMouseDown={onMouseDown}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onMouseMove={onMouseMove}
+            onMouseOut={onMouseOut}
+            onMouseOver={onMouseOver}
+            onMouseUp={onMouseUp}
+            {...otherArgs}
+            >
+                {children}
+        </button>
+
+        hoverStyleHelper({ element, hoverStyle })
+        
+        return element
+}

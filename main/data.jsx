@@ -15,6 +15,12 @@ export const data = {
         { disabled: false, condition: "Glycerol",    name: "glycerol_H37Rv_rep1.wig",    },
         { disabled: false, condition: "Glycerol",    name: "glycerol_H37Rv_rep2.wig",    },
     ],
-    conditions: [],
+    conditions: [
+        { disabled: false, name: "Cholesterol", },
+        { disabled: false, name: "Cholesterol", },
+        { disabled: false, name: "Cholesterol", },
+        { disabled: false, name: "Glycerol",    },
+        { disabled: false, name: "Glycerol",    },
+    ],
     panelInfo: null,
 }

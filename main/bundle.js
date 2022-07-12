@@ -1003,6 +1003,12 @@ const Row = (arg)=>Box({
         row: true
     })
 ;
+const Input = ({ children , style , ...otherArgs })=>{
+    return html1("input", Object.assign({
+        class: otherArgs.class,
+        style: `${css(style)}; ${css(otherArgs)};`
+    }, otherArgs));
+};
 const Code = ({ children , style , hoverStyle , onMouseOver , onMouseOut , onClick , ...otherArgs })=>{
     const element = html1("code", Object.assign({
         class: combineClasses(classIds.code, otherArgs.class),
@@ -1016,20 +1022,6 @@ const Code = ({ children , style , hoverStyle , onMouseOver , onMouseOut , onCli
         hoverStyle
     });
     return element;
-};
-const EasyFilePicker = ({ children , style , hoverStyle , onChange , ...otherArgs })=>{
-    let element;
-    return element = html1(Code, Object.assign({
-        style: style,
-        hoverStyle: hoverStyle,
-        onClick: async (event)=>{
-            const files = await askForFiles();
-            if (files && files.length > 0) {
-                element.innerText = files[0].name;
-                onChange(files[0]);
-            }
-        }
-    }, otherArgs), children);
 };
 const askForFiles = async ()=>{
     return new Promise((resolve, reject)=>{
@@ -1055,6 +1047,55 @@ const askForFiles = async ()=>{
         filePicker.click();
     });
 };
+function Button({ children , style , hoverStyle , row , column =true , center =false , verticalAlignment =null , horizontalAlignment =null , onBlur , onChange , onClick , onContextMenu , onDblClick , onMouseDown , onMouseEnter , onMouseLeave , onMouseMove , onMouseOut , onMouseOver , onMouseUp , ...otherArgs }) {
+    let justify, align, text, theClass;
+    if (!row) {
+        if (center) {
+            verticalAlignment = verticalAlignment || "center";
+            horizontalAlignment = horizontalAlignment || "center";
+        } else {
+            verticalAlignment = verticalAlignment || "top";
+            horizontalAlignment = horizontalAlignment || "left";
+        }
+        justify = verticalAlignment;
+        align = horizontalAlignment;
+        text = horizontalAlignment;
+        theClass = classIds.column;
+    } else {
+        if (center) {
+            verticalAlignment = verticalAlignment || "center";
+            horizontalAlignment = horizontalAlignment || "center";
+        } else {
+            verticalAlignment = verticalAlignment || "top";
+            horizontalAlignment = horizontalAlignment || "left";
+        }
+        justify = horizontalAlignment;
+        align = verticalAlignment;
+        text = horizontalAlignment;
+        theClass = classIds.row;
+    }
+    const element = html1("button", Object.assign({
+        class: combineClasses(theClass, otherArgs.class),
+        style: `justify-content: ${translateAlignment(justify)}; align-items: ${translateAlignment(align)}; text-align: ${text}; ${css(style)}; ${css(otherArgs)};`,
+        onBlur: onBlur,
+        onChange: onChange,
+        onClick: onClick,
+        onContextMenu: onContextMenu,
+        onDblClick: onDblClick,
+        onMouseDown: onMouseDown,
+        onMouseEnter: onMouseEnter,
+        onMouseLeave: onMouseLeave,
+        onMouseMove: onMouseMove,
+        onMouseOut: onMouseOut,
+        onMouseOver: onMouseOver,
+        onMouseUp: onMouseUp
+    }, otherArgs), children);
+    hoverStyleHelper({
+        element,
+        hoverStyle
+    });
+    return element;
+}
 class Event extends Set {
 }
 const trigger = async (event, ...args)=>Promise.all([
@@ -1066,7 +1107,7 @@ const everyTime = (event)=>({
         then: (action)=>event.add(action)
     })
 ;
-const EasyFilePicker1 = ({ children , onChange , defaultWidth ="16rem" , backgroundColor ="#939393" , ...otherArgs })=>{
+const EasyFilePicker = ({ children , onChange , defaultWidth ="16rem" , backgroundColor ="#939393" , ...otherArgs })=>{
     let codeElement;
     return html(Row, {
         style: `
@@ -1137,7 +1178,28 @@ const data = {
             name: "glycerol_H37Rv_rep2.wig"
         }, 
     ],
-    conditions: [],
+    conditions: [
+        {
+            disabled: false,
+            name: "Cholesterol"
+        },
+        {
+            disabled: false,
+            name: "Cholesterol"
+        },
+        {
+            disabled: false,
+            name: "Cholesterol"
+        },
+        {
+            disabled: false,
+            name: "Glycerol"
+        },
+        {
+            disabled: false,
+            name: "Glycerol"
+        }, 
+    ],
     panelInfo: null
 };
 const Annotation = ({ children , style ,  })=>{
@@ -1151,7 +1213,7 @@ const Annotation = ({ children , style ,  })=>{
         border: "lightgray solid 1px",
         "min-width": "fit-content",
         "border-radius": "0.7rem"
-    }, html(EasyFilePicker1, {
+    }, html(EasyFilePicker, {
         defaultWidth: "18rem",
         onChange: (file)=>{
             data.annotation = file.name;
@@ -1160,35 +1222,6 @@ const Annotation = ({ children , style ,  })=>{
         }
     }, "[Click to add Annotation File]")));
 };
-const CustomizedPicker = ({ children , onChange  })=>html(Row, {
-        style: `
-        --default-width: 16.4rem;
-        width: var(--default-width);
-        max-width: var(--default-width);
-        overflow-x: visible;
-    `
-    }, html(EasyFilePicker, {
-        style: `
-                width: var(--default-width);
-                max-width: var(--default-width);
-                display: block;
-                overflow-x: auto;
-                background: #939393;
-                position: relative;
-                box-shadow: 0 4px 5px 0 rgba(0,0,0,0), 0 1px 10px 0 rgba(0,0,0,0), 0 2px 4px -1px rgba(0,0,0,0);
-            `,
-        hoverStyle: `
-                min-width: max-content;
-                overflow-x: visible;
-                box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-            `,
-        onChange: onChange,
-        "margin-bottom": "0.5rem"
-    }, html(Row, {
-        horizontalAlignment: "center",
-        width: "100%"
-    }, children)))
-;
 const CombinedWigElement = ({ onLoaded  })=>{
     const data1 = {
         comWigFile: null,
@@ -1212,11 +1245,13 @@ const CombinedWigElement = ({ onLoaded  })=>{
             box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
             margin-bottom: 1rem;
         `
-    }, html(CustomizedPicker, {
+    }, html(EasyFilePicker, {
+        defaultWidth: "17rem",
         onChange: (file)=>checkData({
                 comWigFile: file
             })
-    }, "[Click to add Combined Wig]"), html(CustomizedPicker, {
+    }, "[Click to add Combined Wig]"), html(EasyFilePicker, {
+        defaultWidth: "17rem",
         onChange: (file)=>checkData({
                 metadataFile: file
             })
@@ -1241,8 +1276,8 @@ const WigLoader = ({ children , style ,  })=>{
         name: "WigLoader-Column",
         padding: "1.2rem 1rem",
         horizontalAlignment: `space-between`,
-        "min-width": "21rem",
-        "max-width": "21rem",
+        "min-width": "21.5rem",
+        "max-width": "21.5rem",
         background: "rgba(50, 134, 153, 0.2)",
         border: "lightgray solid 1px",
         "border-radius": "0.7rem",
@@ -1298,7 +1333,7 @@ const SampleFileTable = ({ children , style ,  })=>{
             headerElements.push(html(Row, {
                 background: "gray",
                 color: "white",
-                padding: "0.3rem 0.5rem"
+                padding: "0.4rem 0.8rem"
             }, eachColumn));
         }
         elements.push(headerElements);
@@ -1331,6 +1366,112 @@ const SampleFileTable = ({ children , style ,  })=>{
     }, "Sample Files"), gridElement = html(GridElement, {
         columnNames: standardColumnNames
     }));
+};
+const standardColumnNames1 = [
+    "disabled",
+    "name", 
+];
+const GridElement1 = ({ columnNames , children  })=>{
+    return html(Column, {
+        padding: "1.2rem 1rem",
+        background: "rgba(225, 224, 161, 0.28)",
+        border: "lightgray solid 1px",
+        "border-radius": "0.7rem",
+        "flex-grow": "1",
+        style: `
+                display: grid;
+                grid-template-columns: ${columnNames.map((each)=>"auto"
+        ).join(" ")};
+                width: 100%;
+                grid-column-gap: 1px;
+                grid-row-gap: 5px;
+            `
+    }, children);
+};
+const ConditionsTable = ({ children , style ,  })=>{
+    let sampleFileElement, gridElement;
+    everyTime(events.wigDataAdded).then(()=>{
+        console.log(`everyTime(events.wigDataAdded)`);
+        const columns = new Set(standardColumnNames1);
+        for (const eachSample of data.conditions){
+            for (const [key, value] of Object.entries(eachSample)){
+                if (!(value instanceof Object)) {
+                    columns.add(key);
+                }
+            }
+        }
+        const elements = [];
+        const headerElements = [];
+        for (const eachColumn of columns){
+            headerElements.push(html(Row, {
+                background: "gray",
+                color: "white",
+                padding: "0.4rem 0.8rem"
+            }, eachColumn));
+        }
+        elements.push(headerElements);
+        for (const eachSample1 of data.conditions){
+            let rowElements = [];
+            for (const eachColumn of columns){
+                const value = eachSample1[eachColumn];
+                if (value != null && !(eachSample1[eachColumn] instanceof Object)) {
+                    rowElements.push(html("div", null, " ", eachSample1[eachColumn], " "));
+                } else {
+                    rowElements.push(html("div", null, " "));
+                }
+            }
+            elements.push(rowElements);
+        }
+        const newGrid = html(GridElement1, {
+            columnNames: [
+                ...columns
+            ]
+        }, elements.flat());
+        gridElement.remove();
+        sampleFileElement.appendChild(newGrid);
+        gridElement = newGrid;
+    });
+    return sampleFileElement = html(Column, {
+        "flex-grow": "1",
+        width: "100%"
+    }, html("span", {
+        class: "custom-header"
+    }, "Conditions"), gridElement = html(GridElement1, {
+        columnNames: standardColumnNames1
+    }));
+};
+const ParameterPanel = ({ children , style ,  })=>{
+    return html(Column, {
+        width: "100%",
+        "flex-grow": "1"
+    }, html("span", {
+        class: "custom-header"
+    }, "Analysis Parameters"), html(Column, {
+        padding: "1.2rem 1rem",
+        horizontalAlignment: `space-between`,
+        verticalAlignment: "center",
+        background: "whitesmoke",
+        border: "lightgray solid 1px",
+        "min-width": "fit-content",
+        "border-radius": "0.7rem",
+        width: "100%",
+        "flex-grow": "1",
+        gap: "2rem"
+    }, html(Row, {
+        width: "100%",
+        horizontalAlignment: "space-between"
+    }, "Pseudocount ", html(Input, {
+        type: "number",
+        value: "5"
+    })), html(Row, {
+        width: "100%",
+        horizontalAlignment: "center"
+    }, html(Button, {
+        onClick: ()=>alert("Running ...")
+        ,
+        background: "rgb(202, 104, 104)",
+        color: "white"
+    }, "Run"))));
 };
 document.body.append(html(Row, {
     height: "100vh",
@@ -1367,9 +1508,12 @@ document.body.append(html(Row, {
     "flex-grow": "1"
 }, html(SampleFileTable, null), html(Row, {
     height: `3rem`
-}), html(SampleFileTable, null)), html(Row, {
-    name: "LocalPanel",
-    background: "cornflowerblue",
-    "min-width": "27rem"
-}, "panel")));
+}), html(ConditionsTable, null)), html(Column, {
+    name: "ParameterPanel",
+    width: "27rem",
+    background: "white",
+    padding: "3rem",
+    height: "100%",
+    "max-height": "100%"
+}, html(ParameterPanel, null))));
 

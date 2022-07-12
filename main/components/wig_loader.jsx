@@ -4,44 +4,10 @@
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
 import { html } from "../elemental.js"
-import { Column, Row, Input, Code, EasyFilePicker, askForFiles } from "../elements.jsx"
+import { Column, Row, Input, Code, askForFiles } from "../elements.jsx"
 import { Event, trigger, everyTime, once } from "https://deno.land/x/good@0.5.15/events.js"
+import { EasyFilePicker } from "./file_picker.jsx"
 import { data, events } from "../data.jsx"
-
-// 
-// file picker
-// 
-const CustomizedPicker = ({children, onChange})=><Row 
-    style={`
-        --default-width: 16.4rem;
-        width: var(--default-width);
-        max-width: var(--default-width);
-        overflow-x: visible;
-    `}
-    >
-        <EasyFilePicker
-            style={`
-                width: var(--default-width);
-                max-width: var(--default-width);
-                display: block;
-                overflow-x: auto;
-                background: #939393;
-                position: relative;
-                box-shadow: 0 4px 5px 0 rgba(0,0,0,0), 0 1px 10px 0 rgba(0,0,0,0), 0 2px 4px -1px rgba(0,0,0,0);
-            `}
-            hoverStyle={`
-                min-width: max-content;
-                overflow-x: visible;
-                box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-            `}
-            onChange={onChange}
-            margin-bottom="0.5rem"
-            >
-                <Row horizontalAlignment="center" width="100%" >
-                    {children}
-                </Row>
-        </EasyFilePicker>
-</Row>
 
 
 // 
@@ -74,12 +40,12 @@ const CombinedWigElement = ({onLoaded})=>{
             margin-bottom: 1rem;
         `}
         >
-            <CustomizedPicker onChange={(file)=>checkData({comWigFile: file})} >
+            <EasyFilePicker defaultWidth="17rem" onChange={(file)=>checkData({comWigFile: file})} >
                 [Click to add Combined Wig]
-            </CustomizedPicker>
-            <CustomizedPicker onChange={(file)=>checkData({metadataFile: file})} >
+            </EasyFilePicker>
+            <EasyFilePicker defaultWidth="17rem" onChange={(file)=>checkData({metadataFile: file})} >
                 [Click to add Metadata]
-            </CustomizedPicker>
+            </EasyFilePicker>
     </Column>
 }
 
@@ -109,8 +75,8 @@ export const WigLoader = ({ children, style, }) => {
             name="WigLoader-Column"
             padding="1.2rem 1rem"
             horizontalAlignment={`space-between`}
-            min-width="21rem"
-            max-width="21rem"
+            min-width="21.5rem"
+            max-width="21.5rem"
             background="rgba(50, 134, 153, 0.2)"
             border="lightgray solid 1px"
             border-radius="0.7rem"

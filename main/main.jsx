@@ -9,6 +9,13 @@ import { Column, Row, Input, askForFiles } from "./elements.jsx"
 import { Annotation } from "./components/annotation.jsx"
 import { WigLoader } from "./components/wig_loader.jsx"
 import { SampleFileTable } from "./components/sample_file_table.jsx"
+import { ConditionsTable } from "./components/conditions_table.jsx"
+import { ParameterPanel } from "./components/parameter_panel.jsx"
+
+// TODO:
+    // dropdown menus
+    // disabled checkboxes
+    // status menu at the bottom
 
 document.body.append(<Row height="100vh" width="100vw" overflow="hidden">
     <style>{`
@@ -32,10 +39,10 @@ document.body.append(<Row height="100vh" width="100vw" overflow="hidden">
     <Column name="DataPanel" width="27rem" background="white" padding="3rem" height="100%" max-height="100%" flex-grow="1">
         <SampleFileTable />
         <Row height={`3rem`} />
-        <SampleFileTable />
+        <ConditionsTable />
     </Column>
     
-    <Row name="LocalPanel" background="cornflowerblue" min-width="27rem">
-        panel
-    </Row>
+    <Column name="ParameterPanel" width="27rem" background="white" padding="3rem" height="100%" max-height="100%">
+        <ParameterPanel />
+    </Column>
 </Row>)
