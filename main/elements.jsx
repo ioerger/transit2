@@ -68,13 +68,11 @@ document.body.appendChild(<style>{`
     .${classIds.column} {
         display: flex;
         flex-direction: column;
-        position: relative;
         transition: all 0.5s ease-in-out 0s;
     }
     .${classIds.row} {
         display: flex;
         flex-direction: row;
-        position: relative;
         transition: all 0.5s ease-in-out 0s;
     }
     .${classIds.popUp} {

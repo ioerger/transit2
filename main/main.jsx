@@ -8,6 +8,7 @@ import { Column, Row, Input, askForFiles } from "./elements.jsx"
 
 import { Annotation } from "./components/annotation.jsx"
 import { WigLoader } from "./components/wig_loader.jsx"
+import { SampleFileTable } from "./components/sample_file_table.jsx"
 
 document.body.append(<Row height="100vh" width="100vw" overflow="hidden">
     <style>{`
@@ -29,14 +30,12 @@ document.body.append(<Row height="100vh" width="100vw" overflow="hidden">
     </Column>
     
     <Column name="DataPanel" width="27rem" background="white" padding="3rem" height="100%" max-height="100%" flex-grow="1">
-        <Annotation />
+        <SampleFileTable />
         <Row height={`3rem`} />
-        <Row flex-grow="1" min-height="20rem" height="100%">
-            <WigLoader />
-        </Row>
+        <SampleFileTable />
     </Column>
     
-    <Row name="LocalPanel" background="cornflowerblue" style="flex-grow: 1; align-items: center; justify-content: center;">
+    <Row name="LocalPanel" background="cornflowerblue" min-width="27rem">
         panel
     </Row>
 </Row>)

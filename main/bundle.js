@@ -875,13 +875,11 @@ document.body.appendChild(html1("style", null, `
     .${classIds.column} {
         display: flex;
         flex-direction: column;
-        position: relative;
         transition: all 0.5s ease-in-out 0s;
     }
     .${classIds.row} {
         display: flex;
         flex-direction: row;
-        position: relative;
         transition: all 0.5s ease-in-out 0s;
     }
     .${classIds.popUp} {
@@ -1057,6 +1055,17 @@ const askForFiles = async ()=>{
         filePicker.click();
     });
 };
+class Event extends Set {
+}
+const trigger = async (event, ...args)=>Promise.all([
+        ...event
+    ].map((each)=>each(...args)
+    ))
+;
+const everyTime = (event)=>({
+        then: (action)=>event.add(action)
+    })
+;
 const EasyFilePicker1 = ({ children , onChange , defaultWidth ="16rem" , backgroundColor ="#939393" , ...otherArgs })=>{
     let codeElement;
     return html(Row, {
@@ -1094,10 +1103,41 @@ const EasyFilePicker1 = ({ children , onChange , defaultWidth ="16rem" , backgro
         width: "100%"
     }, children)));
 };
+const events = {
+    annotationAdded: new Event([]),
+    wigDataAdded: new Event([])
+};
 const data = {
     annotation: null,
-    sampleFiles: null,
-    conditions: null,
+    wigGroups: [],
+    samples: [
+        {
+            disabled: false,
+            condition: "Cholesterol",
+            name: "cholesterol_H37Rv_rep1.wig"
+        },
+        {
+            disabled: false,
+            condition: "Cholesterol",
+            name: "cholesterol_H37Rv_rep2.wig"
+        },
+        {
+            disabled: false,
+            condition: "Cholesterol",
+            name: "cholesterol_H37Rv_rep3.wig"
+        },
+        {
+            disabled: false,
+            condition: "Glycerol",
+            name: "glycerol_H37Rv_rep1.wig"
+        },
+        {
+            disabled: false,
+            condition: "Glycerol",
+            name: "glycerol_H37Rv_rep2.wig"
+        }, 
+    ],
+    conditions: [],
     panelInfo: null
 };
 const Annotation = ({ children , style ,  })=>{
@@ -1116,6 +1156,7 @@ const Annotation = ({ children , style ,  })=>{
         onChange: (file)=>{
             data.annotation = file.name;
             console.log(`data.annotation is:`, data.annotation);
+            trigger(events.annotationAdded);
         }
     }, "[Click to add Annotation File]")));
 };
@@ -1183,9 +1224,12 @@ const CombinedWigElement = ({ onLoaded  })=>{
 };
 const WigLoader = ({ children , style ,  })=>{
     let wigLoader;
-    const addPicker = ()=>{
+    const onLoaded = (newWigGroup)=>{
+        data.wigGroups.push(newWigGroup);
+        console.log(`events.wigDataAdded`);
+        trigger(events.wigDataAdded);
         wigLoader.appendChild(html(CombinedWigElement, {
-            onLoaded: addPicker
+            onLoaded: onLoaded
         }));
     };
     return html(Column, {
@@ -1211,8 +1255,82 @@ const WigLoader = ({ children , style ,  })=>{
         overflow: "auto",
         height: "100%"
     }, html(CombinedWigElement, {
-        onLoaded: addPicker
+        onLoaded: onLoaded
     }))));
+};
+const standardColumnNames = [
+    "disabled",
+    "name",
+    "condition", 
+];
+const GridElement = ({ columnNames , children  })=>{
+    return html(Column, {
+        padding: "1.2rem 1rem",
+        background: "rgba(187, 225, 161, 0.28)",
+        border: "lightgray solid 1px",
+        "border-radius": "0.7rem",
+        "flex-grow": "1",
+        style: `
+                display: grid;
+                grid-template-columns: ${columnNames.map((each)=>"auto"
+        ).join(" ")};
+                width: 100%;
+                grid-column-gap: 1px;
+                grid-row-gap: 5px;
+            `
+    }, children);
+};
+const SampleFileTable = ({ children , style ,  })=>{
+    let sampleFileElement, gridElement;
+    everyTime(events.wigDataAdded).then(()=>{
+        console.log(`everyTime(events.wigDataAdded)`);
+        const columns = new Set(standardColumnNames);
+        for (const eachSample of data.samples){
+            for (const [key, value] of Object.entries(eachSample)){
+                if (!(value instanceof Object)) {
+                    columns.add(key);
+                }
+            }
+        }
+        const elements = [];
+        const headerElements = [];
+        for (const eachColumn of columns){
+            headerElements.push(html(Row, {
+                background: "gray",
+                color: "white",
+                padding: "0.3rem 0.5rem"
+            }, eachColumn));
+        }
+        elements.push(headerElements);
+        for (const eachSample1 of data.samples){
+            let rowElements = [];
+            for (const eachColumn of columns){
+                const value = eachSample1[eachColumn];
+                if (value != null && !(eachSample1[eachColumn] instanceof Object)) {
+                    rowElements.push(html("div", null, " ", eachSample1[eachColumn], " "));
+                } else {
+                    rowElements.push(html("div", null, " "));
+                }
+            }
+            elements.push(rowElements);
+        }
+        const newGrid = html(GridElement, {
+            columnNames: [
+                ...columns
+            ]
+        }, elements.flat());
+        gridElement.remove();
+        sampleFileElement.appendChild(newGrid);
+        gridElement = newGrid;
+    });
+    return sampleFileElement = html(Column, {
+        "flex-grow": "1",
+        width: "100%"
+    }, html("span", {
+        class: "custom-header"
+    }, "Sample Files"), gridElement = html(GridElement, {
+        columnNames: standardColumnNames
+    }));
 };
 document.body.append(html(Row, {
     height: "100vh",
@@ -1245,16 +1363,13 @@ document.body.append(html(Row, {
     background: "white",
     padding: "3rem",
     height: "100%",
-    "max-height": "100%"
-}, html(Annotation, null), html(Row, {
+    "max-height": "100%",
+    "flex-grow": "1"
+}, html(SampleFileTable, null), html(Row, {
     height: `3rem`
-}), html(Row, {
-    "flex-grow": "1",
-    "min-height": "20rem",
-    height: "100%"
-}, html(WigLoader, null))), html(Row, {
+}), html(SampleFileTable, null)), html(Row, {
     name: "LocalPanel",
     background: "cornflowerblue",
-    style: "flex-grow: 1; align-items: center; justify-content: center;"
+    "min-width": "27rem"
 }, "panel")));
 

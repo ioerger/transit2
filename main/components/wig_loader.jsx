@@ -5,7 +5,7 @@
 /// <reference lib="deno.ns" />
 import { html } from "../elemental.js"
 import { Column, Row, Input, Code, EasyFilePicker, askForFiles } from "../elements.jsx"
-import { Event, trigger, everyTime, once } from "https://deno.land/x/good@0.5.15/string.js"
+import { Event, trigger, everyTime, once } from "https://deno.land/x/good@0.5.15/events.js"
 import { data, events } from "../data.jsx"
 
 // 
@@ -89,7 +89,9 @@ const CombinedWigElement = ({onLoaded})=>{
 export const WigLoader = ({ children, style, }) => {
     let wigLoader
     // recursive picker (as soon as one is loaded add another)
-    const onLoaded = ()=>{
+    const onLoaded = (newWigGroup)=>{
+        data.wigGroups.push(newWigGroup)
+        console.log(`events.wigDataAdded`)
         trigger(events.wigDataAdded)
         // add another picker for additional comwig files
         wigLoader.appendChild(
