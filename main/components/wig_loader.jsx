@@ -100,22 +100,31 @@ export const WigLoader = ({ children, style, }) => {
         <span class="custom-header">
             Wig Files
         </span>
-        {wigLoader = <Column
+        <Column
             name="WigLoader-Column"
             padding="1.2rem 1rem"
             horizontalAlignment={`space-between`}
-            min-width="fit-content"
+            min-width="21rem"
+            max-width="21rem"
             background="rgba(50, 134, 153, 0.2)"
             border="lightgray solid 1px"
             border-radius="0.7rem"
             height="100%"
-            overflow-x="auto"
-            overflow-y="visible"
+            overflow="visible"
             >
-                <CombinedWigElement 
-                    onLoaded={addPicker}
-                    />
-        </Column>}
+                {/* a Wrapper to make scrolling work and overflow: visible work */}
+                {wigLoader = <Column
+                    hoverStyle={`
+                        min-width: 150vw;
+                    `}
+                    overflow="auto"
+                    height="100%"
+                    >
+                    <CombinedWigElement 
+                        onLoaded={addPicker}
+                        />
+                </Column>}
+        </Column>
     </Column>
 }
 

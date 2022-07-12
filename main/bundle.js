@@ -1193,20 +1193,26 @@ const WigLoader = ({ children , style ,  })=>{
         height: "100%"
     }, html("span", {
         class: "custom-header"
-    }, "Wig Files"), wigLoader = html(Column, {
+    }, "Wig Files"), html(Column, {
         name: "WigLoader-Column",
         padding: "1.2rem 1rem",
         horizontalAlignment: `space-between`,
-        "min-width": "fit-content",
+        "min-width": "21rem",
+        "max-width": "21rem",
         background: "rgba(50, 134, 153, 0.2)",
         border: "lightgray solid 1px",
         "border-radius": "0.7rem",
         height: "100%",
-        "overflow-x": "auto",
-        "overflow-y": "visible"
+        overflow: "visible"
+    }, wigLoader = html(Column, {
+        hoverStyle: `
+                        min-width: 150vw;
+                    `,
+        overflow: "auto",
+        height: "100%"
     }, html(CombinedWigElement, {
         onLoaded: addPicker
-    })));
+    }))));
 };
 document.body.append(html(Row, {
     height: "100vh"
@@ -1215,7 +1221,9 @@ document.body.append(html(Row, {
     width: "70vw",
     background: "white",
     padding: "3rem",
-    height: "100%"
+    height: "100%",
+    "max-height": "100%",
+    overflow: "hidden"
 }, html("style", null, `
             .custom-header {
                 font-weight: 500;
@@ -1227,7 +1235,9 @@ document.body.append(html(Row, {
         `), html(Annotation, null), html(Row, {
     height: `3rem`
 }), html(Row, {
-    "flex-grow": "1"
+    "flex-grow": "1",
+    "min-height": "20rem",
+    height: "100%"
 }, html(WigLoader, null))), html(Row, {
     name: "LocalPanel",
     background: "cornflowerblue",

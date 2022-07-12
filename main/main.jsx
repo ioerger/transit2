@@ -10,7 +10,7 @@ import { Annotation } from "./components/annotation.jsx"
 import { WigLoader } from "./components/wig_loader.jsx"
 
 document.body.append(<Row height="100vh">
-    <Column name="GlobalPanel" width="70vw" background="white" padding="3rem" height="100%">
+    <Column name="GlobalPanel" width="70vw" background="white" padding="3rem" height="100%" max-height="100%" overflow="hidden">
         <style>{`
             .custom-header {
                 font-weight: 500;
@@ -22,7 +22,7 @@ document.body.append(<Row height="100vh">
         `}</style>
         <Annotation />
         <Row height={`3rem`} />
-        <Row flex-grow="1">
+        <Row flex-grow="1" min-height="20rem" height="100%">
             <WigLoader />
         </Row>
         {/* <Column height="85vh">
