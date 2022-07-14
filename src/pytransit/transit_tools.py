@@ -169,6 +169,8 @@ if HAS_WX:
             else:
                 self.Close()
 
+working_directory = os.getcwd()
+
 def fetch_name(filepath):
     # TODO: Write docstring
     return os.path.splitext(ntpath.basename(filepath))[0]

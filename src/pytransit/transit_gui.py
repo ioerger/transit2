@@ -42,7 +42,8 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
 from pytransit.components.generic.box import Row, Column
 from pytransit.components.generic.frame import Frame
-from pytransit.components.annotation import Annotation
+from pytransit.components.annotation_area import create_annotation_area
+from pytransit.components.samples_area import create_sample_area
 from pytransit.components.comwig_picker import create_comwig_picker
 
 import pytransit
@@ -84,148 +85,42 @@ class TnSeekFrame(wx.Frame):
         
         with Frame(parent, title="TRANSIT") as frame:
             
-            with Annotation() as annotation:
+            with Row() as main_wrapper:
                 
-                self.annotation = annotation
+                # 
+                # data column
+                # 
+                with Column() as data_column:
+                    data_column.add(
+                        create_annotation_area(self),
+                        proportion=1,
+                    )
+                    data_column.add(
+                        create_sample_area(self),
+                        proportion=5,
+                        expand=True,
+                    )
+                    
+                    main_wrapper.add(
+                        data_column,
+                        expand=True,
+                        proportion=5,
+                    )
+                
+                # 
+                # panel column
+                # 
+                with Column() as panel_column:
+                    main_wrapper.add(
+                        panel_column,
+                        expand=True,
+                        proportion=2,
+                    )
             
-            frame.add(self.annotation)
+                frame.add(main_wrapper)
+            
             self.frame = frame
 
-                # 
-                # windowSizer
-                # 
-                # if True:
-                #     windowSizer = wx.BoxSizer(wx.VERTICAL)
-                    
-                #     # 
-                #     # orgSizer
-                #     # 
-                #     if True:
-                #         orgSizer = wx.StaticBoxSizer(
-                #             wx.StaticBox(
-                #                 self.mainWindow,
-                #                 wx.ID_ANY,
-                #                 u"Organism"
-                #             ),
-                #             wx.VERTICAL,
-                #         )
-                        
-                #         # 
-                #         # annotation sizer
-                #         # 
-                #         if True:
-                #             annot_sizer = wx.BoxSizer(wx.HORIZONTAL)
-                            
-                #             # 
-                #             # text
-                #             # 
-                #             if True:
-                #                 label_annot = wx.StaticText(
-                #                     self.mainWindow,
-                #                     wx.ID_ANY,
-                #                     u"Annotation File:",
-                #                     wx.DefaultPosition,
-                #                     wx.DefaultSize,
-                #                     0,
-                #                 )
-                #                 annot_sizer.Add(
-                #                     label_annot,
-                #                     0,
-                #                     wx.ALIGN_CENTER_VERTICAL,
-                #                     0
-                #                 )
-                            
-                #             # 
-                #             # picker
-                #             # 
-                #             if True:
-                #                 self.annotationFilePicker = wx.FilePickerCtrl(
-                #                     self.mainWindow,
-                #                     id=wx.ID_ANY,
-                #                     size=(400, 30),
-                #                     wildcard=u"prot_table or GFF3 files (*.gff3;*.gff;*.prot_table;*.txt)|*.gff3;*.gff;*.prot_table;*.txt",
-                #                     message="Select Annotation file (.prot_table or .gff3)",
-                #                     style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL | wx.FD_MULTIPLE,
-                #                 )
-                #                 self.annotationFilePicker.SetInitialDirectory(os.getcwd())
-                #                 annot_sizer.Add(
-                #                     self.annotationFilePicker,
-                #                     proportion=1,
-                #                     flag=wx.EXPAND | wx.ALL,
-                #                     border=5,
-                #                 )
-                #                 self.annotationFilePicker
-                                
-                #                 @bind_to(self.annotationFilePicker, wx.EVT_FILEPICKER_CHANGED)
-                #                 def annotationFileFunc(self, event):
-                #                     self.annotation = event.GetPath()
-
-                #             orgSizer.Add(annot_sizer, 1, wx.EXPAND, 5)
-
-                #         windowSizer.Add(orgSizer, 0, wx.EXPAND, 5)
-
-                #     # 
-                #     # Samples
-                #     # 
-                #     if True:
-                #         ctrlSizer = wx.StaticBoxSizer(
-                #             wx.StaticBox(
-                #                 self.mainWindow,
-                #                 wx.ID_ANY,
-                #                 u"Samples"
-                #             ),
-                #             wx.VERTICAL,
-                #         )
-                        
-                #         # 
-                #         # box
-                #         # 
-                #         if True:
-                #             ctrlBoxSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-                            
-                #             # 
-                #             # ctrlViewButton
-                #             # 
-                #             if True:
-                #                 self.ctrlViewButton = wx.Button(
-                #                     self.mainWindow,
-                #                     wx.ID_ANY,
-                #                     u"Track View",
-                #                     wx.DefaultPosition,
-                #                     wx.DefaultSize,
-                #                     0,
-                #                 )
-                #                 self.ctrlViewButton.Hide()
-                #                 ctrlBoxSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
-                                
-                #                 @bind_to(self.ctrlViewButton, wx.EVT_BUTTON)
-                #                 def _(event):
-                #                     self.allViewFunc(event)
-                                
-
-                #             # 
-                #             # combined_wig_file_picker
-                #             # 
-                #             if True:
-                #                 self.combined_wig_file_picker = create_comwig_picker(window=self)
-                #                 ctrlBoxSizer2.Add(self.combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                                
-                #             ctrlSizer.Add(ctrlBoxSizer2, 0, wx.EXPAND, 5)
-                        
-                #         # 
-                #         # wig_table
-                #         # 
-                #         with Table() as (wx_object, component):
-                #             self.wig_table = wx_object
-                #             ctrlSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
-
-                #         windowSizer.Add(
-                #             ctrlSizer,
-                #             1,
-                #             wx.EXPAND,
-                #             5
-                #         )
-                    
                 #     # 
                 #     # conditionsSizer
                 #     # 

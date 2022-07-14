@@ -14,14 +14,14 @@ class Table:
             self.add(python_obj)
     """
     def __init__(self, initial_columns=None, column_width=None, max_size=(-1, 200)):
-        window       = gui_tools.window
+        frame        = gui_tools.window
         column_width = column_width if column_width is not None else 100
         
         # 
         # wx_object
         # 
         wx_object = wx.ListCtrl(
-            window.mainWindow,
+            frame,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,
@@ -39,7 +39,7 @@ class Table:
             index               = -1,
             key_to_column_index = {},
             column_width        = column_width,
-            initial_columns     = initial_columns,
+            initial_columns     = initial_columns or [],
         )
         
         # create the inital columns
@@ -51,19 +51,19 @@ class Table:
         if key not in self._state.key_to_column_index:
             index = len(self._state.key_to_column_index)+1
             self._state.key_to_column_index[key] = index
-            wx_object.InsertColumn(index, key, width=self._state.column_width)
+            self.wx_object.InsertColumn(index, key, width=self._state.column_width)
             return index
         else:
             return self._state.key_to_column_index[key]
     
     def add(self, python_obj):
         self._state.index += 1
-        wx_object.InsertItem(self._state.index, f"")
+        self.wx_object.InsertItem(self._state.index, f"")
         if not isinstance(python_obj, dict):
             python_obj = python_obj.__dict__
         for each_key, each_value in python_obj.items():
             column_index = self._key_to_column_index(each_key)
-            wx_object.SetItem(self._state.index, column_index, f"{each_value}")
+            self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
     
     @property
     def length(self):

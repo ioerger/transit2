@@ -1,13 +1,15 @@
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+import os
+
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 from pytransit.core_data import universal
 import pytransit.gui_tools as gui_tools
 
-def create_comwig_picker(window):
+def create_comwig_picker(frame):
     # 
     # component
     # 
     combined_wig_file_picker = GenBitmapTextButton(
-        window.mainWindow,
+        frame,
         1,
         gui_tools.bit_map,
         "Add Files",
@@ -21,9 +23,9 @@ def create_comwig_picker(window):
     @gui_tools.bind_to(combined_wig_file_picker, wx.EVT_BUTTON)
     def load_combined_wig_file_func(event): # BOOKMARK: cwig_callback
         file_dialog = wx.FileDialog(
-            window,
+            frame,
             message="Choose a cwig file",
-            defaultDir=window.workdir,
+            defaultDir=working_directory,
             defaultFile="",
             wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
@@ -33,9 +35,9 @@ def create_comwig_picker(window):
             metadata_paths = []
             for fullpath in cwig_paths:
                 metadata_dialog = wx.FileDialog(
-                    window,
+                    frame,
                     message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
-                    defaultDir=window.workdir,
+                    defaultDir=working_directory,
                     defaultFile="",
                     wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                     style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
@@ -59,7 +61,7 @@ def create_comwig_picker(window):
         # 
         if True:
             for each_condition in universal.session_data.conditions:
-                window.wig_table.actions.add(dict(
+                frame.wig_table.add(dict(
                     name=each_condition.name,
                     disabled=each_condition.is_disabled,
                 ))
