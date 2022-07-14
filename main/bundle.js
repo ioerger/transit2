@@ -1522,6 +1522,63 @@ const ParameterPanel = ({ children , style ,  })=>{
         color: "white"
     }, "Run"))));
 };
+const MenuItem = ({ children , text , onClick  })=>{
+    const childContainer = html("div", {
+        style: `position: absolute; right: 0; top: -2px; display: none; transform: translateX(100%); flex-direction: column; border-radius: 5px; z-index: 100;`
+    }, children);
+    let container;
+    return container = html(Column, {
+        class: "custom-menu-container",
+        style: `position: relative; padding: 0.7rem; background: whitesmoke; border-left: 2px solid gray; border: 2px solid gray;`,
+        onMouseOver: ()=>{
+            childContainer.style.display = "flex";
+            container.style.background = "white";
+        },
+        onMouseOut: ()=>{
+            childContainer.style.display = "none";
+            container.style.background = "whitesmoke";
+        }
+    }, html(Row, {
+        onClick: onClick,
+        style: `width: max-content;`
+    }, text), childContainer);
+};
+const Menu = ({ children , style ,  })=>{
+    return html(Row, {
+        style: "background: whitesmoke;"
+    }, html(MenuItem, {
+        text: "File"
+    }, html(MenuItem, {
+        text: "Export"
+    }, html(MenuItem, {
+        text: "Selected Datasets"
+    })), html(MenuItem, {
+        text: "Convert"
+    }, html(MenuItem, {
+        text: "prot_table to PTT"
+    }, " "), html(MenuItem, {
+        text: "prot_table to GFF3"
+    }, " "))), html(MenuItem, {
+        text: "View"
+    }), html(MenuItem, {
+        text: "Analysis"
+    }, html(MenuItem, {
+        text: "Himar1 Methods"
+    }, html(MenuItem, {
+        text: "Gumble"
+    }), html(MenuItem, {
+        text: "Resampling"
+    })), html(MenuItem, {
+        text: "Tn5 Methods"
+    }, html(MenuItem, {
+        text: "Gumble"
+    }), html(MenuItem, {
+        text: "Resampling"
+    }))), html(MenuItem, {
+        text: "Help"
+    }));
+};
+document.body.append(html(Menu, null));
 document.body.append(html(Row, {
     height: "100vh",
     width: "100vw",

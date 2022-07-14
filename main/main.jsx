@@ -11,12 +11,14 @@ import { WigLoader } from "./components/wig_loader.jsx"
 import { SampleFileTable } from "./components/sample_file_table.jsx"
 import { ConditionsTable } from "./components/conditions_table.jsx"
 import { ParameterPanel } from "./components/parameter_panel.jsx"
+import { Menu } from "./components/menu.jsx"
 
 // TODO:
     // dropdown menus
     // disabled checkboxes
     // status menu at the bottom
 
+document.body.append(<Menu />)
 document.body.append(<Row height="100vh" width="100vw" overflow="hidden">
     <style>{`
         .custom-header {
