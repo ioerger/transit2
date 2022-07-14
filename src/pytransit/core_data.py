@@ -47,7 +47,7 @@ class Condition:
 class SessionData:
     def __init__(self):
         self.annotation = None
-        self.wigs = []
+        self.samples = []
         self.conditions = []
     
     @property
@@ -55,7 +55,7 @@ class SessionData:
         return set([ each.name for each in self.conditions ])
     
     def add_wig(self, path, condition=None):
-        self.wigs.append(
+        self.samples.append(
             Wig(
                 path=path,
                 extra_data=LazyDict(
@@ -64,7 +64,7 @@ class SessionData:
                 )
             )
         )
-        condition_name = self.wigs[-1].extra_data.condition
+        condition_name = self.samples[-1].extra_data.condition
         if condition_name not in self.condition_names:
             self.conditions.append(
                 Condition(
@@ -74,9 +74,9 @@ class SessionData:
     
     def add_cwig(self, cwig_path, metadata_path):
         wig_group = WigGroup.load_from(cwig_path=cwig_path, metadata_path=metadata_path)
-        self.wigs += wig_group.wigs
+        self.samples += wig_group.samples
         # add conditions
-        for each_wig in wig_group.wigs:
+        for each_wig in wig_group.samples:
             condition_name = each_wig.extra_data.condition
             if condition_name not in self.condition_names:
                 self.conditions.append(
@@ -87,7 +87,7 @@ class SessionData:
     
     @property
     def files(self):
-        return [ self.path for each in self.wigs ]
+        return [ self.path for each in self.samples ]
     
     def import_session(self, path):
         pass # TODO
@@ -97,7 +97,7 @@ class SessionData:
     
     def __repr__(self):
         return f"""SessionData(
-            wigs={indent(self.wigs, by="            ", ignore_first=True)},
+            samples={indent(self.samples, by="            ", ignore_first=True)},
             conditions={indent(self.conditions, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
 
@@ -108,7 +108,7 @@ class CombinedWig:
         self.rows          = []
         self.comments      = comments or []
         self.extra_data    = extra_data or {}
-        self.wigs          = []
+        self.samples       = []
         
         self.load()
     
@@ -218,7 +218,7 @@ class CombinedWig:
         
         read_counts_by_wig = self.read_counts_by_wig
         for each_path in self.files:
-            self.wigs.append(
+            self.samples.append(
                 Wig(
                     path=each_path,
                     rows=list(zip(self.sites, read_counts_by_wig[each_path])),
@@ -235,7 +235,7 @@ class CombinedWig:
             path={self.path},
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
-            wigs={      indent(self.wigs      , by="            ", ignore_first=True)},
+            samples={      indent(self.samples      , by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
         
 class CWigMetadata:
@@ -301,7 +301,7 @@ class WigGroup(LazyDict):
         self.metadata = metadata
         
         # attach a condition to each wig
-        for each_wig in self.cwig.wigs:
+        for each_wig in self.cwig.samples:
             each_wig.extra_data.condition = self.metadata.condition_for(each_wig.path)
             each_wig.extra_data.id = self.metadata.id_for(each_wig.path)
         
@@ -311,8 +311,8 @@ class WigGroup(LazyDict):
         return self.metadata.conditions
     
     @property
-    def wigs(self):
-        return self.cwig.wigs
+    def samples(self):
+        return self.cwig.samples
     
     def __repr__(self):
         return f"""WigGroup(

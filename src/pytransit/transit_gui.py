@@ -44,7 +44,6 @@ from pytransit.components.generic.box import Row, Column
 from pytransit.components.generic.frame import Frame
 from pytransit.components.annotation_area import create_annotation_area
 from pytransit.components.samples_area import create_sample_area
-from pytransit.components.comwig_picker import create_comwig_picker
 
 import pytransit
 import pytransit.analysis

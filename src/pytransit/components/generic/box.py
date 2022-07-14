@@ -61,7 +61,7 @@ class Box:
         for each in children:
             self.add(each)
         
-    def add(self, component, proportion=1, side=None, expand=None, horizontal_alignment=None):
+    def add(self, component, proportion=1, side=None, expand=None, horizontal_alignment=None, border=0):
         # handle multiple
         if isinstance(component, (list, tuple)):
             for each in component:
@@ -85,7 +85,7 @@ class Box:
             wx_object,
             proportion,
             flag=side | expand | horizontal_alignment,
-            border=0,
+            border=border,
         )
         return self
         
