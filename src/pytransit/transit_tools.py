@@ -100,11 +100,11 @@ if HAS_WX:
         """
         Summary:
             The old style:
-                pub.subscribe(self.setProgressRange, "progressrange")
+                pub.subscribe(self.set_progress_range, "progressrange")
             
             The new style enabled by this function:
                 @subscribe("progressrange")
-                def setProgressRange(self, *args):
+                def set_progress_range(self, *args):
                     pass
         """
         def decorator(function_being_wrapped):

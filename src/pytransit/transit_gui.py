@@ -46,12 +46,17 @@ from pytransit.components.generic.frame import Frame
 from pytransit.components.annotation_area import create_annotation_area
 from pytransit.components.samples_area import create_sample_area
 from pytransit.components.results_area import create_results_area
-from pytransit.analysis import methods
+from pytransit.components.parameter_panel import create_panel_area
+from pytransit.analysis   import methods
+from pytransit.export     import methods as export_methods
+from pytransit.convert    import methods as convert_methods
+from pytransit.norm_tools import methods as norm_methods
 
 import pytransit
 import pytransit.analysis
 import pytransit.export
 import pytransit.convert
+import pytransit.components.parameter_panel as parameter_panel
 import pytransit.trash as trash
 import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
@@ -61,10 +66,6 @@ import pytransit.stat_tools as stat_tools
 import pytransit.file_display as file_display
 import pytransit.qc_display as qc_display
 import pytransit.images as images
-
-export_methods    = pytransit.export.methods
-convert_methods   = pytransit.convert.methods
-norm_methods      = norm_tools.methods
 
 class TnSeekFrame(wx.Frame):
     instructions_text = """
@@ -137,6 +138,8 @@ class TnSeekFrame(wx.Frame):
             
                 frame.add(main_wrapper)
             
+            self.options_window = create_panel_area(self)
+            self.options_window.Fit()
             self.frame = frame
 
             
@@ -268,23 +271,13 @@ class TnSeekFrame(wx.Frame):
         # self.workdir = os.getcwd()
         # self.annotation = ""
         # self.transposons = ["himar1", "tn5"]
-
-        # self.logoImg.SetBitmap(images.transit_logo2.GetImage().ConvertToBitmap())
-        # self.versionLabel.SetLabel(pytransit.__version__)
-        # self.methodSizerText.Hide()
-
-
-        # self.index_file = 0
-        
-
         # self.verbose = True
 
         # self.statusBar.SetStatusText("Welcome to TRANSIT")
-        # self.progress_count = 0
-        # pub.subscribe(self.setProgressRange, "progressrange")
-        # pub.subscribe(self.updateProgress, "progress")
+        # pub.subscribe(parameter_panel.set_progress_range, "progressrange")
+        # pub.subscribe(parameter_panel.update_progress, "progress")
         # pub.subscribe(self.updateStatus, "status")
-        # pub.subscribe(self.finishRun, "finish")
+        # pub.subscribe(parameter_panel.finish_run, "finish")
         # pub.subscribe(self.saveHistogram, "histogram")
 
         # # 
@@ -339,7 +332,7 @@ class TnSeekFrame(wx.Frame):
         #         )
         #         self.Bind(
         #             wx.EVT_MENU,
-        #             partial(self.MethodSelectFunc, methods[name].fullname()),
+        #             partial(parameter_panel.method_select_func, methods[name].fullname()),
         #             tempMenuItem,
         #         )
 
@@ -355,7 +348,7 @@ class TnSeekFrame(wx.Frame):
         #         )
         #         self.Bind(
         #             wx.EVT_MENU,
-        #             partial(self.MethodSelectFunc, methods[name].fullname()),
+        #             partial(parameter_panel.method_select_func, methods[name].fullname()),
         #             tempMenuItem,
         #         )
         #         self.tn5MenuItem.Append(tempMenuItem)
@@ -367,23 +360,6 @@ class TnSeekFrame(wx.Frame):
         if self.verbose:
             transit_tools.transit_message("Exiting Transit")
         self.Close()
-
-    def updateProgress(self, msg):
-        """"""
-        method, count = msg
-        self.progress_count = count
-        try:
-            self.progress.SetValue(self.progress_count)
-        except:
-            pass
-
-    def setProgressRange(self, msg):
-        """"""
-        count = msg
-        try:
-            self.progress.SetRange(count)
-        except:
-            pass
 
     def updateStatus(self, msg, time=-1):
         """"""
@@ -415,15 +391,7 @@ class TnSeekFrame(wx.Frame):
         plt.clf()
 
     def finishRun(self, msg):
-        try:
-            self.progress_count = 0
-            self.progress.SetValue(self.progress_count)
-
-        except Exception as e:
-            transit_tools.transit_message("Error: %s" % e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+        parameter_panel.finish_run()
 
     def onHimar1Checked(self, event):
         if self.methodCheckBoxHimar1.GetValue():
