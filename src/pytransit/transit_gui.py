@@ -46,6 +46,7 @@ from pytransit.components.annotation_area import create_annotation_area
 from pytransit.components.samples_area import create_sample_area
 from pytransit.components.results_area import create_results_area
 from pytransit.components.parameter_panel import create_panel_area
+from pytransit.components.menu import create_menu
 from pytransit.analysis   import methods
 from pytransit.export     import methods as export_methods
 from pytransit.convert    import methods as convert_methods
@@ -156,18 +157,9 @@ class TnSeekFrame(wx.Frame):
         # self.Centre(wx.BOTH)
         
         # 
-        # Connect Menu Events
+        # Connect Events
         # 
         # if True:
-        #     self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=self.annotationConvertPTToPTTMenu.GetId(),  )
-        #     self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=self.annotationConvertPTToGFF3Menu.GetId(), )
-        #     self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=self.annotationConvertPTTToPT.GetId(),      )
-        #     self.Bind(wx.EVT_MENU, self.Exit                , id=self.fileExitMenuItem.GetId()               )
-        #     self.Bind(wx.EVT_MENU, self.scatterFunc         , id=self.scatterMenuItem.GetId()                )
-        #     self.Bind(wx.EVT_MENU, self.allViewFunc         , id=self.trackMenuItem.GetId()                  )
-        #     self.Bind(wx.EVT_MENU, self.aboutFunc           , id=self.aboutMenuItem.GetId()                  )
-        #     self.Bind(wx.EVT_MENU, self.documentationFunc   , id=self.documentationMenuItem.GetId()          )
-            
         #     self.timer = wx.Timer(self)
         #     self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
 
@@ -185,55 +177,9 @@ class TnSeekFrame(wx.Frame):
         # pub.subscribe(self.updateStatus, "status")
         # pub.subscribe(parameter_panel.finish_run, "finish")
         # pub.subscribe(self.saveHistogram, "histogram")
+        create_menu(self)
+        self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
 
-        # # Method Panels
-
-        # methodChoiceChoices = ["[Choose Method]"]
-        # methodorder = [("gumbel", 1), ("resampling", 2), ("hmm", 3)]
-        # order = defaultdict(lambda: 100)
-        # for k, v in methodorder:
-        #     order[k] = v
-
-        # for name in sorted(methods.keys(), key=lambda x: order[x]):
-        #     methods[name].gui.definePanel(self)
-        #     # methods[name].gui.panel.BackgroundColour = (0, 200, 20)
-        #     self.methodSizer.Add(
-        #         methods[name].gui.panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        #     )
-        #     methods[name].gui.Hide()
-
-        #     if "himar1" in methods[name].transposons:
-        #         tempMenuItem = wx.MenuItem(
-        #             self.himar1MenuItem,
-        #             wx.ID_ANY,
-        #             methods[name].fullname(),
-        #             wx.EmptyString,
-        #             wx.ITEM_NORMAL,
-        #         )
-        #         self.Bind(
-        #             wx.EVT_MENU,
-        #             partial(parameter_panel.method_select_func, methods[name].fullname()),
-        #             tempMenuItem,
-        #         )
-
-        #         self.himar1MenuItem.Append(tempMenuItem)
-
-        #     if "tn5" in methods[name].transposons:
-        #         tempMenuItem = wx.MenuItem(
-        #             self.tn5MenuItem,
-        #             wx.ID_ANY,
-        #             methods[name].fullname(),
-        #             wx.EmptyString,
-        #             wx.ITEM_NORMAL,
-        #         )
-        #         self.Bind(
-        #             wx.EVT_MENU,
-        #             partial(parameter_panel.method_select_func, methods[name].fullname()),
-        #             tempMenuItem,
-        #         )
-        #         self.tn5MenuItem.Append(tempMenuItem)
-
-        
 
     def Exit(self, event):
         """Exit Menu Item"""

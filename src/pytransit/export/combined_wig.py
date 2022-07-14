@@ -1,30 +1,19 @@
 import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
-
-
 import os
 import time
-import math
-import random
-import numpy
-import scipy.stats
-import datetime
 
-from pytransit.export import base
-import pytransit
+import pytransit.export.base as base
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
-import pytransit.stat_tools as stat_tools
 
 
 ############# Description ##################
 
-short_name = "combined_wig"
-long_name = "Method to export datasets in 'Combined Wig' format."
+short_name  = "combined_wig"
+long_name   = "Method to export datasets in 'Combined Wig' format."
 description = "A method to export and normalized datasets in 'Combined Wig' format."
-label = "to Combined Wig"
+label       = "to Combined Wig"
 transposons = ["himar1", "tn5"]
 
 ############# Analysis Method ##############
@@ -42,7 +31,6 @@ class CombinedWigExport(base.TransitExport):
             CombinedWigMethod,
             CombinedWigGUI,
         )
-
 
 ################# GUI ##################
 
@@ -257,20 +245,4 @@ class CombinedWigMethod(base.SingleConditionMethod):
         )
 
 
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
-
-    print("ARGS:", args)
-    print("KWARGS:", kwargs)
-
-    G = Example.fromargs(sys.argv[1:])
-
-    print(G)
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()
+combined_wig = CombinedWigExport()

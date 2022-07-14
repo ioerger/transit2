@@ -4,8 +4,8 @@ import sys
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
 import traceback
-import datetime
 import pytransit.transit_tools as transit_tools
+from pytransit.components.menu import selected_export_menu_item
 
 prefix = "[Export]"
 
@@ -15,9 +15,6 @@ class InvalidArgumentException(Exception):
 
         # Call the base class constructor with the parameters it needs
         super(InvalidArgumentException, self).__init__(message)
-
-
-#
 
 if HAS_WX:
 
@@ -32,9 +29,6 @@ if HAS_WX:
             self.SetToolTip(tp)
 
 
-#
-
-
 class ExportGUI:
     def __init__(self):
         self.wxobj = None
@@ -42,23 +36,18 @@ class ExportGUI:
         self.LABELSIZE = (100, -1)
         self.WIDGETSIZE = (100, -1)
 
-    #
-
     def defineMenuItem(self, wxobj, label):
         # TODO: write docstring
 
         self.wxobj = wxobj
 
         self.menuitem = wx.MenuItem(
-            wxobj.selectedExportMenuItem,
+            selected_export_menu_item,
             wx.ID_ANY,
             label,
             wx.EmptyString,
             wx.ITEM_NORMAL,
         )
-
-
-#
 
 
 class ExportMethod:
@@ -86,21 +75,15 @@ class ExportMethod:
         self.WX_VERSION = WX_VERSION
         self.wxobj = wxobj
 
-    #
-
     @classmethod
     def fromGUI(self, wxobj):
         # TODO: write docstring
         raise NotImplementedError
 
-    #
-
     @classmethod
     def fromargs(self, rawargs):
         # TODO: write docstring
         raise NotImplementedError
-
-    #
 
     @classmethod
     def fromconsole(self):
@@ -127,27 +110,19 @@ class ExportMethod:
             print(self.usage_string())
         sys.exit()
 
-    #
-
     @classmethod
     def usage_string(self):
         # TODO: write docstring
         raise NotImplementedError
 
-    #
-
     def Run(self):
         # TODO write docstring
         raise NotImplementedError
-
-    #
 
     def finish(self):
         # TODO: write docstring
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
-
-    #
 
     def progress_update(self, text, count):
         # TODO: write docstring
@@ -157,15 +132,11 @@ class ExportMethod:
 
         self.transit_message_inplace(text)
 
-    #
-
     def progress_range(self, count):
         # TODO: write docstring
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "progressrange", msg=count)
             wx.Yield()
-
-    #
 
     def status_message(self, text, time=-1):
         # TODO: write docstring
@@ -173,49 +144,34 @@ class ExportMethod:
             wx.CallAfter(pub.sendMessage, "status", msg=(self.short_name, text, time))
             wx.Yield()
 
-    #
-
     def console_message(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    #
 
     def console_message_inplace(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
-    #
-
     def transit_message(self, text):
         # TODO: write docstring
         self.console_message(text)
         self.status_message(text)
-
-    #
 
     def transit_message_inplace(self, text):
         # TODO: write docstring
         self.console_message_inplace(text)
         self.status_message(text)
 
-    #
-
     def transit_error(self, text):
         self.transit_message(text)
         if self.wxobj:
             transit_tools.ShowError(text)
 
-    #
-
     def transit_warning(self, text):
         self.transit_message(text)
         if self.wxobj:
             transit_tools.ShowWarning(text)
-
-
-#
 
 
 class SingleConditionMethod(ExportMethod):
@@ -257,9 +213,6 @@ class SingleConditionMethod(ExportMethod):
         self.CTerminus = CTerminus
 
 
-#
-
-
 class DualConditionMethod(ExportMethod):
     """
     Class to be inherited by analysis methods that determine changes in essentiality between two conditions (e.g. Resampling, DEHMM).
@@ -299,9 +252,6 @@ class DualConditionMethod(ExportMethod):
         self.ignoreCodon = ignoreCodon
         self.NTerminus = NTerminus
         self.CTerminus = CTerminus
-
-
-#
 
 
 class QuadConditionMethod(ExportMethod):
@@ -349,9 +299,6 @@ class QuadConditionMethod(ExportMethod):
         self.CTerminus = CTerminus
 
 
-#
-
-
 class TransitExport:
     def __init__(
         self, sn, ln, desc, lab, tn, method_class=ExportMethod, gui_class=ExportGUI
@@ -363,8 +310,6 @@ class TransitExport:
         self.transposons = tn
         self.method = method_class
         self.gui = gui_class()
-
-    #
 
     def __str__(self):
         return """Export Method:
@@ -380,22 +325,14 @@ class TransitExport:
             self.gui,
         )
 
-    #
-
     def fullname(self):
         return "[%s]  -  %s" % (self.short_name, self.long_name)
-
-    #
 
     def getInstructionsText(self):
         return ""
 
-    #
-
     def getDescriptionText(self):
         return self.description
-
-    #
 
     def getTransposonsText(self):
         if len(self.transposons) == 0:
@@ -411,9 +348,3 @@ class TransitExport:
                 + ", and "
                 + self.transposons[-1]
             )
-
-
-#
-
-if __name__ == "__main__":
-    pass

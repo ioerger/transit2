@@ -1,32 +1,26 @@
-import os
+from collections import defaultdict
 from functools import partial
 
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.core_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-from pytransit.analysis   import methods
-from pytransit.export     import methods as export_methods
-from pytransit.convert    import methods as convert_methods
-from pytransit.norm_tools import methods as norm_methods
-import pytransit.gui_tools as gui_tools
-import pytransit.transit_tools as transit_tools
-import pytransit.images as images
-import pytransit
-
-from pytransit.components.generic.box import Column, Row
-from pytransit.components.generic.text import Text
-from pytransit.components.generic.button import Button
-from pytransit.components.generic.table import Table
-                
-                
-
-# TODO: cleanup formatting of nested items
+selected_export_menu_item = None
+convert_menu_item = None
 
 def create_menu(self):
+    # must be done here to avoid circular import
+    import pytransit.components.parameter_panel as parameter_panel
+    from pytransit.analysis   import methods
+    from pytransit.export     import methods as export_methods
+    from pytransit.convert    import methods as convert_methods
+    from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+    
+    global selected_export_menu_item
+    global convert_menu_item
+    
+    # 
+    # define visual elements
+    # 
     if True:
-        menu_bar = wx.MenuBar(0)
-        file_menu_item = wx.Menu()
+        menu_bar         = wx.MenuBar(0)
+        file_menu_item   = wx.Menu()
         export_menu_item = wx.Menu()
         selected_export_menu_item = wx.Menu()
 
@@ -37,114 +31,172 @@ def create_menu(self):
 
         file_menu_item.AppendSubMenu(export_menu_item, "Export")
 
-        self.convertMenuItem = wx.Menu()
-        self.annotationConvertPTToPTTMenu = wx.MenuItem(
-            self.convertMenuItem,
+        convert_menu_item = wx.Menu()
+        annotation_convert_pt_to_ptt_menu = wx.MenuItem(
+            convert_menu_item,
             wx.ID_ANY,
             "prot_table to PTT",
             wx.EmptyString,
             wx.ITEM_NORMAL,
         )
-        self.convertMenuItem.Append(self.annotationConvertPTToPTTMenu)
+        convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
 
-        self.annotationConvertPTToGFF3Menu = wx.MenuItem(
-            self.convertMenuItem,
+        annotation_convert_pt_to_gff3_menu = wx.MenuItem(
+            convert_menu_item,
             wx.ID_ANY,
             "prot_table to GFF3",
             wx.EmptyString,
             wx.ITEM_NORMAL,
         )
-        self.convertMenuItem.Append(self.annotationConvertPTToGFF3Menu)
+        convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
 
-        self.annotationConvertPTTToPT = wx.MenuItem(
-            self.convertMenuItem,
+        annotation_convert_ptt_to_pt = wx.MenuItem(
+            convert_menu_item,
             wx.ID_ANY,
             "PTT to prot_table",
             wx.EmptyString,
             wx.ITEM_NORMAL,
         )
 
-        self.convertMenuItem.Append(self.annotationConvertPTTToPT)
+        convert_menu_item.Append(annotation_convert_ptt_to_pt)
 
-        # self.annotationConvertGFF3ToPT = wx.MenuItem( self.convertMenuItem, wx.ID_ANY, "GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
-        # self.convertMenuItem.Append( self.annotationConvertGFF3ToPT )
-        file_menu_item.AppendSubMenu(self.convertMenuItem, "Convert")
+        # self.annotationConvertGFF3ToPT = wx.MenuItem( convert_menu_item, wx.ID_ANY, "GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
+        # convert_menu_item.Append( self.annotationConvertGFF3ToPT )
+        file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
 
-        self.fileExitMenuItem = wx.MenuItem(
+        file_exit_menu_item = wx.MenuItem(
             file_menu_item, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL
         )
-        file_menu_item.Append(self.fileExitMenuItem)
+        file_menu_item.Append(file_exit_menu_item)
         menu_bar.Append(file_menu_item, "&File")
 
-        self.viewMenuItem = wx.Menu()
-        self.scatterMenuItem = wx.MenuItem(
-            self.viewMenuItem,
+        view_menu_item = wx.Menu()
+        scatter_menu_item = wx.MenuItem(
+            view_menu_item,
             wx.ID_ANY,
             "&Scatter Plot",
             wx.EmptyString,
             wx.ITEM_NORMAL,
         )
 
-        self.viewMenuItem.Append(self.scatterMenuItem)
+        view_menu_item.Append(scatter_menu_item)
 
-        self.trackMenuItem = wx.MenuItem(
-            self.viewMenuItem, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL
+        track_menu_item = wx.MenuItem(
+            view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL
         )
 
-        self.viewMenuItem.Append(self.trackMenuItem)
-        menu_bar.Append(self.viewMenuItem, "&View")
+        view_menu_item.Append(track_menu_item)
+        menu_bar.Append(view_menu_item, "&View")
 
         #
-        self.methodsMenuItem = wx.Menu()
-        self.himar1MenuItem = wx.Menu()
-        self.tn5MenuItem = wx.Menu()
+        methods_menu_item = wx.Menu()
+        himar1_menu_item = wx.Menu()
+        tn5_menu_item = wx.Menu()
 
-        self.methodsMenuItem.AppendSubMenu(self.himar1MenuItem, "&Himar1 Methods")
-        self.methodsMenuItem.AppendSubMenu(self.tn5MenuItem, "&Tn5 Methods")
-        menu_bar.Append(self.methodsMenuItem, "&Analysis")
+        methods_menu_item.AppendSubMenu(himar1_menu_item, "&Himar1 Methods")
+        methods_menu_item.AppendSubMenu(tn5_menu_item, "&Tn5 Methods")
+        menu_bar.Append(methods_menu_item, "&Analysis")
 
         self.SetMenuBar(menu_bar)
 
-        self.helpMenuItem = wx.Menu()
-        self.documentationMenuItem = wx.MenuItem(
-            self.helpMenuItem,
+        help_menu_item = wx.Menu()
+        documentation_menu_item = wx.MenuItem(
+            help_menu_item,
             wx.ID_ANY,
             "&Documentation",
             wx.EmptyString,
             wx.ITEM_NORMAL,
         )
-        self.helpMenuItem.Append(self.documentationMenuItem)
-        self.aboutMenuItem = wx.MenuItem(
-            self.helpMenuItem, wx.ID_ANY, "&About", wx.EmptyString, wx.ITEM_NORMAL
+        help_menu_item.Append(documentation_menu_item)
+        about_menu_item = wx.MenuItem(
+            help_menu_item, wx.ID_ANY, "&About", wx.EmptyString, wx.ITEM_NORMAL
         )
-        self.helpMenuItem.Append(self.aboutMenuItem)
+        help_menu_item.Append(about_menu_item)
 
-        menu_bar.Append(self.helpMenuItem, "&Help")
+        menu_bar.Append(help_menu_item, "&Help")
 
-        self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
-    
     # 
-    # Export Menu Items
+    # Export options
     # 
     for name in export_methods:
         export_methods[name].gui.defineMenuItem(self, export_methods[name].label)
-        tempMenuItem = export_methods[name].gui.menuitem
-        self.selectedExportMenuItem.Append(tempMenuItem)
+        temp_menu_item = export_methods[name].gui.menuitem
+        selected_export_menu_item.Append(temp_menu_item)
 
         self.Bind(
             wx.EVT_MENU,
             partial(self.ExportSelectFunc, export_methods[name].label),
-            tempMenuItem,
+            temp_menu_item,
         )
-
-    # Convert Menu Items
+    
+    # 
+    # Convert options
+    # 
     for name in convert_methods:
         convert_methods[name].gui.defineMenuItem(self, convert_methods[name].label)
-        tempMenuItem = convert_methods[name].gui.menuitem
-        self.convertMenuItem.Append(tempMenuItem)
+        temp_menu_item = convert_methods[name].gui.menuitem
+        convert_menu_item.Append(temp_menu_item)
 
         self.Bind(
             wx.EVT_MENU,
             partial(self.ConvertSelectFunc, convert_methods[name].label),
-            tempMenuItem,
+            temp_menu_item,
         )
+    
+    # 
+    # events
+    # 
+    if True:
+        self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=annotation_convert_pt_to_ptt_menu.GetId(),  )
+        self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=annotation_convert_pt_to_gff3_menu.GetId(), )
+        self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=annotation_convert_ptt_to_pt.GetId(),       )
+        self.Bind(wx.EVT_MENU, self.Exit                , id=file_exit_menu_item.GetId()                 )
+        self.Bind(wx.EVT_MENU, self.scatterFunc         , id=scatter_menu_item.GetId()                   )
+        self.Bind(wx.EVT_MENU, self.allViewFunc         , id=track_menu_item.GetId()                     )
+        self.Bind(wx.EVT_MENU, self.aboutFunc           , id=about_menu_item.GetId()                  )
+        self.Bind(wx.EVT_MENU, self.documentationFunc   , id=documentation_menu_item.GetId()          )
+    
+    
+    method_order = [("gumbel", 1), ("resampling", 2), ("hmm", 3)]
+    order = defaultdict(lambda: 100)
+    for k, v in method_order:
+        order[k] = v
+
+    for name in sorted(methods.keys(), key=lambda x: order[x]):
+        methods[name].gui.definePanel(self)
+        # methods[name].gui.panel.BackgroundColour = (0, 200, 20)
+        parameter_panel.panel.method_sizer.Add(
+            methods[name].gui.panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+        )
+        methods[name].gui.Hide()
+
+        if "himar1" in methods[name].transposons:
+            temp_menu_item = wx.MenuItem(
+                himar1_menu_item,
+                wx.ID_ANY,
+                methods[name].fullname(),
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            self.Bind(
+                wx.EVT_MENU,
+                partial(parameter_panel.method_select_func, methods[name].fullname()),
+                temp_menu_item,
+            )
+
+            himar1_menu_item.Append(temp_menu_item)
+
+        if "tn5" in methods[name].transposons:
+            temp_menu_item = wx.MenuItem(
+                tn5_menu_item,
+                wx.ID_ANY,
+                methods[name].fullname(),
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            self.Bind(
+                wx.EVT_MENU,
+                partial(parameter_panel.method_select_func, methods[name].fullname()),
+                temp_menu_item,
+            )
+            tn5_menu_item.Append(temp_menu_item)
