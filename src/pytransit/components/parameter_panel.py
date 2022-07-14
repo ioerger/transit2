@@ -361,7 +361,10 @@ def create_panel_area(frame_input):
 
     # progress_sizer.Fit( panel.progress_panel )
     panel.method_sizer.Add(
-        panel.progress_panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+        panel.progress_panel,
+        0,
+        wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
+        5,
     )
 
     # panel.method_sizer.Add( panel.global_label, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )

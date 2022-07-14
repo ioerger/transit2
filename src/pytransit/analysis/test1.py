@@ -14,6 +14,7 @@ import heapq
 
 from pytransit.analysis import base
 import pytransit
+import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
@@ -23,10 +24,10 @@ from pytransit.components.parameter_panel import panel
 
 ############# GUI ELEMENTS ##################
 
-short_name = "test1"
-long_name = "Test1 (Permutation test)"
-short_desc = "Test1 test of conditional essentiality between two conditions"
-long_desc = """Method for determining conditional essentiality based on test1 (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
+short_name = "anova -- test"
+long_name = "AnovaGUI"
+short_desc = "AnovaGUI"
+long_desc = """Anova GUI"""
 
 transposons = ["himar1", "tn5"]
 columns = [
@@ -65,7 +66,7 @@ class Analysis(base.TransitAnalysis):
 
 class File(base.TransitFile):
     def __init__(self):
-        base.TransitFile.__init__(self, "#Test1", columns)
+        base.TransitFile.__init__(self, "#Anova", columns)
 
     def getHeader(self, path):
         DE = 0
@@ -121,8 +122,16 @@ class File(base.TransitFile):
 
 class GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
+        window = gui_tools.window
         self.wxobj = wxobj
-        test1Panel = panel.global_panel
+        test1Panel = wx.Panel(
+            window,
+            wx.ID_ANY,
+            wx.DefaultPosition,
+            wx.DefaultSize,
+            wx.TAB_TRAVERSAL,
+        )
+        
         
         # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
         # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
@@ -308,7 +317,10 @@ class GUI(base.AnalysisGUI):
                 )
                 runButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
                 test1Sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
+            
+            
+            panel.method_sizer.Add(test1Panel, 0, wx.EXPAND, 5)
+            
             test1Panel.SetSizer(test1Sizer)
             test1Panel.Layout()
             test1Sizer.Fit(test1Panel)
@@ -720,7 +732,7 @@ class Method(base.DualConditionMethod):
             position=position_exp,
         )
 
-        doLibraryTest1 = False
+        doLibraryAnova = False
         # If library string not empty
         if self.ctrl_lib_str or self.exp_lib_str:
             letters_ctrl = set(self.ctrl_lib_str)
@@ -734,7 +746,7 @@ class Method(base.DualConditionMethod):
                 lib_diff = letters_ctrl ^ letters_exp
                 # Check that their differences
                 if not lib_diff:
-                    doLibraryTest1 = True
+                    doLibraryAnova = True
                 else:
                     transit_tools.transit_error(
                         "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with test1 assuming all datasets belong to the same library."
@@ -743,7 +755,7 @@ class Method(base.DualConditionMethod):
                     self.ctrl_lib_str = ""
                     self.exp_lib_str = ""
 
-        (data, qval) = self.run_test1(G_ctrl, G_exp, doLibraryTest1, histPath)
+        (data, qval) = self.run_test1(G_ctrl, G_exp, doLibraryAnova, histPath)
         self.write_output(data, qval, start_time)
 
         self.finish()
@@ -751,7 +763,7 @@ class Method(base.DualConditionMethod):
 
     def write_output(self, data, qval, start_time):
 
-        self.output.write("#Test1\n")
+        self.output.write("#Anova\n")
         if self.wxobj:
             members = sorted(
                 [
@@ -887,7 +899,7 @@ class Method(base.DualConditionMethod):
         self.output.close()
 
         self.transit_message("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Test1")
+        self.add_file(filetype="Anova")
 
     def winsorize_test1(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array
@@ -908,7 +920,7 @@ class Method(base.DualConditionMethod):
         #  return numpy.array(result)
 
     def run_test1(
-        self, G_ctrl, G_exp=None, doLibraryTest1=False, histPath=""
+        self, G_ctrl, G_exp=None, doLibraryAnova=False, histPath=""
     ):
         data = []
         N = len(G_ctrl)
@@ -968,7 +980,7 @@ class Method(base.DualConditionMethod):
                     data1 = self.winsorize_test1(data1)
                     data2 = self.winsorize_test1(data2)
 
-                if doLibraryTest1:
+                if doLibraryAnova:
                     (
                         test_obs,
                         mean1,
@@ -1052,7 +1064,7 @@ class Method(base.DualConditionMethod):
             )
 
             # Update progress
-            text = "Running Test1 Method... %5.1f%%" % (100.0 * count / N)
+            text = "Running Anova Method... %5.1f%%" % (100.0 * count / N)
             self.progress_update(text, count)
 
         #
