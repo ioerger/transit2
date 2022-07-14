@@ -144,7 +144,7 @@ def create_panel_area(frame_input):
                 panel.method_instructions = wx.StaticText(
                     options_window,
                     wx.ID_ANY,
-                    self.instructions_text,
+                    frame.instructions_text,
                     wx.DefaultPosition,
                     wx.DefaultSize,
                     0,
@@ -207,12 +207,12 @@ def create_panel_area(frame_input):
                 panel.global_panel.SetMinSize(wx.Size(280, 150))
                 panel.global_panel.SetMaxSize(wx.Size(-1, -1))
 
-                globalSizerVT = wx.BoxSizer(wx.VERTICAL)
-                nTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
-                cTermSizer    = wx.BoxSizer(wx.HORIZONTAL)
+                global_sizer_vt = wx.BoxSizer(wx.VERTICAL)
+                n_term_sizer    = wx.BoxSizer(wx.HORIZONTAL)
+                c_term_sizer    = wx.BoxSizer(wx.HORIZONTAL)
 
                 # N TERMINUS - GLOBAL
-                self.globalNTerminusLabel = wx.StaticText(
+                panel.global_n_terminus_label = wx.StaticText(
                     panel.global_panel,
                     wx.ID_ANY,
                     u"Ignore N-Terminus %:",
@@ -220,19 +220,19 @@ def create_panel_area(frame_input):
                     wx.DefaultSize,
                     0,
                 )
-                self.globalNTerminusLabel.Wrap(-1)
-                self.globalNTerminusText = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
-                self.globalNTerminusIcon = pytransit.analysis.base.InfoIcon(
+                panel.global_n_terminus_label.Wrap(-1)
+                panel.global_n_terminus_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                panel.global_n_terminus_icon = pytransit.analysis.base.InfoIcon(
                     panel.global_panel,
                     wx.ID_ANY,
                     tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
                 )
-                nTermSizer.Add(self.globalNTerminusLabel, 1, wx.ALIGN_CENTER, 5)
-                nTermSizer.Add(self.globalNTerminusText , 1, wx.ALIGN_CENTER, 5)
-                nTermSizer.Add(self.globalNTerminusIcon , 1, wx.ALIGN_CENTER, 5)
+                n_term_sizer.Add(panel.global_n_terminus_label, 1, wx.ALIGN_CENTER, 5)
+                n_term_sizer.Add(panel.global_n_terminus_text , 1, wx.ALIGN_CENTER, 5)
+                n_term_sizer.Add(panel.global_n_terminus_icon , 1, wx.ALIGN_CENTER, 5)
 
                 # C TERMINUS - GLOBAL
-                self.globalCTerminusLabel = wx.StaticText(
+                panel.global_c_terminus_label = wx.StaticText(
                     panel.global_panel,
                     wx.ID_ANY,
                     u"Ignore C-Terminus %:",
@@ -240,21 +240,21 @@ def create_panel_area(frame_input):
                     wx.DefaultSize,
                     0,
                 )
-                self.globalCTerminusLabel.Wrap(-1)
-                self.globalCTerminusText = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
-                self.globalCTerminusIcon = pytransit.analysis.base.InfoIcon(
+                panel.global_c_terminus_label.Wrap(-1)
+                panel.global_c_terminus_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                panel.global_c_terminus_icon = pytransit.analysis.base.InfoIcon(
                     panel.global_panel,
                     wx.ID_ANY,
                     tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
                 )
 
-                cTermSizer.Add(self.globalCTerminusLabel, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                cTermSizer.Add(self.globalCTerminusText, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                cTermSizer.Add(self.globalCTerminusIcon, 1, wx.ALIGN_CENTER, 5)
+                c_term_sizer.Add(panel.global_c_terminus_label, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                c_term_sizer.Add(panel.global_c_terminus_text, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                c_term_sizer.Add(panel.global_c_terminus_icon, 1, wx.ALIGN_CENTER, 5)
 
                 # Control Libraries text - GLOBAL
                 ctrlLibSizer = wx.BoxSizer(wx.HORIZONTAL)
-                self.ctrlLibLabel = wx.StaticText(
+                panel.ctrl_lib_label = wx.StaticText(
                     panel.global_panel,
                     wx.ID_ANY,
                     u"Control Libraries:",
@@ -262,9 +262,9 @@ def create_panel_area(frame_input):
                     (170, -1),
                     0,
                 )
-                self.ctrlLibLabel.Wrap(-1)
-                self.ctrlLibText = wx.TextCtrl(panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
-                self.ctrlLibTip = pytransit.analysis.base.InfoIcon(
+                panel.ctrl_lib_label.Wrap(-1)
+                panel.ctrl_lib_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
+                panel.ctrl_lib_tip = pytransit.analysis.base.InfoIcon(
                     panel.global_panel,
                     wx.ID_ANY,
                     tooltip="String of letters representing an \
@@ -274,14 +274,14 @@ def create_panel_area(frame_input):
                     'AAA', to do regular resampling.",
                 )
 
-                self.ctrlLibText.Disable()
-                ctrlLibSizer.Add(self.ctrlLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                ctrlLibSizer.Add(self.ctrlLibText, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                ctrlLibSizer.Add(self.ctrlLibTip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                panel.ctrl_lib_text.Disable()
+                ctrlLibSizer.Add(panel.ctrl_lib_label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                ctrlLibSizer.Add(panel.ctrl_lib_text, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                ctrlLibSizer.Add(panel.ctrl_lib_tip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
                 # Experimental Libraries text - GLOBAL
                 expLibSizer = wx.BoxSizer(wx.HORIZONTAL)
-                self.expLibLabel = wx.StaticText(
+                panel.exp_lib_label = wx.StaticText(
                     panel.global_panel,
                     wx.ID_ANY,
                     u"Experimental Libraries:",
@@ -289,11 +289,11 @@ def create_panel_area(frame_input):
                     (170, -1),
                     0,
                 )
-                self.expLibLabel.Wrap(-1)
-                self.expLibText = wx.TextCtrl(
+                panel.exp_lib_label.Wrap(-1)
+                panel.exp_lib_text = wx.TextCtrl(
                     panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
                 )
-                self.expLibTip = pytransit.analysis.base.InfoIcon(
+                panel.exp_lib_tip = pytransit.analysis.base.InfoIcon(
                     panel.global_panel,
                     wx.ID_ANY,
                     tooltip="String of letters representing an identifier for the libraries the datasets \
@@ -302,19 +302,19 @@ def create_panel_area(frame_input):
                     empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
                 )
 
-                self.expLibText.Disable()
-                expLibSizer.Add(self.expLibLabel, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                expLibSizer.Add(self.expLibText , 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                expLibSizer.Add(self.expLibTip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                panel.exp_lib_text.Disable()
+                panel.Add(panel.exp_lib_label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                expLibSizer.Add(panel.exp_lib_text , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                expLibSizer.Add(panel.exp_lib_tip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-                globalSizerVT.Add(nTermSizer  , 1, wx.EXPAND, 5)
-                globalSizerVT.Add(cTermSizer  , 1, wx.EXPAND, 5)
-                globalSizerVT.Add(ctrlLibSizer, 1, wx.EXPAND, 5)
-                globalSizerVT.Add(expLibSizer , 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(n_term_sizer  , 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(c_term_sizer  , 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(ctrlLibSizer, 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(expLibSizer , 1, wx.EXPAND, 5)
 
-                panel.global_panel.SetSizer(globalSizerVT)
+                panel.global_panel.SetSizer(global_sizer_vt)
                 panel.global_panel.Layout()
-                globalSizerVT.Fit(panel.global_panel)
+                global_sizer_vt.Fit(panel.global_panel)
                 panel.method_sizer.Add(panel.global_panel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
             
         options_sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
@@ -323,6 +323,58 @@ def create_panel_area(frame_input):
     options_window.Layout()
 
     options_window.Fit()
+    
+    
+    # progress
+    self.progressPanel = wx.Panel(
+        self.optionsWindow,
+        wx.ID_ANY,
+        wx.DefaultPosition,
+        wx.DefaultSize,
+        wx.TAB_TRAVERSAL,
+    )
+    progressSizer = wx.BoxSizer(wx.VERTICAL)
+
+    self.progressLabel = wx.StaticText(
+        self.progressPanel,
+        wx.ID_ANY,
+        u"Progress",
+        wx.DefaultPosition,
+        wx.DefaultSize,
+        0,
+    )
+    self.progressLabel.Wrap(-1)
+    progressSizer.Add(self.progressLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+    self.progress = wx.Gauge(
+        self.progressPanel,
+        wx.ID_ANY,
+        20,
+        wx.DefaultPosition,
+        wx.DefaultSize,
+        wx.GA_HORIZONTAL | wx.GA_SMOOTH,
+    )
+    progressSizer.Add(self.progress, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+    # self.progressPanel.BackgroundColour = (0, 0, 250)
+    self.progressPanel.SetSizer(progressSizer)
+    self.progressPanel.SetMaxSize(wx.Size(100, 100))
+    self.progressPanel.Layout()
+
+    # progressSizer.Fit( self.progressPanel )
+    self.methodSizer.Add(
+        self.progressPanel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+    )
+
+    # self.methodSizer.Add( self.globalLabel, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+    # self.methodSizer.Hide()
+    self.progress.SetRange(50)
+    #########
+
+    self.optionsWindow.Fit()
+
+    self.HideProgressSection()
+    self.HideGlobalOptions()
 
 
 
@@ -333,7 +385,7 @@ def MethodSelectFunc(selected_name):
         HideAllOptions()
         panel.method_info_text.SetLabel(u"Instructions")
         panel.method_instructions.Show()
-        panel.method_instructions.SetLabel(self.instructions_text)
+        panel.method_instructions.SetLabel(frame.instructions_text)
         panel.method_instructions.Wrap(method_wrap_width)
         panel.method_short_text.Hide()
         panel.method_long_text.Hide()
@@ -380,76 +432,76 @@ def MethodSelectFunc(selected_name):
 
 
 
-def HideAllOptions(self):
+def HideAllOptions():
     HideGlobalOptions()
     HideProgressSection()
     for name in methods:
         methods[name].gui.Hide()
 
-def HideGlobalOptions(self):
+def HideGlobalOptions():
     panel.global_label.Hide()
-    self.HideGlobalCTerminus()
-    self.HideGlobalNTerminus()
-    self.HideGlobalLibraries()
+    HideGlobalCTerminus()
+    HideGlobalNTerminus()
+    HideGlobalLibraries()
 
-def HideGlobalCTerminus(self):
-    self.globalCTerminusLabel.Hide()
-    self.globalCTerminusText.Hide()
-    self.globalCTerminusIcon.Hide()
+def HideGlobalCTerminus():
+    panel.global_c_terminus_label.Hide()
+    panel.global_c_terminus_text.Hide()
+    panel.global_c_terminus_icon.Hide()
 
-def HideGlobalNTerminus(self):
-    self.globalNTerminusLabel.Hide()
-    self.globalNTerminusText.Hide()
-    self.globalNTerminusIcon.Hide()
+def HideGlobalNTerminus():
+    panel.global_n_terminus_label.Hide()
+    panel.global_n_terminus_text.Hide()
+    panel.global_n_terminus_icon.Hide()
 
-def HideGlobalLibraries(self):
-    self.HideGlobalCtrlLibraries()
-    self.HideGlobalExpLibraries()
+def HideGlobalLibraries():
+    HideGlobalCtrlLibraries()
+    HideGlobalExpLibraries()
 
-def HideGlobalCtrlLibraries(self):
-    self.ctrlLibLabel.Hide()
-    self.ctrlLibText.Hide()
-    self.ctrlLibTip.Hide()
+def HideGlobalCtrlLibraries():
+    panel.ctrl_lib_label.Hide()
+    panel.ctrl_lib_text.Hide()
+    panel.ctrl_lib_tip.Hide()
 
-def HideGlobalExpLibraries(self):
-    self.expLibLabel.Hide()
-    self.expLibText.Hide()
-    self.expLibTip.Hide()
+def HideGlobalExpLibraries():
+    panel.exp_lib_label.Hide()
+    panel.exp_lib_text.Hide()
+    panel.exp_lib_tip.Hide()
 
-def ShowGlobalOptions(self):
+def ShowGlobalOptions():
     panel.global_label.Show()
-    self.ShowGlobalCTerminus()
-    self.ShowGlobalNTerminus()
-    self.ShowGlobalLibraries()
+    ShowGlobalCTerminus()
+    ShowGlobalNTerminus()
+    ShowGlobalLibraries()
 
-def ShowGlobalCTerminus(self):
-    self.globalCTerminusLabel.Show()
-    self.globalCTerminusText.Show()
-    self.globalCTerminusIcon.Show()
+def ShowGlobalCTerminus():
+    panel.global_c_terminus_label.Show()
+    panel.global_c_terminus_text.Show()
+    panel.global_c_terminus_icon.Show()
 
-def ShowGlobalNTerminus(self):
-    self.globalNTerminusText.Show()
-    self.globalNTerminusLabel.Show()
-    self.globalNTerminusIcon.Show()
+def ShowGlobalNTerminus():
+    panel.global_n_terminus_text.Show()
+    panel.global_n_terminus_label.Show()
+    panel.global_n_terminus_icon.Show()
 
-def ShowGlobalLibraries(self):
-    self.ShowGlobalCtrlLibraries()
-    self.ShowGlobalExpLibraries()
+def ShowGlobalLibraries():
+    ShowGlobalCtrlLibraries()
+    ShowGlobalExpLibraries()
 
-def ShowGlobalCtrlLibraries(self):
-    self.ctrlLibLabel.Show()
-    self.ctrlLibText.Show()
-    self.ctrlLibTip.Show()
+def ShowGlobalCtrlLibraries():
+    panel.ctrl_lib_label.Show()
+    panel.ctrl_lib_text.Show()
+    panel.ctrl_lib_tip.Show()
 
-def ShowGlobalExpLibraries(self):
-    self.expLibLabel.Show()
-    self.expLibText.Show()
-    self.expLibTip.Show()
+def ShowGlobalExpLibraries():
+    panel.exp_lib_label.Show()
+    panel.exp_lib_text.Show()
+    panel.exp_lib_tip.Show()
 
-def HideProgressSection(self):
-    self.progressLabel.Hide()
-    self.progress.Hide()
+def HideProgressSection():
+    progressLabel.Hide()
+    progress.Hide()
 
-def ShowProgressSection(self):
-    self.progressLabel.Show()
-    self.progress.Show()
+def ShowProgressSection():
+    progressLabel.Show()
+    progress.Show()

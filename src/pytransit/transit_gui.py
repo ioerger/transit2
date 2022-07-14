@@ -360,56 +360,7 @@ class TnSeekFrame(wx.Frame):
         #         )
         #         self.tn5MenuItem.Append(tempMenuItem)
 
-        # # progress
-        # self.progressPanel = wx.Panel(
-        #     self.optionsWindow,
-        #     wx.ID_ANY,
-        #     wx.DefaultPosition,
-        #     wx.DefaultSize,
-        #     wx.TAB_TRAVERSAL,
-        # )
-        # progressSizer = wx.BoxSizer(wx.VERTICAL)
-
-        # self.progressLabel = wx.StaticText(
-        #     self.progressPanel,
-        #     wx.ID_ANY,
-        #     u"Progress",
-        #     wx.DefaultPosition,
-        #     wx.DefaultSize,
-        #     0,
-        # )
-        # self.progressLabel.Wrap(-1)
-        # progressSizer.Add(self.progressLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        # self.progress = wx.Gauge(
-        #     self.progressPanel,
-        #     wx.ID_ANY,
-        #     20,
-        #     wx.DefaultPosition,
-        #     wx.DefaultSize,
-        #     wx.GA_HORIZONTAL | wx.GA_SMOOTH,
-        # )
-        # progressSizer.Add(self.progress, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        # # self.progressPanel.BackgroundColour = (0, 0, 250)
-        # self.progressPanel.SetSizer(progressSizer)
-        # self.progressPanel.SetMaxSize(wx.Size(100, 100))
-        # self.progressPanel.Layout()
-
-        # # progressSizer.Fit( self.progressPanel )
-        # self.methodSizer.Add(
-        #     self.progressPanel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        # )
-
-        # # self.methodSizer.Add( self.globalLabel, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-        # # self.methodSizer.Hide()
-        # self.progress.SetRange(50)
-        # #########
-
-        # self.optionsWindow.Fit()
-
-        # self.HideProgressSection()
-        # self.HideGlobalOptions()
+        
 
     def Exit(self, event):
         """Exit Menu Item"""
