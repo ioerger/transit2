@@ -33,7 +33,6 @@ import traceback
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
-import ez_yaml
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
 from pytransit.core_data import SessionData, universal
@@ -153,108 +152,6 @@ class TnSeekFrame(wx.Frame):
 
             
 
-        # --------------------#
-        
-        # TODO: cleanup formatting of nested items
-        # self.Layout()
-        # if True:
-        #     self.m_menubar1 = wx.MenuBar(0)
-        #     self.fileMenuItem = wx.Menu()
-        #     self.exportMenuItem = wx.Menu()
-        #     self.selectedExportMenuItem = wx.Menu()
-
-        #     # Selected datasets
-        #     self.exportMenuItem.AppendSubMenu(
-        #         self.selectedExportMenuItem, u"Selected Datasets"
-        #     )
-
-        #     self.fileMenuItem.AppendSubMenu(self.exportMenuItem, u"Export")
-
-        #     self.convertMenuItem = wx.Menu()
-        #     self.annotationConvertPTToPTTMenu = wx.MenuItem(
-        #         self.convertMenuItem,
-        #         wx.ID_ANY,
-        #         u"prot_table to PTT",
-        #         wx.EmptyString,
-        #         wx.ITEM_NORMAL,
-        #     )
-        #     self.convertMenuItem.Append(self.annotationConvertPTToPTTMenu)
-
-        #     self.annotationConvertPTToGFF3Menu = wx.MenuItem(
-        #         self.convertMenuItem,
-        #         wx.ID_ANY,
-        #         u"prot_table to GFF3",
-        #         wx.EmptyString,
-        #         wx.ITEM_NORMAL,
-        #     )
-        #     self.convertMenuItem.Append(self.annotationConvertPTToGFF3Menu)
-
-        #     self.annotationConvertPTTToPT = wx.MenuItem(
-        #         self.convertMenuItem,
-        #         wx.ID_ANY,
-        #         u"PTT to prot_table",
-        #         wx.EmptyString,
-        #         wx.ITEM_NORMAL,
-        #     )
-
-        #     self.convertMenuItem.Append(self.annotationConvertPTTToPT)
-
-        #     # self.annotationConvertGFF3ToPT = wx.MenuItem( self.convertMenuItem, wx.ID_ANY, u"GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
-        #     # self.convertMenuItem.Append( self.annotationConvertGFF3ToPT )
-        #     self.fileMenuItem.AppendSubMenu(self.convertMenuItem, u"Convert")
-
-        #     self.fileExitMenuItem = wx.MenuItem(
-        #         self.fileMenuItem, wx.ID_ANY, u"&Exit", wx.EmptyString, wx.ITEM_NORMAL
-        #     )
-        #     self.fileMenuItem.Append(self.fileExitMenuItem)
-        #     self.m_menubar1.Append(self.fileMenuItem, u"&File")
-
-        #     self.viewMenuItem = wx.Menu()
-        #     self.scatterMenuItem = wx.MenuItem(
-        #         self.viewMenuItem,
-        #         wx.ID_ANY,
-        #         u"&Scatter Plot",
-        #         wx.EmptyString,
-        #         wx.ITEM_NORMAL,
-        #     )
-
-        #     self.viewMenuItem.Append(self.scatterMenuItem)
-
-        #     self.trackMenuItem = wx.MenuItem(
-        #         self.viewMenuItem, wx.ID_ANY, u"&Track View", wx.EmptyString, wx.ITEM_NORMAL
-        #     )
-
-        #     self.viewMenuItem.Append(self.trackMenuItem)
-        #     self.m_menubar1.Append(self.viewMenuItem, u"&View")
-
-        #     #
-        #     self.methodsMenuItem = wx.Menu()
-        #     self.himar1MenuItem = wx.Menu()
-        #     self.tn5MenuItem = wx.Menu()
-
-        #     self.methodsMenuItem.AppendSubMenu(self.himar1MenuItem, "&Himar1 Methods")
-        #     self.methodsMenuItem.AppendSubMenu(self.tn5MenuItem, "&Tn5 Methods")
-        #     self.m_menubar1.Append(self.methodsMenuItem, u"&Analysis")
-
-        #     self.SetMenuBar(self.m_menubar1)
-
-        #     self.helpMenuItem = wx.Menu()
-        #     self.documentationMenuItem = wx.MenuItem(
-        #         self.helpMenuItem,
-        #         wx.ID_ANY,
-        #         u"&Documentation",
-        #         wx.EmptyString,
-        #         wx.ITEM_NORMAL,
-        #     )
-        #     self.helpMenuItem.Append(self.documentationMenuItem)
-        #     self.aboutMenuItem = wx.MenuItem(
-        #         self.helpMenuItem, wx.ID_ANY, u"&About", wx.EmptyString, wx.ITEM_NORMAL
-        #     )
-        #     self.helpMenuItem.Append(self.aboutMenuItem)
-
-        #     self.m_menubar1.Append(self.helpMenuItem, u"&Help")
-
-        #     self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
 
         # self.Centre(wx.BOTH)
         
@@ -288,32 +185,6 @@ class TnSeekFrame(wx.Frame):
         # pub.subscribe(self.updateStatus, "status")
         # pub.subscribe(parameter_panel.finish_run, "finish")
         # pub.subscribe(self.saveHistogram, "histogram")
-
-        # # 
-        # # Export Menu Items
-        # # 
-        # for name in export_methods:
-        #     export_methods[name].gui.defineMenuItem(self, export_methods[name].label)
-        #     tempMenuItem = export_methods[name].gui.menuitem
-        #     self.selectedExportMenuItem.Append(tempMenuItem)
-
-        #     self.Bind(
-        #         wx.EVT_MENU,
-        #         partial(self.ExportSelectFunc, export_methods[name].label),
-        #         tempMenuItem,
-        #     )
-
-        # # Convert Menu Items
-        # for name in convert_methods:
-        #     convert_methods[name].gui.defineMenuItem(self, convert_methods[name].label)
-        #     tempMenuItem = convert_methods[name].gui.menuitem
-        #     self.convertMenuItem.Append(tempMenuItem)
-
-        #     self.Bind(
-        #         wx.EVT_MENU,
-        #         partial(self.ConvertSelectFunc, convert_methods[name].label),
-        #         tempMenuItem,
-        #     )
 
         # # Method Panels
 
