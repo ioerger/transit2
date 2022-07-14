@@ -5,6 +5,7 @@ from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory
 import pytransit.gui_tools as gui_tools
+import pytransit.file_display as file_display
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
@@ -48,27 +49,34 @@ def create_results_area(frame):
             
             @gui_tools.bind_to(display_button, wx.EVT_BUTTON)
             def display_file_func(event):
-                next = results.table.GetNextSelected(-1)
-                if next > -1:
-                    dataset = results.table.GetItem(next, 3).GetText()
-                    if dataset.verbose:
-                        transit_tools.transit_message(
-                            "Displaying results: %s"
-                            % results.table.GetItem(next, 0).GetText()
-                        )
+                for each_row in results.table.rows:
+                    with gui_tools.nice_error_log:
+                        path = each_row.get("Full Path", None)
+                        if path:
+                            file_display.TransitGridFrame(frame, dataset).Show()
+                        
+                # BOOKMARK: index access
+                    # next = results.table.GetNextSelected(-1)
+                    # if next > -1:
+                    #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
+                    #     if dataset.verbose:
+                    #         transit_tools.transit_message(
+                    #             "Displaying results: %s"
+                    #             % results.table.GetItem(next, 0).GetText()
+                    #         )
 
-                    try:
-                        fileWindow = file_display.TransitGridFrame(frame, dataset)
-                        fileWindow.Show()
-                    except Exception as e:
-                        transit_tools.transit_message(
-                            "Error occurred displaying file: %s" % str(e)
-                        )
-                        traceback.print_exc()
+                    #     try:
+                    #         fileWindow = 
+                    #         fileWindow.Show()
+                    #     except Exception as e:
+                    #         transit_tools.transit_message(
+                    #             "Error occurred displaying file: %s" % str(e)
+                    #         )
+                    #         traceback.print_exc()
 
-                else:
-                    if dataset.verbose:
-                        transit_tools.transit_message("No results selected to display!")
+                    # else:
+                    #     if dataset.verbose:
+                    #         transit_tools.transit_message("No results selected to display!")
 
             
         # 

@@ -40,6 +40,7 @@ class Table:
             key_to_column_index = {},
             column_width        = column_width,
             initial_columns     = initial_columns or [],
+            data_values         = [],
         )
         
         # create the inital columns
@@ -64,6 +65,8 @@ class Table:
         for each_key, each_value in python_obj.items():
             column_index = self._key_to_column_index(each_key)
             self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
+        
+        self._state.data_values.append(dict(python_obj))
     
     @property
     def length(self):
@@ -81,6 +84,14 @@ class Table:
             selected.append(path)
             current = next
         return selected
+    
+    @property
+    def rows(self):
+        return list(self._state.data_values)
+    
+    @property
+    def column_names(self):
+        return list(self._state.key_to_column_index.keys())
     
     # TODO: make a way to set the ones that are selected
     # @selected.setter
