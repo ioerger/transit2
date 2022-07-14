@@ -26,7 +26,7 @@ def create_sample_area(frame):
         
         outer_sample_sizer.add(
             Text("Samples"),
-            proportion=1,
+            proportion=0,
         )
         
         # 
@@ -113,7 +113,7 @@ def create_sample_area(frame):
             outer_sample_sizer.add(
                 inner_sample_sizer,
                 expand=True,
-                proportion=1,
+                proportion=0,
             )
         
         # 
@@ -122,14 +122,14 @@ def create_sample_area(frame):
         with Table() as sample_table:
             outer_sample_sizer.add(
                 sample_table.wx_object,
-                proportion=29,
+                proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
             )
         
         outer_sample_sizer.add(
             Text("Conditions"),
-            proportion=1,
+            proportion=0,
         )
         
         # 
@@ -138,7 +138,7 @@ def create_sample_area(frame):
         with Table() as conditions_table:
             outer_sample_sizer.add(
                 conditions_table.wx_object,
-                proportion=29,
+                proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
             )

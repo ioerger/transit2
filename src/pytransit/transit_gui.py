@@ -41,9 +41,11 @@ from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
 from pytransit.components.generic.box import Row, Column
+from pytransit.components.generic.text import Text
 from pytransit.components.generic.frame import Frame
 from pytransit.components.annotation_area import create_annotation_area
 from pytransit.components.samples_area import create_sample_area
+from pytransit.components.results_area import create_results_area
 
 import pytransit
 import pytransit.analysis
@@ -86,24 +88,41 @@ class TnSeekFrame(wx.Frame):
             
             with Row() as main_wrapper:
                 
+                with Column() as spacer:
+                    spacer.add(Text(" "))
+                    main_wrapper.add(
+                        spacer,
+                        proportion=1,
+                    )
+                    
                 # 
                 # data column
                 # 
                 with Column() as data_column:
-                    data_column.add(
-                        create_annotation_area(self),
-                        proportion=1,
-                    )
-                    data_column.add(
-                        create_sample_area(self),
-                        proportion=5,
-                        expand=True,
-                    )
+                    
+                    # children
+                    if True:
+                        data_column.add(
+                            create_annotation_area(self),
+                            proportion=0,
+                        )
+                        data_column.add(
+                            create_sample_area(self),
+                            proportion=1,
+                            expand=True,
+                            border=5,
+                        )
+                        data_column.add(
+                            create_results_area(self),
+                            expand=True,
+                            border=5,
+                        )
                     
                     main_wrapper.add(
                         data_column,
                         expand=True,
                         proportion=5,
+                        border=5,
                     )
                 
                 # 
@@ -120,272 +139,7 @@ class TnSeekFrame(wx.Frame):
             
             self.frame = frame
 
-                #     # 
-                #     # conditionsSizer
-                #     # 
-                #     if True:
-                #         conditionsSizer = wx.StaticBoxSizer(
-                #             wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Conditions"),
-                #             wx.VERTICAL,
-                #         )
-                        
-                #         # 
-                #         # box
-                #         # 
-                #         if True:
-                #             boxSizer = wx.BoxSizer(wx.HORIZONTAL)
-                            
-                #             # 
-                #             # experimentTrackViewButton
-                #             # 
-                #             if True:
-                #                 self.experimentTrackViewButton = wx.Button(
-                #                     self.mainWindow,
-                #                     wx.ID_ANY,
-                #                     u"Track View",
-                #                     wx.DefaultPosition,
-                #                     wx.DefaultSize,
-                #                     0,
-                #                 )
-                #                 self.experimentTrackViewButton.Hide()
-                #                 boxSizer.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
-                                
-                #                 @bind_to(self.experimentTrackViewButton, wx.EVT_BUTTON)
-                #                 def _(event):
-                #                     return self.allViewFunc(event)
-
-                #             conditionsSizer.Add(boxSizer, 0, wx.EXPAND, 5)
-                        
-                #         # 
-                #         # Conditions
-                #         # 
-                #         with Table() as (wx_object, component):
-                #             wx_object.SetMaxSize(wx.Size(-1, 200))
-                #             conditionsSizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
-                #             self.conditions_table = obj
-                        
-                #         windowSizer.Add(conditionsSizer, 1, wx.EXPAND, 5)
-
-                #     # 
-                #     # Results
-                #     # 
-                #     if True:
-                #         results_sizer = wx.StaticBoxSizer(
-                #             wx.StaticBox(self.mainWindow, wx.ID_ANY, u"Results Files"), wx.VERTICAL
-                #         )
-                        
-                #         # 
-                #         # Box
-                #         # 
-                #         if True:
-                #             boxSizer4 = wx.BoxSizer(wx.HORIZONTAL)
-                            
-                #             # 
-                #             # displayButton
-                #             # 
-                #             if True:
-                #                 self.displayButton = wx.Button(
-                #                     self.mainWindow,
-                #                     wx.ID_ANY,
-                #                     u"Display Table",
-                #                     wx.DefaultPosition,
-                #                     wx.DefaultSize,
-                #                     0,
-                #                 )
-                #                 boxSizer4.Add(self.displayButton, 0, wx.ALL, 5)
-                                
-                #                 @bind_to(self.displayButton, wx.EVT_BUTTON)
-                #                 def displayFileFunc(event):
-                #                     next = self.results_table.GetNextSelected(-1)
-                #                     if next > -1:
-                #                         dataset = self.results_table.GetItem(next, 3).GetText()
-                #                         if self.verbose:
-                #                             transit_tools.transit_message(
-                #                                 "Displaying results: %s"
-                #                                 % self.results_table.GetItem(next, 0).GetText()
-                #                             )
-
-                #                         try:
-                #                             fileWindow = file_display.TransitGridFrame(self, dataset)
-                #                             fileWindow.Show()
-                #                         except Exception as e:
-                #                             transit_tools.transit_message(
-                #                                 "Error occurred displaying file: %s" % str(e)
-                #                             )
-                #                             traceback.print_exc()
-
-                #                     else:
-                #                         if self.verbose:
-                #                             transit_tools.transit_message("No results selected to display!")
-
-                                
-                #             # 
-                #             # fileActionButton
-                #             # 
-                #             if True:
-                #                 self.fileActionButton = wx.Button(
-                #                     self.mainWindow,
-                #                     wx.ID_ANY,
-                #                     u"Display Graph",
-                #                     wx.DefaultPosition,
-                #                     wx.DefaultSize,
-                #                     0,
-                #                 )
-                #                 self.fileActionButton.Hide()
-
-                #                 boxSizer4.Add(self.fileActionButton, 0, wx.ALL, 5)
-                                
-                #                 @bind_to(self.fileActionButton, wx.EVT_BUTTON)
-                #                 def _(event):
-                #                     self.fileActionFunc(event)
-                                
-                                
-                                
-                #             # 
-                #             # addFileButton
-                #             # 
-                #             if True:
-                #                 self.addFileButton = GenBitmapTextButton(
-                #                     self.mainWindow,
-                #                     1,
-                #                     bit_map,
-                #                     "Add Results File",
-                #                     size=wx.Size(150, 30)
-                #                 )
-                #                 boxSizer4.Add(self.addFileButton, 0, wx.ALL, 5)
-                                
-                #                 @subscribe("file")
-                #                 def add_file(data):
-                #                     fullpath = data["path"]
-                #                     type     = data["type"]
-                #                     date     = data["date"]
-                #                     name = transit_tools.basename(fullpath)
-                #                     # FIXME
-                #                     self.results_table.InsertItem(self.index_file, name)
-                #                     self.results_table.SetItem(self.index_file, 1, f"{type}")
-                #                     self.results_table.SetItem(self.index_file, 2, f"{date}")
-                #                     self.results_table.SetItem(self.index_file, 3, f"{fullpath}")
-                #                     self.index_file += 1
-                                
-                #                 @bind_to(self.addFileButton, wx.EVT_BUTTON)
-                #                 def _(event):
-                #                     try:
-                #                         dlg = wx.FileDialog(
-                #                             self,
-                #                             message="Choose a file",
-                #                             defaultDir=self.workdir,
-                #                             defaultFile="",
-                #                             wildcard=u"Results Files (*.dat)|*.dat;|\nResults Files (*.txt)|*.txt;|\nAll files (*.*)|*.*",
-                #                             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                #                         )
-                #                         if dlg.ShowModal() == wx.ID_OK:
-                #                             paths = dlg.GetPaths()
-                #                             print("You chose the following Results file(s):")
-                #                             for fullpath in paths:
-                #                                 print("\t%s" % fullpath)
-                #                                 name = transit_tools.basename(fullpath)
-                #                                 line = open(fullpath).readline()
-                #                                 if line.startswith("#Gumbel"):
-                #                                     type = "Gumbel"
-                #                                 elif line.startswith("#Binomial"):
-                #                                     type = "Binomial"
-                #                                 elif line.startswith("#HMM - Sites"):
-                #                                     type = "HMM - Sites"
-                #                                 elif line.startswith("#HMM - Genes"):
-                #                                     type = "HMM - Genes"
-                #                                 elif line.startswith("#Resampling"):
-                #                                     type = "Resampling"
-                #                                 elif line.startswith("#DE-HMM - Sites"):
-                #                                     type = "DE-HMM - Sites"
-                #                                 elif line.startswith("#DE-HMM - Segments"):
-                #                                     type = "DE-HMM - Segments"
-                #                                 elif line.startswith("#GI"):
-                #                                     type = "GI"
-                #                                 else:
-                #                                     type = "Unknown"
-                #                                 data = {
-                #                                     "path": fullpath,
-                #                                     "type": type,
-                #                                     "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-                #                                 }
-                #                                 wx.CallAfter(pub.sendMessage, "file", data=data)
-                #                         dlg.Destroy()
-                #                     except Exception as e:
-                #                         transit_tools.transit_message("Error: %s" % e)
-                #                         print("PATH", fullpath)
-                #                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                #                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                #                         print(exc_type, fname, exc_tb.tb_lineno)
-                                
-                #             # 
-                #             # fileActionChoice
-                #             # 
-                #             if True:
-                #                 fileActionChoiceChoices = [  u"[Choose Action]"  ]
-                #                 self.fileActionChoice = wx.Choice(
-                #                     self.mainWindow,
-                #                     wx.ID_ANY,
-                #                     wx.DefaultPosition,
-                #                     wx.DefaultSize,
-                #                     fileActionChoiceChoices,
-                #                     0,
-                #                 )
-                #                 self.fileActionChoice.SetSelection(0)
-                #                 boxSizer4.Add(self.fileActionChoice, 0, wx.ALL, 5)
-                                
-                #                 @bind_to(self.fileActionChoice, wx.EVT_CHOICE)
-                #                 def fileActionFunc(event):
-                #                     # 0 - nothing
-                #                     # 1 - Volcano
-                #                     # 2 - Hist gene counts ratio
-                #                     plot_choice = self.fileActionChoice.GetCurrentSelection()
-                #                     plot_name = self.fileActionChoice.GetString(plot_choice)
-                #                     if plot_name == "[Choose Action]":
-                #                         return
-                #                     next = self.results_table.GetNextSelected(-1)
-                #                     if next > -1:
-                #                         dataset_path = self.results_table.GetItem(next, 3).GetText()
-                #                         dataset_name = self.results_table.GetItem(next, 0).GetText()
-                #                         dataset_type = self.results_table.GetItem(next, 1).GetText()
-
-                #                         if self.verbose:
-                #                             transit_tools.transit_message(
-                #                                 "Performing the '%s' action on dataset '%s'"
-                #                                 % (plot_name, dataset_name)
-                #                             )
-
-                #                         if plot_name == "Create a Volcano Plot":
-                #                             self.graphVolcanoPlot(dataset_name, dataset_type, dataset_path)
-                #                         elif plot_name == "Plot Histogram of logFC of Gene Counts":
-                #                             self.graphGeneCounts(dataset_name, dataset_type, dataset_path)
-                #                         elif plot_name == "Plot Ranked Probability of Essentiality":
-                #                             self.graphRankedZbar(dataset_name, dataset_type, dataset_path)
-                #                         else:
-                #                             return
-
-                #                         self.fileActionChoice.SetSelection(0)
-                #                     else:
-                #                         transit_tools.ShowError(MSG="Please select a results file to plot!")
-
-                                
-                #             results_sizer.Add(boxSizer4, 0, 0, 5)
-                        
-                #         # 
-                #         # results_table
-                #         # 
-                #         with Table(
-                #             initial_columns=[ "Name", "Type", "Date", "Full Path"],
-                #             max_size=(-1, 200)
-                #         ) as (wx_object, component):
-                            
-                #             self.results_table = obj
-                #             results_sizer.Add(wx_object, 1, wx.ALL | wx.EXPAND, 5)
-                            
-                #     windowSizer.Add(results_sizer, 1, wx.EXPAND, 5)
-                #     self.mainWindow.SetSizer(windowSizer)
-                #     self.mainWindow.Layout()
-                #     windowSizer.Fit(self.mainWindow)
-                #     windowWrapper.Add(self.mainWindow, 1, wx.ALL | wx.EXPAND, 5)
+            
                 
                 # # 
                 # # m_panel5
@@ -1464,175 +1218,6 @@ class TnSeekFrame(wx.Frame):
                 except Exception as e:
                     transit_tools.transit_message("Error: %s" % str(e))
                     traceback.print_exc()
-
-    def updateGraphChoices(self, dataset_type):
-
-        empty_action = "[Choose Action]"
-        if dataset_type == "Gumbel":
-            choices = [empty_action, "Plot Ranked Probability of Essentiality"]
-        elif dataset_type == "Binomial":
-            choices = [empty_action, "Plot Ranked Probability of Essentiality"]
-        elif dataset_type == "HMM - Sites":
-            choices = [empty_action]
-        elif dataset_type == "HMM - Genes":
-            choices = [empty_action]
-        elif dataset_type == "Resampling":
-            choices = [
-                empty_action,
-                "Create a Volcano Plot",
-                "Plot Histogram of logFC of Gene Counts",
-            ]
-        elif dataset_type == "DE-HMM - Sites":
-            choices = [empty_action, "Recreate Sites File"]
-        elif dataset_type == "DE-HMM - Segments":
-            choices = [empty_action]
-        else:
-            choices = [empty_action]
-
-        self.fileActionChoice.SetItems(choices)
-        self.fileActionChoice.SetSelection(0)
-
-    def graphGeneCounts(self, dataset_name, dataset_type, dataset_path):
-        try:
-            if dataset_type == "Resampling":
-                X = []
-                for line in open(dataset_path):
-                    if line.startswith("#"):
-                        continue
-                    tmp = line.strip().split("\t")
-                    try:
-                        log2FC = float(tmp[-3])
-                    except:
-                        log2FC = 0
-                    X.append(log2FC)
-
-                n, bins, patches = plt.hist(
-                    X, density=1, facecolor="c", alpha=0.75, bins=100
-                )
-                plt.xlabel("log2 FC - Total Gene Counts")
-                plt.ylabel("Probability")
-                plt.title(
-                    "Histogram of log2 Fold Change for Total Normalized Counts within Genes"
-                )
-                plt.axvline(0, color="r", linestyle="dashed", linewidth=3)
-                plt.grid(True)
-                plt.show()
-            else:
-                transit_tools.ShowError(
-                    MSG="Need to select a 'Resampling' results file for this type of plot."
-                )
-
-        except Exception as e:
-            transit_tools.transit_message("Error occurred creating plot: %s" % str(e))
-            traceback.print_exc()
-
-    def graphVolcanoPlot(self, dataset_name, dataset_type, dataset_path):
-        try:
-            if dataset_type == "Resampling":
-                X = []
-                Y = []
-                header = []
-                qval_list = []
-                bad = []
-                col_logFC = -6
-                col_pval = -2
-                col_qval = -1
-                ii = 0
-                for line in open(dataset_path):
-                    if line.startswith("#"):
-                        tmp = line.split("\t")
-                        temp_col_logfc = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if "logfc" in x.lower()
-                            or "log-fc" in x.lower()
-                            or "log2fc" in x.lower()
-                        ]
-                        temp_col_pval = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if ("pval" in x.lower() or "p-val" in x.lower())
-                            and "adj" not in x.lower()
-                        ]
-                        if temp_col_logfc:
-                            col_logFC = temp_col_logfc[-1]
-                        if temp_col_pval:
-                            col_pval = temp_col_pval[-1]
-                        continue
-
-                    tmp = line.strip().split("\t")
-                    try:
-                        log10qval = -math.log(float(tmp[col_pval].strip()), 10)
-                    except ValueError as e:
-                        bad.append(ii)
-                        log10qval = 0
-
-                    log2FC = float(tmp[col_logFC])
-
-                    qval_list.append(
-                        (float(tmp[col_qval]), float(tmp[col_pval].strip()))
-                    )
-                    X.append(log2FC)
-                    Y.append(log10qval)
-                    ii += 1
-                count = 0
-                threshold = 0.00001
-                backup_thresh = 0.00001
-                qval_list.sort()
-                for (q, p) in qval_list:
-                    backup_thresh = p
-                    if q > 0.05:
-                        break
-                    threshold = p
-                    count += 1
-
-                if threshold == 0:
-                    threshold = backup_thresh
-                for ii in bad:
-                    Y[ii] = max(Y)
-                plt.plot(X, Y, "bo")
-                plt.axhline(
-                    -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3
-                )
-                plt.xlabel("Log Fold Change (base 2)")
-                plt.ylabel("-Log p-value (base 10)")
-                plt.suptitle("Resampling - Volcano plot")
-                plt.title("Adjusted threshold (red line): %1.8f" % threshold)
-                plt.show()
-            else:
-                transit_tools.ShowError(
-                    MSG="Need to select a 'Resampling' results file for this type of plot."
-                )
-
-        except Exception as e:
-            print("Error occurred creating plot:", str(e))
-
-    def graphRankedZbar(self, dataset_name, dataset_type, dataset_path):
-        try:
-            X = []
-            Y = []
-            for line in open(dataset_path):
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                try:
-                    # log2FC = math.log(float(tmp[6])/float(tmp[5]),2)
-                    zbar = float(tmp[-2])
-                except:
-                    zbar = 0
-                if zbar >= 0:
-                    Y.append(zbar)
-
-            Y.sort()
-            index = range(1, len(Y) + 1)
-            plt.plot(index, Y, "bo")
-            plt.xlabel("Rank of Gene According to Probability of Essentiality")
-            plt.ylabel("Probability of Essentiality")
-            plt.title("Ranked Probability of Essentiality")
-            plt.show()
-
-        except Exception as e:
-            print("Error occurred creating plot:", str(e))
 
     def LoessPrevFunc(self, event):
         datasets_selected = self.ctrlSelected() + self.expSelected()
