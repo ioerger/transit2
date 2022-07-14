@@ -226,43 +226,10 @@ class GUI(base.AnalysisGUI):
                     ) = self.defineTextBox(
                         test1Panel,
                         u"Pseudocount:",
-                        u"0.0",
+                        u"5",
                         "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
                     )
                     mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
-                
-                # 
-                # text input: 
-                # 
-                if True:
-                    # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-                    (
-                        _,
-                        self.wxobj.nTerminusInput,
-                        sizer,
-                    ) = self.defineTextBox(
-                        test1Panel,
-                        u"N Terminus\nTruncate",
-                        u"0.0",
-                        "Ignore TAs within given percentage (e.g. 5) of N terminus. Default: 0",
-                    )
-                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
-                
-                # 
-                # text input: 
-                # 
-                if True:
-                    (
-                        _,
-                        self.wxobj.cTerminusInput,
-                        sizer,
-                    ) = self.defineTextBox(
-                        test1Panel,
-                        u"C Terminus\nTruncate",
-                        u"0.0",
-                        "Ignore TAs within given percentage (e.g. 5) of C terminus. Default: 0",
-                    )
-                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
                 
                 # 
                 # dropdown
@@ -352,14 +319,6 @@ class GUI(base.AnalysisGUI):
             test1Sizer.Fit(test1Panel)
 
         self.panel = test1Panel
-
-    def GlobalEnable(self):
-        self.wxobj.ctrlLibText.Enable()
-        self.wxobj.expLibText.Enable()
-
-    def GlobalDisable(self):
-        self.wxobj.ctrlLibText.Disable()
-        self.wxobj.expLibText.Disable()
 
 
 ########## CLASS #######################
