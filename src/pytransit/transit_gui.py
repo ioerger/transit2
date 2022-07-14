@@ -93,7 +93,7 @@ class TnSeekFrame(wx.Frame):
                     spacer.add(Text(" "))
                     main_wrapper.add(
                         spacer,
-                        proportion=1,
+                        proportion=0,
                     )
                     
                 # 
@@ -130,16 +130,25 @@ class TnSeekFrame(wx.Frame):
                 # panel column
                 # 
                 with Column() as panel_column:
+                    
+                    if True:
+                        panel_column.add(
+                            create_panel_area(self),
+                            expand=True,
+                            border=5,
+                        )
+                    
                     main_wrapper.add(
                         panel_column,
                         expand=True,
                         proportion=2,
                     )
             
-                frame.add(main_wrapper)
+                frame.add(
+                    main_wrapper,
+                    expand=True,
+                )
             
-            self.options_window = create_panel_area(self)
-            self.options_window.Fit()
             self.frame = frame
 
             

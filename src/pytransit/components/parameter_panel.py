@@ -31,313 +31,295 @@ def create_panel_area(frame_input):
     # options window
     # 
     if True:
-        options_window = wx.ScrolledWindow(
-            frame,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.Size(-1, -1),
-            wx.HSCROLL | wx.VSCROLL | wx.EXPAND,
-        )
-        options_window.SetScrollRate(5, 5)
-        options_window.SetMinSize(wx.Size(310, 1000))
+        options_sizer = wx.BoxSizer(wx.VERTICAL)
         
         # 
-        # box
+        # Logo Section
         # 
         if True:
-            options_sizer = wx.BoxSizer(wx.VERTICAL)
+            logo_img = wx.StaticBitmap(
+                frame,
+                wx.ID_ANY,
+                wx.NullBitmap,
+                wx.DefaultPosition,
+                wx.DefaultSize,
+                0,
+            )
+            options_sizer.Add(logo_img, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+            logo_img.SetBitmap(images.transit_logo2.GetImage().ConvertToBitmap())
+        
+        # 
+        # versionLabel
+        # 
+        if True:
+            version_label = wx.StaticText(
+                frame,
+                wx.ID_ANY,
+                u"",
+                wx.DefaultPosition,
+                (100, 25),
+                wx.ALIGN_CENTRE,
+            )
+            version_label.Wrap(-1)
+            version_label.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
+            version_label.SetLabel(pytransit.__version__)
+            
+
+            options_sizer.Add(
+                version_label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+            )
+        
+        # 
+        # methodInfoSizer
+        # 
+        if True:
+            panel.method_info_text = wx.StaticBox(frame, wx.ID_ANY, u"Instructions")
+            panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+            panel.method_info_sizer = wx.StaticBoxSizer(panel.method_info_text, wx.VERTICAL)
             
             # 
-            # Logo Section
+            # methodShortText
             # 
             if True:
-                logo_img = wx.StaticBitmap(
-                    options_window,
+                panel.method_short_text = wx.StaticText(
+                    frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                )
+                panel.method_short_text.Wrap(250)
+                panel.method_short_text.Hide()
+                panel.method_info_sizer.Add(
+                    panel.method_short_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                )
+            
+            # 
+            # methodLongText
+            # 
+            if True:
+                panel.method_long_text = wx.StaticText(
+                    frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                )
+                panel.method_long_text.Wrap(250)
+                panel.method_long_text.Hide()
+                panel.method_info_sizer.Add(
+                    panel.method_long_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                )
+            
+            # 
+            # methodDescText
+            # 
+            if True:
+
+                panel.method_desc_text = wx.StaticText(
+                    frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                )
+                panel.method_desc_text.Wrap(250)
+                panel.method_desc_text.Hide()
+                panel.method_info_sizer.Add(
+                    panel.method_desc_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                )
+            
+            # 
+            # methodTnText
+            # 
+            if True:
+                panel.method_tn_text = wx.StaticText(
+                    frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                )
+                panel.method_tn_text.Wrap(250)
+
+                font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+                panel.method_tn_text.SetFont(font)
+                panel.method_tn_text.Hide()
+
+                panel.method_info_sizer.Add(
+                    panel.method_tn_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                )
+            
+            # 
+            # methodInstructions
+            # 
+            if True:
+                panel.method_instructions = wx.StaticText(
+                    frame,
                     wx.ID_ANY,
-                    wx.NullBitmap,
+                    frame.instructions_text,
                     wx.DefaultPosition,
                     wx.DefaultSize,
                     0,
                 )
-                options_sizer.Add(logo_img, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-                logo_img.SetBitmap(images.transit_logo2.GetImage().ConvertToBitmap())
+                panel.method_instructions.Wrap(250)
+                panel.method_info_sizer.Add(
+                    panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                )
+            
+            options_sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, 5)
+        
+        # 
+        # Method Options
+        # 
+        if True:
+            panel.method_sizer_text = wx.StaticBox(frame, wx.ID_ANY, u"Method Options")
+            panel.method_sizer_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+            panel.method_sizer = wx.StaticBoxSizer(panel.method_sizer_text, wx.VERTICAL)
             
             # 
-            # versionLabel
+            # methodPanel1
             # 
             if True:
-                version_label = wx.StaticText(
-                    options_window,
+                panel.method_panel1 = wx.Panel(
+                    frame,
                     wx.ID_ANY,
-                    u"",
                     wx.DefaultPosition,
-                    (100, 25),
-                    wx.ALIGN_CENTRE,
+                    wx.DefaultSize,
+                    wx.TAB_TRAVERSAL,
                 )
-                version_label.Wrap(-1)
-                version_label.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
-                version_label.SetLabel(pytransit.__version__)
-                
-
-                options_sizer.Add(
-                    version_label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                )
+                panel.method_panel1.SetMinSize(wx.Size(50, 1))
+                panel.method_sizer.Add(panel.method_panel1, 0, wx.ALL, 5)
             
             # 
-            # methodInfoSizer
+            # globalLabel
             # 
             if True:
-                panel.method_info_text = wx.StaticBox(options_window, wx.ID_ANY, u"Instructions")
-                panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                panel.method_info_sizer = wx.StaticBoxSizer(panel.method_info_text, wx.VERTICAL)
-                
-                # 
-                # methodShortText
-                # 
-                if True:
-                    panel.method_short_text = wx.StaticText(
-                        options_window, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                    )
-                    panel.method_short_text.Wrap(250)
-                    panel.method_short_text.Hide()
-                    panel.method_info_sizer.Add(
-                        panel.method_short_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                    )
-                
-                # 
-                # methodLongText
-                # 
-                if True:
-                    panel.method_long_text = wx.StaticText(
-                        options_window, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                    )
-                    panel.method_long_text.Wrap(250)
-                    panel.method_long_text.Hide()
-                    panel.method_info_sizer.Add(
-                        panel.method_long_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                    )
-                
-                # 
-                # methodDescText
-                # 
-                if True:
-
-                    panel.method_desc_text = wx.StaticText(
-                        options_window, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                    )
-                    panel.method_desc_text.Wrap(250)
-                    panel.method_desc_text.Hide()
-                    panel.method_info_sizer.Add(
-                        panel.method_desc_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                    )
-                
-                # 
-                # methodTnText
-                # 
-                if True:
-                    panel.method_tn_text = wx.StaticText(
-                        options_window, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
-                    )
-                    panel.method_tn_text.Wrap(250)
-
-                    font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
-                    panel.method_tn_text.SetFont(font)
-                    panel.method_tn_text.Hide()
-
-                    panel.method_info_sizer.Add(
-                        panel.method_tn_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                    )
-                
-                # 
-                # methodInstructions
-                # 
-                if True:
-                    panel.method_instructions = wx.StaticText(
-                        options_window,
-                        wx.ID_ANY,
-                        frame.instructions_text,
-                        wx.DefaultPosition,
-                        wx.DefaultSize,
-                        0,
-                    )
-                    panel.method_instructions.Wrap(250)
-                    panel.method_info_sizer.Add(
-                        panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                    )
-                
-                options_sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, 5)
+                panel.global_label = wx.StaticText(
+                    frame,
+                    wx.ID_ANY,
+                    u"Global Options",
+                    wx.DefaultPosition,
+                    (130, 20),
+                    0,
+                )
+                panel.global_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+                panel.method_sizer.Add(panel.global_label, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
             
             # 
-            # Method Options
+            # globalPanel
             # 
             if True:
-                panel.method_sizer_text = wx.StaticBox(options_window, wx.ID_ANY, u"Method Options")
-                panel.method_sizer_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                panel.method_sizer = wx.StaticBoxSizer(panel.method_sizer_text, wx.VERTICAL)
-                
-                # 
-                # methodPanel1
-                # 
-                if True:
-                    panel.method_panel1 = wx.Panel(
-                        options_window,
-                        wx.ID_ANY,
-                        wx.DefaultPosition,
-                        wx.DefaultSize,
-                        wx.TAB_TRAVERSAL,
-                    )
-                    panel.method_panel1.SetMinSize(wx.Size(50, 1))
-                    panel.method_sizer.Add(panel.method_panel1, 0, wx.ALL, 5)
-                
-                # 
-                # globalLabel
-                # 
-                if True:
-                    panel.global_label = wx.StaticText(
-                        options_window,
-                        wx.ID_ANY,
-                        u"Global Options",
-                        wx.DefaultPosition,
-                        (130, 20),
-                        0,
-                    )
-                    panel.global_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                    panel.method_sizer.Add(panel.global_label, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
-                
-                # 
-                # globalPanel
-                # 
-                if True:
-                    panel.global_panel = wx.Panel(
-                        options_window,
-                        wx.ID_ANY,
-                        wx.DefaultPosition,
-                        wx.DefaultSize,
-                        wx.TAB_TRAVERSAL,
-                    )
-                    panel.global_panel.SetMinSize(wx.Size(280, 150))
-                    panel.global_panel.SetMaxSize(wx.Size(-1, -1))
+                panel.global_panel = wx.Panel(
+                    frame,
+                    wx.ID_ANY,
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    wx.TAB_TRAVERSAL,
+                )
+                panel.global_panel.SetMinSize(wx.Size(280, 150))
+                panel.global_panel.SetMaxSize(wx.Size(-1, -1))
 
-                    global_sizer_vt = wx.BoxSizer(wx.VERTICAL)
-                    n_term_sizer    = wx.BoxSizer(wx.HORIZONTAL)
-                    c_term_sizer    = wx.BoxSizer(wx.HORIZONTAL)
+                global_sizer_vt = wx.BoxSizer(wx.VERTICAL)
+                n_term_sizer    = wx.BoxSizer(wx.HORIZONTAL)
+                c_term_sizer    = wx.BoxSizer(wx.HORIZONTAL)
 
-                    # N TERMINUS - GLOBAL
-                    panel.global_n_terminus_label = wx.StaticText(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        u"Ignore N-Terminus %:",
-                        wx.DefaultPosition,
-                        wx.DefaultSize,
-                        0,
-                    )
-                    panel.global_n_terminus_label.Wrap(-1)
-                    panel.global_n_terminus_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
-                    panel.global_n_terminus_icon = pytransit.analysis.base.InfoIcon(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
-                    )
-                    n_term_sizer.Add(panel.global_n_terminus_label, 1, wx.ALIGN_CENTER, 5)
-                    n_term_sizer.Add(panel.global_n_terminus_text , 1, wx.ALIGN_CENTER, 5)
-                    n_term_sizer.Add(panel.global_n_terminus_icon , 1, wx.ALIGN_CENTER, 5)
+                # N TERMINUS - GLOBAL
+                panel.global_n_terminus_label = wx.StaticText(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    u"Ignore N-Terminus %:",
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    0,
+                )
+                panel.global_n_terminus_label.Wrap(-1)
+                panel.global_n_terminus_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                panel.global_n_terminus_icon = pytransit.analysis.base.InfoIcon(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    tooltip="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
+                )
+                n_term_sizer.Add(panel.global_n_terminus_label, 1, wx.ALIGN_CENTER, 5)
+                n_term_sizer.Add(panel.global_n_terminus_text , 1, wx.ALIGN_CENTER, 5)
+                n_term_sizer.Add(panel.global_n_terminus_icon , 1, wx.ALIGN_CENTER, 5)
 
-                    # C TERMINUS - GLOBAL
-                    panel.global_c_terminus_label = wx.StaticText(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        u"Ignore C-Terminus %:",
-                        wx.DefaultPosition,
-                        wx.DefaultSize,
-                        0,
-                    )
-                    panel.global_c_terminus_label.Wrap(-1)
-                    panel.global_c_terminus_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
-                    panel.global_c_terminus_icon = pytransit.analysis.base.InfoIcon(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
-                    )
+                # C TERMINUS - GLOBAL
+                panel.global_c_terminus_label = wx.StaticText(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    u"Ignore C-Terminus %:",
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    0,
+                )
+                panel.global_c_terminus_label.Wrap(-1)
+                panel.global_c_terminus_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0)
+                panel.global_c_terminus_icon = pytransit.analysis.base.InfoIcon(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    tooltip="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",
+                )
 
-                    c_term_sizer.Add(panel.global_c_terminus_label, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                    c_term_sizer.Add(panel.global_c_terminus_text, 1, wx.ALIGN_CENTER_VERTICAL, 5)
-                    c_term_sizer.Add(panel.global_c_terminus_icon, 1, wx.ALIGN_CENTER, 5)
+                c_term_sizer.Add(panel.global_c_terminus_label, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                c_term_sizer.Add(panel.global_c_terminus_text, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                c_term_sizer.Add(panel.global_c_terminus_icon, 1, wx.ALIGN_CENTER, 5)
 
-                    # Control Libraries text - GLOBAL
-                    ctrl_lib_sizer = wx.BoxSizer(wx.HORIZONTAL)
-                    panel.ctrl_lib_label = wx.StaticText(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        u"Control Libraries:",
-                        wx.DefaultPosition,
-                        (170, -1),
-                        0,
-                    )
-                    panel.ctrl_lib_label.Wrap(-1)
-                    panel.ctrl_lib_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
-                    panel.ctrl_lib_tip = pytransit.analysis.base.InfoIcon(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        tooltip="String of letters representing an \
-                        identifier for the libraries the datasets belong to. For example, if adding three \
-                        datasets of different libraries, change the string to 'ABC'. Set of letters used  \
-                        must match those in Experimental datasets. Keep empty or with all letters equal, e.g. \
-                        'AAA', to do regular resampling.",
-                    )
+                # Control Libraries text - GLOBAL
+                ctrl_lib_sizer = wx.BoxSizer(wx.HORIZONTAL)
+                panel.ctrl_lib_label = wx.StaticText(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    u"Control Libraries:",
+                    wx.DefaultPosition,
+                    (170, -1),
+                    0,
+                )
+                panel.ctrl_lib_label.Wrap(-1)
+                panel.ctrl_lib_text = wx.TextCtrl(panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0)
+                panel.ctrl_lib_tip = pytransit.analysis.base.InfoIcon(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    tooltip="String of letters representing an \
+                    identifier for the libraries the datasets belong to. For example, if adding three \
+                    datasets of different libraries, change the string to 'ABC'. Set of letters used  \
+                    must match those in Experimental datasets. Keep empty or with all letters equal, e.g. \
+                    'AAA', to do regular resampling.",
+                )
 
-                    panel.ctrl_lib_text.Disable()
-                    ctrl_lib_sizer.Add(panel.ctrl_lib_label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                    ctrl_lib_sizer.Add(panel.ctrl_lib_text, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                    ctrl_lib_sizer.Add(panel.ctrl_lib_tip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                panel.ctrl_lib_text.Disable()
+                ctrl_lib_sizer.Add(panel.ctrl_lib_label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                ctrl_lib_sizer.Add(panel.ctrl_lib_text, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                ctrl_lib_sizer.Add(panel.ctrl_lib_tip, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-                    # Experimental Libraries text - GLOBAL
-                    exp_lib_sizer = wx.BoxSizer(wx.HORIZONTAL)
-                    panel.exp_lib_label = wx.StaticText(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        u"Experimental Libraries:",
-                        wx.DefaultPosition,
-                        (170, -1),
-                        0,
-                    )
-                    panel.exp_lib_label.Wrap(-1)
-                    panel.exp_lib_text = wx.TextCtrl(
-                        panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
-                    )
-                    panel.exp_lib_tip = pytransit.analysis.base.InfoIcon(
-                        panel.global_panel,
-                        wx.ID_ANY,
-                        tooltip="String of letters representing an identifier for the libraries the datasets \
-                        belong to. For example, if adding three datasets of different libraries, change the \
-                        string to 'ABC'. Set  of letters used must match those in Control datasets. Keep \
-                        empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
-                    )
+                # Experimental Libraries text - GLOBAL
+                exp_lib_sizer = wx.BoxSizer(wx.HORIZONTAL)
+                panel.exp_lib_label = wx.StaticText(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    u"Experimental Libraries:",
+                    wx.DefaultPosition,
+                    (170, -1),
+                    0,
+                )
+                panel.exp_lib_label.Wrap(-1)
+                panel.exp_lib_text = wx.TextCtrl(
+                    panel.global_panel, wx.ID_ANY, "", wx.DefaultPosition, (-1, -1), 0
+                )
+                panel.exp_lib_tip = pytransit.analysis.base.InfoIcon(
+                    panel.global_panel,
+                    wx.ID_ANY,
+                    tooltip="String of letters representing an identifier for the libraries the datasets \
+                    belong to. For example, if adding three datasets of different libraries, change the \
+                    string to 'ABC'. Set  of letters used must match those in Control datasets. Keep \
+                    empty or with all letters equal, e.g. 'AAA', to do regular resampling.",
+                )
 
-                    panel.exp_lib_text.Disable()
-                    exp_lib_sizer.Add(panel.exp_lib_label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                    exp_lib_sizer.Add(panel.exp_lib_text , 0, wx.ALIGN_CENTER_VERTICAL, 5)
-                    exp_lib_sizer.Add(panel.exp_lib_tip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                panel.exp_lib_text.Disable()
+                exp_lib_sizer.Add(panel.exp_lib_label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                exp_lib_sizer.Add(panel.exp_lib_text , 0, wx.ALIGN_CENTER_VERTICAL, 5)
+                exp_lib_sizer.Add(panel.exp_lib_tip  , 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
-                    global_sizer_vt.Add(n_term_sizer  , 1, wx.EXPAND, 5)
-                    global_sizer_vt.Add(c_term_sizer  , 1, wx.EXPAND, 5)
-                    global_sizer_vt.Add(ctrl_lib_sizer, 1, wx.EXPAND, 5)
-                    global_sizer_vt.Add(exp_lib_sizer , 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(n_term_sizer  , 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(c_term_sizer  , 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(ctrl_lib_sizer, 1, wx.EXPAND, 5)
+                global_sizer_vt.Add(exp_lib_sizer , 1, wx.EXPAND, 5)
 
-                    panel.global_panel.SetSizer(global_sizer_vt)
-                    panel.global_panel.Layout()
-                    global_sizer_vt.Fit(panel.global_panel)
-                    panel.method_sizer.Add(panel.global_panel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-                
-            options_sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
+                panel.global_panel.SetSizer(global_sizer_vt)
+                panel.global_panel.Layout()
+                global_sizer_vt.Fit(panel.global_panel)
+                panel.method_sizer.Add(panel.global_panel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
+            
+        options_sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
 
-        options_window.SetSizer(options_sizer)
-        options_window.Layout()
-        options_window.Fit()
-    
     
     # progress
     panel.progress_panel = wx.Panel(
-        options_window,
+        frame,
         wx.ID_ANY,
         wx.DefaultPosition,
         wx.DefaultSize,
@@ -387,13 +369,13 @@ def create_panel_area(frame_input):
     panel.progress.SetRange(50)
     #########
 
-    options_window.Fit()
+    # options_window.Fit()
 
     hide_progress_section()
     hide_global_options()
     panel.method_sizer_text.Hide()
     
-    return options_window
+    return options_sizer
     
 
 def method_select_func(selected_name):
