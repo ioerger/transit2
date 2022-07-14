@@ -9,7 +9,7 @@ __all__        = [basename(path)[:-3] for path in glob.glob(dirname(__file__) + 
 
 # import all the analysis files
 for each in analysis_names:
-    exec(f"from pytransit.analysis import {each}")
+    exec(f"import pytransit.analysis.{each} as {each}")
 
 export_methods = {
     "norm": norm.Analysis(),

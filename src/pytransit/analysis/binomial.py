@@ -28,6 +28,7 @@ import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
+from pytransit.components.parameter_panel import panel
 
 # method_name = "binomial"
 
@@ -113,13 +114,7 @@ class BinomialFile(base.TransitFile):
 class BinomialGUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
-        binomialPanel = wx.Panel(
-            self.wxobj.optionsWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
+        binomialPanel = panel.global_panel
 
         binomialSection = wx.BoxSizer(wx.VERTICAL)
 

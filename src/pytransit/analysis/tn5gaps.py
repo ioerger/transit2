@@ -98,7 +98,7 @@ class Tn5GapsGUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
         tn5GapsPanel = wx.Panel(
-            self.wxobj.optionsWindow,
+            self.wxobj,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,

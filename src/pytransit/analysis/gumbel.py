@@ -94,7 +94,7 @@ class GumbelGUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
         gumbelPanel = wx.Panel(
-            self.wxobj.optionsWindow,
+            self.wxobj,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,

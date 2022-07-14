@@ -4,7 +4,6 @@ from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-from pytransit.analysis import methods
 import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
 import pytransit.images as images
@@ -21,6 +20,7 @@ from pytransit.components.generic.table import Table
 panel = LazyDict()
 frame = None
 def create_panel_area(frame_input):
+    
     global frame
     frame = frame_input
     
@@ -31,7 +31,7 @@ def create_panel_area(frame_input):
     # options window
     # 
     if True:
-        options_sizer = wx.BoxSizer(wx.VERTICAL)
+        panel.sizer = wx.BoxSizer(wx.VERTICAL)
         
         # 
         # Logo Section
@@ -45,7 +45,7 @@ def create_panel_area(frame_input):
                 wx.DefaultSize,
                 0,
             )
-            options_sizer.Add(logo_img, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+            panel.sizer.Add(logo_img, 0, wx.ALL | wx.ALIGN_CENTER, 5)
             logo_img.SetBitmap(images.transit_logo2.GetImage().ConvertToBitmap())
         
         # 
@@ -65,7 +65,7 @@ def create_panel_area(frame_input):
             version_label.SetLabel(pytransit.__version__)
             
 
-            options_sizer.Add(
+            panel.sizer.Add(
                 version_label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
             )
         
@@ -151,7 +151,7 @@ def create_panel_area(frame_input):
                     panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
                 )
             
-            options_sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, 5)
+            panel.sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, 5)
         
         # 
         # Method Options
@@ -314,7 +314,7 @@ def create_panel_area(frame_input):
                 global_sizer_vt.Fit(panel.global_panel)
                 panel.method_sizer.Add(panel.global_panel, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
             
-        options_sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
+        panel.sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
 
     
     # progress
@@ -375,10 +375,10 @@ def create_panel_area(frame_input):
     hide_global_options()
     panel.method_sizer_text.Hide()
     
-    return options_sizer
+    return panel.sizer
     
 
-def method_select_func(selected_name):
+def method_select_func(selected_name, event):
     # If empty is selected
     if selected_name == "[Choose Method]":
         method_wrap_width = 250
@@ -396,7 +396,10 @@ def method_select_func(selected_name):
     else:
         show_global_options()
         panel.method_sizer_text.Show()
-
+        
+        from pytransit.analysis import methods
+        
+        matched_name = None
         # Get selected Method and hide Others
         for name in methods:
             methods[name].gui.Hide()
@@ -405,7 +408,9 @@ def method_select_func(selected_name):
 
             if methods[name].fullname() == selected_name:
                 matched_name = name
-
+        
+        print(f'''selected_name = {selected_name}''')
+        print(f'''methods = {methods}''')
         if matched_name in methods:
             name = matched_name
             panel.method_info_text.SetLabel("%s" % methods[name].long_name)
@@ -432,6 +437,8 @@ def method_select_func(selected_name):
 
 
 def hide_all_options():
+    from pytransit.analysis import methods
+    
     hide_global_options()
     hide_progress_section()
     for name in methods:

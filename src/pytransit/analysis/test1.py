@@ -18,6 +18,7 @@ import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
+from pytransit.components.parameter_panel import panel
 
 
 ############# GUI ELEMENTS ##################
@@ -121,13 +122,7 @@ class File(base.TransitFile):
 class GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
-        test1Panel = wx.Panel(
-            self.wxobj.optionsWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
+        test1Panel = panel.global_panel
         
         # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
         # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)

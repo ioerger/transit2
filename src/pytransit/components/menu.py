@@ -165,9 +165,9 @@ def create_menu(self):
     for name in sorted(methods.keys(), key=lambda x: order[x]):
         methods[name].gui.definePanel(self)
         # methods[name].gui.panel.BackgroundColour = (0, 200, 20)
-        parameter_panel.panel.method_sizer.Add(
-            methods[name].gui.panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-        )
+        # parameter_panel.panel.method_sizer.Add(
+        #     methods[name].gui.panel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+        # )
         methods[name].gui.Hide()
 
         if "himar1" in methods[name].transposons:

@@ -111,7 +111,7 @@ class GIGUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
         giPanel = wx.Panel(
-            self.wxobj.optionsWindow,
+            self.wxobj,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,

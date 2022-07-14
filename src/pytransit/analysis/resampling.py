@@ -122,7 +122,7 @@ class ResamplingGUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         self.wxobj = wxobj
         resamplingPanel = wx.Panel(
-            self.wxobj.optionsWindow,
+            self.wxobj,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,
@@ -276,12 +276,14 @@ class ResamplingGUI(base.AnalysisGUI):
         self.panel = resamplingPanel
 
     def GlobalEnable(self):
-        self.wxobj.ctrlLibText.Enable()
-        self.wxobj.expLibText.Enable()
+        # self.wxobj.ctrlLibText.Enable()
+        # self.wxobj.expLibText.Enable()
+        pass
 
     def GlobalDisable(self):
-        self.wxobj.ctrlLibText.Disable()
-        self.wxobj.expLibText.Disable()
+        # self.wxobj.ctrlLibText.Disable()
+        # self.wxobj.expLibText.Disable()
+        pass
 
 
 ########## CLASS #######################

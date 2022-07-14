@@ -7,6 +7,7 @@ import traceback
 import datetime
 import numpy
 import pytransit.transit_tools as transit_tools
+from pytransit.components.parameter_panel import panel as parameter_panel
 
 file_prefix = "[FileDisplay]"
 
@@ -212,13 +213,7 @@ class AnalysisGUI:
         # TODO: write docstring
 
         self.wxobj = wxobj
-        wPanel = wx.Panel(
-            self.wxobj.optionsWindow,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
+        wPanel = parameter_panel.global_panel
 
         Section = wx.BoxSizer(wx.VERTICAL)
 

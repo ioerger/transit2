@@ -154,31 +154,30 @@ class TnSeekFrame(wx.Frame):
             
 
 
-        # self.Centre(wx.BOTH)
+        self.Centre(wx.BOTH)
         
-        # 
-        # Connect Events
-        # 
-        # if True:
-        #     self.timer = wx.Timer(self)
-        #     self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
+        # Timer
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
 
         
-        # self.SetIcon(images.transit_icon.GetIcon())
+        self.SetIcon(images.transit_icon.GetIcon())
 
-        # self.workdir = os.getcwd()
-        # self.annotation = ""
-        # self.transposons = ["himar1", "tn5"]
-        # self.verbose = True
-
-        # self.statusBar.SetStatusText("Welcome to TRANSIT")
-        # pub.subscribe(parameter_panel.set_progress_range, "progressrange")
-        # pub.subscribe(parameter_panel.update_progress, "progress")
-        # pub.subscribe(self.updateStatus, "status")
-        # pub.subscribe(parameter_panel.finish_run, "finish")
-        # pub.subscribe(self.saveHistogram, "histogram")
-        create_menu(self)
+        self.workdir = os.getcwd()
+        self.annotation = ""
+        self.transposons = ["himar1", "tn5"]
+        self.verbose = True
+        
         self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
+        self.statusBar.SetStatusText("Welcome to TRANSIT")
+        
+        pub.subscribe(parameter_panel.set_progress_range, "progressrange")
+        pub.subscribe(parameter_panel.update_progress, "progress")
+        pub.subscribe(self.updateStatus, "status")
+        pub.subscribe(parameter_panel.finish_run, "finish")
+        pub.subscribe(self.saveHistogram, "histogram")
+        create_menu(self)
+        
 
 
     def Exit(self, event):
