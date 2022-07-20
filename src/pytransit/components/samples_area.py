@@ -96,14 +96,12 @@ def create_sample_area(frame):
                     if True:
                         for each_sample in universal.session_data.samples:
                             sample_table.add(dict(
-                                disabled=each_sample.extra_data.get("is_disabled", False),
                                 name=basename(each_sample.path),
                                 condition=each_sample.extra_data.get("condition", "[None]") ,
                             ))
                         
                         for each_condition in universal.session_data.conditions:
                             conditions_table.add(dict(
-                                disabled=each_condition.is_disabled,
                                 name=each_condition.name,
                             ))
                 

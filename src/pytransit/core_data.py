@@ -49,6 +49,7 @@ class SessionData:
         self.annotation = None
         self.samples = []
         self.conditions = []
+        self.wig_groups = []
     
     @property
     def condition_names(self):
@@ -74,6 +75,7 @@ class SessionData:
     
     def add_cwig(self, cwig_path, metadata_path):
         wig_group = WigGroup.load_from(cwig_path=cwig_path, metadata_path=metadata_path)
+        self.wig_groups.append(wig_group)
         self.samples += wig_group.samples
         # add conditions
         for each_wig in wig_group.samples:
