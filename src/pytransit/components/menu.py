@@ -176,7 +176,7 @@ def create_menu(self):
             )
             self.Bind(
                 wx.EVT_MENU,
-                partial(parameter_panel.method_select_func, methods[name].fullname()),
+                partial(method_select_func, methods[name].fullname()),
                 temp_menu_item,
             )
 
@@ -192,7 +192,66 @@ def create_menu(self):
             )
             self.Bind(
                 wx.EVT_MENU,
-                partial(parameter_panel.method_select_func, methods[name].fullname()),
+                partial(method_select_func, methods[name].fullname()),
                 temp_menu_item,
             )
             tn5_menu_item.Append(temp_menu_item)
+
+def method_select_func(selected_name, event):
+    import pytransit.components.parameter_panel as parameter_panel
+    from pytransit.components.parameter_panel import panel
+    
+    # If empty is selected
+    if selected_name == "[Choose Method]":
+        method_wrap_width = 250
+        parameter_panel.hide_all_options()
+        panel.method_info_text.SetLabel(u"Instructions")
+        panel.method_instructions.Show()
+        panel.method_instructions.SetLabel(frame.instructions_text)
+        panel.method_instructions.Wrap(method_wrap_width)
+        panel.method_short_text.Hide()
+        panel.method_long_text.Hide()
+        panel.method_tn_text.Hide()
+        panel.method_desc_text.Hide()
+
+        panel.method_choice = ""
+    else:
+        parameter_panel.show_global_options()
+        panel.method_sizer_text.Show()
+        
+        from pytransit.analysis import methods
+        
+        matched_name = None
+        # Get selected Method and hide Others
+        for name in methods:
+            methods[name].gui.Hide()
+            methods[name].gui.GlobalHide()
+            methods[name].gui.GlobalDisable()
+
+            if methods[name].fullname() == selected_name:
+                matched_name = name
+        
+        if matched_name in methods:
+            name = matched_name
+            panel.method_info_text.SetLabel("%s" % methods[name].long_name)
+
+            panel.method_tn_text.Show()
+            panel.method_tn_text.SetLabel(methods[name].getTransposonsText())
+            panel.method_tn_text.Wrap(250)
+
+            panel.method_desc_text.Show()
+            panel.method_desc_text.SetLabel(methods[name].getDescriptionText())
+            panel.method_desc_text.Wrap(250)
+            panel.method_instructions.SetLabel(" ")
+            methods[name].gui.Show()
+            methods[name].gui.Show()
+            methods[name].gui.GlobalEnable()
+            frame.statusBar.SetStatusText("[%s]" % methods[name].short_name)
+
+        parameter_panel.show_progress_section()
+        panel.method_choice = selected_name
+
+    frame.Layout()
+    if frame.verbose:
+        transit_tools.transit_message("Selected Method: %s" % (selected_name))
+
