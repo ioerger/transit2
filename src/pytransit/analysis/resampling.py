@@ -310,8 +310,8 @@ class ResamplingMethod(base.DualConditionMethod):
         replicates="Sum",
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         ctrl_lib_str="",
         exp_lib_str="",
         winz=False,
@@ -335,8 +335,8 @@ class ResamplingMethod(base.DualConditionMethod):
             normalization=normalization,
             replicates=replicates,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -400,8 +400,8 @@ class ResamplingMethod(base.DualConditionMethod):
         LOESS = wxobj.resamplingLoessCheck.GetValue()
 
         # Global Parameters
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         ctrl_lib_str = wxobj.ctrlLibText.GetValue()
         exp_lib_str = wxobj.expLibText.GetValue()
 
@@ -432,8 +432,8 @@ class ResamplingMethod(base.DualConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             ctrl_lib_str,
             exp_lib_str,
             wxobj,
@@ -512,8 +512,8 @@ class ResamplingMethod(base.DualConditionMethod):
         LOESS = kwargs.get("l", False)
         ignoreCodon = True
 
-        NTerminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
-        CTerminus = float(kwargs.get("iC", 0.00))
+        n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
+        c_terminus = float(kwargs.get("iC", 0.00))
         ctrl_lib_str = kwargs.get("-ctrl_lib", "")
         exp_lib_str = kwargs.get("-exp_lib", "")
 
@@ -531,8 +531,8 @@ class ResamplingMethod(base.DualConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             ctrl_lib_str,
             exp_lib_str,
             winz=winz,
@@ -675,8 +675,8 @@ class ResamplingMethod(base.DualConditionMethod):
             self.ctrldata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data_ctrl,
             position=position_ctrl,
         )
@@ -684,8 +684,8 @@ class ResamplingMethod(base.DualConditionMethod):
             self.expdata,
             self.annotation_path_exp,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data_exp,
             position=position_exp,
         )
@@ -757,8 +757,8 @@ class ResamplingMethod(base.DualConditionMethod):
                 not self.includeZeros,
                 self.pseudocount,
                 self.LOESS,
-                self.NTerminus,
-                self.CTerminus,
+                self.n_terminus,
+                self.c_terminus,
             )
         )
         self.output.write(
@@ -957,7 +957,7 @@ class ResamplingMethod(base.DualConditionMethod):
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
-                        PC=self.pseudocount,
+                        pseudocount=self.pseudocount,
                     )
                 else:
                     (
@@ -978,7 +978,7 @@ class ResamplingMethod(base.DualConditionMethod):
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
-                        PC=self.pseudocount,
+                        pseudocount=self.pseudocount,
                     )
 
             if self.doHistogram:

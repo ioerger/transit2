@@ -71,7 +71,6 @@ def create_annotation_area(frame):
                 flag=wx.EXPAND | wx.ALL,
                 border=5,
             )
-            annotation_file_picker
             
             @gui_tools.bind_to(annotation_file_picker, wx.EVT_FILEPICKER_CHANGED)
             def annotationFileFunc(event):

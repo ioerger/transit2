@@ -624,7 +624,7 @@ def resampling(
     adaptive=False,
     lib_str1="",
     lib_str2="",
-    PC=1,
+    pseudocount=1,
 ):
     """Does a permutation test on two sets of data.
 
@@ -699,8 +699,8 @@ def resampling(
     if n2 > 0:
         mean2 = numpy.mean(data2)
 
-    if PC > 0:
-        log2FC = math.log((mean2 + PC) / (mean1 + PC), 2)  # as of 3/5/20
+    if pseudocount > 0:
+        log2FC = math.log((mean2 + pseudocount) / (mean1 + pseudocount), 2)  # as of 3/5/20
     else:
         # Only adjust log2FC if one of the means is zero
         if mean1 > 0 and mean2 > 0:

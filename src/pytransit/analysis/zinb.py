@@ -59,7 +59,7 @@ class ZinbMethod(base.MultiConditionMethod):
         condition="Condition",
         covars=[],
         interactions=[],
-        PC=1,
+        pseudocount=1,
         refs=[],
         prot_table=None,
     ):
@@ -83,7 +83,7 @@ class ZinbMethod(base.MultiConditionMethod):
         self.covars = covars
         self.interactions = interactions
         self.condition = condition
-        self.PC = PC
+        self.pseudocount = pseudocount
         self.refs = refs
 
         if prot_table == None:
@@ -129,9 +129,9 @@ class ZinbMethod(base.MultiConditionMethod):
         annotation = args[2]
         output_file = args[3]
         normalization = kwargs.get("n", "TTR")
-        NTerminus = float(kwargs.get("iN", 5.0))
-        CTerminus = float(kwargs.get("iC", 5.0))
-        PC = float(kwargs.get("PC", 5.0))
+        n_terminus = float(kwargs.get("iN", 5.0))
+        c_terminus = float(kwargs.get("iC", 5.0))
+        pseudocount = float(kwargs.get("PC", 5.0))
         condition = kwargs.get("-condition", "Condition")
         covars = list(filter(None, kwargs.get("-covars", "").split(",")))
         interactions = list(filter(None, kwargs.get("-interactions", "").split(",")))
@@ -166,12 +166,12 @@ class ZinbMethod(base.MultiConditionMethod):
             excluded_conditions,
             included_conditions,
             winz,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             condition,
             covars,
             interactions,
-            PC,
+            pseudocount,
             refs,
             prot_table=prot_table,
         )
@@ -778,7 +778,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
         TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
         RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
-            genes, TASiteindexMap, nterm=self.NTerminus, cterm=self.CTerminus
+            genes, TASiteindexMap, nterm=self.n_terminus, cterm=self.c_terminus
         )
         statsByRv, statGroupNames = self.stats_by_rv(
             data, RvSiteindexesMap, genes, conditions, interactions
@@ -858,7 +858,7 @@ class ZinbMethod(base.MultiConditionMethod):
         file.write("#Console: python3 %s\n" % " ".join(sys.argv))
         file.write(
             "#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n"
-            % (self.normalization, self.NTerminus, self.CTerminus, self.PC)
+            % (self.normalization, self.n_terminus, self.c_terminus, self.pseudocount)
         )
         if self.prot_table != None:
             head.append("annotation")
@@ -866,10 +866,10 @@ class ZinbMethod(base.MultiConditionMethod):
         for gene in genes:
             Rv = gene["rv"]
             means = [statsByRv[Rv]["mean"][group] for group in orderedStatGroupNames]
-            PC = self.PC
+            pseudocount = self.pseudocount
             if len(means) == 2:
                 LFCs = [
-                    numpy.math.log((means[1] + PC) / (means[0] + PC), 2)
+                    numpy.math.log((means[1] + pseudocount) / (means[0] + pseudocount), 2)
                 ]  # still need to adapt this to use --ref if defined
             else:
                 if len(self.refs) == 0:
@@ -878,7 +878,7 @@ class ZinbMethod(base.MultiConditionMethod):
                     m = numpy.mean(
                         [statsByRv[Rv]["mean"][group] for group in self.refs]
                     )
-                LFCs = [numpy.math.log((x + PC) / (m + PC), 2) for x in means]
+                LFCs = [numpy.math.log((x + pseudocount) / (m + pseudocount), 2) for x in means]
             vals = (
                 [Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))]
                 + [

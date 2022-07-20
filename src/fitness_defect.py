@@ -103,8 +103,8 @@ for gene in genes:
         cache[n] = sample
     samplesums = [sum(lst) for lst in sample]
     meansum = numpy.mean(samplesums)
-    PC = 1  # pseudo-counts
-    rel = (sum(cnts) + PC) / float(meansum + PC)
+    pseudocount = 1
+    rel = (sum(cnts) + pseudocount) / float(meansum + pseudocount)
     LFC = numpy.log2(rel)
 
     lesser = len(list(filter(lambda x: x <= tot, samplesums)))

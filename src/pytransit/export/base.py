@@ -191,8 +191,8 @@ class SingleConditionMethod(ExportMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
         ExportMethod.__init__(
@@ -209,8 +209,8 @@ class SingleConditionMethod(ExportMethod):
         self.normalization = normalization
         self.LOESS = LOESS
         self.ignoreCodon = ignoreCodon
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
 
 class DualConditionMethod(ExportMethod):
@@ -231,8 +231,8 @@ class DualConditionMethod(ExportMethod):
         normalization,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
         ExportMethod.__init__(
@@ -250,8 +250,8 @@ class DualConditionMethod(ExportMethod):
         self.normalization = normalization
         self.LOESS = LOESS
         self.ignoreCodon = ignoreCodon
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
 
 class QuadConditionMethod(ExportMethod):
@@ -274,8 +274,8 @@ class QuadConditionMethod(ExportMethod):
         normalization,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
         ExportMethod.__init__(
@@ -295,8 +295,8 @@ class QuadConditionMethod(ExportMethod):
         self.normalization = normalization
         self.LOESS = LOESS
         self.ignoreCodon = ignoreCodon
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
 
 class TransitExport:

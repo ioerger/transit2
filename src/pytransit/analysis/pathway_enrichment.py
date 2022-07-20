@@ -86,7 +86,7 @@ class PathwayMethod(base.AnalysisMethod):
         pathwaysFile,
         outputFile,
         method,
-        PC=0,
+        pseudocount=0,
         Nperm=10000,
         p=0,
         ranking="SLPV",
@@ -112,7 +112,7 @@ class PathwayMethod(base.AnalysisMethod):
         self.Pval_col = Pval_col
         self.Qval_col = Qval_col
         self.LFC_col = LFC_col
-        self.PC = PC  # for FET
+        self.pseudocount = pseudocount  # for FET
         self.Nperm = Nperm  # for GSEA
         self.p = p  # for GSEA
         self.ranking = ranking  # for GSEA
@@ -134,7 +134,7 @@ class PathwayMethod(base.AnalysisMethod):
         )  # default cols are for resampling files
         Qval_col = int(kwargs.get("Qval_col", "-1"))
         LFC_col = int(kwargs.get("LFC_col", "6"))
-        PC = int(kwargs.get("PC", "2"))  # for FET
+        pseudocount = int(kwargs.get("PC", "2"))  # for FET
         Nperm = int(kwargs.get("Nperm", "10000"))  # for GSEA
         p = float(kwargs.get("p", "0"))  # for GSEA
         ranking = kwargs.get("ranking", "SLPV")  # for GSEA
@@ -150,7 +150,7 @@ class PathwayMethod(base.AnalysisMethod):
             pathways,
             output,
             method,
-            PC=PC,
+            pseudocount=pseudocount,
             Nperm=Nperm,
             p=p,
             ranking=ranking,
@@ -460,7 +460,7 @@ Optional parameters:
             orf = gene[0]
             if orf in associations:
                 genes_with_associations += 1
-        self.write("# method=FET, PC=%s" % self.PC)
+        self.write("# method=FET, PC=%s" % self.pseudocount)
         self.write(
             "# genes with associations=%s out of %s total"
             % (genes_with_associations, len(genes))
@@ -491,15 +491,15 @@ Optional parameters:
             intersection = list(filter(lambda x: x in associations[term], hits))
             k = len(intersection)
             # add pseudo-counts
-            PC = self.PC
-            k_PC = int(k + PC)
-            n_PC = n + int(
-                M * PC / float(N)
+            pseudocount = self.pseudocount
+            k_pseudocount = int(k + pseudocount)
+            n_pseudocount = n + int(
+                M * pseudocount / float(N)
             )  # add same proportion to overall, round it
             expected = round((N * n / float(M)), 2)
-            enrichment = round((k + PC) / (expected + PC), 3)
-            pval = self.hypergeometric(k_PC, M, n_PC, N)
-            results.append([term, M, n, N, k, expected, k_PC, n_PC, enrichment, pval])
+            enrichment = round((k + pseudocount) / (expected + pseudocount), 3)
+            pval = self.hypergeometric(k_pseudocount, M, n_pseudocount, N)
+            results.append([term, M, n, N, k, expected, k_pseudocount, n_pseudocount, enrichment, pval])
 
         pvals = [x[-1] for x in results]
         rej, qvals = multitest.fdrcorrection(pvals)

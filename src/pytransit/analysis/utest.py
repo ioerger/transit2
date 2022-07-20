@@ -215,8 +215,8 @@ class UTestMethod(base.DualConditionMethod):
         replicates="Sum",
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -233,8 +233,8 @@ class UTestMethod(base.DualConditionMethod):
             normalization=normalization,
             replicates=replicates,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -267,8 +267,8 @@ class UTestMethod(base.DualConditionMethod):
 
         includeZeros = wxobj.utestZeroCheckBox.GetValue()
 
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         LOESS = wxobj.utestLoessCheck.GetValue()
 
         # Get output path
@@ -293,8 +293,8 @@ class UTestMethod(base.DualConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -315,8 +315,8 @@ class UTestMethod(base.DualConditionMethod):
 
         LOESS = kwargs.get("l", False)
         ignoreCodon = True
-        NTerminus = float(kwargs.get("iN", 0.00))
-        CTerminus = float(kwargs.get("iC", 0.00))
+        n_terminus = float(kwargs.get("iN", 0.00))
+        c_terminus = float(kwargs.get("iC", 0.00))
 
         return self(
             ctrldata,
@@ -328,8 +328,8 @@ class UTestMethod(base.DualConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):
@@ -365,8 +365,8 @@ class UTestMethod(base.DualConditionMethod):
             self.ctrldata + self.expdata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data,
             position=position,
         )

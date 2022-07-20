@@ -185,8 +185,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         LOESS=False,
         ignoreCodon=True,
         minread=1,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -202,8 +202,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
         self.minread = minread
@@ -237,8 +237,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
                 wxobj.tn5GapsReadChoice.GetCurrentSelection()
             )
         )
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = wxobj.tn5GapsRepChoice.GetString(
             wxobj.tn5GapsRepChoice.GetCurrentSelection()
         )
@@ -264,8 +264,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             LOESS,
             ignoreCodon,
             minread,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -283,8 +283,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         normalization = None
         LOESS = False
         ignoreCodon = True
-        NTerminus = float(kwargs.get("iN", "0"))
-        CTerminus = float(kwargs.get("iC", "0"))
+        n_terminus = float(kwargs.get("iN", "0"))
+        c_terminus = float(kwargs.get("iC", "0"))
 
         return self(
             ctrldata,
@@ -295,8 +295,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             LOESS,
             ignoreCodon,
             minread,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):
@@ -319,8 +319,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             self.ctrldata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data,
             position=position,
         )
@@ -366,7 +366,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             for gene_orf in genes:
                 gene = genes_obj[gene_orf]  # bug fix: moved this up
                 start, end = gene.start, gene.end
-                a, b = self.NTerminus, self.CTerminus
+                a, b = self.n_terminus, self.c_terminus
                 if gene.strand == "-":
                     a, b = b, a
                 start = start + int((end - start) * (a / 100.0))

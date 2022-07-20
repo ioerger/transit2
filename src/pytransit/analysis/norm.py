@@ -83,8 +83,8 @@ class NormMethod(base.SingleConditionMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -100,8 +100,8 @@ class NormMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -121,8 +121,8 @@ class NormMethod(base.SingleConditionMethod):
         normalization = kwargs.get("n", "TTR")
         LOESS = False
         ignoreCodon = True
-        NTerminus = 0.0
-        CTerminus = 0.0
+        n_terminus = 0.0
+        c_terminus = 0.0
 
         return self(
             ctrldata,
@@ -132,8 +132,8 @@ class NormMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):

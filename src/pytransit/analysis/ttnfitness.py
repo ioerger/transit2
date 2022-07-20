@@ -96,8 +96,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -113,8 +113,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
         self.genome_path = genome_path
@@ -156,8 +156,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         # Read the parameters from the wxPython widgets
         ignoreCodon = True
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = "Sum"
         normalization = None
         LOESS = False
@@ -179,8 +179,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -208,8 +208,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         normalization = None
         LOESS = False
         ignoreCodon = True
-        NTerminus = 0.0
-        CTerminus = 0.0
+        n_terminus = 0.0
+        c_terminus = 0.0
 
         return self(
             ctrldata,
@@ -223,8 +223,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     # read in the fna file as one continous string
@@ -254,8 +254,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             minread=1,
             reps=self.replicates,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data,
             position=position,
         )
@@ -377,10 +377,10 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         # get LFCs
         LFC_values = []
-        PC = 10
+        pseudocount = 10
         for i in range(len(TA_sites_df["Insertion Count"])):
             c, m = TA_sites_df["Insertion Count"].iloc[i], localmeans[i]
-            lfc = math.log((c + PC) / float(m + PC), 2)
+            lfc = math.log((c + pseudocount) / float(m + pseudocount), 2)
             LFC_values.append(lfc)
 
         TA_sites_df["State"] = states

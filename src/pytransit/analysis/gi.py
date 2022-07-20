@@ -577,8 +577,8 @@ class GIMethod(base.QuadConditionMethod):
         replicates="Sum",
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -597,8 +597,8 @@ class GIMethod(base.QuadConditionMethod):
             normalization=normalization,
             replicates=replicates,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -606,8 +606,8 @@ class GIMethod(base.QuadConditionMethod):
         self.includeZeros = includeZeros
         self.rope = rope
         self.signif = signif
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
     @classmethod
     def fromGUI(self, wxobj):
@@ -666,8 +666,8 @@ class GIMethod(base.QuadConditionMethod):
 
         includeZeros = wxobj.giZeroCheckBox.GetValue()
 
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         LOESS = wxobj.giLoessCheck.GetValue()
 
         # Get output path
@@ -699,8 +699,8 @@ class GIMethod(base.QuadConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -735,8 +735,8 @@ class GIMethod(base.QuadConditionMethod):
 
         LOESS = kwargs.get("l", False)
         ignoreCodon = True
-        NTerminus = float(kwargs.get("iN", 0.00))
-        CTerminus = float(kwargs.get("iC", 0.00))
+        n_terminus = float(kwargs.get("iN", 0.00))
+        c_terminus = float(kwargs.get("iC", 0.00))
 
         return self(
             ctrldataA,
@@ -753,8 +753,8 @@ class GIMethod(base.QuadConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):
@@ -794,32 +794,32 @@ class GIMethod(base.QuadConditionMethod):
             self.annotation_path,
             data=data[:Na1],
             position=position,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
         )
         G_B1 = tnseq_tools.Genes(
             [],
             self.annotation_path,
             data=data[Na1 : (Na1 + Nb1)],
             position=position,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
         )
         G_A2 = tnseq_tools.Genes(
             [],
             self.annotation_path,
             data=data[(Na1 + Nb1) : (Na1 + Nb1 + Na2)],
             position=position,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
         )
         G_B2 = tnseq_tools.Genes(
             [],
             self.annotation_path,
             data=data[(Na1 + Nb1 + Na2) :],
             position=position,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
         )
 
         means_list_a1 = []

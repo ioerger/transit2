@@ -161,8 +161,8 @@ class GriffinMethod(base.SingleConditionMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -179,8 +179,8 @@ class GriffinMethod(base.SingleConditionMethod):
             normalization=normalization,
             LOESS=LOESS,
             ignoreCodon=ignoreCodon,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
         self.minread = minread
@@ -208,8 +208,8 @@ class GriffinMethod(base.SingleConditionMethod):
 
         # Read the parameters from the wxPython widgets
         ignoreCodon = True
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = "Sum"
         normalization = None
         LOESS = False
@@ -232,8 +232,8 @@ class GriffinMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -251,8 +251,8 @@ class GriffinMethod(base.SingleConditionMethod):
         normalization = None
         LOESS = False
         ignoreCodon = not kwargs.get("sC", False)
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
+        n_terminus = float(kwargs.get("iN", 0.0))
+        c_terminus = float(kwargs.get("iC", 0.0))
 
         return self(
             ctrldata,
@@ -263,8 +263,8 @@ class GriffinMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):
@@ -292,8 +292,8 @@ class GriffinMethod(base.SingleConditionMethod):
             minread=1,
             reps=self.replicates,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data,
             position=position,
         )

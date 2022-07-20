@@ -25,82 +25,6 @@ long_desc = """Perform Anova analysis"""
 transposons = ["", ""]
 columns = []
 
-# used by CLI and GUI
-def run(global_data, local_data):
-    pass # TODO
-
-
-class Gui:
-    def when_selected(panel):
-        # Create things in the panel
-        # Make things being edited in the panel update the local data
-        pass
-    
-    def when_run_finishes():
-        # create any graphical stuff
-        pass
-
-class Cli:
-    usage_string = '''
-        Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
-        Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-            -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-            -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-    '''.replace("\n        ","\n")
-        
-    def from_args(self, raw_args):
-        (args, kwargs) = transit_tools.clean_args(raw_args)
-
-        if kwargs.get("-help", False) or kwargs.get("h", False):
-            print(self.usage_string)
-            sys.exit(0)
-
-        combined_wig, annotation, metadata, output_file, *_ = args
-        normalization = kwargs.get("n", "TTR")
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
-        winz = True if "winz" in kwargs else False
-        PC = int(kwargs.get("PC", 5))
-        alpha = float(kwargs.get("alpha", 1000))
-        refs = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
-        if refs != []: refs = refs.split(",")
-        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
-        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
-
-        # check for unrecognized flags
-        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
-        for arg in rawargs:
-            if arg[0] == "-" and arg not in flags:
-                self.transit_error("flag unrecognized: %s" % arg)
-                print(self.usage_string)
-                sys.exit(0)
-        
-        global_data = dict(
-            annotation=annotation,
-            wigs=[],        # combined_wig, metadata
-            conditions=[],  # excluded_conditions, included_conditions,
-        )
-        local_data = dict(
-            normalization=normalization,
-            output_file=output_file,
-            n_terminus=NTerminus,
-            c_terminus=CTerminus,
-            pc=PC,
-            winz=winz,
-            refs=refs,
-            alpha=alpha
-        )
-        
-        return global_data, local_data
-
-
 class Analysis(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
@@ -125,7 +49,7 @@ class AnovaMethod(base.MultiConditionMethod):
         included_conditions=[],
         nterm=0.0,
         cterm=0.0,
-        PC=1,
+        pseudocount=1,
         winz=False,
         refs=[],
         alpha=1000
@@ -147,7 +71,7 @@ class AnovaMethod(base.MultiConditionMethod):
             cterm=cterm,
         )
 
-        self.PC = PC
+        self.pseudocount = pseudocount
         self.alpha = alpha
         self.refs = refs
         self.winz = winz
@@ -171,12 +95,12 @@ class AnovaMethod(base.MultiConditionMethod):
         metadata     = args[1]
         output_file  = args[3]
         normalization = kwargs.get("n", "TTR")
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
-        winz = True if "winz" in kwargs else False
-        PC = int(kwargs.get("PC", 5))
-        alpha = float(kwargs.get("alpha", 1000))
-        refs = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
+        n_terminus    = float(kwargs.get("iN", 0.0))
+        c_terminus    = float(kwargs.get("iC", 0.0))
+        winz          = "winz" in kwargs
+        pseudocount   = int(kwargs.get("PC", 5))
+        alpha         = float(kwargs.get("alpha", 1000))
+        refs          = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
         if refs != []: refs = refs.split(",")
         excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
         included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
@@ -197,14 +121,13 @@ class AnovaMethod(base.MultiConditionMethod):
             output_file,
             excluded_conditions,
             included_conditions,
-            NTerminus,
-            CTerminus,
-            PC,
+            n_terminus,
+            c_terminus,
+            pseudocount,
             winz,
             refs,
             alpha
         )
-
 
     def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
         """
@@ -364,11 +287,11 @@ class AnovaMethod(base.MultiConditionMethod):
           msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
         return (msr, mse, f, p, q, statusMap)
 
-    def calc_lf_cs(self, means, refs=[], PC=1):
+    def calc_lf_cs(self, means, refs=[], pseudocount=1):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
         grandmean = numpy.mean(refs)
-        lfcs = [math.log((x + PC) / float(grandmean + PC), 2) for x in means]
+        lfcs = [math.log((x + pseudocount) / float(grandmean + pseudocount), 2) for x in means]
         return lfcs
 
     def Run(self):
@@ -420,7 +343,7 @@ class AnovaMethod(base.MultiConditionMethod):
 
         TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
         RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
-            genes, TASiteindexMap, nterm=self.NTerminus, cterm=self.CTerminus
+            genes, TASiteindexMap, nterm=self.n_terminus, cterm=self.c_terminus
         )
         MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
@@ -432,39 +355,6 @@ class AnovaMethod(base.MultiConditionMethod):
         self.transit_message("Adding File: %s" % (self.output))
         file = open(self.output, "w")
 
-        # heads = (
-        #     "Rv Gene TAs".split()
-        #     + ["Mean_%s" % x for x in conditionsList]
-        #     + ["LFC_%s" % x for x in conditionsList]
-        #     + "pval padj".split()
-        #     + ["status"]
-        # )
-        # table = []
-        # for gene in genes:
-        #     Rv = gene["rv"]
-        #     if Rv in MeansByRv:
-        #         means = [MeansByRv[Rv][c] for c in conditionsList]
-        #         refs = [MeansByRv[Rv][c] for c in self.refs]
-        #         LFCs = self.calc_lf_cs(means, refs, self.PC)
-        #         vals = (
-        #             [Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))]
-        #             + ["%0.2f" % x for x in means]
-        #             + ["%0.3f" % x for x in LFCs]
-        #             + ["%f" % x for x in [pvals[Rv], qvals[Rv]]]
-        #             + [run_status[Rv]]
-        #         )
-        #         table.append(vals)
-        # 
-        # write_dat(
-        #     path=self.output,
-        #     heading=(
-        #         ("Console: python3 %s\n" % " ".join(sys.argv)) + 
-        #         ("parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n" % (self.normalization, self.NTerminus, self.CTerminus, self.PC)) +
-        #         ("#" + "\t".join(heads))
-        #     ),
-        #     table=table,
-        # )
-        
         heads = (
             "Rv Gene TAs".split() +
             ["Mean_%s" % x for x in conditionsList] +
@@ -473,14 +363,14 @@ class AnovaMethod(base.MultiConditionMethod):
             ["status"]
         )
         file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.NTerminus,self.CTerminus,self.PC,self.alpha))
+        file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.n_terminus,self.c_terminus,self.pseudocount,self.alpha))
         file.write('#'+'\t'.join(heads)+EOL)
         for gene in genes:
             Rv = gene["rv"]
             if Rv in MeansByRv:
               means = [MeansByRv[Rv][c] for c in conditionsList]
               refs = [MeansByRv[Rv][c] for c in self.refs]
-              LFCs = self.calc_lf_cs(means,refs,self.PC)
+              LFCs = self.calc_lf_cs(means,refs,self.pseudocount)
               vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
                       ["%0.2f" % x for x in means] + 
                       ["%0.3f" % x for x in LFCs] + 

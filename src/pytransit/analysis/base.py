@@ -541,8 +541,8 @@ class SingleConditionMethod(AnalysisMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
         AnalysisMethod.__init__(
@@ -560,8 +560,8 @@ class SingleConditionMethod(AnalysisMethod):
         self.normalization = normalization
         self.LOESS = LOESS
         self.ignoreCodon = ignoreCodon
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
 
 #
@@ -586,8 +586,8 @@ class DualConditionMethod(AnalysisMethod):
         replicates="Sum",
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
         AnalysisMethod.__init__(
@@ -606,8 +606,8 @@ class DualConditionMethod(AnalysisMethod):
         self.replicates = replicates
         self.LOESS = LOESS
         self.ignoreCodon = ignoreCodon
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
 
 #
@@ -634,8 +634,8 @@ class QuadConditionMethod(AnalysisMethod):
         replicates="Sum",
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
         AnalysisMethod.__init__(
@@ -656,8 +656,8 @@ class QuadConditionMethod(AnalysisMethod):
         self.replicates = replicates
         self.LOESS = LOESS
         self.ignoreCodon = ignoreCodon
-        self.NTerminus = NTerminus
-        self.CTerminus = CTerminus
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
 
 
 #
@@ -700,8 +700,8 @@ class MultiConditionMethod(AnalysisMethod):
         self.combined_wig        = combined_wig
         self.metadata            = metadata
         self.normalization       = normalization
-        self.NTerminus           = nterm
-        self.CTerminus           = cterm
+        self.n_terminus           = nterm
+        self.c_terminus           = cterm
         self.unknown_cond_flag   = "FLAG-UNMAPPED-CONDITION-IN-WIG"
         self.excluded_conditions = excluded_conditions
         self.included_conditions = included_conditions

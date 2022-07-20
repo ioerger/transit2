@@ -271,8 +271,8 @@ class HMMMethod(base.SingleConditionMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -288,8 +288,8 @@ class HMMMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -329,8 +329,8 @@ class HMMMethod(base.SingleConditionMethod):
             wxobj.hmmRepChoice.GetCurrentSelection()
         )
         ignoreCodon = True
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
 
         normalization = wxobj.hmmNormChoice.GetString(
             wxobj.hmmNormChoice.GetCurrentSelection()
@@ -356,8 +356,8 @@ class HMMMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -374,8 +374,8 @@ class HMMMethod(base.SingleConditionMethod):
         normalization = kwargs.get("n", "TTR")
         LOESS = kwargs.get("l", False)
         ignoreCodon = True
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
+        n_terminus = float(kwargs.get("iN", 0.0))
+        c_terminus = float(kwargs.get("iC", 0.0))
 
         return self(
             ctrldata,
@@ -385,8 +385,8 @@ class HMMMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):
@@ -741,8 +741,8 @@ class HMMMethod(base.SingleConditionMethod):
             data=data,
             position=position,
             ignoreCodon=False,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
         )
 
         num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}

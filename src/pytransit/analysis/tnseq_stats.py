@@ -86,8 +86,8 @@ class TnseqStatsMethod(base.SingleConditionMethod):
         normalization = "nonorm"
         LOESS = False
         ignoreCodon = True
-        NTerminus = 0.0
-        CTerminus = 0.0
+        n_terminus = 0.0
+        c_terminus = 0.0
         wxobj = None
         base.SingleConditionMethod.__init__(
             self,
@@ -101,8 +101,8 @@ class TnseqStatsMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 

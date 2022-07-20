@@ -204,8 +204,8 @@ class BinomialMethod(base.SingleConditionMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         pi0=0.5,
         pi1=0.5,
         M0=1.0,
@@ -231,8 +231,8 @@ class BinomialMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -272,8 +272,8 @@ class BinomialMethod(base.SingleConditionMethod):
         samples = int(wxobj.binomialSampleText.GetValue())
         burnin = int(wxobj.binomialBurnText.GetValue())
         ignoreCodon = True
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
+        n_terminus = float(wxobj.globalNTerminusText.GetValue())
+        c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = "Sum"
         normalization = None
         LOESS = False
@@ -297,8 +297,8 @@ class BinomialMethod(base.SingleConditionMethod):
             normalization=normalization,
             LOESS=LOESS,
             ignoreCodon=ignoreCodon,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -317,8 +317,8 @@ class BinomialMethod(base.SingleConditionMethod):
         normalization = None
         LOESS = False
         ignoreCodon = True
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
+        n_terminus = float(kwargs.get("iN", 0.0))
+        c_terminus = float(kwargs.get("iC", 0.0))
 
         pi0 = float(kwargs.get("pi0", 0.5))
         pi1 = float(kwargs.get("pi1", 0.5))
@@ -341,8 +341,8 @@ class BinomialMethod(base.SingleConditionMethod):
             normalization=normalization,
             LOESS=LOESS,
             ignoreCodon=ignoreCodon,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             pi0=pi0,
             pi1=pi1,
             M0=M0,
@@ -364,7 +364,7 @@ class BinomialMethod(base.SingleConditionMethod):
 
         # Get orf data
         # self.transit_message("Getting Data")
-        # G = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignoreCodon=self.ignoreCodon, nterm=self.NTerminus, cterm=self.CTerminus)
+        # G = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignoreCodon=self.ignoreCodon, nterm=self.n_terminus, cterm=self.c_terminus)
 
         self.transit_message("Getting Data")
         (data, position) = transit_tools.get_validated_data(
@@ -384,8 +384,8 @@ class BinomialMethod(base.SingleConditionMethod):
             minread=1,
             reps=self.replicates,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data,
             position=position,
         )

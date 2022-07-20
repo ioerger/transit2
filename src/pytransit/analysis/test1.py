@@ -19,6 +19,7 @@ import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
+from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
 
 
@@ -352,8 +353,8 @@ class Method(base.DualConditionMethod):
         replicates="Sum",
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         ctrl_lib_str="",
         exp_lib_str="",
         winz=False,
@@ -377,8 +378,8 @@ class Method(base.DualConditionMethod):
             normalization=normalization,
             replicates=replicates,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
 
@@ -399,90 +400,94 @@ class Method(base.DualConditionMethod):
 
     @classmethod
     def fromGUI(self, wxobj):
-        """ """
-        # Get Annotation file
-        annot_paths = wxobj.annotation.split(",")
-        annotationPath = annot_paths[0]
-        diffStrains = False
-        annotationPathExp = ""
-        if len(annot_paths) == 2:
-            annotationPathExp = annot_paths[1]
-            diffStrains = True
+        with gui_tools.nice_error_log:
+            inputs = dict(
+                combined_wig=None,
+                metadata=None,
+                annotation=None,
+                normalization=None,
+                output_file=None,
+                excluded_conditions=None,
+                included_conditions=None,
+                n_terminus=None,
+                c_terminus=None,
+                pseudocount=None,
+                winz=None,
+                refs=None,
+                alpha=None
+            )
+            
+            # 
+            # get annotation
+            # 
+            annotation_path = universal.session_data.annotation
+            if not transit_tools.validate_annotation(annotation_path):
+                raise Exception(f'''seems session_data.annotation is invalid, unable to get data from GUI''')
+            
+            # 
+            # get wig files
+            # 
+            cwig_paths     = [ each.cwig.path     for each in universal.wig_groups ]
+            metadata_paths = [ each.metadata.path for each in universal.wig_groups ]
+            
+            # 
+            # Read the parameters from the wxPython widgets
+            # 
+            ignoreCodon = True
+            samples = int(wxobj.normalizationMethodInput.GetValue())
+            normalization = wxobj.test1NormChoice.GetString(
+                wxobj.test1NormChoice.GetCurrentSelection()
+            )
+            replicates = "Sum"
+            adaptive = wxobj.test1AdaptiveCheckBox.GetValue()
+            doHistogram = wxobj.test1HistogramCheckBox.GetValue()
 
-        if not transit_tools.validate_annotation(annotationPath):
-            return None
+            includeZeros = wxobj.test1ZeroCheckBox.GetValue()
+            pseudocount = float(wxobj.test1PseudocountText.GetValue())
+            LOESS = wxobj.test1LoessCheck.GetValue()
 
-        if annotationPathExp and not transit_tools.validate_annotation(
-            annotationPathExp
-        ):
-            return None
+            # Global Parameters
+            n_terminus = float(wxobj.globalNTerminusText.GetValue())
+            c_terminus = float(wxobj.globalCTerminusText.GetValue())
+            ctrl_lib_str = wxobj.ctrlLibText.GetValue()
+            exp_lib_str = wxobj.expLibText.GetValue()
 
-        # Get selected files
-        ctrldata = wxobj.ctrlSelected()
-        expdata = wxobj.expSelected()
-        if not transit_tools.validate_both_datasets(ctrldata, expdata):
-            return None
+            # Get output path
+            # defaultFileName = "test1_output_s%d_pc%1.2f" % (samples, pseudocount)
+            # if adaptive: defaultFileName+= "_adaptive"
+            # if includeZeros: defaultFileName+= "_iz"
+            # defaultFileName+=".dat"
+            defaultFileName = "test1_output.dat"  # simplified
 
-        # Validate transposon types
-        if not transit_tools.validate_transposons_used(ctrldata + expdata, transposons):
-            return None
+            defaultDir = os.getcwd()
+            output_path = wxobj.SaveFile(defaultDir, defaultFileName)
+            if not output_path:
+                return None
+            output_file = open(output_path, "w")
 
-        # Read the parameters from the wxPython widgets
-        ignoreCodon = True
-        samples = int(wxobj.normalizationMethodInput.GetValue())
-        normalization = wxobj.test1NormChoice.GetString(
-            wxobj.test1NormChoice.GetCurrentSelection()
-        )
-        replicates = "Sum"
-        adaptive = wxobj.test1AdaptiveCheckBox.GetValue()
-        doHistogram = wxobj.test1HistogramCheckBox.GetValue()
-
-        includeZeros = wxobj.test1ZeroCheckBox.GetValue()
-        pseudocount = float(wxobj.test1PseudocountText.GetValue())
-        LOESS = wxobj.test1LoessCheck.GetValue()
-
-        # Global Parameters
-        NTerminus = float(wxobj.globalNTerminusText.GetValue())
-        CTerminus = float(wxobj.globalCTerminusText.GetValue())
-        ctrl_lib_str = wxobj.ctrlLibText.GetValue()
-        exp_lib_str = wxobj.expLibText.GetValue()
-
-        # Get output path
-        # defaultFileName = "test1_output_s%d_pc%1.2f" % (samples, pseudocount)
-        # if adaptive: defaultFileName+= "_adaptive"
-        # if includeZeros: defaultFileName+= "_iz"
-        # defaultFileName+=".dat"
-        defaultFileName = "test1_output.dat"  # simplified
-
-        defaultDir = os.getcwd()
-        output_path = wxobj.SaveFile(defaultDir, defaultFileName)
-        if not output_path:
-            return None
-        output_file = open(output_path, "w")
-
-        return self(
-            ctrldata,
-            expdata,
-            annotationPath,
-            output_file,
-            normalization,
-            samples,
-            adaptive,
-            doHistogram,
-            includeZeros,
-            pseudocount,
-            replicates,
-            LOESS,
-            ignoreCodon,
-            NTerminus,
-            CTerminus,
-            ctrl_lib_str,
-            exp_lib_str,
-            wxobj,
-            Z=False,
-            diffStrains=diffStrains,
-            annotation_path_exp=annotationPathExp,
-        )
+            return self(
+                ctrldata,
+                expdata,
+                annotation_path,
+                output_file,
+                normalization,
+                samples,
+                adaptive,
+                doHistogram,
+                includeZeros,
+                pseudocount,
+                replicates,
+                LOESS,
+                ignoreCodon,
+                n_terminus,
+                c_terminus,
+                ctrl_lib_str,
+                exp_lib_str,
+                wxobj,
+                Z=False,
+                diffStrains=diffStrains,
+                annotation_path_exp=annotation_path_exp,
+            )
 
     @classmethod
     def fromargs(self, rawargs):
@@ -515,11 +520,11 @@ class Method(base.DualConditionMethod):
             expdata = args[1].split(",")
             annot_paths = args[2].split(",")
             output_path = args[3]
-        annotationPath = annot_paths[0]
+        annotation_path = annot_paths[0]
         diffStrains = False
-        annotationPathExp = ""
+        annotation_path_exp = ""
         if len(annot_paths) == 2:
-            annotationPathExp = annot_paths[1]
+            annotation_path_exp = annot_paths[1]
             diffStrains = True
         if diffStrains and isCombinedWig:
             print("Error: Cannot have combined wig and different annotation files.")
@@ -554,15 +559,15 @@ class Method(base.DualConditionMethod):
         LOESS = kwargs.get("l", False)
         ignoreCodon = True
 
-        NTerminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
-        CTerminus = float(kwargs.get("iC", 0.00))
+        n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
+        c_terminus = float(kwargs.get("iC", 0.00))
         ctrl_lib_str = kwargs.get("-ctrl_lib", "")
         exp_lib_str = kwargs.get("-exp_lib", "")
 
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -573,14 +578,14 @@ class Method(base.DualConditionMethod):
             replicates,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             ctrl_lib_str,
             exp_lib_str,
             winz=winz,
             Z=Z,
             diffStrains=diffStrains,
-            annotation_path_exp=annotationPathExp,
+            annotation_path_exp=annotation_path_exp,
             combinedWigParams=combinedWigParams,
         )
 
@@ -717,8 +722,8 @@ class Method(base.DualConditionMethod):
             self.ctrldata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data_ctrl,
             position=position_ctrl,
         )
@@ -726,8 +731,8 @@ class Method(base.DualConditionMethod):
             self.expdata,
             self.annotation_path_exp,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data_exp,
             position=position_exp,
         )
@@ -799,8 +804,8 @@ class Method(base.DualConditionMethod):
                 not self.includeZeros,
                 self.pseudocount,
                 self.LOESS,
-                self.NTerminus,
-                self.CTerminus,
+                self.n_terminus,
+                self.c_terminus,
             )
         )
         self.output.write(
@@ -999,7 +1004,7 @@ class Method(base.DualConditionMethod):
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
-                        PC=self.pseudocount,
+                        pseudocount=self.pseudocount,
                     )
                 else:
                     (
@@ -1020,7 +1025,7 @@ class Method(base.DualConditionMethod):
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
-                        PC=self.pseudocount,
+                        pseudocount=self.pseudocount,
                     )
 
             if self.doHistogram:

@@ -215,8 +215,8 @@ class GumbelMethod(base.SingleConditionMethod):
         normalization=None,
         LOESS=False,
         ignoreCodon=True,
-        NTerminus=0.0,
-        CTerminus=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         wxobj=None,
     ):
 
@@ -232,8 +232,8 @@ class GumbelMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            NTerminus=NTerminus,
-            CTerminus=CTerminus,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
             wxobj=wxobj,
         )
         self.samples = samples
@@ -312,20 +312,20 @@ class GumbelMethod(base.SingleConditionMethod):
         ignoreCodon = True
 
         try:
-            NTerminus = float(wxobj.globalNTerminusText.GetValue())
+            n_terminus = float(wxobj.globalNTerminusText.GetValue())
         except:
             warnings.warn(
-                "Warning: problem reading NTerminus parameter. Assuming a value of '0.00'"
+                "Warning: problem reading n_terminus parameter. Assuming a value of '0.00'"
             )
-            NTerminus = 0.0
+            n_terminus = 0.0
 
         try:
-            CTerminus = float(wxobj.globalCTerminusText.GetValue())
+            c_terminus = float(wxobj.globalCTerminusText.GetValue())
         except:
             warnings.warn(
-                "Warning: problem reading CTerminus parameter. Assuming a value of '0.00'"
+                "Warning: problem reading c_terminus parameter. Assuming a value of '0.00'"
             )
-            CTerminus = 0.0
+            c_terminus = 0.0
 
         normalization = None
         LOESS = False
@@ -356,8 +356,8 @@ class GumbelMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
             wxobj,
         )
 
@@ -379,8 +379,8 @@ class GumbelMethod(base.SingleConditionMethod):
         normalization = None
         LOESS = False
         ignoreCodon = True
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
+        n_terminus = float(kwargs.get("iN", 0.0))
+        c_terminus = float(kwargs.get("iC", 0.0))
 
         return self(
             ctrldata,
@@ -394,8 +394,8 @@ class GumbelMethod(base.SingleConditionMethod):
             normalization,
             LOESS,
             ignoreCodon,
-            NTerminus,
-            CTerminus,
+            n_terminus,
+            c_terminus,
         )
 
     def Run(self):
@@ -450,8 +450,8 @@ class GumbelMethod(base.SingleConditionMethod):
             minread=self.minread,
             reps=self.replicates,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.NTerminus,
-            cterm=self.CTerminus,
+            nterm=self.n_terminus,
+            cterm=self.c_terminus,
             data=data,
             position=position,
         )
@@ -596,7 +596,7 @@ class GumbelMethod(base.SingleConditionMethod):
         )
         self.output.write(
             "#Trimming of TAs near termini: N-term=%s, C-term=%s (fraction of ORF length)\n"
-            % (self.NTerminus, self.CTerminus)
+            % (self.n_terminus, self.c_terminus)
         )
         self.output.write(
             "#Significance thresholds (FDR-corrected): Essential if Zbar>%f, Non-essential if Zbar<%f\n"
