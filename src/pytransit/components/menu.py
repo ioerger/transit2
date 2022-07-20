@@ -1,5 +1,7 @@
 from collections import defaultdict
 from functools import partial
+import pytransit.gui_tools as gui_tools
+import pytransit.transit_tools as transit_tools
 
 selected_export_menu_item = None
 convert_menu_item = None
@@ -161,45 +163,43 @@ def create_menu(self):
     order = defaultdict(lambda: 100)
     for k, v in method_order:
         order[k] = v
+    
+    # 
+    # generate methods
+    # 
+    method_names = sorted(methods.keys(), key=lambda x: order[x])
+    for name in method_names:
+        method = methods[name]
+        fullname = methods[name].fullname()
+        
+        def create_callback():
+            # these vars need to be defined here because of how python scopes variables
+            the_method = methods[name]
+            the_fullname = methods[name].fullname()
+            def load_method_wrapper(event):
+                # hide all the other panel stuff
+                for each_method_name in method_names:
+                    each_method = methods[each_method_name]
+                    if each_method.gui.panel:
+                        each_method.gui.panel.Hide()
+                the_method.gui.define_panel(self)
+                return method_select_func(the_fullname, event)
+            return load_method_wrapper
+        
+        menu_callback = create_callback()
+        
+        # attach menus
+        for method_name, parent_menu in [ ["himar1", himar1_menu_item], ["tn5", tn5_menu_item] ]:
+            temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, fullname, wx.EmptyString, wx.ITEM_NORMAL,)
+            self.Bind(wx.EVT_MENU,menu_callback,temp_menu_item,)
+            parent_menu.Append(temp_menu_item)
 
-    for name in sorted(methods.keys(), key=lambda x: order[x]):
-        methods[name].gui.define_panel(self)
-        methods[name].gui.Hide()
-
-        if "himar1" in methods[name].transposons:
-            temp_menu_item = wx.MenuItem(
-                himar1_menu_item,
-                wx.ID_ANY,
-                methods[name].fullname(),
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            self.Bind(
-                wx.EVT_MENU,
-                partial(method_select_func, methods[name].fullname()),
-                temp_menu_item,
-            )
-
-            himar1_menu_item.Append(temp_menu_item)
-
-        if "tn5" in methods[name].transposons:
-            temp_menu_item = wx.MenuItem(
-                tn5_menu_item,
-                wx.ID_ANY,
-                methods[name].fullname(),
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            self.Bind(
-                wx.EVT_MENU,
-                partial(method_select_func, methods[name].fullname()),
-                temp_menu_item,
-            )
-            tn5_menu_item.Append(temp_menu_item)
 
 def method_select_func(selected_name, event):
     import pytransit.components.parameter_panel as parameter_panel
     from pytransit.components.parameter_panel import panel
+    
+    frame = gui_tools.window
     
     # If empty is selected
     if selected_name == "[Choose Method]":

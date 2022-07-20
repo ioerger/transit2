@@ -172,42 +172,26 @@ class AnalysisGUI:
         self.LABELSIZE = (100, -1)
         self.WIDGETSIZE = (100, -1)
 
-    #
-
     def Hide(self):
-        self.panel.Hide()
-
-    #
+        if self.panel: self.panel.Hide()
 
     def Show(self):
-        self.panel.Show()
-
-    #
+        if self.panel: self.panel.Show()
 
     def Enable(self):
-        self.panel.Enable()
-
-    #
+        if self.panel: self.panel.Enable()
 
     def GlobalEnable(self):
         pass
 
-    #
-
     def GlobalHide(self):
         pass
-
-    #
 
     def GlobalShow(self):
         pass
 
-    #
-
     def GlobalDisable(self):
         pass
-
-    #
 
     def define_panel(self, wxobj):
         # TODO: write docstring
