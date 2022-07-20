@@ -117,10 +117,9 @@ class File(base.TransitFile):
             print("Error Displaying File. Histogram image does not exist.")
 
 class GUI(base.AnalysisGUI):
-    def define_panel(self, wxobj):
-        print("running define panel")
+    def define_panel(self, frame):
+        self.main_frame = frame
         window = gui_tools.window
-        self.wxobj = wxobj
         test1_panel = wx.Panel(
             window,
             wx.ID_ANY,
@@ -154,7 +153,7 @@ class GUI(base.AnalysisGUI):
             # if True:
             #     (
             #         _,
-            #         self.wxobj.excludeConditionsInput,
+            #         self.main_frame.excludeConditionsInput,
             #         sizer,
             #     ) = self.defineTextBox(
             #         panel=test1_panel,
@@ -168,10 +167,10 @@ class GUI(base.AnalysisGUI):
             # # text input: Pseudocount
             # # 
             # if True:
-            #     # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1_panel, "Pseudocount:", "0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
+            #     # (test1PseudocountLabel, self.main_frame.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1_panel, "Pseudocount:", "0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
             #     (
             #         test1PseudocountLabel,
-            #         self.wxobj.test1PseudocountText,
+            #         self.main_frame.test1PseudocountText,
             #         pseudoSizer,
             #     ) = self.defineTextBox(
             #         test1_panel,
@@ -213,7 +212,7 @@ class GUI(base.AnalysisGUI):
         # 
         # if True:
             # LOESS Check
-            # (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
+            # (self.main_frame.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
             #     test1_panel,
             #     labelText="Correct for Genome Positional Bias",
             #     widgetCheck=False,
@@ -226,7 +225,7 @@ class GUI(base.AnalysisGUI):
         # button: LOESS
         # 
         # if True:
-        #     self.wxobj.test1LoessPrev = wx.Button(
+        #     self.main_frame.test1LoessPrev = wx.Button(
         #         test1_panel,
         #         wx.ID_ANY,
         #         "Preview LOESS fit",
@@ -234,13 +233,13 @@ class GUI(base.AnalysisGUI):
         #         wx.DefaultSize,
         #         0,
         #     )
-        #     self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+        #     self.main_frame.test1LoessPrev.Bind(wx.EVT_BUTTON, self.main_frame.LoessPrevFunc)
         
         # # 
         # # checkbox: winsorize
         # # 
         # if True:
-        #     (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
+        #     (self.main_frame.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
         #         test1_panel,
         #         labelText="winsorize",
         #         widgetCheck=False,
@@ -261,7 +260,14 @@ class GUI(base.AnalysisGUI):
                     wx.DefaultSize,
                     0,
                 )
-                runButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
+                def run(*args):
+                    with gui_tools.nice_error_log:
+                        method_instance = universal.selected_method.method.from_gui(window)
+                        if method_instance:
+                            thread = threading.Thread(target=method_instance.Run())
+                            thread.setDaemon(True)
+                            thread.start()
+                runButton.Bind(wx.EVT_BUTTON, run)
                 main_sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
             
             
@@ -314,7 +320,7 @@ class Method(base.DualConditionMethod):
         self.winz = winz
 
     @classmethod
-    def from_gui(self, wxobj):
+    def from_gui(self, frame):
         with gui_tools.nice_error_log:
             inputs = LazyDict(
                 combined_wig=None,
@@ -343,8 +349,9 @@ class Method(base.DualConditionMethod):
             # get annotation
             # 
             inputs.annotation = universal.session_data.annotation
-            if not transit_tools.validate_annotation(inputs.annotation):
-                return None
+            # TODO: enable this 
+            # if not transit_tools.validate_annotation(inputs.annotation):
+            #     return None
             
             # 
             # setup custom inputs
@@ -357,7 +364,7 @@ class Method(base.DualConditionMethod):
             # 
             default_file_name = "test1_output.dat"  # simplified
             default_dir = os.getcwd()
-            output_path = wxobj.SaveFile(default_dir, default_file_name)
+            output_path = frame.SaveFile(default_dir, default_file_name)
             if not output_path:
                 return None
             output_file = open(output_path, "w")
@@ -509,7 +516,7 @@ class Method(base.DualConditionMethod):
 
     def Run(self):
 
-        # if not self.wxobj:
+        # if not self.main_frame:
         #    # Force matplotlib to use good backend for png.
         #    import matplotlib.pyplot as plt
         # elif "matplotlib.pyplot" not in sys.modules:
@@ -571,10 +578,10 @@ class Method(base.DualConditionMethod):
             position_ctrl, position_exp = position, position
         else:
             (data_ctrl, position_ctrl) = transit_tools.get_validated_data(
-                self.ctrldata, wxobj=self.wxobj
+                self.ctrldata, frame=self.main_frame
             )
             (data_exp, position_exp) = transit_tools.get_validated_data(
-                self.expdata, wxobj=self.wxobj
+                self.expdata, frame=self.main_frame
             )
         (K_ctrl, N_ctrl) = data_ctrl.shape
         (K_exp, N_exp) = data_exp.shape
@@ -585,7 +592,7 @@ class Method(base.DualConditionMethod):
             )
             self.transit_error("Make sure all .wig files come from the same strain.")
             return
-        # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)
+        # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, frame=self.main_frame)
 
         self.transit_message("Preprocessing Ctrl data...")
         data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
@@ -644,7 +651,7 @@ class Method(base.DualConditionMethod):
     def write_output(self, data, qval, start_time):
 
         self.output.write("#Anova\n")
-        if self.wxobj:
+        if self.main_frame:
             members = sorted(
                 [
                     attr
