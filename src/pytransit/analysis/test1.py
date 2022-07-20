@@ -117,7 +117,7 @@ class File(base.TransitFile):
             print("Error Displaying File. Histogram image does not exist.")
 
 class GUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         print("running define panel")
         window = gui_tools.window
         self.wxobj = wxobj

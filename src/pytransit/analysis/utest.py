@@ -99,7 +99,7 @@ class UTestFile(base.TransitFile):
 
 
 class UTestGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         utestPanel = wx.Panel(
             self.wxobj,

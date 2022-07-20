@@ -95,7 +95,7 @@ class Tn5GapsFile(base.TransitFile):
 
 
 class Tn5GapsGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         tn5GapsPanel = wx.Panel(
             self.wxobj,

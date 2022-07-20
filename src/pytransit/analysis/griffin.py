@@ -95,7 +95,7 @@ class GriffinFile(base.TransitFile):
 
 
 class GriffinGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         griffinPanel = wx.Panel(
             self.wxobj,

@@ -163,7 +163,7 @@ class HMMGenesFile(base.TransitFile):
 
 
 class HMMGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         hmmPanel = wx.Panel(
             self.wxobj,

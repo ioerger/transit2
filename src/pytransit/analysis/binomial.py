@@ -112,7 +112,7 @@ class BinomialFile(base.TransitFile):
 
 
 class BinomialGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         binomialPanel = panel.global_panel
 

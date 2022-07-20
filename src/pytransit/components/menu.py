@@ -163,7 +163,7 @@ def create_menu(self):
         order[k] = v
 
     for name in sorted(methods.keys(), key=lambda x: order[x]):
-        methods[name].gui.definePanel(self)
+        methods[name].gui.define_panel(self)
         methods[name].gui.Hide()
 
         if "himar1" in methods[name].transposons:

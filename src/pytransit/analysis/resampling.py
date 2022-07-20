@@ -119,7 +119,7 @@ class ResamplingFile(base.TransitFile):
 
 
 class ResamplingGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         resamplingPanel = wx.Panel(
             self.wxobj,

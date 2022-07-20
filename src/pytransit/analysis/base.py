@@ -209,7 +209,7 @@ class AnalysisGUI:
 
     #
 
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         # TODO: write docstring
 
         self.wxobj = wxobj

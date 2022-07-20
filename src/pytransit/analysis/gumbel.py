@@ -91,7 +91,7 @@ class GumbelFile(base.TransitFile):
 
 
 class GumbelGUI(base.AnalysisGUI):
-    def definePanel(self, wxobj):
+    def define_panel(self, wxobj):
         self.wxobj = wxobj
         gumbelPanel = wx.Panel(
             self.wxobj,
