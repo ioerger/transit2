@@ -16,7 +16,10 @@ def named_list(names):
                 return super(NamedList, self).__getitem__(key)
             # assume its a name
             else:
-                index = names.index(key)
+                try:
+                    index = names.index(key)
+                except ValueError as error:
+                    raise Exception(f'''key={key} not in named list: {self}''')
                 if index >= len(self):
                     return None
                 return self[index]
