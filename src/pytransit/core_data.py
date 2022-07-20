@@ -53,7 +53,11 @@ class SessionData:
     
     @property
     def condition_names(self):
-        return set([ each.name for each in self.conditions ])
+        names = []
+        for each in self.conditions:
+            if each.name not in names:
+                names.append(each.name)
+        return names
     
     def add_wig(self, path, condition=None):
         self.samples.append(

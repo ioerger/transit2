@@ -21,7 +21,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
-from pytransit.components.panel_helpers import create_normalization_dropdown
+from pytransit.components.panel_helpers import create_normalization_dropdown, create_reference_condition_dropdown
 
 default_padding = 5 # not sure what the units are
 
@@ -118,6 +118,7 @@ class File(base.TransitFile):
 
 class GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
+        print("running define panel")
         window = gui_tools.window
         self.wxobj = wxobj
         test1_panel = wx.Panel(
@@ -147,27 +148,12 @@ class GUI(base.AnalysisGUI):
             # 
             # normalization
             # 
-            if True:
-                component, getter = create_normalization_dropdown(test1_panel)
-                self.value_getters.normalization = getter
-                main_sizer.Add(component, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+            self.value_getters.normalization = create_normalization_dropdown(test1_panel, main_sizer)
                 
             # 
             # text input: refInput
             # 
-            if True:
-                # TODO: could be dropdown
-                (
-                    _,
-                    self.wxobj.refInput,
-                    sizer,
-                ) = self.defineTextBox(
-                    panel=test1_panel,
-                    labelText="Refrence Condition",
-                    widgetText="",
-                    tooltipText="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
-                )
-                main_sizer.Add(sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+            self.value_getters.reference_condition = create_reference_condition_dropdown(test1_panel, main_sizer)
             
             # # 
             # # text input: includeConditionsInput
