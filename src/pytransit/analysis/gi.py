@@ -610,7 +610,7 @@ class GIMethod(base.QuadConditionMethod):
         self.c_terminus = c_terminus
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         """ """
         # Get Annotation file
         annotationPath = wxobj.annotation

@@ -118,7 +118,7 @@ class PathwayMethod(base.AnalysisMethod):
         self.ranking = ranking  # for GSEA
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         pass
 
     @classmethod

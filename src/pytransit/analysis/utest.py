@@ -241,7 +241,7 @@ class UTestMethod(base.DualConditionMethod):
         self.includeZeros = includeZeros
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         """ """
         # Get Annotation file
         annotationPath = wxobj.annotation

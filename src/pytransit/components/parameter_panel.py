@@ -412,8 +412,6 @@ def method_select_func(selected_name, event):
             if methods[name].fullname() == selected_name:
                 matched_name = name
         
-        print(f'''selected_name = {selected_name}''')
-        print(f'''methods = {methods}''')
         if matched_name in methods:
             name = matched_name
             panel.method_info_text.SetLabel("%s" % methods[name].long_name)

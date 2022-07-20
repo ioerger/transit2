@@ -79,7 +79,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         """ """
 
         # Get Annotation file

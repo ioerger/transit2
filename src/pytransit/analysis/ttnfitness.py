@@ -137,7 +137,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
     # SC neeed to fix so genome file included
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         """ """
 
         # Get Annotation file

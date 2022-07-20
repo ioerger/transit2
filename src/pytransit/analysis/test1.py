@@ -1,17 +1,17 @@
 import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
-
 import os
 import time
 import ntpath
 import math
 import random
-import numpy
-import scipy.stats
 import datetime
 import heapq
 
+import numpy
+import scipy.stats
+from super_map import LazyDict
+
+from pytransit.transit_tools import wx, pub
 from pytransit.analysis import base
 import pytransit
 import pytransit.gui_tools as gui_tools
@@ -21,6 +21,9 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
+from pytransit.components.panel_helpers import create_normalization_dropdown
+
+default_padding = 5 # not sure what the units are
 
 
 ############# GUI ELEMENTS ##################
@@ -61,17 +64,70 @@ class Analysis(base.TransitAnalysis):
             [File],
         )
 
+class File(base.TransitFile):
+    def __init__(self):
+        base.TransitFile.__init__(self, "#Anova", columns)
+
+    def getHeader(self, path):
+        DE = 0
+        poslogfc = 0
+        neglogfc = 0
+        for line in open(path):
+            if line.startswith("#"):
+                continue
+            tmp = line.strip().split("\t")
+            if float(tmp[-1]) < 0.05:
+                DE += 1
+                if float(tmp[-3]) > 0:
+                    poslogfc += 1
+                else:
+                    neglogfc += 1
+
+        text = """Results:
+    Conditionally - Essentials: %s
+        Less Essential in Experimental datasets: %s
+        More Essential in Experimental datasets: %s
+            """ % (
+            DE,
+            poslogfc,
+            neglogfc,
+        )
+        return text
+
+    def getMenus(self):
+        menus = []
+        menus.append(("Display in Track View", self.displayInTrackView))
+        menus.append(("Display Histogram", self.displayHistogram))
+        return menus
+
+    def displayHistogram(self, displayFrame, event):
+        gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
+        filepath = os.path.join(
+            ntpath.dirname(displayFrame.path),
+            transit_tools.fetch_name(displayFrame.path),
+        )
+        filename = os.path.join(filepath, gene + ".png")
+        if os.path.exists(filename):
+            imgWindow = pytransit.file_display.ImgFrame(None, filename)
+            imgWindow.Show()
+        else:
+            transit_tools.ShowError(
+                MSG="Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on."
+            )
+            print("Error Displaying File. Histogram image does not exist.")
+
 class GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         window = gui_tools.window
         self.wxobj = wxobj
-        test1Panel = wx.Panel(
+        test1_panel = wx.Panel(
             window,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,
             wx.TAB_TRAVERSAL,
         )
+        self.value_getters = LazyDict()
         
         
         # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
@@ -89,119 +145,112 @@ class GUI(base.AnalysisGUI):
             test1Sizer = wx.BoxSizer(wx.VERTICAL)
             
             # 
-            # label
-            # 
-            if True:
-                test1Label = wx.StaticText(
-                    test1Panel,
-                    wx.ID_ANY,
-                    u"Local Options",
-                    wx.DefaultPosition,
-                    (160, -1),
-                    0,
-                )
-                test1Label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-                test1Sizer.Add(test1Label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-            
-            # 
             # main sizer
             # 
             if True:
                 mainSizer1 = wx.BoxSizer(wx.VERTICAL)
                 
-                # 
-                # text input: includeConditionsInput
-                # 
-                if True:
-                    (
-                        _,
-                        self.wxobj.includeConditionsInput,
-                        sizer,
-                    ) = self.defineTextBox(
-                        panel=test1Panel,
-                        labelText=u"Include\nConditions\n",
-                        widgetText=u"",
-                        tooltipText="comma seperated list (default=all)",
-                    )
-                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
-
-                # 
-                # text input: excludeConditionsInput
-                # 
-                if True:
-                    (
-                        _,
-                        self.wxobj.excludeConditionsInput,
-                        sizer,
-                    ) = self.defineTextBox(
-                        panel=test1Panel,
-                        labelText=u"Exclude\nConditions\n",
-                        widgetText=u"",
-                        tooltipText="comma seperated list (default=none)",
-                    )
-                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
                 
                 # 
-                # text input: refInput
+                # normalization
                 # 
                 if True:
-                    # TODO: could be dropdown
-                    (
-                        _,
-                        self.wxobj.refInput,
-                        sizer,
-                    ) = self.defineTextBox(
-                        panel=test1Panel,
-                        labelText=u"Ref",
-                        widgetText=u"",
-                        tooltipText="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
-                    )
-                    mainSizer1.Add(sizer, 1, wx.EXPAND, 5)
-
-
-                # 
-                # text input: Pseudocount
-                # 
-                if True:
-                    # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1Panel, u"Pseudocount:", u"0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
-                    (
-                        test1PseudocountLabel,
-                        self.wxobj.test1PseudocountText,
-                        pseudoSizer,
-                    ) = self.defineTextBox(
-                        test1Panel,
-                        u"Pseudocount:",
-                        u"5",
-                        "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
-                    )
-                    mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
+                    component, getter = create_normalization_dropdown(test1_panel)
+                    self.value_getters.normalization = getter
+                    mainSizer1.Add(component, 1, wx.EXPAND, default_padding)
+                    
+                # # 
+                # # text input: refInput
+                # # 
+                # if True:
+                #     # TODO: could be dropdown
+                #     (
+                #         _,
+                #         self.wxobj.refInput,
+                #         sizer,
+                #     ) = self.defineTextBox(
+                #         panel=test1_panel,
+                #         labelText="Refrence Condition",
+                #         widgetText="",
+                #         tooltipText="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+                #     )
+                #     mainSizer1.Add(sizer, 1, wx.EXPAND, default_padding)
                 
-                # 
-                # dropdown
-                # 
-                if True:
-                    test1NormChoiceChoices = [
-                        u"TTR",
-                        u"nzmean",
-                        u"totreads",
-                        u"zinfnb",
-                        u"quantile",
-                        u"betageom",
-                        u"nonorm",
-                    ]
-                    (
-                        test1NormLabel,
-                        self.wxobj.test1NormChoice,
-                        normSizer,
-                    ) = self.defineChoiceBox(
-                        test1Panel,
-                        u"Normalization: ",
-                        test1NormChoiceChoices,
-                        "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
-                    )
-                    mainSizer1.Add(normSizer, 1, wx.EXPAND, 5)
+                # # 
+                # # text input: includeConditionsInput
+                # # 
+                # if True:
+                #     (
+                #         _,
+                #         self.wxobj.includeConditionsInput,
+                #         sizer,
+                #     ) = self.defineTextBox(
+                #         panel=test1_panel,
+                #         labelText="Include\nConditions\n",
+                #         widgetText="",
+                #         tooltipText="comma seperated list (default=all)",
+                #     )
+                #     mainSizer1.Add(sizer, 1, wx.EXPAND, default_padding)
 
-                test1Sizer.Add(mainSizer1, 1, wx.EXPAND, 5)
+                # # 
+                # # text input: excludeConditionsInput
+                # # 
+                # if True:
+                #     (
+                #         _,
+                #         self.wxobj.excludeConditionsInput,
+                #         sizer,
+                #     ) = self.defineTextBox(
+                #         panel=test1_panel,
+                #         labelText="Exclude\nConditions\n",
+                #         widgetText="",
+                #         tooltipText="comma seperated list (default=none)",
+                #     )
+                #     mainSizer1.Add(sizer, 1, wx.EXPAND, default_padding)
+                
+                # # 
+                # # text input: Pseudocount
+                # # 
+                # if True:
+                #     # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1_panel, "Pseudocount:", "0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
+                #     (
+                #         test1PseudocountLabel,
+                #         self.wxobj.test1PseudocountText,
+                #         pseudoSizer,
+                #     ) = self.defineTextBox(
+                #         test1_panel,
+                #         "Pseudocount:",
+                #         "5",
+                #         "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
+                #     )
+                #     mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, default_padding)
+                
+                # # 
+                # # normalization method
+                # # 
+                # if True:
+                #     (
+                #         label,
+                #         normalization_wxobj,
+                #         normalization_choice_sizer,
+                #     ) = self.defineChoiceBox(
+                #         test1_panel,
+                #         "Normalization: ",
+                #         [
+                #             "TTR",
+                #             "nzmean",
+                #             "totreads",
+                #             "zinfnb",
+                #             "quantile",
+                #             "betageom",
+                #             "nonorm",
+                #         ],
+                #         "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+                #     )
+                #     mainSizer1.Add(normalization_choice_sizer, 1, wx.EXPAND, default_padding)
+                #     self.get_normalization_choice = lambda : normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
+
+                # test1Sizer.Add(mainSizer1, 1, wx.EXPAND, default_padding)
             
             # 
             # checkbox: Correct for Genome Positional Bias
@@ -209,64 +258,64 @@ class GUI(base.AnalysisGUI):
             # if True:
                 # LOESS Check
                 # (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
-                #     test1Panel,
+                #     test1_panel,
                 #     labelText="Correct for Genome Positional Bias",
                 #     widgetCheck=False,
                 #     widgetSize=(-1, -1),
                 #     tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
                 # )
-                # test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, 5)
+                # test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, default_padding)
             
             # 
             # button: LOESS
             # 
             # if True:
             #     self.wxobj.test1LoessPrev = wx.Button(
-            #         test1Panel,
+            #         test1_panel,
             #         wx.ID_ANY,
-            #         u"Preview LOESS fit",
+            #         "Preview LOESS fit",
             #         wx.DefaultPosition,
             #         wx.DefaultSize,
             #         0,
             #     )
             #     self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
             
-            # 
-            # checkbox: winsorize
-            # 
-            if True:
-                (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
-                    test1Panel,
-                    labelText="winsorize",
-                    widgetCheck=False,
-                    widgetSize=(-1, -1),
-                    tooltipText="winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)",
-                )
-                test1Sizer.Add(adaptiveSizer, 0, wx.EXPAND, 5)
+            # # 
+            # # checkbox: winsorize
+            # # 
+            # if True:
+            #     (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
+            #         test1_panel,
+            #         labelText="winsorize",
+            #         widgetCheck=False,
+            #         widgetSize=(-1, -1),
+            #         tooltipText="winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)",
+            #     )
+            #     test1Sizer.Add(adaptiveSizer, 1, wx.ALL | wx.EXPAND, default_padding)
             
             # 
             # button: RUN
             # 
             if True:
                 runButton = wx.Button(
-                    test1Panel,
+                    test1_panel,
                     wx.ID_ANY,
-                    u"Run",
+                    "Run",
                     wx.DefaultPosition,
                     wx.DefaultSize,
                     0,
                 )
                 runButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-                test1Sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+                test1Sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
             
             
-            panel.method_sizer.Add(test1Panel, 0, wx.EXPAND, 5)
+            panel.method_sizer.Add(test1_panel, 0, wx.EXPAND, default_padding)
             
-            test1Panel.SetSizer(test1Sizer)
-            test1Panel.Layout()
-            test1Sizer.Fit(test1Panel)
+            test1_panel.SetSizer(test1Sizer)
+            test1_panel.Layout()
+            test1Sizer.Fit(test1_panel)
 
-        self.panel = test1Panel
+        self.panel = test1_panel
 
 
 class Method(base.DualConditionMethod):
@@ -309,7 +358,7 @@ class Method(base.DualConditionMethod):
         self.winz = winz
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         with gui_tools.nice_error_log:
             inputs = LazyDict(
                 combined_wig=None,

@@ -209,7 +209,7 @@ class RankProductMethod(base.DualConditionMethod):
         self.doHistogram = doHistogram
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         """ """
 
         # Get Annotation file

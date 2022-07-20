@@ -490,7 +490,7 @@ class TnSeekFrame(wx.Frame):
             if export_methods[name].label == selected_name:
                 methodobj = export_methods[name].method
                 try:
-                    M = methodobj.fromGUI(self)
+                    M = methodobj.from_gui(self)
                     if M:
                         thread = threading.Thread(target=M.Run())
                         thread.setDaemon(True)
@@ -506,7 +506,7 @@ class TnSeekFrame(wx.Frame):
             if convert_methods[name].label == selected_name:
                 methodobj = convert_methods[name].method
                 try:
-                    M = methodobj.fromGUI(self)
+                    M = methodobj.from_gui(self)
                     if M:
                         thread = threading.Thread(target=M.Run())
                         thread.setDaemon(True)
@@ -807,7 +807,7 @@ class TnSeekFrame(wx.Frame):
             if methods[name].fullname() == selected_name:
                 methodobj = methods[name].method
         try:
-            M = methodobj.fromGUI(self)
+            M = methodobj.from_gui(self)
             if M:
                 thread = threading.Thread(target=M.Run())
                 thread.setDaemon(True)

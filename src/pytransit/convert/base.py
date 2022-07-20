@@ -73,7 +73,7 @@ class ConvertMethod:
         self.wxobj = wxobj
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         # TODO: write docstring
         raise NotImplementedError
 

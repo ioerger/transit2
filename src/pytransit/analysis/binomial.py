@@ -251,7 +251,7 @@ class BinomialMethod(base.SingleConditionMethod):
         self.beta_w = beta_w
 
     @classmethod
-    def fromGUI(self, wxobj):
+    def from_gui(self, wxobj):
         """ """
 
         # Get Annotation file
