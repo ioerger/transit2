@@ -44,7 +44,6 @@ if True:
 
 
     def define_text_box(
-            self,
             panel,
             label_text="",
             widget_text="",
@@ -103,7 +102,7 @@ if True:
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
         # return a value-getter
-        return lambda : normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
+        return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
     def create_reference_condition_dropdown(panel, sizer):
         (
@@ -117,4 +116,24 @@ if True:
             "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
-        return lambda : ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+    
+    def create_include_condition_list(panel, sizer):
+        (
+            _,
+            wxobj,
+            wrapper_sizer,
+        ) = define_text_box(
+            panel=panel,
+            label_text="Include\nConditions\n",
+            widget_text="",
+            tooltip_text="comma seperated list (default=all)",
+        )
+        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        
+        def get_value(*args):
+            as_list = ",".split(wxobj.GetValue())
+            if len(as_list) == 0:
+                return universal.session_data.condition_names,
+        
+        return get_value

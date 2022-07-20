@@ -1,10 +1,15 @@
 from collections import defaultdict
 from functools import partial
+
 import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
+from pytransit.core_data import SessionData, universal
 
 selected_export_menu_item = None
 convert_menu_item = None
+
+# sets:
+    # universal.selected_method
 
 def create_menu(self):
     # must be done here to avoid circular import
@@ -177,6 +182,7 @@ def create_menu(self):
             the_method = methods[name]
             the_fullname = methods[name].fullname()
             def load_method_wrapper(event):
+                universal.selected_method = the_method
                 # hide all the other panel stuff
                 for each_method_name in method_names:
                     each_method = methods[each_method_name]

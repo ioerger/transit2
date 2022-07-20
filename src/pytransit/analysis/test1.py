@@ -21,7 +21,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
-from pytransit.components.panel_helpers import create_normalization_dropdown, create_reference_condition_dropdown
+from pytransit.components.panel_helpers import create_normalization_dropdown, create_reference_condition_dropdown, create_include_condition_list
 
 default_padding = 5 # not sure what the units are
 
@@ -144,33 +144,10 @@ class GUI(base.AnalysisGUI):
         # 
         if True:
             main_sizer = wx.BoxSizer(wx.VERTICAL)
+            self.value_getters.normalization          = create_normalization_dropdown(test1_panel, main_sizer)
+            self.value_getters.reference_condition    = create_reference_condition_dropdown(test1_panel, main_sizer)
+            self.value_getters.include_condition_list = create_include_condition_list(test1_panel, main_sizer)
             
-            # 
-            # normalization
-            # 
-            self.value_getters.normalization = create_normalization_dropdown(test1_panel, main_sizer)
-                
-            # 
-            # text input: refInput
-            # 
-            self.value_getters.reference_condition = create_reference_condition_dropdown(test1_panel, main_sizer)
-            
-            # # 
-            # # text input: includeConditionsInput
-            # # 
-            # if True:
-            #     (
-            #         _,
-            #         self.wxobj.includeConditionsInput,
-            #         sizer,
-            #     ) = self.defineTextBox(
-            #         panel=test1_panel,
-            #         labelText="Include\nConditions\n",
-            #         widgetText="",
-            #         tooltipText="comma seperated list (default=all)",
-            #     )
-            #     main_sizer.Add(sizer, 1, wx.EXPAND, default_padding)
-
             # # 
             # # text input: excludeConditionsInput
             # # 
@@ -359,13 +336,25 @@ class Method(base.DualConditionMethod):
             # 
             # get wig files
             # 
-            inputs.combined_wig = [ each.cwig.path     for each in universal.wig_groups ][0]
-            inputs.metadata     = [ each.metadata.path for each in universal.wig_groups ][0]
+            inputs.combined_wig = [ each.cwig.path     for each in universal.session_data.wig_groups ][0]
+            inputs.metadata     = [ each.metadata.path for each in universal.session_data.wig_groups ][0]
+            
+            # 
+            # get annotation
+            # 
+            inputs.annotation = universal.session_data.annotation
+            if not transit_tools.validate_annotation(inputs.annotation):
+                return None
             
             # 
             # setup custom inputs
             # 
             
+            
+            
+            # 
+            # save result files
+            # 
             default_file_name = "test1_output.dat"  # simplified
             default_dir = os.getcwd()
             output_path = wxobj.SaveFile(default_dir, default_file_name)
@@ -430,13 +419,13 @@ class Method(base.DualConditionMethod):
                 sys.exit(0)
 
         normalization = kwargs.get("n", "TTR")
-        samples = int(kwargs.get("s", 10000))
-        adaptive = kwargs.get("a", False)
-        doHistogram = kwargs.get("h", False)
-        replicates = kwargs.get("r", "Sum")
-        excludeZeros = kwargs.get("ez", False)
-        includeZeros = not excludeZeros
-        pseudocount = float(
+        samples       = int(kwargs.get("s", 10000))
+        adaptive      = kwargs.get("a", False)
+        doHistogram   = kwargs.get("h", False)
+        replicates    = kwargs.get("r", "Sum")
+        excludeZeros  = kwargs.get("ez", False)
+        includeZeros  = not excludeZeros
+        pseudocount   = float(
             kwargs.get("PC", 1.0)
         )  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
 

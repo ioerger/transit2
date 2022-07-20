@@ -799,19 +799,10 @@ class TnSeekFrame(wx.Frame):
                 transit_tools.transit_message("Finished conversion")
 
     def RunMethod(self, event):
-        # FLORF
-        # X = self.methodChoice.GetCurrentSelection()
-        # selected_name = self.methodChoice.GetString(X)
-        selected_name = self.method_choice
-        for name in methods:
-            if methods[name].fullname() == selected_name:
-                methodobj = methods[name].method
-        try:
-            M = methodobj.from_gui(self)
-            if M:
-                thread = threading.Thread(target=M.Run())
+        with gui_tools.nice_error_log:
+            method_obj = universal.selected_method.method
+            instance = method_obj.from_gui(self)
+            if instance:
+                thread = threading.Thread(target=instance.Run())
                 thread.setDaemon(True)
                 thread.start()
-        except Exception as e:
-            transit_tools.transit_message("Error: %s" % str(e))
-            traceback.print_exc()
