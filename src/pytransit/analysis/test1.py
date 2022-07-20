@@ -142,156 +142,149 @@ class GUI(base.AnalysisGUI):
         # container: parameters
         # 
         if True:
-            test1Sizer = wx.BoxSizer(wx.VERTICAL)
+            main_sizer = wx.BoxSizer(wx.VERTICAL)
             
             # 
-            # main sizer
+            # normalization
             # 
             if True:
-                mainSizer1 = wx.BoxSizer(wx.VERTICAL)
+                component, getter = create_normalization_dropdown(test1_panel)
+                self.value_getters.normalization = getter
+                main_sizer.Add(component, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
                 
-                
-                # 
-                # normalization
-                # 
-                if True:
-                    component, getter = create_normalization_dropdown(test1_panel)
-                    self.value_getters.normalization = getter
-                    mainSizer1.Add(component, 1, wx.EXPAND, default_padding)
-                    
-                # # 
-                # # text input: refInput
-                # # 
-                # if True:
-                #     # TODO: could be dropdown
-                #     (
-                #         _,
-                #         self.wxobj.refInput,
-                #         sizer,
-                #     ) = self.defineTextBox(
-                #         panel=test1_panel,
-                #         labelText="Refrence Condition",
-                #         widgetText="",
-                #         tooltipText="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
-                #     )
-                #     mainSizer1.Add(sizer, 1, wx.EXPAND, default_padding)
-                
-                # # 
-                # # text input: includeConditionsInput
-                # # 
-                # if True:
-                #     (
-                #         _,
-                #         self.wxobj.includeConditionsInput,
-                #         sizer,
-                #     ) = self.defineTextBox(
-                #         panel=test1_panel,
-                #         labelText="Include\nConditions\n",
-                #         widgetText="",
-                #         tooltipText="comma seperated list (default=all)",
-                #     )
-                #     mainSizer1.Add(sizer, 1, wx.EXPAND, default_padding)
-
-                # # 
-                # # text input: excludeConditionsInput
-                # # 
-                # if True:
-                #     (
-                #         _,
-                #         self.wxobj.excludeConditionsInput,
-                #         sizer,
-                #     ) = self.defineTextBox(
-                #         panel=test1_panel,
-                #         labelText="Exclude\nConditions\n",
-                #         widgetText="",
-                #         tooltipText="comma seperated list (default=none)",
-                #     )
-                #     mainSizer1.Add(sizer, 1, wx.EXPAND, default_padding)
-                
-                # # 
-                # # text input: Pseudocount
-                # # 
-                # if True:
-                #     # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1_panel, "Pseudocount:", "0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
-                #     (
-                #         test1PseudocountLabel,
-                #         self.wxobj.test1PseudocountText,
-                #         pseudoSizer,
-                #     ) = self.defineTextBox(
-                #         test1_panel,
-                #         "Pseudocount:",
-                #         "5",
-                #         "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
-                #     )
-                #     mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, default_padding)
-                
-                # # 
-                # # normalization method
-                # # 
-                # if True:
-                #     (
-                #         label,
-                #         normalization_wxobj,
-                #         normalization_choice_sizer,
-                #     ) = self.defineChoiceBox(
-                #         test1_panel,
-                #         "Normalization: ",
-                #         [
-                #             "TTR",
-                #             "nzmean",
-                #             "totreads",
-                #             "zinfnb",
-                #             "quantile",
-                #             "betageom",
-                #             "nonorm",
-                #         ],
-                #         "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
-                #     )
-                #     mainSizer1.Add(normalization_choice_sizer, 1, wx.EXPAND, default_padding)
-                #     self.get_normalization_choice = lambda : normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
-
-                # test1Sizer.Add(mainSizer1, 1, wx.EXPAND, default_padding)
-            
             # 
-            # checkbox: Correct for Genome Positional Bias
+            # text input: refInput
             # 
-            # if True:
-                # LOESS Check
-                # (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
-                #     test1_panel,
-                #     labelText="Correct for Genome Positional Bias",
-                #     widgetCheck=False,
-                #     widgetSize=(-1, -1),
-                #     tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
-                # )
-                # test1Sizer.Add(loessCheckSizer, 0, wx.EXPAND, default_padding)
-            
-            # 
-            # button: LOESS
-            # 
-            # if True:
-            #     self.wxobj.test1LoessPrev = wx.Button(
-            #         test1_panel,
-            #         wx.ID_ANY,
-            #         "Preview LOESS fit",
-            #         wx.DefaultPosition,
-            #         wx.DefaultSize,
-            #         0,
-            #     )
-            #     self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+            if True:
+                # TODO: could be dropdown
+                (
+                    _,
+                    self.wxobj.refInput,
+                    sizer,
+                ) = self.defineTextBox(
+                    panel=test1_panel,
+                    labelText="Refrence Condition",
+                    widgetText="",
+                    tooltipText="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+                )
+                main_sizer.Add(sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
             
             # # 
-            # # checkbox: winsorize
+            # # text input: includeConditionsInput
             # # 
             # if True:
-            #     (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
-            #         test1_panel,
-            #         labelText="winsorize",
-            #         widgetCheck=False,
-            #         widgetSize=(-1, -1),
-            #         tooltipText="winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)",
+            #     (
+            #         _,
+            #         self.wxobj.includeConditionsInput,
+            #         sizer,
+            #     ) = self.defineTextBox(
+            #         panel=test1_panel,
+            #         labelText="Include\nConditions\n",
+            #         widgetText="",
+            #         tooltipText="comma seperated list (default=all)",
             #     )
-            #     test1Sizer.Add(adaptiveSizer, 1, wx.ALL | wx.EXPAND, default_padding)
+            #     main_sizer.Add(sizer, 1, wx.EXPAND, default_padding)
+
+            # # 
+            # # text input: excludeConditionsInput
+            # # 
+            # if True:
+            #     (
+            #         _,
+            #         self.wxobj.excludeConditionsInput,
+            #         sizer,
+            #     ) = self.defineTextBox(
+            #         panel=test1_panel,
+            #         labelText="Exclude\nConditions\n",
+            #         widgetText="",
+            #         tooltipText="comma seperated list (default=none)",
+            #     )
+            #     main_sizer.Add(sizer, 1, wx.EXPAND, default_padding)
+            
+            # # 
+            # # text input: Pseudocount
+            # # 
+            # if True:
+            #     # (test1PseudocountLabel, self.wxobj.test1PseudocountText, pseudoSizer) = self.defineTextBox(test1_panel, "Pseudocount:", "0.0", "Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.")
+            #     (
+            #         test1PseudocountLabel,
+            #         self.wxobj.test1PseudocountText,
+            #         pseudoSizer,
+            #     ) = self.defineTextBox(
+            #         test1_panel,
+            #         "Pseudocount:",
+            #         "5",
+            #         "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
+            #     )
+            #     main_sizer.Add(pseudoSizer, 1, wx.EXPAND, default_padding)
+            
+            # # 
+            # # normalization method
+            # # 
+            # if True:
+            #     (
+            #         label,
+            #         normalization_wxobj,
+            #         normalization_choice_sizer,
+            #     ) = self.defineChoiceBox(
+            #         test1_panel,
+            #         "Normalization: ",
+            #         [
+            #             "TTR",
+            #             "nzmean",
+            #             "totreads",
+            #             "zinfnb",
+            #             "quantile",
+            #             "betageom",
+            #             "nonorm",
+            #         ],
+            #         "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+            #     )
+            #     main_sizer.Add(normalization_choice_sizer, 1, wx.EXPAND, default_padding)
+            #     self.get_normalization_choice = lambda : normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
+
+            # main_sizer.Add(main_sizer, 1, wx.EXPAND, default_padding)
+        
+        # 
+        # checkbox: Correct for Genome Positional Bias
+        # 
+        # if True:
+            # LOESS Check
+            # (self.wxobj.test1LoessCheck, loessCheckSizer) = self.defineCheckBox(
+            #     test1_panel,
+            #     labelText="Correct for Genome Positional Bias",
+            #     widgetCheck=False,
+            #     widgetSize=(-1, -1),
+            #     tooltipText="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.",
+            # )
+            # main_sizer.Add(loessCheckSizer, 0, wx.EXPAND, default_padding)
+        
+        # 
+        # button: LOESS
+        # 
+        # if True:
+        #     self.wxobj.test1LoessPrev = wx.Button(
+        #         test1_panel,
+        #         wx.ID_ANY,
+        #         "Preview LOESS fit",
+        #         wx.DefaultPosition,
+        #         wx.DefaultSize,
+        #         0,
+        #     )
+        #     self.wxobj.test1LoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+        
+        # # 
+        # # checkbox: winsorize
+        # # 
+        # if True:
+        #     (self.wxobj.test1AdaptiveCheckBox, adaptiveSizer) = self.defineCheckBox(
+        #         test1_panel,
+        #         labelText="winsorize",
+        #         widgetCheck=False,
+        #         widgetSize=(-1, -1),
+        #         tooltipText="winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)",
+        #     )
+        #     main_sizer.Add(adaptiveSizer, 1, wx.ALL | wx.EXPAND, default_padding)
             
             # 
             # button: RUN
@@ -306,14 +299,14 @@ class GUI(base.AnalysisGUI):
                     0,
                 )
                 runButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-                test1Sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+                main_sizer.Add(runButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
             
             
             panel.method_sizer.Add(test1_panel, 0, wx.EXPAND, default_padding)
             
-            test1_panel.SetSizer(test1Sizer)
+            test1_panel.SetSizer(main_sizer)
             test1_panel.Layout()
-            test1Sizer.Fit(test1_panel)
+            main_sizer.Fit(test1_panel)
 
         self.panel = test1_panel
 
