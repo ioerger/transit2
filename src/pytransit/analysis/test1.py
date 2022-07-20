@@ -61,66 +61,6 @@ class Analysis(base.TransitAnalysis):
             [File],
         )
 
-
-############# FILE ##################
-
-
-class File(base.TransitFile):
-    def __init__(self):
-        base.TransitFile.__init__(self, "#Anova", columns)
-
-    def getHeader(self, path):
-        DE = 0
-        poslogfc = 0
-        neglogfc = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                DE += 1
-                if float(tmp[-3]) > 0:
-                    poslogfc += 1
-                else:
-                    neglogfc += 1
-
-        text = """Results:
-    Conditionally - Essentials: %s
-        Less Essential in Experimental datasets: %s
-        More Essential in Experimental datasets: %s
-            """ % (
-            DE,
-            poslogfc,
-            neglogfc,
-        )
-        return text
-
-    def getMenus(self):
-        menus = []
-        menus.append(("Display in Track View", self.displayInTrackView))
-        menus.append(("Display Histogram", self.displayHistogram))
-        return menus
-
-    def displayHistogram(self, displayFrame, event):
-        gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
-        filepath = os.path.join(
-            ntpath.dirname(displayFrame.path),
-            transit_tools.fetch_name(displayFrame.path),
-        )
-        filename = os.path.join(filepath, gene + ".png")
-        if os.path.exists(filename):
-            imgWindow = pytransit.file_display.ImgFrame(None, filename)
-            imgWindow.Show()
-        else:
-            transit_tools.ShowError(
-                MSG="Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on."
-            )
-            print("Error Displaying File. Histogram image does not exist.")
-
-
-############# GUI ##################
-
-
 class GUI(base.AnalysisGUI):
     def definePanel(self, wxobj):
         window = gui_tools.window
@@ -329,82 +269,53 @@ class GUI(base.AnalysisGUI):
         self.panel = test1Panel
 
 
-########## CLASS #######################
-
-
 class Method(base.DualConditionMethod):
-    """
-    test1
-
-    """
-
     def __init__(
         self,
-        ctrldata,
-        expdata,
-        annotation_path,
+        combined_wig,
+        metadata,
+        annotation,
+        normalization,
         output_file,
-        normalization="TTR",
-        samples=10000,
-        adaptive=False,
-        doHistogram=False,
-        includeZeros=False,
+        excluded_conditions=[],
+        included_conditions=[],
+        nterm=0.0,
+        cterm=0.0,
         pseudocount=1,
-        replicates="Sum",
-        LOESS=False,
-        ignoreCodon=True,
-        n_terminus=0.0,
-        c_terminus=0.0,
-        ctrl_lib_str="",
-        exp_lib_str="",
         winz=False,
-        wxobj=None,
-        Z=False,
-        diffStrains=False,
-        annotation_path_exp="",
-        combinedWigParams=None,
+        refs=[],
+        alpha=1000
     ):
-
-        base.DualConditionMethod.__init__(
+        base.MultiConditionMethod.__init__(
             self,
             short_name,
             long_name,
             short_desc,
             long_desc,
-            ctrldata,
-            expdata,
-            annotation_path,
+            combined_wig,
+            metadata,
+            annotation,
             output_file,
             normalization=normalization,
-            replicates=replicates,
-            LOESS=LOESS,
-            n_terminus=n_terminus,
-            c_terminus=c_terminus,
-            wxobj=wxobj,
+            excluded_conditions=excluded_conditions,
+            included_conditions=included_conditions,
+            nterm=nterm,
+            cterm=cterm,
         )
 
-        self.Z = Z
-        self.samples = samples
-        self.adaptive = adaptive
-        self.doHistogram = doHistogram
-        self.includeZeros = includeZeros
         self.pseudocount = pseudocount
-        self.ctrl_lib_str = ctrl_lib_str
-        self.exp_lib_str = exp_lib_str
-        self.diffStrains = diffStrains
-        self.annotation_path_exp = (
-            annotation_path_exp if diffStrains else annotation_path
-        )
-        self.combinedWigParams = combinedWigParams
+        self.alpha = alpha
+        self.refs = refs
         self.winz = winz
 
     @classmethod
     def fromGUI(self, wxobj):
         with gui_tools.nice_error_log:
-            inputs = dict(
+            inputs = LazyDict(
                 combined_wig=None,
                 metadata=None,
                 annotation=None,
+                
                 normalization=None,
                 output_file=None,
                 excluded_conditions=None,
@@ -418,76 +329,23 @@ class Method(base.DualConditionMethod):
             )
             
             # 
-            # get annotation
-            # 
-            annotation_path = universal.session_data.annotation
-            if not transit_tools.validate_annotation(annotation_path):
-                raise Exception(f'''seems session_data.annotation is invalid, unable to get data from GUI''')
-            
-            # 
             # get wig files
             # 
-            cwig_paths     = [ each.cwig.path     for each in universal.wig_groups ]
-            metadata_paths = [ each.metadata.path for each in universal.wig_groups ]
+            inputs.combined_wig = [ each.cwig.path     for each in universal.wig_groups ][0]
+            inputs.metadata     = [ each.metadata.path for each in universal.wig_groups ][0]
             
             # 
-            # Read the parameters from the wxPython widgets
+            # setup custom inputs
             # 
-            ignoreCodon = True
-            samples = int(wxobj.normalizationMethodInput.GetValue())
-            normalization = wxobj.test1NormChoice.GetString(
-                wxobj.test1NormChoice.GetCurrentSelection()
-            )
-            replicates = "Sum"
-            adaptive = wxobj.test1AdaptiveCheckBox.GetValue()
-            doHistogram = wxobj.test1HistogramCheckBox.GetValue()
-
-            includeZeros = wxobj.test1ZeroCheckBox.GetValue()
-            pseudocount = float(wxobj.test1PseudocountText.GetValue())
-            LOESS = wxobj.test1LoessCheck.GetValue()
-
-            # Global Parameters
-            n_terminus = float(wxobj.globalNTerminusText.GetValue())
-            c_terminus = float(wxobj.globalCTerminusText.GetValue())
-            ctrl_lib_str = wxobj.ctrlLibText.GetValue()
-            exp_lib_str = wxobj.expLibText.GetValue()
-
-            # Get output path
-            # defaultFileName = "test1_output_s%d_pc%1.2f" % (samples, pseudocount)
-            # if adaptive: defaultFileName+= "_adaptive"
-            # if includeZeros: defaultFileName+= "_iz"
-            # defaultFileName+=".dat"
-            defaultFileName = "test1_output.dat"  # simplified
-
-            defaultDir = os.getcwd()
-            output_path = wxobj.SaveFile(defaultDir, defaultFileName)
+            
+            default_file_name = "test1_output.dat"  # simplified
+            default_dir = os.getcwd()
+            output_path = wxobj.SaveFile(default_dir, default_file_name)
             if not output_path:
                 return None
             output_file = open(output_path, "w")
 
-            return self(
-                ctrldata,
-                expdata,
-                annotation_path,
-                output_file,
-                normalization,
-                samples,
-                adaptive,
-                doHistogram,
-                includeZeros,
-                pseudocount,
-                replicates,
-                LOESS,
-                ignoreCodon,
-                n_terminus,
-                c_terminus,
-                ctrl_lib_str,
-                exp_lib_str,
-                wxobj,
-                Z=False,
-                diffStrains=diffStrains,
-                annotation_path_exp=annotation_path_exp,
-            )
+            return self(*inputs.values())
 
     @classmethod
     def fromargs(self, rawargs):
