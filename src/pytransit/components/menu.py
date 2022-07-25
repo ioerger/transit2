@@ -164,7 +164,7 @@ def create_menu(frame):
     # 
     # generate methods
     # 
-    method_names = sorted(methods.keys(), key=lambda x: order[x])
+    method_names = sorted(methods.keys())
     for name in method_names:
         method = methods[name]
         fullname = methods[name].fullname()

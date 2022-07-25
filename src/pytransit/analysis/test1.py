@@ -118,10 +118,9 @@ class File(base.TransitFile):
 
 class GUI(base.AnalysisGUI):
     def define_panel(self, frame):
-        self.main_frame = frame
-        window = gui_tools.window
+        self.main_frame = frame = universal.frame
         test1_panel = wx.Panel(
-            window,
+            frame,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,
@@ -262,7 +261,7 @@ class GUI(base.AnalysisGUI):
                 )
                 def run(*args):
                     with gui_tools.nice_error_log:
-                        method_instance = universal.selected_method.method.from_gui(window)
+                        method_instance = universal.selected_method.method.from_gui(frame)
                         if method_instance:
                             thread = threading.Thread(target=method_instance.Run())
                             thread.setDaemon(True)
