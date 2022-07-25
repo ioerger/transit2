@@ -21,7 +21,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
-from pytransit.components.panel_helpers import create_normalization_dropdown, create_reference_condition_dropdown, create_include_condition_list
+from pytransit.components.panel_helpers import create_normalization_dropdown, create_reference_condition_dropdown, create_include_condition_list, create_n_terminus_option, create_c_terminus_option
 
 default_padding = 5 # not sure what the units are
 
@@ -142,6 +142,8 @@ class GUI(base.AnalysisGUI):
         # 
         if True:
             main_sizer = wx.BoxSizer(wx.VERTICAL)
+            self.value_getters.n_terminus             = create_n_terminus_option(test1_panel, main_sizer)
+            self.value_getters.c_terminus             = create_c_terminus_option(test1_panel, main_sizer)
             self.value_getters.normalization          = create_normalization_dropdown(test1_panel, main_sizer)
             self.value_getters.reference_condition    = create_reference_condition_dropdown(test1_panel, main_sizer)
             self.value_getters.include_condition_list = create_include_condition_list(test1_panel, main_sizer)

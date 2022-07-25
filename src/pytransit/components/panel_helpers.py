@@ -1,7 +1,7 @@
 from pytransit.transit_tools import wx, pub
 from pytransit.core_data import universal
 
-LABEL_SIZE = (100, -1)
+LABEL_SIZE = (-1, -1)
 WIDGET_SIZE = (100, -1)
 default_padding = 5
 
@@ -58,22 +58,31 @@ if True:
                 widget_size = WIDGET_SIZE
 
             sizer = wx.BoxSizer(wx.HORIZONTAL)
-            label = wx.StaticText(
-                panel, wx.ID_ANY, label_text, wx.DefaultPosition, lab_size, 0
-            )
+            label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, lab_size, 0)
             label.Wrap(-1)
-            text_box = wx.TextCtrl(
-                panel, wx.ID_ANY, widget_text, wx.DefaultPosition, widget_size, 0
-            )
-            sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-            sizer.Add(text_box, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-            sizer.Add(
-                InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-                0,
-                wx.ALIGN_CENTER_VERTICAL,
-                5,
-            )
-            return (label, text_box, sizer)
+            text_box = wx.TextCtrl(panel, wx.ID_ANY, widget_text, wx.DefaultPosition, widget_size, 0)
+            
+            sizer.Add(label, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, default_padding)
+            sizer.Add(text_box, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, default_padding)
+            sizer.Add(InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text), 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
+            sizer.Layout()
+            
+            
+            return label, text_box, sizer
+    
+    def create_text_box_getter(panel, sizer, label_text="", widget_text="", tooltip_text="", lab_size=None, widget_size=None,):
+        (
+            _,
+            wxobj,
+            wrapper_sizer,
+        ) = define_text_box(
+            panel,
+            label_text="Ignore N-Terminus %:",
+            widget_text="",
+            tooltip_text="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+        )
+        sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
 
 # 
 # 
@@ -137,3 +146,23 @@ if True:
                 return universal.session_data.condition_names,
         
         return get_value
+    
+    def create_n_terminus_option(panel, sizer):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text="Ignore N-Terminus %:",
+            widget_text="",
+            tooltip_text="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+        )
+        return lambda *args: float(get_text())
+    
+    def create_c_terminus_option(panel, sizer):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text="Ignore C-Terminus %:",
+            widget_text="",
+            tooltip_text="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+        )
+        return lambda *args: float(get_text())
