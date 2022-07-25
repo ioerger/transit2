@@ -214,7 +214,6 @@ def method_select_func(selected_name, event):
 
         panel.method_choice = ""
     else:
-        parameter_panel.show_global_options()
         panel.method_sizer_text.Show()
         
         from pytransit.analysis import methods
@@ -260,7 +259,6 @@ def method_select_helper(method, event):
     
     frame = universal.frame
     
-    parameter_panel.show_global_options()
     panel.method_sizer_text.Show()
     
     from pytransit.analysis import methods
