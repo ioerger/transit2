@@ -5,20 +5,20 @@ from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basena
 import pytransit.gui_tools as gui_tools
 from pytransit.components.generic.box import Column, Row
 
-class Frame:
+class InnerFrame:
     """
         Overview:
             self.wx_object
             self.add(component)
     """
     def __init__(self, parent, title, default_size=(1350, 975), min_size=None, max_size=None):
-        window = gui_tools.window
+        frame = universal.frame
         
         # 
         # wx_object
         # 
         wx.Frame.__init__(
-            window,
+            frame,
             parent,
             id=wx.ID_ANY,
             title=title,
@@ -31,7 +31,7 @@ class Frame:
             # None
         )
         self._state = LazyDict(
-            window=window,
+            frame=frame,
             column=Column(max_size=max_size, min_size=min_size),
             instance=None,
         )
@@ -39,9 +39,9 @@ class Frame:
         self.refresh()
     
     def refresh(self):
-        self._state.window.SetSizer(self._state.column.wx_object)
-        self._state.window.Layout()
-        self._state.window.Center(wx.BOTH)
+        self._state.frame.SetSizer(self._state.column.wx_object)
+        self._state.frame.Layout()
+        self._state.frame.Center(wx.BOTH)
     
     def add(self, *args, **kwargs):
         self._state.column.add(*args, **kwargs)

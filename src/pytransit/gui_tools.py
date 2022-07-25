@@ -2,10 +2,10 @@ import traceback
 from typing import NamedTuple
 
 from pytransit.transit_tools import wx
+from pytransit.core_data import universal
 
 
 
-window = None
 bit_map = None
 
 def rgba(*args):
@@ -42,24 +42,31 @@ def handle_error(error_obj):
                 handle_error
     """
     traceback.print_exc()
-    if window and hasattr(window, "statusBar") and hasattr(window.statusBar, "SetStatusText"):
-        window.statusBar.SetStatusText("Error: "+str(error_obj.args))
+    frame = universal.frame
+    if frame and hasattr(frame, "statusBar") and hasattr(frame.statusBar, "SetStatusText"):
+        frame.statusBar.SetStatusText("Error: "+str(error_obj.args))
 
 def handle_traceback(traceback_obj):
     import traceback
+    frame = universal.frame
     print(''.join(traceback.format_tb(traceback_obj)))
-    if window and hasattr(window, "statusBar") and hasattr(window.statusBar, "SetStatusText"):
-        window.statusBar.SetStatusText("Error: "+str(error.args))
+    if frame and hasattr(frame, "statusBar") and hasattr(frame.statusBar, "SetStatusText"):
+        frame.statusBar.SetStatusText("Error: "+str(error.args))
 
 def show_message(MSG=""):
     # TODO: Write docstring
     wx.MessageBox(MSG, "Info", wx.OK | wx.ICON_INFORMATION)
 
+def set_status(message):
+    frame = universal.frame
+    if frame:
+        frame.statusBar.SetStatusText(message)
 
 def ask_for_files(message):
     import os
+    frame = universal.frame
     file_dialog = wx.FileDialog(
-        window,
+        frame,
         message=message,
         defaultDir=os.getcwd(),
         defaultFile="",
@@ -109,12 +116,14 @@ class NiceErrorLog(object):
         pass
     
     def __enter__(self):
-        return window
+        frame = universal.frame
+        return frame
     
     def __exit__(self, _, error, traceback_obj):
         if error is not None:
             print(''.join(traceback.format_tb(traceback_obj)))
-            if window:
-                window.statusBar.SetStatusText("Error: "+str(error.args))
+            frame = universal.frame
+            if frame:
+                frame.statusBar.SetStatusText("Error: "+str(error.args))
 
 nice_error_log = NiceErrorLog()

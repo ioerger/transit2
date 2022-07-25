@@ -11,7 +11,7 @@ convert_menu_item = None
 # sets:
     # universal.selected_method
 
-def create_menu(self):
+def create_menu(frame):
     # must be done here to avoid circular import
     import pytransit.components.parameter_panel as parameter_panel
     from pytransit.analysis   import methods
@@ -67,8 +67,6 @@ def create_menu(self):
 
         convert_menu_item.Append(annotation_convert_ptt_to_pt)
 
-        # self.annotationConvertGFF3ToPT = wx.MenuItem( convert_menu_item, wx.ID_ANY, "GFF3 to prot_table", wx.EmptyString, wx.ITEM_NORMAL )
-        # convert_menu_item.Append( self.annotationConvertGFF3ToPT )
         file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
 
         file_exit_menu_item = wx.MenuItem(
@@ -104,7 +102,7 @@ def create_menu(self):
         methods_menu_item.AppendSubMenu(tn5_menu_item, "&Tn5 Methods")
         menu_bar.Append(methods_menu_item, "&Analysis")
 
-        self.SetMenuBar(menu_bar)
+        frame.SetMenuBar(menu_bar)
 
         help_menu_item = wx.Menu()
         documentation_menu_item = wx.MenuItem(
@@ -126,13 +124,13 @@ def create_menu(self):
     # Export options
     # 
     for name in export_methods:
-        export_methods[name].gui.defineMenuItem(self, export_methods[name].label)
+        export_methods[name].gui.defineMenuItem(frame, export_methods[name].label)
         temp_menu_item = export_methods[name].gui.menuitem
         selected_export_menu_item.Append(temp_menu_item)
 
-        self.Bind(
+        frame.Bind(
             wx.EVT_MENU,
-            partial(self.ExportSelectFunc, export_methods[name].label),
+            partial(frame.ExportSelectFunc, export_methods[name].label),
             temp_menu_item,
         )
     
@@ -140,13 +138,13 @@ def create_menu(self):
     # Convert options
     # 
     for name in convert_methods:
-        convert_methods[name].gui.defineMenuItem(self, convert_methods[name].label)
+        convert_methods[name].gui.defineMenuItem(frame, convert_methods[name].label)
         temp_menu_item = convert_methods[name].gui.menuitem
         convert_menu_item.Append(temp_menu_item)
 
-        self.Bind(
+        frame.Bind(
             wx.EVT_MENU,
-            partial(self.ConvertSelectFunc, convert_methods[name].label),
+            partial(frame.ConvertSelectFunc, convert_methods[name].label),
             temp_menu_item,
         )
     
@@ -154,20 +152,14 @@ def create_menu(self):
     # events
     # 
     if True:
-        self.Bind(wx.EVT_MENU, self.annotationPT_to_PTT , id=annotation_convert_pt_to_ptt_menu.GetId(),  )
-        self.Bind(wx.EVT_MENU, self.annotationPT_to_GFF3, id=annotation_convert_pt_to_gff3_menu.GetId(), )
-        self.Bind(wx.EVT_MENU, self.annotationPTT_to_PT , id=annotation_convert_ptt_to_pt.GetId(),       )
-        self.Bind(wx.EVT_MENU, self.Exit                , id=file_exit_menu_item.GetId()                 )
-        self.Bind(wx.EVT_MENU, self.scatterFunc         , id=scatter_menu_item.GetId()                   )
-        self.Bind(wx.EVT_MENU, self.allViewFunc         , id=track_menu_item.GetId()                     )
-        self.Bind(wx.EVT_MENU, self.aboutFunc           , id=about_menu_item.GetId()                  )
-        self.Bind(wx.EVT_MENU, self.documentationFunc   , id=documentation_menu_item.GetId()          )
-    
-    
-    method_order = [("gumbel", 1), ("resampling", 2), ("hmm", 3)]
-    order = defaultdict(lambda: 100)
-    for k, v in method_order:
-        order[k] = v
+        frame.Bind(wx.EVT_MENU, frame.annotationPT_to_PTT , id=annotation_convert_pt_to_ptt_menu.GetId(),  )
+        frame.Bind(wx.EVT_MENU, frame.annotationPT_to_GFF3, id=annotation_convert_pt_to_gff3_menu.GetId(), )
+        frame.Bind(wx.EVT_MENU, frame.annotationPTT_to_PT , id=annotation_convert_ptt_to_pt.GetId(),       )
+        frame.Bind(wx.EVT_MENU, frame.Exit                , id=file_exit_menu_item.GetId()                 )
+        frame.Bind(wx.EVT_MENU, frame.scatterFunc         , id=scatter_menu_item.GetId()                   )
+        frame.Bind(wx.EVT_MENU, frame.allViewFunc         , id=track_menu_item.GetId()                     )
+        frame.Bind(wx.EVT_MENU, frame.aboutFunc           , id=about_menu_item.GetId()                  )
+        frame.Bind(wx.EVT_MENU, frame.documentationFunc   , id=documentation_menu_item.GetId()          )
     
     # 
     # generate methods
@@ -188,7 +180,7 @@ def create_menu(self):
                     each_method = methods[each_method_name]
                     if each_method.gui.panel:
                         each_method.gui.panel.Hide()
-                the_method.gui.define_panel(self)
+                the_method.gui.define_panel(frame)
                 return method_select_func(the_fullname, event)
             return load_method_wrapper
         
@@ -197,7 +189,7 @@ def create_menu(self):
         # attach menus
         for method_name, parent_menu in [ ["himar1", himar1_menu_item], ["tn5", tn5_menu_item] ]:
             temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, fullname, wx.EmptyString, wx.ITEM_NORMAL,)
-            self.Bind(wx.EVT_MENU,menu_callback,temp_menu_item,)
+            frame.Bind(wx.EVT_MENU,menu_callback,temp_menu_item,)
             parent_menu.Append(temp_menu_item)
 
 
@@ -205,7 +197,7 @@ def method_select_func(selected_name, event):
     import pytransit.components.parameter_panel as parameter_panel
     from pytransit.components.parameter_panel import panel
     
-    frame = gui_tools.window
+    frame = universal.frame
     
     # If empty is selected
     if selected_name == "[Choose Method]":
@@ -256,6 +248,45 @@ def method_select_func(selected_name, event):
 
         parameter_panel.show_progress_section()
         panel.method_choice = selected_name
+
+    frame.Layout()
+    if frame.verbose:
+        transit_tools.transit_message("Selected Method: %s" % (selected_name))
+
+
+def method_select_helper(method, event):
+    import pytransit.components.parameter_panel as parameter_panel
+    from pytransit.components.parameter_panel import panel
+    
+    frame = universal.frame
+    
+    parameter_panel.show_global_options()
+    panel.method_sizer_text.Show()
+    
+    from pytransit.analysis import methods
+    
+    # Hide all the others
+    for each_key, each in var.items():
+        if each.panel:
+            each.panel.Hide()
+    
+    panel.method_info_text.SetLabel(method.long_name)
+
+    panel.method_tn_text.Show()
+    panel.method_tn_text.SetLabel(method.getTransposonsText())
+    panel.method_tn_text.Wrap(250)
+
+    panel.method_desc_text.Show()
+    panel.method_desc_text.SetLabel(method.getDescriptionText())
+    panel.method_desc_text.Wrap(250)
+    panel.method_instructions.SetLabel(" ")
+    
+    method.define_panel()
+    
+    frame.statusBar.SetStatusText(f"[{method.short_name}]")
+
+    parameter_panel.show_progress_section()
+    panel.method_choice = selected_name
 
     frame.Layout()
     if frame.verbose:

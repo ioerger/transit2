@@ -7,7 +7,7 @@ import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 
-universal = LazyDict()
+universal = LazyDict(frame=None)
 
 class Wig:
     def __init__(self, path, rows=None, extra_data=None):

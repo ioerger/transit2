@@ -41,7 +41,7 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
 from pytransit.components.generic.box import Row, Column
 from pytransit.components.generic.text import Text
-from pytransit.components.generic.frame import Frame
+from pytransit.components.generic.frame import InnerFrame
 from pytransit.components.annotation_area import create_annotation_area
 from pytransit.components.samples_area import create_sample_area
 from pytransit.components.results_area import create_results_area
@@ -79,13 +79,11 @@ class TnSeekFrame(wx.Frame):
     def __init__(self, parent, DEBUG=False):
         # data accessable to all analysis methods
         universal.session_data = SessionData()
-        
+        universal.frame = self
         # connect to GUI tools (otherwise they will not function)
-        gui_tools.window  = self
         gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         
-        
-        with Frame(parent, title="TRANSIT") as frame:
+        with InnerFrame(parent, title="TRANSIT") as frame:
             
             with Row() as main_wrapper:
                 
@@ -149,9 +147,7 @@ class TnSeekFrame(wx.Frame):
                     expand=True,
                 )
             
-            self.frame = frame
-
-            
+            self.inner_frame = frame
 
 
         self.Centre(wx.BOTH)
@@ -178,8 +174,6 @@ class TnSeekFrame(wx.Frame):
         pub.subscribe(self.saveHistogram, "histogram")
         create_menu(self)
         
-
-
     def Exit(self, event):
         """Exit Menu Item"""
         if self.verbose:
@@ -800,8 +794,7 @@ class TnSeekFrame(wx.Frame):
 
     def RunMethod(self, event):
         with gui_tools.nice_error_log:
-            method_obj = universal.selected_method.method
-            instance = method_obj.from_gui(self)
+            instance = universal.selected_method.method.from_gui(self)
             if instance:
                 thread = threading.Thread(target=instance.Run())
                 thread.setDaemon(True)

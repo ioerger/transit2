@@ -11,7 +11,7 @@ class Button:
             self.events.on_click
     """
     def __init__(self, text="", background_color=None, default_size=(250, -1), min_size=None, max_size=None):
-        window       = gui_tools.window
+        frame       = universal.frame
         
         # 
         # wx_object
@@ -20,9 +20,8 @@ class Button:
             if self._state.instance:
                 return self._state.instance
             else:
-                print(f'''window = {window}''')
                 delayed_wx_object = GenBitmapTextButton(
-                    window,
+                    frame,
                     -1,
                     gui_tools.bit_map,
                     text,

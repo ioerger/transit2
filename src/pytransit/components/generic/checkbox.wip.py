@@ -5,13 +5,13 @@ from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basena
 import pytransit.gui_tools as gui_tools
 
 def create_checkbox(label, checked=False, position=(0,0)):
-    window = gui_tools.window
+    frame = universal.frame
     
     # 
     # component
     # 
     component = wx.CheckBox(
-        window.mainWindow,
+        frame.mainWindow,
         label=label,
         pos=position,
     )

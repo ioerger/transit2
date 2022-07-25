@@ -13,7 +13,7 @@ class WindowManager:
     """
     def __init__(self, default_size=(-1, -1), scroll_rate=(5,5), min_size=None, max_size=None, children=None):
         wx_object = wx.ScrolledWindow(
-            gui_tools.window,
+            universal.frame,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.Size(*default_size),

@@ -14,7 +14,7 @@ class Table:
             self.add(python_obj)
     """
     def __init__(self, initial_columns=None, column_width=None, max_size=(-1, 200)):
-        frame        = gui_tools.window
+        frame        = universal.frame
         column_width = column_width if column_width is not None else 100
         
         # 

@@ -39,7 +39,6 @@ class Box:
             self.add(component)
     """
     def __init__(self, orientation=None, background_color=None, min_size=None, max_size=None, children=None):
-        window       = gui_tools.window
         children     = children or []
         orientation  = options_for.orientation[orientation] if orientation is not None else options_for.orientation.vertical
         

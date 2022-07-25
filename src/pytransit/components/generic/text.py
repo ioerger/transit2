@@ -10,9 +10,9 @@ class Text:
             self.wx_object
     """
     def __init__(self, content, font_size=12, underline=False, bold=False, italic=False):
-        window       = gui_tools.window
+        frame       = universal.frame
         wx_object = wx.StaticText( # not actually static btw
-            window,
+            frame,
             wx.ID_ANY,
             content,
             wx.DefaultPosition,
