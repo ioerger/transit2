@@ -21,7 +21,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_dropdown, create_reference_condition_dropdown, create_include_condition_list, create_exclude_condition_list, create_n_terminus_option, create_c_terminus_option, create_pseudocount_option
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_dropdown, create_reference_condition_dropdown, create_include_condition_list, create_exclude_condition_list, create_n_terminus_option, create_c_terminus_option, create_pseudocount_option, create_winsorize_input
 
 default_padding = 5 # not sure what the units are
 
@@ -141,9 +141,7 @@ class GUI(base.AnalysisGUI):
             self.value_getters.c_terminus             = create_c_terminus_option(test1_panel, main_sizer)
             self.value_getters.normalization          = create_normalization_dropdown(test1_panel, main_sizer)
             self.value_getters.pseudocount            = create_pseudocount_option(test1_panel, main_sizer)
-            
-            # TODO: pseudocounts
-            # TODO: winsorize
+            self.value_getters.winsorize              = create_winsorize_input(test1_panel, main_sizer)
             
             create_run_button(test1_panel, main_sizer)
             

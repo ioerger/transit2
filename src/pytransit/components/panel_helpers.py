@@ -42,13 +42,13 @@ if True:
         label.Wrap(-1)
         choice_box = wx.Choice(panel, wx.ID_ANY, wx.DefaultPosition, widget_size, options, 0 )
         choice_box.SetSelection(0)
-        sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-        sizer.Add(choice_box, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+        sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
+        sizer.Add(choice_box, 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
         sizer.Add(
             InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
             0,
             wx.ALIGN_CENTER_VERTICAL,
-            5,
+            default_padding,
         )
         return (label, choice_box, sizer)
 
@@ -79,6 +79,28 @@ if True:
             
             
             return label, text_box, sizer
+            
+    def create_check_box_getter(panel, sizer, label_text="", default_value=False, tooltip_text="", widget_size=None):
+        from pytransit.analysis.base import InfoIcon
+        if not widget_size:
+            widget_size = (-1, -1)
+        
+        inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        check_box   = wx.CheckBox(panel, label=label_text, size=widget_size)
+        
+        check_box.SetValue(default_value)
+        
+        inner_sizer.Add(check_box, 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
+        inner_sizer.Add(
+            InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
+            0,
+            wx.ALIGN_CENTER_VERTICAL,
+            default_padding,
+        )
+        
+        sizer.Add(inner_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        
+        return lambda *args: check_box.GetValue()
     
     def create_text_box_getter(panel, sizer, label_text="", default_value="", tooltip_text="", lab_size=None, widget_size=None,):
         (
@@ -87,9 +109,9 @@ if True:
             wrapper_sizer,
         ) = define_text_box(
             panel,
-            label_text="Ignore N-Terminus %:",
-            default_value="",
-            tooltip_text="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+            label_text=label_text,
+            default_value=default_value,
+            tooltip_text=tooltip_text,
         )
         sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, default_padding)
         return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
@@ -207,6 +229,25 @@ if True:
             tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
         )
         return lambda *args: float(get_text())
+    
+    def create_pseudocount_option(panel, sizer, default_value="5"):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text="Pseudocount:",
+            default_value=default_value,
+            tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
+        )
+        return lambda *args: float(get_text())
+    
+    def create_winsorize_input(panel, sizer, default_value=False):
+        return create_check_box_getter(
+            panel,
+            sizer,
+            label_text="Winsorize:",
+            default_value=default_value,
+            tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
+        )
     
     def create_run_button(panel, sizer):
         run_button = wx.Button(
