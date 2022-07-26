@@ -460,7 +460,7 @@ def define_panel():
         #         test1_panel,
         #         "Pseudocount:",
         #         "5",
-        #         "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
+        #         "Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
         #     )
         #     main_sizer.Add(pseudoSizer, 1, wx.EXPAND, default_padding)
         

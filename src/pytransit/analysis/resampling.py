@@ -176,7 +176,7 @@ class ResamplingGUI(base.AnalysisGUI):
             resamplingPanel,
             u"Pseudocount:",
             u"0.0",
-            "Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
+            "Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",
         )
         mainSizer1.Add(pseudoSizer, 1, wx.EXPAND, 5)
 
