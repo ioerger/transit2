@@ -122,7 +122,7 @@ if True:
 # 
 # 
 if True:
-    def create_normalization_dropdown(panel, sizer):
+    def create_normalization_input(panel, sizer):
         (
             label,
             normalization_wxobj,
@@ -145,7 +145,7 @@ if True:
         # return a value-getter
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
-    def create_reference_condition_dropdown(panel, sizer):
+    def create_reference_condition_input(panel, sizer):
         (
             label,
             ref_condition_wxobj,
@@ -159,7 +159,7 @@ if True:
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
-    def create_include_condition_list(panel, sizer):
+    def create_include_condition_list_input(panel, sizer):
         (
             _,
             wxobj,
@@ -179,7 +179,7 @@ if True:
         
         return get_value
     
-    def create_exclude_condition_list(panel, sizer):
+    def create_exclude_condition_list_input(panel, sizer):
         (
             _,
             wxobj,
@@ -197,7 +197,7 @@ if True:
         
         return get_value
     
-    def create_n_terminus_option(panel, sizer):
+    def create_n_terminus_input(panel, sizer):
         get_text = create_text_box_getter(
             panel,
             sizer,
@@ -207,7 +207,7 @@ if True:
         )
         return lambda *args: float(get_text())
     
-    def create_c_terminus_option(panel, sizer):
+    def create_c_terminus_input(panel, sizer):
         get_text = create_text_box_getter(
             panel,
             sizer,
@@ -217,7 +217,7 @@ if True:
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_option(panel, sizer, default_value="5"):
+    def create_pseudocount_input(panel, sizer, default_value="5"):
         # 
         # text input: Pseudocount
         # 
@@ -230,7 +230,7 @@ if True:
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_option(panel, sizer, default_value="5"):
+    def create_pseudocount_input(panel, sizer, default_value="5"):
         get_text = create_text_box_getter(
             panel,
             sizer,
@@ -238,7 +238,17 @@ if True:
             default_value=default_value,
             tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
         )
-        return lambda *args: float(get_text())
+        return lambda *args: int(get_text())
+    
+    def create_alpha_input(panel, sizer, default_value="1000"):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text="Alpha:",
+            default_value=default_value,
+            tooltip_text="FIXME: needs summary",    
+        )
+        return lambda *args: int(get_text())
     
     def create_winsorize_input(panel, sizer, default_value=False):
         return create_check_box_getter(

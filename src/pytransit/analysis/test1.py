@@ -21,44 +21,70 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_dropdown, create_reference_condition_dropdown, create_include_condition_list, create_exclude_condition_list, create_n_terminus_option, create_c_terminus_option, create_pseudocount_option, create_winsorize_input
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
 
 default_padding = 5 # not sure what the units are
 
 
 ############# GUI ELEMENTS ##################
 
-short_name = "anova -- test"
-long_name = "AnovaGUI"
-short_desc = "AnovaGUI"
-long_desc = """Anova GUI"""
+main_object = LazyDict(
+    short_name = "anova -- test",
+    long_name = "AnovaGUI",
+    short_desc = "AnovaGUI",
+    long_desc = """Anova GUI""",
 
-transposons = ["himar1", "tn5"]
-columns = [
-    "Orf",
-    "Name",
-    "Desc",
-    "Sites",
-    "Mean Ctrl",
-    "Mean Exp",
-    "log2FC",
-    "Sum Ctrl",
-    "Sum Exp",
-    "Delta Mean",
-    "p-value",
-    "Adj. p-value",
-]
-
+    transposons = ["himar1", "tn5"],
+    columns = [
+        "Orf",
+        "Name",
+        "Desc",
+        "Sites",
+        "Mean Ctrl",
+        "Mean Exp",
+        "log2FC",
+        "Sum Ctrl",
+        "Sum Exp",
+        "Delta Mean",
+        "p-value",
+        "Adj. p-value",
+    ],
+    
+    analysis=None,
+    gui=None,
+    method=None,
+    
+    inputs = LazyDict(
+        combined_wig=None,
+        metadata=None,
+        annotation=None,
+        
+        output_file=None,
+        
+        normalization=None,
+        excluded_conditions=None,
+        included_conditions=None,
+        n_terminus=None,
+        c_terminus=None,
+        pseudocount=None,
+        winz=None,
+        refs=None,
+        alpha=None,
+    ),
+)
 
 class Analysis(base.TransitAnalysis):
     def __init__(self):
+        main_object.analysis = self
         base.TransitAnalysis.__init__(
             self,
-            short_name,
-            long_name,
-            short_desc,
-            long_desc,
-            transposons,
+            
+            main_object.short_name,
+            main_object.long_name,
+            main_object.short_desc,
+            main_object.long_desc,
+            main_object.transposons,
+            
             Method,
             GUI,
             [File],
@@ -117,7 +143,12 @@ class File(base.TransitFile):
             print("Error Displaying File. Histogram image does not exist.")
 
 class GUI(base.AnalysisGUI):
-    def define_panel(self, frame):
+    def __init__(self, *args, **kwargs):
+        main_object.gui = self
+        super(GUI, self).__init__(*args, **kwargs)
+    
+    def define_panel(self, _):
+        
         self.main_frame = frame = universal.frame
         test1_panel = make_panel()
         
@@ -134,14 +165,16 @@ class GUI(base.AnalysisGUI):
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         if True:
-            self.value_getters.include_condition_list = create_include_condition_list(test1_panel, main_sizer)
-            self.value_getters.exclude_condition_list = create_exclude_condition_list(test1_panel, main_sizer)
-            self.value_getters.reference_condition    = create_reference_condition_dropdown(test1_panel, main_sizer)
-            self.value_getters.n_terminus             = create_n_terminus_option(test1_panel, main_sizer)
-            self.value_getters.c_terminus             = create_c_terminus_option(test1_panel, main_sizer)
-            self.value_getters.normalization          = create_normalization_dropdown(test1_panel, main_sizer)
-            self.value_getters.pseudocount            = create_pseudocount_option(test1_panel, main_sizer)
-            self.value_getters.winsorize              = create_winsorize_input(test1_panel, main_sizer)
+            self.value_getters.included_conditions    = create_include_condition_list_input(test1_panel, main_sizer)
+            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(test1_panel, main_sizer)
+            self.value_getters.reference_condition    = create_reference_condition_input(test1_panel, main_sizer)
+            self.value_getters.n_terminus             = create_n_terminus_input(test1_panel, main_sizer)
+            self.value_getters.c_terminus             = create_c_terminus_input(test1_panel, main_sizer)
+            self.value_getters.normalization          = create_normalization_input(test1_panel, main_sizer)
+            self.value_getters.pseudocount            = create_pseudocount_input(test1_panel, main_sizer)
+            self.value_getters.alpha                  = create_alpha_input(test1_panel, main_sizer)
+            self.value_getters.winz                   = create_winsorize_input(test1_panel, main_sizer)
+            self.value_getters.refs                   = lambda *args: [ self.value_getters.reference_condition ] # for some reason its supposed to be in a list
             
             create_run_button(test1_panel, main_sizer)
             
@@ -167,8 +200,9 @@ class Method(base.DualConditionMethod):
         pseudocount=1,
         winz=False,
         refs=[],
-        alpha=1000
+        alpha=1000,
     ):
+        main_object.method = self
         base.MultiConditionMethod.__init__(
             self,
             short_name,
@@ -194,54 +228,41 @@ class Method(base.DualConditionMethod):
     @classmethod
     def from_gui(self, frame):
         with gui_tools.nice_error_log:
-            inputs = LazyDict(
-                combined_wig=None,
-                metadata=None,
-                annotation=None,
-                
-                normalization=None,
-                output_file=None,
-                excluded_conditions=None,
-                included_conditions=None,
-                n_terminus=None,
-                c_terminus=None,
-                pseudocount=None,
-                winz=None,
-                refs=None,
-                alpha=None
-            )
-            
             # 
             # get wig files
             # 
-            inputs.combined_wig = [ each.cwig.path     for each in universal.session_data.wig_groups ][0]
-            inputs.metadata     = [ each.metadata.path for each in universal.session_data.wig_groups ][0]
+            main_object.inputs.combined_wig = [ each.cwig.path     for each in universal.session_data.wig_groups ][0]
+            main_object.inputs.metadata     = [ each.metadata.path for each in universal.session_data.wig_groups ][0]
             
             # 
             # get annotation
             # 
-            inputs.annotation = universal.session_data.annotation
-            # TODO: enable this 
+            main_object.inputs.annotation = universal.session_data.annotation
+            # FIXME: enable this once I get a valid annotation file example
             # if not transit_tools.validate_annotation(inputs.annotation):
             #     return None
             
             # 
             # setup custom inputs
             # 
-            
-            
+            for each_key, each_getter in main_object.gui.value_getters.items():
+                try:
+                    main_object.inputs[each_key] = each_getter()
+                except Exception as error:
+                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
             
             # 
             # save result files
             # 
-            default_file_name = "test1_output.dat"  # simplified
-            default_dir = os.getcwd()
-            output_path = frame.SaveFile(default_dir, default_file_name)
+            output_path = gui_tools.ask_for_output_file_path(
+                default_file_name="test1_output.dat",
+                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+            )
             if not output_path:
                 return None
-            output_file = open(output_path, "w")
+            main_object.inputs.output_file = open(output_path, "w")
 
-            return self(*inputs.values())
+            return self(*main_object.inputs.values())
 
     @classmethod
     def fromargs(self, rawargs):
@@ -869,20 +890,3 @@ class Method(base.DualConditionMethod):
             sys.argv[0],
             sys.argv[0],
         )
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = Method.fromargs(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

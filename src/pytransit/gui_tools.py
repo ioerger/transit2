@@ -78,6 +78,28 @@ def ask_for_files(message):
     file_dialog.Destroy()
     return output
 
+def ask_for_output_file_path(
+        default_folder=None,
+        default_file_name="",
+        output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+    ):
+        path = None
+        if not default_folder:
+            default_folder = os.getcwd()
+
+        
+        file_dialog = wx.FileDialog(
+            self,
+            message="Save file as ...",
+            defaultDir=default_folder,
+            defaultFile=default_file_name,
+            wildcard=output_extensions,
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+        )
+        if file_dialog.ShowModal() == wx.ID_OK:
+            path = file_dialog.GetPath()
+        file_dialog.Destroy()
+        return path
 
 class color(NamedTuple):
     black          =  rgba(0, 0, 0)
