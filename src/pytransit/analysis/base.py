@@ -666,8 +666,8 @@ class MultiConditionMethod(AnalysisMethod):
         LOESS=False,
         ignoreCodon=True,
         wxobj=None,
-        excluded_conditions=[],
-        included_conditions=[],
+        excluded_conditions=None,
+        included_conditions=None,
         n_terminus=0.0,
         c_terminus=0.0,
     ):
@@ -687,8 +687,8 @@ class MultiConditionMethod(AnalysisMethod):
         self.n_terminus           = n_terminus
         self.c_terminus           = c_terminus
         self.unknown_cond_flag   = "FLAG-UNMAPPED-CONDITION-IN-WIG"
-        self.excluded_conditions = excluded_conditions
-        self.included_conditions = included_conditions
+        self.excluded_conditions = excluded_conditions or []
+        self.included_conditions = included_conditions or []
 
     def filter_wigs_by_conditions(
         self,

@@ -70,6 +70,7 @@ main_object = LazyDict(
         winz=None,
         refs=None,
         alpha=None,
+        combinedWigParams=None,
     ),
 )
 
@@ -185,7 +186,7 @@ class GUI(base.AnalysisGUI):
 
         self.panel = test1_panel
 
-class Method(base.DualConditionMethod):
+class Method(base.MultiConditionMethod):
     def __init__(
         self,
         combined_wig,
@@ -201,14 +202,42 @@ class Method(base.DualConditionMethod):
         winz=False,
         refs=[],
         alpha=1000,
+        *args,
+        **kwargs,
     ):
         main_object.method = self
+        
+        self.pseudocount         = None
+        self.alpha               = None
+        self.refs                = None
+        self.winz                = None
+        self.normalization       = None
+        self.ctrldata            = None
+        self.expdata             = None
+        self.annotation_path     = None
+        self.LOESS               = None
+        self.main_frame          = None
+        self.doHistogram         = None
+        self.output              = None
+        self.diffStrains         = None
+        self.annotation_path_exp = None
+        self.combinedWigParams   = None
+        self.ignoreCodon         = None
+        self.n_terminus          = None
+        self.c_terminus          = None
+        self.ctrl_lib_str        = None
+        self.exp_lib_str         = None
+        self.samples             = None
+        self.adaptive            = None
+        self.includeZeros        = None
+        self.Z                   = None
+        
         base.MultiConditionMethod.__init__(
             self,
-            short_name,
-            long_name,
-            short_desc,
-            long_desc,
+            main_object.short_name,
+            main_object.long_name,
+            main_object.short_desc,
+            main_object.long_desc,
             combined_wig,
             metadata,
             annotation,
@@ -231,8 +260,9 @@ class Method(base.DualConditionMethod):
             # 
             # get wig files
             # 
-            main_object.inputs.combined_wig = [ each.cwig.path     for each in universal.session_data.wig_groups ][0]
-            main_object.inputs.metadata     = [ each.metadata.path for each in universal.session_data.wig_groups ][0]
+            wig_group = universal.session_data.wig_groups[0]
+            main_object.inputs.combined_wig = wig_group.cwig.path
+            main_object.inputs.metadata     = wig_group.metadata.path
             
             # 
             # get annotation
@@ -266,102 +296,49 @@ class Method(base.DualConditionMethod):
 
     @classmethod
     def fromargs(self, rawargs):
-
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
-        isCombinedWig = True if kwargs.get("c", False) else False
-        combinedWigParams = None
-        if isCombinedWig:
-            if len(args) != 5:
-                print("Error: Incorrect number of args. See usage")
-                print(self.usage_string())
-                sys.exit(0)
-            combinedWigParams = {
-                "combined_wig": kwargs.get("c"),
-                "samples_metadata": args[0],
-                "conditions": [args[1].lower(), args[2].lower()],
-            }
-            annot_paths = args[3].split(",")
-            # to show contrasted conditions for combined_wigs in output header
-            ctrldata = [combinedWigParams["conditions"][0]]
-            expdata = [combinedWigParams["conditions"][1]]
-            output_path = args[4]
-        else:
-            if len(args) != 4:
-                print("Error: Incorrect number of args. See usage")
-                print(self.usage_string())
-                sys.exit(0)
-            ctrldata = args[0].split(",")
-            expdata = args[1].split(",")
-            annot_paths = args[2].split(",")
-            output_path = args[3]
-        annotation_path = annot_paths[0]
-        diffStrains = False
-        annotation_path_exp = ""
-        if len(annot_paths) == 2:
-            annotation_path_exp = annot_paths[1]
-            diffStrains = True
-        if diffStrains and isCombinedWig:
-            print("Error: Cannot have combined wig and different annotation files.")
+        if kwargs.get("-help", False) or kwargs.get("h", False):
+            print(self.usage_string)
             sys.exit(0)
-        winz = True if "winz" in kwargs else False
 
-        output_file = open(output_path, "w")
+        combined_wig = args[0]
+        annotation   = args[2]
+        metadata     = args[1]
+        output_file  = args[3]
+        normalization = kwargs.get("n", "TTR")
+        n_terminus    = float(kwargs.get("iN", 0.0))
+        c_terminus    = float(kwargs.get("iC", 0.0))
+        winz          = "winz" in kwargs
+        pseudocount   = int(kwargs.get("PC", 5))
+        alpha         = float(kwargs.get("alpha", 1000))
+        refs          = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
+        if refs != []: refs = refs.split(",")
+        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
+        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
 
         # check for unrecognized flags
-        flags = (
-            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split()
-        )
+        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 self.transit_error("flag unrecognized: %s" % arg)
-                print(ZinbMethod.usage_string())
+                print(self.usage_string)
                 sys.exit(0)
 
-        normalization = kwargs.get("n", "TTR")
-        samples       = int(kwargs.get("s", 10000))
-        adaptive      = kwargs.get("a", False)
-        doHistogram   = kwargs.get("h", False)
-        replicates    = kwargs.get("r", "Sum")
-        excludeZeros  = kwargs.get("ez", False)
-        includeZeros  = not excludeZeros
-        pseudocount   = float(
-            kwargs.get("PC", 1.0)
-        )  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
-
-        Z = True if "Z" in kwargs else False
-
-        LOESS = kwargs.get("l", False)
-        ignoreCodon = True
-
-        n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
-        c_terminus = float(kwargs.get("iC", 0.00))
-        ctrl_lib_str = kwargs.get("-ctrl_lib", "")
-        exp_lib_str = kwargs.get("-exp_lib", "")
-
         return self(
-            ctrldata,
-            expdata,
-            annotation_path,
-            output_file,
+            combined_wig,
+            metadata,
+            annotation,
             normalization,
-            samples,
-            adaptive,
-            doHistogram,
-            includeZeros,
-            pseudocount,
-            replicates,
-            LOESS,
-            ignoreCodon,
+            output_file,
+            excluded_conditions,
+            included_conditions,
             n_terminus,
             c_terminus,
-            ctrl_lib_str,
-            exp_lib_str,
-            winz=winz,
-            Z=Z,
-            diffStrains=diffStrains,
-            annotation_path_exp=annotation_path_exp,
-            combinedWigParams=combinedWigParams,
+            pseudocount,
+            winz,
+            refs,
+            alpha
         )
 
     def preprocess_data(self, position, data):
@@ -408,139 +385,91 @@ class Method(base.DualConditionMethod):
         return (numpy.array(d_filtered), numpy.array(cond_filtered))
 
     def Run(self):
-
-        # if not self.main_frame:
-        #    # Force matplotlib to use good backend for png.
-        #    import matplotlib.pyplot as plt
-        # elif "matplotlib.pyplot" not in sys.modules:
-        try:
-            import matplotlib.pyplot as plt
-        except:
-            print("Error: cannot do histograms")
-            self.doHistogram = False
-
-        self.transit_message("Starting test1 Method")
+        self.transit_message("Starting Anova analysis")
         start_time = time.time()
+
+        self.transit_message("Getting Data")
+        (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
+            self.combined_wig
+        )
+
+        self.transit_message("Normalizing using: %s" % self.normalization)
+        (data, factors) = norm_tools.normalize_data(data, self.normalization)
         if self.winz:
             self.transit_message("Winsorizing insertion counts")
 
-        histPath = ""
-        if self.doHistogram:
-            histPath = os.path.join(
-                os.path.dirname(self.output.name),
-                transit_tools.fetch_name(self.output.name) + "_histograms",
-            )
-            if not os.path.isdir(histPath):
-                os.makedirs(histPath)
-
-        # Get orf data
-        self.transit_message("Getting Data")
-        if self.diffStrains:
-            self.transit_message("Multiple annotation files found")
-            self.transit_message(
-                "Mapping ctrl data to {0}, exp data to {1}".format(
-                    self.annotation_path, self.annotation_path_exp
-                )
-            )
-
-        if self.combinedWigParams:
-            (position, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
-                self.combinedWigParams["combined_wig"]
-            )
-            conditionsByFile, _, _, _ = tnseq_tools.read_samples_metadata(
-                self.combinedWigParams["samples_metadata"]
-            )
-            conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
-            data, conditions = self.filter_wigs_by_conditions(
-                data, conditions, self.combinedWigParams["conditions"]
-            )
-            data_ctrl = numpy.array(
-                [
-                    d
-                    for i, d in enumerate(data)
-                    if conditions[i].lower() == self.combinedWigParams["conditions"][0]
-                ]
-            )
-            data_exp = numpy.array(
-                [
-                    d
-                    for i, d in enumerate(data)
-                    if conditions[i].lower() == self.combinedWigParams["conditions"][1]
-                ]
-            )
-            position_ctrl, position_exp = position, position
-        else:
-            (data_ctrl, position_ctrl) = transit_tools.get_validated_data(
-                self.ctrldata, frame=self.main_frame
-            )
-            (data_exp, position_exp) = transit_tools.get_validated_data(
-                self.expdata, frame=self.main_frame
-            )
-        (K_ctrl, N_ctrl) = data_ctrl.shape
-        (K_exp, N_exp) = data_exp.shape
-
-        if not self.diffStrains and (N_ctrl != N_exp):
-            self.transit_error(
-                "Error: Ctrl and Exp wig files don't have the same number of sites."
-            )
-            self.transit_error("Make sure all .wig files come from the same strain.")
-            return
-        # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, frame=self.main_frame)
-
-        self.transit_message("Preprocessing Ctrl data...")
-        data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
-
-        self.transit_message("Preprocessing Exp data...")
-        data_exp = self.preprocess_data(position_exp, data_exp)
-
-        G_ctrl = tnseq_tools.Genes(
-            self.ctrldata,
-            self.annotation_path,
-            ignoreCodon=self.ignoreCodon,
-            n_terminus=self.n_terminus,
-            c_terminus=self.c_terminus,
-            data=data_ctrl,
-            position=position_ctrl,
+        conditionsByFile, _, _, orderingMetadata = tnseq_tools.read_samples_metadata(
+            self.metadata
         )
-        G_exp = tnseq_tools.Genes(
-            self.expdata,
-            self.annotation_path_exp,
-            ignoreCodon=self.ignoreCodon,
-            n_terminus=self.n_terminus,
-            c_terminus=self.c_terminus,
-            data=data_exp,
-            position=position_exp,
+        conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
+
+        conditionsList = self.select_conditions(
+            conditions,
+            self.included_conditions,
+            self.excluded_conditions,
+            orderingMetadata,
         )
 
-        doLibraryAnova = False
-        # If library string not empty
-        if self.ctrl_lib_str or self.exp_lib_str:
-            letters_ctrl = set(self.ctrl_lib_str)
-            letters_exp = set(self.exp_lib_str)
+        conditionNames = [conditionsByFile[f] for f in filenamesInCombWig]
+        fileNames = filenamesInCombWig
 
-            # Check if using exactly 1 letters; i.e. no different libraries
-            if len(letters_ctrl) == 1 and letters_exp == 1:
-                pass
-            # If using more than one letter, then check no differences in set
-            else:
-                lib_diff = letters_ctrl ^ letters_exp
-                # Check that their differences
-                if not lib_diff:
-                    doLibraryAnova = True
-                else:
-                    transit_tools.transit_error(
-                        "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with test1 assuming all datasets belong to the same library."
-                        % (self.ctrl_lib_str, self.exp_lib_str)
-                    )
-                    self.ctrl_lib_str = ""
-                    self.exp_lib_str = ""
+        (
+            data,
+            fileNames,
+            conditionNames,
+            conditions,
+            _,
+            _,
+        ) = self.filter_wigs_by_conditions3(  # in base.py
+            data,
+            fileNames,  # it looks like fileNames and conditionNames have to be parallel to data (vector of wigs)
+            conditionNames,  # original Condition column in samples metadata file
+            self.included_conditions,
+            self.excluded_conditions,
+            conditions=conditionNames,
+        )  # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
 
-        (data, qval) = self.run_test1(G_ctrl, G_exp, doLibraryAnova, histPath)
-        self.write_output(data, qval, start_time)
+        genes = tnseq_tools.read_genes(self.annotation_path)
 
-        self.finish()
-        self.transit_message("Finished test1 Method")
+        TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
+        RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
+            genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
+        )
+        MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
+        self.transit_message("Running Anova")
+        MSR, MSE, Fstats, pvals, qvals, run_status = self.run_anova(
+            data, genes, MeansByRv, RvSiteindexesMap, conditions
+        )
+
+        self.transit_message("Adding File: %s" % (self.output))
+        file = open(self.output, "w")
+
+        heads = (
+            "Rv Gene TAs".split() +
+            ["Mean_%s" % x for x in conditionsList] +
+            ["LFC_%s" % x for x in conditionsList] +
+            "MSR MSE+alpha Fstat Pval Padj".split() + 
+            ["status"]
+        )
+        file.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.n_terminus,self.c_terminus,self.pseudocount,self.alpha))
+        file.write('#'+'\t'.join(heads)+EOL)
+        for gene in genes:
+            Rv = gene["rv"]
+            if Rv in MeansByRv:
+              means = [MeansByRv[Rv][c] for c in conditionsList]
+              refs = [MeansByRv[Rv][c] for c in self.refs]
+              LFCs = self.calc_lf_cs(means,refs,self.pseudocount)
+              vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
+                      ["%0.2f" % x for x in means] + 
+                      ["%0.3f" % x for x in LFCs] + 
+                      ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
+              file.write('\t'.join(vals)+EOL)
+        file.close()
+        self.transit_message("Finished Anova analysis")
+        self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
+    
     def write_output(self, data, qval, start_time):
 
         self.output.write("#Anova\n")

@@ -1,4 +1,5 @@
 import traceback
+import os
 from typing import NamedTuple
 
 from pytransit.transit_tools import wx
@@ -89,7 +90,7 @@ def ask_for_output_file_path(
 
         
         file_dialog = wx.FileDialog(
-            self,
+            universal.frame,
             message="Save file as ...",
             defaultDir=default_folder,
             defaultFile=default_file_name,

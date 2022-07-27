@@ -114,7 +114,7 @@ if True:
             tooltip_text=tooltip_text,
         )
         sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, default_padding)
-        return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
+        return lambda *args: wxobj.GetValue()
 
 # 
 # 
@@ -173,7 +173,7 @@ if True:
         sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
         
         def get_value(*args):
-            as_list = ",".split(wxobj.GetValue())
+            as_list = wxobj.GetValue().split(",")
             if len(as_list) == 0:
                 return universal.session_data.condition_names
         
@@ -193,7 +193,7 @@ if True:
         sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
         
         def get_value(*args):
-            return ",".split(wxobj.GetValue())
+            return wxobj.GetValue().split(",")
         
         return get_value
     
@@ -272,6 +272,7 @@ if True:
         
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):
+            import threading
             with gui_tools.nice_error_log:
                 method_instance = universal.selected_method.method.from_gui(universal.frame)
                 if method_instance:
