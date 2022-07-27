@@ -634,3 +634,10 @@ def get_validated_data(wig_list, wxobj=None):
     # Didn't choose either.... what!?
     else:
         return tnseq_tools.get_data([])
+
+
+class InvalidArgumentException(Exception):
+    def __init__(self, message):
+
+        # Call the base class constructor with the parameters it needs
+        super(InvalidArgumentException, self).__init__(message)

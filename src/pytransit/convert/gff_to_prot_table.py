@@ -7,14 +7,7 @@ import csv
 import traceback
 import pytransit.transit_tools as transit_tools
 from pytransit.convert import base
-
-
-class InvalidArgumentException(Exception):
-    def __init__(self, message):
-
-        # Call the base class constructor with the parameters it needs
-        super(InvalidArgumentException, self).__init__(message)
-
+from pytransit.transit_tools import InvalidArgumentException
 
 ############# Description ##################
 

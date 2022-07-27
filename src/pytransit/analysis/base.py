@@ -8,31 +8,10 @@ import datetime
 import numpy
 import pytransit.transit_tools as transit_tools
 from pytransit.components.parameter_panel import panel
+from pytransit.components.icon import InfoIcon
+from pytransit.transit_tools import InvalidArgumentException
 
 file_prefix = "[FileDisplay]"
-
-
-class InvalidArgumentException(Exception):
-    def __init__(self, message):
-
-        # Call the base class constructor with the parameters it needs
-        super(InvalidArgumentException, self).__init__(message)
-
-
-#
-
-if HAS_WX:
-
-    class InfoIcon(wx.StaticBitmap):
-        def __init__(self, panel, flag, bit_map=None, tooltip=""):
-            if not bit_map:
-                bit_map = wx.ArtProvider.GetBitmap(
-                    wx.ART_INFORMATION, wx.ART_OTHER, (16, 16)
-                )
-            wx.StaticBitmap.__init__(self, panel, flag, bit_map)
-            tp = wx.ToolTip(tooltip)
-            self.SetToolTip(tp)
-
 
 class TransitGUIBase:
     def __init__(self):

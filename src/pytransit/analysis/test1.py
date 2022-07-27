@@ -23,9 +23,6 @@ from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
 
-default_padding = 5 # not sure what the units are
-
-
 ############# GUI ELEMENTS ##################
 
 main_object = LazyDict(
@@ -179,7 +176,7 @@ class GUI(base.AnalysisGUI):
             
             create_run_button(test1_panel, main_sizer)
             
-        panel.method_sizer.Add(test1_panel, 0, wx.EXPAND, default_padding)
+        panel.method_sizer.Add(test1_panel, 0, wx.EXPAND, gui_tools.default_padding)
         test1_panel.SetSizer(main_sizer)
         test1_panel.Layout()
         main_sizer.Fit(test1_panel)

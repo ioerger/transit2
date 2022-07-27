@@ -8,6 +8,8 @@ from pytransit.core_data import universal
 
 
 bit_map = None
+default_padding = 5
+
 
 def rgba(*args):
     return tuple(args)

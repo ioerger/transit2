@@ -2,10 +2,8 @@ from pytransit.transit_tools import wx, pub
 from pytransit.core_data import universal
 import pytransit.gui_tools as gui_tools
 
-LABEL_SIZE = (-1, -1)
-WIDGET_SIZE = (100, -1)
-default_padding = 5
-
+default_label_size = (-1, -1)
+default_widget_size = (100, -1)
 
 # 
 # 
@@ -42,13 +40,13 @@ if True:
         label.Wrap(-1)
         choice_box = wx.Choice(panel, wx.ID_ANY, wx.DefaultPosition, widget_size, options, 0 )
         choice_box.SetSelection(0)
-        sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
-        sizer.Add(choice_box, 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
+        sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+        sizer.Add(choice_box, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         sizer.Add(
             InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
             0,
             wx.ALIGN_CENTER_VERTICAL,
-            default_padding,
+            gui_tools.default_padding,
         )
         return (label, choice_box, sizer)
 
@@ -63,18 +61,18 @@ if True:
         ):
             from pytransit.analysis.base import InfoIcon
             if not lab_size:
-                lab_size = LABEL_SIZE
+                lab_size = default_label_size
             if not widget_size:
-                widget_size = WIDGET_SIZE
+                widget_size = default_widget_size
 
             sizer = wx.BoxSizer(wx.HORIZONTAL)
             label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, lab_size, 0)
             label.Wrap(-1)
             text_box = wx.TextCtrl(panel, wx.ID_ANY, f"{default_value}", wx.DefaultPosition, widget_size, 0)
             
-            sizer.Add(label, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, default_padding)
-            sizer.Add(text_box, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, default_padding)
-            sizer.Add(InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text), 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
+            sizer.Add(label, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            sizer.Add(text_box, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            sizer.Add(InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text), 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
             sizer.Layout()
             
             
@@ -90,15 +88,15 @@ if True:
         
         check_box.SetValue(default_value)
         
-        inner_sizer.Add(check_box, 0, wx.ALIGN_CENTER_VERTICAL, default_padding)
+        inner_sizer.Add(check_box, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         inner_sizer.Add(
             InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
             0,
             wx.ALIGN_CENTER_VERTICAL,
-            default_padding,
+            gui_tools.default_padding,
         )
         
-        sizer.Add(inner_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(inner_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         
         return lambda *args: check_box.GetValue()
     
@@ -113,7 +111,7 @@ if True:
             default_value=default_value,
             tooltip_text=tooltip_text,
         )
-        sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: wxobj.GetValue()
 
 # 
@@ -141,7 +139,7 @@ if True:
             ],
             "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
-        sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
@@ -156,7 +154,7 @@ if True:
             universal.session_data.condition_names,
             "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_include_condition_list_input(panel, sizer):
@@ -170,7 +168,7 @@ if True:
             default_value="",
             tooltip_text="comma seperated list (default=all)",
         )
-        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         
         def get_value(*args):
             as_list = wxobj.GetValue().split(",")
@@ -190,7 +188,7 @@ if True:
             default_value="",
             tooltip_text="comma seperated list (default=none)",
         )
-        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         
         def get_value(*args):
             return wxobj.GetValue().split(",")
@@ -268,7 +266,7 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, default_padding)
+        sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):
