@@ -330,8 +330,8 @@ class RankProductMethod(base.DualConditionMethod):
             self.ctrldata + self.expdata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
             data=data[:Kctrl, :],
             position=position,
         )
@@ -340,8 +340,8 @@ class RankProductMethod(base.DualConditionMethod):
             self.ctrldata + self.expdata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
             data=data[Kctrl:, :],
             position=position,
         )

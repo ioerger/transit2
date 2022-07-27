@@ -35,7 +35,7 @@ class Object: # just an empty object for assigning attributes of
             return entries+")"
 
 
-def rv_siteindexes_map(genes, TASiteindexMap, nterm=0.0, cterm=0.0):
+def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
     """
     ([Gene], {TAsite: Siteindex}) -> {Rv: Siteindex}
     """
@@ -46,9 +46,9 @@ def rv_siteindexes_map(genes, TASiteindexMap, nterm=0.0, cterm=0.0):
         end = gene["end"] - 3 if gene["strand"] == "+" else gene["end"]
         for i in range(start, end + 1):
             co = i
-            if (co - start) / float(end - start) < (nterm / 100.0):
+            if (co - start) / float(end - start) < (n_terminus / 100.0):
                 continue
-            if (co - start) / float(end - start) > ((100 - cterm) / 100.0):
+            if (co - start) / float(end - start) > ((100 - c_terminus) / 100.0):
                 continue
             if co in TASiteindexMap:
                 siteindexes.append(TASiteindexMap[co])
@@ -539,8 +539,8 @@ class Genes:
         reps: String with information on how replicates were handled.
         minread: Integer with the minimum magnitude of read-count considered.
         ignoreCodon: Boolean defining whether to ignore the start/stop codon.
-        nterm: Float number of the fraction of the N-terminus to ignore.
-        cterm: Float number of the fraction of the C-terminus to ignore.
+        n_terminus: Float number of the fraction of the N-terminus to ignore.
+        c_terminus: Float number of the fraction of the C-terminus to ignore.
         include_nc: Boolean determining whether to include non-coding areas.
         orf2index: Dictionary of orf id to index in the genes list.
         genes: List of the Gene objects.
@@ -636,8 +636,8 @@ class Genes:
         reps="All",
         minread=1,
         ignoreCodon=True,
-        nterm=0.0,
-        cterm=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         include_nc=False,
         data=[],
         position=[],
@@ -657,8 +657,8 @@ class Genes:
             reps (str): String with information on how replicates were handled.
             minread (int): Integer with the minimum magnitude of read-count considered.
             ignoreCodon (bool): Boolean defining whether to ignore the start/stop codon.
-            nterm (float): Float number of the fraction of the N-terminus to ignore.
-            cterm (float): Float number of the fraction of the C-terminus to ignore.
+            n_terminus (float): Float number of the fraction of the N-terminus to ignore.
+            c_terminus (float): Float number of the fraction of the C-terminus to ignore.
             include_nc (bool): Boolean determining whether to include non-coding areas.
             data (list): List of data. Used to define the object without files.
             position (list): List of position of sites. Used to define the object without files.
@@ -671,8 +671,8 @@ class Genes:
         self.reps = reps
         self.minread = minread
         self.ignoreCodon = ignoreCodon
-        self.nterm = nterm
-        self.cterm = cterm
+        self.n_terminus = n_terminus
+        self.c_terminus = c_terminus
         self.include_nc = include_nc
 
         isProt = True
@@ -729,11 +729,11 @@ class Genes:
                     if self.ignoreCodon and position[i] < start + 3:
                         continue
 
-                if (position[i] - start) / float(end - start) < (self.nterm / 100.0):
+                if (position[i] - start) / float(end - start) < (self.n_terminus / 100.0):
                     continue
 
                 if (position[i] - start) / float(end - start) > (
-                    (100 - self.cterm) / 100.0
+                    (100 - self.c_terminus) / 100.0
                 ):
                     continue
 

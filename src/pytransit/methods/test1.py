@@ -85,8 +85,8 @@ parameters = LazyDict(
     output_file         = None
     excluded_conditions = []
     included_conditions = []
-    nterm               = 0.0
-    cterm               = 0.0
+    n_terminus               = 0.0
+    c_terminus               = 0.0
     pseudocount         = 1
     winz                = False
     refs                = []
@@ -178,8 +178,8 @@ def when_data_has_been_collected():
         self.ctrldata,
         self.annotation_path,
         ignoreCodon=self.ignoreCodon,
-        nterm=self.n_terminus,
-        cterm=self.c_terminus,
+        n_terminus=self.n_terminus,
+        c_terminus=self.c_terminus,
         data=data_ctrl,
         position=position_ctrl,
     )
@@ -187,8 +187,8 @@ def when_data_has_been_collected():
         self.expdata,
         self.annotation_path_exp,
         ignoreCodon=self.ignoreCodon,
-        nterm=self.n_terminus,
-        cterm=self.c_terminus,
+        n_terminus=self.n_terminus,
+        c_terminus=self.c_terminus,
         data=data_exp,
         position=position_exp,
     )

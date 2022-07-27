@@ -794,32 +794,32 @@ class GIMethod(base.QuadConditionMethod):
             self.annotation_path,
             data=data[:Na1],
             position=position,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
         )
         G_B1 = tnseq_tools.Genes(
             [],
             self.annotation_path,
             data=data[Na1 : (Na1 + Nb1)],
             position=position,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
         )
         G_A2 = tnseq_tools.Genes(
             [],
             self.annotation_path,
             data=data[(Na1 + Nb1) : (Na1 + Nb1 + Na2)],
             position=position,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
         )
         G_B2 = tnseq_tools.Genes(
             [],
             self.annotation_path,
             data=data[(Na1 + Nb1 + Na2) :],
             position=position,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
         )
 
         means_list_a1 = []

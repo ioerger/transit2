@@ -47,8 +47,8 @@ class AnovaMethod(base.MultiConditionMethod):
         output_file,
         excluded_conditions=[],
         included_conditions=[],
-        nterm=0.0,
-        cterm=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         pseudocount=1,
         winz=False,
         refs=[],
@@ -67,8 +67,8 @@ class AnovaMethod(base.MultiConditionMethod):
             normalization=normalization,
             excluded_conditions=excluded_conditions,
             included_conditions=included_conditions,
-            nterm=nterm,
-            cterm=cterm,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
         )
 
         self.pseudocount = pseudocount
@@ -343,7 +343,7 @@ class AnovaMethod(base.MultiConditionMethod):
 
         TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
         RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
-            genes, TASiteindexMap, nterm=self.n_terminus, cterm=self.c_terminus
+            genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
         )
         MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 

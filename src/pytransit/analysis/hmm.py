@@ -741,8 +741,8 @@ class HMMMethod(base.SingleConditionMethod):
             data=data,
             position=position,
             ignoreCodon=False,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
         )
 
         num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}

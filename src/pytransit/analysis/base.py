@@ -668,8 +668,8 @@ class MultiConditionMethod(AnalysisMethod):
         wxobj=None,
         excluded_conditions=[],
         included_conditions=[],
-        nterm=0.0,
-        cterm=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
     ):
         AnalysisMethod.__init__(
             self,
@@ -684,8 +684,8 @@ class MultiConditionMethod(AnalysisMethod):
         self.combined_wig        = combined_wig
         self.metadata            = metadata
         self.normalization       = normalization
-        self.n_terminus           = nterm
-        self.c_terminus           = cterm
+        self.n_terminus           = n_terminus
+        self.c_terminus           = c_terminus
         self.unknown_cond_flag   = "FLAG-UNMAPPED-CONDITION-IN-WIG"
         self.excluded_conditions = excluded_conditions
         self.included_conditions = included_conditions

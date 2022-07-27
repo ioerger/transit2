@@ -54,8 +54,8 @@ class ZinbMethod(base.MultiConditionMethod):
         excluded_conditions=[],
         included_conditions=[],
         winz=False,
-        nterm=5.0,
-        cterm=5.0,
+        n_terminus=5.0,
+        c_terminus=5.0,
         condition="Condition",
         covars=[],
         interactions=[],
@@ -76,8 +76,8 @@ class ZinbMethod(base.MultiConditionMethod):
             normalization=normalization,
             excluded_conditions=excluded_conditions,
             included_conditions=included_conditions,
-            nterm=nterm,
-            cterm=cterm,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
         )
         self.winz = winz
         self.covars = covars
@@ -778,7 +778,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
         TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
         RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
-            genes, TASiteindexMap, nterm=self.n_terminus, cterm=self.c_terminus
+            genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
         )
         statsByRv, statGroupNames = self.stats_by_rv(
             data, RvSiteindexesMap, genes, conditions, interactions

@@ -203,8 +203,8 @@ class Method(base.SingleConditionMethod):
             minread=1,
             reps=self.replicates,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
             data=data,
             position=position,
         )

@@ -319,8 +319,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             self.ctrldata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
             data=data,
             position=position,
         )

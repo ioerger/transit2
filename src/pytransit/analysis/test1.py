@@ -162,8 +162,8 @@ class Method(base.DualConditionMethod):
         output_file,
         excluded_conditions=[],
         included_conditions=[],
-        nterm=0.0,
-        cterm=0.0,
+        n_terminus=0.0,
+        c_terminus=0.0,
         pseudocount=1,
         winz=False,
         refs=[],
@@ -182,8 +182,8 @@ class Method(base.DualConditionMethod):
             normalization=normalization,
             excluded_conditions=excluded_conditions,
             included_conditions=included_conditions,
-            nterm=nterm,
-            cterm=cterm,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
         )
 
         self.pseudocount = pseudocount
@@ -476,8 +476,8 @@ class Method(base.DualConditionMethod):
             self.ctrldata,
             self.annotation_path,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
             data=data_ctrl,
             position=position_ctrl,
         )
@@ -485,8 +485,8 @@ class Method(base.DualConditionMethod):
             self.expdata,
             self.annotation_path_exp,
             ignoreCodon=self.ignoreCodon,
-            nterm=self.n_terminus,
-            cterm=self.c_terminus,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
             data=data_exp,
             position=position_exp,
         )
