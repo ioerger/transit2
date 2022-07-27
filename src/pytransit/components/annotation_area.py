@@ -75,7 +75,7 @@ def create_annotation_area(frame):
             @gui_tools.bind_to(annotation_file_picker, wx.EVT_FILEPICKER_CHANGED)
             def annotationFileFunc(event):
                 frame.annotation = event.GetPath() # this is for reducing breakages
-                universal.annotation = frame.annotation
+                universal.session_data.annotation = frame.annotation
 
         annotation_wrapper.Add(annot_sizer, 1, wx.EXPAND, 5)
     

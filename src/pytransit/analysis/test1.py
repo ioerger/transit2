@@ -1,3 +1,21 @@
+import scipy
+import numpy
+import heapq
+import math
+import statsmodels.stats.multitest
+
+import time
+import sys
+import collections
+
+from pytransit.analysis import base
+from pytransit.transit_tools import write_dat, EOL
+import pytransit
+import pytransit.transit_tools as transit_tools
+import pytransit.tnseq_tools as tnseq_tools
+import pytransit.norm_tools as norm_tools
+
+
 import sys
 import os
 import time
@@ -56,9 +74,8 @@ main_object = LazyDict(
         metadata=None,
         annotation=None,
         
-        output_file=None,
-        
         normalization=None,
+        output_file=None,
         excluded_conditions=None,
         included_conditions=None,
         n_terminus=None,
@@ -172,7 +189,7 @@ class GUI(base.AnalysisGUI):
             self.value_getters.pseudocount            = create_pseudocount_input(test1_panel, main_sizer)
             self.value_getters.alpha                  = create_alpha_input(test1_panel, main_sizer)
             self.value_getters.winz                   = create_winsorize_input(test1_panel, main_sizer)
-            self.value_getters.refs                   = lambda *args: [ self.value_getters.reference_condition ] # for some reason its supposed to be in a list
+            self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
             
             create_run_button(test1_panel, main_sizer)
             
@@ -266,7 +283,7 @@ class Method(base.MultiConditionMethod):
             # 
             main_object.inputs.annotation = universal.session_data.annotation
             # FIXME: enable this once I get a valid annotation file example
-            # if not transit_tools.validate_annotation(inputs.annotation):
+            # if not transit_tools.validate_annotation(main_object.inputs.annotation):
             #     return None
             
             # 
@@ -281,13 +298,12 @@ class Method(base.MultiConditionMethod):
             # 
             # save result files
             # 
-            output_path = gui_tools.ask_for_output_file_path(
+            main_object.inputs.output_file = gui_tools.ask_for_output_file_path(
                 default_file_name="test1_output.dat",
                 output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
             )
-            if not output_path:
+            if not main_object.inputs.output_file:
                 return None
-            main_object.inputs.output_file = open(output_path, "w")
 
             return self(*main_object.inputs.values())
 
@@ -381,15 +397,46 @@ class Method(base.MultiConditionMethod):
 
         return (numpy.array(d_filtered), numpy.array(cond_filtered))
 
+    def __repr__(self):
+        as_dict = LazyDict(
+            pseudocount=self.pseudocount,
+            alpha=self.alpha,
+            refs=self.refs,
+            winz=self.winz,
+            normalization=self.normalization,
+            ctrldata=self.ctrldata,
+            expdata=self.expdata,
+            annotation_path=self.annotation_path,
+            LOESS=self.LOESS,
+            main_frame=self.main_frame,
+            doHistogram=self.doHistogram,
+            output=self.output,
+            diffStrains=self.diffStrains,
+            annotation_path_exp=self.annotation_path_exp,
+            combinedWigParams=self.combinedWigParams,
+            ignoreCodon=self.ignoreCodon,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
+            ctrl_lib_str=self.ctrl_lib_str,
+            exp_lib_str=self.exp_lib_str,
+            samples=self.samples,
+            adaptive=self.adaptive,
+            includeZeros=self.includeZeros,
+            Z=self.Z,
+        )
+        return f"{as_dict}"
+    
     def Run(self):
         self.transit_message("Starting Anova analysis")
         start_time = time.time()
+        
+        print(f'''self = {self}''')
 
         self.transit_message("Getting Data")
         (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
             self.combined_wig
         )
-
+        
         self.transit_message("Normalizing using: %s" % self.normalization)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
         if self.winz:
@@ -816,3 +863,158 @@ class Method(base.MultiConditionMethod):
             sys.argv[0],
             sys.argv[0],
         )
+
+    def means_by_condition_for_gene(self, sites, conditions, data):
+        """
+            Returns a dictionary of {Condition: Mean} for each condition.
+            ([Site], [Condition]) -> {Condition: Number}
+            Site :: Number
+            Condition :: String
+        """
+        nTASites = len(sites)
+        wigsByConditions = collections.defaultdict(lambda: [])
+        for i, c in enumerate(conditions):
+            wigsByConditions[c].append(i)
+
+        return {
+            c: numpy.mean(self.winsorize(data[wigIndex][:, sites]))
+            if nTASites > 0
+            else 0
+            for (c, wigIndex) in wigsByConditions.items()
+        }
+
+    def means_by_rv(self, data, RvSiteindexesMap, genes, conditions):
+        """
+            Returns Dictionary of mean values by condition
+            ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition]) -> {Rv: {Condition: Number}}
+            Wigdata :: [Number]
+            SiteIndex :: Number
+            Gene :: {start, end, rv, gene, strand}
+            Condition :: String
+        """
+        MeansByRv = {}
+        for gene in genes:
+            Rv = gene["rv"]
+            MeansByRv[Rv] = self.means_by_condition_for_gene(
+                RvSiteindexesMap[Rv], conditions, data
+            )
+        return MeansByRv
+
+    def group_by_condition(self, wigList, conditions):
+        """
+            Returns array of datasets, where each dataset corresponds to one condition.
+            ([[Wigdata]], [Condition]) -> [[DataForCondition]]
+            Wigdata :: [Number]
+            Condition :: String
+            DataForCondition :: [Number]
+        """
+        countsByCondition = collections.defaultdict(lambda: [])
+        countSum = 0
+        for i, c in enumerate(conditions):
+            countSum += numpy.sum(wigList[i])
+            countsByCondition[c].append(wigList[i])
+
+        return (
+            countSum,
+            [numpy.array(v).flatten() for v in countsByCondition.values()],
+        )
+
+    # since this is in both ZINB and ANOVA, should move to stat_tools.py?
+
+    def winsorize(self, counts):
+        # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+        unique_counts = numpy.unique(numpy.concatenate(counts))
+        if len(unique_counts) < 2:
+            return counts
+        else:
+            n, n_minus_1 = unique_counts[
+                heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+            ]
+            result = [
+                [n_minus_1 if count == n else count for count in wig] for wig in counts
+            ]
+            return numpy.array(result)
+
+    def run_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
+        """
+            Runs Anova (grouping data by condition) and returns p and q values
+            ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
+            Wigdata :: [Number]
+            Gene :: {start, end, rv, gene, strand}
+            Mean :: Number
+            SiteIndex: Integer
+            Condition :: String
+        """
+        count = 0
+        self.progress_range(len(genes))
+
+        MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
+        for gene in genes:
+            count += 1
+            Rv = gene["rv"]
+            if len(RvSiteindexesMap[Rv]) <= 1:
+                status.append("TA sites <= 1")
+                msr,mse,Fstat,pval = 0,0,-1,1
+            else:
+                countSum, countsVec = self.group_by_condition(
+                    list(map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)),
+                    conditions,
+                )
+                if self.winz:
+                    countsVec = self.winsorize(countsVec)
+
+                if countSum == 0:
+                    msr,mse,Fstat,pval = 0,0,-1,1
+                    status.append("No counts in all conditions")
+                else:
+                    Fstat,pval = scipy.stats.f_oneway(*countsVec)
+                    status.append("-")
+                    # countsVec is a list of numpy arrays, or could be a list of lists
+                    # pooled counts for each condition, over TAs in gene and replicates
+                    if isinstance(countsVec[0],numpy.ndarray): 
+                      countsVecAsArrays = countsVec
+                      countsVecAsLists = [grp.tolist() for grp in countsVec]
+                    else:
+                      countsVecAsArrays = [numpy.array(grp) for grp in countsVec]
+                      countsVecAsLists = countsVec
+                    allcounts = [item for sublist in countsVecAsLists for item in sublist]
+                    grandmean = numpy.mean(allcounts)
+                    groupmeans = [numpy.mean(grp) for grp in countsVecAsArrays]
+                    k,n = len(countsVec),len(allcounts)
+                    dfBetween,dfWithin = k-1,n-k
+                    msr,mse = 0,0
+                    for grp in countsVecAsArrays: msr += grp.size*(numpy.mean(grp)-grandmean)**2/float(dfBetween)
+                    for grp,mn in zip(countsVecAsArrays,groupmeans): mse += numpy.sum((grp-mn)**2) 
+                    mse /= float(dfWithin)
+                    mse = mse+self.alpha ### moderation
+                    Fmod = msr/float(mse)
+                    Pmod = scipy.stats.f.sf(Fmod,dfBetween,dfWithin)
+                    Fstat,pval = Fmod,Pmod
+            pvals.append(pval)   
+            Fstats.append(Fstat) 
+            MSR.append(msr)
+            MSE.append(mse)
+            Rvs.append(Rv)
+
+            # Update progress
+            text = "Running Anova Method... %5.1f%%" % (100.0 * count / len(genes))
+            self.progress_update(text, count)
+
+        pvals = numpy.array(pvals)
+        mask = numpy.isfinite(pvals)
+        qvals = numpy.full(pvals.shape, numpy.nan)
+        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[
+            1
+        ]  # BH, alpha=0.05
+
+        msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
+        for i,rv in enumerate(Rvs):
+          msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
+        return (msr, mse, f, p, q, statusMap)
+
+    def calc_lf_cs(self, means, refs=[], pseudocount=1):
+        if len(refs) == 0:
+            refs = means  # if ref condition(s) not explicitly defined, use mean of all
+        grandmean = numpy.mean(refs)
+        lfcs = [math.log((x + pseudocount) / float(grandmean + pseudocount), 2) for x in means]
+        return lfcs
