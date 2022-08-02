@@ -181,18 +181,18 @@ class Method(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Example Method")
+        transit_tools.log("Starting Example Method")
         start_time = time.time()
 
         # Get orf data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
         (K, N) = data.shape
 
         if self.normalization and self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -269,11 +269,11 @@ class Method(base.SingleConditionMethod):
             self.output.write(line)
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="Example")
         self.finish()
-        self.transit_message("Finished Example Method")
+        transit_tools.log("Finished Example Method")
 
     @classmethod
     def usage_string(self):

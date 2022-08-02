@@ -391,11 +391,11 @@ class HMMMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting HMM Method")
+        transit_tools.log("Starting HMM Method")
         start_time = time.time()
 
         # Get data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
@@ -403,14 +403,14 @@ class HMMMethod(base.SingleConditionMethod):
 
         # Normalize data
         if self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
 
         # Do LOESS
         if self.LOESS:
-            self.transit_message("Performing LOESS Correction")
+            transit_tools.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -418,7 +418,7 @@ class HMMMethod(base.SingleConditionMethod):
         rv2info = transit_tools.get_gene_info(self.annotation_path)
 
         if len(self.ctrldata) > 1:
-            self.transit_message("Combining Replicates as '%s'" % self.replicates)
+            transit_tools.log("Combining Replicates as '%s'" % self.replicates)
         O = (
             tnseq_tools.combine_replicates(data, method=self.replicates) + 1
         )  # Adding 1 to because of shifted geometric in scipy
@@ -569,13 +569,13 @@ class HMMMethod(base.SingleConditionMethod):
 
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Finished HMM - Sites Method")
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Finished HMM - Sites Method")
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="HMM - Sites")
 
         # Gene Files
-        self.transit_message("Creating HMM Genes Level Output")
+        transit_tools.log("Creating HMM Genes Level Output")
         genes_path = (
             ".".join(self.output.name.split(".")[:-1])
             + "_genes."
@@ -586,10 +586,10 @@ class HMMMethod(base.SingleConditionMethod):
         tempObs[0, :] = O - 1
         self.post_process_genes(tempObs, position, states, genes_path)
 
-        self.transit_message("Adding File: %s" % (genes_path))
+        transit_tools.log("Adding File: %s" % (genes_path))
         self.add_file(path=genes_path, filetype="HMM - Genes")
         self.finish()
-        self.transit_message("Finished HMM Method")
+        transit_tools.log("Finished HMM Method")
 
     @classmethod
     def usage_string(self):

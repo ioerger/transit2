@@ -167,7 +167,7 @@ class CorrplotMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Corrplot")
+        transit_tools.log("Starting Corrplot")
         start_time = time.time()
 
         # assume first non-comment line is header; samples are
@@ -230,7 +230,7 @@ class CorrplotMethod(base.SingleConditionMethod):
         )  # pass headers to put cols in order, since df comes from dict
 
         self.finish()
-        self.transit_message("Finished Corrplot")
+        transit_tools.log("Finished Corrplot")
 
     def make_corrplotFunc(self):
         r(

@@ -221,10 +221,9 @@ def method_select_func(selected_name, event):
         matched_name = None
         # Get selected Method and hide Others
         for name in methods:
-            methods[name].gui.Hide()
-            methods[name].gui.GlobalHide()
-            methods[name].gui.GlobalDisable()
-
+            try: methods[name].gui.panel.Hide()
+            except Exception as error: pass
+            
             if methods[name].fullname() == selected_name:
                 matched_name = name
         
@@ -240,9 +239,7 @@ def method_select_func(selected_name, event):
             panel.method_desc_text.SetLabel(methods[name].getDescriptionText())
             panel.method_desc_text.Wrap(250)
             panel.method_instructions.SetLabel(" ")
-            methods[name].gui.Show()
-            methods[name].gui.Show()
-            methods[name].gui.GlobalEnable()
+            methods[name].gui.panel.Show()
             frame.statusBar.SetStatusText("[%s]" % methods[name].short_name)
 
         parameter_panel.show_progress_section()
@@ -250,7 +247,7 @@ def method_select_func(selected_name, event):
 
     frame.Layout()
     if frame.verbose:
-        transit_tools.transit_message("Selected Method: %s" % (selected_name))
+        transit_tools.log("Selected Method: %s" % (selected_name))
 
 
 def method_select_helper(method, event):
@@ -288,5 +285,5 @@ def method_select_helper(method, event):
 
     frame.Layout()
     if frame.verbose:
-        transit_tools.transit_message("Selected Method: %s" % (selected_name))
+        transit_tools.log("Selected Method: %s" % (selected_name))
 

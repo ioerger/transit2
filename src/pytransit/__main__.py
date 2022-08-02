@@ -70,7 +70,7 @@ def main(*args, **kwargs):
         import matplotlib.pyplot
         import pytransit.transit_gui as transit_gui
 
-        transit_tools.transit_message("Running in GUI Mode")
+        transit_tools.log("Running in GUI Mode")
         app = wx.App(False)
 
         # create an object of CalcFrame

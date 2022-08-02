@@ -419,14 +419,14 @@ class GumbelMethod(base.SingleConditionMethod):
         self.progress_range(self.samples + self.burnin)
 
         # Get orf data
-        self.transit_message("Reading Annotation")
+        transit_tools.log("Reading Annotation")
 
         # Validate data has empty sites
         # (status, genome) = transit_tools.validate_wig_format(self.ctrldata, wxobj=self.wxobj)
         # if status <2: tn_used = "himar1"
         # else: tn_used = "tn5"
 
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
@@ -439,7 +439,7 @@ class GumbelMethod(base.SingleConditionMethod):
         sat = (nsites - nzeros) / float(nsites)
 
         if self.normalization and self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -466,7 +466,7 @@ class GumbelMethod(base.SingleConditionMethod):
         S = G.local_gap_span()[ii_good]
         T = G.local_gene_span()[ii_good]
 
-        self.transit_message("Doing Regression")
+        transit_tools.log("Doing Regression")
         mu_s, temp, sigma_s = stat_tools.regress(
             R, S
         )  # Linear regression to estimate mu_s, sigma_s for span data
@@ -477,7 +477,7 @@ class GumbelMethod(base.SingleConditionMethod):
         N_GENES = len(G)
         N_GOOD = sum(ii_good)
 
-        self.transit_message("Setting Initial Class")
+        transit_tools.log("Setting Initial Class")
         Z_sample = numpy.zeros((N_GOOD, self.samples))
         Z = [self.classify(g.n, g.r, 0.5) for g in G if self.good_orf(g)]
         Z_sample[:, 0] = Z
@@ -539,14 +539,14 @@ class GumbelMethod(base.SingleConditionMethod):
                     i += 1
 
             except ValueError as e:
-                self.transit_message("Error: %s" % e)
-                self.transit_message(
+                transit_tools.log("Error: %s" % e)
+                transit_tools.log(
                     "This is likely to have been caused by poor data (e.g. too sparse)."
                 )
-                self.transit_message(
+                transit_tools.log(
                     "If the density of the dataset is too low, the Gumbel method will not work."
                 )
-                self.transit_message("Quitting.")
+                transit_tools.log("Quitting.")
                 return
 
             #            print(i,phi_new,w1,G[idxG].name,N[idxN],R[idxN],Z[idxN])
@@ -663,11 +663,11 @@ class GumbelMethod(base.SingleConditionMethod):
         for line in data:
             self.output.write(line)
         self.output.close()
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="Gumbel")
         self.finish()
-        self.transit_message("Finished Gumbel Method")
+        transit_tools.log("Finished Gumbel Method")
 
     @classmethod
     def usage_string(self):

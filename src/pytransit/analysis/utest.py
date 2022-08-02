@@ -334,13 +334,13 @@ class UTestMethod(base.DualConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Mann-Whitney U-test Method")
+        transit_tools.log("Starting Mann-Whitney U-test Method")
         start_time = time.time()
 
         Kctrl = len(self.ctrldata)
         Kexp = len(self.expdata)
         # Get orf data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata + self.expdata, wxobj=self.wxobj
         )
@@ -348,7 +348,7 @@ class UTestMethod(base.DualConditionMethod):
         (K, N) = data.shape
 
         if self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data,
                 self.normalization,
@@ -357,7 +357,7 @@ class UTestMethod(base.DualConditionMethod):
             )
 
         if self.LOESS:
-            self.transit_message("Performing LOESS Correction")
+            transit_tools.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -443,8 +443,8 @@ class UTestMethod(base.DualConditionMethod):
             self.progress_update(text, count)
 
         #
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Performing Benjamini-Hochberg Correction")
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.BH_fdr_correction([row[-1] for row in data])
 
@@ -501,10 +501,10 @@ class UTestMethod(base.DualConditionMethod):
             )
         self.output.close()
 
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="utest")
         self.finish()
-        self.transit_message("Finished Mann-Whitney U-test Method")
+        transit_tools.log("Finished Mann-Whitney U-test Method")
 
     @classmethod
     def usage_string(self):

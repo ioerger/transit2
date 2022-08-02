@@ -231,18 +231,18 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting TTNFitness Method")
+        transit_tools.log("Starting TTNFitness Method")
         start_time = time.time()
 
         # Get orf data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
         (K, N) = data.shape
 
         if self.normalization and self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -261,7 +261,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         )
         N = len(G)
 
-        self.transit_message("Getting Genome")
+        transit_tools.log("Getting Genome")
         genome = ""
         n = 0
         for line in open(self.genome_path):
@@ -269,7 +269,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
                 n = 1  # skip first
             else:
                 genome += line[:-1]
-        self.transit_message("Processing wig files")
+        transit_tools.log("Processing wig files")
         ############################################################
         # Creating the dataset
         orf = []
@@ -389,7 +389,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         ####################################################
 
-        self.transit_message("Making Fitness Estimations")
+        transit_tools.log("Making Fitness Estimations")
         # Read in Gumbel estimations
         skip_count = 0
         gumbel_file = open(self.gumbelestimations, "r")
@@ -413,7 +413,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         phi = 1.0 - saturation
         significant_n = math.log10(0.05) / math.log10(phi)
 
-        self.transit_message("\t + Filtering ES/ESB Genes")
+        transit_tools.log("\t + Filtering ES/ESB Genes")
         # function to extract gumbel calls to filter out ES and ESB
         gumbel_bernoulli_gene_calls = {}
         for g in TA_sites_df["Orf"].unique():
@@ -438,7 +438,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             if (value == "E") or (value == "EB")
         ]
 
-        self.transit_message("\t + Filtering Short Genes. Labeling as Uncertain")
+        transit_tools.log("\t + Filtering Short Genes. Labeling as Uncertain")
         # function to call short genes (1 TA site) with no insertions as Uncertain
         uncertain_genes = []
         for g in TA_sites_df["Orf"].unique():
@@ -460,7 +460,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         filtered_ttn_data = filtered_ttn_data.reset_index(drop=True)
         ##########################################################################################
         # STLM Predictions
-        # self.transit_message("\t + Making TTN based predictions using loaded STLM")
+        # transit_tools.log("\t + Making TTN based predictions using loaded STLM")
         # X = filtered_ttn_data.drop(["Orf","Name", "Coord","State","Insertion Count","Local Average","Actual LFC","Upseq TTN","Downseq TTN"],axis=1)
         # X = sm.add_constant(X)
         # model_LFC_predictions = self.STLM_reg.predict(X)
@@ -488,7 +488,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
 
-        self.transit_message("\t + Fitting M1")
+        transit_tools.log("\t + Fitting M1")
         X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
         X1 = sm.add_constant(X1)
         results1 = sm.OLS(Y, X1).fit()
@@ -497,14 +497,14 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
         )
 
-        # self.transit_message("\t + Fitting new mod TTN-Fitness")
+        # transit_tools.log("\t + Fitting new mod TTN-Fitness")
         # X2 = pandas.concat([gene_one_hot_encoded,stlm_predicted_log_counts],axis=1)
         # X2 = sm.add_constant(X2)
         # results2 = sm.OLS(Y,X2).fit()
         # filtered_ttn_data["mod ttn Pred log Count"] = results2.predict(X2)
         # filtered_ttn_data["mod ttn Predicted Count"] = numpy.power(10, (filtered_ttn_data["mod ttn Pred log Count"]-0.5))
 
-        self.transit_message("\t + Assessing Models")
+        transit_tools.log("\t + Assessing Models")
         # create Models Summary df
         Models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
         Models_df["M1 Pval"] = results1.pvalues[1:-256]
@@ -536,7 +536,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         # Models_df.loc[(Models_df["mod ttn Coef"]==0) & (Models_df["mod ttn Adjusted Pval"]<0.05),"mod ttn States"]="NE"
         # Models_df.loc[(Models_df["mod ttn Adjusted Pval"]>0.05),"mod ttn States"]="NE"
         #########################################################################################
-        self.transit_message("Writing To Output Files")
+        transit_tools.log("Writing To Output Files")
         # Write Models Information to CSV
         # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj Pval
 
@@ -708,11 +708,11 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         self.output.write(vals)
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="TTNFitness")
         self.finish()
-        self.transit_message("Finished TTNFitness Method")
+        transit_tools.log("Finished TTNFitness Method")
 
     @classmethod
     def usage_string(self):

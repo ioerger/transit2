@@ -109,9 +109,7 @@ class ResamplingFile(base.TransitFile):
             imgWindow = pytransit.file_display.ImgFrame(None, filename)
             imgWindow.Show()
         else:
-            transit_tools.ShowError(
-                MSG="Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on."
-            )
+            transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
             print("Error Displaying File. Histogram image does not exist.")
 
 
@@ -274,16 +272,6 @@ class ResamplingGUI(base.AnalysisGUI):
         self.wxobj.resamplingLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
 
         self.panel = resamplingPanel
-
-    def GlobalEnable(self):
-        # self.wxobj.ctrlLibText.Enable()
-        # self.wxobj.expLibText.Enable()
-        pass
-
-    def GlobalDisable(self):
-        # self.wxobj.ctrlLibText.Disable()
-        # self.wxobj.expLibText.Disable()
-        pass
 
 
 ########## CLASS #######################
@@ -546,7 +534,7 @@ class ResamplingMethod(base.DualConditionMethod):
         (K, N) = data.shape
 
         if self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data,
                 self.normalization,
@@ -555,7 +543,7 @@ class ResamplingMethod(base.DualConditionMethod):
             )
 
         if self.LOESS:
-            self.transit_message("Performing LOESS Correction")
+            transit_tools.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -597,10 +585,10 @@ class ResamplingMethod(base.DualConditionMethod):
             print("Error: cannot do histograms")
             self.doHistogram = False
 
-        self.transit_message("Starting resampling Method")
+        transit_tools.log("Starting resampling Method")
         start_time = time.time()
         if self.winz:
-            self.transit_message("Winsorizing insertion counts")
+            transit_tools.log("Winsorizing insertion counts")
 
         histPath = ""
         if self.doHistogram:
@@ -612,10 +600,10 @@ class ResamplingMethod(base.DualConditionMethod):
                 os.makedirs(histPath)
 
         # Get orf data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         if self.diffStrains:
-            self.transit_message("Multiple annotation files found")
-            self.transit_message(
+            transit_tools.log("Multiple annotation files found")
+            transit_tools.log(
                 "Mapping ctrl data to {0}, exp data to {1}".format(
                     self.annotation_path, self.annotation_path_exp
                 )
@@ -665,10 +653,10 @@ class ResamplingMethod(base.DualConditionMethod):
             return
         # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)
 
-        self.transit_message("Preprocessing Ctrl data...")
+        transit_tools.log("Preprocessing Ctrl data...")
         data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
 
-        self.transit_message("Preprocessing Exp data...")
+        transit_tools.log("Preprocessing Exp data...")
         data_exp = self.preprocess_data(position_exp, data_exp)
 
         G_ctrl = tnseq_tools.Genes(
@@ -717,7 +705,7 @@ class ResamplingMethod(base.DualConditionMethod):
         self.write_output(data, qval, start_time)
 
         self.finish()
-        self.transit_message("Finished resampling Method")
+        transit_tools.log("Finished resampling Method")
 
     def write_output(self, data, qval, start_time):
 
@@ -856,7 +844,7 @@ class ResamplingMethod(base.DualConditionMethod):
                 )
         self.output.close()
 
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="Resampling")
 
     def winsorize_resampling(self, counts):
@@ -1026,8 +1014,8 @@ class ResamplingMethod(base.DualConditionMethod):
             self.progress_update(text, count)
 
         #
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Performing Benjamini-Hochberg Correction")
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.BH_fdr_correction([row[-1] for row in data])
 

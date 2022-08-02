@@ -357,23 +357,23 @@ class BinomialMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Binomial Method")
+        transit_tools.log("Starting Binomial Method")
         start_time = time.time()
 
         self.progress_range(self.samples + self.burnin)
 
         # Get orf data
-        # self.transit_message("Getting Data")
+        # transit_tools.log("Getting Data")
         # G = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignoreCodon=self.ignoreCodon, n_terminus=self.n_terminus, c_terminus=self.c_terminus)
 
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
         (K, N) = data.shape
 
         if self.normalization and self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -391,7 +391,7 @@ class BinomialMethod(base.SingleConditionMethod):
         )
 
         # Parameters
-        self.transit_message("Setting Parameters")
+        transit_tools.log("Setting Parameters")
         w1 = 0.15
         w0 = 1.0 - w1
         mu_c = 0
@@ -421,7 +421,7 @@ class BinomialMethod(base.SingleConditionMethod):
         W1[0] = w1
 
         #
-        self.transit_message("Setting Initial Values")
+        transit_tools.log("Setting Initial Values")
         K = numpy.array([sum([1 for x in gene.reads.flatten() if x > 0]) for gene in G])
         N = numpy.array([len(gene.reads.flatten()) for gene in G])
 
@@ -721,11 +721,11 @@ class BinomialMethod(base.SingleConditionMethod):
             self.output.write("%s\n" % row)
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="Binomial")
         self.finish()
-        self.transit_message("Finished Binomial Method")
+        transit_tools.log("Finished Binomial Method")
 
     @classmethod
     def usage_string(self):

@@ -60,7 +60,7 @@ def create_results_area(frame):
                     # if next > -1:
                     #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
                     #     if dataset.verbose:
-                    #         transit_tools.transit_message(
+                    #         transit_tools.log(
                     #             "Displaying results: %s"
                     #             % results.table.GetItem(next, 0).GetText()
                     #         )
@@ -69,14 +69,14 @@ def create_results_area(frame):
                     #         fileWindow = 
                     #         fileWindow.Show()
                     #     except Exception as e:
-                    #         transit_tools.transit_message(
+                    #         transit_tools.log(
                     #             "Error occurred displaying file: %s" % str(e)
                     #         )
                     #         traceback.print_exc()
 
                     # else:
                     #     if dataset.verbose:
-                    #         transit_tools.transit_message("No results selected to display!")
+                    #         transit_tools.log("No results selected to display!")
 
             
         # 
@@ -172,7 +172,7 @@ def create_results_area(frame):
                             wx.CallAfter(pub.sendMessage, "file", data=data)
                     dlg.Destroy()
                 except Exception as e:
-                    transit_tools.transit_message("Error: %s" % e)
+                    transit_tools.log("Error: %s" % e)
                     print("PATH", fullpath)
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -220,6 +220,11 @@ def create_results_area(frame):
         
     return results_sizer
 
+
+def add(data):
+    if HAS_WX:
+        results.table.add(data)
+
 # 
 # 
 # helpers
@@ -240,7 +245,7 @@ def file_action_func(event):
         dataset_type = results.table.GetItem(next, 1).GetText()
 
         if frame.verbose:
-            transit_tools.transit_message(
+            transit_tools.log(
                 "Performing the '%s' action on dataset '%s'"
                 % (plot_name, dataset_name)
             )
@@ -256,7 +261,7 @@ def file_action_func(event):
 
         results.file_action_choice_element.SetSelection(0)
     else:
-        transit_tools.ShowError(MSG="Please select a results file to plot!")
+        transit_tools.show_error_dialog("Please select a results file to plot!")
 
 def graph_gene_counts(dataset_name, dataset_type, dataset_path):
     try:
@@ -284,12 +289,10 @@ def graph_gene_counts(dataset_name, dataset_type, dataset_path):
             plt.grid(True)
             plt.show()
         else:
-            transit_tools.ShowError(
-                MSG="Need to select a 'Resampling' results file for this type of plot."
-            )
+            transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
 
     except Exception as e:
-        transit_tools.transit_message("Error occurred creating plot: %s" % str(e))
+        transit_tools.log("Error occurred creating plot: %s" % str(e))
         traceback.print_exc()
 
 
@@ -367,9 +370,7 @@ def graph_volcano_plot(dataset_name, dataset_type, dataset_path):
             plt.title("Adjusted threshold (red line): %1.8f" % threshold)
             plt.show()
         else:
-            transit_tools.ShowError(
-                MSG="Need to select a 'Resampling' results file for this type of plot."
-            )
+            transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
 
     except Exception as e:
         print("Error occurred creating plot:", str(e))

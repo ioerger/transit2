@@ -136,7 +136,7 @@ class GffProtMethod(base.ConvertMethod):
         writer = csv.writer(output_file, delimiter="\t")
         lines = gff_file.readlines()
         gff_file.close()
-        self.transit_message(
+        transit_tools.log(
             "Converting annotation file from GFF3 format to prot_table format"
         )
 
@@ -170,7 +170,7 @@ class GffProtMethod(base.ConvertMethod):
                 vals = [desc, start, end, strand, size, "-", "-", gene, Rv, "-"]
                 writer.writerow(vals)
         output_file.close()
-        self.transit_message("Finished conversion")
+        transit_tools.log("Finished conversion")
 
     @classmethod
     def usage_string(self):

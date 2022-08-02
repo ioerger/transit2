@@ -433,7 +433,7 @@ if HAS_WX:
                         self.loadCtrlFile(fullpath)
                 dlg.Destroy()
             except Exception as e:
-                transit_tools.transit_message("Error: %s" % e)
+                transit_tools.log("Error: %s" % e)
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(exc_type, fname, exc_tb.tb_lineno)
@@ -470,7 +470,7 @@ if HAS_WX:
                         self.loadExpFile(fullpath)
                 dlg.Destroy()
             except Exception as e:
-                transit_tools.transit_message("Error: %s" % e)
+                transit_tools.log("Error: %s" % e)
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(exc_type, fname, exc_tb.tb_lineno)
@@ -529,7 +529,7 @@ if HAS_WX:
             next = self.listCtrl.GetNextSelected(-1)
             while next != -1:
                 if self.verbose:
-                    transit_tools.transit_message(
+                    transit_tools.log(
                         "Removing control item (%d): %s"
                         % (next, self.listCtrl.GetItem(next, 0).GetText())
                     )
@@ -543,7 +543,7 @@ if HAS_WX:
             next = self.list_exp.GetNextSelected(-1)
             while next != -1:
                 if self.verbose:
-                    transit_tools.transit_message(
+                    transit_tools.log(
                         "Removing experimental item (%d): %s"
                         % (next, self.list_exp.GetItem(next, 0).GetText())
                     )
@@ -759,7 +759,7 @@ class GIMethod(base.QuadConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Genetic Interactions Method")
+        transit_tools.log("Starting Genetic Interactions Method")
         start_time = time.time()
         self.output.write("#GI\n")
 
@@ -772,19 +772,19 @@ class GIMethod(base.QuadConditionMethod):
         Nb2 = len(self.expdataB)
 
         # Get data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(wiglist, wxobj=self.wxobj)
 
         # Normalize data if specified
         if self.normalization != "nonorm":
-            self.transit_message("Normalizing using: %s" % self.normalization)
+            transit_tools.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, wiglist, self.annotation_path
             )
 
         # Do LOESS correction if specified
         if self.LOESS:
-            self.transit_message("Performing LOESS Correction")
+            transit_tools.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -996,8 +996,7 @@ class GIMethod(base.QuadConditionMethod):
 
             text = "Running GI Method... %2.0f%%" % (100.0 * (count + 1) / N)
             self.progress_update(text, count)
-            # self.transit_message_inplace("Running Export Method... %1.1f%%" % (100.0*count/(N-1)))
-            self.transit_message(
+            transit_tools.log(
                 "analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1))
             )
             count += 1
@@ -1139,10 +1138,10 @@ class GIMethod(base.QuadConditionMethod):
                 % new_row
             )
 
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="GI")
         self.finish()
-        self.transit_message("Finished Genetic Interactions Method")
+        transit_tools.log("Finished Genetic Interactions Method")
 
     @staticmethod
     def classify_interaction(delta_logFC, logFC_KO, logFC_WT):

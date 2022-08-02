@@ -174,13 +174,7 @@ class TnSeekFrame(wx.Frame):
         pub.subscribe(self.saveHistogram, "histogram")
         create_menu(self)
         
-    def Exit(self, event):
-        """Exit Menu Item"""
-        if self.verbose:
-            transit_tools.transit_message("Exiting Transit")
-        self.Close()
-
-    def updateStatus(self, msg, time=-1):
+def updateStatus(self, msg, time=-1):
         """"""
         if type(msg) == type("A"):
             text = msg
@@ -270,7 +264,7 @@ class TnSeekFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "You chose the following output filename: %s" % path
                 )
         dlg.Destroy()
@@ -293,7 +287,7 @@ class TnSeekFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             if self.verbose:
-                transit_tools.transit_message("You chose the following file: %s" % path)
+                transit_tools.log("You chose the following file: %s" % path)
         dlg.Destroy()
         return path
 
@@ -326,7 +320,7 @@ class TnSeekFrame(wx.Frame):
         try:
             self.ctrlLibText.SetValue(self.ctrlLibText.GetValue() + "A")
         except Exception as e:
-            transit_tools.transit_message("Error Modifying Ctrl Lib String: %s" % e)
+            transit_tools.log("Error Modifying Ctrl Lib String: %s" % e)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
@@ -335,7 +329,7 @@ class TnSeekFrame(wx.Frame):
         next = self.wig_table.GetNextSelected(-1)
         while next != -1:
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Removing control item (%d): %s"
                     % (next, self.wig_table.GetItem(next, 0).GetText())
                 )
@@ -357,17 +351,17 @@ class TnSeekFrame(wx.Frame):
 
         if datasets and annotationpath:
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Visualizing counts for: %s"
                     % ", ".join([transit_tools.fetch_name(d) for d in datasets])
                 )
             viewWindow = trash.TrashFrame(self, datasets, annotationpath, gene=gene)
             viewWindow.Show()
         elif not datasets:
-            transit_tools.ShowError("Error: No datasets selected.")
+            transit_tools.show_error_dialog("Error: No datasets selected.")
             return
         else:
-            transit_tools.ShowError("Error: No annotation file selected.")
+            transit_tools.show_error_dialog("Error: No annotation file selected.")
             return
 
     def scatterFunc(self, event):
@@ -376,7 +370,7 @@ class TnSeekFrame(wx.Frame):
         datasets = self.ctrlSelected() + self.expSelected()
         if len(datasets) == 2:
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Showing scatter plot for: %s"
                     % ", ".join([transit_tools.fetch_name(d) for d in datasets])
                 )
@@ -390,9 +384,7 @@ class TnSeekFrame(wx.Frame):
             plt.ylabel(transit_tools.fetch_name(datasets[1]))
             plt.show()
         else:
-            transit_tools.ShowError(
-                MSG="Please make sure only two datasets are selected (across control and experimental datasets)."
-            )
+            transit_tools.show_error_dialog("Please make sure only two datasets are selected (across control and experimental datasets).")
 
     def aboutFunc(self, event):
         description = """TRANSIT is a tool for analysing TnSeq data. It provides an easy to use graphical interface and access to several different analysis methods that allow the user to determine essentiality within a single condition as well as between two conditions.
@@ -467,7 +459,7 @@ class TnSeekFrame(wx.Frame):
 
         except Exception as e:
             error_text = """Error occurred opening documentation URL.\nYour browser or OS may not be configured correctly."""
-            transit_tools.ShowError(MSG=error_text)
+            transit_tools.show_error_dialog(error_text)
             traceback.print_exc()
     
 
@@ -476,7 +468,7 @@ class TnSeekFrame(wx.Frame):
         # selected_name = self.methodChoice.GetString(X)
 
         if self.verbose:
-            transit_tools.transit_message(
+            transit_tools.log(
                 "Selected Export Method: %s" % (selected_name)
             )
 
@@ -490,7 +482,7 @@ class TnSeekFrame(wx.Frame):
                         thread.setDaemon(True)
                         thread.start()
                 except Exception as e:
-                    transit_tools.transit_message("Error: %s" % str(e))
+                    transit_tools.log("Error: %s" % str(e))
                     traceback.print_exc()
 
     def ConvertSelectFunc(self, selected_name, test=""):
@@ -506,15 +498,13 @@ class TnSeekFrame(wx.Frame):
                         thread.setDaemon(True)
                         thread.start()
                 except Exception as e:
-                    transit_tools.transit_message("Error: %s" % str(e))
+                    transit_tools.log("Error: %s" % str(e))
                     traceback.print_exc()
 
     def LoessPrevFunc(self, event):
         datasets_selected = self.ctrlSelected() + self.expSelected()
         if not datasets_selected:
-            transit_tools.ShowError(
-                MSG="Need to select at least one control or experimental dataset."
-            )
+            transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
             return
 
         data, position = tnseq_tools.get_data(datasets_selected)
@@ -552,7 +542,7 @@ class TnSeekFrame(wx.Frame):
         )
 
         if dlg.ShowModal() == wx.ID_OK:
-            transit_tools.transit_message(
+            transit_tools.log(
                 "Selected the '%s' normalization method" % dlg.GetStringSelection()
             )
 
@@ -568,11 +558,11 @@ class TnSeekFrame(wx.Frame):
 
         ORGANISM = transit_tools.fetch_name(annotationpath)
         if not annotationpath:
-            transit_tools.ShowError("Error: No annotation file selected.")
+            transit_tools.show_error_dialog("Error: No annotation file selected.")
 
         elif outputPath:
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Converting annotation file from prot_table format to GFF3 format"
                 )
             year = time.localtime().tm_year
@@ -607,7 +597,7 @@ class TnSeekFrame(wx.Frame):
 
             output.close()
             if self.verbose:
-                transit_tools.transit_message("Finished conversion")
+                transit_tools.log("Finished conversion")
 
     def annotationPT_to_PTT(self, event):
 
@@ -618,18 +608,16 @@ class TnSeekFrame(wx.Frame):
 
         datasets = self.ctrlSelected() + self.expSelected()
         if not annotationpath:
-            transit_tools.ShowError("Error: No annotation file selected.")
+            transit_tools.show_error_dialog("Error: No annotation file selected.")
         elif not datasets:
-            transit_tools.ShowError(
-                "Error: Please add a .wig dataset, to determine TA sites."
-            )
+            transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
         else:
 
             outputPath = self.SaveFile(defaultDir, defaultFile)
             if not outputPath:
                 return
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Converting annotation file from prot_table format to PTT format"
                 )
             (data, position) = tnseq_tools.get_data(datasets)
@@ -657,7 +645,7 @@ class TnSeekFrame(wx.Frame):
                 output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
             output.close()
             if self.verbose:
-                transit_tools.transit_message("Finished conversion")
+                transit_tools.log("Finished conversion")
 
     def annotationPTT_to_PT(self, event):
 
@@ -668,16 +656,16 @@ class TnSeekFrame(wx.Frame):
 
         datasets = self.ctrlSelected() + self.expSelected()
         if not annotationpath:
-            transit_tools.ShowError("Error: No annotation file selected.")
+            transit_tools.show_error_dialog("Error: No annotation file selected.")
         # elif not datasets:
-        #    transit_tools.ShowError("Error: Please add a .wig dataset, to determine TA sites.")
+        #    transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
         else:
 
             outputPath = self.SaveFile(defaultDir, defaultFile)
             if not outputPath:
                 return
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Converting annotation file from PTT format to prot_table format"
                 )
             # (data, position) = tnseq_tools.get_data(datasets)
@@ -722,7 +710,7 @@ class TnSeekFrame(wx.Frame):
                 )
             output.close()
             if self.verbose:
-                transit_tools.transit_message("Finished conversion")
+                transit_tools.log("Finished conversion")
 
     def annotationGFF3_to_PT(self, event):
 
@@ -733,13 +721,13 @@ class TnSeekFrame(wx.Frame):
 
         datasets = self.ctrlSelected() + self.expSelected()
         if not annotationpath:
-            transit_tools.ShowError("Error: No annotation file selected.")
+            transit_tools.show_error_dialog("Error: No annotation file selected.")
         else:
             outputPath = self.SaveFile(defaultDir, defaultFile)
             if not outputPath:
                 return
             if self.verbose:
-                transit_tools.transit_message(
+                transit_tools.log(
                     "Converting annotation file from GFF3 format to prot_table format"
                 )
 
@@ -790,7 +778,7 @@ class TnSeekFrame(wx.Frame):
                 )
             output.close()
             if self.verbose:
-                transit_tools.transit_message("Finished conversion")
+                transit_tools.log("Finished conversion")
 
     def RunMethod(self, event):
         with gui_tools.nice_error_log:

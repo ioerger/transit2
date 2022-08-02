@@ -135,10 +135,6 @@ class ExportMethod:
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
-    def transit_message(self, text):
-        # TODO: write docstring
-        self.console_message(text)
-        self.status_message(text)
 
     def transit_message_inplace(self, text):
         # TODO: write docstring
@@ -146,12 +142,12 @@ class ExportMethod:
         self.status_message(text)
 
     def transit_error(self, text):
-        self.transit_message(text)
+        transit_tools.log(text)
         if self.wxobj:
-            transit_tools.ShowError(text)
+            transit_tools.show_error_dialog(text)
 
     def transit_warning(self, text):
-        self.transit_message(text)
+        transit_tools.log(text)
         if self.wxobj:
             transit_tools.ShowWarning(text)
 

@@ -157,11 +157,11 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Combined Wig Export")
+        transit_tools.log("Starting Combined Wig Export")
         start_time = time.time()
 
         # Get orf data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (fulldata, position) = tnseq_tools.get_data(self.ctrldata)
         (fulldata, factors) = norm_tools.normalize_data(
             fulldata, self.normalization, self.ctrldata, self.annotation_path
@@ -171,7 +171,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         hash = transit_tools.get_pos_hash(self.annotation_path)
         rv2info = transit_tools.get_gene_info(self.annotation_path)
 
-        self.transit_message("Normalizing")
+        transit_tools.log("Normalizing")
         self.output.write("#Converted to CombinedWig with TRANSIT.\n")
         self.output.write("#normalization method: %s\n" % self.normalization)
         if self.normalization != "nonorm":
@@ -231,9 +231,9 @@ class CombinedWigMethod(base.SingleConditionMethod):
                 self.progress_update(text, i)
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
+        transit_tools.log("")  # Printing empty line to flush stdout
         self.finish()
-        self.transit_message("Finished Export")
+        transit_tools.log("Finished Export")
 
     #
 

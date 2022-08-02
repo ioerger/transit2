@@ -174,11 +174,11 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Gene Mean Counts Export")
+        transit_tools.log("Starting Gene Mean Counts Export")
         start_time = time.time()
 
         # Get orf data
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         if self.combined_wig:
             (position, fulldata, datasets) = tnseq_tools.read_combined_wig(
                 self.ctrldata[0]
@@ -193,7 +193,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         hash = transit_tools.get_pos_hash(self.annotation_path)
         rv2info = transit_tools.get_gene_info(self.annotation_path)
 
-        self.transit_message("Normalizing")
+        transit_tools.log("Normalizing")
         self.output.write("#Summarized to Mean Gene Counts with TRANSIT.\n")
         if self.normalization != "nonorm":
             self.output.write("#Reads normalized using '%s'\n" % self.normalization)
@@ -250,9 +250,9 @@ class MeanCountsMethod(base.SingleConditionMethod):
             self.progress_update(text, i)
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
+        transit_tools.log("")  # Printing empty line to flush stdout
         self.finish()
-        self.transit_message("Finished Export")
+        transit_tools.log("Finished Export")
 
     #
 

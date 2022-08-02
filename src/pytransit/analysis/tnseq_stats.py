@@ -136,7 +136,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting TnseqStats")
+        transit_tools.log("Starting TnseqStats")
         start_time = time.time()
 
         datasets = self.wigs
@@ -189,7 +189,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
             file.close()
 
         self.finish()
-        self.transit_message("Finished TnseqStats")
+        transit_tools.log("Finished TnseqStats")
 
     @classmethod
     def usage_string(self):

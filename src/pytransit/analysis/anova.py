@@ -295,18 +295,18 @@ class AnovaMethod(base.MultiConditionMethod):
         return lfcs
 
     def Run(self):
-        self.transit_message("Starting Anova analysis")
+        transit_tools.log("Starting Anova analysis")
         start_time = time.time()
 
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
             self.combined_wig
         )
 
-        self.transit_message("Normalizing using: %s" % self.normalization)
+        transit_tools.log("Normalizing using: %s" % self.normalization)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
         if self.winz:
-            self.transit_message("Winsorizing insertion counts")
+            transit_tools.log("Winsorizing insertion counts")
 
         conditionsByFile, _, _, orderingMetadata = tnseq_tools.read_samples_metadata(
             self.metadata
@@ -347,12 +347,12 @@ class AnovaMethod(base.MultiConditionMethod):
         )
         MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
-        self.transit_message("Running Anova")
+        transit_tools.log("Running Anova")
         MSR, MSE, Fstats, pvals, qvals, run_status = self.run_anova(
             data, genes, MeansByRv, RvSiteindexesMap, conditions
         )
 
-        self.transit_message("Adding File: %s" % (self.output))
+        transit_tools.log("Adding File: %s" % (self.output))
         file = open(self.output, "w")
 
         heads = (
@@ -377,5 +377,5 @@ class AnovaMethod(base.MultiConditionMethod):
                       ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
               file.write('\t'.join(vals)+EOL)
         file.close()
-        self.transit_message("Finished Anova analysis")
-        self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
+        transit_tools.log("Finished Anova analysis")
+        transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))

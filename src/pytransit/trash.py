@@ -140,7 +140,7 @@ class TrashFrame(view_trash.MainFrame):
         self.datasetChoice.SetSelection(len(self.labels) - 1)
 
     def track_message(self, text, time=3000):
-        transit_tools.transit_message(text, track_prefix)
+        transit_tools.log(text, track_prefix)
         self.statusBar.SetStatusText(text)
         if time > 0:
             self.timer.Start(time)

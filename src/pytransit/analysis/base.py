@@ -13,15 +13,15 @@ from pytransit.transit_tools import InvalidArgumentException
 
 file_prefix = "[FileDisplay]"
 
-class TransitGUIBase:
-    def __init__(self):
-        self.wxobj = None
+class TransitFile:
+    def __init__(self, identifier="#Unknown", colnames=[]):
+        self.wxobj      = None
         self.short_name = "TRANSIT"
-        self.long_name = "TRANSIT"
+        self.long_name  = "TRANSIT"
         self.short_desc = "TRANSIT - Short Description"
-        self.long_desc = "TRANSIT - Long Description"
-
-    #
+        self.long_desc  = "TRANSIT - Long Description"
+        self.identifier = identifier
+        self.colnames   = colnames
 
     def status_message(self, text, time=-1):
         # TODO: write docstring
@@ -29,63 +29,29 @@ class TransitGUIBase:
             wx.CallAfter(pub.sendMessage, "status", msg=(self.short_name, text, time))
             wx.Yield()
 
-    #
-
     def console_message(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    #
 
     def console_message_inplace(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
-    #
-
-    def transit_message(self, text):
-        # TODO: write docstring
-        self.console_message(text)
-        self.status_message(text)
-
-    #
-
     def transit_message_inplace(self, text):
         # TODO: write docstring
         self.console_message_inplace(text)
         self.status_message(text)
 
-    #
-
     def transit_error(self, text):
-        self.transit_message(text)
+        transit_tools.log(text)
         if self.wxobj:
-            transit_tools.ShowError(text)
-
-    #
+            transit_tools.show_error_dialog(text)
 
     def transit_warning(self, text):
-        self.transit_message(text)
+        transit_tools.log(text)
         if self.wxobj:
             transit_tools.ShowWarning(text)
-
-
-#
-
-
-class TransitFile(TransitGUIBase):
-    # TODO write docstring
-
-    #
-
-    def __init__(self, identifier="#Unknown", colnames=[]):
-        # TODO write docstring
-        TransitGUIBase.__init__(self)
-        self.identifier = identifier
-        self.colnames = colnames
-
-    #
 
     def getData(self, path, colnames):
         # TODO write docstring
@@ -114,19 +80,13 @@ class TransitFile(TransitGUIBase):
             row += 1
         return data
 
-    #
-
     def getHeader(self, path):
         # TODO write docstring
         return "Generic Transit File Type."
 
-    #
-
     def getMenus(self):
         menus = [("Display in Track View", self.displayInTrackView)]
         return menus
-
-    #
 
     def displayInTrackView(self, displayFrame, event):
 
@@ -139,9 +99,6 @@ class TransitFile(TransitGUIBase):
             displayFrame.parent.allViewFunc(displayFrame, gene)
         except Exception as e:
             print(file_prefix, "Error occurred: %s" % e)
-
-
-#
 
 
 class AnalysisGUI:
@@ -159,18 +116,6 @@ class AnalysisGUI:
 
     def Enable(self):
         if self.panel: self.panel.Enable()
-
-    def GlobalEnable(self):
-        pass
-
-    def GlobalHide(self):
-        pass
-
-    def GlobalShow(self):
-        pass
-
-    def GlobalDisable(self):
-        pass
 
     def define_panel(self, wxobj):
         # TODO: write docstring
@@ -207,8 +152,6 @@ class AnalysisGUI:
         Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
         self.panel = wPanel
 
-    #
-
     def defineTextBox(
         self,
         panel,
@@ -240,8 +183,6 @@ class AnalysisGUI:
             5,
         )
         return (label, textBox, sizer)
-
-    #
 
     def defineChoiceBox(
         self,
@@ -276,8 +217,6 @@ class AnalysisGUI:
         )
         return (label, choiceBox, sizer)
 
-    #
-
     def defineCheckBox(
         self, panel, labelText="", widgetCheck=False, tooltipText="", widgetSize=None
     ):
@@ -294,9 +233,6 @@ class AnalysisGUI:
             5,
         )
         return (checkBox, sizer)
-
-
-#
 
 
 class AnalysisMethod:
@@ -324,21 +260,15 @@ class AnalysisMethod:
         self.WX_VERSION = WX_VERSION
         self.wxobj = wxobj
 
-    #
-
     @classmethod
     def from_gui(self, wxobj):
         # TODO: write docstring
         raise NotImplementedError
 
-    #
-
     @classmethod
     def fromargs(self, rawargs):
         # TODO: write docstring
         raise NotImplementedError
-
-    #
 
     @classmethod
     def fromconsole(self):
@@ -365,20 +295,14 @@ class AnalysisMethod:
             print(self.usage_string())
         sys.exit()
 
-    #
-
     @classmethod
     def usage_string(self):
         # TODO: write docstring
         raise NotImplementedError
 
-    #
-
     def Run(self):
         # TODO write docstring
         raise NotImplementedError
-
-    #
 
     def print_members(self):
         # TODO: write docstring
@@ -391,8 +315,6 @@ class AnalysisMethod:
         )
         for m in members:
             print("%s = %s" % (m, getattr(self, m)))
-
-    #
 
     def add_file(self, path=None, filetype=None):
 
@@ -411,14 +333,10 @@ class AnalysisMethod:
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "file", data=data)
 
-    #
-
     def finish(self):
         # TODO: write docstring
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
-
-    #
 
     def progress_update(self, text, count):
         # TODO: write docstring
@@ -428,15 +346,11 @@ class AnalysisMethod:
 
         self.transit_message_inplace(text)
 
-    #
-
     def progress_range(self, count):
         # TODO: write docstring
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "progressrange", msg=count)
             wx.Yield()
-
-    #
 
     def status_message(self, text, time=-1):
         # TODO: write docstring
@@ -444,44 +358,27 @@ class AnalysisMethod:
             wx.CallAfter(pub.sendMessage, "status", msg=(self.short_name, text, time))
             wx.Yield()
 
-    #
-
     def console_message(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    #
 
     def console_message_inplace(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
-    #
-
-    def transit_message(self, text):
-        # TODO: write docstring
-        self.console_message(text)
-        self.status_message(text)
-
-    #
-
     def transit_message_inplace(self, text):
         # TODO: write docstring
         self.console_message_inplace(text)
         self.status_message(text)
 
-    #
-
     def transit_error(self, text):
-        self.transit_message(text)
+        transit_tools.log(text)
         if self.wxobj:
-            transit_tools.ShowError(text)
-
-    #
+            transit_tools.show_error_dialog(text)
 
     def transit_warning(self, text):
-        self.transit_message(text)
+        transit_tools.log(text)
         if self.wxobj:
             transit_tools.ShowWarning(text)
 
@@ -527,9 +424,6 @@ class SingleConditionMethod(AnalysisMethod):
         self.c_terminus = c_terminus
 
 
-#
-
-
 class DualConditionMethod(AnalysisMethod):
     """
     Class to be inherited by analysis methods that determine changes in essentiality between two conditions (e.g. Resampling, DEHMM).
@@ -571,9 +465,6 @@ class DualConditionMethod(AnalysisMethod):
         self.ignoreCodon = ignoreCodon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
-
-
-#
 
 
 class QuadConditionMethod(AnalysisMethod):
@@ -621,9 +512,6 @@ class QuadConditionMethod(AnalysisMethod):
         self.ignoreCodon = ignoreCodon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
-
-
-#
 
 
 class MultiConditionMethod(AnalysisMethod):
@@ -692,14 +580,14 @@ class MultiConditionMethod(AnalysisMethod):
             self.transit_error("Both excluded and included conditions have len > 0")
             sys.exit(0)
         elif len(excluded_conditions) > 0:
-            self.transit_message("conditions excluded: {0}".format(excluded_conditions))
+            transit_tools.log("conditions excluded: {0}".format(excluded_conditions))
             for i, c in enumerate(conditions):
                 if (c != self.unknown_cond_flag) and (c not in excluded_conditions):
                     d_filtered.append(data[i])
                     cond_filtered.append(conditions[i])
                     filtered_indexes.append(i)
         elif len(included_conditions) > 0:
-            self.transit_message("conditions included: {0}".format(included_conditions))
+            transit_tools.log("conditions included: {0}".format(included_conditions))
             for i, c in enumerate(conditions):
                 if (c != self.unknown_cond_flag) and (c in included_conditions):
                     d_filtered.append(data[i])
@@ -831,9 +719,6 @@ class MultiConditionMethod(AnalysisMethod):
         return data
 
 
-#######################3
-
-
 class TransitAnalysis:
     def __init__(
         self,
@@ -855,8 +740,6 @@ class TransitAnalysis:
         self.gui = gui_class()
         self.filetypes = filetypes
 
-    #
-
     def __str__(self):
         return """Analysis Method:
     Short Name:  %s
@@ -873,22 +756,14 @@ class TransitAnalysis:
             self.gui,
         )
 
-    #
-
     def fullname(self):
         return "[%s]  -  %s" % (self.short_name, self.short_desc)
-
-    #
 
     def getInstructionsText(self):
         return ""
 
-    #
-
     def getDescriptionText(self):
         return self.long_desc
-
-    #
 
     def getTransposonsText(self):
         if len(self.transposons) == 0:
@@ -904,9 +779,3 @@ class TransitAnalysis:
                 + ", and "
                 + self.transposons[-1]
             )
-
-
-#
-
-if __name__ == "__main__":
-    pass

@@ -480,11 +480,11 @@ class ZinbMethod(base.MultiConditionMethod):
         self.progress_range(len(genes))
         pvals, Rvs, status = [], [], []
         r_zinb_signif = self.def_r_zinb_signif()
-        self.transit_message("Running analysis...")
+        transit_tools.log("Running analysis...")
         if self.winz:
-            self.transit_message("Winsorizing insertion count data")
+            transit_tools.log("Winsorizing insertion count data")
 
-        self.transit_message("Condition: %s" % self.condition)
+        transit_tools.log("Condition: %s" % self.condition)
 
         comp1a = "1+cond"
         comp1b = "1+cond"
@@ -531,10 +531,10 @@ class ZinbMethod(base.MultiConditionMethod):
                     sys.exit(0)
 
             if DEBUG:
-                self.transit_message(
+                transit_tools.log(
                     "======================================================================"
                 )
-                self.transit_message(gene["rv"] + " " + gene["gene"])
+                transit_tools.log(gene["rv"] + " " + gene["gene"])
 
             if len(RvSiteindexesMap[Rv]) <= 1:
                 status.append("TA sites <= 1, not analyzed")
@@ -607,13 +607,13 @@ class ZinbMethod(base.MultiConditionMethod):
                     status.append(msg)
                     pvals.append(float(pval))
                 if DEBUG or GENE:
-                    self.transit_message(
+                    transit_tools.log(
                         "Pval for Gene {0}: {1}, status: {2}".format(
                             Rv, pvals[-1], status[-1]
                         )
                     )
                 if GENE:
-                    self.transit_message("Ran for single gene. Exiting...")
+                    transit_tools.log("Ran for single gene. Exiting...")
                     sys.exit(0)
             Rvs.append(Rv)
             # Update progress
@@ -670,7 +670,7 @@ class ZinbMethod(base.MultiConditionMethod):
             return any_empty
 
     def Run(self):
-        self.transit_message("Starting ZINB analysis")
+        transit_tools.log("Starting ZINB analysis")
         start_time = time.time()
         packnames = ("MASS", "pscl")
         r_packages_needed = [x for x in packnames if not rpackages.isinstalled(x)]
@@ -681,12 +681,12 @@ class ZinbMethod(base.MultiConditionMethod):
             )
             sys.exit(1)
 
-        self.transit_message("Getting Data")
+        transit_tools.log("Getting Data")
         (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
             self.combined_wig
         )
 
-        self.transit_message("Normalizing using: %s" % self.normalization)
+        transit_tools.log("Normalizing using: %s" % self.normalization)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
 
         condition_name = self.condition
@@ -785,7 +785,7 @@ class ZinbMethod(base.MultiConditionMethod):
         )
         LogZPercByRep, NZMeanByRep = self.global_stats_for_rep(data)
 
-        self.transit_message("Running ZINB")
+        transit_tools.log("Running ZINB")
         pvals, qvals, run_status = self.run_zinb(
             data,
             genes,
@@ -839,7 +839,7 @@ class ZinbMethod(base.MultiConditionMethod):
             x.replace(SEPARATOR, "_") for x in orderedStatGroupNames
         ]
 
-        self.transit_message("Adding File: %s" % (self.output))
+        transit_tools.log("Adding File: %s" % (self.output))
         file = open(self.output, "w")
         if len(headersStatGroupNames) == 2:
             lfcNames = ["LFC"]
@@ -900,8 +900,8 @@ class ZinbMethod(base.MultiConditionMethod):
                 vals.append(self.prot_table.get(Rv, "?"))
             file.write("\t".join(vals) + EOL)
         file.close()
-        self.transit_message("Finished Zinb analysis")
-        self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
+        transit_tools.log("Finished Zinb analysis")
+        transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     @classmethod
     def usage_string(self):

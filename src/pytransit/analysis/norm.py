@@ -138,7 +138,7 @@ class NormMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        self.transit_message("Starting Normalization")
+        transit_tools.log("Starting Normalization")
         start_time = time.time()
         outputPath = self.output.name
         # Normalize Data
@@ -150,7 +150,7 @@ class NormMethod(base.SingleConditionMethod):
         )
 
         self.finish()
-        self.transit_message("Finished Normalization")
+        transit_tools.log("Finished Normalization")
 
     @classmethod
     def usage_string(self):

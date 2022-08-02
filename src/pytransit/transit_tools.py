@@ -272,25 +272,35 @@ def ShowAskWarning(MSG=""):
     return dial.ShowModal()
 
 
-def ShowError(MSG=""):
-    # TODO: Write docstring
-    dial = wx.MessageDialog(None, MSG, "Error", wx.OK | wx.ICON_ERROR)
+def show_error_dialog(message):
+    dial = wx.MessageDialog(None, message, "Error", wx.OK | wx.ICON_ERROR)
     dial.ShowModal()
 
 
-def transit_message(msg="", prefix=""):
-    # TODO: Write docstring
-    if prefix:
-        print(prefix, msg)
-    else:
-        print(pytransit.prefix, msg)
-
-
+def log(message):
+    import inspect
+    import os
+    
+    # get some context as to who is creating the message
+    stack             = inspect.stack()
+    caller_frame_info = stack[-2]
+    file_name         = ""
+    caller_name       = ""
+    
+    try: file_name = os.path.basename(caller_frame_info.filename)
+    except Exception as error: pass # sometimes the caller doesn't have a file name (ex: REPL)
+    try: caller_name = caller_frame_info.function
+    except Exception as error: pass # sometimes the caller doesn't have a function name (ex: lambda)
+    
+    print(f'[{file_name}:{caller_name}()]', message, flush=True)
+    if HAS_WX:
+        import pytransit.gui_tools as gui_tools
+        gui_tools.set_status(message)
+    
 def transit_error(text):
-    # TODO: Write docstring
-    transit_message(text)
+    log(text)
     try:
-        ShowError(text)
+        show_error_dialog(text)
     except:
         pass
 

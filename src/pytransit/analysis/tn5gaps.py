@@ -300,10 +300,10 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         )
 
     def Run(self):
-        self.transit_message("Starting Tn5 gaps method")
+        transit_tools.log("Starting Tn5 gaps method")
         start_time = time.time()
 
-        self.transit_message("Loading data (May take a while)")
+        transit_tools.log("Loading data (May take a while)")
 
         # Combine all wigs
         (data, position) = transit_tools.get_validated_data(
@@ -335,12 +335,12 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         exp_cutoff = exprunmax + 2 * stddevrun
 
         # Get the runs
-        self.transit_message("Identifying non-insertion runs in genome")
+        transit_tools.log("Identifying non-insertion runs in genome")
         run_arr = tnseq_tools.runs_w_info(counts)
         pos_hash = transit_tools.get_pos_hash(self.annotation_path)
 
         # Finally, calculate the results
-        self.transit_message("Running Tn5 gaps method")
+        transit_tools.log("Running Tn5 gaps method")
         results_per_gene = {}
         for gene in genes_obj.genes:
             results_per_gene[gene.orf] = [
@@ -478,11 +478,11 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             )
         self.output.close()
 
-        self.transit_message("")  # Printing empty line to flush stdout
-        self.transit_message("Adding File: %s" % (self.output.name))
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Adding File: %s" % (self.output.name))
         self.add_file(filetype="Tn5 Gaps")
         self.finish()
-        self.transit_message("Finished Tn5Gaps Method")
+        transit_tools.log("Finished Tn5Gaps Method")
 
     @classmethod
     def usage_string(self):
