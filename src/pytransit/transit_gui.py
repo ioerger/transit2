@@ -762,11 +762,3 @@ class TnSeekFrame(wx.Frame):
             output.close()
             if self.verbose:
                 transit_tools.log("Finished conversion")
-
-    def RunMethod(self, event):
-        with gui_tools.nice_error_log:
-            instance = universal.selected_method.method.from_gui(self)
-            if instance:
-                thread = threading.Thread(target=instance.Run())
-                thread.setDaemon(True)
-                thread.start()

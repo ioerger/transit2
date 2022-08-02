@@ -268,12 +268,22 @@ if True:
         )
         sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         
+        
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):
+            # a workaround for python WX somehow clicking the add files button every time the run method is called
+            def run_wrapper():
+                universal.busy_running_method = True
+                try:
+                    method_instance.Run()
+                except Exception as error:
+                    pass
+                universal.busy_running_method = False
+                
             import threading
             with gui_tools.nice_error_log:
                 method_instance = universal.selected_method.method.from_gui(universal.frame)
                 if method_instance:
-                    thread = threading.Thread(target=method_instance.Run())
+                    thread = threading.Thread(target=run_wrapper())
                     thread.setDaemon(True)
                     thread.start()

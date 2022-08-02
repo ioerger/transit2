@@ -130,7 +130,7 @@ def create_results_area(frame):
             
             @gui_tools.bind_to(add_file_button, wx.EVT_BUTTON)
             def _(event):
-                try:
+                with gui_tools.nice_error_log:
                     dlg = wx.FileDialog(
                         frame,
                         message="Choose a file",
@@ -139,44 +139,41 @@ def create_results_area(frame):
                         wildcard="Results Files (*.dat)|*.dat;|\nResults Files (*.txt)|*.txt;|\nAll files (*.*)|*.*",
                         style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                     )
+                    paths = []
                     if dlg.ShowModal() == wx.ID_OK:
                         paths = dlg.GetPaths()
-                        print("You chose the following Results file(s):")
-                        for fullpath in paths:
-                            print("\t%s" % fullpath)
-                            name = transit_tools.basename(fullpath)
-                            line = open(fullpath).readline()
-                            if line.startswith("#Gumbel"):
-                                type = "Gumbel"
-                            elif line.startswith("#Binomial"):
-                                type = "Binomial"
-                            elif line.startswith("#HMM - Sites"):
-                                type = "HMM - Sites"
-                            elif line.startswith("#HMM - Genes"):
-                                type = "HMM - Genes"
-                            elif line.startswith("#Resampling"):
-                                type = "Resampling"
-                            elif line.startswith("#DE-HMM - Sites"):
-                                type = "DE-HMM - Sites"
-                            elif line.startswith("#DE-HMM - Segments"):
-                                type = "DE-HMM - Segments"
-                            elif line.startswith("#GI"):
-                                type = "GI"
-                            else:
-                                type = "Unknown"
-                            data = {
-                                "path": fullpath,
-                                "type": type,
-                                "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-                            }
-                            wx.CallAfter(pub.sendMessage, "file", data=data)
                     dlg.Destroy()
-                except Exception as e:
-                    transit_tools.log("Error: %s" % e)
-                    print("PATH", fullpath)
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
+                    # ^close the menu before processing the files to be more responsive
+                    
+                    print("You chose the following Results file(s):")
+                    for fullpath in paths:
+                        print("\t%s" % fullpath)
+                        name = transit_tools.basename(fullpath)
+                        line = open(fullpath).readline()
+                        if line.startswith("#Gumbel"):
+                            type = "Gumbel"
+                        elif line.startswith("#Binomial"):
+                            type = "Binomial"
+                        elif line.startswith("#HMM - Sites"):
+                            type = "HMM - Sites"
+                        elif line.startswith("#HMM - Genes"):
+                            type = "HMM - Genes"
+                        elif line.startswith("#Resampling"):
+                            type = "Resampling"
+                        elif line.startswith("#DE-HMM - Sites"):
+                            type = "DE-HMM - Sites"
+                        elif line.startswith("#DE-HMM - Segments"):
+                            type = "DE-HMM - Segments"
+                        elif line.startswith("#GI"):
+                            type = "GI"
+                        else:
+                            type = "Unknown"
+                        data = {
+                            "path": fullpath,
+                            "type": type,
+                            "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
+                        }
+                        wx.CallAfter(pub.sendMessage, "file", data=data)
             
         # 
         # fileActionChoice
@@ -207,7 +204,7 @@ def create_results_area(frame):
     # results.table
     # 
     with Table(
-        initial_columns=[ "Name", "Type", "Date", "Full Path"],
+        initial_columns=[ "name", "type", "date", "path"],
         max_size=(-1, 200)
     ) as results.table:
         

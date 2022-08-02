@@ -752,7 +752,7 @@ class Method(base.MultiConditionMethod):
 
             # Update progress
             percentage = 100.0 * count / len(genes)
-            progress_update(f"Running Anova Method... {percentage:5.1f}", int(percentage))
+            progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)
@@ -777,85 +777,98 @@ class Method(base.MultiConditionMethod):
         transit_tools.log("Starting Anova analysis")
         start_time = time.time()
         
+        # 
+        # get data
+        # 
         transit_tools.log("Getting Data")
-        (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
-            self.combined_wig
-        )
+        if True:
+            sites, data, filenamesInCombWig = tnseq_tools.read_combined_wig(self.combined_wig)
+            
+            transit_tools.log(f"Normalizing using: {self.normalization}")
+            data, factors = norm_tools.normalize_data(data, self.normalization)
+
+            if self.winz: transit_tools.log("Winsorizing insertion counts")
+            conditionsByFile, _, _, orderingMetadata = tnseq_tools.read_samples_metadata(self.metadata)
+            conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
+            conditionsList = self.select_conditions(
+                conditions,
+                self.included_conditions,
+                self.excluded_conditions,
+                orderingMetadata,
+            )
+
+            conditionNames = [conditionsByFile[f] for f in filenamesInCombWig]
+            fileNames = filenamesInCombWig
+
+            (
+                data,
+                fileNames,
+                conditionNames,
+                conditions,
+                _,
+                _,
+            ) = self.filter_wigs_by_conditions3(  # in base.py
+                data,
+                fileNames,  # it looks like fileNames and conditionNames have to be parallel to data (vector of wigs)
+                conditionNames,  # original Condition column in samples metadata file
+                self.included_conditions,
+                self.excluded_conditions,
+                conditions=conditionNames,
+            )  # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
+
+            genes = tnseq_tools.read_genes(self.annotation_path)
         
-        transit_tools.log("Normalizing using: %s" % self.normalization)
-        (data, factors) = norm_tools.normalize_data(data, self.normalization)
-        if self.winz:
-            transit_tools.log("Winsorizing insertion counts")
+        # 
+        # process data
+        # 
+        if True:
+            TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
+            RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
+                genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
+            )
+            MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
-        conditionsByFile, _, _, orderingMetadata = tnseq_tools.read_samples_metadata(
-            self.metadata
-        )
-        conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
+            transit_tools.log("Running Anova")
+            MSR, MSE, Fstats, pvals, qvals, run_status = self.run_anova(
+                data, genes, MeansByRv, RvSiteindexesMap, conditions
+            )
+        
+        # 
+        # write output
+        # 
+        transit_tools.log(f"Adding File: {self.output}")
+        results_area.add(dict(
+            name=os.path.basename(self.output),
+            type="ANova",
+            date=datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
+            path=self.output,
+        ))
+        if True:
+            file = open(self.output, "w")
 
-        conditionsList = self.select_conditions(
-            conditions,
-            self.included_conditions,
-            self.excluded_conditions,
-            orderingMetadata,
-        )
-
-        conditionNames = [conditionsByFile[f] for f in filenamesInCombWig]
-        fileNames = filenamesInCombWig
-
-        (
-            data,
-            fileNames,
-            conditionNames,
-            conditions,
-            _,
-            _,
-        ) = self.filter_wigs_by_conditions3(  # in base.py
-            data,
-            fileNames,  # it looks like fileNames and conditionNames have to be parallel to data (vector of wigs)
-            conditionNames,  # original Condition column in samples metadata file
-            self.included_conditions,
-            self.excluded_conditions,
-            conditions=conditionNames,
-        )  # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
-
-        genes = tnseq_tools.read_genes(self.annotation_path)
-
-        TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
-        RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
-            genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
-        )
-        MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
-
-        transit_tools.log("Running Anova")
-        MSR, MSE, Fstats, pvals, qvals, run_status = self.run_anova(
-            data, genes, MeansByRv, RvSiteindexesMap, conditions
-        )
-
-        transit_tools.log("Adding File: %s" % (self.output))
-        file = open(self.output, "w")
-
-        heads = (
-            "Rv Gene TAs".split() +
-            ["Mean_%s" % x for x in conditionsList] +
-            ["LFC_%s" % x for x in conditionsList] +
-            "MSR MSE+alpha Fstat Pval Padj".split() + 
-            ["status"]
-        )
-        file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.n_terminus,self.c_terminus,self.pseudocount,self.alpha))
-        file.write('#'+'\t'.join(heads)+EOL)
-        for gene in genes:
-            Rv = gene["rv"]
-            if Rv in MeansByRv:
-              means = [MeansByRv[Rv][c] for c in conditionsList]
-              refs = [MeansByRv[Rv][c] for c in self.refs]
-              LFCs = self.calc_lf_cs(means,refs,self.pseudocount)
-              vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
-                      ["%0.2f" % x for x in means] + 
-                      ["%0.3f" % x for x in LFCs] + 
-                      ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
-              file.write('\t'.join(vals)+EOL)
-        file.close()
-        transit_tools.log("Finished Anova analysis")
-        transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+            heads = (
+                "Rv Gene TAs".split() +
+                ["Mean_%s" % x for x in conditionsList] +
+                ["LFC_%s" % x for x in conditionsList] +
+                "MSR MSE+alpha Fstat Pval Padj".split() + 
+                ["status"]
+            )
+            file.write("#Console: python3 %s\n" % " ".join(sys.argv))
+            file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.n_terminus,self.c_terminus,self.pseudocount,self.alpha))
+            file.write('#'+'\t'.join(heads)+EOL)
+            for gene in genes:
+                Rv = gene["rv"]
+                if Rv in MeansByRv:
+                    means = [MeansByRv[Rv][c] for c in conditionsList]
+                    refs = [MeansByRv[Rv][c] for c in self.refs]
+                    LFCs = self.calc_lf_cs(means,refs,self.pseudocount)
+                    vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
+                            ["%0.2f" % x for x in means] + 
+                            ["%0.3f" % x for x in LFCs] + 
+                            ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
+                    file.write('\t'.join(vals)+EOL)
+            file.close()
+            
+            transit_tools.log("Finished Anova analysis")
+            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
     

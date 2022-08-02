@@ -5,6 +5,7 @@ from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 import pytransit.gui_tools as gui_tools
+import pytransit.transit_tools as transit_tools
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
@@ -56,34 +57,43 @@ def create_sample_area(frame):
                 # 
                 @gui_tools.bind_to(combined_wig_file_picker, wx.EVT_BUTTON)
                 def load_combined_wig_file_func(event): # BOOKMARK: cwig_callback
-                    file_dialog = wx.FileDialog(
-                        frame,
-                        message="Choose a cwig file",
-                        defaultDir=working_directory,
-                        defaultFile="",
-                        wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                    )
-                    if file_dialog.ShowModal() == wx.ID_OK:
-                        cwig_paths = list(file_dialog.GetPaths())
+                    if not universal.get("busy_running_method", False): # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
+                        file_dialog = wx.FileDialog(
+                            frame,
+                            message="Choose a cwig file",
+                            defaultDir=working_directory,
+                            defaultFile="",
+                            wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                        )
+                        cwig_paths = []
                         metadata_paths = []
-                        for fullpath in cwig_paths:
-                            metadata_dialog = wx.FileDialog(
-                                frame,
-                                message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
-                                defaultDir=working_directory,
-                                defaultFile="",
-                                wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
-                                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                            )
-                            if metadata_dialog.ShowModal() == wx.ID_OK:
-                                metadata_path = metadata_dialog.GetPaths()[0]
-                                metadata_paths.append(
-                                    metadata_path
+                        if file_dialog.ShowModal() == wx.ID_OK:
+                            cwig_paths = list(file_dialog.GetPaths())
+                            metadata_paths = []
+                            for fullpath in cwig_paths:
+                                metadata_dialog = wx.FileDialog(
+                                    frame,
+                                    message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
+                                    defaultDir=working_directory,
+                                    defaultFile="",
+                                    wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                                    style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                                 )
-                            
-                            metadata_dialog.Destroy()
+                                if metadata_dialog.ShowModal() == wx.ID_OK:
+                                    metadata_path = metadata_dialog.GetPaths()[0]
+                                    metadata_paths.append(
+                                        metadata_path
+                                    )
+                                
+                                metadata_dialog.Destroy()
+                        file_dialog.Destroy()
+                        
+                        # 
+                        # load the data from the files
+                        # 
                         for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
+                            transit_tools.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
                             try:
                                 universal.session_data.add_cwig(
                                     cwig_path=each_cwig_path,
@@ -91,23 +101,24 @@ def create_sample_area(frame):
                                 )
                             except Exception as error:
                                 transit_tools.log(f"{error}")
-                    file_dialog.Destroy()
-                    
-                    # 
-                    # add graphical entries for each condition
-                    # 
-                    if True:
-                        for each_sample in universal.session_data.samples:
-                            sample_table.add(dict(
-                                name=basename(each_sample.path),
-                                condition=each_sample.extra_data.get("condition", "[None]") ,
-                            ))
                         
-                        for each_condition in universal.session_data.conditions:
-                            conditions_table.add(dict(
-                                name=each_condition.name,
-                            ))
-                
+                        transit_tools.log(f"Done")
+
+                            
+                        # 
+                        # add graphical entries for each condition
+                        # 
+                        if True:
+                            for each_sample in universal.session_data.samples:
+                                sample_table.add(dict(
+                                    name=basename(each_sample.path),
+                                    condition=each_sample.extra_data.get("condition", "[None]") ,
+                                ))
+                            
+                            for each_condition in universal.session_data.conditions:
+                                conditions_table.add(dict(
+                                    name=each_condition.name,
+                                ))
                 
                 inner_sample_sizer.Add(combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
                 

@@ -20,7 +20,7 @@ from pytransit.components.generic.table import Table
 # 
 panel = LazyDict()
 def create_panel_area(_):
-    panel.progress_count = 0
+    panel.progress_percent = 0
     
     # 
     # options window
@@ -223,7 +223,7 @@ def create_panel_area(_):
         5,
     )
 
-    set_progress_range(100)
+    set_progress_range(1000)
     
     hide_progress_section()
     panel.method_sizer_text.Hide()
@@ -245,7 +245,7 @@ def show_progress_section():
     panel.progress_label.Show()
     panel.progress.Show()
 
-def progress_update(text, count):
+def progress_update(text, percent):
     string = f"[{universal.selected_method.long_name}] {text}   \r"
     
     # update current line
@@ -256,9 +256,10 @@ def progress_update(text, count):
         import pytransit.components.parameter_panel as parameter_panel
         import pytransit.gui_tools as gui_tools
         # update progress bar
-        panel.progress_count = count
+        panel.progress_percent = percent
+        thousands = round(panel.progress_percent*10)
         try:
-            panel.progress.SetValue(panel.progress_count)
+            panel.progress.SetValue(thousands)
         except:
             pass
         # update status text

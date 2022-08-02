@@ -19,6 +19,8 @@ import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
+
 
 ############# GUI ELEMENTS ##################
 
@@ -253,22 +255,13 @@ class ResamplingGUI(base.AnalysisGUI):
         )
         resamplingSizer.Add(zeroSizer, 0, wx.EXPAND, 5)
 
-        resamplingButton = wx.Button(
-            resamplingPanel,
-            wx.ID_ANY,
-            u"Run resampling",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        resamplingSizer.Add(resamplingButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        create_run_button(resamplingPanel, resamplingSizer)
 
         resamplingPanel.SetSizer(resamplingSizer)
         resamplingPanel.Layout()
         resamplingSizer.Fit(resamplingPanel)
 
         # Connect events
-        resamplingButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
         self.wxobj.resamplingLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
 
         self.panel = resamplingPanel
