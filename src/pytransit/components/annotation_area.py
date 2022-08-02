@@ -11,13 +11,12 @@ from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
 from pytransit.components.generic.button import Button
 
-
-
-
+annotation_data = None
 # 
 # annotation_wrapper
 # 
 def create_annotation_area(frame):
+    global annotation_data
     annotation_wrapper = wx.StaticBoxSizer(
         wx.StaticBox(
             frame,
@@ -74,8 +73,10 @@ def create_annotation_area(frame):
             
             @gui_tools.bind_to(annotation_file_picker, wx.EVT_FILEPICKER_CHANGED)
             def annotationFileFunc(event):
-                frame.annotation = event.GetPath() # this is for reducing breakages
-                universal.session_data.annotation = frame.annotation
+                global annotation_data
+                annotation_data = event.GetPath()
+                frame.annotation = annotation_data # this is for reducing breakages
+                universal.session_data.annotation = annotation_data
 
         annotation_wrapper.Add(annot_sizer, 1, wx.EXPAND, 5)
     

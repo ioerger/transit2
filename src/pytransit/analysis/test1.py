@@ -39,7 +39,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.components.results_area as results_area
 from pytransit.core_data import universal
-from pytransit.components.parameter_panel import panel
+from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
 
 ############# GUI ELEMENTS ##################
@@ -701,7 +701,6 @@ class Method(base.MultiConditionMethod):
             Condition :: String
         """
         count = 0
-        self.progress_range(len(genes))
 
         MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
         for gene in genes:
@@ -752,8 +751,8 @@ class Method(base.MultiConditionMethod):
             Rvs.append(Rv)
 
             # Update progress
-            text = "Running Anova Method... %5.1f%%" % (100.0 * count / len(genes))
-            self.progress_update(text, count)
+            percentage = 100.0 * count / len(genes)
+            progress_update(f"Running Anova Method... {percentage:5.1f}", int(percentage))
 
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)

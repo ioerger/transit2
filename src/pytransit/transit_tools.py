@@ -100,11 +100,11 @@ if HAS_WX:
         """
         Summary:
             The old style:
-                pub.subscribe(self.set_progress_range, "progressrange")
+                pub.subscribe(self.thing, "event_name")
             
             The new style enabled by this function:
-                @subscribe("progressrange")
-                def set_progress_range(self, *args):
+                @subscribe("event_name")
+                def thing(self, *args):
                     pass
         """
         def decorator(function_being_wrapped):
@@ -283,10 +283,9 @@ def log(message):
     
     # get some context as to who is creating the message
     stack             = inspect.stack()
-    caller_frame_info = stack[-2]
+    caller_frame_info = stack[1]
     file_name         = ""
     caller_name       = ""
-    
     try: file_name = os.path.basename(caller_frame_info.filename)
     except Exception as error: pass # sometimes the caller doesn't have a file name (ex: REPL)
     try: caller_name = caller_frame_info.function

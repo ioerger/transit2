@@ -7,7 +7,6 @@ import traceback
 import datetime
 import numpy
 import pytransit.transit_tools as transit_tools
-from pytransit.components.parameter_panel import panel
 from pytransit.components.icon import InfoIcon
 from pytransit.transit_tools import InvalidArgumentException
 
@@ -23,12 +22,6 @@ class TransitFile:
         self.identifier = identifier
         self.colnames   = colnames
 
-    def status_message(self, text, time=-1):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "status", msg=(self.short_name, text, time))
-            wx.Yield()
-
     def console_message(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
@@ -41,7 +34,6 @@ class TransitFile:
     def transit_message_inplace(self, text):
         # TODO: write docstring
         self.console_message_inplace(text)
-        self.status_message(text)
 
     def transit_error(self, text):
         transit_tools.log(text)
@@ -116,41 +108,6 @@ class AnalysisGUI:
 
     def Enable(self):
         if self.panel: self.panel.Enable()
-
-    def define_panel(self, wxobj):
-        # TODO: write docstring
-
-        self.wxobj = wxobj
-        wPanel = panel.global_panel
-
-        Section = wx.BoxSizer(wx.VERTICAL)
-
-        Label = wx.StaticText(
-            wPanel,
-            id=wx.ID_ANY,
-            label=str("Method Options"),
-            pos=wx.DefaultPosition,
-            size=(130, -1),
-            style=0,
-        )
-        Label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        Section.Add(Label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        Sizer1 = wx.BoxSizer(wx.HORIZONTAL)
-        Section.Add(Sizer1, 1, wx.EXPAND, 5)
-
-        Button = wx.Button(
-            wPanel, wx.ID_ANY, u"Run", wx.DefaultPosition, wx.DefaultSize, 0
-        )
-        Section.Add(Button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        wPanel.SetSizer(Section)
-        wPanel.Layout()
-        Section.Fit(wPanel)
-
-        # Connect events
-        Button.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-        self.panel = wPanel
 
     def defineTextBox(
         self,
@@ -338,26 +295,6 @@ class AnalysisMethod:
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
 
-    def progress_update(self, text, count):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "progress", msg=(self.short_name, count))
-            wx.Yield()
-
-        self.transit_message_inplace(text)
-
-    def progress_range(self, count):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "progressrange", msg=count)
-            wx.Yield()
-
-    def status_message(self, text, time=-1):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "status", msg=(self.short_name, text, time))
-            wx.Yield()
-
     def console_message(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
@@ -370,7 +307,6 @@ class AnalysisMethod:
     def transit_message_inplace(self, text):
         # TODO: write docstring
         self.console_message_inplace(text)
-        self.status_message(text)
 
     def transit_error(self, text):
         transit_tools.log(text)

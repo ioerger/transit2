@@ -66,13 +66,7 @@ def create_menu(frame):
         )
 
         convert_menu_item.Append(annotation_convert_ptt_to_pt)
-
         file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
-
-        file_exit_menu_item = wx.MenuItem(
-            file_menu_item, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL
-        )
-        file_menu_item.Append(file_exit_menu_item)
         menu_bar.Append(file_menu_item, "&File")
 
         view_menu_item = wx.Menu()
@@ -155,7 +149,6 @@ def create_menu(frame):
         frame.Bind(wx.EVT_MENU, frame.annotationPT_to_PTT , id=annotation_convert_pt_to_ptt_menu.GetId(),  )
         frame.Bind(wx.EVT_MENU, frame.annotationPT_to_GFF3, id=annotation_convert_pt_to_gff3_menu.GetId(), )
         frame.Bind(wx.EVT_MENU, frame.annotationPTT_to_PT , id=annotation_convert_ptt_to_pt.GetId(),       )
-        frame.Bind(wx.EVT_MENU, frame.Exit                , id=file_exit_menu_item.GetId()                 )
         frame.Bind(wx.EVT_MENU, frame.scatterFunc         , id=scatter_menu_item.GetId()                   )
         frame.Bind(wx.EVT_MENU, frame.allViewFunc         , id=track_menu_item.GetId()                     )
         frame.Bind(wx.EVT_MENU, frame.aboutFunc           , id=about_menu_item.GetId()                  )

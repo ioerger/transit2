@@ -105,26 +105,6 @@ class ConvertMethod:
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
 
-    def progress_update(self, text, count):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "progress", msg=(self.short_name, count))
-            wx.Yield()
-
-        self.transit_message_inplace(text)
-
-    def progress_range(self, count):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "progressrange", msg=count)
-            wx.Yield()
-
-    def status_message(self, text, time=-1):
-        # TODO: write docstring
-        if self.wxobj:
-            wx.CallAfter(pub.sendMessage, "status", msg=(self.short_name, text, time))
-            wx.Yield()
-
     def console_message(self, text):
         # TODO: write docstring
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
@@ -137,7 +117,6 @@ class ConvertMethod:
     def transit_message_inplace(self, text):
         # TODO: write docstring
         self.console_message_inplace(text)
-        self.status_message(text)
 
     def transit_error(self, text):
         transit_tools.log(text)

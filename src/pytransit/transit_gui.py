@@ -167,23 +167,9 @@ class TnSeekFrame(wx.Frame):
         self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self.statusBar.SetStatusText("Welcome to TRANSIT")
         
-        pub.subscribe(parameter_panel.set_progress_range, "progressrange")
-        pub.subscribe(parameter_panel.update_progress, "progress")
-        pub.subscribe(self.updateStatus, "status")
-        pub.subscribe(parameter_panel.finish_run, "finish")
         pub.subscribe(self.saveHistogram, "histogram")
         create_menu(self)
         
-def updateStatus(self, msg, time=-1):
-        """"""
-        if type(msg) == type("A"):
-            text = msg
-        else:
-            method, text, time = msg
-        if time > 0:
-            self.timer.Start(time)
-        self.statusBar.SetStatusText(text)
-
     def clearStatus(self, event):
         self.statusBar.SetStatusText("")
         self.timer.Stop()
@@ -202,9 +188,6 @@ def updateStatus(self, msg, time=-1):
         genePath = os.path.join(path, orf + ".png")
         plt.savefig(genePath)
         plt.clf()
-
-    def finishRun(self, msg):
-        parameter_panel.finish_run()
 
     def onHimar1Checked(self, event):
         if self.methodCheckBoxHimar1.GetValue():

@@ -14,6 +14,7 @@ import pytransit
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
+import pytransit.components.parameter_panel as parameter_panel
 
 ############# GUI ELEMENTS ##################
 

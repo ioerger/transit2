@@ -1,4 +1,5 @@
 import os
+import sys
 
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
@@ -140,7 +141,7 @@ def create_panel_area(_):
                     wx.DefaultSize,
                     0,
                 )
-                panel.method_instructions.Wrap(250)
+                panel.method_instructions.Wrap(-1)
                 panel.method_info_sizer.Add(
                     panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
                 )
@@ -159,15 +160,15 @@ def create_panel_area(_):
             # methodPanel1
             # 
             if True:
-                panel.method_panel1 = wx.Panel(
+                panel.method_panel = wx.Panel(
                     universal.frame,
                     wx.ID_ANY,
                     wx.DefaultPosition,
                     wx.DefaultSize,
                     wx.TAB_TRAVERSAL,
                 )
-                panel.method_panel1.SetMinSize(wx.Size(50, 1))
-                panel.method_sizer.Add(panel.method_panel1, 0, wx.ALL, 5)
+                panel.method_panel.SetMinSize(wx.Size(50, 1))
+                panel.method_sizer.Add(panel.method_panel, 0, wx.ALL | wx.EXPAND, 5)
             
         panel.sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
 
@@ -204,14 +205,14 @@ def create_panel_area(_):
                 wx.ID_ANY,
                 20,
                 wx.DefaultPosition,
-                wx.DefaultSize,
+                wx.Size(100, 10),
                 wx.GA_HORIZONTAL | wx.GA_SMOOTH,
             )
-            progress_sizer.Add(panel.progress, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+            progress_sizer.Add(panel.progress, 0, wx.ALL | wx.EXPAND, 0)
 
     # panel.progress_panel.BackgroundColour = (0, 0, 250)
     panel.progress_panel.SetSizer(progress_sizer)
-    panel.progress_panel.SetMaxSize(wx.Size(100, 100))
+    panel.progress_panel.SetMaxSize(wx.Size(200, 100))
     panel.progress_panel.Layout()
 
     # progress_sizer.Fit( panel.progress_panel )
@@ -222,11 +223,8 @@ def create_panel_area(_):
         5,
     )
 
-    # panel.method_sizer.Add( panel.global_label, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-    # panel.method_sizer.Hide()
-    panel.progress.SetRange(50)
-    #########
-
+    set_progress_range(100)
+    
     hide_progress_section()
     panel.method_sizer_text.Hide()
     
@@ -247,20 +245,28 @@ def show_progress_section():
     panel.progress_label.Show()
     panel.progress.Show()
 
-def update_progress(msg):
-    """"""
-    method, count = msg
-    panel.progress_count = count
-    try:
-        panel.progress.SetValue(panel.progress_count)
-    except:
-        pass
+def progress_update(text, count):
+    string = f"[{universal.selected_method.long_name}] {text}   \r"
+    
+    # update current line
+    sys.stdout.write(string)
+    sys.stdout.flush()
+    
+    if HAS_WX:
+        import pytransit.components.parameter_panel as parameter_panel
+        import pytransit.gui_tools as gui_tools
+        # update progress bar
+        panel.progress_count = count
+        try:
+            panel.progress.SetValue(panel.progress_count)
+        except:
+            pass
+        # update status text
+        gui_tools.set_status(string)
+        
+        wx.Yield() # to get the UI to update
 
 def set_progress_range(count):
     with gui_tools.nice_error_log:
         panel.progress.SetRange(count)
-
-def finish_run():
-    with gui_tools.nice_error_log:
-        panel.progress_count = 0
-        panel.progress.SetValue(panel.progress_count)
+        wx.Yield()

@@ -84,10 +84,13 @@ def create_sample_area(frame):
                             
                             metadata_dialog.Destroy()
                         for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
-                            universal.session_data.add_cwig(
-                                cwig_path=each_cwig_path,
-                                metadata_path=each_metadata_path,
-                            )
+                            try:
+                                universal.session_data.add_cwig(
+                                    cwig_path=each_cwig_path,
+                                    metadata_path=each_metadata_path,
+                                )
+                            except Exception as error:
+                                transit_tools.log(f"{error}")
                     file_dialog.Destroy()
                     
                     # 
