@@ -90,22 +90,30 @@ main_object = LazyDict(
     ),
 )
 
-class Analysis(base.TransitAnalysis):
+class Analysis:
     def __init__(self):
         main_object.analysis = self
-        base.TransitAnalysis.__init__(
-            self,
-            
-            main_object.short_name,
-            main_object.long_name,
-            main_object.short_desc,
-            main_object.long_desc,
-            main_object.transposons,
-            
-            Method,
-            GUI,
-            [File],
-        )
+        self.short_name  = main_object.short_name
+        self.long_name   = main_object.long_name
+        self.short_desc  = main_object.short_desc
+        self.long_desc   = main_object.long_desc
+        self.full_name   = f"[{self.short_name}]  -  {self.short_desc}"
+        self.transposons = main_object.transposons
+        self.method      = Method
+        self.gui         = GUI()
+        self.filetypes   = [File]
+        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
+    
+    def __str__(self):
+        return f"""
+            Analysis Method:
+                Short Name:  {self.short_name}
+                Long Name:   {self.long_name}
+                Short Desc:  {self.short_desc}
+                Long Desc:   {self.long_desc}
+                Method:      {self.method}
+                GUI:         {self.gui}
+        """.replace('\n            ','\n').strip()
 
 class File(base.TransitFile):
     def __init__(self):

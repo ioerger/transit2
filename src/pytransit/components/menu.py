@@ -160,12 +160,11 @@ def create_menu(frame):
     method_names = sorted(methods.keys())
     for name in method_names:
         method = methods[name]
-        fullname = methods[name].fullname()
         
         def create_callback():
             # these vars need to be defined here because of how python scopes variables
             the_method = methods[name]
-            the_fullname = methods[name].fullname()
+            the_full_name = methods[name].full_name
             def load_method_wrapper(event):
                 universal.selected_method = the_method
                 # hide all the other panel stuff
@@ -174,14 +173,14 @@ def create_menu(frame):
                     if each_method.gui.panel:
                         each_method.gui.panel.Hide()
                 the_method.gui.define_panel(frame)
-                return method_select_func(the_fullname, event)
+                return method_select_func(the_full_name, event)
             return load_method_wrapper
         
         menu_callback = create_callback()
         
         # attach menus
         for method_name, parent_menu in [ ["himar1", himar1_menu_item], ["tn5", tn5_menu_item] ]:
-            temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, fullname, wx.EmptyString, wx.ITEM_NORMAL,)
+            temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, method.full_name, wx.EmptyString, wx.ITEM_NORMAL,)
             frame.Bind(wx.EVT_MENU,menu_callback,temp_menu_item,)
             parent_menu.Append(temp_menu_item)
 
@@ -217,7 +216,7 @@ def method_select_func(selected_name, event):
             try: methods[name].gui.panel.Hide()
             except Exception as error: pass
             
-            if methods[name].fullname() == selected_name:
+            if methods[name].full_name == selected_name:
                 matched_name = name
         
         if matched_name in methods:
@@ -225,11 +224,11 @@ def method_select_func(selected_name, event):
             panel.method_info_text.SetLabel("%s" % methods[name].long_name)
 
             panel.method_tn_text.Show()
-            panel.method_tn_text.SetLabel(methods[name].getTransposonsText())
+            panel.method_tn_text.SetLabel(methods[name].transposons_text)
             panel.method_tn_text.Wrap(250)
 
             panel.method_desc_text.Show()
-            panel.method_desc_text.SetLabel(methods[name].getDescriptionText())
+            panel.method_desc_text.SetLabel(methods[name].long_desc)
             panel.method_desc_text.Wrap(250)
             panel.method_instructions.SetLabel(" ")
             methods[name].gui.panel.Show()
@@ -261,11 +260,11 @@ def method_select_helper(method, event):
     panel.method_info_text.SetLabel(method.long_name)
 
     panel.method_tn_text.Show()
-    panel.method_tn_text.SetLabel(method.getTransposonsText())
+    panel.method_tn_text.SetLabel(method.transposons_text)
     panel.method_tn_text.Wrap(250)
 
     panel.method_desc_text.Show()
-    panel.method_desc_text.SetLabel(method.getDescriptionText())
+    panel.method_desc_text.SetLabel(method.long_desc)
     panel.method_desc_text.Wrap(250)
     panel.method_instructions.SetLabel(" ")
     

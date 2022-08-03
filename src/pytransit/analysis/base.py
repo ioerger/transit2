@@ -667,51 +667,24 @@ class TransitAnalysis:
         gui_class=AnalysisGUI,
         filetypes=[TransitFile],
     ):
-        self.short_name = sn
-        self.long_name = ln
-        self.short_desc = short_desc
-        self.long_desc = long_desc
+        self.short_name  = sn
+        self.long_name   = ln
+        self.short_desc  = short_desc
+        self.long_desc   = long_desc
+        self.full_name   = f"[{self.short_name}]  -  {self.short_desc}"
         self.transposons = tn
-        self.method = method_class
-        self.gui = gui_class()
-        self.filetypes = filetypes
+        self.method      = method_class
+        self.gui         = gui_class()
+        self.filetypes   = filetypes
+        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
 
     def __str__(self):
-        return """Analysis Method:
-    Short Name:  %s
-    Long Name:   %s
-    Short Desc:  %s
-    Long Desc:   %s
-    Method:      %s
-    GUI:         %s""" % (
-            self.short_name,
-            self.long_name,
-            self.short_desc,
-            self.long_desc,
-            self.method,
-            self.gui,
-        )
-
-    def fullname(self):
-        return "[%s]  -  %s" % (self.short_name, self.short_desc)
-
-    def getInstructionsText(self):
-        return ""
-
-    def getDescriptionText(self):
-        return self.long_desc
-
-    def getTransposonsText(self):
-        if len(self.transposons) == 0:
-            return "Tn attribute missing!"
-        elif len(self.transposons) == 1:
-            return "Intended for %s only" % self.transposons[0]
-        elif len(self.transposons) == 2:
-            return "Intended for %s or %s" % tuple(self.transposons)
-        else:
-            return (
-                "Intended for "
-                + ", ".join(self.transposons[:-1])
-                + ", and "
-                + self.transposons[-1]
-            )
+        return f"""
+            Analysis Method:
+                Short Name:  {self.short_name}
+                Long Name:   {self.long_name}
+                Short Desc:  {self.short_desc}
+                Long Desc:   {self.long_desc}
+                Method:      {self.method}
+                GUI:         {self.gui}
+        """.replace('\n            ','\n').strip()

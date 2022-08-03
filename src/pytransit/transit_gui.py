@@ -217,7 +217,7 @@ class TnSeekFrame(wx.Frame):
 
         methodChoiceChoices = ["[Choose Method]"]
         for name in newmethods:
-            methodChoiceChoices.append(methods[name].fullname())
+            methodChoiceChoices.append(methods[name].full_name)
         self.methodChoice.SetItems(methodChoiceChoices)
         self.methodChoice.SetSelection(0)
 

@@ -650,3 +650,19 @@ class InvalidArgumentException(Exception):
 
         # Call the base class constructor with the parameters it needs
         super(InvalidArgumentException, self).__init__(message)
+
+
+def get_transposons_text(transposons):
+    if len(transposons) == 0:
+        return "Tn attribute missing!"
+    elif len(transposons) == 1:
+        return "Intended for %s only" % transposons[0]
+    elif len(transposons) == 2:
+        return "Intended for %s or %s" % tuple(transposons)
+    else:
+        return (
+            "Intended for "
+            + ", ".join(transposons[:-1])
+            + ", and "
+            + transposons[-1]
+        )

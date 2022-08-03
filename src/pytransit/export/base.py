@@ -259,48 +259,24 @@ class TransitExport:
     def __init__(
         self, sn, ln, desc, lab, tn, method_class=ExportMethod, gui_class=ExportGUI
     ):
-        self.short_name = sn
-        self.long_name = ln
+        self.short_name  = sn
+        self.long_name   = ln
         self.description = desc
-        self.label = lab
+        self.short_desc  = self.long_name
+        self.long_desc   = desc
+        self.full_name   = f"[{self.short_name}]  -  {self.short_desc}"
+        self.label       = lab
         self.transposons = tn
-        self.method = method_class
-        self.gui = gui_class()
+        self.method      = method_class
+        self.gui         = gui_class()
+        self.transposons_text = ""
 
     def __str__(self):
-        return """Export Method:
-    Short Name:  %s
-    Long Name:   %s
-    Description: %s
-    Method:      %s
-    GUI:         %s""" % (
-            self.short_name,
-            self.long_name,
-            self.description,
-            self.method,
-            self.gui,
-        )
-
-    def fullname(self):
-        return "[%s]  -  %s" % (self.short_name, self.long_name)
-
-    def getInstructionsText(self):
-        return ""
-
-    def getDescriptionText(self):
-        return self.description
-
-    def getTransposonsText(self):
-        if len(self.transposons) == 0:
-            return "Tn attribute missing!"
-        elif len(self.transposons) == 1:
-            return "Intended for %s only" % self.transposons[0]
-        elif len(self.transposons) == 2:
-            return "Intended for %s or %s" % tuple(self.transposons)
-        else:
-            return (
-                "Intended for "
-                + ", ".join(self.transposons[:-1])
-                + ", and "
-                + self.transposons[-1]
-            )
+        return f"""
+            Export Method:
+                Short Name:  {self.short_name}
+                Long Name:   {self.long_name}
+                Description: {self.description}
+                Method:      {self.method}
+                GUI:         {self.gui}
+        """.replace('\n            ','\n').strip()
