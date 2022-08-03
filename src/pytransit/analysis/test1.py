@@ -45,10 +45,10 @@ from pytransit.components.panel_helpers import make_panel, create_run_button, cr
 ############# GUI ELEMENTS ##################
 
 main_object = LazyDict(
-    short_name = "anova -- test",
-    long_name = "AnovaGUI",
-    short_desc = "AnovaGUI",
-    long_desc = """Anova GUI""",
+    short_name = "anova",
+    long_name = "ANOVA",
+    short_desc = "Perform Anova analysis",
+    long_desc = """Perform Anova analysis""",
 
     transposons = ["himar1", "tn5"],
     columns = [
@@ -63,6 +63,7 @@ main_object = LazyDict(
         "Sum Exp",
         "Delta Mean",
         "p-value",
+        "Z-score",
         "Adj. p-value",
     ],
     
@@ -518,24 +519,7 @@ class Method(base.MultiConditionMethod):
         )
         self.output.write("#Time: %s\n" % (time.time() - start_time))
         # Z = True # include Z-score column in test1 output?
-        global columns  # consider redefining columns above (for GUI)
-        if self.Z == True:
-            columns = [
-                "Orf",
-                "Name",
-                "Desc",
-                "Sites",
-                "Mean Ctrl",
-                "Mean Exp",
-                "log2FC",
-                "Sum Ctrl",
-                "Sum Exp",
-                "Delta Mean",
-                "p-value",
-                "Z-score",
-                "Adj. p-value",
-            ]
-        self.output.write("#%s\n" % "\t".join(columns))
+        self.output.write("#%s\n" % "\t".join(main_object.columns))
 
         for i, row in enumerate(data):
             (
@@ -690,7 +674,7 @@ class Method(base.MultiConditionMethod):
             ]
             return numpy.array(result)
 
-    def run_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
+    def calculate_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
         """
             Runs Anova (grouping data by condition) and returns p and q values
             ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
@@ -829,7 +813,7 @@ class Method(base.MultiConditionMethod):
             MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
             transit_tools.log("Running Anova")
-            MSR, MSE, Fstats, pvals, qvals, run_status = self.run_anova(
+            MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
                 data, genes, MeansByRv, RvSiteindexesMap, conditions
             )
         
