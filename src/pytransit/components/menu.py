@@ -189,12 +189,12 @@ def method_select_func(selected_name, event):
     import pytransit.components.parameter_panel as parameter_panel
     from pytransit.components.parameter_panel import panel
     
+    method_wrap_width = 250
     frame = universal.frame
+    parameter_panel.hide_all_options()
     
     # If empty is selected
     if selected_name == "[Choose Method]":
-        method_wrap_width = 250
-        parameter_panel.hide_all_options()
         panel.method_info_text.SetLabel(u"Instructions")
         panel.method_instructions.Show()
         panel.method_instructions.SetLabel(frame.instructions_text)
@@ -225,11 +225,11 @@ def method_select_func(selected_name, event):
 
             panel.method_tn_text.Show()
             panel.method_tn_text.SetLabel(methods[name].transposons_text)
-            panel.method_tn_text.Wrap(250)
+            panel.method_tn_text.Wrap(method_wrap_width)
 
             panel.method_desc_text.Show()
             panel.method_desc_text.SetLabel(methods[name].long_desc)
-            panel.method_desc_text.Wrap(250)
+            panel.method_desc_text.Wrap(method_wrap_width)
             panel.method_instructions.SetLabel(" ")
             methods[name].gui.panel.Show()
             frame.statusBar.SetStatusText("[%s]" % methods[name].short_name)

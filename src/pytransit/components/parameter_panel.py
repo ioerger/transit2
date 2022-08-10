@@ -233,9 +233,12 @@ def create_panel_area(_):
 old_panel = None
 def set_panel(new_panel):
     global old_panel
-    panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
     if old_panel != None:
         old_panel.Hide()
+    hide_all_options()
+    new_panel.Show()
+    panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
+    new_panel.Show()
     old_panel = new_panel
 panel.set_panel = set_panel
 
@@ -244,7 +247,18 @@ def hide_all_options():
     
     hide_progress_section()
     for name in methods:
-        methods[name].gui.Hide()
+        try: methods[name].gui.panel.Hide()
+        except Exception as error: pass
+        try: methods[name].gui.Hide()
+        except Exception as error: pass
+    
+    panel.method_info_text.Hide()
+    panel.method_instructions.Hide()
+    panel.method_short_text.Hide()
+    panel.method_long_text.Hide()
+    panel.method_tn_text.Hide()
+    panel.method_desc_text.Hide()
+
 
 def hide_progress_section():
     panel.progress_label.Hide()
@@ -262,7 +276,6 @@ def progress_update(text, percent):
     sys.stdout.flush()
     
     if HAS_WX:
-        import pytransit.components.parameter_panel as parameter_panel
         import pytransit.gui_tools as gui_tools
         # update progress bar
         panel.progress_percent = percent
