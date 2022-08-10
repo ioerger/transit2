@@ -187,6 +187,13 @@ def create_results_area(frame):
         def _(event):
             row = results.table.rows[event.GetIndex()]
             print(f'''row = {row}''')
+            
+            # define the panel
+            define_panel_callback = row.get("__define_panel", None)
+            print(f'''callable(define_panel_callback) = {callable(define_panel_callback)}''')
+            if callable(define_panel_callback):
+                define_panel_callback()
+            
         
         results_sizer.Add(
             results.table.wx_object,
@@ -201,9 +208,7 @@ def create_results_area(frame):
 def add(path):
     result_object = None
     for each_file_class in result_file_classes:
-        print(f'''each_file_class.can_load = {each_file_class}{each_file_class.can_load}''')
         loadable = each_file_class.can_load(path)
-        print(f'''loadable = {loadable}''')
         if loadable:
             result_object = each_file_class(path=path)
     

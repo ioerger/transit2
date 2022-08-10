@@ -229,7 +229,16 @@ def create_panel_area(_):
     panel.method_sizer_text.Hide()
     
     return panel.sizer
-    
+
+old_panel = None
+def set_panel(new_panel):
+    global old_panel
+    panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
+    if old_panel != None:
+        old_panel.Hide()
+    old_panel = new_panel
+panel.set_panel = set_panel
+
 def hide_all_options():
     from pytransit.analysis import methods
     

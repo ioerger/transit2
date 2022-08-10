@@ -41,7 +41,7 @@ import pytransit.components.results_area as results_area
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
 
 ############# GUI ELEMENTS ##################
 
@@ -117,7 +117,7 @@ class File(Analysis):
             name=basename(self.path),
             type=Analysis.identifier,
             path=self.path,
-            __file_obj=self,
+            __define_panel=self.define_panel, # part of the row, but isn't shown on the table. Name is used by the results area
         )
     
     @staticmethod
@@ -143,7 +143,7 @@ class File(Analysis):
                 row += 1
         return has_correct_identifier
     
-    def define_panel(self, _):
+    def define_panel(self):
         self.panel = make_panel()
         
         self.value_getters = LazyDict()
@@ -159,7 +159,7 @@ class File(Analysis):
         # 
         # finish panel setup
         # 
-        parameter_panel.method_sizer.Add(self.panel, 0, wx.EXPAND, gui_tools.default_padding)
+        parameter_panel.set_panel(self.panel)
         self.panel.SetSizer(main_sizer)
         self.panel.Layout()
         main_sizer.Fit(self.panel)
@@ -272,7 +272,7 @@ class GUI:
             
             create_run_button(self.panel, main_sizer)
             
-        parameter_panel.method_sizer.Add(self.panel, 0, wx.EXPAND, gui_tools.default_padding)
+        parameter_panel.set_panel(self.panel)
         self.panel.SetSizer(main_sizer)
         self.panel.Layout()
         main_sizer.Fit(self.panel)
@@ -537,129 +537,6 @@ class Method(base.MultiConditionMethod):
 
         return (numpy.array(d_filtered), numpy.array(cond_filtered))
 
-    def write_output(self, data, qval, start_time):
-
-        self.output.write("#Anova\n")
-        if universal.frame:
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write(
-                "#GUI with: norm=%s, samples=%s, pseudocounts=%1.2f, adaptive=%s, histogram=%s, includeZeros=%s, output=%s\n"
-                % (
-                    self.normalization,
-                    self.samples,
-                    self.pseudocount,
-                    self.adaptive,
-                    self.doHistogram,
-                    self.includeZeros,
-                    self.output.name.encode("utf-8"),
-                )
-            )
-        else:
-            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        self.output.write(
-            "#Parameters: samples=%s, norm=%s, histograms=%s, adaptive=%s, excludeZeros=%s, pseudocounts=%s, LOESS=%s, trim_Nterm=%s, trim_Cterm=%s\n"
-            % (
-                self.samples,
-                self.normalization,
-                self.doHistogram,
-                self.adaptive,
-                not self.includeZeros,
-                self.pseudocount,
-                self.LOESS,
-                self.n_terminus,
-                self.c_terminus,
-            )
-        )
-        self.output.write(
-            "#Control Data: %s\n" % (",".join(self.ctrldata).encode("utf-8"))
-        )
-        self.output.write(
-            "#Experimental Data: %s\n" % (",".join(self.expdata).encode("utf-8"))
-        )
-        self.output.write(
-            "#Annotation path: %s %s\n"
-            % (
-                self.annotation_path.encode("utf-8"),
-                self.annotation_path_exp.encode("utf-8") if self.diffStrains else "",
-            )
-        )
-        self.output.write("#Time: %s\n" % (time.time() - start_time))
-        # Z = True # include Z-score column in test1 output?
-        self.output.write("#%s\n" % "\t".join(Analysis.columns))
-
-        for i, row in enumerate(data):
-            (
-                orf,
-                name,
-                desc,
-                n,
-                mean1,
-                mean2,
-                sum1,
-                sum2,
-                test_obs,
-                log2FC,
-                pval_2tail,
-            ) = row
-            if self.Z == True:
-                p = pval_2tail / 2  # convert from 2-sided back to 1-sided
-                if p == 0:
-                    p = 1e-5  # or 1 level deeper the num of iterations of test1, which is 1e-4=1/10000, by default
-                if p == 1:
-                    p = 1 - 1e-5
-                z = scipy.stats.norm.ppf(p)
-                if log2FC > 0:
-                    z *= -1
-                self.output.write(
-                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f\n"
-                    % (
-                        orf,
-                        name,
-                        desc,
-                        n,
-                        mean1,
-                        mean2,
-                        log2FC,
-                        sum1,
-                        sum2,
-                        test_obs,
-                        pval_2tail,
-                        z,
-                        qval[i],
-                    )
-                )
-            else:
-                self.output.write(
-                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f\n"
-                    % (
-                        orf,
-                        name,
-                        desc,
-                        n,
-                        mean1,
-                        mean2,
-                        log2FC,
-                        sum1,
-                        sum2,
-                        test_obs,
-                        pval_2tail,
-                        qval[i],
-                    )
-                )
-        self.output.close()
-
-        transit_tools.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Anova")
-
     def winsorize_test1(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array
         counts = counts.tolist()
@@ -907,6 +784,7 @@ class Method(base.MultiConditionMethod):
                 "MSR MSE+alpha Fstat Pval Padj".split() + 
                 ["status"]
             )
+            file.write(Analysis.identifier+"\n")
             file.write("#Console: python3 %s\n" % " ".join(sys.argv))
             file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.n_terminus,self.c_terminus,self.pseudocount,self.alpha))
             file.write('#'+'\t'.join(heads)+EOL)

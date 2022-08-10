@@ -1,3 +1,4 @@
+#Anova
 #Console: python3 ./src/transit.py
 #parameters: normalization=TTR, trimming=0.0/0.0% (N/C), pseudocounts=5, alpha=1000
 #Rv	Gene	TAs	Mean_Cholesterol	Mean_Glycerol	LFC_Cholesterol	LFC_Glycerol	MSR	MSE+alpha	Fstat	Pval	Padj	status
