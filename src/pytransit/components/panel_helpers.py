@@ -30,7 +30,13 @@ if True:
             0,
         )
         sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return gui_tools.bind_to(run_button, wx.EVT_BUTTON)
+        def decorator(func):
+            @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
+            def wrapper(*args,**kwargs):
+                with gui_tools.nice_error_log:
+                    return func(*args,**kwargs)
+            return wrapper
+        return decorator
     
     def define_choice_box(
         panel,

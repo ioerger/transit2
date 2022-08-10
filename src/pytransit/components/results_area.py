@@ -179,7 +179,7 @@ def create_results_area(frame):
     # results.table
     # 
     with Table(
-        initial_columns=[ "name", "type", "date", "path"],
+        initial_columns=[ "name", "type", "path"],
         max_size=(-1, 200)
     ) as results.table:
     

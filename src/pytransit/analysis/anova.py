@@ -4,16 +4,9 @@ import heapq
 import math
 import statsmodels.stats.multitest
 
-import time
-import sys
-import collections
 
 from pytransit.analysis import base
 from pytransit.transit_tools import write_dat, EOL
-import pytransit
-import pytransit.transit_tools as transit_tools
-import pytransit.tnseq_tools as tnseq_tools
-import pytransit.norm_tools as norm_tools
 
 
 import sys
@@ -24,12 +17,13 @@ import math
 import random
 import datetime
 import heapq
+import collections
 
 import numpy
 import scipy.stats
 from super_map import LazyDict
 
-from pytransit.transit_tools import wx, pub, basename
+from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.analysis import base
 import pytransit
 import pytransit.gui_tools as gui_tools
@@ -154,7 +148,15 @@ class File(Analysis):
             # 
             @create_button(self.panel, main_sizer, label="Generate Heatmap")
             def _(event):
-                print(f'''event = {event}''')
+                output_path = self.path+".heatmap.png"
+                self.create_heatmap(
+                    infile=self.path,
+                    outfile=output_path,
+                    # topk,
+                    # qval,
+                    # low_mean_filter,
+                )
+                results_area.add(output_path)
         
         # 
         # finish panel setup
@@ -179,7 +181,9 @@ class File(Analysis):
         #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
         #     print("Error Displaying File. Histogram image does not exist.")
 
-    def create_heatmap(filetype, infile, outfile, topk, qval, low_mean_filter):
+    def create_heatmap(self, infile, outfile, topk=-1, qval=0.05, low_mean_filter=5):
+        if not HAS_R:
+            raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
         headers = None
         data, hits = [], []
         n = -1  # number of conditions
@@ -194,11 +198,7 @@ class File(Analysis):
             # assume first non-comment line is header
             if n == -1:
                 # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
-                # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
-                if filetype == "anova":
-                    n = int((len(w) - 6) / 2)
-                elif filetype == "zinb":
-                    n = int((len(headers) - 6) / 4)
+                n = int((len(w) - 6) / 2)
                 headers = headers[3 : 3 + n]
                 headers = [x.replace("Mean_", "") for x in headers]
             else:
@@ -231,10 +231,7 @@ class File(Analysis):
         for i, col in enumerate(headers):
             hash[col] = FloatVector([x[i] for x in LFCs])
         df = DataFrame(hash)
-        
-        
-        heatmapFunc = make_heatmapFunc()
-        heatmapFunc(df, StrVector(genenames), outfile)
+        transit_tools.heatmap_func(df, StrVector(genenames), outfile)
     
 
 class GUI:
@@ -804,60 +801,3 @@ class Method(base.MultiConditionMethod):
             transit_tools.log("Finished Anova analysis")
             transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
     
-
-def create_heatmap(filetype, infile, outfile, topk, qval, low_mean_filter):
-    headers = None
-    data, hits = [], []
-    n = -1  # number of conditions
-
-    for line in open(infile):
-        w = line.rstrip().split("\t")
-        if line[0] == "#" or (
-            "pval" in line and "padj" in line
-        ):  # check for 'pval' for backwards compatibility
-            headers = w
-            continue  # keep last comment line as headers
-        # assume first non-comment line is header
-        if n == -1:
-            # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
-            # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
-            if filetype == "anova":
-                n = int((len(w) - 6) / 2)
-            elif filetype == "zinb":
-                n = int((len(headers) - 6) / 4)
-            headers = headers[3 : 3 + n]
-            headers = [x.replace("Mean_", "") for x in headers]
-        else:
-            means = [
-                float(x) for x in w[3 : 3 + n]
-            ]  # take just the columns of means
-            lfcs = [
-                float(x) for x in w[3 + n : 3 + n + n]
-            ]  # take just the columns of LFCs
-            qval = float(w[-2])
-            data.append((w, means, lfcs, qval))
-
-    data.sort(key=lambda x: x[-1])
-    hits, LFCs = [], []
-    for k, (w, means, lfcs, qval) in enumerate(data):
-        if (topk == -1 and qval < qval) or (
-            topk != -1 and k < topk
-        ):
-            mm = round(numpy.mean(means), 1)
-            if mm < low_mean_filter:
-                print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-            else:
-                hits.append(w)
-                LFCs.append(lfcs)
-
-    print("heatmap based on %s genes" % len(hits))
-    genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
-    hash = {}
-    headers = [h.replace("Mean_", "") for h in headers]
-    for i, col in enumerate(headers):
-        hash[col] = FloatVector([x[i] for x in LFCs])
-    df = DataFrame(hash)
-    
-    
-    heatmapFunc = make_heatmapFunc()
-    heatmapFunc(df, StrVector(genenames), outfile)
