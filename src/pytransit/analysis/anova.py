@@ -27,6 +27,7 @@ from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataF
 from pytransit.analysis import base
 import pytransit
 import pytransit.gui_tools as gui_tools
+import pytransit.file_display as file_display
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
@@ -104,9 +105,10 @@ class Analysis:
 
 @transit_tools.ResultsFile
 class File(Analysis):
-    def __init__(self, path):
+    def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
+        self.colnames = Analysis.columns
         self.table_values = dict(
             name=basename(self.path),
             type=Analysis.identifier,
@@ -157,6 +159,12 @@ class File(Analysis):
                     # low_mean_filter,
                 )
                 results_area.add(output_path)
+            # 
+            # heatmap options
+            # 
+            @create_button(self.panel, main_sizer, label="Display Table")
+            def _(event):
+                file_display.TransitGridFrame(universal.frame, self.path).Show()
         
         # 
         # finish panel setup
@@ -233,7 +241,36 @@ class File(Analysis):
         df = DataFrame(hash)
         transit_tools.heatmap_func(df, StrVector(genenames), outfile)
     
+    def getHeader(self, path):
+        # TODO write docstring
+        return "Generic Transit File Type."
 
+    def getData(self, path, colnames):
+        # TODO write docstring
+        row = 0
+        data = []
+        shownError = False
+        for line in open(path):
+            if line.startswith("#"):
+                continue
+            tmp = line.split("\t")
+            tmp[-1] = tmp[-1].strip()
+            # print(colnames)
+            # print( len(colnames), len(tmp))
+            try:
+                rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
+            except Exception as e:
+                if not shownError:
+                    shownError = True
+                    raise Exception(f'''Error reading data! This may be caused by trying to load a old results file, when the format has changed.''')
+                rowdict = dict(
+                    [(colnames[i], tmp[i]) for i in range(min(len(colnames), len(tmp)))]
+                )
+            data.append((row, rowdict))
+            row += 1
+        return data
+
+    
 class GUI:
     def __init__(self, *args, **kwargs):
         Analysis.gui = self

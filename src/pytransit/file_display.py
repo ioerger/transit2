@@ -117,12 +117,12 @@ def unknownFileHeaderText(path):
     return "Unknown results file."
 
 
-def getInfoFromFileType(X):
+def getInfoFromFileType(file_first_line, path):
     for method in pytransit.analysis.methods:
-        for filetype in pytransit.analysis.methods[method].filetypes:
-            FT = filetype()
-            if X == FT.identifier:
-                return (method, FT)
+        for FileType in pytransit.analysis.methods[method].filetypes:
+            file_instance = FileType(path)
+            if file_first_line == file_instance.identifier:
+                return (method, file_instance)
 
     return ("unknown", pytransit.analysis.base.TransitFile())
 
@@ -213,14 +213,11 @@ class TransitGridFrame(wx.Frame):
         self.path = path
         self.col = 0
         self.row = 0
-        self.ctrldata = self.parent.ctrlSelected()
-        self.expdata = self.parent.expSelected()
-        self.annotation = self.parent.annotation
 
         line = open(self.path).readline().strip()
-        (method, FT) = getInfoFromFileType(line)
+        (method, file_instance) = getInfoFromFileType(line, self.path)
 
-        self.filetype = FT
+        self.filetype = file_instance
 
         if self.filetype.identifier == "#Unknown":
             self.columnlabels = unknownColNames(self.path)

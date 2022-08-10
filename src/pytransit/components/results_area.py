@@ -56,28 +56,28 @@ def create_results_area(frame):
         #                 if path:
         #                     file_display.TransitGridFrame(frame, dataset).Show()
                         
-        #         # BOOKMARK: index access
-        #             # next = results.table.GetNextSelected(-1)
-        #             # if next > -1:
-        #             #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
-        #             #     if dataset.verbose:
-        #             #         transit_tools.log(
-        #             #             "Displaying results: %s"
-        #             #             % results.table.GetItem(next, 0).GetText()
-        #             #         )
+        # #         # BOOKMARK: index access
+        # #             # next = results.table.GetNextSelected(-1)
+        # #             # if next > -1:
+        # #             #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
+        # #             #     if dataset.verbose:
+        # #             #         transit_tools.log(
+        # #             #             "Displaying results: %s"
+        # #             #             % results.table.GetItem(next, 0).GetText()
+        # #             #         )
 
-        #             #     try:
-        #             #         fileWindow = 
-        #             #         fileWindow.Show()
-        #             #     except Exception as e:
-        #             #         transit_tools.log(
-        #             #             "Error occurred displaying file: %s" % str(e)
-        #             #         )
-        #             #         traceback.print_exc()
+        # #             #     try:
+        # #             #         fileWindow = 
+        # #             #         fileWindow.Show()
+        # #             #     except Exception as e:
+        # #             #         transit_tools.log(
+        # #             #             "Error occurred displaying file: %s" % str(e)
+        # #             #         )
+        # #             #         traceback.print_exc()
 
-        #             # else:
-        #             #     if dataset.verbose:
-        #             #         transit_tools.log("No results selected to display!")
+        # #             # else:
+        # #             #     if dataset.verbose:
+        # #             #         transit_tools.log("No results selected to display!")
 
             
         # 
