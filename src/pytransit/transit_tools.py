@@ -666,3 +666,28 @@ def get_transposons_text(transposons):
             + ", and "
             + transposons[-1]
         )
+
+def heatmap_func(*args):
+    raise Exception(f'''R is not installed, cannot create heatmap without R''')
+if HAS_R:
+    # Create the R function
+    r("""
+        make_heatmap = function(lfcs,genenames,outfilename) { 
+        rownames(lfcs) = genenames
+        suppressMessages(require(gplots))
+        colors <- colorRampPalette(c("red", "white", "blue"))(n = 200)
+
+        C = length(colnames(lfcs))
+        R = length(rownames(lfcs))
+        W = 300+C*30
+        H = 300+R*15
+
+        png(outfilename,width=W,height=H)
+        #defaults are lwid=lhei=c(1.5,4)
+        #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),lwid=c(2,6),lhei=c(0.1,2),trace="none",cexCol=1.4,cexRow=1.4,key=T) # make sure white=0
+        #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # make sure white=0 # setting margins was causing failures, so remove it 8/22/21
+        heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # actually, margins was OK, so the problem must have been with lhei and lwid
+        dev.off()
+        }
+    """.replace("    \n", "\n"))
+    heatmap_func = globalenv["make_heatmap"]

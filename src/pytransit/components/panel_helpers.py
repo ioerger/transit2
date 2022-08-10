@@ -20,6 +20,18 @@ if True:
             wx.TAB_TRAVERSAL,
         )
     
+    def create_button(panel, sizer, *, label):
+        run_button = wx.Button(
+            panel,
+            wx.ID_ANY,
+            label,
+            wx.DefaultPosition,
+            wx.DefaultSize,
+            0,
+        )
+        sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return gui_tools.bind_to(run_button, wx.EVT_BUTTON)
+    
     def define_choice_box(
         panel,
         label_text="",

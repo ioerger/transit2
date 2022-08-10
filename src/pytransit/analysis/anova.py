@@ -39,18 +39,20 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.components.results_area as results_area
 from pytransit.core_data import universal
+from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
 
 ############# GUI ELEMENTS ##################
 
-main_object = LazyDict(
-    short_name = "anova",
-    long_name = "ANOVA",
-    short_desc = "Perform Anova analysis",
-    long_desc = """Perform Anova analysis""",
-
-    transposons = ["himar1", "tn5"],
+class Analysis:
+    identifier  = "#Anova"
+    short_name  = "anova"
+    long_name   = "ANOVA"
+    short_desc  = "Perform Anova analysis"
+    long_desc   = """Perform Anova analysis"""
+    transposons = [ "himar1", "tn5" ]
+    
     columns = [
         "Orf",
         "Name",
@@ -65,11 +67,10 @@ main_object = LazyDict(
         "p-value",
         "Z-score",
         "Adj. p-value",
-    ],
+    ]
     
-    analysis=None,
-    gui=None,
-    method=None,
+    gui=None
+    method=None
     
     inputs = LazyDict(
         combined_wig=None,
@@ -87,22 +88,14 @@ main_object = LazyDict(
         refs=None,
         alpha=None,
         combinedWigParams=None,
-    ),
-)
-
-class Analysis:
+    )
+    
     def __init__(self):
-        main_object.analysis = self
-        self.short_name  = main_object.short_name
-        self.long_name   = main_object.long_name
-        self.short_desc  = main_object.short_desc
-        self.long_desc   = main_object.long_desc
-        self.full_name   = f"[{self.short_name}]  -  {self.short_desc}"
-        self.transposons = main_object.transposons
-        self.method      = Method
-        self.gui         = GUI()
-        self.filetypes   = [File]
+        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
         self.transposons_text = transit_tools.get_transposons_text(self.transposons)
+        self.method           = Method
+        self.gui              = GUI()
+        self.filetypes        = [File]
     
     def __str__(self):
         return f"""
@@ -115,66 +108,113 @@ class Analysis:
                 GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
 
-class File(base.TransitFile):
+class File(Analysis):
     def __init__(self):
-        base.TransitFile.__init__(self, "#Anova", columns)
+        self.wxobj      = None
+        self.colnames   = Analysis.columns
+    
+    def define_panel(self, _):
+        self.panel = make_panel()
+        
+        self.value_getters = LazyDict()
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        if True:
+            # 
+            # heatmap options
+            # 
+            @create_button(self.panel, main_sizer, label="Generate Heatmap")
+            def _(event):
+                print(f'''event = {event}''')
+        
+        # 
+        # finish panel setup
+        # 
+        parameter_panel.method_sizer.Add(self.panel, 0, wx.EXPAND, gui_tools.default_padding)
+        self.panel.SetSizer(main_sizer)
+        self.panel.Layout()
+        main_sizer.Fit(self.panel)
+        
+    def display_histogram(self, display_frame, event):
+        pass
+        # gene = display_frame.grid.GetCellValue(display_frame.row, 0)
+        # filepath = os.path.join(
+        #     ntpath.dirname(display_frame.path),
+        #     transit_tools.fetch_name(display_frame.path),
+        # )
+        # filename = os.path.join(filepath, gene + ".png")
+        # if os.path.exists(filename):
+        #     imgWindow = pytransit.file_display.ImgFrame(None, filename)
+        #     imgWindow.Show()
+        # else:
+        #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
+        #     print("Error Displaying File. Histogram image does not exist.")
 
-    def getHeader(self, path):
-        DE = 0
-        poslogfc = 0
-        neglogfc = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                DE += 1
-                if float(tmp[-3]) > 0:
-                    poslogfc += 1
+    def create_heatmap(filetype, infile, outfile, topk, qval, low_mean_filter):
+        headers = None
+        data, hits = [], []
+        n = -1  # number of conditions
+
+        for line in open(infile):
+            w = line.rstrip().split("\t")
+            if line[0] == "#" or (
+                "pval" in line and "padj" in line
+            ):  # check for 'pval' for backwards compatibility
+                headers = w
+                continue  # keep last comment line as headers
+            # assume first non-comment line is header
+            if n == -1:
+                # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
+                # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
+                if filetype == "anova":
+                    n = int((len(w) - 6) / 2)
+                elif filetype == "zinb":
+                    n = int((len(headers) - 6) / 4)
+                headers = headers[3 : 3 + n]
+                headers = [x.replace("Mean_", "") for x in headers]
+            else:
+                means = [
+                    float(x) for x in w[3 : 3 + n]
+                ]  # take just the columns of means
+                lfcs = [
+                    float(x) for x in w[3 + n : 3 + n + n]
+                ]  # take just the columns of LFCs
+                qval = float(w[-2])
+                data.append((w, means, lfcs, qval))
+
+        data.sort(key=lambda x: x[-1])
+        hits, LFCs = [], []
+        for k, (w, means, lfcs, qval) in enumerate(data):
+            if (topk == -1 and qval < qval) or (
+                topk != -1 and k < topk
+            ):
+                mm = round(numpy.mean(means), 1)
+                if mm < low_mean_filter:
+                    print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
                 else:
-                    neglogfc += 1
+                    hits.append(w)
+                    LFCs.append(lfcs)
 
-        text = """Results:
-    Conditionally - Essentials: %s
-        Less Essential in Experimental datasets: %s
-        More Essential in Experimental datasets: %s
-            """ % (
-            DE,
-            poslogfc,
-            neglogfc,
-        )
-        return text
-
-    def getMenus(self):
-        menus = []
-        menus.append(("Display in Track View", self.displayInTrackView))
-        menus.append(("Display Histogram", self.displayHistogram))
-        return menus
-
-    def displayHistogram(self, displayFrame, event):
-        gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
-        filepath = os.path.join(
-            ntpath.dirname(displayFrame.path),
-            transit_tools.fetch_name(displayFrame.path),
-        )
-        filename = os.path.join(filepath, gene + ".png")
-        if os.path.exists(filename):
-            imgWindow = pytransit.file_display.ImgFrame(None, filename)
-            imgWindow.Show()
-        else:
-            transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-            print("Error Displaying File. Histogram image does not exist.")
+        print("heatmap based on %s genes" % len(hits))
+        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
+        hash = {}
+        headers = [h.replace("Mean_", "") for h in headers]
+        for i, col in enumerate(headers):
+            hash[col] = FloatVector([x[i] for x in LFCs])
+        df = DataFrame(hash)
+        
+        
+        heatmapFunc = make_heatmapFunc()
+        heatmapFunc(df, StrVector(genenames), outfile)
+    
 
 class GUI:
     def __init__(self, *args, **kwargs):
-        main_object.gui = self
+        Analysis.gui = self
         self.wxobj = None
         self.panel = None
     
     def define_panel(self, _):
-        
-        self.main_frame = frame = universal.frame
-        test1_panel = make_panel()
+        self.panel = make_panel()
         
         # 
         # parameter inputs
@@ -189,25 +229,24 @@ class GUI:
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         if True:
-            self.value_getters.included_conditions    = create_include_condition_list_input(test1_panel, main_sizer)
-            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(test1_panel, main_sizer)
-            self.value_getters.reference_condition    = create_reference_condition_input(test1_panel, main_sizer)
-            self.value_getters.n_terminus             = create_n_terminus_input(test1_panel, main_sizer)
-            self.value_getters.c_terminus             = create_c_terminus_input(test1_panel, main_sizer)
-            self.value_getters.normalization          = create_normalization_input(test1_panel, main_sizer)
-            self.value_getters.pseudocount            = create_pseudocount_input(test1_panel, main_sizer)
-            self.value_getters.alpha                  = create_alpha_input(test1_panel, main_sizer)
-            self.value_getters.winz                   = create_winsorize_input(test1_panel, main_sizer)
+            self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
+            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
+            self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
+            self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
+            self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
+            self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
+            self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
             self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
             
-            create_run_button(test1_panel, main_sizer)
+            create_run_button(self.panel, main_sizer)
             
-        panel.method_sizer.Add(test1_panel, 0, wx.EXPAND, gui_tools.default_padding)
-        test1_panel.SetSizer(main_sizer)
-        test1_panel.Layout()
-        main_sizer.Fit(test1_panel)
+        parameter_panel.method_sizer.Add(self.panel, 0, wx.EXPAND, gui_tools.default_padding)
+        self.panel.SetSizer(main_sizer)
+        self.panel.Layout()
+        main_sizer.Fit(self.panel)
 
-        self.panel = test1_panel
 
 class Method(base.MultiConditionMethod):
     def __init__(
@@ -228,7 +267,7 @@ class Method(base.MultiConditionMethod):
         *args,
         **kwargs,
     ):
-        main_object.method = self
+        Analysis.method = self
         
         self.pseudocount         = None
         self.alpha               = None
@@ -239,7 +278,6 @@ class Method(base.MultiConditionMethod):
         self.expdata             = None
         self.annotation_path     = None
         self.LOESS               = None
-        self.main_frame          = None
         self.doHistogram         = None
         self.output              = None
         self.diffStrains         = None
@@ -257,10 +295,10 @@ class Method(base.MultiConditionMethod):
         
         base.MultiConditionMethod.__init__(
             self,
-            main_object.short_name,
-            main_object.long_name,
-            main_object.short_desc,
-            main_object.long_desc,
+            Analysis.short_name,
+            Analysis.long_name,
+            Analysis.short_desc,
+            Analysis.long_desc,
             combined_wig,
             metadata,
             annotation,
@@ -288,7 +326,6 @@ class Method(base.MultiConditionMethod):
             expdata=self.expdata,
             annotation_path=self.annotation_path,
             LOESS=self.LOESS,
-            main_frame=self.main_frame,
             doHistogram=self.doHistogram,
             output=self.output,
             diffStrains=self.diffStrains,
@@ -348,37 +385,37 @@ class Method(base.MultiConditionMethod):
             # get wig files
             # 
             wig_group = universal.session_data.wig_groups[0]
-            main_object.inputs.combined_wig = wig_group.cwig.path
-            main_object.inputs.metadata     = wig_group.metadata.path
+            Analysis.inputs.combined_wig = wig_group.cwig.path
+            Analysis.inputs.metadata     = wig_group.metadata.path
             
             # 
             # get annotation
             # 
-            main_object.inputs.annotation = universal.session_data.annotation
+            Analysis.inputs.annotation = universal.session_data.annotation
             # FIXME: enable this once I get a valid annotation file example
-            # if not transit_tools.validate_annotation(main_object.inputs.annotation):
+            # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
             #     return None
             
             # 
             # setup custom inputs
             # 
-            for each_key, each_getter in main_object.gui.value_getters.items():
+            for each_key, each_getter in Analysis.gui.value_getters.items():
                 try:
-                    main_object.inputs[each_key] = each_getter()
+                    Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
             
             # 
             # save result files
             # 
-            main_object.inputs.output_file = gui_tools.ask_for_output_file_path(
+            Analysis.inputs.output_file = gui_tools.ask_for_output_file_path(
                 default_file_name="test1_output.dat",
                 output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
             )
-            if not main_object.inputs.output_file:
+            if not Analysis.inputs.output_file:
                 return None
 
-            return self(*main_object.inputs.values())
+            return self(*Analysis.inputs.values())
 
     @classmethod
     def fromargs(self, rawargs):
@@ -407,7 +444,7 @@ class Method(base.MultiConditionMethod):
         flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
-                self.transit_error("flag unrecognized: %s" % arg)
+                raise Exception(f'''flag unrecognized: {arg}''')
                 print(self.usage_string)
                 sys.exit(0)
 
@@ -461,7 +498,7 @@ class Method(base.MultiConditionMethod):
         """
         d_filtered, cond_filtered = [], []
         if len(included_conditions) != 2:
-            self.transit_error("Only 2 conditions expected", included_conditions)
+            raise Exception(f'''Only 2 conditions expected, but got: {included_conditions}''')
             sys.exit(0)
         for i, c in enumerate(conditions):
             if c.lower() in included_conditions:
@@ -473,7 +510,7 @@ class Method(base.MultiConditionMethod):
     def write_output(self, data, qval, start_time):
 
         self.output.write("#Anova\n")
-        if self.main_frame:
+        if universal.frame:
             members = sorted(
                 [
                     attr
@@ -527,7 +564,7 @@ class Method(base.MultiConditionMethod):
         )
         self.output.write("#Time: %s\n" % (time.time() - start_time))
         # Z = True # include Z-score column in test1 output?
-        self.output.write("#%s\n" % "\t".join(main_object.columns))
+        self.output.write("#%s\n" % "\t".join(Analysis.columns))
 
         for i, row in enumerate(data):
             (
@@ -864,3 +901,60 @@ class Method(base.MultiConditionMethod):
             transit_tools.log("Finished Anova analysis")
             transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
     
+
+def create_heatmap(filetype, infile, outfile, topk, qval, low_mean_filter):
+    headers = None
+    data, hits = [], []
+    n = -1  # number of conditions
+
+    for line in open(infile):
+        w = line.rstrip().split("\t")
+        if line[0] == "#" or (
+            "pval" in line and "padj" in line
+        ):  # check for 'pval' for backwards compatibility
+            headers = w
+            continue  # keep last comment line as headers
+        # assume first non-comment line is header
+        if n == -1:
+            # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
+            # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
+            if filetype == "anova":
+                n = int((len(w) - 6) / 2)
+            elif filetype == "zinb":
+                n = int((len(headers) - 6) / 4)
+            headers = headers[3 : 3 + n]
+            headers = [x.replace("Mean_", "") for x in headers]
+        else:
+            means = [
+                float(x) for x in w[3 : 3 + n]
+            ]  # take just the columns of means
+            lfcs = [
+                float(x) for x in w[3 + n : 3 + n + n]
+            ]  # take just the columns of LFCs
+            qval = float(w[-2])
+            data.append((w, means, lfcs, qval))
+
+    data.sort(key=lambda x: x[-1])
+    hits, LFCs = [], []
+    for k, (w, means, lfcs, qval) in enumerate(data):
+        if (topk == -1 and qval < qval) or (
+            topk != -1 and k < topk
+        ):
+            mm = round(numpy.mean(means), 1)
+            if mm < low_mean_filter:
+                print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
+            else:
+                hits.append(w)
+                LFCs.append(lfcs)
+
+    print("heatmap based on %s genes" % len(hits))
+    genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
+    hash = {}
+    headers = [h.replace("Mean_", "") for h in headers]
+    for i, col in enumerate(headers):
+        hash[col] = FloatVector([x[i] for x in LFCs])
+    df = DataFrame(hash)
+    
+    
+    heatmapFunc = make_heatmapFunc()
+    heatmapFunc(df, StrVector(genenames), outfile)
