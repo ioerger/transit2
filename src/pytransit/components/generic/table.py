@@ -63,6 +63,10 @@ class Table:
         if not isinstance(python_obj, dict):
             python_obj = python_obj.__dict__
         for each_key, each_value in python_obj.items():
+            if not isinstance(each_key, str):
+                continue
+            if each_key.startswith("__"):
+                continue
             column_index = self._key_to_column_index(each_key)
             self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
         

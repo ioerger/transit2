@@ -29,7 +29,7 @@ import numpy
 import scipy.stats
 from super_map import LazyDict
 
-from pytransit.transit_tools import wx, pub
+from pytransit.transit_tools import wx, pub, basename
 from pytransit.analysis import base
 import pytransit
 import pytransit.gui_tools as gui_tools
@@ -108,10 +108,40 @@ class Analysis:
                 GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
 
+@transit_tools.ResultsFile
 class File(Analysis):
-    def __init__(self):
-        self.wxobj      = None
-        self.colnames   = Analysis.columns
+    def __init__(self, path):
+        self.wxobj = None
+        self.path  = path
+        self.table_values = dict(
+            name=basename(self.path),
+            type=Analysis.identifier,
+            path=self.path,
+            __file_obj=self,
+        )
+    
+    @staticmethod
+    def can_load(path):
+        row = 0
+        data = []
+        shown_error = False
+        has_correct_identifier = False
+        with open(path) as in_file:
+            for line in in_file:
+                if line.startswith("#"):
+                    if line.startswith(Analysis.identifier):
+                        has_correct_identifier = True
+                    continue
+                tmp = line.split("\t")
+                tmp[-1] = tmp[-1].strip()
+                try:
+                    rowdict = dict([(Analysis.columns[i], tmp[i]) for i in range(len(Analysis.columns))])
+                except Exception as e:
+                    print(e)
+                    return False
+                data.append((row, rowdict))
+                row += 1
+        return has_correct_identifier
     
     def define_panel(self, _):
         self.panel = make_panel()
@@ -866,12 +896,7 @@ class Method(base.MultiConditionMethod):
         # write output
         # 
         transit_tools.log(f"Adding File: {self.output}")
-        results_area.add(dict(
-            name=os.path.basename(self.output),
-            type="ANova",
-            date=datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-            path=self.output,
-        ))
+        results_area.add(self.output)
         if True:
             file = open(self.output, "w")
 

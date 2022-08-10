@@ -3,7 +3,8 @@ import os
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory, result_file_classes
+
 import pytransit.gui_tools as gui_tools
 import pytransit.file_display as file_display
 
@@ -33,50 +34,50 @@ def create_results_area(frame):
     if True:
         row = wx.BoxSizer(wx.HORIZONTAL)
         
-        # 
-        # displayButton
-        # 
-        if True:
-            display_button = wx.Button(
-                frame,
-                wx.ID_ANY,
-                "Display Table",
-                wx.DefaultPosition,
-                wx.DefaultSize,
-                0,
-            )
-            row.Add(display_button, 0, wx.ALL, 5)
+        # # 
+        # # displayButton
+        # # 
+        # if True:
+        #     display_button = wx.Button(
+        #         frame,
+        #         wx.ID_ANY,
+        #         "Display Table",
+        #         wx.DefaultPosition,
+        #         wx.DefaultSize,
+        #         0,
+        #     )
+        #     row.Add(display_button, 0, wx.ALL, 5)
             
-            @gui_tools.bind_to(display_button, wx.EVT_BUTTON)
-            def display_file_func(event):
-                for each_row in results.table.rows:
-                    with gui_tools.nice_error_log:
-                        path = each_row.get("Full Path", None)
-                        if path:
-                            file_display.TransitGridFrame(frame, dataset).Show()
+        #     @gui_tools.bind_to(display_button, wx.EVT_BUTTON)
+        #     def display_file_func(event):
+        #         for each_row in results.table.rows:
+        #             with gui_tools.nice_error_log:
+        #                 path = each_row.get("Full Path", None)
+        #                 if path:
+        #                     file_display.TransitGridFrame(frame, dataset).Show()
                         
-                # BOOKMARK: index access
-                    # next = results.table.GetNextSelected(-1)
-                    # if next > -1:
-                    #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
-                    #     if dataset.verbose:
-                    #         transit_tools.log(
-                    #             "Displaying results: %s"
-                    #             % results.table.GetItem(next, 0).GetText()
-                    #         )
+        #         # BOOKMARK: index access
+        #             # next = results.table.GetNextSelected(-1)
+        #             # if next > -1:
+        #             #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
+        #             #     if dataset.verbose:
+        #             #         transit_tools.log(
+        #             #             "Displaying results: %s"
+        #             #             % results.table.GetItem(next, 0).GetText()
+        #             #         )
 
-                    #     try:
-                    #         fileWindow = 
-                    #         fileWindow.Show()
-                    #     except Exception as e:
-                    #         transit_tools.log(
-                    #             "Error occurred displaying file: %s" % str(e)
-                    #         )
-                    #         traceback.print_exc()
+        #             #     try:
+        #             #         fileWindow = 
+        #             #         fileWindow.Show()
+        #             #     except Exception as e:
+        #             #         transit_tools.log(
+        #             #             "Error occurred displaying file: %s" % str(e)
+        #             #         )
+        #             #         traceback.print_exc()
 
-                    # else:
-                    #     if dataset.verbose:
-                    #         transit_tools.log("No results selected to display!")
+        #             # else:
+        #             #     if dataset.verbose:
+        #             #         transit_tools.log("No results selected to display!")
 
             
         # 
@@ -147,55 +148,29 @@ def create_results_area(frame):
                     
                     print("You chose the following Results file(s):")
                     for fullpath in paths:
-                        print("\t%s" % fullpath)
-                        name = transit_tools.basename(fullpath)
-                        line = open(fullpath).readline()
-                        if line.startswith("#Gumbel"):
-                            type = "Gumbel"
-                        elif line.startswith("#Binomial"):
-                            type = "Binomial"
-                        elif line.startswith("#HMM - Sites"):
-                            type = "HMM - Sites"
-                        elif line.startswith("#HMM - Genes"):
-                            type = "HMM - Genes"
-                        elif line.startswith("#Resampling"):
-                            type = "Resampling"
-                        elif line.startswith("#DE-HMM - Sites"):
-                            type = "DE-HMM - Sites"
-                        elif line.startswith("#DE-HMM - Segments"):
-                            type = "DE-HMM - Segments"
-                        elif line.startswith("#GI"):
-                            type = "GI"
-                        else:
-                            type = "Unknown"
-                        data = {
-                            "path": fullpath,
-                            "type": type,
-                            "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-                        }
-                        wx.CallAfter(pub.sendMessage, "file", data=data)
+                        add(fullpath)
             
-        # 
-        # fileActionChoice
-        # 
-        if True:
-            results.file_action_choice_element = wx.Choice(
-                frame,
-                wx.ID_ANY,
-                wx.DefaultPosition,
-                wx.DefaultSize,
-                [
-                    "[Choose Action]",  # list of available choices
-                    # BOOKMARK
-                ],
-                0,
-            )
-            results.file_action_choice_element.SetSelection(0)
-            row.Add(results.file_action_choice_element, 0, wx.ALL, 5)
+        # # 
+        # # fileActionChoice
+        # # 
+        # if True:
+        #     results.file_action_choice_element = wx.Choice(
+        #         frame,
+        #         wx.ID_ANY,
+        #         wx.DefaultPosition,
+        #         wx.DefaultSize,
+        #         [
+        #             "[Choose Action]",  # list of available choices
+        #             # BOOKMARK
+        #         ],
+        #         0,
+        #     )
+        #     results.file_action_choice_element.SetSelection(0)
+        #     row.Add(results.file_action_choice_element, 0, wx.ALL, 5)
             
-            @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
-            def _(event):
-                file_action_func(event)
+        #     @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
+        #     def _(event):
+        #         file_action_func(event)
 
             
         results_sizer.Add(row, 0, 0, 5)
@@ -207,6 +182,11 @@ def create_results_area(frame):
         initial_columns=[ "name", "type", "date", "path"],
         max_size=(-1, 200)
     ) as results.table:
+    
+        @results.table.events.on_select
+        def _(event):
+            row = results.table.rows[event.GetIndex()]
+            print(f'''row = {row}''')
         
         results_sizer.Add(
             results.table.wx_object,
@@ -218,9 +198,59 @@ def create_results_area(frame):
     return results_sizer
 
 
-def add(data):
+def add(path):
+    result_object = None
+    for each_file_class in result_file_classes:
+        print(f'''each_file_class.can_load = {each_file_class}{each_file_class.can_load}''')
+        loadable = each_file_class.can_load(path)
+        print(f'''loadable = {loadable}''')
+        if loadable:
+            result_object = each_file_class(path=path)
+    
+    table_values = dict()
+    if result_object:
+        table_values = result_object.table_values
+        # FIXME: connect on-select
+        pass
+    # not a recognized file type
+    else:
+        table_values = dict(
+            name=basename(path),
+            type="Unknown",
+            path=path,
+        )
+    
+    print(f'''result_object = {result_object}''')
+    print(f'''table_values = {table_values}''')
     if HAS_WX:
-        results.table.add(data)
+        results.table.add(table_values)
+    # print("\t%s" % fullpath)
+    # name = transit_tools.basename(fullpath)
+    # line = open(fullpath).readline()
+    # if line.startswith("#Gumbel"):
+    #     type = "Gumbel"
+    # elif line.startswith("#Binomial"):
+    #     type = "Binomial"
+    # elif line.startswith("#HMM - Sites"):
+    #     type = "HMM - Sites"
+    # elif line.startswith("#HMM - Genes"):
+    #     type = "HMM - Genes"
+    # elif line.startswith("#Resampling"):
+    #     type = "Resampling"
+    # elif line.startswith("#DE-HMM - Sites"):
+    #     type = "DE-HMM - Sites"
+    # elif line.startswith("#DE-HMM - Segments"):
+    #     type = "DE-HMM - Segments"
+    # elif line.startswith("#GI"):
+    #     type = "GI"
+    # else:
+    #     type = "Unknown"
+    # data = {
+    #     "path": fullpath,
+    #     "type": type,
+    #     "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
+    # }
+    # wx.CallAfter(pub.sendMessage, "file", data=data)
 
 # 
 # 

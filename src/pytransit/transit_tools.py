@@ -691,3 +691,19 @@ if HAS_R:
         }
     """.replace("    \n", "\n"))
     heatmap_func = globalenv["make_heatmap"]
+
+
+result_file_classes = []
+def ResultsFile(a_class):
+    """
+    @ResultsFile
+    class File:
+        @staticmethod
+        def can_load(args):
+            return False
+    """
+    if not callable(getattr(a_class, "can_load", None)):
+        raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
+    
+    result_file_classes.append(a_class)
+    return a_class
