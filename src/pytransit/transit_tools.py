@@ -668,7 +668,7 @@ def get_transposons_text(transposons):
             + transposons[-1]
         )
 
-def heatmap_func(*args):
+def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
 if HAS_R:
     # Create the R function
@@ -691,8 +691,7 @@ if HAS_R:
         dev.off()
         }
     """.replace("    \n", "\n"))
-    heatmap_func = globalenv["make_heatmap"]
-
+    r_heatmap_func = globalenv["make_heatmap"]
 
 result_file_classes = []
 def ResultsFile(a_class):

@@ -527,26 +527,14 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        row = 0
-        data = []
-        shown_error = False
-        has_correct_identifier = False
         with open(path) as in_file:
             for line in in_file:
                 if line.startswith("#"):
                     if line.startswith(Analysis.identifier):
-                        has_correct_identifier = True
-                    continue
-                tmp = line.split("\t")
-                tmp[-1] = tmp[-1].strip()
-                try:
-                    rowdict = dict([(Analysis.columns[i], tmp[i]) for i in range(len(Analysis.columns))])
-                except Exception as e:
-                    print(e)
+                        return True
+                else:
                     return False
-                data.append((row, rowdict))
-                row += 1
-        return has_correct_identifier
+        return False
     
     def __init__(self, path=None):
         self.wxobj = None
@@ -610,7 +598,7 @@ class File(Analysis):
             raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
         headers = None
         data, hits = [], []
-        n = -1  # number of conditions
+        number_of_conditions = -1
 
         for line in open(infile):
             w = line.rstrip().split("\t")
@@ -620,17 +608,17 @@ class File(Analysis):
                 headers = w
                 continue  # keep last comment line as headers
             # assume first non-comment line is header
-            if n == -1:
-                # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
-                n = int((len(w) - 6) / 2)
-                headers = headers[3 : 3 + n]
+            if number_of_conditions == -1:
+                # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
+                number_of_conditions = int((len(w) - 6) / 2)
+                headers = headers[3 : 3 + number_of_conditions]
                 headers = [x.replace("Mean_", "") for x in headers]
             else:
                 means = [
-                    float(x) for x in w[3 : 3 + n]
+                    float(x) for x in w[3 : 3 + number_of_conditions]
                 ]  # take just the columns of means
                 lfcs = [
-                    float(x) for x in w[3 + n : 3 + n + n]
+                    float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
                 ]  # take just the columns of LFCs
                 each_qval = float(w[-2])
                 data.append((w, means, lfcs, each_qval))
@@ -655,7 +643,7 @@ class File(Analysis):
         for i, col in enumerate(headers):
             hash[col] = FloatVector([x[i] for x in LFCs])
         df = DataFrame(hash)
-        transit_tools.heatmap_func(df, StrVector(genenames), outfile)
+        transit_tools.r_heatmap_func(df, StrVector(genenames), outfile)
     
     
 Method = GUI = Analysis
