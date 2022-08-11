@@ -172,7 +172,7 @@ if HAS_WX:
 working_directory = os.getcwd()
 
 def fetch_name(filepath):
-    # TODO: Write docstring
+    
     return os.path.splitext(ntpath.basename(filepath))[0]
 
 
@@ -249,7 +249,7 @@ def clean_args(rawargs):
 
 
 def getTabTableData(path, colnames):
-    # TODO: Write docstring
+    
     row = 0
     data = []
     for line in open(path):
@@ -265,7 +265,7 @@ def getTabTableData(path, colnames):
 
 
 def ShowAskWarning(MSG=""):
-    # TODO: Write docstring
+    
     dial = wx.MessageDialog(
         None, MSG, "Warning", wx.OK | wx.CANCEL | wx.ICON_EXCLAMATION
     )
@@ -306,7 +306,7 @@ def transit_error(text):
 
 
 def validate_annotation(annotation):
-    # TODO: Write docstring
+    
     if not annotation or not os.path.exists(annotation):
         transit_error("Error: No or Invalid annotation file selected!")
         return False
@@ -314,7 +314,7 @@ def validate_annotation(annotation):
 
 
 def validate_control_datasets(ctrldata):
-    # TODO: Write docstring
+    
     if len(ctrldata) == 0:
         transit_error("Error: No control datasets selected!")
         return False
@@ -322,7 +322,7 @@ def validate_control_datasets(ctrldata):
 
 
 def validate_both_datasets(ctrldata, expdata):
-    # TODO: Write docstring
+    
     if len(ctrldata) == 0 and len(expdata) == 0:
         transit_error("Error: No datasets selected!")
         return False
@@ -338,7 +338,7 @@ def validate_both_datasets(ctrldata, expdata):
 
 def validate_transposons_used(datasets, transposons, justWarn=True):
 
-    # TODO: Write docstring
+    
     # Check if transposon type is okay.
     unknown = tnseq_tools.get_unknown_file_types(datasets, transposons)
     if unknown:

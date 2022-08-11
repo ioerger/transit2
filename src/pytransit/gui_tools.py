@@ -38,7 +38,7 @@ def handle_traceback(traceback_obj):
         frame.statusBar.SetStatusText("Error: "+str(error.args))
 
 def show_message(MSG=""):
-    # TODO: Write docstring
+    
     wx.MessageBox(MSG, "Info", wx.OK | wx.ICON_INFORMATION)
 
 def set_status(message):

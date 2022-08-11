@@ -23,16 +23,16 @@ class TransitFile:
         self.colnames   = colnames
 
     def console_message(self, text):
-        # TODO: write docstring
+        
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
 
     def console_message_inplace(self, text):
-        # TODO: write docstring
+        
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
     def transit_message_inplace(self, text):
-        # TODO: write docstring
+        
         self.console_message_inplace(text)
 
     def transit_error(self, text):
@@ -219,17 +219,17 @@ class AnalysisMethod:
 
     @classmethod
     def from_gui(self, wxobj):
-        # TODO: write docstring
+        
         raise NotImplementedError
 
     @classmethod
     def fromargs(self, rawargs):
-        # TODO: write docstring
+        
         raise NotImplementedError
 
     @classmethod
     def fromconsole(self):
-        # TODO: write docstring
+        
         try:
             return self.fromargs(sys.argv[2:])
         except InvalidArgumentException as e:
@@ -254,7 +254,7 @@ class AnalysisMethod:
 
     @classmethod
     def usage_string(self):
-        # TODO: write docstring
+        
         raise NotImplementedError
 
     def Run(self):
@@ -262,7 +262,7 @@ class AnalysisMethod:
         raise NotImplementedError
 
     def print_members(self):
-        # TODO: write docstring
+        
         members = sorted(
             [
                 attr
@@ -275,7 +275,7 @@ class AnalysisMethod:
 
     def add_file(self, path=None, filetype=None):
 
-        # TODO: write docstring
+        
         if not path:
             path = self.output.name
         if not filetype:
@@ -291,21 +291,21 @@ class AnalysisMethod:
             wx.CallAfter(pub.sendMessage, "file", data=data)
 
     def finish(self):
-        # TODO: write docstring
+        
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
 
     def console_message(self, text):
-        # TODO: write docstring
+        
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
 
     def console_message_inplace(self, text):
-        # TODO: write docstring
+        
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
     def transit_message_inplace(self, text):
-        # TODO: write docstring
+        
         self.console_message_inplace(text)
 
     def transit_error(self, text):

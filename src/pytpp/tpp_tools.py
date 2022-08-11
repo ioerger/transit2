@@ -29,7 +29,7 @@ from collections import defaultdict
 
 
 def clean_args(rawargs):
-    # TODO: Write docstring
+    
     args = []
     kwargs = {}
     count = 0

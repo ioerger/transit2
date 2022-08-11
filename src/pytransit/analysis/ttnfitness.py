@@ -125,7 +125,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
     # Overloading function so it prints out the genome fna file as well!
     def print_members(self):
-        # TODO: write docstring
+        
         members = sorted(
             [
                 attr

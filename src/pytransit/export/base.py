@@ -19,7 +19,7 @@ class ExportGUI:
         self.WIDGETSIZE = (100, -1)
 
     def defineMenuItem(self, wxobj, label):
-        # TODO: write docstring
+        
 
         self.wxobj = wxobj
 
@@ -59,17 +59,17 @@ class ExportMethod:
 
     @classmethod
     def from_gui(self, wxobj):
-        # TODO: write docstring
+        
         raise NotImplementedError
 
     @classmethod
     def fromargs(self, rawargs):
-        # TODO: write docstring
+        
         raise NotImplementedError
 
     @classmethod
     def fromconsole(self):
-        # TODO: write docstring
+        
         try:
             return self.fromargs(sys.argv[3:])
         except InvalidArgumentException as e:
@@ -94,7 +94,7 @@ class ExportMethod:
 
     @classmethod
     def usage_string(self):
-        # TODO: write docstring
+        
         raise NotImplementedError
 
     def Run(self):
@@ -102,21 +102,21 @@ class ExportMethod:
         raise NotImplementedError
 
     def finish(self):
-        # TODO: write docstring
+        
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
 
     def console_message(self, text):
-        # TODO: write docstring
+        
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
 
     def console_message_inplace(self, text):
-        # TODO: write docstring
+        
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
     def transit_message_inplace(self, text):
-        # TODO: write docstring
+        
         self.console_message_inplace(text)
 
     def transit_error(self, text):

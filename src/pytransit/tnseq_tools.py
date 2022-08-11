@@ -1341,7 +1341,7 @@ def get_wig_stats(path):
 
 
 def get_extended_pos_hash_pt(path, N=None):
-    # TODO: Write docstring
+    
 
     hash = {}
     maxcoord = float("-inf")
@@ -1396,7 +1396,7 @@ def get_extended_pos_hash_pt(path, N=None):
 
 
 def get_extended_pos_hash_gff(path, N=None):
-    # TODO: Write docstring
+    
 
     hash = {}
     maxcoord = float("-inf")

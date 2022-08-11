@@ -485,7 +485,7 @@ def bayesian_ess_thresholds(Z_raw, ALPHA=0.05):
 
 
 def tricube(X):
-    # TODO: Write docstring
+    
     result = numpy.zeros(len(X))
     ii = numpy.logical_and(X >= -1, X <= 1)
     result[ii] = numpy.power(1 - numpy.power(numpy.abs(X[ii]), 3), 3)
@@ -496,7 +496,7 @@ def tricube(X):
 
 
 def loess(X, Y, h=10000):
-    # TODO: Write docstring
+    
     smoothed = numpy.zeros(len(Y))
     for i, x in enumerate(X):
         W = tricube((X - x) / float(h))
@@ -515,7 +515,7 @@ def loess(X, Y, h=10000):
 
 
 def loess_correction(X, Y, h=10000, window=100):
-    # TODO: Write docstring
+    
     Y = numpy.array(Y)
     size = int(len(X) / window) + 1
     x_w = numpy.zeros(size)
