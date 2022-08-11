@@ -86,7 +86,7 @@ def read(path, *, seperator=",", use_headers=None, first_row_is_headers=False, s
     
     return comments, headers, rows
 
-def write(path, comments, headers, rows, seperator=","):
+def write(path, comments, rows, headers=[], seperator=",", eol="\n"):
     import json
     
     def element_to_string(element):
@@ -94,16 +94,14 @@ def write(path, comments, headers, rows, seperator=","):
         if isinstance(element, str):
             if not (
                 seperator in element or
+                eol in element or
                 '\n' in element or
-                '\r' in element or
-                '\t' in element or
-                ' ' in element
+                '\r' in element
             ):
                 # no need for quoting
                 return element
         # all other values are stored in json format
-        else:
-            return json.dumps(element)
+        return json.dumps(element)
             
     
     with open(path, 'w') as the_file:
@@ -111,8 +109,10 @@ def write(path, comments, headers, rows, seperator=","):
         # comments
         # 
         the_file.write(
-            "\n".join([ f"#{each}" for each in comments ])
+            eol.join([ f"#{each}" for each in comments ])
         )
+        if len(comments) > 0:
+            the_file.write(eol)
         
         # 
         # headers
@@ -121,16 +121,18 @@ def write(path, comments, headers, rows, seperator=","):
             the_file.write(
                 seperator.join(tuple(
                     element_to_string(str(each)) for each in headers 
-                ))
+                ))+eol
             )
         
         # 
         # rows
         # 
         for each_row in rows:
-            the_file.write(
-                seperator.join(tuple(
-                    element_to_string(each_cell)
+            row_string_escaped = tuple(
+                element_to_string(each_cell)
                     for each_cell in each_row 
-                ))
+            )
+            line = seperator.join(row_string_escaped)+eol
+            the_file.write(
+                seperator.join(row_string_escaped)+eol
             )
