@@ -707,3 +707,157 @@ def ResultsFile(a_class):
     
     result_file_classes.append(a_class)
     return a_class
+
+# input: conditions are per wig; orderingMetdata comes from tnseq_tools.read_samples_metadata()
+# output: conditionsList is selected subset of conditions (unique, in preferred order)
+def filter_wigs_by_conditions(
+    data,
+    conditions,
+    covariates=[],
+    interactions=[],
+    excluded_conditions=[],
+    included_conditions=[],
+    unknown_cond_flag,
+):
+    """
+        Filters conditions that are excluded/included.
+        ([[Wigdata]], [Condition], [[Covar]], [Condition], [Condition]) -> Tuple([[Wigdata]], [Condition])
+    """
+    excluded_conditions, included_conditions = (
+        set(excluded_conditions),
+        set(included_conditions),
+    )
+    d_filtered, cond_filtered, filtered_indexes = [], [], []
+
+    if len(excluded_conditions) > 0 and len(included_conditions) > 0:
+        raise Exception(f'''Both excluded and included conditions have len > 0''')
+    elif len(excluded_conditions) > 0:
+        transit_tools.log("conditions excluded: {0}".format(excluded_conditions))
+        for i, c in enumerate(conditions):
+            if (c != unknown_cond_flag) and (c not in excluded_conditions):
+                d_filtered.append(data[i])
+                cond_filtered.append(conditions[i])
+                filtered_indexes.append(i)
+    elif len(included_conditions) > 0:
+        transit_tools.log("conditions included: {0}".format(included_conditions))
+        for i, c in enumerate(conditions):
+            if (c != unknown_cond_flag) and (c in included_conditions):
+                d_filtered.append(data[i])
+                cond_filtered.append(conditions[i])
+                filtered_indexes.append(i)
+    else:
+        for i, c in enumerate(conditions):
+            if c != unknown_cond_flag:
+                d_filtered.append(data[i])
+                cond_filtered.append(conditions[i])
+                filtered_indexes.append(i)
+
+    covariates_filtered = [[c[i] for i in filtered_indexes] for c in covariates]
+    interactions_filtered = [[c[i] for i in filtered_indexes] for c in interactions]
+
+    return (
+        numpy.array(d_filtered),
+        numpy.array(cond_filtered),
+        numpy.array(covariates_filtered),
+        numpy.array(interactions_filtered),
+    )
+
+def select_conditions(conditions, included_conditions, excluded_conditions, ordering_metadata):
+    if len(included_conditions) > 0:
+        conditionsList = included_conditions
+    else:
+        conditionsList = []
+        for c in ordering_metadata[
+            "condition"
+        ]:  # the order conds appear in metadata file, duplicated for each sample
+            if c not in conditionsList:
+                conditionsList.append(c)
+    for c in excluded_conditions:
+        if c in conditionsList:
+            conditionsList.remove(c)
+    return conditionsList
+
+def filter_wigs_by_conditions2(data, conditions, conditionsList, covariates=[], interactions=[]):
+    """
+        Filters conditions that are excluded/included.
+        ([[Wigdata]], [Condition], [[Covar]], [Condition], [Condition]) -> Tuple([[Wigdata]], [Condition])
+    """
+    d_filtered, cond_filtered, filtered_indexes = [], [], []
+
+    for i, c in enumerate(conditions):
+        if (c != unknown_cond_flag) and (c in conditionsList):
+            d_filtered.append(data[i])
+            cond_filtered.append(conditions[i])
+            filtered_indexes.append(i)
+
+    covariates_filtered = [[c[i] for i in filtered_indexes] for c in covariates]
+    interactions_filtered = [[c[i] for i in filtered_indexes] for c in interactions]
+
+    return (
+        numpy.array(d_filtered),
+        numpy.array(cond_filtered),
+        numpy.array(covariates_filtered),
+        numpy.array(interactions_filtered),
+    )
+
+def filter_wigs_by_conditions3(
+    data,
+    file_names,
+    condition_names,
+    included_cond,
+    excluded_cond,
+    conditions,
+    covariates=[],
+    interactions=[],
+):
+    """
+        Filters conditions that are excluded/included; also extract cond, covar, and interaction labels
+        condition_names: based on original Conditions column in metadata
+        conditions: user might have specified an alternative column to analyze (list of labels parallel to wigs)
+    """
+    (
+        file_names_filtered,
+        cond_names_filtered,
+        d_filtered,
+        cond_filtered,
+        filtered_indexes,
+    ) = ([], [], [], [], [])
+
+    for i in range(len(data)):
+        if (
+            len(included_cond) == 0 or condition_names[i] in included_cond
+        ) and condition_names[i] not in excluded_cond:
+            d_filtered.append(data[i])
+            file_names_filtered.append(file_names[i])
+            cond_names_filtered.append(condition_names[i])
+            cond_filtered.append(conditions[i])
+            filtered_indexes.append(i)
+
+    covariates_filtered = [[c[i] for i in filtered_indexes] for c in covariates]
+    interactions_filtered = [[c[i] for i in filtered_indexes] for c in interactions]
+
+    return (
+        numpy.array(d_filtered),
+        numpy.array(file_names_filtered),
+        numpy.array(cond_names_filtered),
+        numpy.array(cond_filtered),
+        numpy.array(covariates_filtered),
+        numpy.array(interactions_filtered),
+    )
+
+# return a hash table of parallel lists, indexed by column header
+def get_samples_metadata(metadata):
+    data = {}
+    header = None
+    for line in open(metadata):
+        if line[0] == "#":
+            continue
+        w = line.rstrip().split("\t")
+        if header == None:
+            header = w
+            for col in header:
+                data[col] = []
+        else:
+            for i in range(len(header)):
+                data[header[i]].append(w[i])
+    return data
