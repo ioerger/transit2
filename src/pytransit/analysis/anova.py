@@ -621,6 +621,7 @@ class File(Analysis):
         df = DataFrame(hash)
         transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
         results_area.add(output_path)
+        pytransit.file_display.ImgFrame(None, output_path).Show()
     
     
 Method = GUI = Analysis
