@@ -134,7 +134,7 @@ def change_file_action_choices(new_choices):
     results.file_action_choice_element.SetSelection(0)
     results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
     
-    wx.lib.inspection.InspectionTool().Show()
+    # wx.lib.inspection.InspectionTool().Show()
     
     @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
     def _(event):

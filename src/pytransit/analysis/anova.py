@@ -36,7 +36,7 @@ from pytransit.components.panel_helpers import make_panel, create_run_button, cr
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "Anova"
+    identifier  = "#Anova"
     short_name  = "anova"
     long_name   = "ANOVA"
     short_desc  = "Perform Anova analysis"
@@ -278,13 +278,13 @@ class Analysis:
             Gene :: {start, end, rv, gene, strand}
             Condition :: String
         """
-        means_by_rv = {}
+        MeansByRv = {}
         for gene in genes:
             Rv = gene["rv"]
-            means_by_rv[Rv] = self.means_by_condition_for_gene(
+            MeansByRv[Rv] = self.means_by_condition_for_gene(
                 RvSiteindexesMap[Rv], conditions, data
             )
-        return means_by_rv
+        return MeansByRv
 
     def group_by_condition(self, wigList, conditions):
         """
@@ -319,7 +319,7 @@ class Analysis:
             ]
             return numpy.array(result)
 
-    def calculate_anova(self, data, genes, means_by_rv, RvSiteindexesMap, conditions):
+    def calculate_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
         """
             Runs Anova (grouping data by condition) and returns p and q values
             ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
@@ -395,7 +395,7 @@ class Analysis:
           msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
         return (msr, mse, f, p, q, statusMap)
 
-    def calc_lfcs(self, means, refs=[], pseudocount=1):
+    def calc_lf_cs(self, means, refs=[], pseudocount=1):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
         grandmean = numpy.mean(refs)
@@ -426,24 +426,6 @@ class Analysis:
                     excluded_conditions=self.inputs.excluded_conditions,
                     ordering_metadata=ordering_metadata,
                 )
-                column_names = [
-                    "Rv",
-                    "Gene",
-                    "TAs",
-                    *[
-                        f"Mean_{condition_name}" for condition_name in conditions_list
-                    ],
-                    *[
-                        f"LFC_{condition_name}" for condition_name in conditions_list
-                    ],
-                    "MSR",
-                    "MSE+alpha",
-                    "Fstat",
-                    "Pval",
-                    "Padj",
-                    "status"
-                ]
-                
 
                 condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
 
@@ -475,61 +457,47 @@ class Analysis:
                 RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
                     genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
                 )
-                means_by_rv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
+                MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
                 transit_tools.log("Running Anova")
                 MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
-                    data, genes, means_by_rv, RvSiteindexesMap, conditions
+                    data, genes, MeansByRv, RvSiteindexesMap, conditions
                 )
             
             # 
             # write output
             # 
+            transit_tools.log(f"Adding File: {self.inputs.output_path}")
+            results_area.add(self.inputs.output_path)
             if True:
-                transit_tools.log(f"Adding File: {self.inputs.output_path}")
-                # 
-                # generate rows
-                # 
-                rows = []
-                for gene in genes:
-                    each_rv = gene["rv"]
-                    if each_rv in means_by_rv:
-                        means = [ means_by_rv[each_rv][condition_name] for condition_name in conditions_list]
-                        refs  = [ means_by_rv[each_rv][ref_condition ] for ref_condition in self.inputs.refs]
-                        lfcs = self.calc_lfcs(means, refs, self.inputs.pseudocount)
-                        rows.append(
-                            [
-                                each_rv,
-                                gene["gene"],
-                                str(len(RvSiteindexesMap[each_rv])),
-                            ] + [
-                                "%0.2f" % x for x in means
-                            ] + [
-                                "%0.3f" % x for x in lfcs
-                            ] +  [
-                                "%f" % x for x in [MSR[each_rv], MSE[each_rv], Fstats[each_rv], pvals[each_rv], qvals[each_rv]]
-                            ] + [
-                                run_status[each_rv]
-                            ]
-                        )
+                file = open(self.inputs.output_path, "w")
                 
-                # 
-                # write to file
-                # 
-                csv.write(
-                    path=self.inputs.output_path,
-                    seperator="\t",
-                    comments=[
-                        Analysis.identifier, # identifier always comes first
-                        f"Console: python3 {' '.join(sys.argv)}",
-                        f"parameters: normalization={self.inputs.normalization}, trimming={self.inputs.n_terminus}/{self.inputs.c_terminus}% (N/C), pseudocounts={self.inputs.pseudocount}, alpha={self.inputs.alpha}",
-                        "\t".join(column_names) # column names always last
-                    ],
-                    rows=rows,
+                heads = (
+                    "Rv Gene TAs".split() +
+                    ["Mean_%s" % x for x in conditions_list] +
+                    ["LFC_%s" % x for x in conditions_list] +
+                    "MSR MSE+alpha Fstat Pval Padj".split() + 
+                    ["status"]
                 )
+                file.write(Analysis.identifier+"\n")
+                file.write("#Console: python3 %s\n" % " ".join(sys.argv))
+                file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.inputs.normalization,self.inputs.n_terminus,self.inputs.c_terminus,self.inputs.pseudocount,self.inputs.alpha))
+                file.write('#'+'\t'.join(heads)+EOL)
+                for gene in genes:
+                    Rv = gene["rv"]
+                    if Rv in MeansByRv:
+                        means = [MeansByRv[Rv][c] for c in conditions_list]
+                        refs = [MeansByRv[Rv][c] for c in self.inputs.refs]
+                        LFCs = self.calc_lf_cs(means,refs,self.inputs.pseudocount)
+                        vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
+                                ["%0.2f" % x for x in means] + 
+                                ["%0.3f" % x for x in LFCs] + 
+                                ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
+                        file.write('\t'.join(vals)+EOL)
+                file.close()
+                
                 transit_tools.log("Finished Anova analysis")
                 transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
-            results_area.add(self.inputs.output_path)
 
 @transit_tools.ResultsFile
 class File(Analysis):
@@ -538,7 +506,7 @@ class File(Analysis):
         with open(path) as in_file:
             for line in in_file:
                 if line.startswith("#"):
-                    if line.startswith("#"+Analysis.identifier):
+                    if line.startswith(Analysis.identifier):
                         return True
                 else:
                     return False
@@ -601,7 +569,7 @@ class File(Analysis):
         #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
         #     print("Error Displaying File. Histogram image does not exist.")
 
-    def create_heatmap(self, infile, outfile, topk=-1, qval=0.05, low_mean_filter=5):
+    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         if not HAS_R:
             raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
         headers = None
@@ -651,7 +619,8 @@ class File(Analysis):
         for i, col in enumerate(headers):
             hash[col] = FloatVector([x[i] for x in LFCs])
         df = DataFrame(hash)
-        transit_tools.r_heatmap_func(df, StrVector(genenames), outfile)
+        transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
+        results_area.add(output_path)
     
     
 Method = GUI = Analysis

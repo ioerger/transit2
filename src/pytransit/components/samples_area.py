@@ -63,7 +63,7 @@ def create_sample_area(frame):
                             message="Choose a cwig file",
                             defaultDir=working_directory,
                             defaultFile="",
-                            wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                            # wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                         )
                         cwig_paths = []
@@ -77,7 +77,7 @@ def create_sample_area(frame):
                                     message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
                                     defaultDir=working_directory,
                                     defaultFile="",
-                                    wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                                    # wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                                     style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                                 )
                                 if metadata_dialog.ShowModal() == wx.ID_OK:
