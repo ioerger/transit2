@@ -115,20 +115,6 @@ def create_results_area(frame):
             )
             row.Add(add_file_button, 0, wx.ALL, 5)
             
-            @subscribe("file")
-            def add_file(data):
-                results.table.add(data)
-                # BOOKMARK: previous method:
-                    # fullpath = data["path"]
-                    # type     = data["type"]
-                    # date     = data["date"]
-                    # name = transit_tools.basename(fullpath)
-                    # results.table.InsertItem(self.index_file, name)
-                    # results.table.SetItem(self.index_file, 1, f"{type}")
-                    # results.table.SetItem(self.index_file, 2, f"{date}")
-                    # results.table.SetItem(self.index_file, 3, f"{fullpath}")
-                    # self.index_file += 1
-            
             @gui_tools.bind_to(add_file_button, wx.EVT_BUTTON)
             def _(event):
                 with gui_tools.nice_error_log:

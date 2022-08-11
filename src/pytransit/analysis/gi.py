@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -1139,7 +1140,7 @@ class GIMethod(base.QuadConditionMethod):
             )
 
         transit_tools.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="GI")
+        results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished Genetic Interactions Method")
 

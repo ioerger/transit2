@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 try:
@@ -723,7 +724,7 @@ class BinomialMethod(base.SingleConditionMethod):
 
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Binomial")
+        results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished Binomial Method")
 

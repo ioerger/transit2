@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -572,7 +573,7 @@ class HMMMethod(base.SingleConditionMethod):
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Finished HMM - Sites Method")
         transit_tools.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="HMM - Sites")
+        results_area.add(self.output.name)
 
         # Gene Files
         transit_tools.log("Creating HMM Genes Level Output")
@@ -587,7 +588,7 @@ class HMMMethod(base.SingleConditionMethod):
         self.post_process_genes(tempObs, position, states, genes_path)
 
         transit_tools.log("Adding File: %s" % (genes_path))
-        self.add_file(path=genes_path, filetype="HMM - Genes")
+        results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished HMM Method")
 

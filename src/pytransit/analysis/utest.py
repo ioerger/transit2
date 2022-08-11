@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -502,7 +503,7 @@ class UTestMethod(base.DualConditionMethod):
         self.output.close()
 
         transit_tools.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="utest")
+        results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished Mann-Whitney U-test Method")
 

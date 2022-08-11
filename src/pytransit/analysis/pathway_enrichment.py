@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -523,7 +524,7 @@ Optional parameters:
             self.write("\t".join([str(x) for x in vals]))
 
         transit_tools.log("Adding File: %s" % (self.outputFile))
-        self.add_file(filetype="Pathway Enrichment")
+        results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished Pathway Enrichment Method")
 
@@ -708,7 +709,7 @@ Optional parameters:
             self.write("\t".join([str(x) for x in vals]))
 
         transit_tools.log("Adding File: %s" % (self.outputFile))
-        self.add_file(filetype="Pathway Enrichment")
+        results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished Pathway Enrichment Method")
 

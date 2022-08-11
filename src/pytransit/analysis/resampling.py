@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -838,7 +839,7 @@ class ResamplingMethod(base.DualConditionMethod):
         self.output.close()
 
         transit_tools.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Resampling")
+        results_area.add(self.output.name)
 
     def winsorize_resampling(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array

@@ -1,3 +1,4 @@
+import pytransit.components.results_area as results_area
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -665,7 +666,7 @@ class GumbelMethod(base.SingleConditionMethod):
         self.output.close()
         self.log("")  # Printing empty line to flush stdout
         self.log("Adding File: %s" % (self.output.name))
-        self.add_file(filetype="Gumbel")
+        results_area.add(self.output.name)
         self.finish()
         self.log("Finished Gumbel Method")
 
