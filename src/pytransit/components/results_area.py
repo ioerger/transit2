@@ -3,7 +3,7 @@ import os
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory, result_file_classes
+from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory, load_known_transit_file
 
 import pytransit.gui_tools as gui_tools
 import pytransit.file_display as file_display
@@ -14,6 +14,7 @@ from pytransit.components.generic.button import Button
 from pytransit.components.generic.table import Table
 
 results = LazyDict(
+    header=None,
     table=None,
     file_action_choice_element=None,
 )
@@ -32,75 +33,7 @@ def create_results_area(frame):
     # Box
     # 
     if True:
-        row = wx.BoxSizer(wx.HORIZONTAL)
-        
-        # # 
-        # # displayButton
-        # # 
-        # if True:
-        #     display_button = wx.Button(
-        #         frame,
-        #         wx.ID_ANY,
-        #         "Display Table",
-        #         wx.DefaultPosition,
-        #         wx.DefaultSize,
-        #         0,
-        #     )
-        #     row.Add(display_button, 0, wx.ALL, 5)
-            
-        #     @gui_tools.bind_to(display_button, wx.EVT_BUTTON)
-        #     def display_file_func(event):
-        #         for each_row in results.table.rows:
-        #             with gui_tools.nice_error_log:
-        #                 path = each_row.get("Full Path", None)
-        #                 if path:
-        #                     file_display.TransitGridFrame(frame, dataset).Show()
-                        
-        # #         # BOOKMARK: index access
-        # #             # next = results.table.GetNextSelected(-1)
-        # #             # if next > -1:
-        # #             #     dataset = results.table.GetItem(next, 3).GetText()  # I don't think this ever worked because this returns a string and "string".verbose (next line) would throw a attribute does not exist error
-        # #             #     if dataset.verbose:
-        # #             #         transit_tools.log(
-        # #             #             "Displaying results: %s"
-        # #             #             % results.table.GetItem(next, 0).GetText()
-        # #             #         )
-
-        # #             #     try:
-        # #             #         fileWindow = 
-        # #             #         fileWindow.Show()
-        # #             #     except Exception as e:
-        # #             #         transit_tools.log(
-        # #             #             "Error occurred displaying file: %s" % str(e)
-        # #             #         )
-        # #             #         traceback.print_exc()
-
-        # #             # else:
-        # #             #     if dataset.verbose:
-        # #             #         transit_tools.log("No results selected to display!")
-
-            
-        # 
-        # fileActionButton
-        # 
-        if True:
-            file_action_button = wx.Button(
-                frame,
-                wx.ID_ANY,
-                "Display Graph",
-                wx.DefaultPosition,
-                wx.DefaultSize,
-                0,
-            )
-            file_action_button.Hide()
-            @gui_tools.bind_to(file_action_button, wx.EVT_BUTTON)
-            def _(event):
-                file_action_func(event)
-
-            
-            row.Add(file_action_button, 0, wx.ALL, 5)
-            
-            
+        results.header = wx.BoxSizer(wx.HORIZONTAL)
             
         # 
         # add_file_button
@@ -113,7 +46,7 @@ def create_results_area(frame):
                 "Add Results File",
                 size=wx.Size(150, 30)
             )
-            row.Add(add_file_button, 0, wx.ALL, 5)
+            results.header.Add(add_file_button, 0, wx.ALL, gui_tools.default_padding)
             
             @gui_tools.bind_to(add_file_button, wx.EVT_BUTTON)
             def _(event):
@@ -136,30 +69,17 @@ def create_results_area(frame):
                     for fullpath in paths:
                         add(fullpath)
             
-        # # 
-        # # fileActionChoice
-        # # 
-        # if True:
-        #     results.file_action_choice_element = wx.Choice(
-        #         frame,
-        #         wx.ID_ANY,
-        #         wx.DefaultPosition,
-        #         wx.DefaultSize,
-        #         [
-        #             "[Choose Action]",  # list of available choices
-        #             # BOOKMARK
-        #         ],
-        #         0,
-        #     )
-        #     results.file_action_choice_element.SetSelection(0)
-        #     row.Add(results.file_action_choice_element, 0, wx.ALL, 5)
-            
-        #     @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
-        #     def _(event):
-        #         file_action_func(event)
+        # 
+        # fileActionChoice
+        # 
+        if True:
+            # by default no options are available
+            change_file_action_choices({
+                "[None]": lambda event: None
+            })
 
             
-        results_sizer.Add(row, 0, 0, 5)
+        results_sizer.Add(results.header, 0, 0, gui_tools.default_padding)
     
     # 
     # results.table
@@ -172,80 +92,66 @@ def create_results_area(frame):
         @results.table.events.on_select
         def _(event):
             row = results.table.rows[event.GetIndex()]
-            print(f'''selected row = {row}''')
-            
-            # define the panel
-            define_panel_callback = row.get("__define_panel", None)
-            if callable(define_panel_callback):
-                define_panel_callback()
+            dropdown_options_for_row = row.get("__dropdown_options", None)
+            if isinstance(dropdown_options_for_row, dict):
+                # attach all their callbacks to the dropdown
+                change_file_action_choices(dropdown_options_for_row)
             
         
         results_sizer.Add(
             results.table.wx_object,
             1,
             wx.ALL | wx.EXPAND,
-            5,
+            gui_tools.default_padding,
         )
         
     return results_sizer
 
 
-def add(path):
-    result_object = None
-    for each_file_class in result_file_classes:
-        loadable = None
-        try:
-            loadable = each_file_class.can_load(path)
-        except Exception as error:
-            pass
-        if loadable:
-            result_object = each_file_class(path=path)
+def change_file_action_choices(new_choices):
+    new_choices = {
+        "[None]": lambda event: None, # always have a none option, and always make it the first option
+        **new_choices,
+    }
     
-    values_for_result_table = dict()
+    # hide the old one before showing the new one
+    if results.file_action_choice_element != None:
+        results.file_action_choice_element.Hide()
+    
+    results.file_action_choice_element = wx.Choice(
+        universal.frame,
+        wx.ID_ANY,
+        wx.DefaultPosition,
+        wx.DefaultSize,
+        list(new_choices.keys()),
+        0,
+    )
+    results.file_action_choice_element.SetSelection(0)
+    results.header.Add(results.file_action_choice_element, 0, wx.ALL, gui_tools.default_padding)
+    
+    @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
+    def _(event):
+        choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
+        # run the callback that corrisponds the the choice
+        new_choices[choice](event)
+    
+
+def add(path):
+    # if not a recognized file type
+    values_for_result_table = dict(
+        name=basename(path),
+        type="Unknown",
+        path=path,
+    )
+    # if recognized
+    result_object = load_known_transit_file(path)
     if result_object:
         values_for_result_table = result_object.values_for_result_table
-        # FIXME: connect on-select
-        pass
-    # not a recognized file type
-    else:
-        values_for_result_table = dict(
-            name=basename(path),
-            type="Unknown",
-            path=path,
-        )
     
     print(f'''result_object = {result_object}''')
     print(f'''values_for_result_table = {values_for_result_table}''')
     if HAS_WX:
         results.table.add(values_for_result_table)
-    # print("\t%s" % fullpath)
-    # name = transit_tools.basename(fullpath)
-    # line = open(fullpath).readline()
-    # if line.startswith("#Gumbel"):
-    #     type = "Gumbel"
-    # elif line.startswith("#Binomial"):
-    #     type = "Binomial"
-    # elif line.startswith("#HMM - Sites"):
-    #     type = "HMM - Sites"
-    # elif line.startswith("#HMM - Genes"):
-    #     type = "HMM - Genes"
-    # elif line.startswith("#Resampling"):
-    #     type = "Resampling"
-    # elif line.startswith("#DE-HMM - Sites"):
-    #     type = "DE-HMM - Sites"
-    # elif line.startswith("#DE-HMM - Segments"):
-    #     type = "DE-HMM - Segments"
-    # elif line.startswith("#GI"):
-    #     type = "GI"
-    # else:
-    #     type = "Unknown"
-    # data = {
-    #     "path": fullpath,
-    #     "type": type,
-    #     "date": datetime.datetime.today().strftime("%B %d, %Y %I:%M%p"),
-    # }
-    # wx.CallAfter(pub.sendMessage, "file", data=data)
-
 # 
 # 
 # helpers

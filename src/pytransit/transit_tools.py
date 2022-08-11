@@ -863,3 +863,16 @@ def get_samples_metadata(metadata):
             for i in range(len(header)):
                 data[header[i]].append(w[i])
     return data
+
+def load_known_transit_file(path):
+    result_object = None
+    for FileClass in result_file_classes:
+        loadable = None
+        try:
+            loadable = FileClass.can_load(path)
+        except Exception as error:
+            pass
+        if loadable:
+            result_object = FileClass(path=path)
+    
+    return result_object

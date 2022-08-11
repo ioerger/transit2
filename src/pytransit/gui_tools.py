@@ -25,30 +25,10 @@ def bind_to(wxPythonObj, event):
     def wrapper2(function_to_attach):
         wxPythonObj.Bind(event, function_to_attach)
         def wrapper1(*args, **kwargs):
-            try:
+            with nice_error_log:
                return function_to_attach(*args, **kwargs)
-            except Exception as error:
-                print(error)
-                handle_error(error)
         return wrapper1
     return wrapper2
-
-def handle_error(error_obj):
-    """
-        Summary:
-            logs error message in bottom corner of GUI
-            prints it to console
-            and avoids crashing the whole runtime
-        Usage:
-            try:
-                pass
-            except Exception as error:
-                handle_error
-    """
-    traceback.print_exc()
-    frame = universal.frame
-    if frame and hasattr(frame, "statusBar") and hasattr(frame.statusBar, "SetStatusText"):
-        frame.statusBar.SetStatusText("Error: "+str(error_obj.args))
 
 def handle_traceback(traceback_obj):
     import traceback

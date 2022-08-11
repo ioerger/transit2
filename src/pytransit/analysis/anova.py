@@ -551,11 +551,15 @@ class File(Analysis):
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
-        self.values_for_result_table = dict(
+        self.values_for_result_table = LazyDict(
             name=basename(self.path),
             type=Analysis.identifier,
             path=self.path,
-            __define_panel=self.define_panel, # part of the row, but isn't shown on the table. Name is used by the results area
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict(
+                heatmap=lambda *args: self.create_heatmap(infile=self.path, outfile=self.path+".heatmap.png"),
+                table=lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows).Show(),
+            )
         )
         
         # 
@@ -586,47 +590,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def define_panel(self):
-        self.panel = make_panel()
-        
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        if True:
-            # 
-            # heatmap options
-            # 
-            @create_button(self.panel, main_sizer, label="Generate Heatmap")
-            def _(event):
-                output_path = self.path+".heatmap.png"
-                self.create_heatmap(
-                    infile=self.path,
-                    outfile=output_path,
-                    # topk,
-                    # qval,
-                    # low_mean_filter,
-                )
-                results_area.add(output_path)
-            
-            # 
-            # display table options
-            # 
-            @create_button(self.panel, main_sizer, label="Display Table")
-            def _(event):
-                SpreadSheet(
-                    title="Anova",
-                    heading="",
-                    column_names=self.column_names,
-                    rows=self.rows
-                ).Show()
-        
-        # 
-        # finish panel setup
-        # 
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
-        
     def display_histogram(self, display_frame, event):
         pass
         # gene = display_frame.grid.GetCellValue(display_frame.row, 0)
@@ -694,35 +657,6 @@ class File(Analysis):
         df = DataFrame(hash)
         transit_tools.heatmap_func(df, StrVector(genenames), outfile)
     
-    def getHeader(self, path):
-        # TODO write docstring
-        return "Generic Transit File Type."
-
-    def getData(self, path, colnames):
-        # TODO write docstring
-        row = 0
-        data = []
-        shownError = False
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.split("\t")
-            tmp[-1] = tmp[-1].strip()
-            # print(colnames)
-            # print( len(colnames), len(tmp))
-            try:
-                rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
-            except Exception as e:
-                if not shownError:
-                    shownError = True
-                    raise Exception(f'''Error reading data! This may be caused by trying to load a old results file, when the format has changed.''')
-                rowdict = dict(
-                    [(colnames[i], tmp[i]) for i in range(min(len(colnames), len(tmp)))]
-                )
-            data.append((row, rowdict))
-            row += 1
-        return data
-
     
 Method = GUI = Analysis
 Analysis() # make sure theres one instance
