@@ -32,17 +32,6 @@ import wx.grid
 import pytransit
 import pytransit.analysis
 
-
-########################################################################
-class SortableListCtrl(wx.ListCtrl):
-
-    # ----------------------------------------------------------------------
-    def __init__(
-        self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0
-    ):
-        wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
-
-
 #########################################
 # menu_titles = [ "Display Histogram",
 #                "Display Tracks",]

@@ -886,3 +886,18 @@ def handle_unrecognized_flags(flags, rawargs, usage_string):
     for arg in rawargs:
         if arg[0] == "-" and arg not in flags:
             raise Exception(f'''unrecognized flag: {arg}\n\n{usage_string}''')
+
+
+def winsorize(counts):
+    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+    unique_counts = numpy.unique(numpy.concatenate(counts))
+    if len(unique_counts) < 2:
+        return counts
+    else:
+        n, n_minus_1 = unique_counts[
+            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+        ]
+        result = [
+            [n_minus_1 if count == n else count for count in wig] for wig in counts
+        ]
+        return numpy.array(result)

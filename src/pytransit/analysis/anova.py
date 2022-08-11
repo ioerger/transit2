@@ -42,21 +42,6 @@ class Analysis:
     short_desc  = "Perform Anova analysis"
     long_desc   = """Perform Anova analysis"""
     transposons = [ "himar1", "tn5" ]
-    columns = [
-        "Orf",
-        "Name",
-        "Desc",
-        "Sites",
-        "Mean Ctrl",
-        "Mean Exp",
-        "log2FC",
-        "Sum Ctrl",
-        "Sum Exp",
-        "Delta Mean",
-        "p-value",
-        "Z-score",
-        "Adj. p-value",
-    ]
     
     inputs = LazyDict(
         combined_wig=None,
@@ -239,17 +224,6 @@ class Analysis:
         
         return Analysis.instance
         
-    def winsorize_test1(self, counts):
-        # input is insertion counts for gene as pre-flattened numpy array
-        counts = counts.tolist()
-        if len(counts) < 3:
-            return counts
-        sorted_counts = sorted(counts, reverse=True)
-        if sorted_counts[1] == 0:
-            return counts  # don't do anything if there is only 1 non-zero value
-        c2 = [sorted_counts[1] if x == sorted_counts[0] else x for x in counts]
-        return numpy.array(c2)
-
     def means_by_condition_for_gene(self, sites, conditions, data):
         """
             Returns a dictionary of {Condition: Mean} for each condition.
@@ -263,7 +237,7 @@ class Analysis:
             wigsByConditions[c].append(i)
 
         return {
-            c: numpy.mean(self.winsorize(data[wigIndex][:, sites]))
+            c: numpy.mean(transit_tools.winsorize(data[wigIndex][:, sites]))
             if nTASites > 0
             else 0
             for (c, wigIndex) in wigsByConditions.items()
@@ -305,20 +279,6 @@ class Analysis:
             [numpy.array(v).flatten() for v in countsByCondition.values()],
         )
 
-    def winsorize(self, counts):
-        # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
-        unique_counts = numpy.unique(numpy.concatenate(counts))
-        if len(unique_counts) < 2:
-            return counts
-        else:
-            n, n_minus_1 = unique_counts[
-                heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
-            ]
-            result = [
-                [n_minus_1 if count == n else count for count in wig] for wig in counts
-            ]
-            return numpy.array(result)
-
     def calculate_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
         """
             Runs Anova (grouping data by condition) and returns p and q values
@@ -344,7 +304,7 @@ class Analysis:
                     conditions,
                 )
                 if self.inputs.winz:
-                    countsVec = self.winsorize(countsVec)
+                    countsVec = transit_tools.winsorize(countsVec)
 
                 if countSum == 0:
                     msr,mse,Fstat,pval = 0,0,-1,1
@@ -620,9 +580,10 @@ class File(Analysis):
             hash[col] = FloatVector([x[i] for x in LFCs])
         df = DataFrame(hash)
         transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
+        
+        # add it as a result
         results_area.add(output_path)
-        pytransit.file_display.ImgFrame(None, output_path).Show()
-    
+        gui_tools.show_image(output_path)
     
 Method = GUI = Analysis
 Analysis() # make sure theres one instance

@@ -134,3 +134,34 @@ class NiceErrorLog(object):
                 frame.statusBar.SetStatusText("Error: "+str(error.args))
 
 nice_error_log = NiceErrorLog()
+
+def show_image(path):
+    class ImgFrame(wx.Frame):
+        def __init__(self, parent, filePath):
+            wx.Frame.__init__(
+                self,
+                parent,
+                id=wx.ID_ANY,
+                title="%s" % (filePath),
+                pos=wx.DefaultPosition,
+                size=wx.Size(1150, 740),
+                style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL,
+            )
+            self.SetSizeHintsSz(wx.DefaultSize, wx.DefaultSize)
+            bSizer1 = wx.BoxSizer(wx.VERTICAL)
+
+            self.m_bitmap1 = wx.StaticBitmap(
+                self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0
+            )
+            bSizer1.Add(self.m_bitmap1, 1, wx.ALL | wx.EXPAND, 5)
+            self.SetSizer(bSizer1)
+            self.Layout()
+            self.Centre(wx.BOTH)
+
+            img = wx.Image(filePath, wx.BITMAP_TYPE_ANY)
+            self.m_bitmap1.SetBitmap(wx.BitmapFromImage(img))
+
+            self.Refresh()
+            self.Fit()
+    
+    ImgFrame(None, path).Show()
