@@ -191,7 +191,9 @@ if True:
         def get_value(*args):
             as_list = wxobj.GetValue().split(",")
             if len(as_list) == 0:
-                return universal.session_data.condition_names
+                return universal.session_data.condition_names 
+            else:
+                return as_list
         
         return get_value
     

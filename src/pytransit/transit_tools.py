@@ -277,9 +277,10 @@ def show_error_dialog(message):
     dial.ShowModal()
 
 
-def log(message):
+def log(message, *args):
     import inspect
     import os
+    message = f"{message} "+ " ".join([ f"{each}" for each in args])
     
     # get some context as to who is creating the message
     stack             = inspect.stack()
@@ -763,19 +764,31 @@ def filter_wigs_by_conditions(
     )
 
 def select_conditions(conditions, included_conditions, excluded_conditions, ordering_metadata):
+    print(f'''conditions = {conditions}''')
+    print(f'''included_conditions = {included_conditions}''')
+    print(f'''excluded_conditions = {excluded_conditions}''')
+    print(f'''ordering_metadata = {ordering_metadata}''')
     if len(included_conditions) > 0:
-        conditionsList = included_conditions
+        log("got here 1.2.1")
+        conditions_list = included_conditions
     else:
-        conditionsList = []
-        for c in ordering_metadata[
+        log("got here 1.2.2")
+        conditions_list = []
+        for each_condition in ordering_metadata[
             "condition"
         ]:  # the order conds appear in metadata file, duplicated for each sample
-            if c not in conditionsList:
-                conditionsList.append(c)
-    for c in excluded_conditions:
-        if c in conditionsList:
-            conditionsList.remove(c)
-    return conditionsList
+            log("got here 1.2.3")
+            if each_condition not in conditions_list:
+                conditions_list.append(each_condition)
+    log("got here 1.2.4")
+    for each_condition in excluded_conditions:
+        log("got here 1.2.5")
+        if each_condition in conditions_list:
+            log("got here 1.2.6")
+            conditions_list.remove(each_condition)
+    
+    log("got here 1.2.7")
+    return conditions_list
 
 def filter_wigs_by_conditions2(data, conditions, conditionsList, covariates=[], interactions=[]):
     """
