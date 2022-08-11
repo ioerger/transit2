@@ -123,7 +123,7 @@ class PathwayMethod(base.AnalysisMethod):
         pass
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
         resamplingFile = args[0]
         associations = args[1]
@@ -718,5 +718,5 @@ Optional parameters:
 
 if __name__ == "__main__":
 
-    app = PathwayMethod.fromargs(sys.argv[1:])
+    app = PathwayMethod.from_args(sys.argv[1:])
     app.Run()

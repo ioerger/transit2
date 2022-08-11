@@ -300,7 +300,7 @@ class UTestMethod(base.DualConditionMethod):
         )
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
 
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
@@ -528,7 +528,7 @@ if __name__ == "__main__":
 
     # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
 
-    G = UTestMethod.fromargs(sys.argv[1:])
+    G = UTestMethod.from_args(sys.argv[1:])
 
     G.console_message("Printing the member variables:")
     G.print_members()

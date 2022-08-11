@@ -63,7 +63,7 @@ class ExportMethod:
         raise NotImplementedError
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         
         raise NotImplementedError
 
@@ -71,7 +71,7 @@ class ExportMethod:
     def fromconsole(self):
         
         try:
-            return self.fromargs(sys.argv[3:])
+            return self.from_args(sys.argv[3:])
         except InvalidArgumentException as e:
             print("Error: %s" % str(e))
             print(self.usage_string())

@@ -43,25 +43,25 @@ except Exception as e:
 class TestMethods(TransitTestCase):
     def test_Gumbel(self):
         args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
-        G = GumbelMethod.fromargs(args)
+        G = GumbelMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
 
     def test_Binomial(self):
         args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
-        G = BinomialMethod.fromargs(args)
+        G = BinomialMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
 
     def test_Griffin(self):
         args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
-        G = GriffinMethod.fromargs(args)
+        G = GriffinMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
 
     def test_HMM(self):
         args = [mini_wig, small_annotation, output]
-        G = HMMMethod.fromargs(args)
+        G = HMMMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         genes_path = output.rsplit(".", 1)[0] + "_genes." + output.rsplit(".", 1)[1]
@@ -70,7 +70,7 @@ class TestMethods(TransitTestCase):
 
     def test_resampling(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-l"]
-        G = ResamplingMethod.fromargs(args)
+        G = ResamplingMethod.from_args(args)
         G.Run()
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-2, qcol=-1))
         self.assertLessEqual(
@@ -85,7 +85,7 @@ class TestMethods(TransitTestCase):
     def test_resampling_combined_wig(self):
         # The conditions in the args should be matched case-insensitively.
         args = ["-c", combined_wig, samples_metadata, "Glycerol", "cholesterol", small_annotation, output, "-a"]
-        G = ResamplingMethod.fromargs(args)
+        G = ResamplingMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-2, qcol=-1))
@@ -102,7 +102,7 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_adaptive(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-a", "--ctrl_lib", "AA", "--exp_lib", "AAA"]
-        G = ResamplingMethod.fromargs(args)
+        G = ResamplingMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-2, qcol=-1))
@@ -117,7 +117,7 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_histogram(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-s", "1000", "-h"]
-        G = ResamplingMethod.fromargs(args)
+        G = ResamplingMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         self.assertTrue(
@@ -126,7 +126,7 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_multistrain(self):
         args = [ctrl_data_txt, exp_data_txt, ','.join([small_annotation, small_annotation]), output, "-h"]
-        G = ResamplingMethod.fromargs(args)
+        G = ResamplingMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         self.assertTrue(
@@ -135,7 +135,7 @@ class TestMethods(TransitTestCase):
 
     def test_anova(self):
         args = [combined_wig, samples_metadata, small_annotation, output]
-        G = AnovaMethod.fromargs(args)
+        G = AnovaMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
@@ -152,7 +152,7 @@ class TestMethods(TransitTestCase):
     @unittest.skipUnless(has_r, "requires R, rpy2")
     def test_zinb(self):
         args = [combined_wig, samples_metadata, small_annotation, output]
-        G = ZinbMethod.fromargs(args)
+        G = ZinbMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
@@ -169,7 +169,7 @@ class TestMethods(TransitTestCase):
     @unittest.skipUnless(has_r, "requires R, rpy2")
     def test_zinb_covariates(self):
         args = [combined_wig, samples_metadata_covariates, small_annotation, output, "--covars", "batch", "--condition", "NewConditionCol"]
-        G = ZinbMethod.fromargs(args)
+        G = ZinbMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
@@ -186,7 +186,7 @@ class TestMethods(TransitTestCase):
     @unittest.skipUnless(has_r, "requires R, rpy2")
     def test_zinb_interactions(self):
         args = [combined_wig, samples_metadata_interactions, small_annotation, output, "--covars", "batch", "--interactions", "atm"]
-        G = ZinbMethod.fromargs(args)
+        G = ZinbMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
@@ -202,7 +202,7 @@ class TestMethods(TransitTestCase):
 
     def test_utest(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output]
-        G = UTestMethod.fromargs(args)
+        G = UTestMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
 
@@ -210,7 +210,7 @@ class TestMethods(TransitTestCase):
     def test_GI(self):
         args = [ctrl_data_txt, exp_data_txt, ctrl_data_txt, exp_data_txt, small_annotation, output,
                     "-s", "1000"]
-        G = GIMethod.fromargs(args)
+        G = GIMethod.from_args(args)
         G.Run()
         self.assertTrue(os.path.exists(output))
 

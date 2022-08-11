@@ -153,7 +153,7 @@ class Method(base.SingleConditionMethod):
         )
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         ctrldata = args[0].split(",")
@@ -291,7 +291,7 @@ if __name__ == "__main__":
     print("ARGS:", args)
     print("KWARGS:", kwargs)
 
-    G = Example.fromargs(sys.argv[1:])
+    G = Example.from_args(sys.argv[1:])
 
     print(G)
     G.console_message("Printing the member variables:")

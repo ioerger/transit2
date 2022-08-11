@@ -363,7 +363,7 @@ class GumbelMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
 
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
@@ -772,7 +772,7 @@ if __name__ == "__main__":
 
     (args, kwargs) = transit_tools.clean_args(sys.argv)
 
-    G = GumbelMethod.fromargs(sys.argv[1:])
+    G = GumbelMethod.from_args(sys.argv[1:])
 
     G.console_message("Printing the member variables:")
     G.print_members()

@@ -105,7 +105,7 @@ class NormalizeMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         isCombinedWig = "c" in kwargs
@@ -190,5 +190,5 @@ if __name__ == "__main__":
 
     (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
 
-    G = Norm.fromargs(sys.argv[1:])
+    G = Norm.from_args(sys.argv[1:])
     G.Run()

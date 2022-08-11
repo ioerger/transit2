@@ -102,7 +102,7 @@ class ZinbMethod(base.MultiConditionMethod):
         )  # for some reason, transit_error() in base class or transit_tools doesn't work right; needs @classmethod
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         if not HAS_R:
             print("Error: R and rpy2 (~= 3.0) required to run ZINB analysis.")
             print(

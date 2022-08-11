@@ -79,7 +79,7 @@ class GffProtMethod(base.ConvertMethod):
         return self(annotationPath, output_file, wxobj)
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
         if len(args) < 2:
             print("Error: Please specify Input and Output paths")
@@ -95,7 +95,7 @@ class GffProtMethod(base.ConvertMethod):
     @classmethod
     def fromconsole(self):
         try:
-            return self.fromargs(sys.argv[3:])
+            return self.from_args(sys.argv[3:])
         except InvalidArgumentException as e:
             print("Error: %s" % str(e))
             print(self.usage_string())

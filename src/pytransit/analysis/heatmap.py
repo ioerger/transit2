@@ -108,7 +108,7 @@ class HeatmapMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         if not HAS_R:
             raise Exception(f'''
                 Error: R and rpy2 (~= 3.0) required to run corrplot.
@@ -233,5 +233,5 @@ if __name__ == "__main__":
 
     (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
 
-    G = Norm.fromargs(sys.argv[1:])
+    G = Norm.from_args(sys.argv[1:])
     G.Run()

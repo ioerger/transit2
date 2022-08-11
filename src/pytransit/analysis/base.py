@@ -223,7 +223,7 @@ class AnalysisMethod:
         raise NotImplementedError
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         
         raise NotImplementedError
 
@@ -231,7 +231,7 @@ class AnalysisMethod:
     def fromconsole(self):
         
         try:
-            return self.fromargs(sys.argv[2:])
+            return self.from_args(sys.argv[2:])
         except InvalidArgumentException as e:
             print("Error: %s" % str(e))
             print(self.usage_string())

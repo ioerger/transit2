@@ -363,7 +363,7 @@ class HMMMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def fromargs(self, rawargs):
+    def from_args(self, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         ctrldata = args[0].split(",")
@@ -825,7 +825,7 @@ if __name__ == "__main__":
 
     (args, kwargs) = transit_tools.clean_args(sys.argv)
 
-    G = HMMMethod.fromargs(sys.argv[1:])
+    G = HMMMethod.from_args(sys.argv[1:])
 
     G.console_message("Printing the member variables:")
     G.print_members()

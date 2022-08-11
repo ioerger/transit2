@@ -75,36 +75,31 @@ class Analysis:
         alpha=1000,
     )
     
+    valid_cli_flags = [
+        "-n",
+        "--include-conditions",
+        "--exclude-conditions",
+        "--ref",
+        "-iN",
+        "-iC",
+        "-PC",
+        "-alpha",
+        "-winz",
+    ]
     usage_string = f"""
-        python3 {command_name} test1 <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-        ---
-        OR
-        ---
-        python3 {command_name} test1 -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
-        NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
-
+        Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
-        -a              :=  Perform adaptive test1. Default: Turned Off.
-        -ez             :=  Exclude rows with zero across conditions. Default: Turned off
-                            (i.e. include rows with zeros).
-        -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias.
-                            Default: Turned Off.
-        -iN <int>       :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <int>       :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        --ctrl_lib      :=  String of letters representing library of control files in order
-                            e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                            If non-empty, test1 will limit permutations to within-libraries.
-
-        --exp_lib       :=  String of letters representing library of experimental files in order
-                            e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                            If non-empty, test1 will limit permutations to within-libraries.
-        -winz           :=  winsorize insertion counts for each gene in each condition 
-                            (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+            -n <string>         :=  Normalization method. Default: -n TTR
+            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
+            -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+            -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
+    
     
     wxobj = None
     panel = None
@@ -204,12 +199,10 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def fromargs(cls, rawargs):
+    def from_args(cls, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
-
-        if kwargs.get("-help", False) or kwargs.get("h", False):
-            print(cls.usage_string)
-            sys.exit(0)
+        transit_tools.handle_help_flag(kwargs, cls.usage_string)
+        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
 
         combined_wig      = args[0]
         annotation_path   = args[2]
@@ -226,14 +219,6 @@ class Analysis:
         excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
         included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
 
-        # check for unrecognized flags
-        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
-        for arg in rawargs:
-            if arg[0] == "-" and arg not in flags:
-                raise Exception(f'''flag unrecognized: {arg}''')
-                print(cls.usage_string)
-                sys.exit(0)
-        
         # save all the data
         Analysis.inputs.update(dict(
             combined_wig=combined_wig,
@@ -259,18 +244,11 @@ class Analysis:
         counts = counts.tolist()
         if len(counts) < 3:
             return counts
-        s = sorted(counts, reverse=True)
-        if s[1] == 0:
+        sorted_counts = sorted(counts, reverse=True)
+        if sorted_counts[1] == 0:
             return counts  # don't do anything if there is only 1 non-zero value
-        c2 = [s[1] if x == s[0] else x for x in counts]
+        c2 = [sorted_counts[1] if x == sorted_counts[0] else x for x in counts]
         return numpy.array(c2)
-
-        # unique_counts = numpy.unique(counts)
-        # if (len(unique_counts) < 2): return counts
-        # else:
-        #  n, n_minus_1 = unique_counts[heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)]
-        #  result = [[ n_minus_1 if count == n else count for count in wig] for wig in counts]
-        #  return numpy.array(result)
 
     def means_by_condition_for_gene(self, sites, conditions, data):
         """
@@ -326,8 +304,6 @@ class Analysis:
             countSum,
             [numpy.array(v).flatten() for v in countsByCondition.values()],
         )
-
-    # since this is in both ZINB and ANOVA, should move to stat_tools.py?
 
     def winsorize(self, counts):
         # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
