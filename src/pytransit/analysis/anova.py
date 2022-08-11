@@ -521,7 +521,7 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict(
-                heatmap=lambda *args: self.create_heatmap(infile=self.path, outfile=self.path+".heatmap.png"),
+                heatmap=lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
                 table=lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows).Show(),
             )
         )
