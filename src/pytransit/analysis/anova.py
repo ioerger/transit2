@@ -159,8 +159,9 @@ class File(Analysis):
                     # low_mean_filter,
                 )
                 results_area.add(output_path)
+            
             # 
-            # heatmap options
+            # display table options
             # 
             @create_button(self.panel, main_sizer, label="Display Table")
             def _(event):
@@ -216,13 +217,13 @@ class File(Analysis):
                 lfcs = [
                     float(x) for x in w[3 + n : 3 + n + n]
                 ]  # take just the columns of LFCs
-                qval = float(w[-2])
-                data.append((w, means, lfcs, qval))
-
+                each_qval = float(w[-2])
+                data.append((w, means, lfcs, each_qval))
+        
         data.sort(key=lambda x: x[-1])
         hits, LFCs = [], []
-        for k, (w, means, lfcs, qval) in enumerate(data):
-            if (topk == -1 and qval < qval) or (
+        for k, (w, means, lfcs, each_qval) in enumerate(data):
+            if (topk == -1 and each_qval < qval) or (
                 topk != -1 and k < topk
             ):
                 mm = round(numpy.mean(means), 1)

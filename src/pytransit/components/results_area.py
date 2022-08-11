@@ -208,7 +208,11 @@ def create_results_area(frame):
 def add(path):
     result_object = None
     for each_file_class in result_file_classes:
-        loadable = each_file_class.can_load(path)
+        loadable = None
+        try:
+            loadable = each_file_class.can_load(path)
+        except Exception as error:
+            pass
         if loadable:
             result_object = each_file_class(path=path)
     

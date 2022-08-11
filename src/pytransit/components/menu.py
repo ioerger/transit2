@@ -172,7 +172,10 @@ def create_menu(frame):
                     each_method = methods[each_method_name]
                     if each_method.gui.panel:
                         each_method.gui.panel.Hide()
-                the_method.gui.define_panel(frame)
+                try:
+                    the_method.gui.define_panel(frame)
+                except Exception as error:
+                    pass
                 return method_select_func(the_full_name, event)
             return load_method_wrapper
         
