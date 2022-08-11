@@ -158,11 +158,11 @@ class CombinedWig:
             # 
             # handle yaml
             # 
-            if line.startswith("#yaml:"):
+            if line.startswith("yaml:"):
                 yaml_switch_is_on = True
                 continue
-            if yaml_switch_is_on and line.startswith("# "):
-                yaml_string += f"\n"+line[1:]
+            if yaml_switch_is_on and line.startswith(" "):
+                yaml_string += f"\n"+line
                 continue
             else:
                 yaml_switch_is_on = False
@@ -170,8 +170,8 @@ class CombinedWig:
             # 
             # handle older file method
             # 
-            if line.startswith("#File: "):
-                files.append(line.rstrip()[7:])  # allows for spaces in filenames
+            if line.startswith("File: "):
+                files.append(line.rstrip()[6:])  # allows for spaces in filenames
                 continue
             
             # 
@@ -248,7 +248,6 @@ class CWigMetadata:
     # can contain more data
     def __init__(self, path):
         self.path = path
-        self.comments = []
         self.headers = []
         self.rows = []
         self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_headers=True)

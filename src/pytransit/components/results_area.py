@@ -172,11 +172,10 @@ def create_results_area(frame):
         @results.table.events.on_select
         def _(event):
             row = results.table.rows[event.GetIndex()]
-            print(f'''row = {row}''')
+            print(f'''selected row = {row}''')
             
             # define the panel
             define_panel_callback = row.get("__define_panel", None)
-            print(f'''callable(define_panel_callback) = {callable(define_panel_callback)}''')
             if callable(define_panel_callback):
                 define_panel_callback()
             
@@ -202,23 +201,23 @@ def add(path):
         if loadable:
             result_object = each_file_class(path=path)
     
-    table_values = dict()
+    values_for_result_table = dict()
     if result_object:
-        table_values = result_object.table_values
+        values_for_result_table = result_object.values_for_result_table
         # FIXME: connect on-select
         pass
     # not a recognized file type
     else:
-        table_values = dict(
+        values_for_result_table = dict(
             name=basename(path),
             type="Unknown",
             path=path,
         )
     
     print(f'''result_object = {result_object}''')
-    print(f'''table_values = {table_values}''')
+    print(f'''values_for_result_table = {values_for_result_table}''')
     if HAS_WX:
-        results.table.add(table_values)
+        results.table.add(values_for_result_table)
     # print("\t%s" % fullpath)
     # name = transit_tools.basename(fullpath)
     # line = open(fullpath).readline()

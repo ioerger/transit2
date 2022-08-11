@@ -18,7 +18,7 @@ def read(path, *, seperator=",", use_headers=None, first_row_is_headers=False, s
             # comments
             # 
             if each_line.startswith("#"):
-                comments.append(each_line)
+                comments.append(each_line[1:])
                 continue
             
             # 
@@ -111,7 +111,7 @@ def write(path, comments, headers, rows, seperator=","):
         # comments
         # 
         the_file.write(
-            "\n".join(comments)
+            "\n".join([ f"#{each}" for each in comments ])
         )
         
         # 

@@ -33,6 +33,7 @@ import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.components.results_area as results_area
+import pytransit.basics.csv as csv
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
@@ -529,25 +530,6 @@ class Analysis:
 
 @transit_tools.ResultsFile
 class File(Analysis):
-    def __init__(self, path=None):
-        self.wxobj = None
-        self.path  = path
-        self.colnames = Analysis.columns
-        self.table_values = dict(
-            name=basename(self.path),
-            type=Analysis.identifier,
-            path=self.path,
-            __define_panel=self.define_panel, # part of the row, but isn't shown on the table. Name is used by the results area
-        )
-    
-    def __str__(self):
-        return f"""
-            File for {self.short_name}
-                path: {self.path}
-                colnames: {self.colnames}
-        """.replace('\n            ','\n').strip()
-    
-    
     @staticmethod
     def can_load(path):
         row = 0
@@ -570,6 +552,44 @@ class File(Analysis):
                 data.append((row, rowdict))
                 row += 1
         return has_correct_identifier
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = dict(
+            name=basename(self.path),
+            type=Analysis.identifier,
+            path=self.path,
+            __define_panel=self.define_panel, # part of the row, but isn't shown on the table. Name is used by the results area
+        )
+        
+        # 
+        # get column names
+        # 
+        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True)
+        transit_tools.log(f'''comments = {comments}''')
+        if len(comments) == 0:
+            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
+        self.column_names = comments[-1].split("\t")
+        transit_tools.log(f'''self.column_names = {self.column_names}''')
+        
+        # 
+        # get rows
+        #
+        self.rows = []
+        for each_row in rows:
+            row = {}
+            for each_column_name, each_cell in zip(self.column_names, each_row):
+               row[each_column_name] = each_cell
+            self.rows.append(row)
+        
+    
+    def __str__(self):
+        return f"""
+            File for {self.short_name}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
     
     def define_panel(self):
         self.panel = make_panel()
@@ -597,7 +617,7 @@ class File(Analysis):
             # 
             @create_button(self.panel, main_sizer, label="Display Table")
             def _(event):
-                file_display.TransitGridFrame(universal.frame, self.path).Show()
+                gui_tools.SpreadSheet(title="Anova", heading="", column_names=self.column_names, rows=self.rows).Show()
         
         # 
         # finish panel setup
