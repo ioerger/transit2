@@ -190,10 +190,11 @@ if True:
         
         def get_value(*args):
             as_list = wxobj.GetValue().split(",")
-            if len(as_list) == 0:
+            without_empty_strings = [ each for each in as_list if len(each) > 0 ]
+            if len(without_empty_strings) == 0:
                 return universal.session_data.condition_names 
             else:
-                return as_list
+                return without_empty_strings
         
         return get_value
     
@@ -211,7 +212,9 @@ if True:
         sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         
         def get_value(*args):
-            return wxobj.GetValue().split(",")
+            as_list = wxobj.GetValue().split(",")
+            without_empty_strings = [ each for each in as_list if len(each) > 0 ]
+            return without_empty_strings
         
         return get_value
     

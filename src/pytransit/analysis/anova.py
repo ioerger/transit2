@@ -444,20 +444,16 @@ class Analysis:
                 
                 transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
                 data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
-                transit_tools.log("got here 1")
                 
                 if self.inputs.winz: transit_tools.log("Winsorizing insertion counts")
                 conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
-                transit_tools.log("got here 1.1")
                 conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
-                transit_tools.log("got here 1.2")
                 conditions_list = transit_tools.select_conditions(
                     conditions=conditions,
                     included_conditions=self.inputs.included_conditions,
                     excluded_conditions=self.inputs.excluded_conditions,
                     ordering_metadata=ordering_metadata,
                 )
-                transit_tools.log("got here 2")
 
                 condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
 
@@ -476,16 +472,15 @@ class Analysis:
                     excluded_cond=self.inputs.excluded_conditions,
                     conditions=condition_names,
                 ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
-                transit_tools.log("got here 3")
                 
+                transit_tools.log("reading genes")
                 genes = tnseq_tools.read_genes(self.inputs.annotation_path)
-                transit_tools.log("got here 4")
             
             # 
             # process data
             # 
             if True:
-                transit_tools.log("got here 5")
+                transit_tools.log("processing data")
                 TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
                 RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
                     genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
@@ -502,10 +497,9 @@ class Analysis:
             # 
             transit_tools.log(f"Adding File: {self.inputs.output_path}")
             results_area.add(self.inputs.output_path)
-            transit_tools.log("got here 6")
             if True:
                 file = open(self.inputs.output_path, "w")
-
+                
                 heads = (
                     "Rv Gene TAs".split() +
                     ["Mean_%s" % x for x in conditions_list] +
