@@ -85,12 +85,16 @@ class Analysis:
         combinedWigParams=None,
     )
     
+    self.wxobj = None
+    self.panel = None
+    
     def __init__(self):
+        Analysis.instance = self
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
         self.transposons_text = transit_tools.get_transposons_text(self.transposons)
         self.method           = Method
-        self.gui              = GUI()
         self.filetypes        = [File]
+        self.gui              = self # backwards compat
     
     def __str__(self):
         return f"""
@@ -102,6 +106,40 @@ class Analysis:
                 Method:      {self.method}
                 GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
+
+    def define_panel(self, _):
+        self.panel = make_panel()
+        
+        # 
+        # parameter inputs
+        # 
+        # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+        # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+        # --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+        # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+        # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+        # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
+        # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+        self.value_getters = LazyDict()
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        if True:
+            self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
+            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
+            self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
+            self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
+            self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
+            self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
+            self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
+            self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
+            
+            create_run_button(self.panel, main_sizer)
+            
+        parameter_panel.set_panel(self.panel)
+        self.panel.SetSizer(main_sizer)
+        self.panel.Layout()
+        main_sizer.Fit(self.panel)
 
 @transit_tools.ResultsFile
 class File(Analysis):
@@ -272,45 +310,7 @@ class File(Analysis):
         return data
 
     
-class GUI:
-    def __init__(self, *args, **kwargs):
-        Analysis.gui = self
-        self.wxobj = None
-        self.panel = None
-    
-    def define_panel(self, _):
-        self.panel = make_panel()
-        
-        # 
-        # parameter inputs
-        # 
-        # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-        # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-        # --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-        # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-        # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-        # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-        # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        if True:
-            self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
-            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
-            self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
-            self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
-            self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
-            self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
-            self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
-            self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
-            
-            create_run_button(self.panel, main_sizer)
-            
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
+GUI = Analysis
 
 
 class Method(base.MultiConditionMethod):
@@ -464,7 +464,7 @@ class Method(base.MultiConditionMethod):
             # 
             # setup custom inputs
             # 
-            for each_key, each_getter in Analysis.gui.value_getters.items():
+            for each_key, each_getter in Analysis.instance.value_getters.items():
                 try:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
