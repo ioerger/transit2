@@ -64,9 +64,6 @@ class Analysis:
         "Adj. p-value",
     ]
     
-    gui=None
-    method=None
-    
     inputs = LazyDict(
         combined_wig=None,
         metadata=None,
@@ -82,11 +79,10 @@ class Analysis:
         winz=None,
         refs=None,
         alpha=None,
-        combinedWigParams=None,
     )
     
-    self.wxobj = None
-    self.panel = None
+    wxobj = None
+    panel = None
     
     def __init__(self):
         Analysis.instance = self
@@ -312,106 +308,9 @@ class File(Analysis):
     
 GUI = Analysis
 
-
-class Method(base.MultiConditionMethod):
-    def __init__(
-        self,
-        combined_wig,
-        metadata,
-        annotation,
-        normalization,
-        output_file,
-        excluded_conditions=[],
-        included_conditions=[],
-        n_terminus=0.0,
-        c_terminus=0.0,
-        pseudocount=1,
-        winz=False,
-        refs=[],
-        alpha=1000,
-        *args,
-        **kwargs,
-    ):
-        Analysis.method = self
-        
-        self.pseudocount         = None
-        self.alpha               = None
-        self.refs                = None
-        self.winz                = None
-        self.normalization       = None
-        self.ctrldata            = None
-        self.expdata             = None
-        self.annotation_path     = None
-        self.LOESS               = None
-        self.doHistogram         = None
-        self.output              = None
-        self.diffStrains         = None
-        self.annotation_path_exp = None
-        self.combinedWigParams   = None
-        self.ignoreCodon         = None
-        self.n_terminus          = None
-        self.c_terminus          = None
-        self.ctrl_lib_str        = None
-        self.exp_lib_str         = None
-        self.samples             = None
-        self.adaptive            = None
-        self.includeZeros        = None
-        self.Z                   = None
-        
-        base.MultiConditionMethod.__init__(
-            self,
-            Analysis.short_name,
-            Analysis.long_name,
-            Analysis.short_desc,
-            Analysis.long_desc,
-            combined_wig,
-            metadata,
-            annotation,
-            output_file,
-            normalization=normalization,
-            excluded_conditions=excluded_conditions,
-            included_conditions=included_conditions,
-            n_terminus=n_terminus,
-            c_terminus=c_terminus,
-        )
-
-        self.pseudocount = pseudocount
-        self.alpha = alpha
-        self.refs = refs
-        self.winz = winz
-    
-    def __repr__(self):
-        as_dict = LazyDict(
-            pseudocount=self.pseudocount,
-            alpha=self.alpha,
-            refs=self.refs,
-            winz=self.winz,
-            normalization=self.normalization,
-            ctrldata=self.ctrldata,
-            expdata=self.expdata,
-            annotation_path=self.annotation_path,
-            LOESS=self.LOESS,
-            doHistogram=self.doHistogram,
-            output=self.output,
-            diffStrains=self.diffStrains,
-            annotation_path_exp=self.annotation_path_exp,
-            combinedWigParams=self.combinedWigParams,
-            ignoreCodon=self.ignoreCodon,
-            n_terminus=self.n_terminus,
-            c_terminus=self.c_terminus,
-            ctrl_lib_str=self.ctrl_lib_str,
-            exp_lib_str=self.exp_lib_str,
-            samples=self.samples,
-            adaptive=self.adaptive,
-            includeZeros=self.includeZeros,
-            Z=self.Z,
-        )
-        return f"{as_dict}"
-
-    @classmethod
-    def usage_string(cls):
-        command_name = sys.argv[0]
-        return f"""
+command_name = sys.argv[0]
+class Method(Analysis):
+    usage_string = f"""
         python3 {command_name} test1 <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
         ---
         OR
@@ -440,11 +339,58 @@ class Method(base.MultiConditionMethod):
                             If non-empty, test1 will limit permutations to within-libraries.
         -winz           :=  winsorize insertion counts for each gene in each condition 
                             (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-        """
-
+    """.replace("\n        ", "\n")
     
+    def __init__(
+        self,
+        combined_wig,
+        metadata,
+        annotation,
+        normalization,
+        output_file,
+        excluded_conditions=None,
+        included_conditions=None,
+        n_terminus=0.0,
+        c_terminus=0.0,
+        pseudocount=1,
+        winz=False,
+        refs=[],
+        alpha=1000,
+        *args,
+        **kwargs,
+    ):
+        self.output = output_file
+        self.annotation_path = annotation
+        
+        self.combined_wig        = combined_wig
+        self.metadata            = metadata
+        self.normalization       = normalization
+        self.n_terminus          = n_terminus
+        self.c_terminus          = c_terminus
+        self.excluded_conditions = excluded_conditions or []
+        self.included_conditions = included_conditions or []
+        
+        self.pseudocount = pseudocount
+        self.alpha = alpha
+        self.refs = refs
+        self.winz = winz
+        
+    def __repr__(self):
+        as_dict = LazyDict(
+            pseudocount=self.pseudocount,
+            alpha=self.alpha,
+            refs=self.refs,
+            winz=self.winz,
+            normalization=self.normalization,
+            annotation_path=self.annotation_path,
+            output=self.output,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
+        )
+        return f"{as_dict}"
+
     @classmethod
-    def from_gui(self, frame):
+    def from_gui(cls, frame):
         with gui_tools.nice_error_log:
             # 
             # get wig files
@@ -480,14 +426,14 @@ class Method(base.MultiConditionMethod):
             if not Analysis.inputs.output_file:
                 return None
 
-            return self(*Analysis.inputs.values())
+            return cls(*Analysis.inputs.values())
 
     @classmethod
-    def fromargs(self, rawargs):
+    def fromargs(cls, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
-            print(self.usage_string)
+            print(cls.usage_string)
             sys.exit(0)
 
         combined_wig = args[0]
@@ -510,10 +456,10 @@ class Method(base.MultiConditionMethod):
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 raise Exception(f'''flag unrecognized: {arg}''')
-                print(self.usage_string)
+                print(cls.usage_string)
                 sys.exit(0)
 
-        return self(
+        return cls(
             combined_wig,
             metadata,
             annotation,
@@ -529,48 +475,13 @@ class Method(base.MultiConditionMethod):
             alpha
         )
 
-    def preprocess_data(self, position, data):
-        (K, N) = data.shape
-
-        if self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
-            (data, factors) = norm_tools.normalize_data(
-                data,
-                self.normalization,
-                self.ctrldata + self.expdata,
-                self.annotation_path,
-            )
-
-        if self.LOESS:
-            transit_tools.log("Performing LOESS Correction")
-            for j in range(K):
-                data[j] = stat_tools.loess_correction(position, data[j])
-
-        return data
-
-    def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
+    def wigs_to_conditions(self, conditions_by_file, filenames_in_comb_wig):
         """
             Returns list of conditions corresponding to given wigfiles.
             ({FileName: Condition}, [FileName]) -> [Condition]
             Condition :: [String]
         """
-        return [conditionsByFile.get(f, None) for f in filenamesInCombWig]
-
-    def filter_wigs_by_conditions(self, data, conditions, included_conditions):
-        """
-            Filters conditions from wig to ctrl, exp conditions only
-            ([[Wigdata]], [ConditionCtrl, ConditionExp]) -> Tuple([[Wigdata]], [Condition])
-        """
-        d_filtered, cond_filtered = [], []
-        if len(included_conditions) != 2:
-            raise Exception(f'''Only 2 conditions expected, but got: {included_conditions}''')
-            sys.exit(0)
-        for i, c in enumerate(conditions):
-            if c.lower() in included_conditions:
-                d_filtered.append(data[i])
-                cond_filtered.append(conditions[i])
-
-        return (numpy.array(d_filtered), numpy.array(cond_filtered))
+        return [conditions_by_file.get(f, None) for f in filenames_in_comb_wig]
 
     def winsorize_test1(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array
@@ -753,40 +664,39 @@ class Method(base.MultiConditionMethod):
         # 
         transit_tools.log("Getting Data")
         if True:
-            sites, data, filenamesInCombWig = tnseq_tools.read_combined_wig(self.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.combined_wig)
             
             transit_tools.log(f"Normalizing using: {self.normalization}")
             data, factors = norm_tools.normalize_data(data, self.normalization)
 
             if self.winz: transit_tools.log("Winsorizing insertion counts")
-            conditionsByFile, _, _, orderingMetadata = tnseq_tools.read_samples_metadata(self.metadata)
-            conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
-            conditionsList = self.select_conditions(
-                conditions,
-                self.included_conditions,
-                self.excluded_conditions,
-                orderingMetadata,
+            conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.metadata)
+            conditions = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
+            conditions_list = transit_tools.select_conditions(
+                conditions=conditions,
+                included_conditions=self.included_conditions,
+                excluded_conditions=self.excluded_conditions,
+                ordering_metadata=ordering_metadata,
             )
 
-            conditionNames = [conditionsByFile[f] for f in filenamesInCombWig]
-            fileNames = filenamesInCombWig
+            condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
 
             (
                 data,
-                fileNames,
-                conditionNames,
+                file_names,
+                condition_names,
                 conditions,
                 _,
                 _,
-            ) = self.filter_wigs_by_conditions3(  # in base.py
+            ) = transit_tools.filter_wigs_by_conditions3(
                 data,
-                fileNames,  # it looks like fileNames and conditionNames have to be parallel to data (vector of wigs)
-                conditionNames,  # original Condition column in samples metadata file
-                self.included_conditions,
-                self.excluded_conditions,
-                conditions=conditionNames,
-            )  # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
-
+                file_names=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
+                condition_names=condition_names, # original Condition column in samples metadata file
+                included_cond=self.included_conditions,
+                excluded_cond=self.excluded_conditions,
+                conditions=condition_names,
+            ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
+            
             genes = tnseq_tools.read_genes(self.annotation_path)
         
         # 
@@ -814,8 +724,8 @@ class Method(base.MultiConditionMethod):
 
             heads = (
                 "Rv Gene TAs".split() +
-                ["Mean_%s" % x for x in conditionsList] +
-                ["LFC_%s" % x for x in conditionsList] +
+                ["Mean_%s" % x for x in conditions_list] +
+                ["LFC_%s" % x for x in conditions_list] +
                 "MSR MSE+alpha Fstat Pval Padj".split() + 
                 ["status"]
             )
@@ -826,7 +736,7 @@ class Method(base.MultiConditionMethod):
             for gene in genes:
                 Rv = gene["rv"]
                 if Rv in MeansByRv:
-                    means = [MeansByRv[Rv][c] for c in conditionsList]
+                    means = [MeansByRv[Rv][c] for c in conditions_list]
                     refs = [MeansByRv[Rv][c] for c in self.refs]
                     LFCs = self.calc_lf_cs(means,refs,self.pseudocount)
                     vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +

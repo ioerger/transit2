@@ -717,7 +717,7 @@ def filter_wigs_by_conditions(
     interactions=[],
     excluded_conditions=[],
     included_conditions=[],
-    unknown_cond_flag,
+    unknown_cond_flag="FLAG-UNMAPPED-CONDITION-IN-WIG",
 ):
     """
         Filters conditions that are excluded/included.
