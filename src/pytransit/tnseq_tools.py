@@ -1170,7 +1170,6 @@ def check_wig_includes_zeros(wig_list):
 
 def get_unknown_file_types(wig_list, transposons):
     """ """
-    # TODO
     file_types = set(get_file_types(wig_list))
     method_types = set(transposons)
     extra_types = list(file_types - method_types)

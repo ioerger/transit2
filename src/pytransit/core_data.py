@@ -95,12 +95,6 @@ class SessionData:
     def files(self):
         return [ self.path for each in self.samples ]
     
-    def import_session(self, path):
-        pass # TODO
-    
-    def export_session(self, path):
-        pass # TODO
-    
     def __repr__(self):
         return f"""SessionData(
             samples={indent(self.samples, by="            ", ignore_first=True)},

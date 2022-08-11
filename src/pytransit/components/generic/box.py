@@ -92,9 +92,6 @@ class Box:
     def length(self):
         return len(self.children)
     
-    # TODO: remove
-    # TODO: insert
-    
     def __len__(self):
         return self.length
     

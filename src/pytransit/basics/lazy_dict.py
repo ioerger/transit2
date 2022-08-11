@@ -84,7 +84,6 @@ def stringify(value):
             builtins.print(value, file=string_stream)
             debug_string = string_stream.getvalue()
         
-        # TODO: handle "<slot wrapper '__repr__' of 'object' objects>"
         if debug_string.startswith("<class") and hasattr(value, "__name__"):
             return value.__name__
         if debug_string.startswith("<function <lambda>"):

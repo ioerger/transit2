@@ -46,7 +46,7 @@ class TransitFile:
             transit_tools.ShowWarning(text)
 
     def getData(self, path, colnames):
-        # TODO write docstring
+        
         row = 0
         data = []
         shownError = False
@@ -73,7 +73,7 @@ class TransitFile:
         return data
 
     def getHeader(self, path):
-        # TODO write docstring
+        
         return "Generic Transit File Type."
 
     def getMenus(self):
@@ -258,7 +258,7 @@ class AnalysisMethod:
         raise NotImplementedError
 
     def Run(self):
-        # TODO write docstring
+        
         raise NotImplementedError
 
     def print_members(self):
