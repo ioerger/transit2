@@ -1,14 +1,3 @@
-import scipy
-import numpy
-import heapq
-import math
-import statsmodels.stats.multitest
-
-
-from pytransit.analysis import base
-from pytransit.transit_tools import write_dat, EOL
-
-
 import sys
 import os
 import time
@@ -20,10 +9,15 @@ import heapq
 import collections
 
 import numpy
+import scipy
 import scipy.stats
+import heapq
+import math
+import statsmodels.stats.multitest
 from super_map import LazyDict
 
-from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.analysis import base
+from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.analysis import base
 import pytransit
 import pytransit.gui_tools as gui_tools
@@ -32,11 +26,12 @@ import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
-import pytransit.components.results_area as results_area
 import pytransit.basics.csv as csv
+import pytransit.components.results_area as results_area
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
+from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
 command_name = sys.argv[0]
 
@@ -617,7 +612,12 @@ class File(Analysis):
             # 
             @create_button(self.panel, main_sizer, label="Display Table")
             def _(event):
-                gui_tools.SpreadSheet(title="Anova", heading="", column_names=self.column_names, rows=self.rows).Show()
+                SpreadSheet(
+                    title="Anova",
+                    heading="",
+                    column_names=self.column_names,
+                    rows=self.rows
+                ).Show()
         
         # 
         # finish panel setup
