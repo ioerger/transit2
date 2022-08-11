@@ -1,5 +1,7 @@
 import os
 
+import wx.lib.inspection
+   
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.core_data import universal
@@ -20,19 +22,23 @@ results = LazyDict(
 )
 def create_results_area(frame):
     
-    results_sizer = wx.StaticBoxSizer(
-        wx.StaticBox(
-            frame,
-            wx.ID_ANY,
-            "Results Files"
-        ),
-        wx.VERTICAL,
-    )
+    results_sizer = wx.BoxSizer(wx.VERTICAL)
     
     # 
     # Box
     # 
     if True:
+        results_sizer.Add(
+            wx.StaticText(
+                universal.frame,
+                label="Results Files",
+                size=(330, -1),
+            ),
+            proportion=0,
+            flag=wx.LEFT,
+            border=gui_tools.default_padding,
+        )
+        
         results.header = wx.BoxSizer(wx.HORIZONTAL)
             
         # 
@@ -97,7 +103,6 @@ def create_results_area(frame):
                 # attach all their callbacks to the dropdown
                 change_file_action_choices(dropdown_options_for_row)
             
-        
         results_sizer.Add(
             results.table.wx_object,
             1,
@@ -127,7 +132,9 @@ def change_file_action_choices(new_choices):
         0,
     )
     results.file_action_choice_element.SetSelection(0)
-    results.header.Add(results.file_action_choice_element, 0, wx.ALL, gui_tools.default_padding)
+    results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
+    
+    wx.lib.inspection.InspectionTool().Show()
     
     @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
     def _(event):
