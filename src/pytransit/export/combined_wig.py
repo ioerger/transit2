@@ -2,10 +2,17 @@ import sys
 import os
 import time
 
-import pytransit.export.base as base
-import pytransit.transit_tools as transit_tools
-import pytransit.tnseq_tools as tnseq_tools
-import pytransit.norm_tools as norm_tools
+#import pytransit.export.base as base
+#import pytransit.transit_tools as transit_tools
+#import pytransit.tnseq_tools as tnseq_tools
+#import pytransit.norm_tools as norm_tools
+
+print("foo")
+from pytransit.export import base
+print("bar")
+from pytransit import transit_tools
+from pytransit import tnseq_tools
+from pytransit import norm_tools
 
 
 ############# Description ##################
