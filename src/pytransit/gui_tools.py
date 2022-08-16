@@ -14,7 +14,7 @@ default_padding = 5
 def rgba(*args):
     return tuple(args)
 
-def bind_to(wxPythonObj, event):
+def bind_to(wx_python_obj, event, *args, **kwargs):
     """
         Usage:
             @bind_to(gui_object, wx.EVENT_THING)
@@ -23,10 +23,10 @@ def bind_to(wxPythonObj, event):
         
     """
     def wrapper2(function_to_attach):
-        wxPythonObj.Bind(event, function_to_attach)
-        def wrapper1(*args, **kwargs):
+        wx_python_obj.Bind(event, function_to_attach, *args, **kwargs)
+        def wrapper1(*inner_args, **inner_kwargs):
             with nice_error_log:
-               return function_to_attach(*args, **kwargs)
+               return function_to_attach(*inner_args, **inner_kwargs)
         return wrapper1
     return wrapper2
 
@@ -165,3 +165,15 @@ def show_image(path):
             self.Fit()
     
     ImgFrame(None, path).Show()
+
+
+def run_method_by_label(*, method_options, method_label):
+    with transit_tools.nice_error_log:
+        for name in method_options:
+            method_option = method_options[name]
+            if method_option.label == method_label:
+                method_object = method_option.method.from_gui(frame)
+                if method_object:
+                    thread = threading.Thread(target=method_object.Run())
+                    thread.setDaemon(True)
+                    thread.start()

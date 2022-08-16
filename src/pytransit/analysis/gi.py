@@ -215,7 +215,7 @@ class GIGUI(base.AnalysisGUI):
 
         # Connect events
         giButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-        self.wxobj.giLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+        self.wxobj.giLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.when_loess_prev_clicked)
 
         self.panel = giPanel
 

@@ -110,7 +110,7 @@ class CombinedWig(tuple):
 
         # Check size of all wig file matches
         size_list = []
-        for _, path in enumerate(list_of_paths):
+        for path in list_of_paths:
             line_count = 0
             for line in open(path):
                 if line[0] not in "0123456789":
