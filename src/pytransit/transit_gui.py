@@ -275,10 +275,6 @@ class TnSeekFrame(wx.Frame):
         return path
 
     
-    def allSelected(self, col=5):
-        selected_all = self.ctrlSelected(col) + self.expSelected(col)
-        return selected_all
-
     def loadCtrlFile(self, fullpath):
         name = transit_tools.basename(fullpath)
         (
@@ -308,25 +304,6 @@ class TnSeekFrame(wx.Frame):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
 
-    def ctrlRemoveFunc(self, event):
-        next = self.wig_table.GetNextSelected(-1)
-        while next != -1:
-            if self.verbose:
-                transit_tools.log(
-                    "Removing control item (%d): %s"
-                    % (next, self.wig_table.GetItem(next, 0).GetText())
-                )
-
-            # Update library string after removing wig file
-            updated_lib_text = self.ctrlLibText.GetValue()
-            updated_lib_text = updated_lib_text[:next] + updated_lib_text[(next + 1) :]
-            self.ctrlLibText.SetValue(updated_lib_text)
-
-            # Delete and Get next selected
-            self.wig_table.DeleteItem(next)
-            next = self.wig_table.GetNextSelected(-1)
-            self.index_ctrl -= 1
-
     def allViewFunc(self, event, gene=""):
 
         annotationpath = self.annotation
@@ -346,28 +323,6 @@ class TnSeekFrame(wx.Frame):
         else:
             transit_tools.show_error_dialog("Error: No annotation file selected.")
             return
-
-    def scatterFunc(self, event):
-        """ """
-        # annotationpath = self.annotation
-        datasets = self.ctrlSelected() + self.expSelected()
-        if len(datasets) == 2:
-            if self.verbose:
-                transit_tools.log(
-                    "Showing scatter plot for: %s"
-                    % ", ".join([transit_tools.fetch_name(d) for d in datasets])
-                )
-            (data, position) = tnseq_tools.get_data(datasets)
-            X = data[0, :]
-            Y = data[1, :]
-
-            plt.plot(X, Y, "bo")
-            plt.title("Scatter plot - Reads at TA sites")
-            plt.xlabel(transit_tools.fetch_name(datasets[0]))
-            plt.ylabel(transit_tools.fetch_name(datasets[1]))
-            plt.show()
-        else:
-            transit_tools.show_error_dialog("Please make sure only two datasets are selected (across control and experimental datasets).")
 
     def aboutFunc(self, event):
         description = """TRANSIT is a tool for analysing TnSeq data. It provides an easy to use graphical interface and access to several different analysis methods that allow the user to determine essentiality within a single condition as well as between two conditions.
