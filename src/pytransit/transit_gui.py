@@ -324,49 +324,6 @@ class TnSeekFrame(wx.Frame):
             transit_tools.show_error_dialog("Error: No annotation file selected.")
             return
 
-    def aboutFunc(self, event):
-        description = """TRANSIT is a tool for analysing TnSeq data. It provides an easy to use graphical interface and access to several different analysis methods that allow the user to determine essentiality within a single condition as well as between two conditions.
-
-
-            If you need to cite this tool, please use the following reference:
-
-            DeJesus, M.A., Ambadipudi, C., Baker, R., Sassetti, C., and Ioerger, T.R. (2015). TRANSIT - a Software Tool for Himar1 TnSeq Analysis. PLOS Computational Biology, 11(10):e1004401
-
-
-        """.replace("\n            ","\n")
-
-        licence = """
-            TRANSIT is free software: you can redistribute it and/or modify
-            it under the terms of the GNU General Public License as published by
-            the Free Software Foundation, either version 3 of the License.
-
-
-            TRANSIT is distributed in the hope that it will be useful,
-            but WITHOUT ANY WARRANTY; without even the implied warranty of
-            MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-            GNU General Public License for more details.
-
-            You should have received a copy of the GNU General Public License
-            along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
-        """.replace("\n            ", "\n")
-
-        info = wx.adv.AboutDialogInfo()
-        info.SetIcon(images.transit_logo2.GetIcon())
-        # images.transit_logo2.GetImage().ConvertToBitmap()
-        info.SetName("TRANSIT")
-        info.SetVersion(pytransit.__version__)
-        info.SetDescription(description)
-        info.SetCopyright("(C) 2015\n Michael A. DeJesus\nThomas R. Ioerger")
-        info.SetWebSite("http://saclab.tamu.edu/essentiality/transit/")
-        info.SetLicence(licence)
-        info.AddDeveloper("Michael A. DeJesus")
-        info.AddDeveloper("Thomas R. Ioerger")
-        info.AddDeveloper("Chaitra Ambadipudi")
-        info.AddDeveloper("Richard Baker")
-        info.AddDeveloper("Christopher Sassetti")
-        info.AddDeveloper("Eric Nelson")
-        wx.adv.AboutBox(info)
-
     def LoessPrevFunc(self, event):
         datasets_selected = self.ctrlSelected() + self.expSelected()
         if not datasets_selected:
