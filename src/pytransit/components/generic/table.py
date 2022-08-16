@@ -77,16 +77,29 @@ class Table:
         return self._state.index+1
     
     @property
-    def selected(self):
+    def selected_wx_objects(self):
         selected = []
-        current = -1
+        current_selected_index = -1
         while True:
-            next = self.wx_object.GetNextSelected(current)
-            if next == -1:
+            next_selected_index = self.wx_object.GetNextSelected(current_selected_index)
+            if next_selected_index == -1:
                 break
-            path = self.wx_object.GetItem(next)
-            selected.append(path)
-            current = next
+            selected.append(
+                self.wx_object.GetItem(next_selected_index)
+            )
+            current_selected_index = next_selected_index
+        return selected
+    
+    @property
+    def selected_rows(self):
+        selected = []
+        current_selected_index = -1
+        while True:
+            next_selected_index = self.wx_object.GetNextSelected(current_selected_index)
+            if next_selected_index == -1:
+                break
+            selected.append(self.rows[next_selected_index])
+            current_selected_index = next_selected_index
         return selected
     
     @property
