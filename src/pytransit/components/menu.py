@@ -3,6 +3,7 @@ from functools import partial
 
 import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
+import pytransit.qc_display as qc_display
 from pytransit.core_data import SessionData, universal
 
 selected_export_menu_item = None
@@ -38,81 +39,107 @@ def create_menu(frame):
 
         file_menu_item.AppendSubMenu(export_menu_item, "Export")
 
-        convert_menu_item = wx.Menu()
-        annotation_convert_pt_to_ptt_menu = wx.MenuItem(
-            convert_menu_item,
-            wx.ID_ANY,
-            "prot_table to PTT",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
+        # 
+        # Convert
+        # 
+        if True:
+            convert_menu_item = wx.Menu()
+            
+            # 
+            # prot_table to PTT
+            # 
+            annotation_convert_pt_to_ptt_menu = wx.MenuItem(
+                convert_menu_item,
+                wx.ID_ANY,
+                "prot_table to PTT",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
+            
+            # 
+            # prot_table to GFF3
+            # 
+            annotation_convert_pt_to_gff3_menu = wx.MenuItem(
+                convert_menu_item,
+                wx.ID_ANY,
+                "prot_table to GFF3",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
 
-        annotation_convert_pt_to_gff3_menu = wx.MenuItem(
-            convert_menu_item,
-            wx.ID_ANY,
-            "prot_table to GFF3",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
-
-        annotation_convert_ptt_to_pt = wx.MenuItem(
-            convert_menu_item,
-            wx.ID_ANY,
-            "PTT to prot_table",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-
-        convert_menu_item.Append(annotation_convert_ptt_to_pt)
-        file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
+            # 
+            # PTT to prot_table
+            # 
+            annotation_convert_ptt_to_pt = wx.MenuItem(
+                convert_menu_item,
+                wx.ID_ANY,
+                "PTT to prot_table",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            
+            convert_menu_item.Append(annotation_convert_ptt_to_pt)
+            file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
+        
         menu_bar.Append(file_menu_item, "&File")
+        
+        # 
+        # View Menu
+        # 
+        if True:
+            view_menu_item = wx.Menu()
+            scatter_menu_item = wx.MenuItem(
+                view_menu_item,
+                wx.ID_ANY,
+                "&Scatter Plot",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
 
-        view_menu_item = wx.Menu()
-        scatter_menu_item = wx.MenuItem(
-            view_menu_item,
-            wx.ID_ANY,
-            "&Scatter Plot",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
+            view_menu_item.Append(scatter_menu_item)
 
-        view_menu_item.Append(scatter_menu_item)
+            track_menu_item = wx.MenuItem(
+                view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL
+            )
 
-        track_menu_item = wx.MenuItem(
-            view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL
-        )
+            view_menu_item.Append(track_menu_item)
+            menu_bar.Append(view_menu_item, "&View")
+        
+        # 
+        # Methods Menu
+        # 
+        if True:
+            methods_menu_item = wx.Menu()
+            himar1_menu_item = wx.Menu()
+            tn5_menu_item = wx.Menu()
 
-        view_menu_item.Append(track_menu_item)
-        menu_bar.Append(view_menu_item, "&View")
-
-        #
-        methods_menu_item = wx.Menu()
-        himar1_menu_item = wx.Menu()
-        tn5_menu_item = wx.Menu()
-
-        methods_menu_item.AppendSubMenu(himar1_menu_item, "&Himar1 Methods")
-        methods_menu_item.AppendSubMenu(tn5_menu_item, "&Tn5 Methods")
-        menu_bar.Append(methods_menu_item, "&Analysis")
+            methods_menu_item.AppendSubMenu(himar1_menu_item, "&Himar1 Methods")
+            methods_menu_item.AppendSubMenu(tn5_menu_item, "&Tn5 Methods")
+            menu_bar.Append(methods_menu_item, "&Analysis")
 
         frame.SetMenuBar(menu_bar)
+        
+        # 
+        # help menu
+        # 
+        if True:
+            help_menu_item = wx.Menu()
+            documentation_menu_item = wx.MenuItem(
+                help_menu_item,
+                wx.ID_ANY,
+                "&Documentation",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            help_menu_item.Append(documentation_menu_item)
+            about_menu_item = wx.MenuItem(
+                help_menu_item, wx.ID_ANY, "&About", wx.EmptyString, wx.ITEM_NORMAL
+            )
+            help_menu_item.Append(about_menu_item)
 
-        help_menu_item = wx.Menu()
-        documentation_menu_item = wx.MenuItem(
-            help_menu_item,
-            wx.ID_ANY,
-            "&Documentation",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        help_menu_item.Append(documentation_menu_item)
-        about_menu_item = wx.MenuItem(
-            help_menu_item, wx.ID_ANY, "&About", wx.EmptyString, wx.ITEM_NORMAL
-        )
-        help_menu_item.Append(about_menu_item)
-
-        menu_bar.Append(help_menu_item, "&Help")
+            menu_bar.Append(help_menu_item, "&Help")
 
     # 
     # Export options
