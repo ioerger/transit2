@@ -112,7 +112,7 @@ class Analysis:
 
     def define_panel(self, _):
         self.panel = make_panel()
-        
+
         # 
         # parameter inputs
         # 

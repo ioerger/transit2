@@ -25,7 +25,7 @@ pathway_enrichment
 rankproduct
 resampling
 tn5gaps
-tnseq_stats
+tnseq_stats_gui
 ttnfitness
 utest
 zinb""".split()

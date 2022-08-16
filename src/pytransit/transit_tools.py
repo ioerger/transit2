@@ -31,6 +31,7 @@ from typing import NamedTuple
 import numpy
 import scipy.optimize
 import scipy.stats
+import heapq
 
 # 
 # optional import: wx

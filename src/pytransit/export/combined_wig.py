@@ -7,9 +7,7 @@ import time
 #import pytransit.tnseq_tools as tnseq_tools
 #import pytransit.norm_tools as norm_tools
 
-print("foo")
 from pytransit.export import base
-print("bar")
 from pytransit import transit_tools
 from pytransit import tnseq_tools
 from pytransit import norm_tools
