@@ -157,7 +157,7 @@ class Analysis:
             # 
             # get annotation
             # 
-            Analysis.inputs.annotation_path = universal.session_data.annotation
+            Analysis.inputs.annotation_path = universal.session_data.annotation_path
             # FIXME: enable this once I get a valid annotation file example
             # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
             #     return None

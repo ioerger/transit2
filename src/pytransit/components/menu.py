@@ -87,7 +87,57 @@ def create_menu(frame):
                 wx.ITEM_NORMAL,
             )
             convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
-            frame.Bind(wx.EVT_MENU, frame.annotationPT_to_PTT , id=annotation_convert_pt_to_ptt_menu.GetId(),  )
+            def when_annotation_pt_to_ptt_clicked(event):
+                with gui_tools.nice_error_log:
+                    from pytransit.components.samples_area import sample_table
+                    
+                    annotation_path = universal.session_data.annotation_path
+                    default_file = transit_tools.fetch_name(annotation_path) + ".ptt.table"
+                    # default_dir = os.path.dirname(os.path.realpath(__file__))
+                    default_dir = os.getcwd()
+
+                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
+                    if not annotation_path:
+                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                    elif not datasets:
+                        transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
+                    else:
+
+                        output_path = frame.SaveFile(default_dir, default_file)
+                        if not output_path:
+                            return
+                        if frame.verbose:
+                            transit_tools.log(
+                                "Converting annotation file from prot_table format to PTT format"
+                            )
+                        (data, position) = tnseq_tools.get_data(datasets)
+                        orf2info = transit_tools.get_gene_info(annotation_path)
+                        hash = transit_tools.get_pos_hash(annotation_path)
+                        (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
+                            hash, data, position, orf2info
+                        )
+
+                        output = open(output_path, "w")
+                        output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
+                        for line in open(annotation_path):
+                            if line.startswith("#"):
+                                continue
+                            tmp = line.strip().split("\t")
+                            orf = tmp[8]
+                            name = tmp[7]
+                            desc = tmp[0]
+                            start = int(tmp[1])
+                            end = int(tmp[2])
+                            strand = tmp[3]
+                            ta_str = "no TAs"
+                            if orf in orf2pos:
+                                ta_str = "\t".join([str(int(ta)) for ta in orf2pos[orf]])
+                            output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
+                        output.close()
+                        if frame.verbose:
+                            transit_tools.log("Finished conversion")
+
+            frame.Bind(wx.EVT_MENU, when_annotation_pt_to_ptt_clicked, id=annotation_convert_pt_to_ptt_menu.GetId(),  )
             
             # 
             # prot_table to GFF3
@@ -100,7 +150,58 @@ def create_menu(frame):
                 wx.ITEM_NORMAL,
             )
             convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
-            frame.Bind(wx.EVT_MENU, frame.annotationPT_to_GFF3, id=annotation_convert_pt_to_gff3_menu.GetId(), )
+            def when_annotation_pt_to_gff3_clicked(event):
+                with gui_tools.nice_error_log:
+                    annotation_path = universal.session_data.annotation_path
+                    default_file = transit_tools.fetch_name(annotation_path) + ".gff3"
+                    # default_dir = os.path.dirname(os.path.realpath(__file__))
+                    default_dir = os.getcwd()
+                    output_path = frame.SaveFile(default_dir, default_file)
+
+                    ORGANISM = transit_tools.fetch_name(annotation_path)
+                    if not annotation_path:
+                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+
+                    elif output_path:
+                        if frame.verbose:
+                            transit_tools.log(
+                                "Converting annotation file from prot_table format to GFF3 format"
+                            )
+                        year = time.localtime().tm_year
+                        month = time.localtime().tm_mon
+                        day = time.localtime().tm_mday
+
+                        output = open(output_path, "w")
+                        output.write("##gff-version 3\n")
+                        output.write("##converted to IGV with TRANSIT.\n")
+                        output.write("##date %d-%d-%d\n" % (year, month, day))
+                        output.write("##Type DNA %s\n" % ORGANISM)
+
+                        for line in open(annotation_path):
+                            if line.startswith("#"):
+                                continue
+                            tmp = line.strip().split("\t")
+                            desc = tmp[0]
+                            start = int(tmp[1])
+                            end = int(tmp[2])
+                            strand = tmp[3]
+                            length = tmp[4]
+                            name = tmp[7]
+                            orf = tmp[8]
+                            ID = name
+                            desc.replace("%", "%25").replace(";", "%3B").replace(
+                                "=", "%3D"
+                            ).replace(",", "%2C")
+                            output.write(
+                                "%s\tRefSeq\tgene\t%d\t%d\t.\t%s\t.\tID=%s;Name=%s;Alias=%s;locus_tag=%s;desc=%s\n"
+                                % (ORGANISM, start, end, strand, orf, ID, orf, orf, desc)
+                            )
+
+                        output.close()
+                        if frame.verbose:
+                            transit_tools.log("Finished conversion")
+                            
+            frame.Bind(wx.EVT_MENU, when_annotation_pt_to_gff3_clicked, id=annotation_convert_pt_to_gff3_menu.GetId(), )
 
             # 
             # PTT to prot_table
@@ -113,7 +214,74 @@ def create_menu(frame):
                 wx.ITEM_NORMAL,
             )
             convert_menu_item.Append(annotation_convert_ptt_to_pt)
-            frame.Bind(wx.EVT_MENU, frame.annotationPTT_to_PT , id=annotation_convert_ptt_to_pt.GetId(),       )
+            def when_annotation_ptt_to_pt_clicked(event):
+                with gui_tools.nice_error_log:
+                    from pytransit.components.samples_area import sample_table
+                    
+                    annotation_path = universal.session_data.annotation_path
+                    default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
+                    # default_dir = os.path.dirname(os.path.realpath(__file__))
+                    default_dir = os.getcwd()
+
+                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ] 
+                    if not annotation_path:
+                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                    # elif not datasets:
+                    #    transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
+                    else:
+
+                        output_path = frame.SaveFile(default_dir, default_file)
+                        if not output_path:
+                            return
+                        if frame.verbose:
+                            transit_tools.log(
+                                "Converting annotation file from PTT format to prot_table format"
+                            )
+                        # (data, position) = tnseq_tools.get_data(datasets)
+                        # orf2info = transit_tools.get_gene_info(annotation_path)
+                        # hash = transit_tools.get_pos_hash(annotation_path)
+                        # (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(hash, data, position, orf2info)
+
+                        output = open(output_path, "w")
+                        # output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
+                        for line in open(annotation_path):
+                            if line.startswith("#"):
+                                continue
+                            if line.startswith("geneID"):
+                                continue
+                            tmp = line.strip().split("\t")
+                            orf = tmp[0]
+                            if orf == "intergenic":
+                                continue
+                            name = "-"
+                            desc = "-"
+                            start = int(tmp[1])
+                            end = int(tmp[2])
+                            length = ((end - start + 1) / 3) - 1
+                            strand = tmp[3]
+                            someID = "-"
+                            someID2 = "-"
+                            COG = "-"
+                            output.write(
+                                "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
+                                % (
+                                    desc,
+                                    start,
+                                    end,
+                                    strand,
+                                    length,
+                                    someID,
+                                    someID2,
+                                    name,
+                                    orf,
+                                    COG,
+                                )
+                            )
+                        output.close()
+                        if frame.verbose:
+                            transit_tools.log("Finished conversion")
+
+            frame.Bind(wx.EVT_MENU, when_annotation_ptt_to_pt_clicked , id=annotation_convert_ptt_to_pt.GetId(),       )
             
             
             # 
@@ -144,10 +312,10 @@ def create_menu(frame):
         if True:
             exit_option = wx.MenuItem( file_menu, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL )
             file_menu.Append(exit_option)
-            def exit_frame(event):
+            def when_exit_clicked(event):
                 if frame.verbose: transit_tools.log("Exiting Transit")
                 frame.Close()
-            frame.Bind(wx.EVT_MENU, exit_frame, id=exit_option.GetId())
+            frame.Bind(wx.EVT_MENU, when_exit_clicked, id=exit_option.GetId())
         
         menu_bar.Append(file_menu, "&File")
     
@@ -194,9 +362,30 @@ def create_menu(frame):
         # Track View
         # 
         if True:
-            track_menu_item = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL)
-            view_menu_item.Append(track_menu_item)
-            frame.Bind(wx.EVT_MENU, frame.allViewFunc, id=track_menu_item.GetId())
+            track_view_option = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL)
+            view_menu_item.Append(track_view_option)
+            def when_track_view_clicked(event, gene=""):
+                with gui_tools.nice_error_log:
+                    from pytransit.components.samples_area import sample_table
+                    annotation_path = universal.session_data.annotation_path
+                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
+
+                    if datasets and annotation_path:
+                        if frame.verbose:
+                            transit_tools.log(
+                                "Visualizing counts for: %s"
+                                % ", ".join([transit_tools.fetch_name(d) for d in datasets])
+                            )
+                        view_window = trash.TrashFrame(frame, datasets, annotation_path, gene=gene)
+                        view_window.Show()
+                    elif not datasets:
+                        transit_tools.show_error_dialog("Error: No datasets selected.")
+                        return
+                    else:
+                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        return
+
+            frame.Bind(wx.EVT_MENU, when_track_view_clicked, id=track_view_option.GetId())
         
         # 
         # Quality Control
@@ -207,7 +396,7 @@ def create_menu(frame):
             def when_quality_control_clicked(event):
                 with gui_tools.nice_error_log:
                     from pytransit.components.samples_area import sample_table
-                    datasets = sample_table.selected_rows # list of dictionaries
+                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ] 
                     number_of_files = len(datasets)
 
                     if number_of_files <= 0:
@@ -418,3 +607,76 @@ def method_select_func(selected_name, event):
     frame.Layout()
     if frame.verbose:
         transit_tools.log("Selected Method: %s" % (selected_name))
+
+
+# UNUSED 
+def annotation_gff3_to_pt(event):
+    with gui_tools.nice_error_log:
+        from pytransit.components.samples_area import sample_table
+        
+        annotation_path = universal.session_data.annotation_path
+        default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
+        # default_dir = os.path.dirname(os.path.realpath(__file__))
+        default_dir = os.getcwd()
+
+        datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
+        
+        if not annotation_path:
+            transit_tools.show_error_dialog("Error: No annotation file selected.")
+        else:
+            output_path = frame.SaveFile(default_dir, default_file)
+            if not output_path:
+                return
+            if frame.verbose:
+                transit_tools.log(
+                    "Converting annotation file from GFF3 format to prot_table format"
+                )
+
+            output = open(output_path, "w")
+            for line in open(annotation_path):
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                chr = tmp[0]
+                type = tmp[2]
+                start = int(tmp[3])
+                end = int(tmp[4])
+                length = ((end - start + 1) / 3) - 1
+                strand = tmp[6]
+                features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
+                if "ID" not in features:
+                    continue
+                orf = features["ID"]
+                name = features.get("Name", "-")
+                if name == "-":
+                    name = features.get("name", "-")
+
+                desc = features.get("Description", "-")
+                if desc == "-":
+                    desc = features.get("description", "-")
+                if desc == "-":
+                    desc = features.get("Desc", "-")
+                if desc == "-":
+                    desc = features.get("desc", "-")
+
+                someID = "-"
+                someID2 = "-"
+                COG = "-"
+                output.write(
+                    "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
+                    % (
+                        desc,
+                        start,
+                        end,
+                        strand,
+                        length,
+                        someID,
+                        someID2,
+                        name,
+                        orf,
+                        COG,
+                    )
+                )
+            output.close()
+            if frame.verbose:
+                transit_tools.log("Finished conversion")

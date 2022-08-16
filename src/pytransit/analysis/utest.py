@@ -191,7 +191,7 @@ class UTestGUI(base.AnalysisGUI):
 
         # Connect events
         utestButton.Bind(wx.EVT_BUTTON, self.wxobj.RunMethod)
-        self.wxobj.utestLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+        self.wxobj.utestLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.when_loess_prev_clicked)
 
         self.panel = utestPanel
 

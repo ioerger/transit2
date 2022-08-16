@@ -263,7 +263,7 @@ class ResamplingGUI(base.AnalysisGUI):
         resamplingSizer.Fit(resamplingPanel)
 
         # Connect events
-        self.wxobj.resamplingLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.LoessPrevFunc)
+        self.wxobj.resamplingLoessPrev.Bind(wx.EVT_BUTTON, self.wxobj.when_loess_prev_clicked)
 
         self.panel = resamplingPanel
 

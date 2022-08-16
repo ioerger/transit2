@@ -76,7 +76,7 @@ def create_annotation_area(frame):
                 global annotation_data
                 annotation_data = event.GetPath()
                 frame.annotation = annotation_data # this is for reducing breakages
-                universal.session_data.annotation = annotation_data
+                universal.session_data.annotation_path = annotation_data
 
         annotation_wrapper.Add(annot_sizer, 1, wx.EXPAND, 5)
     

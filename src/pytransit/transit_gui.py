@@ -154,7 +154,10 @@ class TnSeekFrame(wx.Frame):
         
         # Timer
         self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
+        def clear_status(event):
+            self.statusBar.SetStatusText("")
+            self.timer.Stop()
+        self.Bind(wx.EVT_TIMER, clear_status, self.timer)
 
         
         self.SetIcon(images.transit_icon.GetIcon())
@@ -170,10 +173,6 @@ class TnSeekFrame(wx.Frame):
         pub.subscribe(self.saveHistogram, "histogram")
         create_menu(self)
         
-    def clearStatus(self, event):
-        self.statusBar.SetStatusText("")
-        self.timer.Stop()
-
     def saveHistogram(self, msg):
         data, orf, path, delta = msg
 
@@ -274,58 +273,10 @@ class TnSeekFrame(wx.Frame):
         dlg.Destroy()
         return path
 
-    
-    def loadCtrlFile(self, fullpath):
-        name = transit_tools.basename(fullpath)
-        (
-            density,
-            meanrd,
-            nzmeanrd,
-            nzmedianrd,
-            maxrd,
-            totalrd,
-            skew,
-            kurtosis,
-        ) = tnseq_tools.get_wig_stats(fullpath)
-        self.wig_table.InsertItem(self.index_ctrl, name)
-        self.wig_table.SetItem(self.index_ctrl, 1, "%1.1f" % (totalrd))
-        self.wig_table.SetItem(self.index_ctrl, 2, "%2.1f" % (density * 100))
-        self.wig_table.SetItem(self.index_ctrl, 3, "%1.1f" % (meanrd))
-        self.wig_table.SetItem(self.index_ctrl, 4, "%d" % (maxrd))
-        self.wig_table.SetItem(self.index_ctrl, 5, "%s" % (fullpath))
-
-        self.wig_table.Select(self.index_ctrl)
-        self.index_ctrl += 1
-        try:
-            self.ctrlLibText.SetValue(self.ctrlLibText.GetValue() + "A")
-        except Exception as e:
-            transit_tools.log("Error Modifying Ctrl Lib String: %s" % e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-
-    def allViewFunc(self, event, gene=""):
-
-        annotationpath = self.annotation
-        datasets = self.ctrlSelected() + self.expSelected()
-
-        if datasets and annotationpath:
-            if self.verbose:
-                transit_tools.log(
-                    "Visualizing counts for: %s"
-                    % ", ".join([transit_tools.fetch_name(d) for d in datasets])
-                )
-            viewWindow = trash.TrashFrame(self, datasets, annotationpath, gene=gene)
-            viewWindow.Show()
-        elif not datasets:
-            transit_tools.show_error_dialog("Error: No datasets selected.")
-            return
-        else:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
-            return
-
-    def LoessPrevFunc(self, event):
-        datasets_selected = self.ctrlSelected() + self.expSelected()
+    def when_loess_prev_clicked(self, event):
+        from pytransit.components.samples_area import sample_table
+        datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
+        
         if not datasets_selected:
             transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
             return
@@ -371,234 +322,3 @@ class TnSeekFrame(wx.Frame):
 
         dlg.Destroy()
         return dlg.GetStringSelection()
-
-    def annotationPT_to_GFF3(self, event):
-        annotationpath = self.annotation
-        defaultFile = transit_tools.fetch_name(annotationpath) + ".gff3"
-        # defaultDir = os.path.dirname(os.path.realpath(__file__))
-        defaultDir = os.getcwd()
-        outputPath = self.SaveFile(defaultDir, defaultFile)
-
-        ORGANISM = transit_tools.fetch_name(annotationpath)
-        if not annotationpath:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
-
-        elif outputPath:
-            if self.verbose:
-                transit_tools.log(
-                    "Converting annotation file from prot_table format to GFF3 format"
-                )
-            year = time.localtime().tm_year
-            month = time.localtime().tm_mon
-            day = time.localtime().tm_mday
-
-            output = open(outputPath, "w")
-            output.write("##gff-version 3\n")
-            output.write("##converted to IGV with TRANSIT.\n")
-            output.write("##date %d-%d-%d\n" % (year, month, day))
-            output.write("##Type DNA %s\n" % ORGANISM)
-
-            for line in open(annotationpath):
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                desc = tmp[0]
-                start = int(tmp[1])
-                end = int(tmp[2])
-                strand = tmp[3]
-                length = tmp[4]
-                name = tmp[7]
-                orf = tmp[8]
-                ID = name
-                desc.replace("%", "%25").replace(";", "%3B").replace(
-                    "=", "%3D"
-                ).replace(",", "%2C")
-                output.write(
-                    "%s\tRefSeq\tgene\t%d\t%d\t.\t%s\t.\tID=%s;Name=%s;Alias=%s;locus_tag=%s;desc=%s\n"
-                    % (ORGANISM, start, end, strand, orf, ID, orf, orf, desc)
-                )
-
-            output.close()
-            if self.verbose:
-                transit_tools.log("Finished conversion")
-
-    def annotationPT_to_PTT(self, event):
-
-        annotationpath = self.annotation
-        defaultFile = transit_tools.fetch_name(annotationpath) + ".ptt.table"
-        # defaultDir = os.path.dirname(os.path.realpath(__file__))
-        defaultDir = os.getcwd()
-
-        datasets = self.ctrlSelected() + self.expSelected()
-        if not annotationpath:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
-        elif not datasets:
-            transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
-        else:
-
-            outputPath = self.SaveFile(defaultDir, defaultFile)
-            if not outputPath:
-                return
-            if self.verbose:
-                transit_tools.log(
-                    "Converting annotation file from prot_table format to PTT format"
-                )
-            (data, position) = tnseq_tools.get_data(datasets)
-            orf2info = transit_tools.get_gene_info(annotationpath)
-            hash = transit_tools.get_pos_hash(annotationpath)
-            (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
-                hash, data, position, orf2info
-            )
-
-            output = open(outputPath, "w")
-            output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
-            for line in open(annotationpath):
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                orf = tmp[8]
-                name = tmp[7]
-                desc = tmp[0]
-                start = int(tmp[1])
-                end = int(tmp[2])
-                strand = tmp[3]
-                ta_str = "no TAs"
-                if orf in orf2pos:
-                    ta_str = "\t".join([str(int(ta)) for ta in orf2pos[orf]])
-                output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
-            output.close()
-            if self.verbose:
-                transit_tools.log("Finished conversion")
-
-    def annotationPTT_to_PT(self, event):
-
-        annotationpath = self.annotation
-        defaultFile = transit_tools.fetch_name(annotationpath) + ".prot_table"
-        # defaultDir = os.path.dirname(os.path.realpath(__file__))
-        defaultDir = os.getcwd()
-
-        datasets = self.ctrlSelected() + self.expSelected()
-        if not annotationpath:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
-        # elif not datasets:
-        #    transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
-        else:
-
-            outputPath = self.SaveFile(defaultDir, defaultFile)
-            if not outputPath:
-                return
-            if self.verbose:
-                transit_tools.log(
-                    "Converting annotation file from PTT format to prot_table format"
-                )
-            # (data, position) = tnseq_tools.get_data(datasets)
-            # orf2info = transit_tools.get_gene_info(annotationpath)
-            # hash = transit_tools.get_pos_hash(annotationpath)
-            # (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(hash, data, position, orf2info)
-
-            output = open(outputPath, "w")
-            # output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
-            for line in open(annotationpath):
-                if line.startswith("#"):
-                    continue
-                if line.startswith("geneID"):
-                    continue
-                tmp = line.strip().split("\t")
-                orf = tmp[0]
-                if orf == "intergenic":
-                    continue
-                name = "-"
-                desc = "-"
-                start = int(tmp[1])
-                end = int(tmp[2])
-                length = ((end - start + 1) / 3) - 1
-                strand = tmp[3]
-                someID = "-"
-                someID2 = "-"
-                COG = "-"
-                output.write(
-                    "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                    % (
-                        desc,
-                        start,
-                        end,
-                        strand,
-                        length,
-                        someID,
-                        someID2,
-                        name,
-                        orf,
-                        COG,
-                    )
-                )
-            output.close()
-            if self.verbose:
-                transit_tools.log("Finished conversion")
-
-    def annotationGFF3_to_PT(self, event):
-
-        annotationpath = self.annotation
-        defaultFile = transit_tools.fetch_name(annotationpath) + ".prot_table"
-        # defaultDir = os.path.dirname(os.path.realpath(__file__))
-        defaultDir = os.getcwd()
-
-        datasets = self.ctrlSelected() + self.expSelected()
-        if not annotationpath:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
-        else:
-            outputPath = self.SaveFile(defaultDir, defaultFile)
-            if not outputPath:
-                return
-            if self.verbose:
-                transit_tools.log(
-                    "Converting annotation file from GFF3 format to prot_table format"
-                )
-
-            output = open(outputPath, "w")
-            for line in open(annotationpath):
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                chr = tmp[0]
-                type = tmp[2]
-                start = int(tmp[3])
-                end = int(tmp[4])
-                length = ((end - start + 1) / 3) - 1
-                strand = tmp[6]
-                features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
-                if "ID" not in features:
-                    continue
-                orf = features["ID"]
-                name = features.get("Name", "-")
-                if name == "-":
-                    name = features.get("name", "-")
-
-                desc = features.get("Description", "-")
-                if desc == "-":
-                    desc = features.get("description", "-")
-                if desc == "-":
-                    desc = features.get("Desc", "-")
-                if desc == "-":
-                    desc = features.get("desc", "-")
-
-                someID = "-"
-                someID2 = "-"
-                COG = "-"
-                output.write(
-                    "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                    % (
-                        desc,
-                        start,
-                        end,
-                        strand,
-                        length,
-                        someID,
-                        someID2,
-                        name,
-                        orf,
-                        COG,
-                    )
-                )
-            output.close()
-            if self.verbose:
-                transit_tools.log("Finished conversion")

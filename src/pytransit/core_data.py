@@ -7,46 +7,14 @@ import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 
-universal = LazyDict(frame=None)
-
-class Wig:
-    def __init__(self, path, rows=None, extra_data=None):
-        self.path            = path
-        self.rows            = rows or []
-        self.comments        = []
-        
-        self.extra_data = LazyDict(extra_data)
-        if self.extra_data.get("condition", None) is None:
-            self.extra_data["condition"] = FS.basename(path)
-        if self.extra_data.get("id", None) is None:
-            self.extra_data["id"] = f"{self.extra_data.get('condition', None)}{random()}".replace(".", "")
-        
-    def load(self):
-        pass # TODO
-    
-    def __repr__(self):
-        return f"""Wig(
-            path={self.path},
-            rows_shape=({len(self.rows)}, {len(self.rows[0])}),
-            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
-        )""".replace("\n        ", "\n")
-
-class Condition:
-    def __init__(self, name, is_disabled=False, extra_data=None):
-        self.name = name
-        self.is_disabled = is_disabled
-        self.extra_data = LazyDict(extra_data or {})
-    
-    def __repr__(self):
-        return f"""Condition(
-            name={self.name},
-            is_disabled={self.is_disabled},
-            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
-        )""".replace("\n        ", "\n")
+universal = LazyDict(
+    frame=None,
+    session_data=None,
+)
 
 class SessionData:
     def __init__(self):
-        self.annotation = None
+        self.annotation_path = None
         self.samples = []
         self.conditions = []
         self.wig_groups = []
@@ -101,7 +69,41 @@ class SessionData:
             conditions={indent(self.conditions, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
 
+class Wig:
+    def __init__(self, path, rows=None, extra_data=None):
+        self.path            = path
+        self.rows            = rows or []
+        self.comments        = []
         
+        self.extra_data = LazyDict(extra_data)
+        if self.extra_data.get("condition", None) is None:
+            self.extra_data["condition"] = FS.basename(path)
+        if self.extra_data.get("id", None) is None:
+            self.extra_data["id"] = f"{self.extra_data.get('condition', None)}{random()}".replace(".", "")
+        
+    def load(self):
+        pass # TODO
+    
+    def __repr__(self):
+        return f"""Wig(
+            path={self.path},
+            rows_shape=({len(self.rows)}, {len(self.rows[0])}),
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+
+class Condition:
+    def __init__(self, name, is_disabled=False, extra_data=None):
+        self.name = name
+        self.is_disabled = is_disabled
+        self.extra_data = LazyDict(extra_data or {})
+    
+    def __repr__(self):
+        return f"""Condition(
+            name={self.name},
+            is_disabled={self.is_disabled},
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+
 class CombinedWig:
     def __init__(self, path, comments=None, extra_data=None):
         self.path          = path
