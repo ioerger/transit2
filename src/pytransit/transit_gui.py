@@ -446,44 +446,6 @@ class TnSeekFrame(wx.Frame):
             traceback.print_exc()
     
 
-    def ExportSelectFunc(self, selected_name, test=""):
-        # X = self.methodChoice.GetCurrentSelection()
-        # selected_name = self.methodChoice.GetString(X)
-
-        if self.verbose:
-            transit_tools.log(
-                "Selected Export Method: %s" % (selected_name)
-            )
-
-        for name in export_methods:
-            if export_methods[name].label == selected_name:
-                methodobj = export_methods[name].method
-                try:
-                    M = methodobj.from_gui(self)
-                    if M:
-                        thread = threading.Thread(target=M.Run())
-                        thread.setDaemon(True)
-                        thread.start()
-                except Exception as e:
-                    transit_tools.log("Error: %s" % str(e))
-                    traceback.print_exc()
-
-    def ConvertSelectFunc(self, selected_name, test=""):
-        annotationpath = self.annotation
-
-        for name in convert_methods:
-            if convert_methods[name].label == selected_name:
-                methodobj = convert_methods[name].method
-                try:
-                    M = methodobj.from_gui(self)
-                    if M:
-                        thread = threading.Thread(target=M.Run())
-                        thread.setDaemon(True)
-                        thread.start()
-                except Exception as e:
-                    transit_tools.log("Error: %s" % str(e))
-                    traceback.print_exc()
-
     def LoessPrevFunc(self, event):
         datasets_selected = self.ctrlSelected() + self.expSelected()
         if not datasets_selected:

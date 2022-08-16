@@ -165,3 +165,15 @@ def show_image(path):
             self.Fit()
     
     ImgFrame(None, path).Show()
+
+
+def run_method_by_label(*, method_options, method_label):
+    with transit_tools.nice_error_log:
+        for name in method_options:
+            method_option = method_options[name]
+            if method_option.label == method_label:
+                method_object = method_option.method.from_gui(frame)
+                if method_object:
+                    thread = threading.Thread(target=method_object.Run())
+                    thread.setDaemon(True)
+                    thread.start()

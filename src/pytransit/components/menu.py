@@ -28,62 +28,116 @@ def create_menu(frame):
     # 
     if True:
         menu_bar         = wx.MenuBar(0)
-        file_menu_item   = wx.Menu()
-        export_menu_item = wx.Menu()
-        selected_export_menu_item = wx.Menu()
-
-        # Selected datasets
-        export_menu_item.AppendSubMenu(
-            selected_export_menu_item, "Selected Datasets"
-        )
-
-        file_menu_item.AppendSubMenu(export_menu_item, "Export")
-
+        
         # 
-        # Convert
+        # File Menu
         # 
         if True:
-            convert_menu_item = wx.Menu()
-            
+            file_menu_item   = wx.Menu()
+        
             # 
-            # prot_table to PTT
+            # Export Menu
             # 
-            annotation_convert_pt_to_ptt_menu = wx.MenuItem(
-                convert_menu_item,
-                wx.ID_ANY,
-                "prot_table to PTT",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
-            
-            # 
-            # prot_table to GFF3
-            # 
-            annotation_convert_pt_to_gff3_menu = wx.MenuItem(
-                convert_menu_item,
-                wx.ID_ANY,
-                "prot_table to GFF3",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
+            if True:
+                export_menu_item = wx.Menu()
+                
+                # 
+                # Selected Samples
+                # 
+                if True:
+                    selected_export_menu_item = wx.Menu()
+                    export_menu_item.AppendSubMenu(
+                        selected_export_menu_item, "Selected Samples"
+                    )
+                    
+                    # 
+                    # find export options
+                    # 
+                    def when_export_clicked(selected_name, event=None):
+                        if frame.verbose: transit_tools.log(f"Selected Export Method: {selected_name}")
+                        gui_tools.run_method_by_label(method_options=export_methods, method_label=selected_name)
+                    
+                    for name in export_methods:
+                        method = export_methods[name]
+                        method.gui.defineMenuItem(frame, method.label)
+                        temp_menu_item = method.gui.menuitem
+                        selected_export_menu_item.Append(temp_menu_item)
+                        
+                        frame.Bind(
+                            wx.EVT_MENU,
+                            partial(when_export_clicked, method.label),
+                            temp_menu_item,
+                        )
+
+                file_menu_item.AppendSubMenu(export_menu_item, "Export")
 
             # 
-            # PTT to prot_table
+            # Convert
             # 
-            annotation_convert_ptt_to_pt = wx.MenuItem(
-                convert_menu_item,
-                wx.ID_ANY,
-                "PTT to prot_table",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
+            if True:
+                convert_menu_item = wx.Menu()
+                
+                # 
+                # prot_table to PTT
+                # 
+                annotation_convert_pt_to_ptt_menu = wx.MenuItem(
+                    convert_menu_item,
+                    wx.ID_ANY,
+                    "prot_table to PTT",
+                    wx.EmptyString,
+                    wx.ITEM_NORMAL,
+                )
+                convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
+                
+                # 
+                # prot_table to GFF3
+                # 
+                annotation_convert_pt_to_gff3_menu = wx.MenuItem(
+                    convert_menu_item,
+                    wx.ID_ANY,
+                    "prot_table to GFF3",
+                    wx.EmptyString,
+                    wx.ITEM_NORMAL,
+                )
+                convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
+
+                # 
+                # PTT to prot_table
+                # 
+                annotation_convert_ptt_to_pt = wx.MenuItem(
+                    convert_menu_item,
+                    wx.ID_ANY,
+                    "PTT to prot_table",
+                    wx.EmptyString,
+                    wx.ITEM_NORMAL,
+                )
+                
+                
+                # 
+                # find Convert options
+                # 
+                def when_convert_clicked(self, selected_name, event=None):
+                    if frame.verbose: transit_tools.log(f"Selected Convert Method: {selected_name}")
+                    gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
+
+                for name in convert_methods:
+                    convert_methods[name].gui.defineMenuItem(frame, convert_methods[name].label)
+                    temp_menu_item = convert_methods[name].gui.menuitem
+                    convert_menu_item.Append(temp_menu_item)
+
+                    frame.Bind(
+                        wx.EVT_MENU,
+                        partial(when_convert_clicked, convert_methods[name].label),
+                        temp_menu_item,
+                    )
+                
+                
+                convert_menu_item.Append(annotation_convert_ptt_to_pt)
+                file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
             
-            convert_menu_item.Append(annotation_convert_ptt_to_pt)
-            file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
-        
-        menu_bar.Append(file_menu_item, "&File")
+            
+            
+            menu_bar.Append(file_menu_item, "&File")
         
         # 
         # View Menu
@@ -119,10 +173,8 @@ def create_menu(frame):
             methods_menu_item.AppendSubMenu(tn5_menu_item, "&Tn5 Methods")
             menu_bar.Append(methods_menu_item, "&Analysis")
 
-        frame.SetMenuBar(menu_bar)
-        
         # 
-        # help menu
+        # Help Menu
         # 
         if True:
             help_menu_item = wx.Menu()
@@ -140,34 +192,8 @@ def create_menu(frame):
             help_menu_item.Append(about_menu_item)
 
             menu_bar.Append(help_menu_item, "&Help")
-
-    # 
-    # Export options
-    # 
-    for name in export_methods:
-        export_methods[name].gui.defineMenuItem(frame, export_methods[name].label)
-        temp_menu_item = export_methods[name].gui.menuitem
-        selected_export_menu_item.Append(temp_menu_item)
-
-        frame.Bind(
-            wx.EVT_MENU,
-            partial(frame.ExportSelectFunc, export_methods[name].label),
-            temp_menu_item,
-        )
-    
-    # 
-    # Convert options
-    # 
-    for name in convert_methods:
-        convert_methods[name].gui.defineMenuItem(frame, convert_methods[name].label)
-        temp_menu_item = convert_methods[name].gui.menuitem
-        convert_menu_item.Append(temp_menu_item)
-
-        frame.Bind(
-            wx.EVT_MENU,
-            partial(frame.ConvertSelectFunc, convert_methods[name].label),
-            temp_menu_item,
-        )
+        
+        frame.SetMenuBar(menu_bar)
     
     # 
     # events
