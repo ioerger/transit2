@@ -27,13 +27,13 @@ def create_menu(frame):
     # define visual elements
     # 
     if True:
-        menu_bar         = wx.MenuBar(0)
+        menu_bar = wx.MenuBar(0)
         
         # 
         # File Menu
         # 
         if True:
-            file_menu   = wx.Menu()
+            file_menu = wx.Menu()
         
             # 
             # Export Menu
@@ -116,7 +116,7 @@ def create_menu(frame):
                 # 
                 # find Convert options
                 # 
-                def when_convert_clicked(self, selected_name, event=None):
+                def when_convert_clicked(selected_name, event=None):
                     if frame.verbose: transit_tools.log(f"Selected Convert Method: {selected_name}")
                     gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
 
@@ -168,6 +168,31 @@ def create_menu(frame):
             )
 
             view_menu_item.Append(track_menu_item)
+            frame.Bind(wx.EVT_MENU, frame.allViewFunc, id=track_menu_item.GetId())
+            
+            # 
+            # Quality Control
+            # 
+            if True:
+                quality_control_option = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Quality Control", wx.EmptyString, wx.ITEM_NORMAL )
+                view_menu_item.Append( quality_control_option )
+                def when_quality_control_clicked(event):
+                    from pytransit.components.samples_area import sample_table
+                    datasets = sample_table.selected_rows # list of dictionaries
+                    number_of_files = len(datasets)
+
+                    if number_of_files <= 0:
+                        raise Exception(f'''No Datasets selected, unable to run''')
+                    else:
+                        transit_tools.log(f"Displaying results: {datasets}")
+                        try:
+                            qc_window = qc_display.qcFrame(frame, datasets)
+                            qc_window.Show()
+                        except Exception as error:
+                            raise Exception(f"Error occured displaying file: {error}")
+                            
+                frame.Bind(wx.EVT_MENU, when_quality_control_clicked, id=quality_control_option.GetId())
+            
             menu_bar.Append(view_menu_item, "&View")
         
         # 
