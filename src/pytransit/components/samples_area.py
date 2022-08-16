@@ -112,7 +112,8 @@ def create_sample_area(frame):
                             for each_sample in universal.session_data.samples:
                                 sample_table.add(dict(
                                     name=basename(each_sample.path),
-                                    condition=each_sample.extra_data.get("condition", "[None]") ,
+                                    condition=each_sample.extra_data.get("condition", "[None]"),
+                                    path=each_sample.path,
                                 ))
                             
                             for each_condition in universal.session_data.conditions:
