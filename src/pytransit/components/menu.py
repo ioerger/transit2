@@ -152,43 +152,46 @@ def create_menu(frame):
     # 
     if True:
         view_menu_item = wx.Menu()
+        
         # 
         # Scatter Plot
         # 
-        scatter_menu_item = wx.MenuItem(
-            view_menu_item,
-            wx.ID_ANY,
-            "&Scatter Plot",
-            wx.EmptyString,
-            wx.ITEM_NORMAL,
-        )
-        view_menu_item.Append(scatter_menu_item)
-        def when_scatter_plot_clicked(event):
-            from pytransit.components.samples_area import sample_table
-            selected_rows = sample_table.selected_rows
-            if len(dataset_paths) == 2:
-                if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_row["name"] for each_row in selected_rows ]}")
-                data, position = tnseq_tools.CombinedWig.gather_wig_data(
-                    list_of_paths=[ each_row["path"] for each_row in selected_rows ],
-                )
-                x = data[0, :]
-                y = data[1, :]
+        if True:
+            scatter_menu_item = wx.MenuItem(
+                view_menu_item,
+                wx.ID_ANY,
+                "&Scatter Plot",
+                wx.EmptyString,
+                wx.ITEM_NORMAL,
+            )
+            view_menu_item.Append(scatter_menu_item)
+            def when_scatter_plot_clicked(event):
+                from pytransit.components.samples_area import sample_table
+                selected_rows = sample_table.selected_rows
+                if len(dataset_paths) == 2:
+                    if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_row['name'] for each_row in selected_rows ]}")
+                    data, position = tnseq_tools.CombinedWig.gather_wig_data(
+                        list_of_paths=[ each_row["path"] for each_row in selected_rows ],
+                    )
+                    x = data[0, :]
+                    y = data[1, :]
 
-                plt.plot(x, y, "bo")
-                plt.title("Scatter plot - Reads at TA sites")
-                plt.xlabel(selected_rows[0]["name"])
-                plt.ylabel(selected_rows[1]["name"])
-                plt.show()
-            else:
-                transit_tools.show_error_dialog("Please make sure only two datasets are selected (across control and experimental datasets).")
-        frame.Bind(wx.EVT_MENU, when_scatter_plot_clicked, id=scatter_menu_item.GetId() )
+                    plt.plot(x, y, "bo")
+                    plt.title("Scatter plot - Reads at TA sites")
+                    plt.xlabel(selected_rows[0]["name"])
+                    plt.ylabel(selected_rows[1]["name"])
+                    plt.show()
+                else:
+                    transit_tools.show_error_dialog("Please make sure only two datasets are selected (across control and experimental datasets).")
+            frame.Bind(wx.EVT_MENU, when_scatter_plot_clicked, id=scatter_menu_item.GetId() )
 
         # 
         # Track View
         # 
-        track_menu_item = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL)
-        view_menu_item.Append(track_menu_item)
-        frame.Bind(wx.EVT_MENU, frame.allViewFunc, id=track_menu_item.GetId())
+        if True:
+            track_menu_item = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL)
+            view_menu_item.Append(track_menu_item)
+            frame.Bind(wx.EVT_MENU, frame.allViewFunc, id=track_menu_item.GetId())
         
         # 
         # Quality Control
