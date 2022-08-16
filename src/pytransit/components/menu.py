@@ -33,7 +33,7 @@ def create_menu(frame):
         # File Menu
         # 
         if True:
-            file_menu_item   = wx.Menu()
+            file_menu   = wx.Menu()
         
             # 
             # Export Menu
@@ -69,7 +69,7 @@ def create_menu(frame):
                             temp_menu_item,
                         )
 
-                file_menu_item.AppendSubMenu(export_menu_item, "Export")
+                file_menu.AppendSubMenu(export_menu_item, "Export")
 
             # 
             # Convert
@@ -133,11 +133,20 @@ def create_menu(frame):
                 
                 
                 convert_menu_item.Append(annotation_convert_ptt_to_pt)
-                file_menu_item.AppendSubMenu(convert_menu_item, "Convert")
+                file_menu.AppendSubMenu(convert_menu_item, "Convert")
             
+            # 
+            # Exit
+            # 
+            if True:
+                exit_option = wx.MenuItem( file_menu, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL )
+                file_menu.Append(exit_option)
+                def exit_frame(event):
+                    if frame.verbose: transit_tools.log("Exiting Transit")
+                    frame.Close()
+                frame.Bind(wx.EVT_MENU, exit_frame, id=exit_option.GetId())
             
-            
-            menu_bar.Append(file_menu_item, "&File")
+            menu_bar.Append(file_menu, "&File")
         
         # 
         # View Menu
