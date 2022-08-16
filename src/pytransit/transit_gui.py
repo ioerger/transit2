@@ -367,40 +367,6 @@ class TnSeekFrame(wx.Frame):
         info.AddDeveloper("Eric Nelson")
         wx.adv.AboutBox(info)
 
-    def documentationFunc(self, event):
-
-        filepath = "http://saclab.tamu.edu/essentiality/transit/transit.html"
-        output = ""
-        error = ""
-        try:
-            if sys.platform.startswith("darwin"):
-                OS = "OSX"
-                # subprocess.call(('open', filepath))
-                args = ["open", filepath]
-                output, error = subprocess.Popen(
-                    args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                ).communicate()
-            elif os.name == "nt":
-                OS = "Windows"
-                os.startfile(filepath)
-            elif os.name == "posix":
-                OS = "Linux"
-                args = ["xdg-open", filepath]
-                output, error = subprocess.Popen(
-                    args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                ).communicate()
-                if "not found" in error:
-                    args = ["exo-open", filepath]
-                    output, error = subprocess.Popen(
-                        args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                    ).communicate()
-
-        except Exception as e:
-            error_text = """Error occurred opening documentation URL.\nYour browser or OS may not be configured correctly."""
-            transit_tools.show_error_dialog(error_text)
-            traceback.print_exc()
-    
-
     def LoessPrevFunc(self, event):
         datasets_selected = self.ctrlSelected() + self.expSelected()
         if not datasets_selected:
