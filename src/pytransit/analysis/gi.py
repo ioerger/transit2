@@ -577,7 +577,7 @@ class GIMethod(base.QuadConditionMethod):
         includeZeros=False,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -657,7 +657,7 @@ class GIMethod(base.QuadConditionMethod):
         dlg.Destroy()
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         samples = int(wxobj.giSampleText.GetValue())
         rope = float(wxobj.giROPEText.GetValue())
         normalization = wxobj.giNormChoice.GetString(
@@ -699,7 +699,7 @@ class GIMethod(base.QuadConditionMethod):
             includeZeros,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -735,7 +735,7 @@ class GIMethod(base.QuadConditionMethod):
         includeZeros = kwargs.get("iz", False)
 
         LOESS = kwargs.get("l", False)
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))
         c_terminus = float(kwargs.get("iC", 0.00))
 
@@ -753,7 +753,7 @@ class GIMethod(base.QuadConditionMethod):
             includeZeros,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -871,7 +871,7 @@ class GIMethod(base.QuadConditionMethod):
         postprob = []
         count = 0
         N = len(G_A1)
-        self.progress_range(N)
+        
         # Perform actual analysis
         for gene in G_A1:
 

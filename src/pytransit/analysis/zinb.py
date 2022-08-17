@@ -306,7 +306,7 @@ class ZinbMethod(base.MultiConditionMethod):
             nz_mean.append(numpy.mean(wig[numpy.nonzero(wig)]))
         return [numpy.array(logit_zero_perc), numpy.array(nz_mean)]
 
-    def group_by_condition(self, wigList, conditions):
+    def group_by_condition(self, wig_list, conditions):
         """
             Returns array of datasets, where each dataset corresponds to one condition.
             ([[Wigdata]], [Condition]) -> [[DataForCondition]]
@@ -316,7 +316,7 @@ class ZinbMethod(base.MultiConditionMethod):
         """
         countsByCondition = collections.defaultdict(lambda: [])
         for i, c in enumerate(conditions):
-            countsByCondition[c].append(wigList[i])
+            countsByCondition[c].append(wig_list[i])
 
         return [numpy.array(v).flatten() for v in countsByCondition.values()]
 
@@ -477,7 +477,7 @@ class ZinbMethod(base.MultiConditionMethod):
         """
 
         count = 0
-        self.progress_range(len(genes))
+        
         pvals, Rvs, status = [], [], []
         r_zinb_signif = self.def_r_zinb_signif()
         transit_tools.log("Running analysis...")

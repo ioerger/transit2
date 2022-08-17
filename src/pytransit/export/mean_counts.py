@@ -68,7 +68,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         output_file,
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -114,7 +114,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         normalization = wxobj.chooseNormalization()
 
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -136,7 +136,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
             output_file,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -156,7 +156,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
         normalization = kwargs.get("n", "TTR")
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -167,7 +167,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
             output_file,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -228,7 +228,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
                 self.ctrldata, self.annotation_path, norm=self.normalization
             )
         N = len(G)
-        self.progress_range(N)
+        
         if self.combined_wig:
             dataset_header = "\t".join(datasets)
         else:

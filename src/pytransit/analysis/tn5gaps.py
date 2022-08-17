@@ -184,7 +184,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         minread=1,
         n_terminus=0.0,
         c_terminus=0.0,
@@ -232,7 +232,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
                 return None
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         minread = int(
             wxobj.tn5GapsReadChoice.GetString(
                 wxobj.tn5GapsReadChoice.GetCurrentSelection()
@@ -263,7 +263,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             minread,
             n_terminus,
             c_terminus,
@@ -283,7 +283,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         minread = int(kwargs.get("m", 1))
         normalization = None
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", "0"))
         c_terminus = float(kwargs.get("iC", "0"))
 
@@ -294,7 +294,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             minread,
             n_terminus,
             c_terminus,
@@ -319,7 +319,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         genes_obj = tnseq_tools.Genes(
             self.ctrldata,
             self.annotation_path,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data,
@@ -359,7 +359,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         N = len(run_arr)
         count = 0
         accum = 0
-        self.progress_range(N)
+        
         for run in run_arr:
             accum += run["length"]
             count += 1

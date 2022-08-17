@@ -161,7 +161,7 @@ class GriffinMethod(base.SingleConditionMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -179,7 +179,7 @@ class GriffinMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            ignoreCodon=ignoreCodon,
+            ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
             wxobj=wxobj,
@@ -208,7 +208,7 @@ class GriffinMethod(base.SingleConditionMethod):
         minread = 1
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(wxobj.globalNTerminusText.GetValue())
         c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = "Sum"
@@ -232,7 +232,7 @@ class GriffinMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -251,7 +251,7 @@ class GriffinMethod(base.SingleConditionMethod):
         replicates = kwargs.get("r", "Sum")
         normalization = None
         LOESS = False
-        ignoreCodon = not kwargs.get("sC", False)
+        ignore_codon = not kwargs.get("sC", False)
         n_terminus = float(kwargs.get("iN", 0.0))
         c_terminus = float(kwargs.get("iC", 0.0))
 
@@ -263,7 +263,7 @@ class GriffinMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -292,7 +292,7 @@ class GriffinMethod(base.SingleConditionMethod):
             self.annotation_path,
             minread=1,
             reps=self.replicates,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data,
@@ -300,7 +300,7 @@ class GriffinMethod(base.SingleConditionMethod):
         )
 
         N = len(G)
-        self.progress_range(N)
+        
         count = 0
         pins = G.global_theta()
         pnon = 1.0 - pins

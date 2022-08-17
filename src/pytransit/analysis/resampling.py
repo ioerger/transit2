@@ -291,7 +291,7 @@ class ResamplingMethod(base.DualConditionMethod):
         pseudocount=1,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         ctrl_lib_str="",
@@ -368,7 +368,7 @@ class ResamplingMethod(base.DualConditionMethod):
             return None
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         samples = int(wxobj.resamplingSampleText.GetValue())
         normalization = wxobj.resamplingNormChoice.GetString(
             wxobj.resamplingNormChoice.GetCurrentSelection()
@@ -413,7 +413,7 @@ class ResamplingMethod(base.DualConditionMethod):
             pseudocount,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             ctrl_lib_str,
@@ -492,7 +492,7 @@ class ResamplingMethod(base.DualConditionMethod):
         Z = True if "Z" in kwargs else False
 
         LOESS = kwargs.get("l", False)
-        ignoreCodon = True
+        ignore_codon = True
 
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
         c_terminus = float(kwargs.get("iC", 0.00))
@@ -512,7 +512,7 @@ class ResamplingMethod(base.DualConditionMethod):
             pseudocount,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             ctrl_lib_str,
@@ -656,7 +656,7 @@ class ResamplingMethod(base.DualConditionMethod):
         G_ctrl = tnseq_tools.Genes(
             self.ctrldata,
             self.annotation_path,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data_ctrl,
@@ -665,7 +665,7 @@ class ResamplingMethod(base.DualConditionMethod):
         G_exp = tnseq_tools.Genes(
             self.expdata,
             self.annotation_path_exp,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data_exp,
@@ -865,7 +865,7 @@ class ResamplingMethod(base.DualConditionMethod):
         data = []
         N = len(G_ctrl)
         count = 0
-        self.progress_range(N)
+        
 
         for gene in G_ctrl:
             if gene.orf not in G_exp:

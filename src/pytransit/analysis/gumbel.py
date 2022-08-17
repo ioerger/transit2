@@ -215,7 +215,7 @@ class GumbelMethod(base.SingleConditionMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -310,7 +310,7 @@ class GumbelMethod(base.SingleConditionMethod):
             )
             replicates = "Mean"
 
-        ignoreCodon = True
+        ignore_codon = True
 
         try:
             n_terminus = float(wxobj.globalNTerminusText.GetValue())
@@ -356,7 +356,7 @@ class GumbelMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -379,7 +379,7 @@ class GumbelMethod(base.SingleConditionMethod):
         replicates = kwargs.get("r", "Sum")
         normalization = None
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.0))
         c_terminus = float(kwargs.get("iC", 0.0))
 
@@ -394,7 +394,7 @@ class GumbelMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -417,7 +417,7 @@ class GumbelMethod(base.SingleConditionMethod):
 
         start_time = time.time()
 
-        self.progress_range(self.samples + self.burnin)
+        
 
         # Get orf data
         self.log("Reading Annotation")
@@ -450,7 +450,7 @@ class GumbelMethod(base.SingleConditionMethod):
             self.annotation_path,
             minread=self.minread,
             reps=self.replicates,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data,

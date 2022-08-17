@@ -181,7 +181,7 @@ class RankProductMethod(base.DualConditionMethod):
         doHistogram=False,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -229,7 +229,7 @@ class RankProductMethod(base.DualConditionMethod):
             return None
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         samples = int(wxobj.rankproductSampleText.GetValue())
         normalization = wxobj.rankproductNormChoice.GetString(
             wxobj.rankproductNormChoice.GetCurrentSelection()
@@ -261,7 +261,7 @@ class RankProductMethod(base.DualConditionMethod):
             doHistogram,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -285,7 +285,7 @@ class RankProductMethod(base.DualConditionMethod):
         replicates = kwargs.get("r", "Sum")
 
         LOESS = kwargs.get("l", False)
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))
         c_terminus = float(kwargs.get("iC", 0.00))
 
@@ -300,7 +300,7 @@ class RankProductMethod(base.DualConditionMethod):
             doHistogram,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -330,7 +330,7 @@ class RankProductMethod(base.DualConditionMethod):
         Gctrl = tnseq_tools.Genes(
             self.ctrldata + self.expdata,
             self.annotation_path,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data[:Kctrl, :],
@@ -340,7 +340,7 @@ class RankProductMethod(base.DualConditionMethod):
         Gexp = tnseq_tools.Genes(
             self.ctrldata + self.expdata,
             self.annotation_path,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data[Kctrl:, :],
@@ -381,7 +381,7 @@ class RankProductMethod(base.DualConditionMethod):
         # rankproduct
         data = []
         count = 0
-        self.progress_range(Ngenes)
+        
         for i, gene in enumerate(Gctrl):
             count += 1
 

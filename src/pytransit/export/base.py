@@ -146,7 +146,7 @@ class SingleConditionMethod(ExportMethod):
         output,
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -164,7 +164,7 @@ class SingleConditionMethod(ExportMethod):
         self.ctrldata = ctrldata
         self.normalization = normalization
         self.LOESS = LOESS
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
 
@@ -186,7 +186,7 @@ class DualConditionMethod(ExportMethod):
         output,
         normalization,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -205,7 +205,7 @@ class DualConditionMethod(ExportMethod):
         self.expdata = expdata
         self.normalization = normalization
         self.LOESS = LOESS
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
 
@@ -229,7 +229,7 @@ class QuadConditionMethod(ExportMethod):
         output,
         normalization,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -250,7 +250,7 @@ class QuadConditionMethod(ExportMethod):
         self.expdataB = expdataB
         self.normalization = normalization
         self.LOESS = LOESS
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
 

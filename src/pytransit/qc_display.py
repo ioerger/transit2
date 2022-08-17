@@ -72,7 +72,7 @@ class qcFrame(wx.Frame):
             self.index_stats = 0
             self.plots_list = []
 
-            self.wigList = datasets
+            self.wig_list = datasets
 
             wx.Frame.__init__(
                 self,
@@ -268,7 +268,7 @@ class qcFrame(wx.Frame):
 
             ############################
             self.norm = "nonorm"
-            (self.data, self.position) = tnseq_tools.get_data(self.wigList)
+            (self.data, self.position) = tnseq_tools.get_data(self.wig_list)
 
             self.refresh()
             # self.updateFiles()
@@ -289,7 +289,7 @@ class qcFrame(wx.Frame):
 
     def refresh(self):
         try:
-            # (self.data, self.position) = tnseq_tools.get_data(self.wigList)
+            # (self.data, self.position) = tnseq_tools.get_data(self.wig_list)
             self.plots_list = []
             self.statsListCtrl.DeleteAllItems()
             (self.normdata, factors) = norm_tools.normalize_data(self.data, self.norm)
@@ -308,7 +308,7 @@ class qcFrame(wx.Frame):
 
         try:
             for j, row in enumerate(self.normdata):
-                name = transit_tools.basename(self.wigList[j])
+                name = transit_tools.basename(self.wig_list[j])
                 (
                     density,
                     meanrd,
@@ -352,7 +352,7 @@ class qcFrame(wx.Frame):
         try:
             for i, reads in enumerate(self.normdata):
                 # Data
-                name = transit_tools.basename(self.wigList[i])
+                name = transit_tools.basename(self.wig_list[i])
                 # reads,position = tnseq_tools.get_data([])
                 nzreads = reads[reads > 0]
                 n_nz = len(nzreads)

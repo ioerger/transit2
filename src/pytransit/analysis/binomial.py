@@ -204,7 +204,7 @@ class BinomialMethod(base.SingleConditionMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         pi0=0.5,
@@ -272,7 +272,7 @@ class BinomialMethod(base.SingleConditionMethod):
         # Read the parameters from the wxPython widgets
         samples = int(wxobj.binomialSampleText.GetValue())
         burnin = int(wxobj.binomialBurnText.GetValue())
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(wxobj.globalNTerminusText.GetValue())
         c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = "Sum"
@@ -297,7 +297,7 @@ class BinomialMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            ignoreCodon=ignoreCodon,
+            ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
             wxobj=wxobj,
@@ -317,7 +317,7 @@ class BinomialMethod(base.SingleConditionMethod):
         replicates = "Sum"
         normalization = None
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.0))
         c_terminus = float(kwargs.get("iC", 0.0))
 
@@ -341,7 +341,7 @@ class BinomialMethod(base.SingleConditionMethod):
             replicates=replicates,
             normalization=normalization,
             LOESS=LOESS,
-            ignoreCodon=ignoreCodon,
+            ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
             pi0=pi0,
@@ -361,11 +361,11 @@ class BinomialMethod(base.SingleConditionMethod):
         transit_tools.log("Starting Binomial Method")
         start_time = time.time()
 
-        self.progress_range(self.samples + self.burnin)
+        
 
         # Get orf data
         # transit_tools.log("Getting Data")
-        # G = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignoreCodon=self.ignoreCodon, n_terminus=self.n_terminus, c_terminus=self.c_terminus)
+        # G = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignore_codon=self.ignore_codon, n_terminus=self.n_terminus, c_terminus=self.c_terminus)
 
         transit_tools.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
@@ -384,7 +384,7 @@ class BinomialMethod(base.SingleConditionMethod):
             self.annotation_path,
             minread=1,
             reps=self.replicates,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data,

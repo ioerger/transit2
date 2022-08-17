@@ -630,7 +630,7 @@ def get_validated_data(wig_list, wxobj=None):
 
     .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.norm_tools.normalize_data`
     """
-
+    print(f'''wig_list = {wig_list}''')
     (status, genome) = validate_wig_format(wig_list, wxobj=wxobj)
 
     # Regular file with empty sites
