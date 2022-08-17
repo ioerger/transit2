@@ -590,15 +590,19 @@ def method_select_func(selected_name, event):
             name = matched_name
             panel.method_info_text.SetLabel("%s" % analysis_methods[name].long_name)
 
-            panel.method_tn_text.Show()
-            panel.method_tn_text.SetLabel(analysis_methods[name].transposons_text)
-            panel.method_tn_text.Wrap(method_wrap_width)
+            # FIXME: re-enable this when positioning is fixed
+            # panel.method_tn_text.Show()
+            # panel.method_tn_text.SetLabel(analysis_methods[name].transposons_text)
+            # panel.method_tn_text.Wrap(method_wrap_width)
 
-            panel.method_desc_text.Show()
-            panel.method_desc_text.SetLabel(analysis_methods[name].long_desc)
-            panel.method_desc_text.Wrap(method_wrap_width)
+            # panel.method_desc_text.Show()
+            # panel.method_desc_text.SetLabel(analysis_methods[name].long_desc)
+            # panel.method_desc_text.Wrap(method_wrap_width)
             panel.method_instructions.SetLabel(" ")
-            analysis_methods[name].gui.panel.Show()
+            try:
+                analysis_methods[name].gui.panel.Show()
+            except Exception as error:
+                pass
             frame.statusBar.SetStatusText("[%s]" % analysis_methods[name].short_name)
 
         parameter_panel.show_progress_section()

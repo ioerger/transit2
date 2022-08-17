@@ -31,12 +31,12 @@ from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter
 command_name = sys.argv[0]
 
 class Analysis:
     identifier  = "#Resampling"
-    short_name = "resampling"
+    short_name = "resampling - new"
     long_name = "Resampling (Permutation test)"
     short_desc = "Resampling test of conditional essentiality between two conditions"
     long_desc = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
@@ -142,26 +142,21 @@ class Analysis:
         # 
         # parameter inputs
         # 
-        # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-        # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-        # --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-        # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-        # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-        # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-        # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         if True:
-            self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
-            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
-            self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
+            sample_getter          = create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
+            
+            self.value_getters.samples                = lambda *args: int(sample_getter(*args))
             self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
             self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
-            self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
-            self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
-            self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
+            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
+            self.value_getters.genome_positional_bias = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            # FIXME: LOESS button create_button(panel, sizer, *, label)
+            self.value_getters.adaptive               = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=False, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
+            self.value_getters.doHistogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
+            self.value_getters.includeZeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=False, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
             create_run_button(self.panel, main_sizer)
             
