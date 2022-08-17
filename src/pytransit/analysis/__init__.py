@@ -24,6 +24,7 @@ norm
 pathway_enrichment
 rankproduct
 resampling
+resampling_new
 tn5gaps
 tnseq_stats_gui
 ttnfitness
