@@ -172,7 +172,7 @@ class Analysis:
             # FIXME: LOESS button create_button(panel, sizer, *, label)
             self.value_getters.adaptive               = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=False, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
+            self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
             create_run_button(self.panel, main_sizer)
             
@@ -478,8 +478,6 @@ class Analysis:
                         self.inputs.ctrl_lib_str = ""
                         self.inputs.exp_lib_str = ""
             
-            print(f'''G_ctrl = ''',repr(G_ctrl))
-            print(f'''G_exp = ''',repr(G_exp))
             (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
             self.write_output(data, qval, start_time)
 
@@ -688,19 +686,19 @@ class Analysis:
         N = len(G_ctrl)
         count = 0
         
-        print("G_ctrl", repr(G_ctrl))
-        print("G_exp", repr(G_exp))
-        print("doLibraryResampling", doLibraryResampling)
-        print("histPath", histPath)
-        print("self.inputs.diff_strains", self.inputs.diff_strains)
-        print("self.inputs.include_zeros", self.inputs.include_zeros)
-        print("self.inputs.pseudocount", self.inputs.pseudocount)
-        print("self.inputs.winz", self.inputs.winz)
-        print("self.inputs.samples", self.inputs.samples)
-        print("self.inputs.adaptive", self.inputs.adaptive)
-        print("self.inputs.ctrl_lib_str", self.inputs.ctrl_lib_str)
-        print("self.inputs.exp_lib_str", self.inputs.exp_lib_str)
-        print("self.inputs.do_histogram", self.inputs.do_histogram)
+        # print("G_ctrl", repr(G_ctrl))
+        # print("G_exp", repr(G_exp))
+        # print("doLibraryResampling", doLibraryResampling)
+        # print("histPath", histPath)
+        # print("self.inputs.diff_strains", self.inputs.diff_strains)
+        # print("self.inputs.include_zeros", self.inputs.include_zeros)
+        # print("self.inputs.pseudocount", self.inputs.pseudocount)
+        # print("self.inputs.winz", self.inputs.winz)
+        # print("self.inputs.samples", self.inputs.samples)
+        # print("self.inputs.adaptive", self.inputs.adaptive)
+        # print("self.inputs.ctrl_lib_str", self.inputs.ctrl_lib_str)
+        # print("self.inputs.exp_lib_str", self.inputs.exp_lib_str)
+        # print("self.inputs.do_histogram", self.inputs.do_histogram)
 
         for gene in G_ctrl:
             if gene.orf not in G_exp:
@@ -717,7 +715,7 @@ class Analysis:
 
             gene_exp = G_exp[gene.orf]
             count += 1
-            print(f'''gene = __{gene.name}__''')
+            # print(f'''gene = __{gene.name}__''')
             
             if not self.inputs.diff_strains and gene.n != gene_exp.n:
                 self.transit_error(
@@ -742,21 +740,26 @@ class Analysis:
                     data2,
                 ) = (0, 0, 0, 0, 1.00, 1.00, 1.00, [], [0], [0])
             else:
+                # print("here1")
                 if not self.inputs.include_zeros:
-                    ii_ctrl = numpy.sum(gene.reads, 0) > 0
-                    ii_exp = numpy.sum(gene_exp.reads, 0) > 0
+                    # print("here1.1")
+                    ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
+                    ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
+                    # print(f'''here1.1: ii_ctrl = {ii_ctrl}''')
                 else:
+                    # print("here1.2")
                     ii_ctrl = numpy.ones(gene.n) == 1
                     ii_exp = numpy.ones(gene_exp.n) == 1
+                    # print(f'''here1.2: ii_ctrl = {ii_ctrl}''')
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
-                print(f'''ii_ctrl = {ii_ctrl}''')
-                print(f'''ii_exp = {ii_exp}''')
-                print(f'''gene.reads = {gene.reads}''')
+                # print(f'''ii_ctrl = {ii_ctrl}''')
+                # print(f'''ii_exp = {ii_exp}''')
+                # print(f'''gene.reads = {gene.reads}''')
                 data1 = gene.reads[:, ii_ctrl].flatten()
                 data2 = gene_exp.reads[:, ii_exp].flatten()
-                print(f'''data1 = {data1}''')
-                print(f'''data2 = {data2}''')
+                # print(f'''data1 = {data1}''')
+                # print(f'''data2 = {data2}''')
                 if self.inputs.winz:
                     data1 = self.winsorize_resampling(data1)
                     data2 = self.winsorize_resampling(data2)
