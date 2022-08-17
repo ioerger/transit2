@@ -68,22 +68,21 @@ class Analysis:
         normalization="TTR",
         samples=10000,
         adaptive=False,
-        doHistogram=False,
-        includeZeros=False,
+        do_histogram=False,
+        include_zeros=False,
         pseudocount=1,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         ctrl_lib_str="",
         exp_lib_str="",
         winz=False,
-        wxobj=None,
         Z=False,
-        diffStrains=False,
+        diff_strains=False,
         annotation_path_exp="",
-        combinedWigParams=None,
+        combined_wig_params=None,
     )
     
     valid_cli_flags = [
@@ -98,17 +97,34 @@ class Analysis:
         "-winz",
     ]
     usage_string = f"""
-        Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+        python3 {sys.argv[0]} resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        ---
+        OR
+        ---
+        python3 {sys.argv[0]} resampling -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
+        NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
+
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
-            -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-            -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+        -s <integer>    :=  Number of samples. Default: -s 10000
+        -n <string>     :=  Normalization method. Default: -n TTR
+        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
+        -a              :=  Perform adaptive resampling. Default: Turned Off.
+        -ez             :=  Exclude rows with zero across conditions. Default: Turned off
+                            (i.e. include rows with zeros).
+        -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
+        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias.
+                            Default: Turned Off.
+        -iN <int>       :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
+        -iC <int>       :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+        --ctrl_lib      :=  String of letters representing library of control files in order
+                            e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
+                            If non-empty, resampling will limit permutations to within-libraries.
+
+        --exp_lib       :=  String of letters representing library of experimental files in order
+                            e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
+                            If non-empty, resampling will limit permutations to within-libraries.
+        -winz           :=  winsorize insertion counts for each gene in each condition 
+                            (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
     
     
@@ -155,8 +171,8 @@ class Analysis:
             self.value_getters.genome_positional_bias = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
             # FIXME: LOESS button create_button(panel, sizer, *, label)
             self.value_getters.adaptive               = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=False, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
-            self.value_getters.doHistogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.includeZeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=False, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
+            self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
+            self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=False, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
             create_run_button(self.panel, main_sizer)
             
@@ -191,13 +207,12 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
             # 
             # save result files
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="test1_output.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+                default_file_name="output.dat",
+                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
             )
             if not Analysis.inputs.output_path:
                 return None
@@ -205,280 +220,583 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(cls, rawargs):
+    def from_args(self, rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
-        transit_tools.handle_help_flag(kwargs, cls.usage_string)
-        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
 
-        combined_wig      = args[0]
-        annotation_path   = args[2]
-        metadata          = args[1]
-        output_path       = args[3]
-        normalization     = kwargs.get("n", "TTR")
-        n_terminus        = float(kwargs.get("iN", 0.0))
-        c_terminus        = float(kwargs.get("iC", 0.0))
-        winz              = "winz" in kwargs
-        pseudocount       = int(kwargs.get("PC", 5))
-        alpha             = float(kwargs.get("alpha", 1000))
-        refs              = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
-        if refs != []: refs = refs.split(",")
-        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
-        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
+        isCombinedWig = True if kwargs.get("c", False) else False
+        combined_wig_params = None
+        if isCombinedWig:
+            if len(args) != 5:
+                print("Error: Incorrect number of args. See usage")
+                print(self.usage_string)
+                sys.exit(0)
+            combined_wig_params = {
+                "combined_wig": kwargs.get("c"),
+                "samples_metadata": args[0],
+                "conditions": [args[1].lower(), args[2].lower()],
+            }
+            annot_paths = args[3].split(",")
+            # to show contrasted conditions for combined_wigs in output header
+            ctrldata = [combined_wig_params["conditions"][0]]
+            expdata = [combined_wig_params["conditions"][1]]
+            output_path = args[4]
+        else:
+            if len(args) != 4:
+                print("Error: Incorrect number of args. See usage")
+                print(self.usage_string)
+                sys.exit(0)
+            ctrldata = args[0].split(",")
+            expdata = args[1].split(",")
+            annot_paths = args[2].split(",")
+            output_path = args[3]
+        annotation_path = annot_paths[0]
+        diff_strains = False
+        annotation_pathExp = ""
+        if len(annot_paths) == 2:
+            annotation_pathExp = annot_paths[1]
+            diff_strains = True
+        if diff_strains and isCombinedWig:
+            print("Error: Cannot have combined wig and different annotation files.")
+            sys.exit(0)
+        winz = True if "winz" in kwargs else False
 
-        # save all the data
-        Analysis.inputs.update(dict(
-            combined_wig=combined_wig,
-            metadata=metadata,
-            annotation=annotation_path,
+        output_file = open(output_path, "w")
+
+        # check for unrecognized flags
+        flags = (
+            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split()
+        )
+        for arg in rawargs:
+            if arg[0] == "-" and arg not in flags:
+                self.transit_error("flag unrecognized: %s" % arg)
+                print(self.usage_string)
+                sys.exit(0)
+
+        normalization = kwargs.get("n", "TTR")
+        samples = int(kwargs.get("s", 10000))
+        adaptive = kwargs.get("a", False)
+        do_histogram = kwargs.get("h", False)
+        replicates = kwargs.get("r", "Sum")
+        excludeZeros = kwargs.get("ez", False)
+        include_zeros = not excludeZeros
+        pseudocount = float(
+            kwargs.get("PC", 1.0)
+        )  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
+
+        Z = True if "Z" in kwargs else False
+
+        LOESS = kwargs.get("l", False)
+        ignore_codon = True
+
+        n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
+        c_terminus = float(kwargs.get("iC", 0.00))
+        ctrl_lib_str = kwargs.get("-ctrl_lib", "")
+        exp_lib_str = kwargs.get("-exp_lib", "")
+        
+        self.inputs.update(dict(
+            ctrldata=ctrldata,
+            expdata=expdata,
+            output_file=output_file,
             normalization=normalization,
-            output_path=output_path,
-            
-            excluded_conditions=excluded_conditions,
-            included_conditions=included_conditions,
+            samples=samples,
+            adaptive=adaptive,
+            do_histogram=do_histogram,
+            include_zeros=include_zeros,
+            pseudocount=pseudocount,
+            replicates=replicates,
+            LOESS=LOESS,
+            ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
-            pseudocount=pseudocount,
+            ctrl_lib_str=ctrl_lib_str,
+            exp_lib_str=exp_lib_str,
             winz=winz,
-            refs=refs,
-            alpha=alpha,
+            Z=Z,
+            diff_strains=diff_strains,
+            annotation_path_exp=annotation_path_exp,
+            combined_wig_params=combined_wig_params,
         ))
-        
-        return Analysis.instance
-        
-    def means_by_condition_for_gene(self, sites, conditions, data):
-        """
-            Returns a dictionary of {Condition: Mean} for each condition.
-            ([Site], [Condition]) -> {Condition: Number}
-            Site :: Number
-            Condition :: String
-        """
-        nTASites = len(sites)
-        wigsByConditions = collections.defaultdict(lambda: [])
-        for i, c in enumerate(conditions):
-            wigsByConditions[c].append(i)
-
-        return {
-            c: numpy.mean(transit_tools.winsorize(data[wigIndex][:, sites]))
-            if nTASites > 0
-            else 0
-            for (c, wigIndex) in wigsByConditions.items()
-        }
-
-    def means_by_rv(self, data, RvSiteindexesMap, genes, conditions):
-        """
-            Returns Dictionary of mean values by condition
-            ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition]) -> {Rv: {Condition: Number}}
-            Wigdata :: [Number]
-            SiteIndex :: Number
-            Gene :: {start, end, rv, gene, strand}
-            Condition :: String
-        """
-        MeansByRv = {}
-        for gene in genes:
-            Rv = gene["rv"]
-            MeansByRv[Rv] = self.means_by_condition_for_gene(
-                RvSiteindexesMap[Rv], conditions, data
-            )
-        return MeansByRv
-
-    def group_by_condition(self, wigList, conditions):
-        """
-            Returns array of datasets, where each dataset corresponds to one condition.
-            ([[Wigdata]], [Condition]) -> [[DataForCondition]]
-            Wigdata :: [Number]
-            Condition :: String
-            DataForCondition :: [Number]
-        """
-        countsByCondition = collections.defaultdict(lambda: [])
-        countSum = 0
-        for i, c in enumerate(conditions):
-            countSum += numpy.sum(wigList[i])
-            countsByCondition[c].append(wigList[i])
-
-        return (
-            countSum,
-            [numpy.array(v).flatten() for v in countsByCondition.values()],
-        )
-
-    def calculate_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
-        """
-            Runs Anova (grouping data by condition) and returns p and q values
-            ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
-            Wigdata :: [Number]
-            Gene :: {start, end, rv, gene, strand}
-            Mean :: Number
-            SiteIndex: Integer
-            Condition :: String
-        """
-        count = 0
-
-        MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
-        for gene in genes:
-            count += 1
-            Rv = gene["rv"]
-            if len(RvSiteindexesMap[Rv]) <= 1:
-                status.append("TA sites <= 1")
-                msr,mse,Fstat,pval = 0,0,-1,1
-            else:
-                countSum, countsVec = self.group_by_condition(
-                    list(map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)),
-                    conditions,
-                )
-                if self.inputs.winz:
-                    countsVec = transit_tools.winsorize(countsVec)
-
-                if countSum == 0:
-                    msr,mse,Fstat,pval = 0,0,-1,1
-                    status.append("No counts in all conditions")
-                else:
-                    Fstat,pval = scipy.stats.f_oneway(*countsVec)
-                    status.append("-")
-                    # countsVec is a list of numpy arrays, or could be a list of lists
-                    # pooled counts for each condition, over TAs in gene and replicates
-                    if isinstance(countsVec[0],numpy.ndarray): 
-                      countsVecAsArrays = countsVec
-                      countsVecAsLists = [grp.tolist() for grp in countsVec]
-                    else:
-                      countsVecAsArrays = [numpy.array(grp) for grp in countsVec]
-                      countsVecAsLists = countsVec
-                    allcounts = [item for sublist in countsVecAsLists for item in sublist]
-                    grandmean = numpy.mean(allcounts)
-                    groupmeans = [numpy.mean(grp) for grp in countsVecAsArrays]
-                    k,n = len(countsVec),len(allcounts)
-                    dfBetween,dfWithin = k-1,n-k
-                    msr,mse = 0,0
-                    for grp in countsVecAsArrays: msr += grp.size*(numpy.mean(grp)-grandmean)**2/float(dfBetween)
-                    for grp,mn in zip(countsVecAsArrays,groupmeans): mse += numpy.sum((grp-mn)**2) 
-                    mse /= float(dfWithin)
-                    mse = mse+self.inputs.alpha ### moderation
-                    Fmod = msr/float(mse)
-                    Pmod = scipy.stats.f.sf(Fmod,dfBetween,dfWithin)
-                    Fstat,pval = Fmod,Pmod
-            pvals.append(pval)   
-            Fstats.append(Fstat) 
-            MSR.append(msr)
-            MSE.append(mse)
-            Rvs.append(Rv)
-
-            # Update progress
-            percentage = 100.0 * count / len(genes)
-            progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
-
-        pvals = numpy.array(pvals)
-        mask = numpy.isfinite(pvals)
-        qvals = numpy.full(pvals.shape, numpy.nan)
-        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[
-            1
-        ]  # BH, alpha=0.05
-
-        msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
-        for i,rv in enumerate(Rvs):
-          msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
-        return (msr, mse, f, p, q, statusMap)
-
-    def calc_lf_cs(self, means, refs=[], pseudocount=1):
-        if len(refs) == 0:
-            refs = means  # if ref condition(s) not explicitly defined, use mean of all
-        grandmean = numpy.mean(refs)
-        lfcs = [math.log((x + pseudocount) / float(grandmean + pseudocount), 2) for x in means]
-        return lfcs
+        return self
 
     def Run(self):
-        with gui_tools.nice_error_log:
-            transit_tools.log("Starting Anova analysis")
-            start_time = time.time()
-            
-            # 
-            # get data
-            # 
-            transit_tools.log("Getting Data")
-            if True:
-                sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
-                
-                transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
-                data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
-                
-                if self.inputs.winz: transit_tools.log("Winsorizing insertion counts")
-                conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
-                conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
-                conditions_list = transit_tools.select_conditions(
-                    conditions=conditions,
-                    included_conditions=self.inputs.included_conditions,
-                    excluded_conditions=self.inputs.excluded_conditions,
-                    ordering_metadata=ordering_metadata,
+        if self.do_histogram:
+            try: import matplotlib.pyplot as plt
+            except:
+                print("Error: cannot do histograms")
+                self.do_histogram = False
+
+        transit_tools.log("Starting resampling Method")
+        start_time = time.time()
+        if self.winz:
+            transit_tools.log("Winsorizing insertion counts")
+
+        histPath = ""
+        if self.do_histogram:
+            histPath = os.path.join(
+                os.path.dirname(self.output.name),
+                transit_tools.fetch_name(self.output.name) + "_histograms",
+            )
+            if not os.path.isdir(histPath):
+                os.makedirs(histPath)
+
+        # Get orf data
+        transit_tools.log("Getting Data")
+        if self.diff_strains:
+            transit_tools.log("Multiple annotation files found")
+            transit_tools.log(
+                "Mapping ctrl data to {0}, exp data to {1}".format(
+                    self.annotation_path, self.annotation_path_exp
                 )
+            )
 
-                condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
+        if self.combined_wig_params:
+            (position, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
+                self.combined_wig_params["combined_wig"]
+            )
+            conditionsByFile, _, _, _ = tnseq_tools.read_samples_metadata(
+                self.combined_wig_params["samples_metadata"]
+            )
+            conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
+            data, conditions = self.filter_wigs_by_conditions(
+                data, conditions, self.combined_wig_params["conditions"]
+            )
+            data_ctrl = numpy.array(
+                [
+                    d
+                    for i, d in enumerate(data)
+                    if conditions[i].lower() == self.combined_wig_params["conditions"][0]
+                ]
+            )
+            data_exp = numpy.array(
+                [
+                    d
+                    for i, d in enumerate(data)
+                    if conditions[i].lower() == self.combined_wig_params["conditions"][1]
+                ]
+            )
+            position_ctrl, position_exp = position, position
+        else:
+            (data_ctrl, position_ctrl) = transit_tools.get_validated_data(
+                self.ctrldata, wxobj=self.wxobj
+            )
+            (data_exp, position_exp) = transit_tools.get_validated_data(
+                self.expdata, wxobj=self.wxobj
+            )
+        (K_ctrl, N_ctrl) = data_ctrl.shape
+        (K_exp, N_exp) = data_exp.shape
 
+        if not self.diff_strains and (N_ctrl != N_exp):
+            self.transit_error(
+                "Error: Ctrl and Exp wig files don't have the same number of sites."
+            )
+            self.transit_error("Make sure all .wig files come from the same strain.")
+            return
+        # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)
+
+        transit_tools.log("Preprocessing Ctrl data...")
+        data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
+
+        transit_tools.log("Preprocessing Exp data...")
+        data_exp = self.preprocess_data(position_exp, data_exp)
+
+        G_ctrl = tnseq_tools.Genes(
+            self.ctrldata,
+            self.annotation_path,
+            ignore_codon=self.ignore_codon,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
+            data=data_ctrl,
+            position=position_ctrl,
+        )
+        G_exp = tnseq_tools.Genes(
+            self.expdata,
+            self.annotation_path_exp,
+            ignore_codon=self.ignore_codon,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
+            data=data_exp,
+            position=position_exp,
+        )
+
+        doLibraryResampling = False
+        # If library string not empty
+        if self.ctrl_lib_str or self.exp_lib_str:
+            letters_ctrl = set(self.ctrl_lib_str)
+            letters_exp = set(self.exp_lib_str)
+
+            # Check if using exactly 1 letters; i.e. no different libraries
+            if len(letters_ctrl) == 1 and letters_exp == 1:
+                pass
+            # If using more than one letter, then check no differences in set
+            else:
+                lib_diff = letters_ctrl ^ letters_exp
+                # Check that their differences
+                if not lib_diff:
+                    doLibraryResampling = True
+                else:
+                    transit_tools.transit_error(
+                        "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
+                        % (self.ctrl_lib_str, self.exp_lib_str)
+                    )
+                    self.ctrl_lib_str = ""
+                    self.exp_lib_str = ""
+
+        (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
+        self.write_output(data, qval, start_time)
+
+        self.finish()
+        transit_tools.log("Finished resampling Method")
+
+    def preprocess_data(self, position, data):
+        (K, N) = data.shape
+
+        if self.normalization != "nonorm":
+            transit_tools.log("Normalizing using: %s" % self.normalization)
+            (data, factors) = norm_tools.normalize_data(
+                data,
+                self.normalization,
+                self.ctrldata + self.expdata,
+                self.annotation_path,
+            )
+
+        if self.LOESS:
+            transit_tools.log("Performing LOESS Correction")
+            for j in range(K):
+                data[j] = stat_tools.loess_correction(position, data[j])
+
+        return data
+
+    def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
+        """
+            Returns list of conditions corresponding to given wigfiles.
+            ({FileName: Condition}, [FileName]) -> [Condition]
+            Condition :: [String]
+        """
+        return [conditionsByFile.get(f, None) for f in filenamesInCombWig]
+
+    def filter_wigs_by_conditions(self, data, conditions, included_conditions):
+        """
+            Filters conditions from wig to ctrl, exp conditions only
+            ([[Wigdata]], [ConditionCtrl, ConditionExp]) -> Tuple([[Wigdata]], [Condition])
+        """
+        d_filtered, cond_filtered = [], []
+        if len(included_conditions) != 2:
+            self.transit_error("Only 2 conditions expected", included_conditions)
+            sys.exit(0)
+        for i, c in enumerate(conditions):
+            if c.lower() in included_conditions:
+                d_filtered.append(data[i])
+                cond_filtered.append(conditions[i])
+
+        return (numpy.array(d_filtered), numpy.array(cond_filtered))
+
+    def write_output(self, data, qval, start_time):
+
+        self.output.write("#Resampling\n")
+        if self.wxobj:
+            members = sorted(
+                [
+                    attr
+                    for attr in dir(self)
+                    if not callable(getattr(self, attr)) and not attr.startswith("__")
+                ]
+            )
+            memberstr = ""
+            for m in members:
+                memberstr += "%s = %s, " % (m, getattr(self, m))
+            self.output.write(
+                "#GUI with: norm=%s, samples=%s, pseudocounts=%1.2f, adaptive=%s, histogram=%s, include_zeros=%s, output=%s\n"
+                % (
+                    self.normalization,
+                    self.samples,
+                    self.pseudocount,
+                    self.adaptive,
+                    self.do_histogram,
+                    self.include_zeros,
+                    self.output.name.encode("utf-8"),
+                )
+            )
+        else:
+            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        self.output.write(
+            "#Parameters: samples=%s, norm=%s, histograms=%s, adaptive=%s, excludeZeros=%s, pseudocounts=%s, LOESS=%s, trim_Nterm=%s, trim_Cterm=%s\n"
+            % (
+                self.samples,
+                self.normalization,
+                self.do_histogram,
+                self.adaptive,
+                not self.include_zeros,
+                self.pseudocount,
+                self.LOESS,
+                self.n_terminus,
+                self.c_terminus,
+            )
+        )
+        self.output.write(
+            "#Control Data: %s\n" % (",".join(self.ctrldata).encode("utf-8"))
+        )
+        self.output.write(
+            "#Experimental Data: %s\n" % (",".join(self.expdata).encode("utf-8"))
+        )
+        self.output.write(
+            "#Annotation path: %s %s\n"
+            % (
+                self.annotation_path.encode("utf-8"),
+                self.annotation_path_exp.encode("utf-8") if self.diff_strains else "",
+            )
+        )
+        self.output.write("#Time: %s\n" % (time.time() - start_time))
+        # Z = True # include Z-score column in resampling output?
+        global columns  # consider redefining columns above (for GUI)
+        if self.Z == True:
+            columns = [
+                "Orf",
+                "Name",
+                "Desc",
+                "Sites",
+                "Mean Ctrl",
+                "Mean Exp",
+                "log2FC",
+                "Sum Ctrl",
+                "Sum Exp",
+                "Delta Mean",
+                "p-value",
+                "Z-score",
+                "Adj. p-value",
+            ]
+        self.output.write("#%s\n" % "\t".join(columns))
+
+        for i, row in enumerate(data):
+            (
+                orf,
+                name,
+                desc,
+                n,
+                mean1,
+                mean2,
+                sum1,
+                sum2,
+                test_obs,
+                log2FC,
+                pval_2tail,
+            ) = row
+            if self.Z == True:
+                p = pval_2tail / 2  # convert from 2-sided back to 1-sided
+                if p == 0:
+                    p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
+                if p == 1:
+                    p = 1 - 1e-5
+                z = scipy.stats.norm.ppf(p)
+                if log2FC > 0:
+                    z *= -1
+                self.output.write(
+                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f\n"
+                    % (
+                        orf,
+                        name,
+                        desc,
+                        n,
+                        mean1,
+                        mean2,
+                        log2FC,
+                        sum1,
+                        sum2,
+                        test_obs,
+                        pval_2tail,
+                        z,
+                        qval[i],
+                    )
+                )
+            else:
+                self.output.write(
+                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f\n"
+                    % (
+                        orf,
+                        name,
+                        desc,
+                        n,
+                        mean1,
+                        mean2,
+                        log2FC,
+                        sum1,
+                        sum2,
+                        test_obs,
+                        pval_2tail,
+                        qval[i],
+                    )
+                )
+        self.output.close()
+
+        transit_tools.log("Adding File: %s" % (self.output.name))
+        results_area.add(self.output.name)
+
+    def winsorize_resampling(self, counts):
+        # input is insertion counts for gene as pre-flattened numpy array
+        counts = counts.tolist()
+        if len(counts) < 3:
+            return counts
+        s = sorted(counts, reverse=True)
+        if s[1] == 0:
+            return counts  # don't do anything if there is only 1 non-zero value
+        c2 = [s[1] if x == s[0] else x for x in counts]
+        return numpy.array(c2)
+
+    def run_resampling(
+        self, G_ctrl, G_exp=None, doLibraryResampling=False, histPath=""
+    ):
+        data = []
+        N = len(G_ctrl)
+        count = 0
+        self.progress_range(N)
+
+        for gene in G_ctrl:
+            if gene.orf not in G_exp:
+                if self.diff_strains:
+                    continue
+                else:
+                    self.transit_error(
+                        "Error: Gene in ctrl data not present in exp data"
+                    )
+                    self.transit_error(
+                        "Make sure all .wig files come from the same strain."
+                    )
+                    return ([], [])
+
+            gene_exp = G_exp[gene.orf]
+            count += 1
+
+            if not self.diff_strains and gene.n != gene_exp.n:
+                self.transit_error(
+                    "Error: No. of TA sites in Exp and Ctrl data are different"
+                )
+                self.transit_error(
+                    "Make sure all .wig files come from the same strain."
+                )
+                return ([], [])
+
+            if (gene.k == 0 and gene_exp.k == 0) or gene.n == 0 or gene_exp.n == 0:
                 (
-                    data,
-                    file_names,
-                    condition_names,
-                    conditions,
-                    _,
-                    _,
-                ) = transit_tools.filter_wigs_by_conditions3(
-                    data,
-                    file_names=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
-                    condition_names=condition_names, # original Condition column in samples metadata file
-                    included_cond=self.inputs.included_conditions,
-                    excluded_cond=self.inputs.excluded_conditions,
-                    conditions=condition_names,
-                ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
-                
-                transit_tools.log("reading genes")
-                genes = tnseq_tools.read_genes(self.inputs.annotation_path)
-            
-            # 
-            # process data
-            # 
-            if True:
-                transit_tools.log("processing data")
-                TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
-                RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
-                    genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
-                )
-                MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
+                    test_obs,
+                    mean1,
+                    mean2,
+                    log2FC,
+                    pval_ltail,
+                    pval_utail,
+                    pval_2tail,
+                    testlist,
+                    data1,
+                    data2,
+                ) = (0, 0, 0, 0, 1.00, 1.00, 1.00, [], [0], [0])
+            else:
+                if not self.include_zeros:
+                    ii_ctrl = numpy.sum(gene.reads, 0) > 0
+                    ii_exp = numpy.sum(gene_exp.reads, 0) > 0
+                else:
+                    ii_ctrl = numpy.ones(gene.n) == 1
+                    ii_exp = numpy.ones(gene_exp.n) == 1
 
-                transit_tools.log("Running Anova")
-                MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
-                    data, genes, MeansByRv, RvSiteindexesMap, conditions
-                )
-            
-            # 
-            # write output
-            # 
-            transit_tools.log(f"Adding File: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
-            if True:
-                file = open(self.inputs.output_path, "w")
-                
-                heads = (
-                    "Rv Gene TAs".split() +
-                    ["Mean_%s" % x for x in conditions_list] +
-                    ["LFC_%s" % x for x in conditions_list] +
-                    "MSR MSE+alpha Fstat Pval Padj".split() + 
-                    ["status"]
-                )
-                file.write(Analysis.identifier+"\n")
-                file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-                file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.inputs.normalization,self.inputs.n_terminus,self.inputs.c_terminus,self.inputs.pseudocount,self.inputs.alpha))
-                file.write('#'+'\t'.join(heads)+EOL)
-                for gene in genes:
-                    Rv = gene["rv"]
-                    if Rv in MeansByRv:
-                        means = [MeansByRv[Rv][c] for c in conditions_list]
-                        refs = [MeansByRv[Rv][c] for c in self.inputs.refs]
-                        LFCs = self.calc_lf_cs(means,refs,self.inputs.pseudocount)
-                        vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
-                                ["%0.2f" % x for x in means] + 
-                                ["%0.3f" % x for x in LFCs] + 
-                                ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
-                        file.write('\t'.join(vals)+EOL)
-                file.close()
-                
-                transit_tools.log("Finished Anova analysis")
-                transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+                # data1 = gene.reads[:,ii_ctrl].flatten() + self.pseudocount # we used to have an option to add pseudocounts to each observation, like this
+                data1 = gene.reads[:, ii_ctrl].flatten()
+                data2 = gene_exp.reads[:, ii_exp].flatten()
+                if self.winz:
+                    data1 = self.winsorize_resampling(data1)
+                    data2 = self.winsorize_resampling(data2)
+
+                if doLibraryResampling:
+                    (
+                        test_obs,
+                        mean1,
+                        mean2,
+                        log2FC,
+                        pval_ltail,
+                        pval_utail,
+                        pval_2tail,
+                        testlist,
+                    ) = stat_tools.resampling(
+                        data1,
+                        data2,
+                        S=self.samples,
+                        testFunc=stat_tools.F_mean_diff_dict,
+                        permFunc=stat_tools.F_shuffle_dict_libraries,
+                        adaptive=self.adaptive,
+                        lib_str1=self.ctrl_lib_str,
+                        lib_str2=self.exp_lib_str,
+                        pseudocount=self.pseudocount,
+                    )
+                else:
+                    (
+                        test_obs,
+                        mean1,
+                        mean2,
+                        log2FC,
+                        pval_ltail,
+                        pval_utail,
+                        pval_2tail,
+                        testlist,
+                    ) = stat_tools.resampling(
+                        data1,
+                        data2,
+                        S=self.samples,
+                        testFunc=stat_tools.F_mean_diff_flat,
+                        permFunc=stat_tools.F_shuffle_flat,
+                        adaptive=self.adaptive,
+                        lib_str1=self.ctrl_lib_str,
+                        lib_str2=self.exp_lib_str,
+                        pseudocount=self.pseudocount,
+                    )
+
+            if self.do_histogram:
+                import matplotlib.pyplot as plt
+
+                if testlist:
+                    n, bins, patches = plt.hist(
+                        testlist, density=1, facecolor="c", alpha=0.75, bins=100
+                    )
+                else:
+                    n, bins, patches = plt.hist(
+                        [0, 0], density=1, facecolor="c", alpha=0.75, bins=100
+                    )
+                plt.xlabel("Delta Mean")
+                plt.ylabel("Probability")
+                plt.title("%s - Histogram of Delta Mean" % gene.orf)
+                plt.axvline(test_obs, color="r", linestyle="dashed", linewidth=3)
+                plt.grid(True)
+                genePath = os.path.join(histPath, gene.orf + ".png")
+                if not os.path.exists(histPath):
+                    os.makedirs(histPath)
+                plt.savefig(genePath)
+                plt.clf()
+
+            sum1 = numpy.sum(data1)
+            sum2 = numpy.sum(data2)
+            data.append(
+                [
+                    gene.orf,
+                    gene.name,
+                    gene.desc,
+                    gene.n,
+                    mean1,
+                    mean2,
+                    sum1,
+                    sum2,
+                    test_obs,
+                    log2FC,
+                    pval_2tail,
+                ]
+            )
+
+            # Update progress
+            text = "Running Resampling Method... %5.1f%%" % (100.0 * count / N)
+            self.progress_update(text, count)
+
+        #
+        transit_tools.log("")  # Printing empty line to flush stdout
+        transit_tools.log("Performing Benjamini-Hochberg Correction")
+        data.sort()
+        qval = stat_tools.BH_fdr_correction([row[-1] for row in data])
+
+        return (data, qval)
+
 
 @transit_tools.ResultsFile
 class File(Analysis):
@@ -605,6 +923,61 @@ class File(Analysis):
         # add it as a result
         results_area.add(output_path)
         gui_tools.show_image(output_path)
+
+
+class ResamplingFile(base.TransitFile):
+    def __init__(self):
+        base.TransitFile.__init__(self, "#Resampling", columns)
+
+    def getHeader(self, path):
+        DE = 0
+        poslogfc = 0
+        neglogfc = 0
+        for line in open(path):
+            if line.startswith("#"):
+                continue
+            tmp = line.strip().split("\t")
+            if float(tmp[-1]) < 0.05:
+                DE += 1
+                if float(tmp[-3]) > 0:
+                    poslogfc += 1
+                else:
+                    neglogfc += 1
+
+        text = """Results:
+    Conditionally - Essentials: %s
+        Less Essential in Experimental datasets: %s
+        More Essential in Experimental datasets: %s
+            """ % (
+            DE,
+            poslogfc,
+            neglogfc,
+        )
+        return text
+
+    def getMenus(self):
+        menus = []
+        menus.append(("Display in Track View", self.displayInTrackView))
+        menus.append(("Display Histogram", self.displayHistogram))
+        return menus
+
+    def displayHistogram(self, displayFrame, event):
+        gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
+        filepath = os.path.join(
+            ntpath.dirname(displayFrame.path),
+            transit_tools.fetch_name(displayFrame.path),
+        )
+        filename = os.path.join(filepath, gene + ".png")
+        if os.path.exists(filename):
+            imgWindow = pytransit.file_display.ImgFrame(None, filename)
+            imgWindow.Show()
+        else:
+            transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
+            print("Error Displaying File. Histogram image does not exist.")
+
+
+
+
     
 Method = GUI = Analysis
 Analysis() # make sure theres one instance
