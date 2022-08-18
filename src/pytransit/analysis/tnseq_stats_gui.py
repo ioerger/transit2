@@ -32,7 +32,8 @@ from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_button
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
+
 command_name = sys.argv[0]
 
 class Analysis:
@@ -123,7 +124,8 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+
             # 
             # save result files
             # 
@@ -159,7 +161,7 @@ class Analysis:
         with gui_tools.nice_error_log:
             transit_tools.log("Starting tnseq_stats analysis")
             start_time = time.time()
-            
+
             # 
             # get data
             # 
@@ -233,6 +235,16 @@ class Analysis:
                 self.finish()
                 transit_tools.log("Finished TnseqStats")
                 transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+
+    def pickands_tail_index(self, vals):
+        srt = sorted(vals, reverse=True)
+        PTIs = []
+        for M in range(10, 100):
+            PTI = numpy.log(
+                (srt[M] - srt[2 * M]) / float(srt[2 * M] - srt[4 * M])
+            ) / numpy.log(2.0)
+            PTIs.append(PTI)
+        return numpy.median(PTIs)
 
 @transit_tools.ResultsFile
 class File(Analysis):
