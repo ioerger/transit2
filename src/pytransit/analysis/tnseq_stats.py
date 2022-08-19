@@ -141,7 +141,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
 
         datasets = self.wigs
         if self.combined_wig == None:
-            (data, sites) = tnseq_tools.get_data(self.wigs)
+            (data, sites) = tnseq_tools.CombinedWig.gather_wig_data(self.wigs)
         else:
             (sites, data, datasets) = tnseq_tools.read_combined_wig(self.combined_wig)
 

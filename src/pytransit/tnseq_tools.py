@@ -4,12 +4,15 @@ import math
 import warnings
 from functools import total_ordering
 from collections import namedtuple
-
+from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
 import numpy
 import scipy.stats
 import ez_yaml
-from super_map import LazyDict
+from super_map import LazyDict, stringify
+import pytransit.basics.csv as csv
+from pytransit.basics.named_list import named_list
+from pytransit.basics.misc import line_count_of, flatten_once, no_duplicates, indent
 
 try:
     from pytransit import norm_tools
@@ -20,21 +23,6 @@ except ImportError:
     warnings.warn(
         "Problem importing the norm_tools.py module. Read-counts will not be normalized. Some functions may not work."
     )
-
-
-class Object: # just an empty object for assigning attributes of
-    def __init__(self, **kwargs):
-        for each_key, each_value in kwargs.items():
-            setattr(self, each_key, each_value)
-    
-    def __repr__(self):
-        if len(self.__dict__) == 0:
-            return 'Object()'
-        else:
-            entries = "Object(\n"
-            for each_key, each_value in self.__dict__.items():
-                entries += "    "+str(each_key)+" = "+repr(each_value)+",\n"
-            return entries+")"
 
 
 def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
@@ -63,27 +51,436 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
 #   counts lines contain the following columns: TA coord, counts, other info like gene/annotation
 #   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
 
-class Wig(tuple):
-    pass
+class Wig:
+    def __init__(self, path, rows=None, extra_data=None):
+        self.path            = path
+        self.rows            = rows or []
+        self.comments        = []
+        
+        from random import random
+        self.extra_data = LazyDict(extra_data)
+        if self.extra_data.get("condition", None) is None:
+            self.extra_data["condition"] = basename(path)
+        if self.extra_data.get("id", None) is None:
+            self.extra_data["id"] = f"{self.extra_data.get('condition', None)}{random()}".replace(".", "")
+        
+    def load(self):
+        pass # TODO
+    
+    def __repr__(self):
+        return f"""Wig(
+            path={self.path},
+            rows_shape=({len(self.rows)}, {len(self.rows[0])}),
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
 
-class ConditionData(Object):
-    conditions_by_file        = {}
-    covariates_by_file_list   = []
-    interactions_by_file_list = []
-    ordering_metadata         = {"condition": [], "interaction": []}
+class Condition:
+    def __init__(self, name, is_disabled=False, extra_data=None):
+        self.name = name
+        self.is_disabled = is_disabled
+        self.extra_data = LazyDict(extra_data or {})
+    
+    def __repr__(self):
+        return f"""Condition(
+            name={self.name},
+            is_disabled={self.is_disabled},
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+    
+    def __hash__(self):
+        return hash(self.name)
+    
+    def __eq__(self, other):
+        return self.name == other.name
 
-class CombinedWig(tuple):
+class CombinedWigMetadata:
+    _CacheClass = named_list([ 'conditions_by_file','covariates_by_file_list','interactions_by_file_list','ordering_metadata',])
+    
+    # can contain more data
+    def __init__(self, path):
+        self.path = path
+        self.headers = []
+        self.rows = []
+        self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_headers=True)
+        self.conditions = no_duplicates(
+            Condition(
+                name=each_row["Condition"],
+            )
+                for each_row in self.rows
+        )
+        self._cache_for_read = None
+    
+    def condition_for(self, wig_path=None, id=None):
+        if wig_path:
+            for each_row in self.rows:
+                f = each_row["Filename"]
+                if each_row["Filename"] == wig_path:
+                    return each_row["Condition"]
+        if id:
+            for each_row in self.rows:
+                if each_row["Id"] == id:
+                    return each_row["Condition"]
+    
+    def id_for(self, wig_path=None):
+        for each_row in self.rows:
+            if each_row["Filename"] == wig_path:
+                return each_row["Id"]
+    
+    def wigs_for(self, condition):
+        return [
+            each_row["Filename"]
+                for each_row in self.rows
+                    if each_row["Condition"] == condition
+        ]
+    
+    def __repr__(self):
+        return f"""CWigMetadata(
+            path={self.path},
+            rows_shape=({len(self.rows)}, {len(self.headers)}),
+            conditions={indent(self.conditions, by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+    
+    # 
+    # an "always filled" cache
+    # 
+    @property
+    def cache_for_read(self):
+        if not self._cache_for_read:
+            self._cache_for_read = self.read_condition_data(self.path)
+        return self._cache_for_read
+    @cache_for_read.setter
+    def cache_for_read(self, value):
+        self._cache_for_read = value
+    
+    @classmethod
+    def read_condition_data(self, path, covars_to_read=[], interactions_to_read=[], condition_name="Condition"):
+        """
+        Filename -> ConditionMap
+        ConditionMap :: {Filename: Condition}, [{Filename: Covar}], [{Filename: Interaction}]
+        Condition :: String
+        Covar :: String
+        Interaction :: String
+        """
+        _cache_for_read = getattr(self, "_cache_for_read", None)
+        if _cache_for_read:
+            return _cache_for_read
+        
+        conditions_by_file        = {}
+        covariates_by_file_list   = [{} for i in range(len(covars_to_read))]
+        interactions_by_file_list = [{} for i in range(len(interactions_to_read))]
+        headers_to_read           = [condition_name.lower(), "filename"]
+        ordering_metadata         = {"condition": [], "interaction": []}
+        with open(path) as mfile:
+            lines = mfile.readlines()
+            head_indexes = [
+                i
+                for h in headers_to_read
+                for i, c in enumerate(lines[0].split())
+                if c.lower() == h.lower()
+            ]
+            covar_indexes = [
+                i
+                for h in covars_to_read
+                for i, c in enumerate(lines[0].split())
+                if c.lower() == h.lower()
+            ]
+            interaction_indexes = [
+                i
+                for h in interactions_to_read
+                for i, c in enumerate(lines[0].split())
+                if c.lower() == h.lower()
+            ]
+
+            for line in lines[1:]:
+                if line[0] == "#":
+                    continue
+                vals = line.split()
+                [condition, wfile] = vals[head_indexes[0]], vals[head_indexes[1]]
+                conditions_by_file[wfile] = condition
+                ordering_metadata["condition"].append(condition)
+                for i, c in enumerate(covars_to_read):
+                    covariates_by_file_list[i][wfile] = vals[covar_indexes[i]]
+                for i, c in enumerate(interactions_to_read):
+                    interactions_by_file_list[i][wfile] = vals[interaction_indexes[i]]
+
+                    # This makes sense only if there is only 1 interaction variable
+                    # For multiple interaction vars, may have to rethink ordering.
+                    ordering_metadata["interaction"].append(vals[interaction_indexes[i]])
+
+        return self._CacheClass([
+            conditions_by_file,
+            covariates_by_file_list,
+            interactions_by_file_list,
+            ordering_metadata,
+        ])
+    
+    # 
+    # conditions_by_file
+    # 
+    @property
+    def conditions_by_file(self): return self.cache_for_read.conditions_by_file
+    @conditions_by_file.setter
+    def conditions_by_file(self, value):
+        self.cache_for_read.conditions_by_file = value
+    
+    # 
+    # covariates_by_file_list
+    # 
+    @property
+    def covariates_by_file_list(self): return self.cache_for_read.covariates_by_file_list
+    @covariates_by_file_list.setter
+    def covariates_by_file_list(self, value):
+        self.cache_for_read.covariates_by_file_list = value
+    
+    # 
+    # interactions_by_file_list
+    # 
+    @property
+    def interactions_by_file_list(self): return self.cache_for_read.interactions_by_file_list
+    @interactions_by_file_list.setter
+    def interactions_by_file_list(self, value):
+        self.cache_for_read.interactions_by_file_list = value
+    
+    # 
+    # ordering_metadata
+    # 
+    @property
+    def ordering_metadata(self): return self.cache_for_read.ordering_metadata
+    @ordering_metadata.setter
+    def ordering_metadata(self, value):
+        self.cache_for_read.ordering_metadata = value
+
+class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
+    @classmethod
+    def load(cls, file_path):
+        """
+            Read the combined wig-file generated by Transit
+            :: Filename -> Tuple([Site], [WigData], [Filename])
+            Site :: Integer
+            WigData :: [Number]
+            Filename :: String
+        """
+        import pytransit.transit_tools as transit_tools
+        
+        sites, counts_by_wig, files, extra_data = [], [], [], {}
+        contained_yaml_data = False
+        number_of_lines = line_count_of(file_path)
+        with open(file_path) as f:
+            yaml_mode_is_on = False
+            yaml_string = "extra_data:\n"
+            lines = f.readlines()
+            comment_lines = []
+            # 
+            # handle header/comments
+            # 
+            for line in lines:
+                if line.startswith("#"):
+                    if line.startswith("#yaml:"):
+                        yaml_mode_is_on = True
+                        contained_yaml_data = True
+                        continue
+                    if yaml_mode_is_on and line.startswith("# "):
+                        yaml_string += f"\n{line[-1:]}"
+                        continue
+                    else:
+                        yaml_mode_is_on = False
+                        # add to the extra_data dict when its done
+                        if len(yaml_string) > 0:
+                            an_object = ez_yaml.to_object(string=yaml_string)
+                            extra_data.update(an_object["extra_data"] or {})
+                            files += extra_data.get('files',[])
+                    # 
+                    # handle older file method
+                    # 
+                    if line.startswith("#File: "):
+                        files.append(line.rstrip()[7:])  # allows for spaces in filenames
+                        continue
+            
+            # 
+            # handle body
+            # 
+            counts_by_wig = [ [] for _ in files ]
+            for index, line in enumerate(lines):
+                if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
+                    percent_done = round(index/number_of_lines * 100, ndigits=2)
+                    transit_tools.log(f"\rreading lines: {percent_done}%          ", end="")
+                
+                # lines to skip
+                if line.startswith("#") or len(line) == 0:
+                    continue
+                
+                #
+                # actual parsing
+                #
+                cols = line.split("\t")[0 : 1+len(files)]
+                cols = cols[: 1+len(files)]  # additional columns at end could contain gene info
+                # Read in position as int, and readcounts as float
+                cols = [
+                    int(each_t_iv) if index == 0 else float(each_t_iv)
+                        for index, each_t_iv in enumerate(cols)
+                ]
+                position, wig_counts = cols[0], cols[1:]
+                sites.append(position)
+                for index, count in enumerate(wig_counts):
+                    counts_by_wig[index].append(count)
+        
+        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
+
+class CombinedWig:
+    def __init__(self, *, main_path, metadata_path, comments=None, extra_data=None):
+        self.main_path     = main_path
+        self.metadata_path = metadata_path
+        self.metadata      = CombinedWigMetadata(self.metadata_path)
+        self.data          = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
+        self.rows          = []
+        self.comments      = comments or []
+        self.extra_data    = LazyDict(extra_data or {})
+        self.samples       = []
+        self._load_main_path()
+    
+    def __repr__(self):
+        return f"""CombinedWig(
+            path={self.main_path},
+            rows_shape=({len(self.rows)}, {len(self.rows[0])}),
+            extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
+            samples={   indent(self.samples   , by="            ", ignore_first=True)},
+            metadata={  indent(self.metadata  , by="            ", ignore_first=True)},
+        )""".replace("\n        ", "\n")
+    
+    # 
+    # sites
+    # 
     @property
     def sites(self):
-        return self[0]
+        return [ each.position for each in self.rows ]
     
+    # 
+    # files
+    # 
     @property
-    def counts_by_wig(self):
-        return self[1]
+    def files(self): return self.extra_data["files"]
+    @files.setter
+    def files(self, value):
+        self.extra_data["files"] = value
     
+    # 
+    # conditions
+    # 
     @property
-    def files(self):
-        return self[2]
+    def conditions(self):
+        return self.metadata.conditions
+    
+    # 
+    # read_counts_array
+    # 
+    @property
+    def read_counts_array(self):
+        return [
+            each_row[1:len(self.files)] 
+                for each_row in self.rows 
+        ]
+    
+    # 
+    # read_counts_wig
+    # 
+    @property
+    def read_counts_by_wig(self):
+        counts_for_wig = { each_path: [] for each_path in self.files }
+        for each_row in self.rows:
+            for each_wig_path in self.files:
+                counts_for_wig[each_wig_path].append(
+                    each_row[each_wig_path]
+                )
+        return counts_for_wig
+    
+    def _load_main_path(self):
+        comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_headers=False)
+        comment_string = "\n".join(comments)
+        
+        sites, counts_by_wig, files, extra_data = [], [], [], {}
+        yaml_switch_is_on = False
+        yaml_string = "extra_data:\n"
+        for line in comments:
+            # 
+            # handle yaml
+            # 
+            if line.startswith("yaml:"):
+                yaml_switch_is_on = True
+                continue
+            if yaml_switch_is_on and line.startswith(" "):
+                yaml_string += f"\n"+line
+                continue
+            else:
+                yaml_switch_is_on = False
+                
+            # 
+            # handle older file method
+            # 
+            if line.startswith("File: "):
+                files.append(line.rstrip()[6:])  # allows for spaces in filenames
+                continue
+            
+            # 
+            # save other comments
+            # 
+            self.comments.append(line)
+        
+        # 
+        # process yaml
+        # 
+        if len(yaml_string) > len("extra_data:\n"):
+            extra = ez_yaml.to_object(string=yaml_string)["extra_data"]
+            self.extra_data.update(
+                extra or {}
+            )
+            files += self.extra_data.get('files',[])
+            no_duplicates = []
+            # remove any duplicate entries while preserving order
+            for each_file in files:
+                if each_file not in no_duplicates:
+                    no_duplicates.append(each_file)
+            files = no_duplicates
+        
+        # 
+        # process data
+        # 
+        extra_data["files"] = files
+        self.extra_data.update(extra_data)
+        CWigRow = named_list([ "position", *files ])
+        for row in rows:
+            #
+            # extract
+            #
+            position   = row[0]
+            read_counts = row[ 1: 1+len(files) ]
+            other      = row[ 1+len(files) :  ] # often empty
+            
+            # force types
+            position   = int(position)
+            read_counts = [ float(each) for each in read_counts ]
+            
+            # save
+            self.rows.append(CWigRow([position]+read_counts+other))
+            
+            sites.append(position)
+            for index, count in enumerate(read_counts):
+                if len(counts_by_wig) < index+1:
+                    counts_by_wig.append([])
+                counts_by_wig[index].append(count)
+        
+        read_counts_by_wig = self.read_counts_by_wig
+        for each_path in self.files:
+            self.samples.append(
+                Wig(
+                    path=each_path,
+                    rows=list(zip(self.sites, read_counts_by_wig[each_path])),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
+            )
+        
+        return self
     
     @classmethod
     def gather_wig_data(cls, list_of_paths):
@@ -131,7 +528,7 @@ class CombinedWig(tuple):
                 counts: {list(zip(list_of_paths, size_list))}
             ''')
 
-        data = numpy.zeros((len(list_of_paths), line_count))
+        data_per_path = numpy.zeros((len(list_of_paths), line_count))
         position = numpy.zeros(line_count, dtype=int)
         for path_index, path in enumerate(list_of_paths):
             line_index = 0
@@ -146,7 +543,7 @@ class CombinedWig(tuple):
                 prev_pos = pos
 
                 try:
-                    data[path_index, line_index] = rd
+                    data_per_path[path_index, line_index] = rd
                 except Exception as error:
                     raise Exception(f'''
                         
@@ -158,191 +555,11 @@ class CombinedWig(tuple):
                 position[line_index] = pos
                 line_index += 1
         
-        return data, position
+        return data_per_path, position
     
-    @classmethod
-    def load(cls, cwig_path, condition_data_path):
-        combined_wig_object  = cls.read_cwig(cwig_path)
-        conditions_by_file, covariates_by_file_list, interactions_by_file_list, ordering_metadata = cls.read_condition_data(condition_data_path)
-        # attach the data to the object
-        combined_wig_object.conditions = ConditionData(
-            conditions_by_file=conditions_by_file,
-            covariates_by_file_list=covariates_by_file_list,
-            interactions_by_file_list=interactions_by_file_list,
-            ordering_metadata=ordering_metadata,
-        )
-        return combined_wig_object
-        
-    @classmethod
-    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[], condition_name="Condition"):
-        """
-        Filename -> ConditionMap
-        ConditionMap :: {Filename: Condition}, [{Filename: Covar}], [{Filename: Interaction}]
-        Condition :: String
-        Covar :: String
-        Interaction :: String
-        """
-        conditions_by_file        = {}
-        covariates_by_file_list   = [{} for i in range(len(covars_to_read))]
-        interactions_by_file_list = [{} for i in range(len(interactions_to_read))]
-        headers_to_read           = [condition_name.lower(), "filename"]
-        ordering_metadata         = {"condition": [], "interaction": []}
-        with open(path) as mfile:
-            lines = mfile.readlines()
-            head_indexes = [
-                i
-                for h in headers_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-            covar_indexes = [
-                i
-                for h in covars_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-            interaction_indexes = [
-                i
-                for h in interactions_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-
-            for line in lines[1:]:
-                if line[0] == "#":
-                    continue
-                vals = line.split()
-                [condition, wfile] = vals[head_indexes[0]], vals[head_indexes[1]]
-                conditions_by_file[wfile] = condition
-                ordering_metadata["condition"].append(condition)
-                for i, c in enumerate(covars_to_read):
-                    covariates_by_file_list[i][wfile] = vals[covar_indexes[i]]
-                for i, c in enumerate(interactions_to_read):
-                    interactions_by_file_list[i][wfile] = vals[interaction_indexes[i]]
-
-                    # This makes sense only if there is only 1 interaction variable
-                    # For multiple interaction vars, may have to rethink ordering.
-                    ordering_metadata["interaction"].append(vals[interaction_indexes[i]])
-
-        return (
-            conditions_by_file,
-            covariates_by_file_list,
-            interactions_by_file_list,
-            ordering_metadata,
-        )
-
-    
-    
-    @classmethod
-    def read_cwig(cls, fname):
-        """
-            Read the combined wig-file generated by Transit
-            :: Filename -> Tuple([Site], [WigData], [Filename])
-            Site :: Integer
-            WigData :: [Number]
-            Filename :: String
-        """
-        sites, counts_by_wig, files, metadata = [], [], [], {}
-        with open(fname) as f:
-            yaml_mode_is_on = False
-            yaml_string = "metadata:\n"
-            for line in f.readlines():
-                # 
-                # handle yaml
-                # 
-                if line.startswith("#yaml:"):
-                    yaml_mode_is_on = True
-                    continue
-                if yaml_mode_is_on and line.startswith("# "):
-                    yaml_string += f"\n{line[-1:]}"
-                    continue
-                else:
-                    yaml_mode_is_on = False
-                    # add to the metadata dict when its done
-                    # if len(yaml_string) > 0:
-                    #     metadata.update(ez_yaml.to_object(string=yaml_string)["metadata"])
-                    #     files += metadata.get('files',[])
-                    #     files = list(set(files)) # remove any duplicate entries
-                
-                # 
-                # handle older file method
-                # 
-                if line.startswith("#File: "):
-                    files.append(line.rstrip()[7:])  # allows for spaces in filenames
-                    continue
-                
-                # 
-                # handle comments and empty lines
-                # 
-                if len(line) == 0 or line[0] == "#":
-                    continue
-                
-                #
-                # actual parsing
-                #
-                cols = line.split("\t")[0 : 1+len(files)]
-                cols = cols[: 1+len(files)]  # additional columns at end could contain gene info
-                # Read in position as int, and readcounts as float
-                cols = list(
-                    map(
-                        lambda t_iv: int(t_iv[1]) if t_iv[0] == 0 else float(t_iv[1]),
-                        enumerate(cols),
-                    )
-                )
-                position, wig_counts = cols[0], cols[1:]
-                sites.append(position)
-                for index, count in enumerate(wig_counts):
-                    if len(counts_by_wig) < index+1:
-                        counts_by_wig.append([])
-                    counts_by_wig[index].append(count)
-        
-        combined_wig = CombinedWig((numpy.array(sites), numpy.array(counts_by_wig), files))
-        combined_wig.metadata = metadata
-        return combined_wig
-        
-        
-
 # backwards compatibility
-# read_combined_wig     = CombinedWig.read_cwig # FIXME: renable this but fix it
-read_samples_metadata = CombinedWig.read_condition_data
-
-def read_combined_wig(fname):
-    """
-        Read the combined wig-file generated by Transit
-        :: Filename -> Tuple([Site], [WigData], [Filename])
-        Site :: Integer
-        WigData :: [Number]
-        Filename :: String
-    """
-    print(f'''[read_combined_wig] fname = {fname}''')
-    sites, countsByWig, files = [], [], []
-    with open(fname) as f:
-        lines = f.readlines()
-        for line in lines:
-            if line.startswith("#File: "):
-                files.append(line.rstrip()[7:])  # allows for spaces in filenames
-    countsByWig = [[] for _ in files]
-    for line in lines:
-        if line[0] == "#":
-            continue
-        cols = line.split("\t")[0 : 1 + len(files)]
-        cols = cols[
-            : 1 + len(files)
-        ]  # additional columns at end could contain gene info
-        # Read in position as int, and readcounts as float
-        cols = list(
-            map(
-                lambda t_iv: int(t_iv[1]) if t_iv[0] == 0 else float(t_iv[1]),
-                enumerate(cols),
-            )
-        )
-        position, wigCounts = cols[0], cols[1:]
-        sites.append(position)
-        for i, c in enumerate(wigCounts):
-            countsByWig[i].append(c)
-    return numpy.array(sites), numpy.array(countsByWig), files
-
-
+read_samples_metadata = CombinedWigMetadata.read_condition_data
+read_combined_wig = CombinedWigData.load
 
 def read_genes(fname, descriptions=False):
     """
@@ -738,7 +955,7 @@ class Genes:
         orf2info = get_gene_info(self.annotation)
         if not numpy.any(data):
             if transposon.lower() == "himar1" and not genome:
-                (data, position) = get_data(self.wig_list)
+                (data, position) = CombinedWig.gather_wig_data(self.wig_list)
             elif genome:
                 (data, position) = get_data_w_genome(self.wig_list, genome)
             else:
@@ -1193,11 +1410,6 @@ def get_unknown_file_types(wig_list, transposons):
 
 #
 
-get_data = CombinedWig.gather_wig_data
-
-#
-
-
 def get_data_zero_fill(wig_list):
     """ Returns a tuple of (data, position) containing a matrix of raw read counts,
         and list of coordinates. Positions that are missing are filled in as zero.
@@ -1346,7 +1558,7 @@ def get_wig_stats(path):
             - skew
             - kurtosis
     """
-    (data, position) = get_data([path])
+    (data, position) = CombinedWig.gather_wig_data([path])
     reads = data[0]
     return get_data_stats(reads)
 

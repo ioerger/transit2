@@ -187,9 +187,9 @@ class Analysis:
             # 
             # get wig files
             # 
-            wig_group = universal.session_data.wig_groups[0]
-            Analysis.inputs.combined_wig = wig_group.cwig.path
-            Analysis.inputs.metadata     = wig_group.metadata.path
+            combined_wig = universal.session_data.combined_wigs[0]
+            Analysis.inputs.combined_wig = combined_wig.main_path
+            Analysis.inputs.metadata     = combined_wig.metadata.path
             
             # 
             # get annotation
@@ -223,8 +223,8 @@ class Analysis:
             # 
             # extract universal data
             # 
-            cwig_path     = universal.session_data.wig_groups[0].cwig.path
-            metadata_path = universal.session_data.wig_groups[0].metadata.path
+            cwig_path     = universal.session_data.combined_wigs[0].main_path
+            metadata_path = universal.session_data.combined_wigs[0].metadata.path
             conditions    = universal.session_data.conditions
             condition_names = [ each.name for each in conditions ]
             
@@ -417,7 +417,7 @@ class Analysis:
                 output = transit_tools.get_validated_data(
                     self.inputs.ctrldata, wxobj=self.wxobj
                 )
-                print(f'''output = {output}''')
+                print(f'''transit_tools.get_validated_data = {output}''')
                 (data_ctrl, position_ctrl, *_) = output
                 (data_exp, position_exp) = transit_tools.get_validated_data(
                     self.inputs.expdata, wxobj=self.wxobj
@@ -605,7 +605,7 @@ class Analysis:
         ]
         self.inputs.output_file.write("#%s\n" % "\t".join(columns))
 
-        for i, row in enumerate(data):
+        for row_index, row in enumerate(data):
             (
                 orf,
                 name,
@@ -643,7 +643,7 @@ class Analysis:
                         test_obs,
                         pval_2tail,
                         z,
-                        qval[i],
+                        qval[row_index],
                     )
                 )
             else:
@@ -661,7 +661,7 @@ class Analysis:
                         sum2,
                         test_obs,
                         pval_2tail,
-                        qval[i],
+                        qval[row_index],
                     )
                 )
         self.inputs.output_file.close()

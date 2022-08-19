@@ -110,7 +110,7 @@ def create_menu(frame):
                             transit_tools.log(
                                 "Converting annotation file from prot_table format to PTT format"
                             )
-                        (data, position) = tnseq_tools.get_data(datasets)
+                        (data, position) = tnseq_tools.CombinedWig.gather_wig_data(datasets)
                         orf2info = transit_tools.get_gene_info(annotation_path)
                         hash = transit_tools.get_pos_hash(annotation_path)
                         (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
@@ -237,7 +237,7 @@ def create_menu(frame):
                             transit_tools.log(
                                 "Converting annotation file from PTT format to prot_table format"
                             )
-                        # (data, position) = tnseq_tools.get_data(datasets)
+                        # (data, position) = tnseq_tools.CombinedWig.gather_wig_data(datasets)
                         # orf2info = transit_tools.get_gene_info(annotation_path)
                         # hash = transit_tools.get_pos_hash(annotation_path)
                         # (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(hash, data, position, orf2info)

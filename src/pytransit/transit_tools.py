@@ -278,7 +278,7 @@ def show_error_dialog(message):
     dial.ShowModal()
 
 
-def log(message, *args):
+def log(message, *args, **kwargs):
     import inspect
     import os
     message = f"{message} "+ " ".join([ f"{each}" for each in args])
@@ -293,7 +293,7 @@ def log(message, *args):
     try: caller_name = caller_frame_info.function
     except Exception as error: pass # sometimes the caller doesn't have a function name (ex: lambda)
     
-    print(f'[{file_name}:{caller_name}()]', message, flush=True)
+    print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
     if HAS_WX:
         import pytransit.gui_tools as gui_tools
         gui_tools.set_status(message)
@@ -468,7 +468,7 @@ def convertToIGV(self, dataset_list, annotationPath, path, normchoice=None):
     if not normchoice:
         normchoice = "nonorm"
 
-    (fulldata, position) = tnseq_tools.get_data(dataset_list)
+    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
         fulldata, normchoice, dataset_list, annotationPath
     )
@@ -511,7 +511,7 @@ def convertToCombinedWig(dataset_list, annotationPath, outputPath, normchoice="n
             
     """
 
-    (fulldata, position) = tnseq_tools.get_data(dataset_list)
+    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
         fulldata, normchoice, dataset_list, annotationPath
     )
@@ -571,7 +571,7 @@ def convertToGeneCountSummary(
             
     """
 
-    (fulldata, position) = tnseq_tools.get_data(dataset_list)
+    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
         fulldata, normchoice, dataset_list, annotationPath
     )
@@ -635,7 +635,7 @@ def get_validated_data(wig_list, wxobj=None):
 
     # Regular file with empty sites
     if status == 0:
-        return tnseq_tools.get_data(wig_list)
+        return tnseq_tools.CombinedWig.gather_wig_data(wig_list)
     # No empty sites, decided to proceed as Himar1
     elif status == 1:
         return tnseq_tools.get_data_w_genome(wig_list, genome)
@@ -644,7 +644,7 @@ def get_validated_data(wig_list, wxobj=None):
         return tnseq_tools.get_data_zero_fill(wig_list)
     # Didn't choose either.... what!?
     else:
-        return tnseq_tools.get_data([])
+        return tnseq_tools.CombinedWig.gather_wig_data([])
 
 
 class InvalidArgumentException(Exception):

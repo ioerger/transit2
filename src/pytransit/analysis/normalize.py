@@ -144,7 +144,7 @@ class NormalizeMethod(base.SingleConditionMethod):
         if self.combined_wig == True:
             (sites, data, files) = tnseq_tools.read_combined_wig(self.ctrldata[0])
         else:
-            (data, sites) = tnseq_tools.get_data(self.ctrldata)
+            (data, sites) = tnseq_tools.CombinedWig.gather_wig_data(self.ctrldata)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
 
         print("writing", outputPath)

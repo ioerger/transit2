@@ -281,7 +281,7 @@ class TnSeekFrame(wx.Frame):
             transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
             return
 
-        data, position = tnseq_tools.get_data(datasets_selected)
+        data, position = tnseq_tools.CombinedWig.gather_wig_data(datasets_selected)
         (K, N) = data.shape
         window = 100
         for j in range(K):

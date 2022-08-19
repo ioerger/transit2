@@ -20,7 +20,7 @@ class TestTnSeqTools(TransitTestCase):
 
 
     def test_read_data(self):
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         K,N = data.shape
 
         self.assertEqual(K, 5)
@@ -44,7 +44,7 @@ class TestTnSeqTools(TransitTestCase):
 
 
     def test_genes_creation_fromdata(self):
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         Kreps,Nsites = data.shape
         G = tnseq_tools.Genes([], annotation, data=data, position=position)
         N = len(G)
@@ -72,7 +72,7 @@ class TestTnSeqTools(TransitTestCase):
 
     def test_normalization(self):
         N = len(all_data_list)
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         norm_data,factors = norm_tools.normalize_data(data, "TTR")
         self.assertFalse((factors == numpy.ones(N)).all())
 

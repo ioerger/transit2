@@ -150,9 +150,9 @@ class Analysis:
             # 
             # get wig files
             # 
-            wig_group = universal.session_data.wig_groups[0]
-            Analysis.inputs.combined_wig = wig_group.cwig.path
-            Analysis.inputs.metadata     = wig_group.metadata.path
+            combined_wig = universal.session_data.combined_wigs[0]
+            Analysis.inputs.combined_wig = combined_wig.main_path
+            Analysis.inputs.metadata     = combined_wig.metadata.path
             
             # 
             # get annotation
