@@ -14,7 +14,7 @@ universal = LazyDict(
 
 class SessionData:
     def __init__(self):
-        self.annotation_path = None
+        self.annotation_path = "/Users/jeffhykin/repos/transit/src/pytransit/genomes/H37Rv.prot_table"
         self.samples = []
         self.conditions = []
         self.wig_groups = []

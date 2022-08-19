@@ -68,7 +68,7 @@ class IGVMethod(base.SingleConditionMethod):
         output_file,
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -112,7 +112,7 @@ class IGVMethod(base.SingleConditionMethod):
         normalization = wxobj.chooseNormalization()
 
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -130,7 +130,7 @@ class IGVMethod(base.SingleConditionMethod):
             output_file,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -147,7 +147,7 @@ class IGVMethod(base.SingleConditionMethod):
 
         normalization = kwargs.get("n", "TTR")
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -157,7 +157,7 @@ class IGVMethod(base.SingleConditionMethod):
             output_file,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -202,7 +202,7 @@ class IGVMethod(base.SingleConditionMethod):
         chrom = transit_tools.fetch_name(self.annotation_path)
 
         (K, N) = fulldata.shape
-        self.progress_range(N)
+        
         for i, pos in enumerate(position):
             self.output.write(
                 "%s\t%s\t%s\tTA%s\t%s\t1\n"

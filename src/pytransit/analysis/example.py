@@ -82,7 +82,7 @@ class Method(base.SingleConditionMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -124,7 +124,7 @@ class Method(base.SingleConditionMethod):
             return None
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(wxobj.globalNTerminusText.GetValue())
         c_terminus = float(wxobj.globalCTerminusText.GetValue())
         replicates = "Sum"
@@ -146,7 +146,7 @@ class Method(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -164,7 +164,7 @@ class Method(base.SingleConditionMethod):
         replicates = "Sum"
         normalization = None
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -175,7 +175,7 @@ class Method(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -203,7 +203,7 @@ class Method(base.SingleConditionMethod):
             self.annotation_path,
             minread=1,
             reps=self.replicates,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data,
@@ -213,7 +213,7 @@ class Method(base.SingleConditionMethod):
         data = []
         N = len(G)
         count = 0
-        self.progress_range(N)
+        
         for gene in G:
             count += 1
             if gene.n == 0:

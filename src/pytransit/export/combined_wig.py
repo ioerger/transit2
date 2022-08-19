@@ -61,7 +61,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         output_file,
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -105,7 +105,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         normalization = wxobj.chooseNormalization()
 
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -123,7 +123,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
             output_file,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -145,7 +145,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
         normalization = kwargs.get("n", "TTR")
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -155,7 +155,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
             output_file,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )

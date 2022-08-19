@@ -120,7 +120,7 @@ class CorrplotMethod(base.SingleConditionMethod):
         replicates = "Sum"
         normalization = "nonorm"
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
         wxobj = None

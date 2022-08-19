@@ -271,7 +271,7 @@ class HMMMethod(base.SingleConditionMethod):
         replicates="Mean",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -329,7 +329,7 @@ class HMMMethod(base.SingleConditionMethod):
         replicates = wxobj.hmmRepChoice.GetString(
             wxobj.hmmRepChoice.GetCurrentSelection()
         )
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(wxobj.globalNTerminusText.GetValue())
         c_terminus = float(wxobj.globalCTerminusText.GetValue())
 
@@ -356,7 +356,7 @@ class HMMMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -374,7 +374,7 @@ class HMMMethod(base.SingleConditionMethod):
         replicates = kwargs.get("r", "Mean")
         normalization = kwargs.get("n", "TTR")
         LOESS = kwargs.get("l", False)
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.0))
         c_terminus = float(kwargs.get("iC", 0.0))
 
@@ -385,7 +385,7 @@ class HMMMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -461,7 +461,7 @@ class HMMMethod(base.SingleConditionMethod):
         PI[0] = 0.7
         PI[1:] = 0.3 / (Nstates - 1)
 
-        self.progress_range(self.maxiterations)
+        
 
         ###############
         ### VITERBI ###
@@ -741,7 +741,7 @@ class HMMMethod(base.SingleConditionMethod):
             self.annotation_path,
             data=data,
             position=position,
-            ignoreCodon=False,
+            ignore_codon=False,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
         )

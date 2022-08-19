@@ -336,7 +336,7 @@ class SingleConditionMethod(AnalysisMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -355,7 +355,7 @@ class SingleConditionMethod(AnalysisMethod):
         self.replicates = replicates
         self.normalization = normalization
         self.LOESS = LOESS
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
 
@@ -378,7 +378,7 @@ class DualConditionMethod(AnalysisMethod):
         normalization,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -398,7 +398,7 @@ class DualConditionMethod(AnalysisMethod):
         self.normalization = normalization
         self.replicates = replicates
         self.LOESS = LOESS
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
 
@@ -423,7 +423,7 @@ class QuadConditionMethod(AnalysisMethod):
         normalization,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -445,7 +445,7 @@ class QuadConditionMethod(AnalysisMethod):
         self.normalization = normalization
         self.replicates = replicates
         self.LOESS = LOESS
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
 
@@ -467,7 +467,7 @@ class MultiConditionMethod(AnalysisMethod):
         output,
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         wxobj=None,
         excluded_conditions=None,
         included_conditions=None,

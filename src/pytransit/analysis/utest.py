@@ -215,7 +215,7 @@ class UTestMethod(base.DualConditionMethod):
         includeZeros=False,
         replicates="Sum",
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -260,7 +260,7 @@ class UTestMethod(base.DualConditionMethod):
             return None
 
         # Read the parameters from the wxPython widgets
-        ignoreCodon = True
+        ignore_codon = True
         normalization = wxobj.utestNormChoice.GetString(
             wxobj.utestNormChoice.GetCurrentSelection()
         )
@@ -293,7 +293,7 @@ class UTestMethod(base.DualConditionMethod):
             includeZeros,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
             wxobj,
@@ -315,7 +315,7 @@ class UTestMethod(base.DualConditionMethod):
         replicates = None
 
         LOESS = kwargs.get("l", False)
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))
         c_terminus = float(kwargs.get("iC", 0.00))
 
@@ -328,7 +328,7 @@ class UTestMethod(base.DualConditionMethod):
             includeZeros,
             replicates,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )
@@ -365,7 +365,7 @@ class UTestMethod(base.DualConditionMethod):
         G = tnseq_tools.Genes(
             self.ctrldata + self.expdata,
             self.annotation_path,
-            ignoreCodon=self.ignoreCodon,
+            ignore_codon=self.ignore_codon,
             n_terminus=self.n_terminus,
             c_terminus=self.c_terminus,
             data=data,
@@ -376,7 +376,7 @@ class UTestMethod(base.DualConditionMethod):
         data = []
         N = len(G)
         count = 0
-        self.progress_range(N)
+        
         for gene in G:
             count += 1
             if gene.k == 0 or gene.n == 0:

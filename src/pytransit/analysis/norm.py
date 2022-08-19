@@ -82,7 +82,7 @@ class NormMethod(base.SingleConditionMethod):
         replicates="Sum",
         normalization=None,
         LOESS=False,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         wxobj=None,
@@ -120,7 +120,7 @@ class NormMethod(base.SingleConditionMethod):
         replicates = "Sum"
         normalization = kwargs.get("n", "TTR")
         LOESS = False
-        ignoreCodon = True
+        ignore_codon = True
         n_terminus = 0.0
         c_terminus = 0.0
 
@@ -131,7 +131,7 @@ class NormMethod(base.SingleConditionMethod):
             replicates,
             normalization,
             LOESS,
-            ignoreCodon,
+            ignore_codon,
             n_terminus,
             c_terminus,
         )

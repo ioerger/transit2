@@ -260,7 +260,7 @@ class Analysis:
             )
         return MeansByRv
 
-    def group_by_condition(self, wigList, conditions):
+    def group_by_condition(self, wig_list, conditions):
         """
             Returns array of datasets, where each dataset corresponds to one condition.
             ([[Wigdata]], [Condition]) -> [[DataForCondition]]
@@ -271,8 +271,8 @@ class Analysis:
         countsByCondition = collections.defaultdict(lambda: [])
         countSum = 0
         for i, c in enumerate(conditions):
-            countSum += numpy.sum(wigList[i])
-            countsByCondition[c].append(wigList[i])
+            countSum += numpy.sum(wig_list[i])
+            countsByCondition[c].append(wig_list[i])
 
         return (
             countSum,

@@ -2,12 +2,14 @@ import sys
 import os
 import math
 import warnings
-import numpy
-import scipy.stats
-import ez_yaml
 from functools import total_ordering
 from collections import namedtuple
 
+
+import numpy
+import scipy.stats
+import ez_yaml
+from super_map import LazyDict
 
 try:
     from pytransit import norm_tools
@@ -106,7 +108,7 @@ class CombinedWig(tuple):
         """
         # If empty just quickly return empty lists
         if not list_of_paths:
-            return (numpy.zeros((1, 0)), numpy.zeros(0), [])
+            return (numpy.zeros((1, 0)), numpy.zeros(0))
 
         # Check size of all wig file matches
         size_list = []
@@ -570,12 +572,12 @@ class Genes:
     and even rudamentary analysis of essentiality.
 
     Attributes:
-        wigList: List of paths to datasets in .wig format.
+        wig_list: List of paths to datasets in .wig format.
         protTable: String with path to annotation in .prot_table format.
         norm: String with the normalization used/
         reps: String with information on how replicates were handled.
         minread: Integer with the minimum magnitude of read-count considered.
-        ignoreCodon: Boolean defining whether to ignore the start/stop codon.
+        ignore_codon: Boolean defining whether to ignore the start/stop codon.
         n_terminus: Float number of the fraction of the N-terminus to ignore.
         c_terminus: Float number of the fraction of the C-terminus to ignore.
         include_nc: Boolean determining whether to include non-coding areas.
@@ -662,17 +664,30 @@ class Genes:
             str: Human readable string with number of genes in object.
         """
         return "Genes Object (N=%d)" % len(self.genes)
+    
+    def __repr__(self):
+        return f"""{LazyDict(
+            wig_list=self.wig_list,
+            annotation=self.annotation,
+            norm=self.norm,
+            reps=self.reps,
+            minread=self.minread,
+            ignore_codon=self.ignore_codon,
+            n_terminus=self.n_terminus,
+            c_terminus=self.c_terminus,
+            include_nc=self.include_nc,
+        )}"""
 
     #
 
     def __init__(
         self,
-        wigList,
+        wig_list,
         annotation,
         norm="nonorm",
         reps="All",
         minread=1,
-        ignoreCodon=True,
+        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         include_nc=False,
@@ -688,12 +703,12 @@ class Genes:
         and even rudamentary analysis of essentiality.
 
         Arguments:
-            wigList (list): List of paths to datasets in .wig format.
+            wig_list (list): List of paths to datasets in .wig format.
             protTable (str): String with path to annotation in .prot_table format.
             norm (str): String with the normalization used/
             reps (str): String with information on how replicates were handled.
             minread (int): Integer with the minimum magnitude of read-count considered.
-            ignoreCodon (bool): Boolean defining whether to ignore the start/stop codon.
+            ignore_codon (bool): Boolean defining whether to ignore the start/stop codon.
             n_terminus (float): Float number of the fraction of the N-terminus to ignore.
             c_terminus (float): Float number of the fraction of the C-terminus to ignore.
             include_nc (bool): Boolean determining whether to include non-coding areas.
@@ -702,12 +717,12 @@ class Genes:
 
 
         """
-        self.wigList = wigList
+        self.wig_list = wig_list
         self.annotation = annotation
         self.norm = norm
         self.reps = reps
         self.minread = minread
-        self.ignoreCodon = ignoreCodon
+        self.ignore_codon = ignore_codon
         self.n_terminus = n_terminus
         self.c_terminus = c_terminus
         self.include_nc = include_nc
@@ -723,11 +738,11 @@ class Genes:
         orf2info = get_gene_info(self.annotation)
         if not numpy.any(data):
             if transposon.lower() == "himar1" and not genome:
-                (data, position) = get_data(self.wigList)
+                (data, position) = get_data(self.wig_list)
             elif genome:
-                (data, position) = get_data_w_genome(self.wigList, genome)
+                (data, position) = get_data_w_genome(self.wig_list, genome)
             else:
-                (data, position) = get_data_zero_fill(self.wigList)
+                (data, position) = get_data_zero_fill(self.wig_list)
 
         ii_min = data < self.minread
         data[ii_min] = 0
@@ -736,7 +751,7 @@ class Genes:
 
         if not noNorm:
             (data, factors) = norm_tools.normalize_data(
-                data, norm, self.wigList, self.annotation
+                data, norm, self.wig_list, self.annotation
             )
         else:
             factors = []
@@ -760,10 +775,10 @@ class Genes:
                 name, desc, start, end, strand = orf2info.get(gene, ["", "", 0, 0, "+"])
 
                 if strand == "+":
-                    if self.ignoreCodon and position[i] > end - 3:
+                    if self.ignore_codon and position[i] > end - 3:
                         continue
                 else:
-                    if self.ignoreCodon and position[i] < start + 3:
+                    if self.ignore_codon and position[i] < start + 3:
                         continue
 
                 if (position[i] - start) / float(end - start) < (self.n_terminus / 100.0):

@@ -17,7 +17,7 @@ class NZMeanNorm(NormMethod):
     name = "nzmean"
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotationPath=""):
         """Returns the normalization factors for the data, using the NZMean method.
 
         Arguments:
@@ -58,7 +58,7 @@ class TotReadsNorm(NormMethod):
     name = "totreads"
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotationPath=""):
         """Returns the normalization factors for the data, using the total reads
         method.
 
@@ -158,7 +158,7 @@ class TTRNorm(NormMethod):
     @staticmethod
     def normalize(
         data,
-        wigList=[],
+        wig_list=[],
         annotationPath="",
         thetaEst=empirical_theta,
         muEst=trimmed_empirical_mu,
@@ -220,11 +220,11 @@ class EmpHistNorm(NormMethod):
         return negLL
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotationPath=""):
         """Returns the normalized data, using the empirical hist method.
 
         Arguments:
-            wigList (list): List of paths to wig formatted datasets.
+            wig_list (list): List of paths to wig formatted datasets.
             annotationPath (str): Path to annotation in .prot_table or GFF3 format.
 
         Returns:
@@ -246,8 +246,8 @@ class EmpHistNorm(NormMethod):
         """
         from pytransit import tnseq_tools
 
-        G = tnseq_tools.Genes(wigList, annotationPath)
-        K = len(wigList)
+        G = tnseq_tools.Genes(wig_list, annotationPath)
+        K = len(wig_list)
         temp = []
         for j in range(K):
             reads_per_gene = []
@@ -294,7 +294,7 @@ class AdaptiveBGCNorm(NormMethod):
 
     @staticmethod
     def normalize(
-        data, wigList=[], annotationPath="", doTotReads=True, bgsamples=200000
+        data, wig_list=[], annotationPath="", doTotReads=True, bgsamples=200000
     ):
         """Returns the normalized data using the aBGC method.
 
@@ -395,7 +395,7 @@ class ZeroInflatedNBNorm(NormMethod):
     name = "zinfb"
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotationPath=""):
         """Returns the normalization factors for the data using the zero-inflated
         negative binomial method.
 
@@ -447,7 +447,7 @@ class QuantileNorm(NormMethod):
     name = "quantile"
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotationPath=""):
         """Performs Quantile Normalization as described by Bolstad et al. 2003
 
         Arguments:
@@ -511,7 +511,7 @@ class BetaGeomNorm(NormMethod):
             return x
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath="", doTTR=True, bgsamples=200000):
+    def normalize(data, wig_list=[], annotationPath="", doTTR=True, bgsamples=200000):
         """Returns normalized data according to the BGC method.
 
         Arguments:
@@ -584,7 +584,7 @@ class NoNorm(NormMethod):
     name = "nonorm"
 
     @staticmethod
-    def normalize(data, wigList=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotationPath=""):
         return (data, numpy.ones(1))
 
 
@@ -601,14 +601,14 @@ methods["emphist"] = EmpHistNorm
 
 
 #########################
-def normalize_data(data, method="nonorm", wigList=[], annotationPath=""):
+def normalize_data(data, method="nonorm", wig_list=[], annotationPath=""):
     """Normalizes the numpy array by the given normalization method.
 
     Arguments:
         data (numpy array): (K,N) numpy array defining read-counts at N sites
             for K datasets.
         method (str): Name of the desired normalization method.
-        wigList (list): List of paths for the desired wig-formatted datasets.
+        wig_list (list): List of paths for the desired wig-formatted datasets.
         annotationPath (str): Path to the prot_table annotation file.
 
     Returns:
@@ -630,19 +630,19 @@ def normalize_data(data, method="nonorm", wigList=[], annotationPath=""):
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
 
-    .. note:: Some normalization methods require the wigList and annotationPath arguments.
+    .. note:: Some normalization methods require the wig_list and annotationPath arguments.
 
     """
     factors = []
     if method in methods:
-        return methods[method].normalize(data, wigList, annotationPath)
+        return methods[method].normalize(data, wig_list, annotationPath)
     else:
         warnstr = (
             "Normalization method '%s' is unknown. Read-counts were not normalized."
             % (method)
         )
         warnings.warn(warnstr)
-    return methods["nonorm"].normalize(data, wigList, annotationPath)
+    return methods["nonorm"].normalize(data, wig_list, annotationPath)
 
 
 def empirical_theta(X):
