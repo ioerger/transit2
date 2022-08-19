@@ -217,6 +217,9 @@ class Analysis:
             if not Analysis.inputs.output_path:
                 return None
             
+            # open the file
+            Analysis.inputs.output_file = open(Analysis.inputs.output_path, "w")
+            
             # 
             # extract universal data
             # 
@@ -364,8 +367,8 @@ class Analysis:
             histPath = ""
             if self.inputs.do_histogram:
                 histPath = os.path.join(
-                    os.path.dirname(self.output.name),
-                    transit_tools.fetch_name(self.output.name) + "_histograms",
+                    os.path.dirname(self.inputs.output_file.name),
+                    transit_tools.fetch_name(self.inputs.output_file.name) + "_histograms",
                 )
                 if not os.path.isdir(histPath):
                     os.makedirs(histPath)
@@ -530,7 +533,7 @@ class Analysis:
 
     def write_output(self, data, qval, start_time):
 
-        self.output.write("#Resampling\n")
+        self.inputs.output_file.write("#Resampling\n")
         if self.wxobj:
             members = sorted(
                 [
@@ -542,7 +545,7 @@ class Analysis:
             memberstr = ""
             for m in members:
                 memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write(
+            self.inputs.output_file.write(
                 "#GUI with: norm=%s, samples=%s, pseudocounts=%1.2f, adaptive=%s, histogram=%s, include_zeros=%s, output=%s\n"
                 % (
                     self.inputs.normalization,
@@ -551,12 +554,12 @@ class Analysis:
                     self.inputs.adaptive,
                     self.inputs.do_histogram,
                     self.inputs.include_zeros,
-                    self.output.name.encode("utf-8"),
+                    self.inputs.output_file.name.encode("utf-8"),
                 )
             )
         else:
-            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        self.output.write(
+            self.inputs.output_file.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        self.inputs.output_file.write(
             "#Parameters: samples=%s, norm=%s, histograms=%s, adaptive=%s, excludeZeros=%s, pseudocounts=%s, LOESS=%s, trim_Nterm=%s, trim_Cterm=%s\n"
             % (
                 self.inputs.samples,
@@ -570,39 +573,37 @@ class Analysis:
                 self.inputs.c_terminus,
             )
         )
-        self.output.write(
+        self.inputs.output_file.write(
             "#Control Data: %s\n" % (",".join(self.inputs.ctrldata).encode("utf-8"))
         )
-        self.output.write(
+        self.inputs.output_file.write(
             "#Experimental Data: %s\n" % (",".join(self.inputs.expdata).encode("utf-8"))
         )
-        self.output.write(
+        self.inputs.output_file.write(
             "#Annotation path: %s %s\n"
             % (
                 self.inputs.annotation_path.encode("utf-8"),
                 self.inputs.annotation_path_exp.encode("utf-8") if self.inputs.diff_strains else "",
             )
         )
-        self.output.write("#Time: %s\n" % (time.time() - start_time))
-        # Z = True # include Z-score column in resampling output?
-        global columns  # consider redefining columns above (for GUI)
-        if self.inputs.Z == True:
-            columns = [
-                "Orf",
-                "Name",
-                "Desc",
-                "Sites",
-                "Mean Ctrl",
-                "Mean Exp",
-                "log2FC",
-                "Sum Ctrl",
-                "Sum Exp",
-                "Delta Mean",
-                "p-value",
-                "Z-score",
-                "Adj. p-value",
-            ]
-        self.output.write("#%s\n" % "\t".join(columns))
+        self.inputs.output_file.write("#Time: %s\n" % (time.time() - start_time))
+        # Z = True # include Z-score column 
+        columns = Analysis.columns if not self.inputs.Z else [
+            "Orf",
+            "Name",
+            "Desc",
+            "Sites",
+            "Mean Ctrl",
+            "Mean Exp",
+            "log2FC",
+            "Sum Ctrl",
+            "Sum Exp",
+            "Delta Mean",
+            "p-value",
+            "Z-score",
+            "Adj. p-value",
+        ]
+        self.inputs.output_file.write("#%s\n" % "\t".join(columns))
 
         for i, row in enumerate(data):
             (
@@ -627,7 +628,7 @@ class Analysis:
                 z = scipy.stats.norm.ppf(p)
                 if log2FC > 0:
                     z *= -1
-                self.output.write(
+                self.inputs.output_file.write(
                     "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f\n"
                     % (
                         orf,
@@ -646,7 +647,7 @@ class Analysis:
                     )
                 )
             else:
-                self.output.write(
+                self.inputs.output_file.write(
                     "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f\n"
                     % (
                         orf,
@@ -663,10 +664,10 @@ class Analysis:
                         qval[i],
                     )
                 )
-        self.output.close()
+        self.inputs.output_file.close()
 
-        transit_tools.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)
+        transit_tools.log("Adding File: %s" % (self.inputs.output_file.name))
+        results_area.add(self.inputs.output_file.name)
 
     def winsorize_resampling(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array
