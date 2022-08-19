@@ -138,7 +138,7 @@ if True:
 # 
 # 
 if True:
-    def create_normalization_input(panel, sizer):
+    def create_normalization_input(panel, sizer, default="TTR"):
         (
             label,
             normalization_wxobj,
@@ -159,6 +159,7 @@ if True:
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
+        normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
     def create_reference_condition_input(panel, sizer):
