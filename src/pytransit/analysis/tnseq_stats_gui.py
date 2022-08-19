@@ -90,7 +90,8 @@ class Analysis:
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         if True:
-            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer)
+            #self.value_getters.normalization = create_normalization_input(self.panel, main_sizer)
+            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer,default="nonorm")
             # add a file chooser for output file name?
             create_run_button(self.panel, main_sizer)
 
@@ -216,7 +217,7 @@ class Analysis:
                     nzmedianrd = int(nzmedianrd) if numpy.isnan(nzmedianrd) == False else 0
                     pti = self.pickands_tail_index(data[i, :])
                     vals = [
-                        datasets[i],
+                        filenames_in_comb_wig[i],
                         "%0.3f" % density,
                         "%0.1f" % meanrd,
                         "%0.1f" % nzmeanrd,
@@ -228,11 +229,10 @@ class Analysis:
                     ]
                     if PTI == True:
                         vals.append("%0.3f" % pti)
-                file.write("\t".join([str(x) for x in vals]) + "\n")
-                if self.outfile != None:
-                    file.close()
-    
-                self.finish()
+
+                    file.write("\t".join([str(x) for x in vals]) + "\n")
+
+                if self.inputs.output_path != None: file.close()
                 transit_tools.log("Finished TnseqStats")
                 transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
@@ -268,7 +268,7 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict(
-                heatmap=lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                heatmap=lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".tnseq_stats.dat"),
                 table=lambda *args: SpreadSheet(title="tnseq_stats_gui",heading="",column_names=self.column_names,rows=self.rows).Show(),
             )
         )
