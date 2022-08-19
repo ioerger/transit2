@@ -32,7 +32,8 @@ from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_button
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
+
 command_name = sys.argv[0]
 
 class Analysis:
@@ -89,7 +90,8 @@ class Analysis:
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         if True:
-            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer)
+            #self.value_getters.normalization = create_normalization_input(self.panel, main_sizer)
+            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer,default="nonorm")
             # add a file chooser for output file name?
             create_run_button(self.panel, main_sizer)
 
@@ -123,7 +125,8 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+
             # 
             # save result files
             # 
@@ -159,7 +162,7 @@ class Analysis:
         with gui_tools.nice_error_log:
             transit_tools.log("Starting tnseq_stats analysis")
             start_time = time.time()
-            
+
             # 
             # get data
             # 
@@ -173,66 +176,73 @@ class Analysis:
             # 
             # process data
             # 
-            if True:
-                transit_tools.log("processing data")
 
-                # I should call tnseq_tools.get_data_stats on each dataset here and save results as a list to be print below...
-            
+            transit_tools.log("processing data")
+            results = self.calc_tnseq_stats(data,filenames_in_comb_wig)
+
             # 
             # write output
             # 
+            # note: first comment line is filetype, last comment line is column headers
+
             transit_tools.log(f"Adding File: {self.inputs.output_path}")
             results_area.add(self.inputs.output_path)
-            if True:
-                # write table of stats (saturation,NZmean)
-                file = sys.stdout # print to console if not output file defined
-                #if self.outfile != None:
-                #   file = open(self.outfile, "w")
-                if self.inputs.output_path != None:
-                   file = open(self.inputs.output_path, "w")
-        
-                PTI = True
-                if PTI == True:
-                    file.write(
-                        "dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\tpickands_tail_index\n"
-                    )
-                else:
-                    file.write(
-                        "dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\n"
-                    )
-                for i in range(data.shape[0]):
-                    (
-                        density,
-                        meanrd,
-                        nzmeanrd,
-                        nzmedianrd,
-                        maxrd,
-                        totalrd,
-                        skew,
-                        kurtosis,
-                    ) = tnseq_tools.get_data_stats(data[i, :])
-                    nzmedianrd = int(nzmedianrd) if numpy.isnan(nzmedianrd) == False else 0
-                    pti = self.pickands_tail_index(data[i, :])
-                    vals = [
-                        datasets[i],
-                        "%0.3f" % density,
-                        "%0.1f" % meanrd,
-                        "%0.1f" % nzmeanrd,
-                        "%d" % nzmedianrd,
-                        maxrd,
-                        int(totalrd),
-                        "%0.1f" % skew,
-                        "%0.1f" % kurtosis,
-                    ]
-                    if PTI == True:
-                        vals.append("%0.3f" % pti)
-                file.write("\t".join([str(x) for x in vals]) + "\n")
-                if self.outfile != None:
-                    file.close()
-    
-                self.finish()
-                transit_tools.log("Finished TnseqStats")
-                transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+
+            file = sys.stdout # print to console if not output file defined
+            if self.inputs.output_path != None:
+               file = open(self.inputs.output_path, "w")
+            file.write("%s\n" % self.identifier)
+            file.write("#normalization: %s\n" % self.inputs.normalization)
+            file.write("#dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\tpickands_tail_index\n")
+
+            for vals in results:
+              file.write("\t".join([str(x) for x in vals]) + "\n")
+
+            if self.inputs.output_path != None: file.close()
+            transit_tools.log("Finished TnseqStats")
+            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+
+    def pickands_tail_index(self, vals):
+        srt = sorted(vals, reverse=True)
+        PTIs = []
+        for M in range(10, 100):
+            PTI = numpy.log(
+                (srt[M] - srt[2 * M]) / float(srt[2 * M] - srt[4 * M])
+            ) / numpy.log(2.0)
+            PTIs.append(PTI)
+        return numpy.median(PTIs)
+
+    # data=numpy array of (normalized) insertion counts at TA sites for multiple samples; sample_names=.wig filenames
+    def calc_tnseq_stats(self,data,sample_names): 
+      results = []
+      for i in range(data.shape[0]):
+          (
+              density,
+              meanrd,
+              nzmeanrd,
+              nzmedianrd,
+              maxrd,
+              totalrd,
+              skew,
+              kurtosis,
+          ) = tnseq_tools.get_data_stats(data[i, :])
+          nzmedianrd = int(nzmedianrd) if numpy.isnan(nzmedianrd) == False else 0
+          pti = self.pickands_tail_index(data[i, :])
+          vals = [
+              sample_names[i],
+              "%0.3f" % density,
+              "%0.1f" % meanrd,
+              "%0.1f" % nzmeanrd,
+              "%d" % nzmedianrd,
+              maxrd,
+              int(totalrd),
+              "%0.1f" % skew,
+              "%0.1f" % kurtosis,
+              "%0.3f" % pti
+          ]
+          results.append(vals)
+      return results
+
 
 @transit_tools.ResultsFile
 class File(Analysis):
@@ -255,10 +265,9 @@ class File(Analysis):
             type=Analysis.identifier,
             path=self.path,
             # anything with __ is not shown in the table
-            __dropdown_options=LazyDict(
-                heatmap=lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
-                table=lambda *args: SpreadSheet(title="tnseq_stats_gui",heading="",column_names=self.column_names,rows=self.rows).Show(),
-            )
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(title="tnseq_stats",heading="",column_names=self.column_names,rows=self.rows).Show(),
+            })
         )
         
         # 
