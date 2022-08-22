@@ -157,11 +157,15 @@ class Analysis:
         
         return Analysis.instance
         
-
     def Run(self):
         with gui_tools.nice_error_log:
             transit_tools.log("Starting tnseq_stats analysis")
             start_time = time.time()
+
+            # if you want to see which samples were selected...
+            #from pytransit.components.samples_area import sample_table
+            #datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
+            #for x in datasets_selected: print(str(x))
 
             # 
             # get data
@@ -300,4 +304,4 @@ class File(Analysis):
     
     
 Method = GUI = Analysis
-Analysis() # make sure theres one instance
+Analysis() # make sure there's one instance
