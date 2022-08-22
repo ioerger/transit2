@@ -84,16 +84,12 @@ class Analysis:
 
     def define_panel(self, _):
         self.panel = make_panel()
-        print("in tnseq_stats_gui.define_panel()")
 
         # only need Norm selection and Run button        
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
-        if True:
-            #self.value_getters.normalization = create_normalization_input(self.panel, main_sizer)
-            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer,default="nonorm")
-            # add a file chooser for output file name?
-            create_run_button(self.panel, main_sizer)
+        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer,default="nonorm")
+        create_run_button(self.panel, main_sizer)
 
         parameter_panel.set_panel(self.panel)
         self.panel.SetSizer(main_sizer)
