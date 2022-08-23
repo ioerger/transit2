@@ -1,5 +1,5 @@
 from pytransit.transit_tools import wx, pub
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 import pytransit.gui_tools as gui_tools
 
 default_label_size = (-1, -1)

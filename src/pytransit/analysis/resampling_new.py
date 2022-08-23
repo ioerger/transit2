@@ -26,7 +26,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet

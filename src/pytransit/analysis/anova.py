@@ -20,7 +20,7 @@ import pytransit.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
 from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
@@ -200,7 +200,7 @@ class Analysis:
         Analysis.inputs.update(dict(
             combined_wig=combined_wig,
             metadata=metadata,
-            annotation=annotation_path,
+            annotation_path=annotation_path,
             normalization=normalization,
             output_path=output_path,
             

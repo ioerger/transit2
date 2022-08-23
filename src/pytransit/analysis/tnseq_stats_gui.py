@@ -11,7 +11,7 @@ import collections
 import numpy
 from super_map import LazyDict
 
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input

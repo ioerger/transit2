@@ -35,7 +35,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
-from pytransit.core_data import SessionData, universal
+from pytransit.universal_data import SessionData, universal
 from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager

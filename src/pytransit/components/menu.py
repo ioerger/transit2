@@ -4,7 +4,7 @@ from functools import partial
 import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
 import pytransit.qc_display as qc_display
-from pytransit.core_data import SessionData, universal
+from pytransit.universal_data import SessionData, universal
 import pytransit
 
 method_wrap_width = 250

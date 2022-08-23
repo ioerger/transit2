@@ -3,7 +3,7 @@ import os
 from typing import NamedTuple
 
 from pytransit.transit_tools import wx
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 
 
 

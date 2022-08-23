@@ -3,7 +3,7 @@ import sys
 
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 import pytransit.gui_tools as gui_tools
 import pytransit.transit_tools as transit_tools
@@ -269,7 +269,7 @@ def show_progress_section():
     panel.progress.Show()
 
 def progress_update(text, percent):
-    string = f"[{universal.selected_method.long_name}] {text}   \r"
+    string = f" {text}   \r"
     
     # update current line
     sys.stdout.write(string)
