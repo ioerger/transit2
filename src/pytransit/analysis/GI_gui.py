@@ -644,11 +644,9 @@ class File(Analysis):
         # get column names
         # 
         comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True)
-        transit_tools.log(f'''comments = {comments}''')
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load GI file "{self.path}"''')
         self.column_names = comments[-1].split("\t")
-        transit_tools.log(f'''self.column_names = {self.column_names}''')
         
         # 
         # get rows

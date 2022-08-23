@@ -18,7 +18,7 @@ label = "GFF3 to Prot_table"
 ############# Analysis Method ##############
 
 
-class GffProtConverter(base.TransitConvert):
+class Converter(base.TransitConvert):
     def __init__(self):
         base.TransitConvert.__init__(
             self, short_name, long_name, description, label, GffProtMethod, GffProtGUI

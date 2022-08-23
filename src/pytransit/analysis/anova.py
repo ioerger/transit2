@@ -519,7 +519,6 @@ class File(Analysis):
         # get column names
         # 
         comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True)
-        transit_tools.log(f'''comments = {comments}''')
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
         self.column_names = comments[-1].split("\t")
@@ -615,4 +614,4 @@ class File(Analysis):
         gui_tools.show_image(output_path)
     
 Method = GUI = Analysis
-Analysis() # make sure theres one instance
+Analysis() # make sure there's one instance
