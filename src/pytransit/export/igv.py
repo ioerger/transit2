@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import sys
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
@@ -216,8 +217,9 @@ class IGVMethod(base.SingleConditionMethod):
             )
 
             # Update progress
-            text = "Running Export Method... %5.1f%%" % (100.0 * i / N)
-            self.progress_update(text, i)
+            percentage = (100.0 * i / N)
+            text = "Running Export Method... %5.1f%%" % percentage
+            progress_update(text, percentage)
         self.output.close()
 
         transit_tools.log("")  # Printing empty line to flush stdout

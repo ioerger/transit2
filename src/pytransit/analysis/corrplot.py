@@ -8,8 +8,7 @@ import datetime
 import numpy
 
 from pytransit.analysis import base
-from pytransit.transit_tools import 
-import pytransit.transit_tools as HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
+from pytransit.transit_tools import HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools

@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -418,8 +419,9 @@ class RankProductMethod(base.DualConditionMethod):
             )
 
             # Update Progress
-            text = "Running rankproduct Method... %5.1f%%" % (100.0 * count / Ngenes)
-            self.progress_update(text, count)
+            percentage = (100.0 * count / Ngenes)
+            text = "Running rankproduct Method... %5.1f%%" % percentage
+            progress_update(text, percentage)
 
         #
         transit_tools.log("")  # Printing empty line to flush stdout

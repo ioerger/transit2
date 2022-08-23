@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import copy
 import datetime
 import io
@@ -184,7 +185,7 @@ class PathwayMethod(base.AnalysisMethod):
             self.Ontologizer()
         else:
             method = "Not a valid method"
-            self.progress_update("Not a valid method", 100)
+            progress_update("Not a valid method", 100)
 
     def write(self, msg):
         self.output.write(msg + "\n")
@@ -360,9 +361,9 @@ class PathwayMethod(base.AnalysisMethod):
                 ontology.get(term, "?"),
             ]
             # sys.stderr.write(' '.join([str(x) for x in vals])+'\n')
-            pctg = (100.0 * i) / Total
-            text = "Running Pathway Enrichment Method... %5.1f%%" % (pctg)
-            self.progress_update(text, i)
+            percentage = (100.0 * i) / Total
+            text = "Running Pathway Enrichment Method... %5.1f%%" % (percentage)
+            progress_update(text, percentage)
             results.append((term, mr, es, pval))
 
         results.sort(key=lambda x: x[1])  # sort on mean rank

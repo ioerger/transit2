@@ -18,17 +18,17 @@ from pytransit import tnseq_tools
 from pytransit.transit_tools import HAS_R
 
 # Single condition methods
-from pytransit.analysis.gumbel import GumbelMethod
+from pytransit.analysis.anova    import Analysis as AnovaMethod
+from pytransit.analysis.gumbel   import GumbelMethod
 from pytransit.analysis.binomial import BinomialMethod
-from pytransit.analysis.griffin import GriffinMethod
-from pytransit.analysis.hmm import HMMMethod
-from pytransit.analysis.anova import AnovaMethod
-from pytransit.analysis.zinb import ZinbMethod
+from pytransit.analysis.griffin  import GriffinMethod
+from pytransit.analysis.hmm      import HMMMethod
+from pytransit.analysis.zinb     import ZinbMethod
 
 # Comparative methods
-from pytransit.analysis.resampling import ResamplingMethod
+from pytransit.analysis.resampling  import ResamplingMethod
 from pytransit.analysis.rankproduct import RankProductMethod
-from pytransit.analysis.utest import UTestMethod
+from pytransit.analysis.utest       import UTestMethod
 
 # Genetic Interactions
 from pytransit.analysis.gi import GIMethod

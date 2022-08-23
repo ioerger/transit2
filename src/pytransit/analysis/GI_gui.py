@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import sys
 import os
 import time
@@ -462,8 +463,6 @@ class Analysis:
                 )
             )
 
-            #text = "Running GI Method... %2.0f%%" % (100.0 * (count + 1) / N)
-            #self.progress_update(text, count)
             percentage = (100.0 * (count + 1) / N)
             progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 

@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -504,11 +505,6 @@ class GumbelMethod(base.SingleConditionMethod):
             ]
         )
 
-        #        idxG,idxN = -1,0
-        #        for i in range(len(G)):
-        #          if G[i].name=="glf": idxG = i
-        #          if ii_good[i]==True: idxN += 1 # could do sum(ii_good[:idxG])
-
         i = 1
         count = 0
         while i < self.samples:
@@ -548,12 +544,8 @@ class GumbelMethod(base.SingleConditionMethod):
 
             except ValueError as e:
                 self.log("Error: %s" % e)
-                self.log(
-                    "This is likely to have been caused by poor data (e.g. too sparse)."
-                )
-                self.log(
-                    "If the density of the dataset is too low, the Gumbel method will not work."
-                )
+                self.log("This is likely to have been caused by poor data (e.g. too sparse)." )
+                self.log("If the density of the dataset is too low, the Gumbel method will not work.")
                 self.log("Quitting.")
                 return
 
@@ -561,11 +553,9 @@ class GumbelMethod(base.SingleConditionMethod):
 
             phi_old = phi_new
             # Update progress
-            text = (
-                "Running Gumbel Method with Binomial Essentiality Calls... %5.1f%%"
-                % (100.0 * (count + 1) / (self.samples + self.burnin))
-            )
-            self.progress_update(text, count)
+            percentage = (100.0 * (count + 1) / (self.samples + self.burnin))
+            text = "Running Gumbel Method with Binomial Essentiality Calls... %5.1f%%" % percentage
+            progress_update(text, percentage)
 
         ZBAR = numpy.apply_along_axis(numpy.mean, 1, Z_sample)
         (ess_t, non_t) = stat_tools.bayesian_ess_thresholds(ZBAR)
@@ -599,35 +589,16 @@ class GumbelMethod(base.SingleConditionMethod):
             self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
 
         self.output.write("#Data: %s\n" % (",".join(self.ctrldata).encode("utf-8")))
-        self.output.write(
-            "#Annotation path: %s\n" % self.annotation_path.encode("utf-8")
-        )
-        self.output.write(
-            "#Trimming of TAs near termini: N-term=%s, C-term=%s (fraction of ORF length)\n"
-            % (self.n_terminus, self.c_terminus)
-        )
-        self.output.write(
-            "#Significance thresholds (FDR-corrected): Essential if Zbar>%f, Non-essential if Zbar<%f\n"
-            % (ess_t, non_t)
-        )
-        self.output.write(
-            "#Metropolis-Hastings Acceptance-Rate:\t%2.2f%%\n"
-            % (100.0 * acctot / count)
-        )
+        self.output.write("#Annotation path: %s\n" % self.annotation_path.encode("utf-8") )
+        self.output.write("#Trimming of TAs near termini: N-term=%s, C-term=%s (fraction of ORF length)\n" % (self.n_terminus, self.c_terminus) )
+        self.output.write("#Significance thresholds (FDR-corrected): Essential if Zbar>%f, Non-essential if Zbar<%f\n" % (ess_t, non_t) )
+        self.output.write("#Metropolis-Hastings Acceptance-Rate:\t%2.2f%%\n" % (100.0 * acctot / count) )
         self.output.write("#Total Iterations Performed:\t%d\n" % count)
         self.output.write("#Sample Size:\t%d\n" % i)
         self.output.write("#Total number of TA sites: %s\n" % nsites)
-        self.output.write(
-            "#Genome-wide saturation: %s\n" % (round(sat, 3))
-        )  # datasets merged
-        self.output.write(
-            "#phi estimate:\t%f (non-insertion probability in non-essential regions)\n"
-            % numpy.average(phi_sample)
-        )
-        self.output.write(
-            "#Minimum number of TA sites with 0 insertions to be classified as essential by Binomial: \t%0.3f\n"
-            % binomial_n
-        )
+        self.output.write("#Genome-wide saturation: %s\n" % (round(sat, 3)) )  # datasets merged
+        self.output.write("#phi estimate:\t%f (non-insertion probability in non-essential regions)\n" % numpy.average(phi_sample) )
+        self.output.write("#Minimum number of TA sites with 0 insertions to be classified as essential by Binomial: \t%0.3f\n" % binomial_n )
         self.output.write("#Time: %s s\n" % (round(time.time() - start_time, 1)))
 
         i = 0
@@ -657,12 +628,8 @@ class GumbelMethod(base.SingleConditionMethod):
         data.sort()
 
         self.output.write("#Summary of Essentiality Calls:\n")
-        self.output.write(
-            "#  E  = %4s (essential based on Gumbel)\n" % (calls.count("E"))
-        )
-        self.output.write(
-            "#  EB = %4s (essential based on Binomial)\n" % (calls.count("EB"))
-        )
+        self.output.write("#  E  = %4s (essential based on Gumbel)\n" % (calls.count("E")))
+        self.output.write("#  EB = %4s (essential based on Binomial)\n" % (calls.count("EB")))
         self.output.write("#  NE = %4s (non-essential)\n" % (calls.count("NE")))
         self.output.write("#  U  = %4s (uncertain)\n" % (calls.count("U")))
         self.output.write("#  S  = %4s (too short)\n" % (calls.count("S")))

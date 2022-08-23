@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import sys
 import os
 import time
@@ -227,9 +228,10 @@ class CombinedWigMethod(base.SingleConditionMethod):
                 )
             )
             # Update progress
-            text = "Running Export Method... %5.1f%%" % (100.0*i/N)
+            percentage = (100.0*i/N)
+            text = "Running Export Method... %5.1f%%" % percentage
             if i % 1000 == 0:
-                self.progress_update(text, i)
+                progress_update(text, percentage)
         self.output.close()
 
         transit_tools.log("")  # Printing empty line to flush stdout

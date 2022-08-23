@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -440,8 +441,9 @@ class UTestMethod(base.DualConditionMethod):
             )
 
             # Update Progress
-            text = "Running Mann-Whitney U-test Method... %1.1f%%" % (100.0 * count / N)
-            self.progress_update(text, count)
+            percent = (100.0 * count / N)
+            text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
+            progress_update(text, percent)
 
         #
         transit_tools.log("")  # Printing empty line to flush stdout
