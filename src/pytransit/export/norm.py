@@ -30,7 +30,7 @@ columns = ["Position", "Reads", "Genes"]
 ############# Analysis Method ##############
 
 
-class Analysis(base.TransitAnalysis):
+class Export(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,

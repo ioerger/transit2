@@ -6,15 +6,16 @@ from os import listdir
 dont_include = ('__init__.py', 'base.py')
 analysis_names = [basename(name)[:-3] for name in listdir(dirname(__file__)) if isfile(dirname(__file__)+"/"+name) and name not in dont_include ]
 
-# import all the analysis files
-for each in analysis_names:
-    exec(f"from pytransit.analysis import {each}")
+source = "pytransit.analysis"
+attribute = ".Analysis()"
+class MethodsCollection(dict):
+    def __getitem__(self, key):
+        exec(f"""
+            \nglobal MethodsCollection
+            \nfrom {source} import {key}
+            \nMethodsCollection.__temp_output__ = {key}{attribute}
+        """, globals(), locals())
+        super(MethodsCollection, self).__setitem__(key, MethodsCollection.__temp_output__)
+        return MethodsCollection.__temp_output__
 
-export_methods = {
-    "norm": norm.Analysis(),
-}
-methods = {
-    each_name: eval(f"{each_name}.Analysis()")
-        for each_name in analysis_names
-            if each_name not in export_methods
-}
+methods = MethodsCollection({ name : None for name in analysis_names })
