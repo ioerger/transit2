@@ -147,11 +147,16 @@ class GriffinGUI(base.AnalysisGUI):
 
 
 class GriffinMethod(base.SingleConditionMethod):
-    """   
-    griffin
- 
-    """
+    usage_string = """python3 %s griffin <comma-separated .wig files> <annotation .prot_table> <output file> [Optional Arguments]
 
+        Optional Arguments:
+        -m <integer>    :=  Smallest read-count to consider. Default: -m 1
+        -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
+        -sC             :=  Include stop-codon (default is to ignore).
+        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
+        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
+        """ % sys.argv[0]
+        
     def __init__(
         self,
         ctrldata,
@@ -380,20 +385,6 @@ class GriffinMethod(base.SingleConditionMethod):
         results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished Griffin Method")
-
-    @classmethod
-    def usage_string(self):
-        return """python3 %s griffin <comma-separated .wig files> <annotation .prot_table> <output file> [Optional Arguments]
-
-        Optional Arguments:
-        -m <integer>    :=  Smallest read-count to consider. Default: -m 1
-        -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
-        -sC             :=  Include stop-codon (default is to ignore).
-        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
-        """ % (
-            sys.argv[0]
-        )
 
 
 if __name__ == "__main__":

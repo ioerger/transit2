@@ -708,9 +708,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished TTNFitness Method")
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel output file> <output1 file> <output2 file>"""
             % (sys.argv[0])
         )

@@ -485,19 +485,14 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished Tn5Gaps Method")
 
-    @classmethod
-    def usage_string(self):
-        # return """python3 %s resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-        return """python3 %s tn5gaps <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    usage_string = """python3 %s tn5gaps <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
         Optional Arguments:
         -m <integer>    :=  Smallest read-count to consider. Default: -m 1
         -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
         -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        """ % (
-            sys.argv[0]
-        )
+        """ % sys.argv[0]
 
     def intersect_size(self, intv1, intv2):
         first = intv1 if intv1[0] < intv2[0] else intv2

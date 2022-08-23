@@ -71,10 +71,16 @@ class NormalizeGUI(base.AnalysisGUI):
 
 
 class NormalizeMethod(base.SingleConditionMethod):
-    """
-    Norm
+    usage_string = """
+        python3 %s normalize <input.wig> <output.wig> [-n TTR|betageom]
+        ---
+        OR
+        ---
+        python3 %s normalize -c <input combined_wig> <output.wig> [-n TTR|betageom]
 
-    """
+            Optional Arguments:
+            -n <string>     :=  Normalization method. Default: -n TTR
+        """ % (sys.argv[0], sys.argv[0],)
 
     def __init__(self, infile, outfile, normalization):
         ctrldata = [infile]
@@ -170,23 +176,6 @@ class NormalizeMethod(base.SingleConditionMethod):
 
         self.finish()
         transit_tools.log("Finished Normalization")
-
-    @classmethod
-    def usage_string(self):
-        return """
-python3 %s normalize <input.wig> <output.wig> [-n TTR|betageom]
----
-OR
----
-python3 %s normalize -c <input combined_wig> <output.wig> [-n TTR|betageom]
-
-        Optional Arguments:
-        -n <string>     :=  Normalization method. Default: -n TTR
-        """ % (
-            sys.argv[0],
-            sys.argv[0],
-        )
-
 
 if __name__ == "__main__":
 

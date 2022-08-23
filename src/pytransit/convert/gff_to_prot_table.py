@@ -82,7 +82,7 @@ class GffProtMethod(base.ConvertMethod):
         (args, kwargs) = transit_tools.clean_args(rawargs)
         if len(args) < 2:
             print("Error: Please specify Input and Output paths")
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(1)
 
         annotationPath = args[0]
@@ -147,9 +147,7 @@ class GffProtMethod(base.ConvertMethod):
         output_file.close()
         transit_tools.log("Finished conversion")
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python %s convert gff_to_prot_table <annotation in gff format> <output file>"""
             % (sys.argv[0])
         )

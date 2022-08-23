@@ -70,6 +70,21 @@ class PathwayGUI(base.AnalysisGUI):
 
 
 class PathwayMethod(base.AnalysisMethod):
+    usage_string = """python3 %s pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+
+        Optional parameters:
+        -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
+        -Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
+        -Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
+        for GSEA...
+        -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
+        -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+        -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+        -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        for FET...
+        -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
+        """ % sys.argv[0]
+    
     def __init__(
         self,
         resamplingFile,
@@ -132,7 +147,7 @@ class PathwayMethod(base.AnalysisMethod):
 
         if method not in "FET GSEA ONT".split():
             print("error: method %s not recognized" % method)
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
 
         return self(
@@ -148,25 +163,6 @@ class PathwayMethod(base.AnalysisMethod):
             Pval_col=Pval_col,
             Qval_col=Qval_col,
             LFC_col=LFC_col,
-        )
-
-    @classmethod
-    def usage_string(self):
-        return """python3 %s pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
-
-Optional parameters:
- -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
- -Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
- -Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
- for GSEA...
- -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
- -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
- -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
- -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
- for FET...
- -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
-""" % (
-            sys.argv[0]
         )
 
     def Run(self):

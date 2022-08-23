@@ -226,9 +226,7 @@ class IGVMethod(base.SingleConditionMethod):
 
     #
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python %s export igv <comma-separated .wig files> <annotation .prot_table> <output file>"""
             % (sys.argv[0])
         )

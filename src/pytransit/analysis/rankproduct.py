@@ -164,10 +164,17 @@ class RankProductGUI(base.AnalysisGUI):
 
 
 class RankProductMethod(base.DualConditionMethod):
-    """   
-    rankproduct
- 
-    """
+    usage_string = """python3 %s rankproduct <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    
+        Optional Arguments:
+        -s <integer>    :=  Number of samples. Default: -s 100
+        -n <string>     :=  Normalization method. Default: -n TTR
+        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
+        -a              :=  Perform adaptive rankproduct. Default: Turned Off.
+        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
+        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
+        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
+        """ % sys.argv[0]
 
     def __init__(
         self,
@@ -485,22 +492,6 @@ class RankProductMethod(base.DualConditionMethod):
         results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished rankproduct Method")
-
-    @classmethod
-    def usage_string(self):
-        return """python3 %s rankproduct <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-    
-        Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 100
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
-        -a              :=  Perform adaptive rankproduct. Default: Turned Off.
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
-        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
-        """ % (
-            sys.argv[0]
-        )
 
 
 if __name__ == "__main__":

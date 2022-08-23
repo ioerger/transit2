@@ -153,16 +153,12 @@ class NormMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished Normalization")
 
-    @classmethod
-    def usage_string(self):
-        return """
+    usage_string = """
 python3 %s norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
-        """ % (
-            sys.argv[0]
-        )
+        """ % sys.argv[0]
 
 
 if __name__ == "__main__":

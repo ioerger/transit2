@@ -74,10 +74,7 @@ class HeatmapGUI(base.AnalysisGUI):
 
 
 class HeatmapMethod(base.SingleConditionMethod):
-    """   
-    Norm
- 
-    """
+    usage_string = "usage: python3 %s heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb [-topk <int>] [-qval <float>] [-low_mean_filter <int>]\n note: genes are selected based on qval<0.05 by default" % sys.argv[0]
 
     def __init__(self, gene_means, outfile):
         ctrldata = None  # initializers for superclass
@@ -117,7 +114,7 @@ class HeatmapMethod(base.SingleConditionMethod):
         
         (args, kwargs) = transit_tools.clean_args(rawargs)
         if len(rawargs) < 3:
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(-1)
 
         self.filetype = None
@@ -126,7 +123,7 @@ class HeatmapMethod(base.SingleConditionMethod):
         elif kwargs.get("zinb", False):
             self.filetype = "zinb"
         else:
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(-1)
         self.infile = args[0]
         self.outfile = args[1]
@@ -221,12 +218,7 @@ dev.off()
         )
         return globalenv["make_heatmap"]
 
-    @classmethod
-    def usage_string(self):
-        return (
-            "usage: python3 %s heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb [-topk <int>] [-qval <float>] [-low_mean_filter <int>]\n note: genes are selected based on qval<0.05 by default"
-            % sys.argv[0]
-        )
+    
 
 
 if __name__ == "__main__":

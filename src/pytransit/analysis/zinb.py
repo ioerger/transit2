@@ -109,7 +109,7 @@ class ZinbMethod(base.MultiConditionMethod):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
-            print(ZinbMethod.usage_string())
+            print(ZinbMethod.usage_string)
             sys.exit(0)
 
         if kwargs.get("v", False):
@@ -150,7 +150,7 @@ class ZinbMethod(base.MultiConditionMethod):
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 self.transit_error("flag unrecognized: %s" % arg)
-                print(ZinbMethod.usage_string())
+                print(ZinbMethod.usage_string)
                 sys.exit(0)
 
         return self(
@@ -902,9 +902,7 @@ class ZinbMethod(base.MultiConditionMethod):
         transit_tools.log("Finished Zinb analysis")
         transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
-    @classmethod
-    def usage_string(self):
-        return """python3 %s zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+    usage_string = """python3 %s zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
 
         Optional Arguments:
         -n <string>         :=  Normalization method. Default: -n TTR
@@ -921,9 +919,7 @@ class ZinbMethod(base.MultiConditionMethod):
         --prot_table <filename>           := for appending annotations of genes
         --gene <RV number or Gene name>   := Run method for one gene and print model output.
 
-        """ % (
-            sys.argv[0]
-        )
+        """ % sys.argv[0]
 
 
 if __name__ == "__main__":

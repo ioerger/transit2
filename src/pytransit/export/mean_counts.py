@@ -256,9 +256,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
     #
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python %s export mean_counts <comma-separated .wig files>|<combined_wig> <annotation .prot_table> <output file> [-c]\n note: append -c if inputing a combined_wig file\n"""
             % (sys.argv[0])
         )

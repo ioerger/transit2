@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 import pytransit.console_tools as console_tools
 
@@ -82,13 +83,13 @@ def main(*args, **kwargs):
             # dont show traceback for invalid argument errors
             except console_tools.InvalidArgumentException as error:
                 print("Error: %s" % str(error))
-                print(method.usage_string())
+                print(method.usage_string)
                 sys.exit(1)
             # show traceback and usage for all other kinds of errors
             except Exception as error:
                 print("Error: %s" % str(error))
                 traceback.print_exc()
-                print(method.usage_string())
+                print(method.usage_string)
                 sys.exit(1)
             
             if setup_object:
