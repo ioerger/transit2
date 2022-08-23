@@ -1,10 +1,8 @@
 import os
 
-import wx.lib.inspection
-   
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory, load_known_transit_file
 
 import pytransit.gui_tools as gui_tools
@@ -134,8 +132,6 @@ def change_file_action_choices(new_choices):
     results.file_action_choice_element.SetSelection(0)
     results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
     
-    # wx.lib.inspection.InspectionTool().Show()
-    
     @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
     def _(event):
         choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
@@ -157,7 +153,7 @@ def add(path):
     
     print(f'''result_object = {result_object}''')
     print(f'''values_for_result_table = {values_for_result_table}''')
-    if HAS_WX:
+    if universal.interface == "gui" and HAS_WX:
         results.table.add(values_for_result_table)
 # 
 # 

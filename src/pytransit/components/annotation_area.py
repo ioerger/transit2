@@ -2,9 +2,9 @@ import os
 
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-from pytransit.core_data import SessionData, universal
+from pytransit.universal_data import SessionData, universal
 import pytransit.gui_tools as gui_tools
 
 from pytransit.components.generic.box import Column, Row

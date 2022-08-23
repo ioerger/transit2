@@ -30,7 +30,7 @@ class NZMeanNorm(NormMethod):
         :Example:
             >>> import pytransit._tools.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -72,7 +72,7 @@ class TotReadsNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -114,7 +114,7 @@ class TTRNorm(NormMethod):
         :Example:
             >>> import pytransit.tnseq_tools as tnseq_tools
             >>> import pytransit.norm_tools as norm_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -143,7 +143,7 @@ class TTRNorm(NormMethod):
         :Example:
             >>> import pytransit.tnseq_tools as tnseq_tools
             >>> import pytransit.norm_tools as norm_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -181,7 +181,7 @@ class TTRNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -233,7 +233,7 @@ class EmpHistNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -311,7 +311,7 @@ class AdaptiveBGCNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -410,7 +410,7 @@ class ZeroInflatedNBNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -460,7 +460,7 @@ class QuantileNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -526,7 +526,7 @@ class BetaGeomNorm(NormMethod):
         :Example:
             >>> import pytransit.norm_tools as norm_tools
             >>> import pytransit.tnseq_tools as tnseq_tools
-            >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -618,7 +618,7 @@ def normalize_data(data, method="nonorm", wig_list=[], annotationPath=""):
     :Example:
         >>> import pytransit.norm_tools as norm_tools
         >>> import pytransit.tnseq_tools as tnseq_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -660,7 +660,7 @@ def empirical_theta(X):
     :Example:
         >>> import pytransit.tnseq_tools as tnseq_tools
         >>> import pytransit.norm_tools as norm_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -690,7 +690,7 @@ def trimmed_empirical_mu(X, t=0.05):
     :Example:
         >>> import pytransit.tnseq_tools as tnseq_tools
         >>> import pytransit.norm_tools as norm_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -733,7 +733,7 @@ def zinfnb_factors(data):
     :Example:
         >>> import pytransit.norm_tools as norm_tools
         >>> import pytransit.tnseq_tools as tnseq_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -798,7 +798,7 @@ def norm_to_target(data, target):
     :Example:
         >>> import pytransit.norm_tools as norm_tools
         >>> import pytransit.tnseq_tools as tnseq_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])

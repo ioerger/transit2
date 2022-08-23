@@ -1,5 +1,5 @@
 from pytransit.transit_tools import wx, pub
-from pytransit.core_data import universal
+from pytransit.universal_data import universal
 import pytransit.gui_tools as gui_tools
 
 default_label_size = (-1, -1)
@@ -170,7 +170,7 @@ if True:
         ) = define_choice_box(
             panel,
             "Ref Condition:",
-            [ "[None]" ] + universal.session_data.condition_names,
+            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
             "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -193,7 +193,7 @@ if True:
             as_list = wxobj.GetValue().split(",")
             without_empty_strings = [ each for each in as_list if len(each) > 0 ]
             if len(without_empty_strings) == 0:
-                return universal.session_data.condition_names 
+                return [ each.name for each in universal.session_data.conditions ]
             else:
                 return without_empty_strings
         

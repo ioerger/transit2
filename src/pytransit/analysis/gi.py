@@ -557,10 +557,30 @@ if HAS_WX:
 
 
 class GIMethod(base.QuadConditionMethod):
-    """
-    GI
+    usage_string = """python3 %s GI <wigs_for_strA_cond1> <wigs_for_strA_cond2> <wigs_for_strB_cond1> <wigs_for_strB_cond2> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
 
-    """
+        GI performs a comparison among 4 groups of datasets, strain A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
+        It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
+        Provide replicates in each group as a comma-separated list of wig files.
+        HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
+        Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
+        Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+          By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+          Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+
+        Optional Arguments:
+        -s <integer>    :=  Number of samples. Default: -s 10000
+        --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
+        -n <string>     :=  Normalization method. Default: -n TTR
+        -iz             :=  Include rows with zero across conditions.
+        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
+        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+        -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
+        -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
+        -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
+        -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05
+        """ % sys.argv[0]
 
     def __init__(
         self,
@@ -1155,35 +1175,6 @@ class GIMethod(base.QuadConditionMethod):
         else:
             return "N/A"
 
-    @classmethod
-    def usage_string(self):
-        # return """python3 %s GI <comma-separated .wig control files condition A> <comma-separated .wig control files condition B> <comma-separated .wig experimental files condition A> <comma-separated .wig experimental files condition B> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-        return """python3 %s GI <wigs_for_strA_cond1> <wigs_for_strA_cond2> <wigs_for_strB_cond1> <wigs_for_strB_cond2> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-
-        GI performs a comparison among 4 groups of datasets, strain A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
-        It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
-        Provide replicates in each group as a comma-separated list of wig files.
-        HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
-        Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
-        Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-          By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-          Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
-
-        Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -iz             :=  Include rows with zero across conditions.
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
-        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
-        -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
-        -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
-        -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
-        -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05
-        """ % (
-            sys.argv[0]
-        )
 
 
 if __name__ == "__main__":

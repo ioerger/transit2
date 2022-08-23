@@ -21,27 +21,9 @@ import ntpath
 import subprocess
 import os
 import sys
-
 from functools import partial
 
-from pytransit.transit_tools import HAS_WX, wx, listmix
-import pytransit.trash
-
-import wx.grid
-
-import pytransit
-import pytransit.analysis
-
-#########################################
-# menu_titles = [ "Display Histogram",
-#                "Display Tracks",]
-#
-# menu_title_by_id = {}
-# for title in menu_titles:
-#    menu_title_by_id[ wx.NewId() ] = title
-#
-##########################################
-
+from pytransit.transit_tools import wx
 
 class ImgFrame(wx.Frame):
     def __init__(self, parent, filePath):

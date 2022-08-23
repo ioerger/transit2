@@ -184,7 +184,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
                 self.ctrldata[0]
             )
         else:
-            (fulldata, position) = tnseq_tools.get_data(self.ctrldata)
+            (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(self.ctrldata)
         (fulldata, factors) = norm_tools.normalize_data(
             fulldata, self.normalization, self.ctrldata, self.annotation_path
         )
@@ -256,9 +256,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
     #
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python %s export mean_counts <comma-separated .wig files>|<combined_wig> <annotation .prot_table> <output file> [-c]\n note: append -c if inputing a combined_wig file\n"""
             % (sys.argv[0])
         )

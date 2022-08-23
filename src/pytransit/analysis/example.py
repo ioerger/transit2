@@ -69,10 +69,7 @@ class GUI(base.AnalysisGUI):
 
 
 class Method(base.SingleConditionMethod):
-    """   
-    Example
- 
-    """
+    usage_string = """python3 %s example <comma-separated .wig files> <annotation .prot_table> <output file>""" % (sys.argv[0])
 
     def __init__(
         self,
@@ -276,12 +273,7 @@ class Method(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished Example Method")
 
-    @classmethod
-    def usage_string(self):
-        return (
-            """python3 %s example <comma-separated .wig files> <annotation .prot_table> <output file>"""
-            % (sys.argv[0])
-        )
+    
 
 
 if __name__ == "__main__":

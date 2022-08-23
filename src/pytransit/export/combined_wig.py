@@ -135,7 +135,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
         if len(args) != 3:  # wigs prot_table output
             print("Error: Incorrect number of args. See usage")
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
 
         ctrldata = args[0].split(",")
@@ -167,7 +167,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
         # Get orf data
         transit_tools.log("Getting Data")
-        (fulldata, position) = tnseq_tools.get_data(self.ctrldata)
+        (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(self.ctrldata)
         (fulldata, factors) = norm_tools.normalize_data(
             fulldata, self.normalization, self.ctrldata, self.annotation_path
         )
@@ -242,9 +242,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
     #
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python %s export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]\ndefault normalization_method=TTR"""
             % (sys.argv[0])
         )

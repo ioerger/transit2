@@ -1,26 +1,8 @@
 import sys
+import traceback
 
-import pytransit
-from pytransit import transit_tools
-from pytransit.transit_tools import HAS_WX, pub, GenBitmapTextButton, wx
-import pytransit.analysis
-import pytransit.export
-import pytransit.convert
-
-methods = pytransit.analysis.methods
-export_methods = pytransit.export.methods
-convert_methods = pytransit.convert.methods
-all_methods = {}
-all_methods.update(methods)
-
-wildcard = "Python source (*.py)|*.py|" "All files (*.*)|*.*"
-transit_prefix = "[TRANSIT]"
-
-
-def run_main():
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
-    main(*args, **kwargs)
-
+import pytransit.console_tools as console_tools
+from pytransit.universal_data import universal
 
 def main(*args, **kwargs):
     # 
@@ -34,120 +16,164 @@ def main(*args, **kwargs):
     # parse args
     # 
     if True:
-        # If no arguments, show GUI:
+        # 
+        # extract debug value
+        # 
         DEBUG = "--debug" in sys.argv
         if DEBUG:
             sys.argv.remove("--debug")
             kwargs.pop("-debug")
-
+        
+        # 
+        # version command
+        # 
         if not args and ("v" in kwargs or "-version" in kwargs):
+            import pytransit
             print("Version: {0}".format(pytransit.__version__))
             sys.exit(0)
         
+        # 
+        # help command
+        # 
         if not args and ("h" in kwargs or "-help" in kwargs):
-            print("For commandline mode, please use one of the known methods (or see documentation to add a new one):")
-            print("Analysis methods: ")
-            for m in all_methods:
-                ## TODO :: Move normalize to separate subcommand?
-                if m == "normalize":
-                    continue
-                print("\t - %s" % m)
-            print("Other functions: ")
-            print("\t - normalize")
-            print("\t - convert")
-            print("\t - export")
-            print("Usage: python %s <method>" % sys.argv[0])
+            print_help()
             sys.exit(0)
-        
+    
     # 
     # GUI Mode
     # 
-    if not (args or kwargs) and HAS_WX:
+    if not (args or kwargs):
+        universal.interface = "gui"
+        # Tried GUI but no wxPython
+        if not console_tools.check_if_has_wx():
+            print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
+            print("")
+            print_help()
+        # WX is available
+        else:
+            import matplotlib
+            import matplotlib.pyplot
+            import pytransit.transit_gui as transit_gui
+            import wx
 
-        import matplotlib
+            matplotlib.use("WXAgg")
 
-        matplotlib.use("WXAgg")
-        import matplotlib.pyplot
-        import pytransit.transit_gui as transit_gui
+            print("Running in GUI Mode")
+            app = wx.App(False)
 
-        transit_tools.log("Running in GUI Mode")
-        app = wx.App(False)
+            # create an object of CalcFrame
+            frame = transit_gui.TnSeekFrame(None, DEBUG)
+            # show the frame
+            frame.Show(True)
+            frame.Maximize(True)
 
-        # create an object of CalcFrame
-        frame = transit_gui.TnSeekFrame(None, DEBUG)
-        # show the frame
-        frame.Show(True)
-        frame.Maximize(True)
-
-        # start the applications
-        app.MainLoop()
-    
-    # 
-    # Tried GUI but no wxPython
-    # 
-    elif not (args or kwargs) and not HAS_WX:
-        print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
-        print("")
-        print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
-        for m in methods:
-            print("\t - %s" % m)
+            # start the applications
+            app.MainLoop()
     # 
     # Console mode
     # 
     else:
+        universal.interface = "console"
         import matplotlib
-
+        from pytransit.analysis import methods as analysis_methods
+        from pytransit.export   import methods as export_methods
+        from pytransit.convert  import methods as convert_methods
+        
+        def run(method, args):
+            setup_object = None
+            try:
+                setup_object = method.from_args(args)
+            # dont show traceback for invalid argument errors
+            except console_tools.InvalidArgumentException as error:
+                print("Error: %s" % str(error))
+                print(method.usage_string)
+                sys.exit(1)
+            # show traceback and usage for all other kinds of errors
+            except Exception as error:
+                print("Error: %s" % str(error))
+                traceback.print_exc()
+                print(method.usage_string)
+                sys.exit(1)
+            
+            if setup_object:
+                setup_object.Run()
+                sys.exit(0)
+        
+        def check_if_missing(kind, selected_name, methods):
+            if selected_name not in methods:
+                print(f"Error: Need to specify the {kind} method.")
+                print(f"Please use one of the known methods (or see documentation to add a new one):")
+                for each_export_method in methods:
+                    print(f"\t - {each_export_method}")
+                print(f"Usage: python {sys.argv[0]} {kind} <method>")
+                sys.exit(1)
+        
         matplotlib.use("Agg")
-        method_name = args[0]
-        if method_name not in all_methods:
-            if method_name.lower() == "export":
-                export_method_name = ""
-                if len(args) > 1:
-                    export_method_name = args[1]
-
-                if export_method_name not in export_methods:
-                    print("Error: Need to specify the export method.")
-                    print(
-                        "Please use one of the known methods (or see documentation to add a new one):"
-                    )
-                    for m in export_methods:
-                        print("\t - %s" % m)
-                    print("Usage: python %s export <method>" % sys.argv[0])
-                else:
-                    methodobj = export_methods[export_method_name].method.fromconsole()
-                    methodobj.Run()
-            elif method_name.lower() == "convert":
-                convert_method_name = ""
-                if len(args) > 1:
-                    convert_method_name = args[1]
-
-                if convert_method_name not in convert_methods:
-                    print("Error: Need to specify the convert method.")
-                    print(
-                        "Please use one of the known methods (or see documentation to add a new one):"
-                    )
-                    for m in convert_methods:
-                        print("\t - %s" % m)
-                    print("Usage: python %s convert <method>" % sys.argv[0])
-                else:
-                    methodobj = convert_methods[
-                        convert_method_name
-                    ].method.fromconsole()
-                    methodobj.Run()
-            else:
-                print("Error: The '%s' method is unknown." % method_name)
-                print(
-                    "Please use one of the known methods (or see documentation to add a new one):"
-                )
-                for m in all_methods:
-                    print("\t - %s" % m)
-                print("Usage: python %s <method>" % sys.argv[0])
+        method_name, *args = args
+        # 
+        # Analysis
+        # 
+        if method_name in analysis_methods:
+            run(
+                method=analysis_methods[method_name].method,
+                args=args,
+            )
+        
+        # 
+        # Export
+        # 
+        if method_name.lower() == "export":
+            export_method_name = ""
+            if len(args) > 1:
+                export_method_name, *args = args
+            check_if_missing(kind="export", selected_name=export_method_name, methods=export_methods)
+            run(
+                method=export_methods[export_method_name].method,
+                args=args[1:],  # skip the first argument for some reason
+            )
+        # 
+        # Convert
+        # 
+        elif method_name.lower() == "convert":
+            convert_method_name = ""
+            if len(args) > 1:
+                convert_method_name = args[1]
+            
+            check_if_missing(kind="convert", selected_name=convert_method_name, methods=convert_methods)
+            run(
+                method=export_methods[export_method_name].method,
+                args=args,
+            )
+        # 
+        # Error
+        # 
         else:
+            print(f"Error: The '{method_name}' method is unknown.")
+            print("Please use one of the known methods (or see documentation to add a new one):")
+            for each_method_name in analysis_methods:
+                print("\t - %s" % each_method_name)
+            print(f"Usage: python {sys.argv[0]} <method>")
 
-            methodobj = all_methods[method_name].method.fromconsole()
-            methodobj.Run()
+def run_main():
+    from pytransit.console_tools import clean_args
+    (args, kwargs) = clean_args(sys.argv[1:])
+    main(*args, **kwargs)
 
-
+def print_help():
+    from pytransit.analysis import methods as analysis_methods
+    print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
+    print("Analysis methods: ")
+    for each_analysis_method in analysis_methods:
+        ## TODO :: Move normalize to separate subcommand?
+        if each_analysis_method == "normalize":
+            continue
+        print(f"    - {each_analysis_method}")
+    print("Other methods: ")
+    print("    - normalize")
+    print("    - convert")
+    print("    - export")
+    print(f"Usage: python {sys.argv[0]} <method>")
+    print(f"Example: python {sys.argv[0]} normalize --help")
+        
 if __name__ == "__main__":
     main()
-    sys.exit(1)

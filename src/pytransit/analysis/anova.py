@@ -5,21 +5,12 @@ import ntpath
 import math
 import random
 import datetime
-import heapq
 import collections
+import heapq
 
 import numpy
-import scipy
-import scipy.stats
-import heapq
-import math
-import statsmodels.stats.multitest
 from super_map import LazyDict
 
-from pytransit.analysis import base
-from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.analysis import base
-import pytransit
 import pytransit.gui_tools as gui_tools
 import pytransit.file_display as file_display
 import pytransit.transit_tools as transit_tools
@@ -28,7 +19,8 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
-from pytransit.core_data import universal
+from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
@@ -36,7 +28,7 @@ from pytransit.components.panel_helpers import make_panel, create_run_button, cr
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "#Anova"
+    identifier  = "Anova"
     short_name  = "anova"
     long_name   = "ANOVA"
     short_desc  = "Perform Anova analysis"
@@ -150,9 +142,9 @@ class Analysis:
             # 
             # get wig files
             # 
-            wig_group = universal.session_data.wig_groups[0]
-            Analysis.inputs.combined_wig = wig_group.cwig.path
-            Analysis.inputs.metadata     = wig_group.metadata.path
+            combined_wig = universal.session_data.combined_wigs[0]
+            Analysis.inputs.combined_wig = combined_wig.main_path
+            Analysis.inputs.metadata     = combined_wig.metadata.path
             
             # 
             # get annotation
@@ -208,7 +200,7 @@ class Analysis:
         Analysis.inputs.update(dict(
             combined_wig=combined_wig,
             metadata=metadata,
-            annotation=annotation_path,
+            annotation_path=annotation_path,
             normalization=normalization,
             output_path=output_path,
             
@@ -252,13 +244,13 @@ class Analysis:
             Gene :: {start, end, rv, gene, strand}
             Condition :: String
         """
-        MeansByRv = {}
+        means_by_rv = {}
         for gene in genes:
             Rv = gene["rv"]
-            MeansByRv[Rv] = self.means_by_condition_for_gene(
+            means_by_rv[Rv] = self.means_by_condition_for_gene(
                 RvSiteindexesMap[Rv], conditions, data
             )
-        return MeansByRv
+        return means_by_rv
 
     def group_by_condition(self, wig_list, conditions):
         """
@@ -279,7 +271,7 @@ class Analysis:
             [numpy.array(v).flatten() for v in countsByCondition.values()],
         )
 
-    def calculate_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
+    def calculate_anova(self, data, genes, means_by_rv, RvSiteindexesMap, conditions):
         """
             Runs Anova (grouping data by condition) and returns p and q values
             ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
@@ -289,6 +281,10 @@ class Analysis:
             SiteIndex: Integer
             Condition :: String
         """
+        import scipy
+        import scipy.stats
+        import statsmodels.stats.multitest
+        
         count = 0
 
         MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
@@ -346,16 +342,14 @@ class Analysis:
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)
         qvals = numpy.full(pvals.shape, numpy.nan)
-        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[
-            1
-        ]  # BH, alpha=0.05
+        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[1]  # BH, alpha=0.05
 
         msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
         for i,rv in enumerate(Rvs):
           msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
         return (msr, mse, f, p, q, statusMap)
 
-    def calc_lf_cs(self, means, refs=[], pseudocount=1):
+    def calc_lfcs(self, means, refs=[], pseudocount=1):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
         grandmean = numpy.mean(refs)
@@ -417,47 +411,82 @@ class Analysis:
                 RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
                     genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
                 )
-                MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
+                means_by_rv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
                 transit_tools.log("Running Anova")
                 MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
-                    data, genes, MeansByRv, RvSiteindexesMap, conditions
+                    data, genes, means_by_rv, RvSiteindexesMap, conditions
                 )
             
             # 
             # write output
             # 
-            transit_tools.log(f"Adding File: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
             if True:
-                file = open(self.inputs.output_path, "w")
+                transit_tools.log(f"Adding File: {self.inputs.output_path}")
                 
-                heads = (
-                    "Rv Gene TAs".split() +
-                    ["Mean_%s" % x for x in conditions_list] +
-                    ["LFC_%s" % x for x in conditions_list] +
-                    "MSR MSE+alpha Fstat Pval Padj".split() + 
-                    ["status"]
-                )
-                file.write(Analysis.identifier+"\n")
-                file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-                file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.inputs.normalization,self.inputs.n_terminus,self.inputs.c_terminus,self.inputs.pseudocount,self.inputs.alpha))
-                file.write('#'+'\t'.join(heads)+EOL)
+                # 
+                # generate rows
+                # 
+                rows = []
                 for gene in genes:
-                    Rv = gene["rv"]
-                    if Rv in MeansByRv:
-                        means = [MeansByRv[Rv][c] for c in conditions_list]
-                        refs = [MeansByRv[Rv][c] for c in self.inputs.refs]
-                        LFCs = self.calc_lf_cs(means,refs,self.inputs.pseudocount)
-                        vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
-                                ["%0.2f" % x for x in means] + 
-                                ["%0.3f" % x for x in LFCs] + 
-                                ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
-                        file.write('\t'.join(vals)+EOL)
-                file.close()
+                    each_rv = gene["rv"]
+                    if each_rv in means_by_rv:
+                        means = [ means_by_rv[each_rv][condition_name] for condition_name in conditions_list]
+                        refs  = [ means_by_rv[each_rv][ref_condition ] for ref_condition in self.inputs.refs]
+                        lfcs = self.calc_lfcs(means, refs, self.inputs.pseudocount)
+                        rows.append(
+                            [
+                                each_rv,
+                                gene["gene"],
+                                str(len(RvSiteindexesMap[each_rv])),
+                            ] + [
+                                "%0.2f" % x for x in means
+                            ] + [
+                                "%0.3f" % x for x in lfcs
+                            ] +  [
+                                "%f" % x for x in [MSR[each_rv], MSE[each_rv], Fstats[each_rv], pvals[each_rv], qvals[each_rv]]
+                            ] + [
+                                run_status[each_rv]
+                            ]
+                        )
                 
+                column_names = [
+                    "Rv",
+                    "Gene",
+                    "TAs",
+                    *[
+                        f"Mean_{condition_name}" for condition_name in conditions_list
+                    ],
+                    *[
+                        f"LFC_{condition_name}" for condition_name in conditions_list
+                    ],
+                    "MSR",
+                    "MSE+alpha",
+                    "Fstat",
+                    "Pval",
+                    "Padj",
+                    "status"
+                ]
+                
+                # TODO: make summary stats here
+                
+                # 
+                # write to file
+                # 
+                csv.write(
+                    path=self.inputs.output_path,
+                    seperator="\t",
+                    comments=[
+                        Analysis.identifier, # identifier always comes first
+                        f"Console: python3 {' '.join(sys.argv)}",
+                        f"parameters: normalization={self.inputs.normalization}, trimming={self.inputs.n_terminus}/{self.inputs.c_terminus}% (N/C), pseudocounts={self.inputs.pseudocount}, alpha={self.inputs.alpha}",
+                        "\t".join(column_names) # column names always last
+                    ],
+                    rows=rows,
+                )
                 transit_tools.log("Finished Anova analysis")
-                transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+                transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")
+            results_area.add(self.inputs.output_path)
 
 @transit_tools.ResultsFile
 class File(Analysis):
@@ -466,7 +495,7 @@ class File(Analysis):
         with open(path) as in_file:
             for line in in_file:
                 if line.startswith("#"):
-                    if line.startswith(Analysis.identifier):
+                    if line.startswith('#'+Analysis.identifier):
                         return True
                 else:
                     return False

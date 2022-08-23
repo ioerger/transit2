@@ -258,10 +258,15 @@ class HMMGUI(base.AnalysisGUI):
 
 
 class HMMMethod(base.SingleConditionMethod):
-    """   
-    HMM
- 
-    """
+    usage_string = """python3 %s hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
+
+        Optional Arguments:
+            -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
+            -n <string>     :=  Normalization method. Default: -n TTR
+            -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
+            -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+        """ % sys.argv[0]
 
     def __init__(
         self,
@@ -591,20 +596,6 @@ class HMMMethod(base.SingleConditionMethod):
         results_area.add(self.output.name)
         self.finish()
         transit_tools.log("Finished HMM Method")
-
-    @classmethod
-    def usage_string(self):
-        return """python3 %s hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
-
-        Optional Arguments:
-            -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
-            -n <string>     :=  Normalization method. Default: -n TTR
-            -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
-            -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-            -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        """ % (
-            sys.argv[0]
-        )
 
     def forward_procedure(self, A, B, PI, O):
         T = len(O)

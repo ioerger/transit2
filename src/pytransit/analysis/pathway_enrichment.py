@@ -1,31 +1,21 @@
-import pytransit.components.results_area as results_area
-import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
-
-import os
-import time
-import math
-import random
-import numpy
-import scipy.stats
-from scipy.stats import norm
+import copy
 import datetime
+import io
+import math
 import operator
+import os
+import random
+import sys
+import time
+
+import numpy
 
 from pytransit.analysis import base
+import pytransit.components.results_area as results_area
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
-
-import io
-from scipy.stats import hypergeom
-import copy
-from statsmodels.stats import multitest
-
-# from datetime import datetime
-import math
 
 ############# Description ##################
 
@@ -80,6 +70,21 @@ class PathwayGUI(base.AnalysisGUI):
 
 
 class PathwayMethod(base.AnalysisMethod):
+    usage_string = """python3 %s pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+
+        Optional parameters:
+        -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
+        -Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
+        -Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
+        for GSEA...
+        -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
+        -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+        -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+        -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        for FET...
+        -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
+        """ % sys.argv[0]
+    
     def __init__(
         self,
         resamplingFile,
@@ -142,7 +147,7 @@ class PathwayMethod(base.AnalysisMethod):
 
         if method not in "FET GSEA ONT".split():
             print("error: method %s not recognized" % method)
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
 
         return self(
@@ -158,25 +163,6 @@ class PathwayMethod(base.AnalysisMethod):
             Pval_col=Pval_col,
             Qval_col=Qval_col,
             LFC_col=LFC_col,
-        )
-
-    @classmethod
-    def usage_string(self):
-        return """python3 %s pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
-
-Optional parameters:
- -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
- -Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
- -Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
- for GSEA...
- -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
- -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
- -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
- -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
- for FET...
- -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
-""" % (
-            sys.argv[0]
         )
 
     def Run(self):
@@ -287,6 +273,7 @@ Optional parameters:
     # during initialization, self.resamplingFile etc have been set, and self.output has been opened
 
     def GSEA(self):
+        from statsmodels.stats import multitest
         data, hits, headers = self.read_resampling_file(
             self.resamplingFile
         )  # hits are not used in GSEA()
@@ -441,10 +428,10 @@ Optional parameters:
     # N = sample size (resampling hits)
     # k = number of hits in category (intersection)
 
-    def hypergeometric(self, k, M, n, N):
-        return hypergeom.sf(k, M, n, N)
-
     def fisher_exact_test(self):
+        import scipy.stats
+        from statsmodels.stats import multitest
+        
         genes, hits, headers = self.read_resampling_file(
             self.resamplingFile
         )  # use self.Qval_col to determine hits
@@ -499,7 +486,7 @@ Optional parameters:
             )  # add same proportion to overall, round it
             expected = round((N * n / float(M)), 2)
             enrichment = round((k + pseudocount) / (expected + pseudocount), 3)
-            pval = self.hypergeometric(k_pseudocount, M, n_pseudocount, N)
+            pval = scipy.stats.hypergeom.sf(k_pseudocount, M, n_pseudocount, N)
             results.append([term, M, n, N, k, expected, k_pseudocount, n_pseudocount, enrichment, pval])
 
         pvals = [x[-1] for x in results]
@@ -537,6 +524,9 @@ Optional parameters:
     #  annotation with parent-child analysis. Bioinformatics, 23(22):3024-3031.
 
     def Ontologizer(self):
+        import scipy.stats
+        from statsmodels.stats import multitest
+        
         def warning(s):
             sys.stderr.write("%s\n" % s)  # use self.warning? prepend method name?
 

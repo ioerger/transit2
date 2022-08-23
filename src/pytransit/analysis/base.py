@@ -1,14 +1,13 @@
 # __all__ = []
 import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, WX_VERSION
-
 import traceback
 import datetime
+
 import numpy
+
 import pytransit.transit_tools as transit_tools
+from pytransit.transit_tools import wx, pub, WX_VERSION
 from pytransit.components.icon import InfoIcon
-from pytransit.transit_tools import InvalidArgumentException
 
 file_prefix = "[FileDisplay]"
 
@@ -219,50 +218,16 @@ class AnalysisMethod:
 
     @classmethod
     def from_gui(self, wxobj):
-        
         raise NotImplementedError
 
     @classmethod
     def from_args(self, rawargs):
-        
-        raise NotImplementedError
-
-    @classmethod
-    def fromconsole(self):
-        
-        try:
-            return self.from_args(sys.argv[2:])
-        except InvalidArgumentException as e:
-            print("Error: %s" % str(e))
-            print(self.usage_string())
-        except IndexError as e:
-            print("Error: %s" % str(e))
-            print(self.usage_string())
-        except TypeError as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        except ValueError as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        except Exception as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        sys.exit()
-
-    @classmethod
-    def usage_string(self):
-        
         raise NotImplementedError
 
     def Run(self):
-        
         raise NotImplementedError
 
     def print_members(self):
-        
         members = sorted(
             [
                 attr
@@ -274,8 +239,6 @@ class AnalysisMethod:
             print("%s = %s" % (m, getattr(self, m)))
 
     def add_file(self, path=None, filetype=None):
-
-        
         if not path:
             path = self.output.name
         if not filetype:

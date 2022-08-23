@@ -507,9 +507,7 @@ class UTestMethod(base.DualConditionMethod):
         self.finish()
         transit_tools.log("Finished Mann-Whitney U-test Method")
 
-    @classmethod
-    def usage_string(self):
-        return """python3 %s utest <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    usage_string = """python3 %s utest <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
 
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
@@ -517,9 +515,7 @@ class UTestMethod(base.DualConditionMethod):
         -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
         -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
-        """ % (
-            sys.argv[0]
-        )
+        """ % sys.argv[0]
 
 
 if __name__ == "__main__":

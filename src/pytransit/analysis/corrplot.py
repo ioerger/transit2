@@ -151,10 +151,10 @@ class CorrplotMethod(base.SingleConditionMethod):
         
         (args, kwargs) = transit_tools.clean_args(rawargs)
         if kwargs.get("-help", False):
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
         if len(args) < 2:
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
         self.gene_means = args[0]
         self.outfile = args[1]
@@ -247,12 +247,7 @@ dev.off()
         )
         return globalenv["make_corrplot"]
 
-    @classmethod
-    def usage_string(self):
-        return (
-            "usage: python3 %s corrplot <gene_means> <output.png> [-anova|-zinb]"
-            % sys.argv[0]
-        )
+    usage_string = "usage: python3 %s corrplot <gene_means> <output.png> [-anova|-zinb]" % sys.argv[0]
         # could add a flag for padj cutoff (or top n most signif genes)
 
 

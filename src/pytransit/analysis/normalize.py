@@ -71,10 +71,16 @@ class NormalizeGUI(base.AnalysisGUI):
 
 
 class NormalizeMethod(base.SingleConditionMethod):
-    """
-    Norm
+    usage_string = """
+        python3 %s normalize <input.wig> <output.wig> [-n TTR|betageom]
+        ---
+        OR
+        ---
+        python3 %s normalize -c <input combined_wig> <output.wig> [-n TTR|betageom]
 
-    """
+            Optional Arguments:
+            -n <string>     :=  Normalization method. Default: -n TTR
+        """ % (sys.argv[0], sys.argv[0],)
 
     def __init__(self, infile, outfile, normalization):
         ctrldata = [infile]
@@ -106,11 +112,13 @@ class NormalizeMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, rawargs):
+        from pytransit.console_tools import InvalidArgumentException
+        
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         isCombinedWig = "c" in kwargs
         if (not isCombinedWig and len(args) < 2) or (isCombinedWig and len(args) < 1):
-            raise base.InvalidArgumentException("Must provide all necessary arguments")
+            raise InvalidArgumentException("Must provide all necessary arguments")
         if isCombinedWig:
             self.infile = kwargs.get("c")  # only 1 input wig file
             self.outfile = args[0]  # if no arg give, could print to screen
@@ -144,7 +152,7 @@ class NormalizeMethod(base.SingleConditionMethod):
         if self.combined_wig == True:
             (sites, data, files) = tnseq_tools.read_combined_wig(self.ctrldata[0])
         else:
-            (data, sites) = tnseq_tools.get_data(self.ctrldata)
+            (data, sites) = tnseq_tools.CombinedWig.gather_wig_data(self.ctrldata)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
 
         print("writing", outputPath)
@@ -168,23 +176,6 @@ class NormalizeMethod(base.SingleConditionMethod):
 
         self.finish()
         transit_tools.log("Finished Normalization")
-
-    @classmethod
-    def usage_string(self):
-        return """
-python3 %s normalize <input.wig> <output.wig> [-n TTR|betageom]
----
-OR
----
-python3 %s normalize -c <input combined_wig> <output.wig> [-n TTR|betageom]
-
-        Optional Arguments:
-        -n <string>     :=  Normalization method. Default: -n TTR
-        """ % (
-            sys.argv[0],
-            sys.argv[0],
-        )
-
 
 if __name__ == "__main__":
 

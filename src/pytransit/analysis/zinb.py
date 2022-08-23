@@ -1,17 +1,12 @@
-import scipy
-import numpy
-import heapq
-import statsmodels.stats.multitest
-
 import time
 import sys
 import collections
 import functools
+import heapq
 
-from pytransit.transit_tools import DEBUG, EOL, SEPARATOR, HAS_WX, wx, GenBitmapTextButton, pub, HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
+import numpy
 
 from pytransit.analysis import base
-import pytransit
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
@@ -103,6 +98,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
     @classmethod
     def from_args(self, rawargs):
+        from pytransit.transit_tools import DEBUG
         if not HAS_R:
             print("Error: R and rpy2 (~= 3.0) required to run ZINB analysis.")
             print(
@@ -113,7 +109,7 @@ class ZinbMethod(base.MultiConditionMethod):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
-            print(ZinbMethod.usage_string())
+            print(ZinbMethod.usage_string)
             sys.exit(0)
 
         if kwargs.get("v", False):
@@ -154,7 +150,7 @@ class ZinbMethod(base.MultiConditionMethod):
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 self.transit_error("flag unrecognized: %s" % arg)
-                print(ZinbMethod.usage_string())
+                print(ZinbMethod.usage_string)
                 sys.exit(0)
 
         return self(
@@ -267,7 +263,8 @@ class ZinbMethod(base.MultiConditionMethod):
             Condition :: String
             Interaction :: String
         """
-
+        
+        
         ## Group wigfiles by (interaction, condition) pair
         ## {'<interaction>_<condition>': [Wigindexes]}
         groupWigIndexMap = collections.defaultdict(lambda: [])
@@ -342,6 +339,7 @@ class ZinbMethod(base.MultiConditionMethod):
         ]
 
     def def_r_zinb_signif(self):
+        from pytransit.transit_tools import r, globalenv
         r(
             """
             zinb_signif = function(df,
@@ -475,6 +473,8 @@ class ZinbMethod(base.MultiConditionMethod):
             Interaction :: String
             Status :: String
         """
+        from pytransit.transit_tools import DEBUG, DataFrame, IntVector, FloatVector, StrVector
+        import statsmodels.stats.multitest
 
         count = 0
         
@@ -531,9 +531,7 @@ class ZinbMethod(base.MultiConditionMethod):
                     sys.exit(0)
 
             if DEBUG:
-                transit_tools.log(
-                    "======================================================================"
-                )
+                transit_tools.log("======================================================================")
                 transit_tools.log(gene["rv"] + " " + gene["gene"])
 
             if len(RvSiteindexesMap[Rv]) <= 1:
@@ -670,6 +668,7 @@ class ZinbMethod(base.MultiConditionMethod):
             return any_empty
 
     def Run(self):
+        from pytransit.transit_tools import EOL, SEPARATOR, rpackages
         transit_tools.log("Starting ZINB analysis")
         start_time = time.time()
         packnames = ("MASS", "pscl")
@@ -903,9 +902,7 @@ class ZinbMethod(base.MultiConditionMethod):
         transit_tools.log("Finished Zinb analysis")
         transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
-    @classmethod
-    def usage_string(self):
-        return """python3 %s zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+    usage_string = """python3 %s zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
 
         Optional Arguments:
         -n <string>         :=  Normalization method. Default: -n TTR
@@ -922,9 +919,7 @@ class ZinbMethod(base.MultiConditionMethod):
         --prot_table <filename>           := for appending annotations of genes
         --gene <RV number or Gene name>   := Run method for one gene and print model output.
 
-        """ % (
-            sys.argv[0]
-        )
+        """ % sys.argv[0]
 
 
 if __name__ == "__main__":

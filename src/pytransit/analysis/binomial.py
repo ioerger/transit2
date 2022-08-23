@@ -728,9 +728,7 @@ class BinomialMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished Binomial Method")
 
-    @classmethod
-    def usage_string(self):
-        return """python3 %s binomial <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    usage_string = """python3 %s binomial <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
 
         Optional Arguments:
             -s <int>        :=  Number of samples to take. Default: -s 10000
@@ -753,9 +751,7 @@ class BinomialMethod(base.SingleConditionMethod):
             -bw <float>     :=  Hyper-parameters for prior prob of gene being essential. Default: -bw 0.5
 
 
-            """ % (
-            sys.argv[0]
-        )
+            """ % sys.argv[0]
 
 
 if __name__ == "__main__":

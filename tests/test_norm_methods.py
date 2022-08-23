@@ -44,7 +44,7 @@ class TestNormMethods(TransitTestCase):
 
 
     def test_nonorm(self):
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         norm_data,factors = norm_tools.normalize_data(data, "nonorm")
         self.assertTrue((factors == numpy.array([ 1.])).all())
         N = len(all_data_list)
@@ -54,7 +54,7 @@ class TestNormMethods(TransitTestCase):
 
     def test_TTR(self):
         N = len(all_data_list)
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         norm_data,factors = norm_tools.normalize_data(data, "TTR")
         self.assertFalse((factors == numpy.ones(N)).all())
         for k in range(N):

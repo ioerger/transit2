@@ -169,7 +169,7 @@ class IGVMethod(base.SingleConditionMethod):
 
         # Get orf data
         transit_tools.log("Getting Data")
-        (fulldata, position) = tnseq_tools.get_data(self.ctrldata)
+        (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(self.ctrldata)
         (fulldata, factors) = norm_tools.normalize_data(
             fulldata, self.normalization, self.ctrldata, self.annotation_path
         )
@@ -226,9 +226,7 @@ class IGVMethod(base.SingleConditionMethod):
 
     #
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python %s export igv <comma-separated .wig files> <annotation .prot_table> <output file>"""
             % (sys.argv[0])
         )

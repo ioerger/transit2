@@ -30,7 +30,7 @@ columns = ["Position", "Reads", "Genes"]
 ############# Analysis Method ##############
 
 
-class Analysis(base.TransitAnalysis):
+class Export(base.TransitAnalysis):
     def __init__(self):
         base.TransitAnalysis.__init__(
             self,
@@ -107,10 +107,11 @@ class NormMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, rawargs):
+        from pytransit.console_tools import InvalidArgumentException
+        
         (args, kwargs) = transit_tools.clean_args(rawargs)
-
         if len(args) < 3:
-            raise base.InvalidArgumentException("Must provide all necessary arguments")
+            raise InvalidArgumentException("Must provide all necessary arguments")
 
         ctrldata = args[0].split(",")
         annotationPath = args[1]
@@ -152,16 +153,12 @@ class NormMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished Normalization")
 
-    @classmethod
-    def usage_string(self):
-        return """
+    usage_string = """
 python3 %s norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
-        """ % (
-            sys.argv[0]
-        )
+        """ % sys.argv[0]
 
 
 if __name__ == "__main__":

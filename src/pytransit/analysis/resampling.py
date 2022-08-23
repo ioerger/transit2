@@ -434,7 +434,7 @@ class ResamplingMethod(base.DualConditionMethod):
         if isCombinedWig:
             if len(args) != 5:
                 print("Error: Incorrect number of args. See usage")
-                print(self.usage_string())
+                print(self.usage_string)
                 sys.exit(0)
             combinedWigParams = {
                 "combined_wig": kwargs.get("c"),
@@ -449,7 +449,7 @@ class ResamplingMethod(base.DualConditionMethod):
         else:
             if len(args) != 4:
                 print("Error: Incorrect number of args. See usage")
-                print(self.usage_string())
+                print(self.usage_string)
                 sys.exit(0)
             ctrldata = args[0].split(",")
             expdata = args[1].split(",")
@@ -475,7 +475,7 @@ class ResamplingMethod(base.DualConditionMethod):
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
                 self.transit_error("flag unrecognized: %s" % arg)
-                print(ZinbMethod.usage_string())
+                print(ZinbMethod.usage_string)
                 sys.exit(0)
 
         normalization = kwargs.get("n", "TTR")
@@ -1015,9 +1015,7 @@ class ResamplingMethod(base.DualConditionMethod):
 
         return (data, qval)
 
-    @classmethod
-    def usage_string(self):
-        return """
+    usage_string = """
         python3 %s resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
         ---
         OR

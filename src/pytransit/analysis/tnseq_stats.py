@@ -111,7 +111,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False):
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
 
         self.wigs = args
@@ -119,7 +119,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
         self.combined_wig = kwargs.get("c", None)
 
         if self.combined_wig == None and len(self.wigs) == 0:
-            print(self.usage_string())
+            print(self.usage_string)
             sys.exit(0)
 
         return self(self.wigs, outfile=self.outfile)
@@ -141,7 +141,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
 
         datasets = self.wigs
         if self.combined_wig == None:
-            (data, sites) = tnseq_tools.get_data(self.wigs)
+            (data, sites) = tnseq_tools.CombinedWig.gather_wig_data(self.wigs)
         else:
             (sites, data, datasets) = tnseq_tools.read_combined_wig(self.combined_wig)
 
@@ -191,9 +191,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished TnseqStats")
 
-    @classmethod
-    def usage_string(self):
-        return """usage: python3 %s tnseq_stats <file.wig>+ [-o <output_file>]\n       python %s tnseq_stats -c <combined_wig> [-o <output_file>]
+    usage_string = """usage: python3 %s tnseq_stats <file.wig>+ [-o <output_file>]\n       python %s tnseq_stats -c <combined_wig> [-o <output_file>]
         """ % (
             sys.argv[0],
             sys.argv[0],

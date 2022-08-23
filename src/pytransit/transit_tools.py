@@ -86,6 +86,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.basics.named_list import named_list
+from pytransit.console_tools import clean_args
 
 def write_dat(path, heading, table, eol="\n"):
     if len(heading) != 0:
@@ -184,71 +185,6 @@ def basename(filepath):
 def dirname(filepath):
     return os.path.dirname(os.path.abspath(filepath))
 
-
-def clean_args(rawargs):
-    """Returns a list and a dictionary with positional and keyword arguments.
-
-    -This function assumes flags must start with a "-" and and cannot be a 
-        number (but can include them).
-    
-    -Flags should either be followed by the value they want to be associated 
-        with (i.e. -p 5) or will be assigned a value of True in the dictionary.
-
-    -The dictionary will map flags to the name given minus ONE "-" sign in
-        front. If you use TWO minus signs in the flag name (i.e. --verbose), 
-        the dictionary key will be the name with ONE minus sign in front 
-        (i.e. {"-verbose":True}).
-    
-
-    Arguments:
-        rawargs (list): List of positional/keyword arguments. As obtained from
-                         sys.argv.
-
-    Returns:
-        list: List of positional arguments (i.e. arguments without flags),
-                in order provided.
-        dict: Dictionary mapping flag (key is flag minus the first "-") and
-                their values.
-
-    """
-    args = []
-    kwargs = {}
-    count = 0
-    # Loop through list of arguments
-    while count < len(rawargs):
-        # If the current argument starts with "-", then it's probably a flag
-        if rawargs[count].startswith("-"):
-            # Check if next argument is a number
-            try:
-                temp = float(rawargs[count + 1])
-                nextIsNumber = True
-            except:
-                nextIsNumber = False
-
-            stillNotFinished = count + 1 < len(rawargs)
-            if stillNotFinished:
-                nextIsNotArgument = not rawargs[count + 1].startswith("-")
-                nextLooksLikeList = len(rawargs[count + 1].split(" ")) > 1
-            else:
-                nextIsNotArgument = True
-                nextLooksLikeList = False
-
-            # If still things in list, and they look like arguments to a flag, add them to dict
-            if stillNotFinished and (
-                nextIsNotArgument or nextLooksLikeList or nextIsNumber
-            ):
-                kwargs[rawargs[count][1:]] = rawargs[count + 1]
-                count += 1
-            # Else it's a flag but without arguments/values so assign it True
-            else:
-                kwargs[rawargs[count][1:]] = True
-        # Else, it's probably a positional arguement without flags
-        else:
-            args.append(rawargs[count])
-        count += 1
-    return (args, kwargs)
-
-
 def getTabTableData(path, colnames):
     
     row = 0
@@ -278,7 +214,7 @@ def show_error_dialog(message):
     dial.ShowModal()
 
 
-def log(message, *args):
+def log(message, *args, **kwargs):
     import inspect
     import os
     message = f"{message} "+ " ".join([ f"{each}" for each in args])
@@ -293,7 +229,7 @@ def log(message, *args):
     try: caller_name = caller_frame_info.function
     except Exception as error: pass # sometimes the caller doesn't have a function name (ex: lambda)
     
-    print(f'[{file_name}:{caller_name}()]', message, flush=True)
+    print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
     if HAS_WX:
         import pytransit.gui_tools as gui_tools
         gui_tools.set_status(message)
@@ -468,7 +404,7 @@ def convertToIGV(self, dataset_list, annotationPath, path, normchoice=None):
     if not normchoice:
         normchoice = "nonorm"
 
-    (fulldata, position) = tnseq_tools.get_data(dataset_list)
+    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
         fulldata, normchoice, dataset_list, annotationPath
     )
@@ -511,7 +447,7 @@ def convertToCombinedWig(dataset_list, annotationPath, outputPath, normchoice="n
             
     """
 
-    (fulldata, position) = tnseq_tools.get_data(dataset_list)
+    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
         fulldata, normchoice, dataset_list, annotationPath
     )
@@ -571,7 +507,7 @@ def convertToGeneCountSummary(
             
     """
 
-    (fulldata, position) = tnseq_tools.get_data(dataset_list)
+    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
         fulldata, normchoice, dataset_list, annotationPath
     )
@@ -635,7 +571,7 @@ def get_validated_data(wig_list, wxobj=None):
 
     # Regular file with empty sites
     if status == 0:
-        return tnseq_tools.get_data(wig_list)
+        return tnseq_tools.CombinedWig.gather_wig_data(wig_list)
     # No empty sites, decided to proceed as Himar1
     elif status == 1:
         return tnseq_tools.get_data_w_genome(wig_list, genome)
@@ -644,15 +580,7 @@ def get_validated_data(wig_list, wxobj=None):
         return tnseq_tools.get_data_zero_fill(wig_list)
     # Didn't choose either.... what!?
     else:
-        return tnseq_tools.get_data([])
-
-
-class InvalidArgumentException(Exception):
-    def __init__(self, message):
-
-        # Call the base class constructor with the parameters it needs
-        super(InvalidArgumentException, self).__init__(message)
-
+        return tnseq_tools.CombinedWig.gather_wig_data([])
 
 def get_transposons_text(transposons):
     if len(transposons) == 0:

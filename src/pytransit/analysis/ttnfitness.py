@@ -1,32 +1,21 @@
-import pytransit.components.results_area as results_area
-import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
-
 import os
 import tarfile
 import time
 import math
 import random
-import numpy
 import statistics
-import scipy.stats
-import datetime
-import pandas
 import itertools
-import statsmodels.api as sm
-from sklearn.model_selection import KFold
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
-import statsmodels.stats.multitest
-from sklearn.preprocessing import OneHotEncoder
-from statsmodels.iolib.smpickle import load_pickle
+import sys
+import datetime
+
+import numpy
 
 from pytransit.analysis import base
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
+import pytransit.components.results_area as results_area
 
 ############# Description ##################
 
@@ -187,6 +176,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, rawargs):
+        import statsmodels.api as sm
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
         ctrldata = args[0].split(",")
@@ -231,7 +221,10 @@ class TTNFitnessMethod(base.SingleConditionMethod):
     # read in the fna file as one continous string
 
     def Run(self):
-
+        import pandas
+        import statsmodels.stats.multitest
+        import statsmodels.api as sm
+        
         transit_tools.log("Starting TTNFitness Method")
         start_time = time.time()
 
@@ -715,9 +708,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished TTNFitness Method")
 
-    @classmethod
-    def usage_string(self):
-        return (
+    usage_string = (
             """python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel output file> <output1 file> <output2 file>"""
             % (sys.argv[0])
         )

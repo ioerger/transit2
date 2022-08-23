@@ -35,7 +35,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
-from pytransit.core_data import SessionData, universal
+from pytransit.universal_data import SessionData, universal
 from pytransit.gui_tools import bind_to, rgba, color
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
@@ -281,7 +281,7 @@ class TnSeekFrame(wx.Frame):
             transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
             return
 
-        data, position = tnseq_tools.get_data(datasets_selected)
+        data, position = tnseq_tools.CombinedWig.gather_wig_data(datasets_selected)
         (K, N) = data.shape
         window = 100
         for j in range(K):
