@@ -19,6 +19,7 @@ class SessionData(LazyDict):
 
 universal = LazyDict(
     frame=None,
+    interface=None, # "gui" or "console"
     session_data=SessionData(),
     busy_running_method=False,
 )

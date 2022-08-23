@@ -153,7 +153,7 @@ def add(path):
     
     print(f'''result_object = {result_object}''')
     print(f'''values_for_result_table = {values_for_result_table}''')
-    if HAS_WX:
+    if universal.interface == "gui" and HAS_WX:
         results.table.add(values_for_result_table)
 # 
 # 
