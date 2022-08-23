@@ -1,3 +1,8 @@
+#
+# Custom
+#
+
+
 # 
 # standard
 # 
@@ -8,7 +13,7 @@
 **/*.secret
 **/*.secret.*
 
-# # Mac
+# Mac
 .DS_STORE
 .DS_Store
 .env
