@@ -1,0 +1,5 @@
+defaultFrom = "bf972dc380f36a3bf83db052380e55f0eaa7dcb6"
+
+[config]
+allowUnfree = true
+permittedInsecurePackages = [ "openssl-1.0.2u",]

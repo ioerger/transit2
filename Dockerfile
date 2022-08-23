@@ -1,4 +1,4 @@
-From r-base:3.6.1
+FROM r-base:3.6.1
 RUN apt-get update -y && apt-get install -y -f python3 python-dev python3-pip
 ADD src/ /src
 ADD tests/ /tests

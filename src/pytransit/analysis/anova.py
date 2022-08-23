@@ -1,92 +1,221 @@
-import scipy
-import numpy
-import heapq
-import math
-import statsmodels.stats.multitest
-
-import time
 import sys
+import os
+import time
+import ntpath
+import math
+import random
+import datetime
 import collections
+import heapq
 
-from pytransit.analysis import base
-import pytransit
+import numpy
+from super_map import LazyDict
+
+import pytransit.gui_tools as gui_tools
+import pytransit.file_display as file_display
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
+import pytransit.stat_tools as stat_tools
+import pytransit.basics.csv as csv
+import pytransit.components.results_area as results_area
+from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.universal_data import universal
+from pytransit.components.parameter_panel import panel as parameter_panel
+from pytransit.components.parameter_panel import panel, progress_update
+from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
+command_name = sys.argv[0]
 
-############# GUI ELEMENTS ##################
+class Analysis:
+    identifier  = "Anova"
+    short_name  = "anova"
+    long_name   = "ANOVA"
+    short_desc  = "Perform Anova analysis"
+    long_desc   = """Perform Anova analysis"""
+    transposons = [ "himar1", "tn5" ]
+    
+    inputs = LazyDict(
+        combined_wig=None,
+        metadata=None,
+        annotation=None,
+        normalization=None,
+        output_path=None,
+        
+        excluded_conditions=[],
+        included_conditions=[],
+        n_terminus=0.0,
+        c_terminus=0.0,
+        pseudocount=1,
+        winz=False,
+        refs=[],
+        alpha=1000,
+    )
+    
+    valid_cli_flags = [
+        "-n",
+        "--include-conditions",
+        "--exclude-conditions",
+        "--ref",
+        "-iN",
+        "-iC",
+        "-PC",
+        "-alpha",
+        "-winz",
+    ]
+    usage_string = f"""
+        Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+        Optional Arguments:
+            -n <string>         :=  Normalization method. Default: -n TTR
+            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
+            -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+            -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+    """.replace("\n        ", "\n")
+    
+    
+    wxobj = None
+    panel = None
+    
+    def __init__(self, *args, **kwargs):
+        Analysis.instance = self
+        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
+        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
+        self.filetypes        = [File]
+        self.method           = Analysis # backwards compat
+        self.gui              = self     # backwards compat
+    
+    def __str__(self):
+        return f"""
+            Analysis Method:
+                Short Name:  {self.short_name}
+                Long Name:   {self.long_name}
+                Short Desc:  {self.short_desc}
+                Long Desc:   {self.long_desc}
+                GUI:         {self.gui}
+        """.replace('\n            ','\n').strip()
+    
+    def __repr__(self):
+        return f"{self.inputs}"
 
-short_name = "anova"
-long_name = "anova"
-short_desc = "Perform Anova analysis"
-long_desc = """Perform Anova analysis"""
-EOL = "\n"
+    def define_panel(self, _):
+        self.panel = make_panel()
 
-transposons = ["", ""]
-columns = []
-
-class AnovaAnalysis(base.TransitAnalysis):
-    def __init__(self):
-        base.TransitAnalysis.__init__(self, short_name, long_name, short_desc, long_desc, transposons, AnovaMethod)
-def main():
-    print("ANOVA example")
-
-class AnovaMethod(base.MultiConditionMethod):
-    """
-    anova
-    """
-    def __init__(self, combined_wig, metadata, annotation, normalization, output_file, excluded_conditions=[], included_conditions=[], nterm=0.0, cterm=0.0, PC=5, winz=False, refs=[], alpha=1000):
-        base.MultiConditionMethod.__init__(self, short_name, long_name, short_desc, long_desc, combined_wig, metadata, annotation, output_file,
-                normalization=normalization, excluded_conditions=excluded_conditions, included_conditions=included_conditions, nterm=nterm, cterm=cterm)
-        self.PC = PC
-        self.alpha = alpha
-        self.refs = refs
-        self.winz = winz
+        # 
+        # parameter inputs
+        # 
+        # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+        # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+        # --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+        # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+        # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+        # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
+        # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+        self.value_getters = LazyDict()
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        if True:
+            self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
+            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
+            self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
+            self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
+            self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
+            self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
+            self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
+            self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
+            
+            create_run_button(self.panel, main_sizer)
+            
+        parameter_panel.set_panel(self.panel)
+        self.panel.SetSizer(main_sizer)
+        self.panel.Layout()
+        main_sizer.Fit(self.panel)
 
     @classmethod
-    def transit_error(self,msg): print("error: %s" % msg) # for some reason, transit_error() in base class or transit_tools doesn't work right; needs @classmethod
+    def from_gui(cls, frame):
+        with gui_tools.nice_error_log:
+            # 
+            # get wig files
+            # 
+            combined_wig = universal.session_data.combined_wigs[0]
+            Analysis.inputs.combined_wig = combined_wig.main_path
+            Analysis.inputs.metadata     = combined_wig.metadata.path
+            
+            # 
+            # get annotation
+            # 
+            Analysis.inputs.annotation_path = universal.session_data.annotation_path
+            # FIXME: enable this once I get a valid annotation file example
+            # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
+            #     return None
+            
+            # 
+            # setup custom inputs
+            # 
+            for each_key, each_getter in Analysis.instance.value_getters.items():
+                try:
+                    Analysis.inputs[each_key] = each_getter()
+                except Exception as error:
+                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            # 
+            # save result files
+            # 
+            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+                default_file_name="test1_output.dat",
+                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+            )
+            if not Analysis.inputs.output_path:
+                return None
+
+            return Analysis.instance
 
     @classmethod
-    def fromargs(self, rawargs):
-        (args, kwargs) = transit_tools.cleanargs(rawargs)
+    def from_args(cls, rawargs):
+        (args, kwargs) = transit_tools.clean_args(rawargs)
+        transit_tools.handle_help_flag(kwargs, cls.usage_string)
+        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
 
-        if (kwargs.get('-help', False) or kwargs.get('h', False)):
-            print(AnovaMethod.usage_string())
-            sys.exit(0)
+        combined_wig      = args[0]
+        annotation_path   = args[2]
+        metadata          = args[1]
+        output_path       = args[3]
+        normalization     = kwargs.get("n", "TTR")
+        n_terminus        = float(kwargs.get("iN", 0.0))
+        c_terminus        = float(kwargs.get("iC", 0.0))
+        winz              = "winz" in kwargs
+        pseudocount       = int(kwargs.get("PC", 5))
+        alpha             = float(kwargs.get("alpha", 1000))
+        refs              = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
+        if refs != []: refs = refs.split(",")
+        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
+        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
 
-        combined_wig = args[0]
-        annotation = args[2]
-        metadata = args[1]
-        output_file = args[3]
-        normalization = kwargs.get("n", "TTR")
-        NTerminus = float(kwargs.get("iN", 0.0))
-        CTerminus = float(kwargs.get("iC", 0.0))
-        winz = True if "winz" in kwargs else False
-        PC = int(kwargs.get("PC", 5))
-        alpha = float(kwargs.get("alpha", 1000))
-        refs = kwargs.get("-ref",[]) # list of condition names to use a reference for calculating LFCs
-        if refs!=[]: refs = refs.split(',')
-        excluded_conditions = list(filter(None, kwargs.get("-exclude-conditions", "").split(",")))
-        included_conditions = list(filter(None, kwargs.get("-include-conditions", "").split(",")))
-
-        # check for unrecognized flags
-        flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz -alpha".split()
-        for arg in rawargs:
-          if arg[0]=='-' and arg not in flags:
-            self.transit_error("flag unrecognized: %s" % arg)
-            print(AnovaMethod.usage_string())
-            sys.exit(0)
-
-        return self(combined_wig, metadata, annotation, normalization, output_file, excluded_conditions, included_conditions, NTerminus, CTerminus, PC, winz, refs, alpha)
-
-    def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
-        """
-            Returns list of conditions corresponding to given wigfiles.
-            ({FileName: Condition}, [FileName]) -> [Condition]
-            Condition :: [String]
-        """
-        return [conditionsByFile.get(f, self.unknown_cond_flag) for f in filenamesInCombWig]
-
+        # save all the data
+        Analysis.inputs.update(dict(
+            combined_wig=combined_wig,
+            metadata=metadata,
+            annotation_path=annotation_path,
+            normalization=normalization,
+            output_path=output_path,
+            
+            excluded_conditions=excluded_conditions,
+            included_conditions=included_conditions,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
+            pseudocount=pseudocount,
+            winz=winz,
+            refs=refs,
+            alpha=alpha,
+        ))
+        
+        return Analysis.instance
+        
     def means_by_condition_for_gene(self, sites, conditions, data):
         """
             Returns a dictionary of {Condition: Mean} for each condition.
@@ -99,7 +228,12 @@ class AnovaMethod(base.MultiConditionMethod):
         for i, c in enumerate(conditions):
             wigsByConditions[c].append(i)
 
-        return { c: numpy.mean(self.winsorize(data[wigIndex][:, sites])) if nTASites > 0 else 0 for (c, wigIndex) in wigsByConditions.items() }
+        return {
+            c: numpy.mean(transit_tools.winsorize(data[wigIndex][:, sites]))
+            if nTASites > 0
+            else 0
+            for (c, wigIndex) in wigsByConditions.items()
+        }
 
     def means_by_rv(self, data, RvSiteindexesMap, genes, conditions):
         """
@@ -110,13 +244,15 @@ class AnovaMethod(base.MultiConditionMethod):
             Gene :: {start, end, rv, gene, strand}
             Condition :: String
         """
-        MeansByRv = {}
+        means_by_rv = {}
         for gene in genes:
             Rv = gene["rv"]
-            MeansByRv[Rv] = self.means_by_condition_for_gene(RvSiteindexesMap[Rv], conditions, data)
-        return MeansByRv
+            means_by_rv[Rv] = self.means_by_condition_for_gene(
+                RvSiteindexesMap[Rv], conditions, data
+            )
+        return means_by_rv
 
-    def group_by_condition(self, wigList, conditions):
+    def group_by_condition(self, wig_list, conditions):
         """
             Returns array of datasets, where each dataset corresponds to one condition.
             ([[Wigdata]], [Condition]) -> [[DataForCondition]]
@@ -127,23 +263,15 @@ class AnovaMethod(base.MultiConditionMethod):
         countsByCondition = collections.defaultdict(lambda: [])
         countSum = 0
         for i, c in enumerate(conditions):
-          countSum += numpy.sum(wigList[i])
-          countsByCondition[c].append(wigList[i])
+            countSum += numpy.sum(wig_list[i])
+            countsByCondition[c].append(wig_list[i])
 
-        return (countSum, [numpy.array(v).flatten() for v in countsByCondition.values()])
+        return (
+            countSum,
+            [numpy.array(v).flatten() for v in countsByCondition.values()],
+        )
 
-    # since this is in both ZINB and ANOVA, should move to stat_tools.py?
-
-    def winsorize(self, counts):
-      # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
-      unique_counts = numpy.unique(numpy.concatenate(counts))
-      if (len(unique_counts) < 2): return counts
-      else:
-        n, n_minus_1 = unique_counts[heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)]
-        result = [[ n_minus_1 if count == n else count for count in wig] for wig in counts]
-        return numpy.array(result)
-
-    def run_anova(self, data, genes, MeansByRv, RvSiteindexesMap, conditions):
+    def calculate_anova(self, data, genes, means_by_rv, RvSiteindexesMap, conditions):
         """
             Runs Anova (grouping data by condition) and returns p and q values
             ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
@@ -153,21 +281,28 @@ class AnovaMethod(base.MultiConditionMethod):
             SiteIndex: Integer
             Condition :: String
         """
+        import scipy
+        import scipy.stats
+        import statsmodels.stats.multitest
+        
         count = 0
-        self.progress_range(len(genes))
 
-        MSR,MSE,Fstats,pvals,Rvs,status = [],[],[],[],[],[]
+        MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
         for gene in genes:
             count += 1
             Rv = gene["rv"]
-            if (len(RvSiteindexesMap[Rv]) <= 1):
+            if len(RvSiteindexesMap[Rv]) <= 1:
                 status.append("TA sites <= 1")
                 msr,mse,Fstat,pval = 0,0,-1,1
             else:
-                countSum, countsVec = self.group_by_condition(list(map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)), conditions)
-                if self.winz: countsVec = self.winsorize(countsVec)
+                countSum, countsVec = self.group_by_condition(
+                    list(map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)),
+                    conditions,
+                )
+                if self.inputs.winz:
+                    countsVec = transit_tools.winsorize(countsVec)
 
-                if (countSum == 0):
+                if countSum == 0:
                     msr,mse,Fstat,pval = 0,0,-1,1
                     status.append("No counts in all conditions")
                 else:
@@ -190,7 +325,7 @@ class AnovaMethod(base.MultiConditionMethod):
                     for grp in countsVecAsArrays: msr += grp.size*(numpy.mean(grp)-grandmean)**2/float(dfBetween)
                     for grp,mn in zip(countsVecAsArrays,groupmeans): mse += numpy.sum((grp-mn)**2) 
                     mse /= float(dfWithin)
-                    mse = mse+self.alpha ### moderation
+                    mse = mse+self.inputs.alpha ### moderation
                     Fmod = msr/float(mse)
                     Pmod = scipy.stats.f.sf(Fmod,dfBetween,dfWithin)
                     Fstat,pval = Fmod,Pmod
@@ -201,103 +336,282 @@ class AnovaMethod(base.MultiConditionMethod):
             Rvs.append(Rv)
 
             # Update progress
-            text = "Running Anova Method... %5.1f%%" % (100.0*count/len(genes))
-            self.progress_update(text, count)
+            percentage = 100.0 * count / len(genes)
+            progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)
         qvals = numpy.full(pvals.shape, numpy.nan)
-        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[1] # BH, alpha=0.05
+        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[1]  # BH, alpha=0.05
 
-        msr,mse,f,p,q,statusMap = {},{},{},{},{},{}
+        msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
         for i,rv in enumerate(Rvs):
           msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
         return (msr, mse, f, p, q, statusMap)
 
-    def calcLFCs(self,means,refs=[],PC=5):
-      if len(refs)==0: refs = means # if ref condition(s) not explicitly defined, use mean of all
-      grandmean = numpy.mean(refs)
-      lfcs = [math.log((x+PC)/float(grandmean+PC),2) for x in means]
-      return lfcs
+    def calc_lfcs(self, means, refs=[], pseudocount=1):
+        if len(refs) == 0:
+            refs = means  # if ref condition(s) not explicitly defined, use mean of all
+        grandmean = numpy.mean(refs)
+        lfcs = [math.log((x + pseudocount) / float(grandmean + pseudocount), 2) for x in means]
+        return lfcs
 
     def Run(self):
-        self.transit_message("Starting Anova analysis")
-        start_time = time.time()
+        with gui_tools.nice_error_log:
+            transit_tools.log("Starting Anova analysis")
+            start_time = time.time()
+            
+            # 
+            # get data
+            # 
+            transit_tools.log("Getting Data")
+            if True:
+                sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                
+                transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
+                data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+                
+                if self.inputs.winz: transit_tools.log("Winsorizing insertion counts")
+                conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
+                conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
+                conditions_list = transit_tools.select_conditions(
+                    conditions=conditions,
+                    included_conditions=self.inputs.included_conditions,
+                    excluded_conditions=self.inputs.excluded_conditions,
+                    ordering_metadata=ordering_metadata,
+                )
 
-        self.transit_message("Getting Data")
-        (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(self.combined_wig)
+                condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
 
-        self.transit_message("Normalizing using: %s" % self.normalization)
-        (data, factors) = norm_tools.normalize_data(data, self.normalization)
-        if self.winz: self.transit_message("Winsorizing insertion counts")
+                (
+                    data,
+                    file_names,
+                    condition_names,
+                    conditions,
+                    _,
+                    _,
+                ) = transit_tools.filter_wigs_by_conditions3(
+                    data,
+                    file_names=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
+                    condition_names=condition_names, # original Condition column in samples metadata file
+                    included_cond=self.inputs.included_conditions,
+                    excluded_cond=self.inputs.excluded_conditions,
+                    conditions=condition_names,
+                ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
+                
+                transit_tools.log("reading genes")
+                genes = tnseq_tools.read_genes(self.inputs.annotation_path)
+            
+            # 
+            # process data
+            # 
+            if True:
+                transit_tools.log("processing data")
+                TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
+                RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
+                    genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
+                )
+                means_by_rv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
-        conditionsByFile, _, _, orderingMetadata = tnseq_tools.read_samples_metadata(self.metadata)
-        conditions = self.wigs_to_conditions(
-            conditionsByFile,
-            filenamesInCombWig)
+                transit_tools.log("Running Anova")
+                MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
+                    data, genes, means_by_rv, RvSiteindexesMap, conditions
+                )
+            
+            # 
+            # write output
+            # 
+            if True:
+                transit_tools.log(f"Adding File: {self.inputs.output_path}")
+                
+                # 
+                # generate rows
+                # 
+                rows = []
+                for gene in genes:
+                    each_rv = gene["rv"]
+                    if each_rv in means_by_rv:
+                        means = [ means_by_rv[each_rv][condition_name] for condition_name in conditions_list]
+                        refs  = [ means_by_rv[each_rv][ref_condition ] for ref_condition in self.inputs.refs]
+                        lfcs = self.calc_lfcs(means, refs, self.inputs.pseudocount)
+                        rows.append(
+                            [
+                                each_rv,
+                                gene["gene"],
+                                str(len(RvSiteindexesMap[each_rv])),
+                            ] + [
+                                "%0.2f" % x for x in means
+                            ] + [
+                                "%0.3f" % x for x in lfcs
+                            ] +  [
+                                "%f" % x for x in [MSR[each_rv], MSE[each_rv], Fstats[each_rv], pvals[each_rv], qvals[each_rv]]
+                            ] + [
+                                run_status[each_rv]
+                            ]
+                        )
+                
+                column_names = [
+                    "Rv",
+                    "Gene",
+                    "TAs",
+                    *[
+                        f"Mean_{condition_name}" for condition_name in conditions_list
+                    ],
+                    *[
+                        f"LFC_{condition_name}" for condition_name in conditions_list
+                    ],
+                    "MSR",
+                    "MSE+alpha",
+                    "Fstat",
+                    "Pval",
+                    "Padj",
+                    "status"
+                ]
+                
+                # TODO: make summary stats here
+                
+                # 
+                # write to file
+                # 
+                csv.write(
+                    path=self.inputs.output_path,
+                    seperator="\t",
+                    comments=[
+                        Analysis.identifier, # identifier always comes first
+                        f"Console: python3 {' '.join(sys.argv)}",
+                        f"parameters: normalization={self.inputs.normalization}, trimming={self.inputs.n_terminus}/{self.inputs.c_terminus}% (N/C), pseudocounts={self.inputs.pseudocount}, alpha={self.inputs.alpha}",
+                        "\t".join(column_names) # column names always last
+                    ],
+                    rows=rows,
+                )
+                transit_tools.log("Finished Anova analysis")
+                transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")
+            results_area.add(self.inputs.output_path)
 
-        conditionsList = self.select_conditions(conditions,self.included_conditions,self.excluded_conditions,orderingMetadata)
-
-        conditionNames = [conditionsByFile[f] for f in filenamesInCombWig]
-        fileNames = filenamesInCombWig
+@transit_tools.ResultsFile
+class File(Analysis):
+    @staticmethod
+    def can_load(path):
+        with open(path) as in_file:
+            for line in in_file:
+                if line.startswith("#"):
+                    if line.startswith('#'+Analysis.identifier):
+                        return True
+                else:
+                    return False
+        return False
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Analysis.identifier,
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+            })
+        )
         
-        data, fileNames, conditionNames, conditions, _, _ = self.filter_wigs_by_conditions3( # in base.py
-                data,
-                fileNames, # it looks like fileNames and conditionNames have to be parallel to data (vector of wigs)
-                conditionNames, # original Condition column in samples metadata file
-                self.included_conditions,
-                self.excluded_conditions,
-                conditions = conditionNames) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
+        # 
+        # get column names
+        # 
+        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True)
+        if len(comments) == 0:
+            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
+        self.column_names = comments[-1].split("\t")
+        transit_tools.log(f'''self.column_names = {self.column_names}''')
+        
+        # 
+        # get rows
+        #
+        self.rows = []
+        for each_row in rows:
+            row = {}
+            for each_column_name, each_cell in zip(self.column_names, each_row):
+               row[each_column_name] = each_cell
+            self.rows.append(row)
+        
+    
+    def __str__(self):
+        return f"""
+            File for {self.short_name}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
+    
+    def display_histogram(self, display_frame, event):
+        pass
+        # gene = display_frame.grid.GetCellValue(display_frame.row, 0)
+        # filepath = os.path.join(
+        #     ntpath.dirname(display_frame.path),
+        #     transit_tools.fetch_name(display_frame.path),
+        # )
+        # filename = os.path.join(filepath, gene + ".png")
+        # if os.path.exists(filename):
+        #     imgWindow = pytransit.file_display.ImgFrame(None, filename)
+        #     imgWindow.Show()
+        # else:
+        #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
+        #     print("Error Displaying File. Histogram image does not exist.")
 
-        genes = tnseq_tools.read_genes(self.annotation_path)
+    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
+        if not HAS_R:
+            raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
+        headers = None
+        data, hits = [], []
+        number_of_conditions = -1
 
-        TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
-        RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(genes, TASiteindexMap, nterm=self.NTerminus, cterm=self.CTerminus)
-        MeansByRv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
+        for line in open(infile):
+            w = line.rstrip().split("\t")
+            if line[0] == "#" or (
+                "pval" in line and "padj" in line
+            ):  # check for 'pval' for backwards compatibility
+                headers = w
+                continue  # keep last comment line as headers
+            # assume first non-comment line is header
+            if number_of_conditions == -1:
+                # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
+                number_of_conditions = int((len(w) - 6) / 2)
+                headers = headers[3 : 3 + number_of_conditions]
+                headers = [x.replace("Mean_", "") for x in headers]
+            else:
+                means = [
+                    float(x) for x in w[3 : 3 + number_of_conditions]
+                ]  # take just the columns of means
+                lfcs = [
+                    float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
+                ]  # take just the columns of LFCs
+                each_qval = float(w[-2])
+                data.append((w, means, lfcs, each_qval))
+        
+        data.sort(key=lambda x: x[-1])
+        hits, LFCs = [], []
+        for k, (w, means, lfcs, each_qval) in enumerate(data):
+            if (topk == -1 and each_qval < qval) or (
+                topk != -1 and k < topk
+            ):
+                mm = round(numpy.mean(means), 1)
+                if mm < low_mean_filter:
+                    print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
+                else:
+                    hits.append(w)
+                    LFCs.append(lfcs)
 
-        self.transit_message("Running Anova")
-        MSR,MSE,Fstats,pvals,qvals,run_status = self.run_anova(data, genes, MeansByRv, RvSiteindexesMap, conditions)
-
-        self.transit_message("Adding File: %s" % (self.output))
-        file = open(self.output,"w")
-
-        heads = ("Rv Gene TAs".split() +
-                ["Mean_%s" % x for x in conditionsList] +
-                ["LFC_%s" % x for x in conditionsList] +
-                "MSR MSE+alpha Fstat Pval Padj".split() + ["status"])
-        file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        file.write("#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s, alpha=%s\n" % (self.normalization,self.NTerminus,self.CTerminus,self.PC,self.alpha))
-        file.write('#'+'\t'.join(heads)+EOL)
-        for gene in genes:
-            Rv = gene["rv"]
-            if Rv in MeansByRv:
-              means = [MeansByRv[Rv][c] for c in conditionsList]
-              refs = [MeansByRv[Rv][c] for c in self.refs]
-              LFCs = self.calcLFCs(means,refs,self.PC)
-              vals = ([Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))] +
-                      ["%0.2f" % x for x in means] + 
-                      ["%0.3f" % x for x in LFCs] + 
-                      ["%f" % x for x in [MSR[Rv], MSE[Rv], Fstats[Rv], pvals[Rv], qvals[Rv]]] + [run_status[Rv]])
-              file.write('\t'.join(vals)+EOL)
-        file.close()
-        self.transit_message("Finished Anova analysis")
-        self.transit_message("Time: %0.1fs\n" % (time.time() - start_time))
-
-    @classmethod
-    def usage_string(self):
-        usage =  """Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
- Optional Arguments:
-  -n <string>         :=  Normalization method. Default: -n TTR
-  --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-  --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-  --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-  -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-  -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-  -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
-  -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-  -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)"""
-        return usage
-
-if __name__ == "__main__":
-    main()
-
+        print("heatmap based on %s genes" % len(hits))
+        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
+        hash = {}
+        headers = [h.replace("Mean_", "") for h in headers]
+        for i, col in enumerate(headers):
+            hash[col] = FloatVector([x[i] for x in LFCs])
+        df = DataFrame(hash)
+        transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
+        
+        # add it as a result
+        results_area.add(output_path)
+        gui_tools.show_image(output_path)
+    
+Method = GUI = Analysis
+Analysis() # make sure there's one instance

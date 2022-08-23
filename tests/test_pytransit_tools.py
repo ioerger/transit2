@@ -20,7 +20,7 @@ class TestTnSeqTools(TransitTestCase):
 
 
     def test_read_data(self):
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         K,N = data.shape
 
         self.assertEqual(K, 5)
@@ -44,7 +44,7 @@ class TestTnSeqTools(TransitTestCase):
 
 
     def test_genes_creation_fromdata(self):
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         Kreps,Nsites = data.shape
         G = tnseq_tools.Genes([], annotation, data=data, position=position)
         N = len(G)
@@ -72,50 +72,50 @@ class TestTnSeqTools(TransitTestCase):
 
     def test_normalization(self):
         N = len(all_data_list)
-        data,position = tnseq_tools.get_data(all_data_list)
+        data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         norm_data,factors = norm_tools.normalize_data(data, "TTR")
         self.assertFalse((factors == numpy.ones(N)).all())
 
 #
 
-    def test_cleanargs_negative_arguments(self):
+    def test_clean_args_negative_arguments(self):
         TEST_RAWARGS = ["test", "-p", "-10"]
-        args, kwargs = transit_tools.cleanargs(TEST_RAWARGS)
+        args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(int(kwargs.get("p",0)), -10)
 
 #
 
-    def test_cleanargs_flag_without_arguments(self):
+    def test_clean_args_flag_without_arguments(self):
         TEST_RAWARGS = ["test", "-p"]
-        args, kwargs = transit_tools.cleanargs(TEST_RAWARGS)
+        args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertTrue(kwargs.get("p",False))
 
 #
 
-    def test_cleanargs_positional_arguments(self):
+    def test_clean_args_positional_arguments(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "e"]
-        args, kwargs = transit_tools.cleanargs(TEST_RAWARGS)
+        args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(args, ["a", "b", "c", "e"])
 
 #
 
-    def test_cleanargs_positional_arguments_w_quotes(self):
+    def test_clean_args_positional_arguments_w_quotes(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "test this"]
-        args, kwargs = transit_tools.cleanargs(TEST_RAWARGS)
+        args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(args, ["a", "b", "c", "test this"])
 
 #
 
-    def test_cleanargs_flag_arguments_w_quotes(self):
+    def test_clean_args_flag_arguments_w_quotes(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "-p", "test this"]
-        args, kwargs = transit_tools.cleanargs(TEST_RAWARGS)
+        args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(kwargs.get("p"), "test this")
 
 #
 
-    def test_cleanargs_flag_arguments_with_double_dash(self):
+    def test_clean_args_flag_arguments_with_double_dash(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "--p", "test this"]
-        args, kwargs = transit_tools.cleanargs(TEST_RAWARGS)
+        args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertFalse("p" in kwargs)
         self.assertFalse("--p" in kwargs)
         self.assertTrue("-p" in kwargs)
