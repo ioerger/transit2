@@ -17,4 +17,4 @@ methods = {}
 methods["combined_wig"] = combined_wig.CombinedWigExport()
 methods["igv"] = igv.IGVExport()
 methods["mean_counts"] = mean_counts.MeanCountsExport()
-methods["norm"] = norm.Export()
+#methods["norm"] = norm.Export()
