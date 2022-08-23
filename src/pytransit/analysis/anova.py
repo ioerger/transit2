@@ -5,21 +5,12 @@ import ntpath
 import math
 import random
 import datetime
-import heapq
 import collections
+import heapq
 
 import numpy
-import scipy
-import scipy.stats
-import heapq
-import math
-import statsmodels.stats.multitest
 from super_map import LazyDict
 
-from pytransit.analysis import base
-from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.analysis import base
-import pytransit
 import pytransit.gui_tools as gui_tools
 import pytransit.file_display as file_display
 import pytransit.transit_tools as transit_tools
@@ -28,6 +19,7 @@ import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
+from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.core_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
@@ -289,6 +281,10 @@ class Analysis:
             SiteIndex: Integer
             Condition :: String
         """
+        import scipy
+        import scipy.stats
+        import statsmodels.stats.multitest
+        
         count = 0
 
         MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
@@ -346,9 +342,7 @@ class Analysis:
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)
         qvals = numpy.full(pvals.shape, numpy.nan)
-        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[
-            1
-        ]  # BH, alpha=0.05
+        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[1]  # BH, alpha=0.05
 
         msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
         for i,rv in enumerate(Rvs):

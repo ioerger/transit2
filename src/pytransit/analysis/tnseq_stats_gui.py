@@ -9,30 +9,20 @@ import heapq
 import collections
 
 import numpy
-import scipy
-import scipy.stats
-import heapq
-import math
-import statsmodels.stats.multitest
 from super_map import LazyDict
 
-from pytransit.analysis import base
-from pytransit.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.analysis import base
-import pytransit
+from pytransit.core_data import universal
+from pytransit.components.parameter_panel import panel as parameter_panel
+from pytransit.components.parameter_panel import progress_update
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
+from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.gui_tools as gui_tools
-import pytransit.file_display as file_display
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
-from pytransit.core_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
-from pytransit.components.parameter_panel import panel, progress_update
-from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
 
 command_name = sys.argv[0]
 
@@ -83,6 +73,7 @@ class Analysis:
         return f"{self.inputs}"
 
     def define_panel(self, _):
+        from pytransit.transit_tools import wx
         self.panel = make_panel()
         print("in tnseq_stats_gui.define_panel()")
 
@@ -261,7 +252,7 @@ class File(Analysis):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
-            name=basename(self.path),
+            name=transit_tools.basename(self.path),
             type=Analysis.identifier,
             path=self.path,
             # anything with __ is not shown in the table

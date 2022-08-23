@@ -1,0 +1,80 @@
+class InvalidArgumentException(Exception):
+    def __init__(self, *args, **kwargs):
+        super(InvalidArgumentException, self).__init__(*args, **kwargs)
+
+def clean_args(rawargs):
+    """Returns a list and a dictionary with positional and keyword arguments.
+
+    -This function assumes flags must start with a "-" and and cannot be a 
+        number (but can include them).
+    
+    -Flags should either be followed by the value they want to be associated 
+        with (i.e. -p 5) or will be assigned a value of True in the dictionary.
+
+    -The dictionary will map flags to the name given minus ONE "-" sign in
+        front. If you use TWO minus signs in the flag name (i.e. --verbose), 
+        the dictionary key will be the name with ONE minus sign in front 
+        (i.e. {"-verbose":True}).
+    
+
+    Arguments:
+        rawargs (list): List of positional/keyword arguments. As obtained from
+                         sys.argv.
+
+    Returns:
+        list: List of positional arguments (i.e. arguments without flags),
+                in order provided.
+        dict: Dictionary mapping flag (key is flag minus the first "-") and
+                their values.
+
+    """
+    args = []
+    kwargs = {}
+    count = 0
+    # Loop through list of arguments
+    while count < len(rawargs):
+        # If the current argument starts with "-", then it's probably a flag
+        if rawargs[count].startswith("-"):
+            # Check if next argument is a number
+            try:
+                temp = float(rawargs[count + 1])
+                next_is_number = True
+            except:
+                next_is_number = False
+
+            still_not_finished = count + 1 < len(rawargs)
+            if still_not_finished:
+                next_is_not_argument = not rawargs[count + 1].startswith("-")
+                next_looks_like_list = len(rawargs[count + 1].split(" ")) > 1
+            else:
+                next_is_not_argument = True
+                next_looks_like_list = False
+
+            # If still things in list, and they look like arguments to a flag, add them to dict
+            if still_not_finished and (
+                next_is_not_argument or next_looks_like_list or next_is_number
+            ):
+                kwargs[rawargs[count][1:]] = rawargs[count + 1]
+                count += 1
+            # Else it's a flag but without arguments/values so assign it True
+            else:
+                kwargs[rawargs[count][1:]] = True
+        # Else, it's probably a positional arguement without flags
+        else:
+            args.append(rawargs[count])
+        count += 1
+    return (args, kwargs)
+
+def check_if_has_wx():
+    """
+    This is designed to be lazy and more lightweight than the HAS_WX variable inside of transit_tools
+    """
+    cache = getattr(check_if_has_wx, "cache", None)
+    if type(cache) == type(None):
+        try:
+            import wx
+            version = int(wx.version()[0]) # attempt to get version
+            check_if_has_wx.cache = True
+        except Exception as error:
+            check_if_has_wx.cache = False
+    return cache

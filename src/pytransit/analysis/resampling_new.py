@@ -13,7 +13,6 @@ import scipy
 import scipy.stats
 import heapq
 import math
-import statsmodels.stats.multitest
 from super_map import LazyDict
 
 from pytransit.analysis import base

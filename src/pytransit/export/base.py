@@ -7,7 +7,6 @@ import traceback
 import pytransit.transit_tools as transit_tools
 from pytransit.components.menu import selected_export_menu_item
 from pytransit.components.icon import InfoIcon
-from pytransit.transit_tools import InvalidArgumentException
 
 prefix = "[Export]"
 
@@ -33,10 +32,6 @@ class ExportGUI:
 
 
 class ExportMethod:
-    """
-    Basic class for analysis methods. Inherited by SingleMethod and ComparisonMethod.
-    """
-
     def __init__(
         self,
         short_name,
@@ -59,64 +54,27 @@ class ExportMethod:
 
     @classmethod
     def from_gui(self, wxobj):
-        
         raise NotImplementedError
 
     @classmethod
     def from_args(self, rawargs):
-        
-        raise NotImplementedError
-
-    @classmethod
-    def fromconsole(self):
-        
-        try:
-            return self.from_args(sys.argv[3:])
-        except InvalidArgumentException as e:
-            print("Error: %s" % str(e))
-            print(self.usage_string())
-        except IndexError as e:
-            print("Error: %s" % str(e))
-            print(self.usage_string())
-        except TypeError as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        except ValueError as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        except Exception as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        sys.exit()
-
-    @classmethod
-    def usage_string(self):
-        
         raise NotImplementedError
 
     def Run(self):
-        
         raise NotImplementedError
 
     def finish(self):
-        
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
 
     def console_message(self, text):
-        
         sys.stdout.write("[%s] %s\n" % (self.short_name, text))
 
     def console_message_inplace(self, text):
-        
         sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
         sys.stdout.flush()
 
     def transit_message_inplace(self, text):
-        
         self.console_message_inplace(text)
 
     def transit_error(self, text):

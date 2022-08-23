@@ -1,8 +1,5 @@
-# __all__ = []
-
 from os.path import dirname, basename, isfile
 from os import listdir
-import glob
 
 # these have to be imported selectively... 
 # (not all src/pytransit/analysis/*.py files are needed)

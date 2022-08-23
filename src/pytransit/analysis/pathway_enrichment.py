@@ -1,31 +1,21 @@
-import pytransit.components.results_area as results_area
-import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
-
-import os
-import time
-import math
-import random
-import numpy
-import scipy.stats
-from scipy.stats import norm
+import copy
 import datetime
+import io
+import math
 import operator
+import os
+import random
+import sys
+import time
+
+import numpy
 
 from pytransit.analysis import base
+import pytransit.components.results_area as results_area
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
-
-import io
-from scipy.stats import hypergeom
-import copy
-from statsmodels.stats import multitest
-
-# from datetime import datetime
-import math
 
 ############# Description ##################
 
@@ -287,6 +277,7 @@ Optional parameters:
     # during initialization, self.resamplingFile etc have been set, and self.output has been opened
 
     def GSEA(self):
+        from statsmodels.stats import multitest
         data, hits, headers = self.read_resampling_file(
             self.resamplingFile
         )  # hits are not used in GSEA()
@@ -441,10 +432,10 @@ Optional parameters:
     # N = sample size (resampling hits)
     # k = number of hits in category (intersection)
 
-    def hypergeometric(self, k, M, n, N):
-        return hypergeom.sf(k, M, n, N)
-
     def fisher_exact_test(self):
+        import scipy.stats
+        from statsmodels.stats import multitest
+        
         genes, hits, headers = self.read_resampling_file(
             self.resamplingFile
         )  # use self.Qval_col to determine hits
@@ -499,7 +490,7 @@ Optional parameters:
             )  # add same proportion to overall, round it
             expected = round((N * n / float(M)), 2)
             enrichment = round((k + pseudocount) / (expected + pseudocount), 3)
-            pval = self.hypergeometric(k_pseudocount, M, n_pseudocount, N)
+            pval = scipy.stats.hypergeom.sf(k_pseudocount, M, n_pseudocount, N)
             results.append([term, M, n, N, k, expected, k_pseudocount, n_pseudocount, enrichment, pval])
 
         pvals = [x[-1] for x in results]
@@ -537,6 +528,9 @@ Optional parameters:
     #  annotation with parent-child analysis. Bioinformatics, 23(22):3024-3031.
 
     def Ontologizer(self):
+        import scipy.stats
+        from statsmodels.stats import multitest
+        
         def warning(s):
             sys.stderr.write("%s\n" % s)  # use self.warning? prepend method name?
 

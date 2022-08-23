@@ -7,7 +7,6 @@ import csv
 import traceback
 import pytransit.transit_tools as transit_tools
 from pytransit.convert import base
-from pytransit.transit_tools import InvalidArgumentException
 
 ############# Description ##################
 
@@ -91,30 +90,6 @@ class GffProtMethod(base.ConvertMethod):
         output_file = open(outpath, "w")
 
         return self(annotationPath, output_file)
-
-    @classmethod
-    def fromconsole(self):
-        try:
-            return self.from_args(sys.argv[3:])
-        except InvalidArgumentException as e:
-            print("Error: %s" % str(e))
-            print(self.usage_string())
-        except IndexError as e:
-            print("Error: %s" % str(e))
-            print(self.usage_string())
-        except TypeError as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        except ValueError as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        except Exception as e:
-            print("Error: %s" % str(e))
-            traceback.print_exc()
-            print(self.usage_string())
-        sys.exit()
 
     def get_description(self, line, parent):
         cols = line.split("\t")
