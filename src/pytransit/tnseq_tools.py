@@ -323,6 +323,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                 sites.append(position)
                 for index, count in enumerate(wig_counts):
                     counts_by_wig[index].append(count)
+            transit_tools.log(f"\rreading lines: 100%          ")
         
         return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
 
