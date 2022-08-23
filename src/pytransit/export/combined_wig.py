@@ -24,7 +24,7 @@ transposons = ["himar1", "tn5"]
 ############# Analysis Method ##############
 
 
-class CombinedWigExport(base.TransitExport):
+class Export(base.TransitExport):
     def __init__(self):
         base.TransitExport.__init__(
             self,
@@ -248,4 +248,4 @@ class CombinedWigMethod(base.SingleConditionMethod):
         )
 
 
-combined_wig = CombinedWigExport()
+combined_wig = Export()

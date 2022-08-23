@@ -30,7 +30,7 @@ transposons = ["himar1", "tn5"]
 ############# Analysis Method ##############
 
 
-class IGVExport(base.TransitExport):
+class Export(base.TransitExport):
     def __init__(self):
         base.TransitExport.__init__(
             self,
