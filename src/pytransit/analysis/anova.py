@@ -46,7 +46,7 @@ class Analysis:
         included_conditions=[],
         n_terminus=0.0,
         c_terminus=0.0,
-        pseudocount=1,
+        pseudocount=5,
         winz=False,
         refs=[],
         alpha=1000,
@@ -72,7 +72,7 @@ class Analysis:
             --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
+            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 1
             -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
             -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
@@ -346,10 +346,10 @@ class Analysis:
 
         msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
         for i,rv in enumerate(Rvs):
-          msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
+            msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
         return (msr, mse, f, p, q, statusMap)
-
-    def calc_lfcs(self, means, refs=[], pseudocount=1):
+    
+    def calc_lfcs(self, means, refs=[], pseudocount=5):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
         grandmean = numpy.mean(refs)
@@ -414,9 +414,7 @@ class Analysis:
                 means_by_rv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
                 transit_tools.log("Running Anova")
-                MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
-                    data, genes, means_by_rv, RvSiteindexesMap, conditions
-                )
+                pvals, qvals, run_status = self.calculate_anova(data, genes, means_by_rv, RvSiteindexesMap, conditions)
             
             # 
             # write output
@@ -444,7 +442,7 @@ class Analysis:
                             ] + [
                                 "%0.3f" % x for x in lfcs
                             ] +  [
-                                "%f" % x for x in [MSR[each_rv], MSE[each_rv], Fstats[each_rv], pvals[each_rv], qvals[each_rv]]
+                                "%f" % x for x in [pvals[Rv], qvals[Rv]]
                             ] + [
                                 run_status[each_rv]
                             ]
@@ -460,11 +458,8 @@ class Analysis:
                     *[
                         f"LFC_{condition_name}" for condition_name in conditions_list
                     ],
-                    "MSR",
-                    "MSE+alpha",
-                    "Fstat",
-                    "Pval",
-                    "Padj",
+                    "pval",
+                    "padj",
                     "status"
                 ]
                 

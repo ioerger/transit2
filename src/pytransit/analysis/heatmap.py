@@ -1,16 +1,14 @@
 import sys
-
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
-
 import os
 import time
 import math
 import random
-import numpy
-import scipy.stats
 import datetime
 
+import numpy
+
 from pytransit.analysis import base
+from pytransit.transit_tools import HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools

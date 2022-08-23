@@ -15,6 +15,7 @@ from transit_test import *
 import pytransit
 from pytransit import norm_tools
 from pytransit import tnseq_tools
+from pytransit.transit_tools import HAS_R
 
 # Single condition methods
 from pytransit.analysis.gumbel import GumbelMethod
@@ -32,37 +33,29 @@ from pytransit.analysis.utest import UTestMethod
 # Genetic Interactions
 from pytransit.analysis.gi import GIMethod
 
-has_r = False
-try:
-    import rpy2.robjects
-    has_r = True
-except Exception as e:
-    has_r = False
-
-
 class TestMethods(TransitTestCase):
     def test_Gumbel(self):
         args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
-        G = GumbelMethod.from_args(args)
-        G.Run()
+        method_object = GumbelMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
 
     def test_Binomial(self):
         args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
-        G = BinomialMethod.from_args(args)
-        G.Run()
+        method_object = BinomialMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
 
     def test_Griffin(self):
         args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
-        G = GriffinMethod.from_args(args)
-        G.Run()
+        method_object = GriffinMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
 
     def test_HMM(self):
         args = [mini_wig, small_annotation, output]
-        G = HMMMethod.from_args(args)
-        G.Run()
+        method_object = HMMMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         genes_path = output.rsplit(".", 1)[0] + "_genes." + output.rsplit(".", 1)[1]
         self.assertTrue(os.path.exists(genes_path))
@@ -70,8 +63,8 @@ class TestMethods(TransitTestCase):
 
     def test_resampling(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-l"]
-        G = ResamplingMethod.from_args(args)
-        G.Run()
+        method_object = ResamplingMethod.from_args(args)
+        method_object.Run()
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-2, qcol=-1))
         self.assertLessEqual(
                 abs(len(sig_pvals) - 37),
@@ -80,13 +73,13 @@ class TestMethods(TransitTestCase):
         self.assertLessEqual(
                 abs(len(sig_qvals) - 35),
                 2,
-                "sig_qvals expected in range: %s, actual: %d" % ("[33, 37]", len(sig_qvals)))
+                "sig_qvals expected in range: %s, actual: %d" % ("[33, 37]", len(sig_qvals))) # maybe acceptable range should be expanded to 38
 
     def test_resampling_combined_wig(self):
         # The conditions in the args should be matched case-insensitively.
         args = ["-c", combined_wig, samples_metadata, "Glycerol", "cholesterol", small_annotation, output, "-a"]
-        G = ResamplingMethod.from_args(args)
-        G.Run()
+        method_object = ResamplingMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-2, qcol=-1))
         print(len(sig_pvals))
@@ -102,8 +95,8 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_adaptive(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-a", "--ctrl_lib", "AA", "--exp_lib", "AAA"]
-        G = ResamplingMethod.from_args(args)
-        G.Run()
+        method_object = ResamplingMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-2, qcol=-1))
         self.assertLessEqual(
@@ -117,8 +110,8 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_histogram(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-s", "1000", "-h"]
-        G = ResamplingMethod.from_args(args)
-        G.Run()
+        method_object = ResamplingMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         self.assertTrue(
                 os.path.isdir(hist_path),
@@ -126,8 +119,8 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_multistrain(self):
         args = [ctrl_data_txt, exp_data_txt, ','.join([small_annotation, small_annotation]), output, "-h"]
-        G = ResamplingMethod.from_args(args)
-        G.Run()
+        method_object = ResamplingMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         self.assertTrue(
                 os.path.isdir(hist_path),
@@ -135,25 +128,25 @@ class TestMethods(TransitTestCase):
 
     def test_anova(self):
         args = [combined_wig, samples_metadata, small_annotation, output]
-        G = AnovaMethod.from_args(args)
-        G.Run()
+        method_object = AnovaMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
         self.assertEqual(
             len(sig_pvals),
-            32,
-            "sig_pvals expected: %d, actual: %d" % (32, len(sig_pvals)))
+            30,
+            "sig_pvals expected: %d, actual: %d" % (30, len(sig_pvals)))
         self.assertEqual(
             len(sig_qvals),
-            28,
-            "sig_qvals expected: %d, actual: %d" % (28, len(sig_qvals)))
+            24,
+            "sig_qvals expected: %d, actual: %d" % (24, len(sig_qvals)))
 
-    @unittest.skipUnless(has_r, "requires R, rpy2")
+    @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb(self):
         args = [combined_wig, samples_metadata, small_annotation, output]
-        G = ZinbMethod.from_args(args)
-        G.Run()
+        method_object = ZinbMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
@@ -166,11 +159,11 @@ class TestMethods(TransitTestCase):
             30,
             "sig_qvals expected: %d, actual: %d" % (30, len(sig_qvals)))
 
-    @unittest.skipUnless(has_r, "requires R, rpy2")
+    @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_covariates(self):
         args = [combined_wig, samples_metadata_covariates, small_annotation, output, "--covars", "batch", "--condition", "NewConditionCol"]
-        G = ZinbMethod.from_args(args)
-        G.Run()
+        method_object = ZinbMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
@@ -183,11 +176,11 @@ class TestMethods(TransitTestCase):
             10,
             "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
 
-    @unittest.skipUnless(has_r, "requires R, rpy2")
+    @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_interactions(self):
         args = [combined_wig, samples_metadata_interactions, small_annotation, output, "--covars", "batch", "--interactions", "atm"]
-        G = ZinbMethod.from_args(args)
-        G.Run()
+        method_object = ZinbMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
@@ -202,16 +195,15 @@ class TestMethods(TransitTestCase):
 
     def test_utest(self):
         args = [ctrl_data_txt, exp_data_txt, small_annotation, output]
-        G = UTestMethod.from_args(args)
-        G.Run()
+        method_object = UTestMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
 
 
     def test_GI(self):
-        args = [ctrl_data_txt, exp_data_txt, ctrl_data_txt, exp_data_txt, small_annotation, output,
-                    "-s", "1000"]
-        G = GIMethod.from_args(args)
-        G.Run()
+        args = [ctrl_data_txt, exp_data_txt, ctrl_data_txt, exp_data_txt, small_annotation, output, "-s", "1000"]
+        method_object = GIMethod.from_args(args)
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
 
 if __name__ == '__main__':

@@ -1,56 +1,18 @@
 import sys
-
-try:
-    import wx
-
-    WX_VERSION = int(wx.version()[0])
-    has_wx = True
-
-except Exception as e:
-    has_wx = False
-    WX_VERSION = 0
-
-if has_wx:
-    import wx.xrc
-    from wx.lib.buttons import GenBitmapTextButton
-    from pubsub import pub
-    import wx.adv
-
 import os
 import time
 import math
 import random
-import numpy
-import scipy.stats
 import datetime
 
+import numpy
+
 from pytransit.analysis import base
-import pytransit.transit_tools as transit_tools
+from pytransit.transit_tools import 
+import pytransit.transit_tools as HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
 import pytransit.stat_tools as stat_tools
-
-
-### because corrplot.py depends on R...
-
-has_r = False
-try:
-    import rpy2.robjects
-
-    has_r = True
-except Exception as e:
-    has_r = False
-
-if has_r:
-    from rpy2.robjects import (
-        r,
-        DataFrame,
-        globalenv,
-        IntVector,
-        FloatVector,
-        StrVector,
-        packages as rpackages,
-    )
 
 
 ############# Description ##################
@@ -143,7 +105,7 @@ class CorrplotMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, rawargs):
-        if not has_r:
+        if not HAS_R:
             raise Exception(f'''
                 Error: R and rpy2 (~= 3.0) required to run corrplot.
                 After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"

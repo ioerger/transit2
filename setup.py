@@ -161,7 +161,6 @@ setup(
         'pypubsub<4.0',
         'wxPython',
         'ez-yaml>=1.2.0',
-        'file_system_py',
     ],
 
     #dependency_links = [

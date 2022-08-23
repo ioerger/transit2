@@ -2,11 +2,6 @@ import sys
 import os
 import time
 
-#import pytransit.export.base as base
-#import pytransit.transit_tools as transit_tools
-#import pytransit.tnseq_tools as tnseq_tools
-#import pytransit.norm_tools as norm_tools
-
 from pytransit.export import base
 from pytransit import transit_tools
 from pytransit import tnseq_tools
@@ -209,29 +204,30 @@ class CombinedWigMethod(base.SingleConditionMethod):
             self.output.write("#File: %s\n" % f)
         self.output.write("#TA_coord\t%s\n" % ('\t'.join(self.ctrldata)))
 
-        for i, pos in enumerate(position):
-            # self.output.write("%d\t%s\t%s\n" % (position[i], "\t".join(["%1.1f" % c for c in fulldata[:,i]]),",".join(["%s (%s)" % (orf,rv2info.get(orf,["-"])[0]) for orf in hash.get(position[i], [])])   ))
-            if self.normalization != "nonorm":
-                vals = "\t".join(["%1.1f" % c for c in fulldata[:, i]])
+        for i,pos in enumerate(position):
+            #self.output.write("%d\t%s\t%s\n" % (position[i], "\t".join(["%1.1f" % c for c in fulldata[:,i]]),",".join(["%s (%s)" % (orf,rv2info.get(orf,["-"])[0]) for orf in hash.get(position[i], [])])   ))
+            if self.normalization != 'nonorm':
+                vals = "\t".join(["%1.1f" % c for c in fulldata[:,i]])
             else:
-                vals = "\t".join(
-                    ["%d" % c for c in fulldata[:, i]]
-                )  # no decimals if raw counts
+                # no decimals if raw counts
+                vals = "\t".join(["%d"    % c for c in fulldata[:,i]])
             self.output.write(
-                "%d\t%s\t%s\n"
-                % (
+                "%d\t%s\t%s\n" % (
                     position[i],
                     vals,
                     ",".join(
                         [
-                            "%s (%s)" % (orf, rv2info.get(orf, ["-"])[0])
-                            for orf in hash.get(position[i], [])
+                            "%s (%s)" % (
+                                orf,
+                                rv2info.get(orf,["-"])[0]
+                            )
+                                for orf in hash.get(position[i], [])
                         ]
-                    ),
+                    )
                 )
             )
             # Update progress
-            text = "Running Export Method... %5.1f%%" % (100.0 * i / N)
+            text = "Running Export Method... %5.1f%%" % (100.0*i/N)
             if i % 1000 == 0:
                 self.progress_update(text, i)
         self.output.close()
