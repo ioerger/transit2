@@ -14,7 +14,7 @@ analysis_names = """
 anova
 binomial
 corrplot
-gi
+GI_gui
 griffin
 gumbel
 heatmap
