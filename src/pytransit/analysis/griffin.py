@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -319,9 +320,10 @@ class GriffinMethod(base.SingleConditionMethod):
                 exprun = tnseq_tools.ExpectedRuns(gene.n, pnon)
                 pval = 1.0 - tnseq_tools.GumbelCDF(gene.r, u, B)
                 results.append([gene, exprun, pval])
-
-            text = "Running Griffin Method... %5.1f%%" % (100.0 * (count + 1) / (N))
-            self.progress_update(text, count)
+            
+            percentage = (100.0 * (count + 1) / (N))
+            text = "Running Griffin Method... %5.1f%%" % percentage
+            progress_update(text, percentage)
             count += 1
 
         pval = [row[-1] for row in results]

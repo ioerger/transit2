@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import time
 import sys
 import collections
@@ -615,8 +616,9 @@ class ZinbMethod(base.MultiConditionMethod):
                     sys.exit(0)
             Rvs.append(Rv)
             # Update progress
-            text = "Running ZINB Method... %5.1f%%" % (100.0 * count / len(genes))
-            self.progress_update(text, count)
+            percentage = (100.0 * count / len(genes))
+            text = "Running ZINB Method... %5.1f%%" % percentage
+            progress_update(text, percentage)
 
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)

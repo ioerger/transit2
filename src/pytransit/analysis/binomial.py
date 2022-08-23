@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -627,10 +628,11 @@ class BinomialMethod(base.SingleConditionMethod):
             W1[i] = w1
 
             # Update progress
-            text = "Running Binomial Method... %5.1f%%" % (
+            percentage = (
                 100.0 * (i + 1) / (sample_size)
             )
-            self.progress_update(text, i)
+            text = "Running Binomial Method... %5.1f%%" % percentage
+            progress_update(text, percentage)
 
         numpy.seterr(divide="warn")
 

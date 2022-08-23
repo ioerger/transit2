@@ -46,7 +46,7 @@ class Analysis:
         included_conditions=[],
         n_terminus=0.0,
         c_terminus=0.0,
-        pseudocount=1,
+        pseudocount=5,
         winz=False,
         refs=[],
         alpha=1000,
@@ -346,10 +346,10 @@ class Analysis:
 
         msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
         for i,rv in enumerate(Rvs):
-          msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
+            msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
         return (msr, mse, f, p, q, statusMap)
-
-    def calc_lfcs(self, means, refs=[], pseudocount=1):
+    
+    def calc_lfcs(self, means, refs=[], pseudocount=5):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
         grandmean = numpy.mean(refs)
@@ -460,11 +460,8 @@ class Analysis:
                     *[
                         f"LFC_{condition_name}" for condition_name in conditions_list
                     ],
-                    "MSR",
-                    "MSE+alpha",
-                    "Fstat",
-                    "Pval",
-                    "Padj",
+                    "pval",
+                    "padj",
                     "status"
                 ]
                 
@@ -522,7 +519,6 @@ class File(Analysis):
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
         self.column_names = comments[-1].split("\t")
-        transit_tools.log(f'''self.column_names = {self.column_names}''')
         
         # 
         # get rows

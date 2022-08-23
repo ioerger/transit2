@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import sys
 import os
 import time
@@ -93,7 +94,7 @@ class Analysis:
         ) = define_choice_box(
             panel,
             name,
-            [ "[None]" ] + universal.session_data.condition_names,
+            [ "[None]" ] + [x.name for x in universal.session_data.conditions],
             "choose condition",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -124,16 +125,15 @@ class Analysis:
             # 
             # get wig files
             # 
-            wig_group = universal.session_data.wig_groups[0]
-            Analysis.inputs.combined_wig = wig_group.cwig.path
+            wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+            Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
             
             # 
             # get annotation
             # 
 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            #if not transit_tools.validate_annotation(Analysis.inputs.annotation):
-            #    return None
+            #if not transit_tools.validate_annotation(Analysis.inputs.annotation): return None 
 
             
             # 
@@ -144,7 +144,6 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
 
             # 
             # save result files
@@ -169,7 +168,7 @@ class Analysis:
 
         # save all the data
         Analysis.inputs.update(dict(
-            combined_wig=combined_wig, ### what if user gives a list of wig files instead of a combined_wig?
+            combined_wig=combined_wig, ###? what if user gives a list of wig files instead of a combined_wig?
             annotation=annotation_path,
             normalization=normalization,
             output_path=output_path,
@@ -464,8 +463,6 @@ class Analysis:
                 )
             )
 
-            #text = "Running GI Method... %2.0f%%" % (100.0 * (count + 1) / N)
-            #self.progress_update(text, count)
             percentage = (100.0 * (count + 1) / N)
             progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 
@@ -513,7 +510,7 @@ class Analysis:
             self.output = open(self.inputs.output_path, "w")
         self.output.write("%s\n" % self.identifier)
 
-        if True: # if self.wxobj:
+        if True: # was 'if self.wxobj:', try universal.interface=="gui" or "console" ###?
             members = sorted(
                 [
                     attr

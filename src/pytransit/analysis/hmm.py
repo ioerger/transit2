@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -300,14 +301,15 @@ class HMMMethod(base.SingleConditionMethod):
         )
 
         try:
-            T = len(
-                [
-                    1
-                    for line in open(ctrldata[0]).readlines()
-                    if not line.startswith("#")
-                ]
-            )
-            self.maxiterations = T * 4 + 1
+            with open(ctrldata[0]) as file:
+                T = len(
+                    [
+                        1
+                        for line in file.readlines()
+                        if not line.startswith("#")
+                    ]
+                )
+                self.maxiterations = T * 4 + 1
         except:
             self.maxiterations = 100
         self.count = 1
@@ -621,11 +623,10 @@ class HMMMethod(base.SingleConditionMethod):
             if numpy.sum(alpha[:, t]) == 0:
                 alpha[:, t] = 0.0000000000001
 
-            text = "Running HMM Method... %1.1f%%" % (
-                100.0 * self.count / self.maxiterations
-            )
+            percentage = (100.0 * self.count / self.maxiterations)
+            text = "Running HMM Method... %1.1f%%" % percentage
             if self.count % 1000 == 0:
-                self.progress_update(text, self.count)
+                progress_update(text, percentage)
             self.count += 1
             # print(t, O[:,t], alpha[:,t])
 
@@ -654,12 +655,11 @@ class HMMMethod(base.SingleConditionMethod):
 
             if C.any():
                 beta[:, t] = beta[:, t] * C[t]
-
-            text = "Running HMM Method... %1.1f%%" % (
-                100.0 * self.count / self.maxiterations
-            )
+            
+            percentage = (100.0 * self.count / self.maxiterations)
+            text = "Running HMM Method... %1.1f%%" % percentage
             if self.count % 1000 == 0:
-                self.progress_update(text, self.count)
+                progress_update(text, percentage)
             self.count += 1
 
         return beta
@@ -681,29 +681,28 @@ class HMMMethod(base.SingleConditionMethod):
             nus = delta[:, t - 1] + A
             delta[:, t] = nus.max(1) + numpy.log(b_o)
             Q[:, t] = nus.argmax(1)
-            text = "Running HMM Method... %5.1f%%" % (
-                100.0 * self.count / self.maxiterations
-            )
+            
+            percentage = (100.0 * self.count / self.maxiterations)
+            text = "Running HMM Method... %5.1f%%" % percentage
             if self.count % 1000 == 0:
-                self.progress_update(text, self.count)
+                progress_update(text, percentage)
             self.count += 1
 
         Q_opt = [int(numpy.argmax(delta[:, T - 1]))]
         for t in range(T - 2, -1, -1):
             Q_opt.insert(0, Q[Q_opt[0], t + 1])
 
-            text = "Running HMM Method... %5.1f%%" % (
-                100.0 * self.count / self.maxiterations
-            )
+            percentage = (100.0 * self.count / self.maxiterations)
+            text = "Running HMM Method... %5.1f%%" % percentage
             if self.count % 1000 == 0:
-                self.progress_update(text, self.count)
+                progress_update(text, percentage)
             self.count += 1
 
         numpy.seterr(divide="warn")
-        text = "Running HMM Method... %5.1f%%" % (
-            100.0 * self.count / self.maxiterations
-        )
-        self.progress_update(text, self.count)
+        percentage = (100.0 * self.count / self.maxiterations)
+        text = "Running HMM Method... %5.1f%%" % percentage
+        if self.count % 1000 == 0:
+            progress_update(text, percentage)
 
         return (Q_opt, delta, Q)
 

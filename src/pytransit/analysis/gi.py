@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -1015,11 +1016,10 @@ class GIMethod(base.QuadConditionMethod):
                 )
             )
 
-            text = "Running GI Method... %2.0f%%" % (100.0 * (count + 1) / N)
-            self.progress_update(text, count)
-            transit_tools.log(
-                "analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1))
-            )
+            percent = (100.0 * (count + 1) / N)
+            text = "Running GI Method... %2.0f%%" % percent
+            progress_update(text, percent)
+            transit_tools.log("analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1)))
             count += 1
 
         # for HDI, maybe I should sort on abs(mean_delta_logFC); however, need to sort by prob to calculate BFDR

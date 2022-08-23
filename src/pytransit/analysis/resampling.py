@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -1004,8 +1005,9 @@ class ResamplingMethod(base.DualConditionMethod):
             )
 
             # Update progress
-            text = "Running Resampling Method... %5.1f%%" % (100.0 * count / N)
-            self.progress_update(text, count)
+            percent = (100.0 * count / N)
+            text = "Running Resampling Method... %5.1f%%" % percent
+            progress_update(text, percent)
 
         #
         transit_tools.log("")  # Printing empty line to flush stdout

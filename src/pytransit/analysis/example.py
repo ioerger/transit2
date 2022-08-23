@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -229,8 +230,9 @@ class Method(base.SingleConditionMethod):
             )
 
             # Update Progress
-            text = "Running Example Method... %5.1f%%" % (100.0 * count / N)
-            self.progress_update(text, count)
+            percent = (100.0 * count / N)
+            text = "Running Example Method... %5.1f%%" % percent
+            progress_update(text, percent)
 
         self.output.write("#Example\n")
         if self.wxobj:

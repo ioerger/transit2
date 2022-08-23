@@ -1,3 +1,4 @@
+import sys
 import math
 import numpy
 import scipy.stats
@@ -633,7 +634,7 @@ def resampling(
     the data.
 
     Args:
-        ar: List or numpy array with the first set of observations.
+        data1: List or numpy array with the first set of observations.
         data2: List or numpy array with the second set of observations.
         S: Number of permutation tests (or samples) to obtain.
         testFunc: Function defining the desired test statistic. Should accept
@@ -681,6 +682,9 @@ def resampling(
     # - Check input has some data
     assert len(data1) > 0, "Data1 cannot be empty"
     assert len(data2) > 0, "Data2 cannot be empty"
+    
+    if isinstance(data1,list): data1 = numpy.array(data1)
+    if isinstance(data2,list): data2 = numpy.array(data2)
 
     count_ltail = 0
     count_utail = 0
@@ -711,12 +715,10 @@ def resampling(
     # Get stats and info based on whether working with libraries or not:
     nTAs = 0
     if lib_str1:
+        # note: returns a generator, not a list
         # Get number of TA sites implied
-        nTAs = len(data1.flatten()) // len(lib_str1)
-        assert (
-            len(data2.flatten()) // len(lib_str2) == nTAs
-        ), "Datasets do not have matching sites;\
-             check input data and library strings."
+        nTAs = len(data1.flatten())//len(lib_str1)
+        assert len(data2.flatten())//len(lib_str2) == nTAs, "Datasets do not have matching sites; check input data and library strings."
         # Get data
         perm = get_lib_data_dict(data1, lib_str1, data2, lib_str2, nTAs)
         test_obs = testFunc(perm)

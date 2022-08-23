@@ -1,3 +1,4 @@
+from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
@@ -402,8 +403,9 @@ class Tn5GapsMethod(base.SingleConditionMethod):
 
             # Update Progress
             if count % 10000 == 0:
-                text = "Running Tn5Gaps method... %1.1f%%" % (100.0 * count / N)
-                self.progress_update(text, count)
+                percent = (100.0 * count / N)
+                text = "Running Tn5Gaps method... %1.1f%%" % percent
+                progress_update(text, percent)
 
         data = list(results_per_gene.values())
         exp_run_len = float(accum) / N
