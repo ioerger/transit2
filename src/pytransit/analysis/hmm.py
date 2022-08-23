@@ -301,14 +301,15 @@ class HMMMethod(base.SingleConditionMethod):
         )
 
         try:
-            T = len(
-                [
-                    1
-                    for line in open(ctrldata[0]).readlines()
-                    if not line.startswith("#")
-                ]
-            )
-            self.maxiterations = T * 4 + 1
+            with open(ctrldata[0]) as file:
+                T = len(
+                    [
+                        1
+                        for line in file.readlines()
+                        if not line.startswith("#")
+                    ]
+                )
+                self.maxiterations = T * 4 + 1
         except:
             self.maxiterations = 100
         self.count = 1
@@ -656,7 +657,7 @@ class HMMMethod(base.SingleConditionMethod):
                 beta[:, t] = beta[:, t] * C[t]
             
             percentage = (100.0 * self.count / self.maxiterations)
-            text = "Running HMM Method... %1.1f%%" % 
+            text = "Running HMM Method... %1.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -682,7 +683,7 @@ class HMMMethod(base.SingleConditionMethod):
             Q[:, t] = nus.argmax(1)
             
             percentage = (100.0 * self.count / self.maxiterations)
-            text = "Running HMM Method... %5.1f%%" % 
+            text = "Running HMM Method... %5.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -692,14 +693,14 @@ class HMMMethod(base.SingleConditionMethod):
             Q_opt.insert(0, Q[Q_opt[0], t + 1])
 
             percentage = (100.0 * self.count / self.maxiterations)
-            text = "Running HMM Method... %5.1f%%" % 
+            text = "Running HMM Method... %5.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
 
         numpy.seterr(divide="warn")
         percentage = (100.0 * self.count / self.maxiterations)
-        text = "Running HMM Method... %5.1f%%" % 
+        text = "Running HMM Method... %5.1f%%" % percentage
         if self.count % 1000 == 0:
             progress_update(text, percentage)
 

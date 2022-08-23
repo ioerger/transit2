@@ -72,7 +72,7 @@ class Analysis:
             --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 1
+            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
             -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
             -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
@@ -414,7 +414,9 @@ class Analysis:
                 means_by_rv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
 
                 transit_tools.log("Running Anova")
-                pvals, qvals, run_status = self.calculate_anova(data, genes, means_by_rv, RvSiteindexesMap, conditions)
+                MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
+                    data, genes, means_by_rv, RvSiteindexesMap, conditions
+                )
             
             # 
             # write output
@@ -442,7 +444,7 @@ class Analysis:
                             ] + [
                                 "%0.3f" % x for x in lfcs
                             ] +  [
-                                "%f" % x for x in [pvals[Rv], qvals[Rv]]
+                                "%f" % x for x in [MSR[each_rv], MSE[each_rv], Fstats[each_rv], pvals[each_rv], qvals[each_rv]]
                             ] + [
                                 run_status[each_rv]
                             ]
@@ -517,7 +519,6 @@ class File(Analysis):
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
         self.column_names = comments[-1].split("\t")
-        transit_tools.log(f'''self.column_names = {self.column_names}''')
         
         # 
         # get rows

@@ -229,6 +229,10 @@ def log(message, *args, **kwargs):
     try: caller_name = caller_frame_info.function
     except Exception as error: pass # sometimes the caller doesn't have a function name (ex: lambda)
     
+    # remove the .py extension
+    if file_name[len(file_name)-3:len(file_name)] == ".py":
+        file_name = file_name[0:len(file_name)-3]
+    
     print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
     if HAS_WX:
         import pytransit.gui_tools as gui_tools
@@ -566,7 +570,6 @@ def get_validated_data(wig_list, wxobj=None):
 
     .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.norm_tools.normalize_data`
     """
-    print(f'''wig_list = {wig_list}''')
     (status, genome) = validate_wig_format(wig_list, wxobj=wxobj)
 
     # Regular file with empty sites
