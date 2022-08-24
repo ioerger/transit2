@@ -170,15 +170,12 @@ class TnSeekFrame(wx.Frame):
         self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self.statusBar.SetStatusText("Welcome to TRANSIT")
         
-        pub.subscribe(self.saveHistogram, "histogram")
+        pub.subscribe(self.save_histogram, "histogram")
         create_menu(self)
         
-    def saveHistogram(self, msg):
+    def save_histogram(self, msg):
         data, orf, path, delta = msg
-
-        n, bins, patches = plt.hist(
-            data, density=1, facecolor="c", alpha=0.75, bins=100
-        )
+        n, bins, patches = plt.hist(data, density=1, facecolor="c", alpha=0.75, bins=100)
         plt.xlabel("Delta Sum")
         plt.ylabel("Probability")
         plt.title("%s - Histogram of Delta Sum" % orf)
@@ -187,38 +184,6 @@ class TnSeekFrame(wx.Frame):
         genePath = os.path.join(path, orf + ".png")
         plt.savefig(genePath)
         plt.clf()
-
-    def onHimar1Checked(self, event):
-        if self.methodCheckBoxHimar1.GetValue():
-            self.transposons.append("himar1")
-        else:
-            self.transposons.remove("himar1")
-        self.filterMethodsByTransposon()
-
-    def onTn5Checked(self, event):
-        if self.methodCheckBoxTn5.GetValue():
-            self.transposons.append("tn5")
-        else:
-            self.transposons.remove("tn5")
-        self.filterMethodsByTransposon()
-
-    def filterMethodsByTransposon(self):
-        newmethods = {}
-        fullmethods = pytransit.analysis.methods
-        goodTn = False
-        for method in fullmethods:
-            goodTn = False
-            for tn in self.transposons:
-                if tn in fullmethods[method].transposons:
-                    goodTn = True
-            if goodTn:
-                newmethods[method] = fullmethods[method]
-
-        methodChoiceChoices = ["[Choose Method]"]
-        for name in newmethods:
-            methodChoiceChoices.append(methods[name].full_name)
-        self.methodChoice.SetItems(methodChoiceChoices)
-        self.methodChoice.SetSelection(0)
 
     def SaveFile(
         self,
@@ -304,8 +269,7 @@ class TnSeekFrame(wx.Frame):
             plt.title("LOESS Fit - %s" % transit_tools.basename(datasets_selected[j]))
             plt.show()
 
-    def chooseNormalization(self):
-
+    def choose_normalization(self):
         norm_methods_choices = sorted(norm_methods.keys())
         dlg = wx.SingleChoiceDialog(
             self,

@@ -5,13 +5,14 @@ from statsmodels.stats.multitest import fdrcorrection
 
 def read_wig(fname):
     coords, counts = [], []
-    for line in open(fname):
-        if line[0] not in "0123456789":
-            continue
-        w = line.rstrip().split()
-        coord, cnt = int(w[0]), int(w[1])
-        coords.append(coord)
-        counts.append(cnt)
+    with open(fname) as file:
+        for line in file:
+            if line[0] not in "0123456789":
+                continue
+            w = line.rstrip().split()
+            coord, cnt = int(w[0]), int(w[1])
+            coords.append(coord)
+            counts.append(cnt)
     return coords, counts
 
 

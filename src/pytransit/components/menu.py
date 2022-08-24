@@ -58,7 +58,7 @@ def create_menu(frame):
                 
                 for name in export_methods:
                     method = export_methods[name]
-                    method.gui.defineMenuItem(frame, method.label)
+                    method.gui.define_menu_item(frame, method.label)
                     temp_menu_item = method.gui.menuitem
                     selected_export_menu_item.Append(temp_menu_item)
                     
@@ -119,20 +119,21 @@ def create_menu(frame):
 
                         output = open(output_path, "w")
                         output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
-                        for line in open(annotation_path):
-                            if line.startswith("#"):
-                                continue
-                            tmp = line.strip().split("\t")
-                            orf = tmp[8]
-                            name = tmp[7]
-                            desc = tmp[0]
-                            start = int(tmp[1])
-                            end = int(tmp[2])
-                            strand = tmp[3]
-                            ta_str = "no TAs"
-                            if orf in orf2pos:
-                                ta_str = "\t".join([str(int(ta)) for ta in orf2pos[orf]])
-                            output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
+                        with open(annotation_path) as file:
+                            for line in file:
+                                if line.startswith("#"):
+                                    continue
+                                tmp = line.strip().split("\t")
+                                orf = tmp[8]
+                                name = tmp[7]
+                                desc = tmp[0]
+                                start = int(tmp[1])
+                                end = int(tmp[2])
+                                strand = tmp[3]
+                                ta_str = "no TAs"
+                                if orf in orf2pos:
+                                    ta_str = "\t".join([str(int(ta)) for ta in orf2pos[orf]])
+                                output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
                         output.close()
                         if frame.verbose:
                             transit_tools.log("Finished conversion")
@@ -177,25 +178,26 @@ def create_menu(frame):
                         output.write("##date %d-%d-%d\n" % (year, month, day))
                         output.write("##Type DNA %s\n" % ORGANISM)
 
-                        for line in open(annotation_path):
-                            if line.startswith("#"):
-                                continue
-                            tmp = line.strip().split("\t")
-                            desc = tmp[0]
-                            start = int(tmp[1])
-                            end = int(tmp[2])
-                            strand = tmp[3]
-                            length = tmp[4]
-                            name = tmp[7]
-                            orf = tmp[8]
-                            ID = name
-                            desc.replace("%", "%25").replace(";", "%3B").replace(
-                                "=", "%3D"
-                            ).replace(",", "%2C")
-                            output.write(
-                                "%s\tRefSeq\tgene\t%d\t%d\t.\t%s\t.\tID=%s;Name=%s;Alias=%s;locus_tag=%s;desc=%s\n"
-                                % (ORGANISM, start, end, strand, orf, ID, orf, orf, desc)
-                            )
+                        with open(annotation_path) as file:
+                            for line in file:
+                                if line.startswith("#"):
+                                    continue
+                                tmp = line.strip().split("\t")
+                                desc = tmp[0]
+                                start = int(tmp[1])
+                                end = int(tmp[2])
+                                strand = tmp[3]
+                                length = tmp[4]
+                                name = tmp[7]
+                                orf = tmp[8]
+                                ID = name
+                                desc.replace("%", "%25").replace(";", "%3B").replace(
+                                    "=", "%3D"
+                                ).replace(",", "%2C")
+                                output.write(
+                                    "%s\tRefSeq\tgene\t%d\t%d\t.\t%s\t.\tID=%s;Name=%s;Alias=%s;locus_tag=%s;desc=%s\n"
+                                    % (ORGANISM, start, end, strand, orf, ID, orf, orf, desc)
+                                )
 
                         output.close()
                         if frame.verbose:
@@ -244,39 +246,40 @@ def create_menu(frame):
 
                         output = open(output_path, "w")
                         # output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
-                        for line in open(annotation_path):
-                            if line.startswith("#"):
-                                continue
-                            if line.startswith("geneID"):
-                                continue
-                            tmp = line.strip().split("\t")
-                            orf = tmp[0]
-                            if orf == "intergenic":
-                                continue
-                            name = "-"
-                            desc = "-"
-                            start = int(tmp[1])
-                            end = int(tmp[2])
-                            length = ((end - start + 1) / 3) - 1
-                            strand = tmp[3]
-                            someID = "-"
-                            someID2 = "-"
-                            COG = "-"
-                            output.write(
-                                "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                                % (
-                                    desc,
-                                    start,
-                                    end,
-                                    strand,
-                                    length,
-                                    someID,
-                                    someID2,
-                                    name,
-                                    orf,
-                                    COG,
+                        with open(annotation_path) as file:
+                            for line in file:
+                                if line.startswith("#"):
+                                    continue
+                                if line.startswith("geneID"):
+                                    continue
+                                tmp = line.strip().split("\t")
+                                orf = tmp[0]
+                                if orf == "intergenic":
+                                    continue
+                                name = "-"
+                                desc = "-"
+                                start = int(tmp[1])
+                                end = int(tmp[2])
+                                length = ((end - start + 1) / 3) - 1
+                                strand = tmp[3]
+                                someID = "-"
+                                someID2 = "-"
+                                COG = "-"
+                                output.write(
+                                    "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
+                                    % (
+                                        desc,
+                                        start,
+                                        end,
+                                        strand,
+                                        length,
+                                        someID,
+                                        someID2,
+                                        name,
+                                        orf,
+                                        COG,
+                                    )
                                 )
-                            )
                         output.close()
                         if frame.verbose:
                             transit_tools.log("Finished conversion")
@@ -293,7 +296,7 @@ def create_menu(frame):
                     gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
 
             for name in convert_methods:
-                convert_methods[name].gui.defineMenuItem(frame, convert_methods[name].label)
+                convert_methods[name].gui.define_menu_item(frame, convert_methods[name].label)
                 temp_menu_item = convert_methods[name].gui.menuitem
                 convert_menu_item.Append(temp_menu_item)
 
@@ -637,50 +640,51 @@ def annotation_gff3_to_pt(event):
                 )
 
             output = open(output_path, "w")
-            for line in open(annotation_path):
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                chr = tmp[0]
-                type = tmp[2]
-                start = int(tmp[3])
-                end = int(tmp[4])
-                length = ((end - start + 1) / 3) - 1
-                strand = tmp[6]
-                features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
-                if "ID" not in features:
-                    continue
-                orf = features["ID"]
-                name = features.get("Name", "-")
-                if name == "-":
-                    name = features.get("name", "-")
+            with open(annotation_path) as file:
+                for line in file:
+                    if line.startswith("#"):
+                        continue
+                    tmp = line.strip().split("\t")
+                    chr = tmp[0]
+                    type = tmp[2]
+                    start = int(tmp[3])
+                    end = int(tmp[4])
+                    length = ((end - start + 1) / 3) - 1
+                    strand = tmp[6]
+                    features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
+                    if "ID" not in features:
+                        continue
+                    orf = features["ID"]
+                    name = features.get("Name", "-")
+                    if name == "-":
+                        name = features.get("name", "-")
 
-                desc = features.get("Description", "-")
-                if desc == "-":
-                    desc = features.get("description", "-")
-                if desc == "-":
-                    desc = features.get("Desc", "-")
-                if desc == "-":
-                    desc = features.get("desc", "-")
+                    desc = features.get("Description", "-")
+                    if desc == "-":
+                        desc = features.get("description", "-")
+                    if desc == "-":
+                        desc = features.get("Desc", "-")
+                    if desc == "-":
+                        desc = features.get("desc", "-")
 
-                someID = "-"
-                someID2 = "-"
-                COG = "-"
-                output.write(
-                    "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                    % (
-                        desc,
-                        start,
-                        end,
-                        strand,
-                        length,
-                        someID,
-                        someID2,
-                        name,
-                        orf,
-                        COG,
+                    someID = "-"
+                    someID2 = "-"
+                    COG = "-"
+                    output.write(
+                        "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
+                        % (
+                            desc,
+                            start,
+                            end,
+                            strand,
+                            length,
+                            someID,
+                            someID2,
+                            name,
+                            orf,
+                            COG,
+                        )
                     )
-                )
             output.close()
             if frame.verbose:
                 transit_tools.log("Finished conversion")

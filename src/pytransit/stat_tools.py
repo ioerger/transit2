@@ -29,11 +29,7 @@ def sample_trunc_norm_post(data, S, mu0, s20, k0, nu0):
 
     return (mu_post, s2_post)
 
-
-#
-
-
-def FWER_Bayes(X):
+def fwer_bayes(X):
     ii = numpy.argsort(numpy.argsort(X))
     P_NULL = numpy.sort(X)
     W = 1 - P_NULL
@@ -43,11 +39,7 @@ def FWER_Bayes(X):
         P_ALT[i] = 1.0 - numpy.prod(W[: i + 1])
     return P_ALT[ii]
 
-
-#
-
-
-def bFDR(X):
+def b_fdr(X):
     N = len(X)
     ii = numpy.argsort(numpy.argsort(X))
     P_NULL = numpy.sort(X)
@@ -56,11 +48,7 @@ def bFDR(X):
         P_ALT[i] = numpy.mean(P_NULL[: i + 1])
     return P_ALT[ii]
 
-
-#
-
-
-def HDI_from_MCMC(posterior_samples, credible_mass=0.95):
+def hdi_from_mcmc(posterior_samples, credible_mass=0.95):
     # Credit to 'user72564'
     # https://stackoverflow.com/questions/22284502/highest-posterior-density-region-and-central-credible-region
     # Computes highest density interval from a sample of representative values,
@@ -76,45 +64,11 @@ def HDI_from_MCMC(posterior_samples, credible_mass=0.95):
     HDImax = sorted_points[ciWidth.index(min(ciWidth)) + ciIdxInc]
     return (HDImin, HDImax)
 
-
-#
-
-
-def transformToRange(X, new_min, new_max, old_min=None, old_max=None):
-
-    if old_min == None:
-        old_min = min(X)
-    if old_max == None:
-        old_max = max(X)
-
-    old_range = old_max - old_min
-
-    new_range = new_max - new_min
-    return [float(x - old_min) / old_range * new_range + new_min for x in X]
-
-
-#
-
-
 def fact(n):
     if n == 0:
         return 1
     else:
         return reduce(lambda x, y: x * y, range(1, n + 1))
-
-
-#
-
-
-def comb1(n, k):
-    prod = 1
-    for i in range(1, k + 1):
-        prod = prod * (n - (k - i)) / float(i)
-    return prod
-
-
-#
-
 
 def comb(n, k):
     if k < 0 or k > n:
@@ -127,10 +81,6 @@ def comb(n, k):
         c = c // (i + 1)
     return c
 
-
-#
-
-
 def norm(x, mu, sigma):
     """Normal distribution"""
     sigma = float(sigma)
@@ -140,10 +90,6 @@ def norm(x, mu, sigma):
         * math.exp(-0.5 * math.pow((x - mu) / sigma, 2))
     )
 
-
-#
-
-
 def binom(k, n, p):
     """Binomial distribution. Uses Normal approximation for large 'n' """
     if n >= 100:
@@ -151,17 +97,9 @@ def binom(k, n, p):
     else:
         return comb(n, k) * math.pow(p, k) * math.pow(1 - p, n - k)
 
-
-#
-
-
 def binom_cdf(k, n, p):
     """CDF of the binomial distribution"""
     return sum([binom(i, n, p) for i in range(0, k + 1)])
-
-
-#
-
 
 def binom_test(k, n, p, type="two-sided"):
     """Does a binomial test given success, trials and probability."""
@@ -192,7 +130,7 @@ def binom_test(k, n, p, type="two-sided"):
 
 ##############################
 # Bernoulli Diff Distribution
-def dberndiff(d, peq, p01, p10):
+def bernoulli_diff_distribution(d, peq, p01, p10):
     N = numpy.size(d)
     if N == 0:
         return 0.0
@@ -216,39 +154,27 @@ def dberndiff(d, peq, p01, p10):
         result[d == 1] = p10
         return result
 
-
-#
-
-
-def qberndiff(d, peq, p01, p10):
-    return numpy.sum([dberndiff(x, peq, p01, p10) for x in range(-1, d + 1)])
+def q_bernoulli_diff_distribution(d, peq, p01, p10):
+    return numpy.sum([bernoulli_diff_distribution(x, peq, p01, p10) for x in range(-1, d + 1)])
 
 
 #############################
 # Binomial Diff Distribution
 
 
-def dbinomdiff(d, n, P):
+def d_binomial_diff_distribution(d, n, P):
     S = numpy.array(my_perm(d, n))
     return numpy.sum(multinomial(S, P))
 
-
-#
-
-
-def qbinomdiff(d, n, peq, p01, p10):
-    return numpy.sum([dbinomdiff(x, n, peq, p01, p10) for x in range(-n, d + 1)])
-
-
-#
-
+def q_binomial_diff_distribution(d, n, peq, p01, p10):
+    return numpy.sum([d_binomial_diff_distribution(x, n, peq, p01, p10) for x in range(-n, d + 1)])
 
 def my_perm(d, n):
     S = []
     if d == 0:
         for i in range(n + 1):
             r = n - i
-            if isEven(r):
+            if is_even(r):
                 S.append((int(r / 2.0), i, int(r / 2.0)))
     #
     if d > 0:
@@ -273,33 +199,21 @@ def my_perm(d, n):
     #
     return S
 
-
-#
-
-
 def multinomial(K, P):
     N = numpy.sum(K, 1)
     if K.shape == P.shape:
-        return tricoeff(N, K) * numpy.prod(
+        return tri_coeff(N, K) * numpy.prod(
             [numpy.power(P[i], K[i]) for i in range(len(K))], 1
         )
     else:
-        return tricoeff(N, K) * numpy.prod(
+        return tri_coeff(N, K) * numpy.prod(
             [numpy.power(P, K[i]) for i in range(len(K))], 1
         )
-
-
-#
-
 
 def log_fac(n):
     return numpy.sum(numpy.log(numpy.arange(2, n + 1)))
 
-
-#
-
-
-def tricoeff(N, S):
+def tri_coeff(N, S):
     try:
         LOG_FAC
     except NameError:
@@ -313,16 +227,8 @@ def tricoeff(N, S):
         LOG_FAC[N] - (LOG_FAC[S[:, 0]] + LOG_FAC[S[:, 1]] + LOG_FAC[S[:, 2]])
     )
 
-
-#
-
-
-def isEven(x):
+def is_even(x):
     return x % 2 == 0
-
-
-#
-
 
 def regress(X, Y):
     """Performs linear regression given two vectors, X, Y."""
@@ -341,11 +247,7 @@ def regress(X, Y):
 
     return (B, A0, std)
 
-
-#
-
-
-def boxcoxtransform(x, lambdax):
+def boxcox_transform(x, lambdax):
     """
     Performs a box-cox transformation to data vector X.
     WARNING: elements of X should be all positive! 
@@ -359,43 +261,31 @@ def boxcoxtransform(x, lambdax):
         return (x ** lambdax - 1.0) / lambdax
     # return math.log(x) if abs(lambdax) < 1.0e-5 else (x**lambdax - 1.0)/lambdax
 
-
-#
-
-
-def loglik(X, lambdax):
+def log_likelihood(X, lambdax):
     """
     Computes the log-likelihood function for a transformed vector Xtransform.     
     """
     n = len(X)
-    Xtrans = [boxcoxtransform(x, lambdax) for x in X]
+    Xtrans = [boxcox_transform(x, lambdax) for x in X]
     meanX = sum(Xtrans) / float(n)
     S2 = (lambdax - 1.0) * sum([math.log(x) for x in X])
     S = sum([(x - meanX) ** 2 for x in Xtrans])
     S1 = (-n / 2.0) * math.log(S / n)
     return S2 + S1
 
-
-#
-
-
-def boxcoxTable(X, minlambda, maxlambda, dellambda):
+def boxcox_table(X, minlambda, maxlambda, dellambda):
     """
-    Returns a table of (loglik function, lambda) pairs
+    Returns a table of (log_likelihood function, lambda) pairs
     for the data.
     """
-    # Create a table (lambda, loglik)
+    # Create a table (lambda, log_likelihood)
     out = []
     vallambda = minlambda
     while vallambda <= maxlambda + 1.0e-5:
-        llik = loglik(X, vallambda)
+        llik = log_likelihood(X, vallambda)
         out.append((llik, vallambda))
         vallambda += dellambda
     return out
-
-
-#
-
 
 def phi_coefficient(X, Y):
     """Calculates the phi-coefficient for two bool arrays"""
@@ -412,11 +302,7 @@ def phi_coefficient(X, Y):
     phi_coeff = (x1y1 * x0y0 - x1y0 * x0y1) / math.sqrt(x1 * x0 * y1 * y0)
     return phi_coeff
 
-
-#
-
-
-def BH_fdr_correction(X):
+def bh_fdr_correction(X):
     """Adjusts p-values using the Benjamini Hochberg procedure"""
     n = len(X)
     qvalues = numpy.zeros(n)
@@ -435,11 +321,7 @@ def BH_fdr_correction(X):
     p2qval = dict([(p, q) for (p, q) in zip(pvalues, qvalues)])
     return numpy.array([p2qval[p] for p in X])
 
-
-#
-
-
-def bayesian_ess_thresholds(Z_raw, ALPHA=0.05):
+def bayesian_essentiality_thresholds(Z_raw, ALPHA=0.05):
     """Returns Essentiality Thresholds using a BH-like procedure"""
     Z = numpy.sort(Z_raw)[::-1]
     W = 1 - Z
@@ -481,26 +363,16 @@ def bayesian_ess_thresholds(Z_raw, ALPHA=0.05):
 
     return (ess_threshold, noness_threshold)
 
-
-#
-
-
-def tricube(X):
-    
+def tri_cube(X):
     result = numpy.zeros(len(X))
     ii = numpy.logical_and(X >= -1, X <= 1)
     result[ii] = numpy.power(1 - numpy.power(numpy.abs(X[ii]), 3), 3)
     return result
 
-
-#
-
-
 def loess(X, Y, h=10000):
-    
     smoothed = numpy.zeros(len(Y))
     for i, x in enumerate(X):
-        W = tricube((X - x) / float(h))
+        W = tri_cube((X - x) / float(h))
         sW = numpy.sum(W)
         wsX = numpy.sum(W * X)
         wsY = numpy.sum(W * Y)
@@ -511,12 +383,7 @@ def loess(X, Y, h=10000):
         smoothed[i] = B * x + A
     return smoothed
 
-
-#
-
-
 def loess_correction(X, Y, h=10000, window=100):
-    
     Y = numpy.array(Y)
     size = int(len(X) / window) + 1
     x_w = numpy.zeros(size)
@@ -537,29 +404,17 @@ def loess_correction(X, Y, h=10000, window=100):
 
     return normalized_Y
 
-
-#
-
-
-def F_mean_diff_flat(*args, **kwargs):
+def f_mean_diff_flat(*args, **kwargs):
     A = args[0]
     B = args[1]
     return numpy.mean(B) - numpy.mean(A)
 
-
-#
-
-
-def F_sum_diff_flat(*args, **kwargs):
+def f_sum_diff_flat(*args, **kwargs):
     A = args[0]
     B = args[1]
     return numpy.sum(B) - numpy.sum(A)
 
-
-#
-
-
-def F_mean_diff_dict(*args, **kwargs):
+def f_mean_diff_dict(*args, **kwargs):
     D = args[0]
     data1_total = 0
     data2_total = 0
@@ -572,11 +427,7 @@ def F_mean_diff_dict(*args, **kwargs):
         data2_size += len(D[L][1])
     return (data2_total / float(data2_size)) - (data1_total / float(data1_size))
 
-
-#
-
-
-def F_sum_diff_dict(*args, **kwargs):
+def f_sum_diff_dict(*args, **kwargs):
     D = args[0]
     data1_total = 0
     data2_total = 0
@@ -585,19 +436,11 @@ def F_sum_diff_dict(*args, **kwargs):
         data2_total += numpy.sum(D[L][1])
     return data2_total - data1_total
 
-
-#
-
-
-def F_shuffle_flat(*args, **kwargs):
+def f_shuffle_flat(*args, **kwargs):
     X = args[0]
     return numpy.random.permutation(X)
 
-
-#
-
-
-def F_shuffle_dict_libraries(*args, **kwargs):
+def f_shuffle_dict_libraries(*args, **kwargs):
     D = args[0]
     E = {}
     for L in D:
@@ -612,16 +455,12 @@ def F_shuffle_dict_libraries(*args, **kwargs):
         # print("D[L]", D[L])
     return E
 
-
-#
-
-
 def resampling(
     data1,
     data2,
     S=10000,
-    testFunc=F_mean_diff_flat,
-    permFunc=F_shuffle_flat,
+    testFunc=f_mean_diff_flat,
+    permFunc=f_shuffle_flat,
     adaptive=False,
     lib_str1="",
     lib_str2="",
@@ -789,16 +628,8 @@ def resampling(
         test_list,
     )
 
-
-#
-
-
 def cumulative_average(new_x, n, prev_avg):
     return ((new_x + (n * prev_avg)) / (n + 1.0), n + 1)
-
-
-#
-
 
 def text_histogram(X, nBins=20, resolution=200, obs=None):
     MIN = numpy.min(X)
@@ -834,20 +665,12 @@ def parse_lib_index(nData, libstr, nTAs):
         lib_to_index[L] = numpy.array(index)
     return lib_to_index
 
-
-#
-
-
 def combine_lib_dicts(L1, L2):
     KEYS = L1.keys()
     DATA = {}
     for K in KEYS:
         DATA[K] = numpy.array([L1[K], L2[K]], dtype=object)
     return DATA
-
-
-#
-
 
 def get_lib_data_dict(data1, ctrl_lib_str, data2, exp_lib_str, nTAs):
     lib1_index_dict = parse_lib_index(len(data1), ctrl_lib_str, nTAs)
@@ -998,8 +821,8 @@ if __name__ == "__main__":
             data1,
             data2,
             S=10000,
-            testFunc=F_mean_diff_dict,
-            permFunc=F_shuffle_dict_libraries,
+            testFunc=f_mean_diff_dict,
+            permFunc=f_shuffle_dict_libraries,
             adaptive=False,
             lib_str1=ctrl_lib_str,
             lib_str2=exp_lib_str,
@@ -1018,8 +841,8 @@ if __name__ == "__main__":
             data1,
             data2,
             S=10000,
-            testFunc=F_mean_diff_flat,
-            permFunc=F_shuffle_flat,
+            testFunc=f_mean_diff_flat,
+            permFunc=f_shuffle_flat,
             adaptive=False,
             lib_str1=ctrl_lib_str,
             lib_str2=exp_lib_str,

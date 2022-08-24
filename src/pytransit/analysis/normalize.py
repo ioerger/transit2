@@ -54,7 +54,7 @@ class NormalizeFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#CombinedWig", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
         return text
 
@@ -144,10 +144,11 @@ class NormalizeMethod(base.SingleConditionMethod):
 
         # determine ref genome from first; assume they are all the same; assume wigs have 2 header lines
         line2 = "variableStep chrom="  # unknown
-        for line in open(infile):
-            if line.startswith("variableStep"):
-                line2 = line.rstrip()
-                break
+        with open(infile) as file:
+            for line in file:
+                if line.startswith("variableStep"):
+                    line2 = line.rstrip()
+                    break
 
         if self.combined_wig == True:
             (sites, data, files) = tnseq_tools.read_combined_wig(self.ctrldata[0])

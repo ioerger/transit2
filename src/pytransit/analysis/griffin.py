@@ -69,19 +69,20 @@ class GriffinFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Griffin", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         ess = 0
         unc = 0
         non = 0
         short = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                ess += 1
-            else:
-                non += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if float(tmp[-1]) < 0.05:
+                    ess += 1
+                else:
+                    non += 1
 
         text = """Results:
     Essentials: %s
@@ -317,8 +318,8 @@ class GriffinMethod(base.SingleConditionMethod):
             else:
                 B = 1.0 / math.log(1.0 / pnon)
                 u = math.log(gene.n * pins, 1.0 / pnon)
-                exprun = tnseq_tools.ExpectedRuns(gene.n, pnon)
-                pval = 1.0 - tnseq_tools.GumbelCDF(gene.r, u, B)
+                exprun = tnseq_tools.expected_runs(gene.n, pnon)
+                pval = 1.0 - tnseq_tools.gumbel_cdf(gene.r, u, B)
                 results.append([gene, exprun, pval])
             
             percentage = (100.0 * (count + 1) / (N))
@@ -327,7 +328,7 @@ class GriffinMethod(base.SingleConditionMethod):
             count += 1
 
         pval = [row[-1] for row in results]
-        padj = stat_tools.BH_fdr_correction(pval)
+        padj = stat_tools.bh_fdr_correction(pval)
         for i in range(len(results)):
             results[i].append(padj[i])
         results.sort()

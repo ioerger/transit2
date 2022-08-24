@@ -44,42 +44,14 @@ class TransitFile:
         if self.wxobj:
             transit_tools.ShowWarning(text)
 
-    def getData(self, path, colnames):
-        
-        row = 0
-        data = []
-        shownError = False
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.split("\t")
-            tmp[-1] = tmp[-1].strip()
-            # print(colnames)
-            # print( len(colnames), len(tmp))
-            try:
-                rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
-            except Exception as e:
-                if not shownError:
-                    self.transit_warning(
-                        "Error reading data! This may be caused by trying to load a old results file, when the format has changed."
-                    )
-                    shownError = True
-                rowdict = dict(
-                    [(colnames[i], tmp[i]) for i in range(min(len(colnames), len(tmp)))]
-                )
-            data.append((row, rowdict))
-            row += 1
-        return data
-
-    def getHeader(self, path):
-        
+    def get_header(self, path):
         return "Generic Transit File Type."
 
-    def getMenus(self):
-        menus = [("Display in Track View", self.displayInTrackView)]
+    def get_menus(self):
+        menus = [("Display in Track View", self.display_in_track_view)]
         return menus
 
-    def displayInTrackView(self, displayFrame, event):
+    def display_in_track_view(self, displayFrame, event):
 
         # print("Self:", self)
         # print("Frame:", displayFrame)
@@ -604,17 +576,18 @@ class MultiConditionMethod(AnalysisMethod):
     def get_samples_metadata(self):
         data = {}
         header = None
-        for line in open(self.metadata):
-            if line[0] == "#":
-                continue
-            w = line.rstrip().split("\t")
-            if header == None:
-                header = w
-                for col in header:
-                    data[col] = []
-            else:
-                for i in range(len(header)):
-                    data[header[i]].append(w[i])
+        with open(self.metadata) as file:
+            for line in file:
+                if line[0] == "#":
+                    continue
+                w = line.rstrip().split("\t")
+                if header == None:
+                    header = w
+                    for col in header:
+                        data[col] = []
+                else:
+                    for i in range(len(header)):
+                        data[header[i]].append(w[i])
         return data
 
 

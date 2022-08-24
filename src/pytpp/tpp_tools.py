@@ -63,18 +63,19 @@ def clean_args(rawargs):
 def analyze_dataset(wigfile):
     data = []
     TAs, ins, reads = 0, 0, 0
-    for line in open(wigfile):
-        if line[0] == "#":
-            continue
-        if line[:3] == "var":
-            continue  # variableStep
-        w = line.rstrip().split()
-        TAs += 1
-        cnt = int(w[1])
-        if cnt > 1:
-            ins += 1
-        reads += cnt
-        data.append((cnt, w[0]))
+    with open(wigfile) as file:
+        for line in file:
+            if line[0] == "#":
+                continue
+            if line[:3] == "var":
+                continue  # variableStep
+            w = line.rstrip().split()
+            TAs += 1
+            cnt = int(w[1])
+            if cnt > 1:
+                ins += 1
+            reads += cnt
+            data.append((cnt, w[0]))
 
     output = open(wigfile + ".stats", "w")
     output.write(
@@ -95,21 +96,22 @@ def analyze_dataset(wigfile):
 def fastq2reads(infile, outfile, maxreads):
     output = open(outfile, "w")
     cnt, tot = 0, 0
-    for line in open(infile):
-        if cnt == 0 and line[0] == "@":
-            tot += 1
-            if tot % 1000000 == 0:
-                message("%s reads processed" % tot)
-        if maxreads > -1:
-            if tot > maxreads:
-                break
-        if cnt == 0:
-            h = line[1:]  # strip off '@'
-            # h = h.replace(' ','_')
-            output.write(">%s" % h)
-        if cnt == 1:
-            output.write(line)
-        cnt = (cnt + 1) % 4
+    with open(infile) as file:
+        for line in file:
+            if cnt == 0 and line[0] == "@":
+                tot += 1
+                if tot % 1000000 == 0:
+                    message("%s reads processed" % tot)
+            if maxreads > -1:
+                if tot > maxreads:
+                    break
+            if cnt == 0:
+                h = line[1:]  # strip off '@'
+                # h = h.replace(' ','_')
+                output.write(">%s" % h)
+            if cnt == 1:
+                output.write(line)
+            cnt = (cnt + 1) % 4
     output.close()
 
 
@@ -340,48 +342,49 @@ def extract_staggered(infile, outfile, vars):
         barseq1 = "TGCAGGGATGTCCACGAGGTCTCT"  # const regions surrounding barcode
         barseq2 = "CGTACGCTGCAGGTCGACGGCCGG"
         barseq1len, barseq2len = len(barseq1), len(barseq2)
-    for line in open(infile):
-        # print(line)
-        line = line.rstrip()
-        if not line:
-            continue
-        if line[0] == ">":
-            header = line
-            continue
-        tot += 1
-        if tot % 1000000 == 0:
-            message("%s reads processed" % tot)
-        readlen = len(line)
-        a = mmfind(line, readlen, Tn, lenTn, vars.mm1)  # allow some mismatches
-        b = mmfind(line, readlen, ADAPTER2, lenADAP, 1)  # look for end of short frags
-        if a >= P and a <= Q:
-            gstart, gend = a + lenTn, readlen
-            if b != -1:
-                gend = b
-                vars.truncated_reads += 1
-            minReadLen = 15 if vars.protocol.lower() == "mme1" else 20
-            if gend - gstart < minReadLen:
-                continue  # too short # I should make this a param
-            output.write(header + "\n")
-            output.write(line[gstart:gend] + "\n")
-            vars.tot_tgtta += 1
-        else:  # [WM] [add]
-            # Output reads that failed to be trimmed.          # [WM] [add]
-            output_failed.write(header + "\n")  # [WM] [add]
-            output_failed.write(line + "\n")  # [WM] [add]
-        if vars.barseq_catalog_out != None:
-            n = max(a, readlen)
-            c = mmfind(
-                line, n, barseq1, barseq1len, vars.mm1
-            )  # only have to search as far as Tn prefix
-            d = mmfind(line, n, barseq2, barseq2len, vars.mm1)
-            seq = "XXXXXXXXXXXXXXXXXXXX"
-            if c != -1 and d != -1:
-                size = d - c - barseq1len
-                if size >= 15 and size <= 25:
-                    seq = line[c + barseq1len : d]
-            catalog.write(header + "\n")
-            catalog.write(seq + "\n")
+    with open(infile) as file:
+        for line in file:
+            # print(line)
+            line = line.rstrip()
+            if not line:
+                continue
+            if line[0] == ">":
+                header = line
+                continue
+            tot += 1
+            if tot % 1000000 == 0:
+                message("%s reads processed" % tot)
+            readlen = len(line)
+            a = mmfind(line, readlen, Tn, lenTn, vars.mm1)  # allow some mismatches
+            b = mmfind(line, readlen, ADAPTER2, lenADAP, 1)  # look for end of short frags
+            if a >= P and a <= Q:
+                gstart, gend = a + lenTn, readlen
+                if b != -1:
+                    gend = b
+                    vars.truncated_reads += 1
+                minReadLen = 15 if vars.protocol.lower() == "mme1" else 20
+                if gend - gstart < minReadLen:
+                    continue  # too short # I should make this a param
+                output.write(header + "\n")
+                output.write(line[gstart:gend] + "\n")
+                vars.tot_tgtta += 1
+            else:  # [WM] [add]
+                # Output reads that failed to be trimmed.          # [WM] [add]
+                output_failed.write(header + "\n")  # [WM] [add]
+                output_failed.write(line + "\n")  # [WM] [add]
+            if vars.barseq_catalog_out != None:
+                n = max(a, readlen)
+                c = mmfind(
+                    line, n, barseq1, barseq1len, vars.mm1
+                )  # only have to search as far as Tn prefix
+                d = mmfind(line, n, barseq2, barseq2len, vars.mm1)
+                seq = "XXXXXXXXXXXXXXXXXXXX"
+                if c != -1 and d != -1:
+                    size = d - c - barseq1len
+                    if size >= 15 and size <= 25:
+                        seq = line[c + barseq1len : d]
+                catalog.write(header + "\n")
+                catalog.write(seq + "\n")
     if vars.barseq_catalog_out != None:
         catalog.close()
     output.close()
@@ -412,21 +415,23 @@ def get_id(line):
 
 def select_reads(goodreads, infile, outfile):
     hash = {}
-    for line in open(goodreads):
-        if line[0] == ">":
-            # id = line[line.find(":")+1:line.rfind("#")]
-            id = get_id(line)
-            hash[id] = 1
+    with open(goodreads) as file:
+        for line in file:
+            if line[0] == ">":
+                # id = line[line.find(":")+1:line.rfind("#")]
+                id = get_id(line)
+                hash[id] = 1
 
     output = open(outfile, "w")
-    for line in open(infile):
-        if line[0] == ">":
-            header = line
-            id = get_id(line)
-        else:
-            if id in hash:
-                output.write(header)
-                output.write(line)
+    with open(infile) as file:
+        for line in file:
+            if line[0] == ">":
+                header = line
+                id = get_id(line)
+            else:
+                if id in hash:
+                    output.write(header)
+                    output.write(line)
     output.close()
 
 
@@ -455,12 +460,13 @@ def replace_ids(infile1, infile2, outfile):
 
 def select_cycles(infile, i, j, outfile):
     output = open(outfile, "w")
-    for line in open(infile):
-        if line[0] == ">":
-            header = line
-        else:
-            output.write(header)
-            output.write(line[i - 1 : j] + "\n")
+    with open(infile) as file:
+        for line in file:
+            if line[0] == ">":
+                header = line
+            else:
+                output.write(header)
+                output.write(line[i - 1 : j] + "\n")
     output.close()
 
 
@@ -468,16 +474,17 @@ def read_genome(filename, replicon_index):
     s = ""
     cur_index = 0
     first_iteration = True
-    for line in open(filename):
-        if line[0] == ">":
-            if first_iteration:
-                continue  # skip fasta header
+    with open(filename) as file:
+        for line in file:
+            if line[0] == ">":
+                if first_iteration:
+                    continue  # skip fasta header
+                else:
+                    cur_index += 1
             else:
-                cur_index += 1
-        else:
-            if cur_index == replicon_index:
-                s += line.strip()
-        first_iteration = False
+                if cur_index == replicon_index:
+                    s += line.strip()
+            first_iteration = False
     return s.upper()
 
 
@@ -567,12 +574,13 @@ def template_counts(ref, sam, bcfile, vars):
     vars.mapped = vars.r1 = vars.r2 = 0
 
     barcodes = {}
-    for line in open(bcfile):
-        line = line.rstrip()
-        if line[0] == ">":
-            id = line[1:]
-        else:
-            barcodes[id] = line
+    with open(bcfile) as file:
+        for line in file:
+            line = line.rstrip()
+            if line[0] == ">":
+                id = line[1:]
+            else:
+                barcodes[id] = line
 
     hits = {}
     sam_header = parse_sam_header(sam)
@@ -581,38 +589,39 @@ def template_counts(ref, sam, bcfile, vars):
         hits[replicon] = {}
 
     skip = count_sam_header_lines(sam_header)
-    for line in open(sam):
-        # if line[0]=='@': continue
-        if skip > 0:
-            skip -= 1
-            continue
-        else:
-            w = line.split("\t")
-            bc = barcodes[w[0]]
-            code = samcode(w[1])
-            if "S" in w[5]:
-                continue  # eliminate softclipped reads
-            if code[6] == "1" and code[2] == "0":
-                vars.r1 += 1
-            if code[6] == "1" and code[3] == "0":
-                vars.r2 += 1
-            if bc == "XXXXXXXXXX":
+    with open(sam) as file:
+        for line in file:
+            # if line[0]=='@': continue
+            if skip > 0:
+                skip -= 1
                 continue
-            if (
-                code[6] == "1" and code[1] == "1"
-            ):  # both reads map properly (83 or 99) and has legit barcode
-                vars.mapped += 1
-                readlen = len(w[9])
-                pos, size = int(w[3]), int(w[8])  # note: size could be negative
-                strand, delta = "F", -2
-                if code[4] == "1":
-                    strand, delta = "R", readlen
+            else:
+                w = line.split("\t")
+                bc = barcodes[w[0]]
+                code = samcode(w[1])
+                if "S" in w[5]:
+                    continue  # eliminate softclipped reads
+                if code[6] == "1" and code[2] == "0":
+                    vars.r1 += 1
+                if code[6] == "1" and code[3] == "0":
+                    vars.r2 += 1
+                if bc == "XXXXXXXXXX":
+                    continue
+                if (
+                    code[6] == "1" and code[1] == "1"
+                ):  # both reads map properly (83 or 99) and has legit barcode
+                    vars.mapped += 1
+                    readlen = len(w[9])
+                    pos, size = int(w[3]), int(w[8])  # note: size could be negative
+                    strand, delta = "F", -2
+                    if code[4] == "1":
+                        strand, delta = "R", readlen
 
-                pos += delta
-                replicon_name = w[2]
-                if pos not in hits[replicon_name]:
-                    hits[replicon_name][pos] = []
-                hits[replicon_name][pos].append((strand, size, bc))
+                    pos += delta
+                    replicon_name = w[2]
+                    if pos not in hits[replicon_name]:
+                        hits[replicon_name][pos] = []
+                    hits[replicon_name][pos].append((strand, size, bc))
 
     sites_list = []
     for replicon_index in range(vars.num_replicons):
@@ -678,43 +687,44 @@ def read_counts(ref, sam, vars):
     vars.tot_tgtta = 0
     vars.mapped = 0
     vars.r1 = vars.r2 = 0
-    for line in open(sam):
-        if line[0] == "@":
-            continue
-        else:
-            w = line.split("\t")
-            code, icode = samcode(w[1]), int(w[1])
-            vars.tot_tgtta += 1
-            if icode == 0 or icode == 16:
-                vars.r1 += 1
-                vars.mapped += 1
-                readlen = len(w[9])
-                pos = int(w[3])
-                replicon_name = w[2]
+    with open(sam) as file:
+        for line in file:
+            if line[0] == "@":
+                continue
+            else:
+                w = line.split("\t")
+                code, icode = samcode(w[1]), int(w[1])
+                vars.tot_tgtta += 1
+                if icode == 0 or icode == 16:
+                    vars.r1 += 1
+                    vars.mapped += 1
+                    readlen = len(w[9])
+                    pos = int(w[3])
+                    replicon_name = w[2]
 
-                if vars.protocol.lower() == "mme1":
-                    strand, delta = "F", readlen
-                    if code[4] == "1":
-                        strand, delta = "R", 1
-                    site1 = (
-                        pos + delta - 2
-                    )  # if on + strand, take column 3 position and add 1bp,
-                    site2 = (
-                        pos + delta - 1
-                    )  # check one off just in case it enzyme chewed too much
-                    if site1 in sites_dict[replicon_name]:
-                        increase_counts(site1, sites_dict[replicon_name], strand)
-                    if site2 in sites_dict[replicon_name]:
-                        increase_counts(site2, sites_dict[replicon_name], strand)
-                else:
-                    strand, delta = "F", -2
-                    if code[4] == "1":
-                        strand, delta = "R", readlen
-                    site1 = (
-                        pos + delta
-                    )  # if on + strand, take column 3 position and add 1bp)
-                    if site1 in sites_dict[replicon_name]:
-                        increase_counts(site1, sites_dict[replicon_name], strand)
+                    if vars.protocol.lower() == "mme1":
+                        strand, delta = "F", readlen
+                        if code[4] == "1":
+                            strand, delta = "R", 1
+                        site1 = (
+                            pos + delta - 2
+                        )  # if on + strand, take column 3 position and add 1bp,
+                        site2 = (
+                            pos + delta - 1
+                        )  # check one off just in case it enzyme chewed too much
+                        if site1 in sites_dict[replicon_name]:
+                            increase_counts(site1, sites_dict[replicon_name], strand)
+                        if site2 in sites_dict[replicon_name]:
+                            increase_counts(site2, sites_dict[replicon_name], strand)
+                    else:
+                        strand, delta = "F", -2
+                        if code[4] == "1":
+                            strand, delta = "R", readlen
+                        site1 = (
+                            pos + delta
+                        )  # if on + strand, take column 3 position and add 1bp)
+                        if site1 in sites_dict[replicon_name]:
+                            increase_counts(site1, sites_dict[replicon_name], strand)
 
     results_list = []
     for replicon_index in range(vars.num_replicons):
@@ -954,50 +964,51 @@ def extract_barcodes(fn_tgtta2, fn_barcodes2, fn_genomic2, mm1):
     fl_barcodes2 = open(fn_barcodes2, "w")
     fl_genomic2 = open(fn_genomic2, "w")
     tot, DEBUG = 0, 0
-    for line in open(fn_tgtta2):
-        line = line.rstrip()
-        if line[0] == ">":
-            header = line
-        else:
-            tot += 1
-            if tot % 1000000 == 0:
-                message("%s reads processed" % tot)
-            # a  = line.find(const1)
-            # b  = line.find(const2)
-            # c  = line.find(const3)
-            a = mmfind(line, len(line), const1, nconst1, mm1)
-            b = mmfind(line, len(line), const2, nconst2, mm1)
-            c = mmfind(line, len(line), const3, nconst3, mm1)
-            bstart, bend = a + nconst1, b
-            gstart, gend = b + nconst2, len(line)
-            if c != -1 and c - gstart > 20:
-                gend = c
-            if a == -1 or bend < bstart + 5 or bend > bstart + 15:
-                # you can't just reject these, beacuse they are paired with R1
-                # but setting the genomic part to the first 20 cycles should prevent it from mapping
-                bstart, bend = 0, 10
-                gstart, gend = 0, 20
-                barcode, genomic = "XXXXXXXXXX", "XXXXXXXXXX"
+    with open(fn_tgtta2) as file:
+        for line in file:
+            line = line.rstrip()
+            if line[0] == ">":
+                header = line
             else:
-                barcode, genomic = line[bstart:bend], line[gstart:gend]
-            if len(genomic) == 0:
-                genomic = "XXX"  # Necessary to avoid a bizarre error with bwa when there is an empty line.
-            if DEBUG == 1:
-                fl_barcodes2.write(header + "\n")
-                fl_barcodes2.write(line + "\n")
-                # fl_barcodes2.write((" "*bstart)+line[bstart:bend]+"\n")
-                fl_barcodes2.write((" " * bstart) + barcode + "\n")
-                fl_genomic2.write(header + "\n")
-                fl_genomic2.write(line + "\n")
-                # fl_genomic2.write((" "*gstart)+line[gstart:gend]+"\n")
-                fl_genomic2.write((" " * gstart) + genomic + "\n")
-            else:
-                fl_barcodes2.write(header + "\n")
-                # fl_barcodes2.write(line[bstart:bend]+"\n")
-                fl_barcodes2.write(barcode + "\n")
-                fl_genomic2.write(header + "\n")
-                # fl_genomic2.write(line[gstart:gend]+"\n")
-                fl_genomic2.write(genomic + "\n")
+                tot += 1
+                if tot % 1000000 == 0:
+                    message("%s reads processed" % tot)
+                # a  = line.find(const1)
+                # b  = line.find(const2)
+                # c  = line.find(const3)
+                a = mmfind(line, len(line), const1, nconst1, mm1)
+                b = mmfind(line, len(line), const2, nconst2, mm1)
+                c = mmfind(line, len(line), const3, nconst3, mm1)
+                bstart, bend = a + nconst1, b
+                gstart, gend = b + nconst2, len(line)
+                if c != -1 and c - gstart > 20:
+                    gend = c
+                if a == -1 or bend < bstart + 5 or bend > bstart + 15:
+                    # you can't just reject these, beacuse they are paired with R1
+                    # but setting the genomic part to the first 20 cycles should prevent it from mapping
+                    bstart, bend = 0, 10
+                    gstart, gend = 0, 20
+                    barcode, genomic = "XXXXXXXXXX", "XXXXXXXXXX"
+                else:
+                    barcode, genomic = line[bstart:bend], line[gstart:gend]
+                if len(genomic) == 0:
+                    genomic = "XXX"  # Necessary to avoid a bizarre error with bwa when there is an empty line.
+                if DEBUG == 1:
+                    fl_barcodes2.write(header + "\n")
+                    fl_barcodes2.write(line + "\n")
+                    # fl_barcodes2.write((" "*bstart)+line[bstart:bend]+"\n")
+                    fl_barcodes2.write((" " * bstart) + barcode + "\n")
+                    fl_genomic2.write(header + "\n")
+                    fl_genomic2.write(line + "\n")
+                    # fl_genomic2.write((" "*gstart)+line[gstart:gend]+"\n")
+                    fl_genomic2.write((" " * gstart) + genomic + "\n")
+                else:
+                    fl_barcodes2.write(header + "\n")
+                    # fl_barcodes2.write(line[bstart:bend]+"\n")
+                    fl_barcodes2.write(barcode + "\n")
+                    fl_genomic2.write(header + "\n")
+                    # fl_genomic2.write(line[gstart:gend]+"\n")
+                    fl_genomic2.write(genomic + "\n")
     fl_barcodes2.close()
     fl_genomic2.close()
     if DEBUG == 1:
@@ -1151,34 +1162,36 @@ def popularity(lst):
 # TODO: fix this...?
 def create_barseq_catalog(vars, replicon_index):
     barcodes = {}  # headers->barcodes
-    for line in open(vars.base + ".barseq"):
-        if line[0] == ">":
-            header = line.rstrip()[1:]
-            header = header.split()[
-                0
-            ]  # in case it has a space, which is dropped by bwa in sam file
-        else:
-            barcodes[header] = line.split("\n")[0]
+    with open(vars.base + ".barseq") as file:
+        for line in file:
+            if line[0] == ">":
+                header = line.rstrip()[1:]
+                header = header.split()[
+                    0
+                ]  # in case it has a space, which is dropped by bwa in sam file
+            else:
+                barcodes[header] = line.split("\n")[0]
 
     sites, nreads = {}, 0
-    for line in open(vars.sam):
-        if line[0] == "@":
-            continue
-        w = line.split("\t")
-        samcode = int(w[1])
-        nreads += 1
-        if samcode in [0, 16]:  # what about PE reads?
-            header, coord = w[0], int(w[3])
-            # see how I adjust coords in read_counts()
-            strand, delta = "F", -2
-            if samcode == 16:
-                strand, delta = "R", len(w[9])
-            coord += delta
-            if strand == "R":
-                coord *= -1
-            if coord not in sites:
-                sites[coord] = []  # use -co for minus strand
-            sites[coord].append(barcodes[header])
+    with open(vars.sam) as file:
+        for line in file:
+            if line[0] == "@":
+                continue
+            w = line.split("\t")
+            samcode = int(w[1])
+            nreads += 1
+            if samcode in [0, 16]:  # what about PE reads?
+                header, coord = w[0], int(w[3])
+                # see how I adjust coords in read_counts()
+                strand, delta = "F", -2
+                if samcode == 16:
+                    strand, delta = "R", len(w[9])
+                coord += delta
+                if strand == "R":
+                    coord *= -1
+                if coord not in sites:
+                    sites[coord] = []  # use -co for minus strand
+                sites[coord].append(barcodes[header])
 
     mapsto = {}  # barcodes->sites
     totbc, maptoTAs = 0, 0
@@ -1199,9 +1212,7 @@ def create_barseq_catalog(vars, replicon_index):
     # what about redundant sites like IS elements?
     goodbc = {}
     for bc, sites2 in mapsto.items():
-        pop = popularity(
-            sites2
-        )  # make a table of locations at which the barcode appears
+        pop = popularity(sites2)  # make a table of locations at which the barcode appears
         # print(bc,pop)
         if len(pop) == 1:
             goodbc[bc] = 1
@@ -1438,20 +1449,21 @@ def generate_output(vars):
     ADAPTER2 = "TACCACGACCA"  # rc of const2 region of R2, between barcode and genomic; these reads will be truncated here
     Himar1 = "ACTTATCAGCCAACCTGTTA"
     trimmed_reads, nprimer, nvector, nadapter, misprimed, ntruncated = 0, 0, 0, 0, 0, 0
-    for line in open(vars.trimmed1):
-        if line[0] == ">":
-            trimmed_reads += 1
-            continue
-        if primer in line:
-            nprimer += 1
-        if vector in line:
-            nvector += 1
-        if adapter in line:
-            nadapter += 1
-        # if "TGTTA" in line and Himar1 not in line: misprimed += 1
-        # basically, these should correspond to insertions at non-TA sites (so the terminal TA of ...TGTTA will be different)
-        if Himar1[:-5] in line and Himar1 not in line:
-            misprimed += 1
+    with open(vars.trimmed1) as file:
+        for line in file:
+            if line[0] == ">":
+                trimmed_reads += 1
+                continue
+            if primer in line:
+                nprimer += 1
+            if vector in line:
+                nvector += 1
+            if adapter in line:
+                nadapter += 1
+            # if "TGTTA" in line and Himar1 not in line: misprimed += 1
+            # basically, these should correspond to insertions at non-TA sites (so the terminal TA of ...TGTTA will be different)
+            if Himar1[:-5] in line and Himar1 not in line:
+                misprimed += 1
 
     output.write("# Break-down of total reads (%s):\n" % tot_reads)
     output.write(
@@ -1718,42 +1730,43 @@ def initialize_globals(vars, args=[], kwargs={}):
 def read_config(vars):
     if not os.path.exists("tpp.cfg"):
         return
-    for line in open("tpp.cfg"):
-        w = line.split()
-        if len(w) >= 2 and w[0] == "reads1":
-            vars.fq1 = w[1]
-        if len(w) >= 2 and w[0] == "reads2":
-            vars.fq2 = w[1]
-        if len(w) >= 2 and w[0] == "ref":
-            vars.ref = " ".join(w[1:])
-        if len(w) >= 2 and w[0] == "ids":
-            vars.replicon_ids = w[1]  # vars.replicon_ids = ','.join(w[1:])
-        if len(w) >= 2 and w[0] == "bwa":
-            vars.bwa = w[1]
-        if len(w) >= 2 and w[0] == "bwa-alg":
-            vars.bwa_alg = w[1]
-        if len(w) >= 2 and w[0] == "flags":
-            vars.flags = " ".join(w[1:])
-        # if len(w)>=2 and w[0]=='prefix': vars.base = w[1]
-        if len(w) >= 2 and w[0] == "mismatches1":
-            vars.mm1 = int(w[1])
-        if len(w) >= 2 and w[0] == "maxreads":
-            vars.maxreads = int(w[1])
-        if len(w) >= 2 and w[0] == "window_size":
-            vars.window_size = int(w[1])
-        if len(w) >= 2 and w[0] == "primer_start_window":
-            v = w[1].split(",")
-            vars.primer_start_window = (int(v[0]), int(v[1]))
-        if len(w) >= 2 and w[0] == "transposon":
-            vars.transposon = w[1]
-        if len(w) >= 2 and w[0] == "protocol":
-            vars.protocol = " ".join(w[1:])
-        if len(w) >= 2 and w[0] == "primer":
-            vars.prefix = w[1]
-        if len(w) >= 2 and w[0] == "barseq_catalog_in":
-            vars.barseq_catalog_in = w[1]
-        if len(w) >= 2 and w[0] == "barseq_catalog_out":
-            vars.barseq_catalog_out = w[1]
+    with open("tpp.cfg") as file:
+        for line in file:
+            w = line.split()
+            if len(w) >= 2 and w[0] == "reads1":
+                vars.fq1 = w[1]
+            if len(w) >= 2 and w[0] == "reads2":
+                vars.fq2 = w[1]
+            if len(w) >= 2 and w[0] == "ref":
+                vars.ref = " ".join(w[1:])
+            if len(w) >= 2 and w[0] == "ids":
+                vars.replicon_ids = w[1]  # vars.replicon_ids = ','.join(w[1:])
+            if len(w) >= 2 and w[0] == "bwa":
+                vars.bwa = w[1]
+            if len(w) >= 2 and w[0] == "bwa-alg":
+                vars.bwa_alg = w[1]
+            if len(w) >= 2 and w[0] == "flags":
+                vars.flags = " ".join(w[1:])
+            # if len(w)>=2 and w[0]=='prefix': vars.base = w[1]
+            if len(w) >= 2 and w[0] == "mismatches1":
+                vars.mm1 = int(w[1])
+            if len(w) >= 2 and w[0] == "maxreads":
+                vars.maxreads = int(w[1])
+            if len(w) >= 2 and w[0] == "window_size":
+                vars.window_size = int(w[1])
+            if len(w) >= 2 and w[0] == "primer_start_window":
+                v = w[1].split(",")
+                vars.primer_start_window = (int(v[0]), int(v[1]))
+            if len(w) >= 2 and w[0] == "transposon":
+                vars.transposon = w[1]
+            if len(w) >= 2 and w[0] == "protocol":
+                vars.protocol = " ".join(w[1:])
+            if len(w) >= 2 and w[0] == "primer":
+                vars.prefix = w[1]
+            if len(w) >= 2 and w[0] == "barseq_catalog_in":
+                vars.barseq_catalog_in = w[1]
+            if len(w) >= 2 and w[0] == "barseq_catalog_out":
+                vars.barseq_catalog_out = w[1]
 
 
 def save_config(vars):

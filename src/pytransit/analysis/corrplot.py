@@ -51,7 +51,7 @@ class Analysis(base.TransitAnalysis):
 #    def __init__(self):
 #        base.TransitFile.__init__(self, "#CombinedWig", columns)
 #
-#    def getHeader(self, path):
+#    def get_header(self, path):
 #        text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
 #        return text
 
@@ -136,39 +136,41 @@ class CorrplotMethod(base.SingleConditionMethod):
         data, means = [], []
 
         if self.filetype == "gene_means":
-            for line in open(self.gene_means):
-                w = line.rstrip().split("\t")
-                if line[0] == "#":
-                    headers = w[3:]
-                    continue  # last comment line has names of samples
-                data.append(w)
-                cnts = [float(x) for x in w[3:]]
-                means.append(cnts)
+            with open(self.gene_means) as file:
+                for line in file:
+                    w = line.rstrip().split("\t")
+                    if line[0] == "#":
+                        headers = w[3:]
+                        continue  # last comment line has names of samples
+                    data.append(w)
+                    cnts = [float(x) for x in w[3:]]
+                    means.append(cnts)
         elif self.filetype == "anova" or self.filetype == "zinb":
             n = -1  # number of conditions
-            for line in open(self.gene_means):
-                w = line.rstrip().split("\t")
-                if line[0] == "#" or (
-                    "pval" in line and "padj" in line
-                ):  # check for 'pval' for backwards compatibility
-                    headers = w
-                    continue  # keep last comment line as headers
-                if n == -1:
-                    # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
-                    # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
-                    if self.filetype == "anova":
-                        n = int((len(w) - 6) / 2)
-                    elif self.filetype == "zinb":
-                        n = int((len(headers) - 6) / 4)
-                    headers = headers[3 : 3 + n]
-                    headers = [x.replace("Mean_", "") for x in headers]
-                vals = [
-                    float(x) for x in w[3 : 3 + n]
-                ]  # take just the columns of means
-                qval = float(w[-2])
-                if qval < 0.05:
-                    data.append(w)
-                    means.append(vals)
+            with open(self.gene_means) as file:
+                for line in file:
+                    w = line.rstrip().split("\t")
+                    if line[0] == "#" or (
+                        "pval" in line and "padj" in line
+                    ):  # check for 'pval' for backwards compatibility
+                        headers = w
+                        continue  # keep last comment line as headers
+                    if n == -1:
+                        # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
+                        # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
+                        if self.filetype == "anova":
+                            n = int((len(w) - 6) / 2)
+                        elif self.filetype == "zinb":
+                            n = int((len(headers) - 6) / 4)
+                        headers = headers[3 : 3 + n]
+                        headers = [x.replace("Mean_", "") for x in headers]
+                    vals = [
+                        float(x) for x in w[3 : 3 + n]
+                    ]  # take just the columns of means
+                    qval = float(w[-2])
+                    if qval < 0.05:
+                        data.append(w)
+                        means.append(vals)
         else:
             print("filetype not recognized: %s" % self.filetype)
             sys.exit(-1)

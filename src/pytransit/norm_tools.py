@@ -206,7 +206,7 @@ class EmpHistNorm(NormMethod):
     name = "emphist"
 
     @staticmethod
-    def Fzinfnb(params, args):
+    def zero_inflated_nb_objective_function(params, args):
         """Objective function for the zero-inflated NB method."""
         pi, mu, r = params
         Fdata = args
@@ -285,7 +285,7 @@ class AdaptiveBGCNorm(NormMethod):
         """Calculates an empirical CDF of the given data."""
         return numpy.sum(S <= x) / float(len(S))
 
-    def cleaninfgeom(x, rho):
+    def clean_from_geometric(x, rho):
         """Returns a 'clean' output from the geometric distribution."""
         if x == float("inf"):
             return scipy.stats.geom.ppf(0.9999999999999999, rho)
@@ -357,7 +357,7 @@ class AdaptiveBGCNorm(NormMethod):
                     temp = scipy.stats.geom.rvs(0.01, size=S)
 
                 corrected_nzdata = [
-                    cleaninfgeom(
+                    clean_from_geometric(
                         scipy.stats.geom.ppf(ecdf(temp, x), rho_to_fit), rho_to_fit
                     )
                     for x in nzdata
@@ -382,7 +382,7 @@ class AdaptiveBGCNorm(NormMethod):
             )
             # BGC.append(dict([(x, removeinf(scipy.stats.geom.ppf(ecdf(temp, x), best_rho), best_rho)) for x in data[j]]))
             for i in range(N):
-                norm_data[j, i] = cleaninfgeom(
+                norm_data[j, i] = clean_from_geometric(
                     scipy.stats.geom.ppf(ecdf(BGsample, data[j, i]), best_rho), best_rho
                 )
 
@@ -430,7 +430,7 @@ class ZeroInflatedNBNorm(NormMethod):
             M = "L-BFGS-B"
             Fdata = numpy.array(data[j])
             results = scipy.optimize.minimize(
-                Fzinfnb,
+                zero_inflated_nb_objective_function,
                 initParams,
                 args=(Fdata,),
                 method=M,
@@ -503,7 +503,7 @@ class BetaGeomNorm(NormMethod):
         """Calculates an empirical CDF of the given data."""
         return numpy.sum(S <= x) / float(len(S))
 
-    def cleaninfgeom(x, rho):
+    def clean_from_geometric(x, rho):
         """Returns a 'clean' output from the geometric distribution."""
         if x == float("inf"):
             return scipy.stats.geom.ppf(0.9999999999999999, rho)
@@ -570,7 +570,7 @@ class BetaGeomNorm(NormMethod):
                 BGsample = scipy.stats.geom.rvs(rho, size=bgsamples)
 
             for i in range(N):
-                norm_data[j, i] = cleaninfgeom(
+                norm_data[j, i] = clean_from_geometric(
                     scipy.stats.geom.ppf(ecdf(BGsample, data[j, i]), 1.0 / grand_mean),
                     1.0 / grand_mean,
                 )
@@ -704,7 +704,7 @@ def trimmed_empirical_mu(X, t=0.05):
     return scipy.stats.trim_mean(X[X > 0], t)
 
 
-def Fzinfnb(params, args):
+def zero_inflated_nb_objective_function(params, args):
     """Objective function for the zero-inflated NB method."""
     pi, mu, r = params
     Fdata = args
@@ -753,7 +753,7 @@ def zinfnb_factors(data):
         M = "L-BFGS-B"
         Fdata = numpy.array(data[j])
         results = scipy.optimize.minimize(
-            Fzinfnb,
+            zero_inflated_nb_objective_function,
             initParams,
             args=(Fdata,),
             method=M,
@@ -764,25 +764,17 @@ def zinfnb_factors(data):
         factors[j, 0] = 1.0 / mu
     return numpy.array(factors)
 
-
-#
-
-
 def ecdf(S, x):
     """Calculates an empirical CDF of the given data."""
     return numpy.sum(S <= x) / float(len(S))
 
 
-def cleaninfgeom(x, rho):
+def clean_from_geometric(x, rho):
     """Returns a 'clean' output from the geometric distribution."""
     if x == float("inf"):
         return scipy.stats.geom.ppf(0.9999999999999999, rho)
     else:
         return x
-
-
-#
-
 
 def norm_to_target(data, target):
     """Returns factors to normalize the data to the given target value.

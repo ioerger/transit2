@@ -197,15 +197,16 @@ def graph_gene_counts(dataset_name, dataset_type, dataset_path):
     try:
         if dataset_type == "Resampling":
             X = []
-            for line in open(dataset_path):
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                try:
-                    log2FC = float(tmp[-3])
-                except:
-                    log2FC = 0
-                X.append(log2FC)
+            with open(dataset_path) as file:
+                for line in file:
+                    if line.startswith("#"):
+                        continue
+                    tmp = line.strip().split("\t")
+                    try:
+                        log2FC = float(tmp[-3])
+                    except:
+                        log2FC = 0
+                    X.append(log2FC)
 
             n, bins, patches = plt.hist(
                 X, density=1, facecolor="c", alpha=0.75, bins=100
@@ -238,43 +239,44 @@ def graph_volcano_plot(dataset_name, dataset_type, dataset_path):
             col_pval = -2
             col_qval = -1
             ii = 0
-            for line in open(dataset_path):
-                if line.startswith("#"):
-                    tmp = line.split("\t")
-                    temp_col_logfc = [
-                        i
-                        for (i, x) in enumerate(tmp)
-                        if "logfc" in x.lower()
-                        or "log-fc" in x.lower()
-                        or "log2fc" in x.lower()
-                    ]
-                    temp_col_pval = [
-                        i
-                        for (i, x) in enumerate(tmp)
-                        if ("pval" in x.lower() or "p-val" in x.lower())
-                        and "adj" not in x.lower()
-                    ]
-                    if temp_col_logfc:
-                        col_logFC = temp_col_logfc[-1]
-                    if temp_col_pval:
-                        col_pval = temp_col_pval[-1]
-                    continue
+            with open(dataset_path) as file:
+                for line in file:
+                    if line.startswith("#"):
+                        tmp = line.split("\t")
+                        temp_col_logfc = [
+                            i
+                            for (i, x) in enumerate(tmp)
+                            if "logfc" in x.lower()
+                            or "log-fc" in x.lower()
+                            or "log2fc" in x.lower()
+                        ]
+                        temp_col_pval = [
+                            i
+                            for (i, x) in enumerate(tmp)
+                            if ("pval" in x.lower() or "p-val" in x.lower())
+                            and "adj" not in x.lower()
+                        ]
+                        if temp_col_logfc:
+                            col_logFC = temp_col_logfc[-1]
+                        if temp_col_pval:
+                            col_pval = temp_col_pval[-1]
+                        continue
 
-                tmp = line.strip().split("\t")
-                try:
-                    log10qval = -math.log(float(tmp[col_pval].strip()), 10)
-                except ValueError as e:
-                    bad.append(ii)
-                    log10qval = 0
+                    tmp = line.strip().split("\t")
+                    try:
+                        log10qval = -math.log(float(tmp[col_pval].strip()), 10)
+                    except ValueError as e:
+                        bad.append(ii)
+                        log10qval = 0
 
-                log2FC = float(tmp[col_logFC])
+                    log2FC = float(tmp[col_logFC])
 
-                qval_list.append(
-                    (float(tmp[col_qval]), float(tmp[col_pval].strip()))
-                )
-                X.append(log2FC)
-                Y.append(log10qval)
-                ii += 1
+                    qval_list.append(
+                        (float(tmp[col_qval]), float(tmp[col_pval].strip()))
+                    )
+                    X.append(log2FC)
+                    Y.append(log10qval)
+                    ii += 1
             count = 0
             threshold = 0.00001
             backup_thresh = 0.00001
@@ -310,17 +312,18 @@ def graph_ranked_zbar(dataset_name, dataset_type, dataset_path):
     try:
         X = []
         Y = []
-        for line in open(dataset_path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            try:
-                # log2FC = math.log(float(tmp[6])/float(tmp[5]),2)
-                zbar = float(tmp[-2])
-            except:
-                zbar = 0
-            if zbar >= 0:
-                Y.append(zbar)
+        with open(dataset_path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                try:
+                    # log2FC = math.log(float(tmp[6])/float(tmp[5]),2)
+                    zbar = float(tmp[-2])
+                except:
+                    zbar = 0
+                if zbar >= 0:
+                    Y.append(zbar)
 
         Y.sort()
         index = range(1, len(Y) + 1)

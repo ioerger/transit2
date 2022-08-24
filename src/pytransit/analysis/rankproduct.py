@@ -427,7 +427,7 @@ class RankProductMethod(base.DualConditionMethod):
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
-        q_bh = stat_tools.BH_fdr_correction([row[-1] for row in data])
+        q_bh = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
         self.output.write("#RankProduct\n")
         if self.wxobj:

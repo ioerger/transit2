@@ -52,7 +52,7 @@ class PathwayFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Example", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         text = """This is file contains analysis of pathways enriched among sigificant genes from resampling."""
         return text
 
@@ -192,15 +192,16 @@ class PathwayMethod(base.AnalysisMethod):
 
     def read_resampling_file(self, filename):
         genes, hits, headers = [], [], []
-        for line in open(filename):
-            if line[0] == "#":
-                headers.append(line)
-                continue
-            w = line.rstrip().split("\t")
-            genes.append(w)
-            qval = float(w[self.Qval_col])
-            if qval < 0.05:
-                hits.append(w[0])
+        with open(filename) as file:
+            for line in file:
+                if line[0] == "#":
+                    headers.append(line)
+                    continue
+                w = line.rstrip().split("\t")
+                genes.append(w)
+                qval = float(w[self.Qval_col])
+                if qval < 0.05:
+                    hits.append(w[0])
         return genes, hits, headers
 
     # assume these are listed as pairs (tab-sep)
@@ -209,27 +210,29 @@ class PathwayMethod(base.AnalysisMethod):
 
     def read_associations(self, filename, filter=None):
         associations = {}
-        for line in open(filename):
-            if line[0] == "#":
-                continue
-            w = line.rstrip().split("\t")
-            if filter != None and w[0] not in filter:
-                continue  # skip genes in association file that are not relevant (i.e. not in resampling file)
-            # store mappings in both directions
-            for (a, b) in [(w[0], w[1]), (w[1], w[0])]:
-                if a not in associations:
-                    associations[a] = []
-                if b not in associations[a]:
-                    associations[a].append(b)  # ignore duplicates
+        with open(filename) as file:
+            for line in file:
+                if line[0] == "#":
+                    continue
+                w = line.rstrip().split("\t")
+                if filter != None and w[0] not in filter:
+                    continue  # skip genes in association file that are not relevant (i.e. not in resampling file)
+                # store mappings in both directions
+                for (a, b) in [(w[0], w[1]), (w[1], w[0])]:
+                    if a not in associations:
+                        associations[a] = []
+                    if b not in associations[a]:
+                        associations[a].append(b)  # ignore duplicates
         return associations
 
     def read_pathways(self, filename):
         pathways = {}
-        for line in open(filename):
-            if line[0] == "#":
-                continue
-            w = line.rstrip().split("\t")
-            pathways[w[0]] = w[1]
+        with open(filename) as file:
+            for line in file:
+                if line[0] == "#":
+                    continue
+                w = line.rstrip().split("\t")
+                pathways[w[0]] = w[1]
         return pathways
 
     ############### GSEA ######################
@@ -564,41 +567,43 @@ class PathwayMethod(base.AnalysisMethod):
         GOannot = self.associationsFile
         OBOfile = self.pathwaysFile
 
-        for line in open(OBOfile):
-            if line[:3] == "id:":
-                id = line[4:-1]
-            if line[:5] == "is_a:":
-                parent = line.split()[1]
-                if id not in parents:
-                    parents[id] = []
-                parents[id].append(parent)
-            if len(line) < 2:
-                id = None
-            if line[:5] == "name:":
-                ontology[id] = line[6:-1]
+        with open(OBOfile) as file:
+            for line in file:
+                if line[:3] == "id:":
+                    id = line[4:-1]
+                if line[:5] == "is_a:":
+                    parent = line.split()[1]
+                    if id not in parents:
+                        parents[id] = []
+                    parents[id].append(parent)
+                if len(line) < 2:
+                    id = None
+                if line[:5] == "name:":
+                    ontology[id] = line[6:-1]
 
         rv2gos, go2rvs = {}, {}
         MINTERMS, MAXTERMS = 2, 300
 
-        for line in open(GOannot):
-            w = line.rstrip().split("\t")
-            rv, go = w[0], w[1]
-            if rv not in rv2gos:
-                rv2gos[rv] = []
-            if go not in rv2gos[rv]:
-                rv2gos[rv].append(go)
-            if go not in go2rvs:
-                go2rvs[go] = []
-            if rv not in go2rvs[go]:
-                go2rvs[go].append(rv)
-            # expand to all parents...
-            BP, CC, MF = ["GO:0008150", "GO:0005575", "GO:0003674"]
-            for g in get_ancestors(go, {}):
-                if g not in rv2gos[rv]:
-                    rv2gos[rv].append(g)
-                    if g not in go2rvs:
-                        go2rvs[g] = []
-                    go2rvs[g].append(rv)
+        with open(GOannot) as file:
+            for line in file:
+                w = line.rstrip().split("\t")
+                rv, go = w[0], w[1]
+                if rv not in rv2gos:
+                    rv2gos[rv] = []
+                if go not in rv2gos[rv]:
+                    rv2gos[rv].append(go)
+                if go not in go2rvs:
+                    go2rvs[go] = []
+                if rv not in go2rvs[go]:
+                    go2rvs[go].append(rv)
+                # expand to all parents...
+                BP, CC, MF = ["GO:0008150", "GO:0005575", "GO:0003674"]
+                for g in get_ancestors(go, {}):
+                    if g not in rv2gos[rv]:
+                        rv2gos[rv].append(g)
+                        if g not in go2rvs:
+                            go2rvs[g] = []
+                        go2rvs[g].append(rv)
 
         warning(
             "GO terms with at least one ORF: %s" % len(go2rvs.keys())
@@ -612,16 +617,17 @@ class PathwayMethod(base.AnalysisMethod):
 
         genes, pvals = {}, []
         allorfs, studyset = [], []
-        for line in open(self.resamplingFile):
-            if line[0] == "#":
-                continue
-            w = line.rstrip().split("\t")
-            genes[w[0]] = w
-            allorfs.append(w[0])
-            # pval,qval = float(w[-2]),float(w[-1])
-            pval, qval = float(w[self.Pval_col]), float(w[self.Qval_col])
-            if qval < 0.05:
-                studyset.append(w[0])
+        with open(self.resamplingFile) as file:
+            for line in file:
+                if line[0] == "#":
+                    continue
+                w = line.rstrip().split("\t")
+                genes[w[0]] = w
+                allorfs.append(w[0])
+                # pval,qval = float(w[-2]),float(w[-1])
+                pval, qval = float(w[self.Pval_col]), float(w[self.Qval_col])
+                if qval < 0.05:
+                    studyset.append(w[0])
             pvals.append((w[0], pval))
         pvals.sort(key=lambda x: x[1])
         ranks = {}

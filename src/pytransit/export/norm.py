@@ -52,7 +52,7 @@ class NormFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#CombinedWig", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
         return text
 
@@ -143,7 +143,7 @@ class NormMethod(base.SingleConditionMethod):
         start_time = time.time()
         outputPath = self.output.name
         # Normalize Data
-        transit_tools.convertToCombinedWig(
+        transit_tools.convert_to_combined_wig(
             self.ctrldata,
             self.annotation_path,
             outputPath,

@@ -51,7 +51,7 @@ class TTNFitnessFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#TTNFitness", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
         return text
 
@@ -258,11 +258,12 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         transit_tools.log("Getting Genome")
         genome = ""
         n = 0
-        for line in open(self.genome_path):
-            if n == 0:
-                n = 1  # skip first
-            else:
-                genome += line[:-1]
+        with open(self.genome_path) as file:
+            for line in file:
+                if n == 0:
+                    n = 1  # skip first
+                else:
+                    genome += line[:-1]
         transit_tools.log("Processing wig files")
         ############################################################
         # Creating the dataset

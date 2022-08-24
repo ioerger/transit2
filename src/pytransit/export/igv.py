@@ -110,7 +110,7 @@ class IGVMethod(base.SingleConditionMethod):
             return None
 
         # Choose normalization method
-        normalization = wxobj.chooseNormalization()
+        normalization = wxobj.choose_normalization()
 
         LOESS = False
         ignore_codon = True

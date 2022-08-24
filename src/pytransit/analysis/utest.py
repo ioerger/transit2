@@ -65,20 +65,21 @@ class UTestFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#utest", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         DE = 0
         poslogfc = 0
         neglogfc = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                DE += 1
-                if float(tmp[-4]) > 0:
-                    poslogfc += 1
-                else:
-                    neglogfc += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if float(tmp[-1]) < 0.05:
+                    DE += 1
+                    if float(tmp[-4]) > 0:
+                        poslogfc += 1
+                    else:
+                        neglogfc += 1
 
         text = """Results:
     Conditionally - Essentials: %s
@@ -91,9 +92,9 @@ class UTestFile(base.TransitFile):
         )
         return text
 
-    def getMenus(self):
+    def get_menus(self):
         menus = []
-        menus.append(("Display in Track View", self.displayInTrackView))
+        menus.append(("Display in Track View", self.display_in_track_view))
         return menus
 
 
@@ -449,7 +450,7 @@ class UTestMethod(base.DualConditionMethod):
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
-        qval = stat_tools.BH_fdr_correction([row[-1] for row in data])
+        qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
         self.output.write("#utest\n")
         if self.wxobj:

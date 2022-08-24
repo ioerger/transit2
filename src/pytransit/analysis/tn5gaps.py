@@ -69,19 +69,20 @@ class Tn5GapsFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Tn5 Gaps", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         ess = 0
         unc = 0
         non = 0
         short = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if tmp[-1] == "Essential":
-                ess += 1
-            if tmp[-1] == "Non-essential":
-                non += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if tmp[-1] == "Essential":
+                    ess += 1
+                if tmp[-1] == "Non-essential":
+                    non += 1
 
         text = """Results:
     Essentials: %s
@@ -226,7 +227,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         # Validate transposon types
         types = tnseq_tools.get_file_types(ctrldata)
         if "himar1" in types:
-            answer = transit_tools.ShowAskWarning(
+            answer = transit_tools.show_ask_warning(
                 "Warning: One of the selected wig files looks like a Himar1 dataset. This method is designed to work on Tn5 wig files. Proceeding will fill in missing data with zeroes. Click OK to continue."
             )
             if answer == wx.ID_CANCEL:
@@ -331,8 +332,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         pnon = 1.0 - pins
 
         # Calculate stats of runs
-        exprunmax = tnseq_tools.ExpectedRuns(num_sites, pnon)
-        varrun = tnseq_tools.VarR(num_sites, pnon)
+        exprunmax = tnseq_tools.expected_runs(num_sites, pnon)
+        varrun = tnseq_tools.variance_run(num_sites, pnon)
         stddevrun = math.sqrt(varrun)
         exp_cutoff = exprunmax + 2 * stddevrun
 
@@ -383,7 +384,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
                 run_len = run["length"]
                 B = 1.0 / math.log(1.0 / pnon)
                 u = math.log(num_sites * pins, 1.0 / pnon)
-                pval = 1.0 - tnseq_tools.GumbelCDF(run["length"], u, B)
+                pval = 1.0 - tnseq_tools.gumbel_cdf(run["length"], u, B)
 
                 curr_val = results_per_gene[gene.orf]
                 curr_inter_sz = curr_val[6]
@@ -413,7 +414,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         min_sig_len = float("inf")
         sig_genes_count = 0
         pval = [row[-1] for row in data]
-        padj = stat_tools.BH_fdr_correction(pval)
+        padj = stat_tools.bh_fdr_correction(pval)
         for i in range(len(data)):
             if padj[i] < 0.05:
                 sig_genes_count += 1

@@ -778,8 +778,8 @@ class Analysis:
                         data1,
                         data2,
                         S=self.inputs.samples,
-                        testFunc=stat_tools.F_mean_diff_dict,
-                        permFunc=stat_tools.F_shuffle_dict_libraries,
+                        testFunc=stat_tools.f_mean_diff_dict,
+                        permFunc=stat_tools.f_shuffle_dict_libraries,
                         adaptive=self.inputs.adaptive,
                         lib_str1=self.inputs.ctrl_lib_str,
                         lib_str2=self.inputs.exp_lib_str,
@@ -799,8 +799,8 @@ class Analysis:
                         data1,
                         data2,
                         S=self.inputs.samples,
-                        testFunc=stat_tools.F_mean_diff_flat,
-                        permFunc=stat_tools.F_shuffle_flat,
+                        testFunc=stat_tools.f_mean_diff_flat,
+                        permFunc=stat_tools.f_shuffle_flat,
                         adaptive=self.inputs.adaptive,
                         lib_str1=self.inputs.ctrl_lib_str,
                         lib_str2=self.inputs.exp_lib_str,
@@ -857,7 +857,7 @@ class Analysis:
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
-        qval = stat_tools.BH_fdr_correction([row[-1] for row in data])
+        qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
         return (data, qval)
 
@@ -937,28 +937,29 @@ class File(Analysis):
         data, hits = [], []
         number_of_conditions = -1
 
-        for line in open(infile):
-            w = line.rstrip().split("\t")
-            if line[0] == "#" or (
-                "pval" in line and "padj" in line
-            ):  # check for 'pval' for backwards compatibility
-                headers = w
-                continue  # keep last comment line as headers
-            # assume first non-comment line is header
-            if number_of_conditions == -1:
-                # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
-                number_of_conditions = int((len(w) - 6) / 2)
-                headers = headers[3 : 3 + number_of_conditions]
-                headers = [x.replace("Mean_", "") for x in headers]
-            else:
-                means = [
-                    float(x) for x in w[3 : 3 + number_of_conditions]
-                ]  # take just the columns of means
-                lfcs = [
-                    float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                ]  # take just the columns of LFCs
-                each_qval = float(w[-2])
-                data.append((w, means, lfcs, each_qval))
+        with open(infile) as file:
+            for line in file:
+                w = line.rstrip().split("\t")
+                if line[0] == "#" or (
+                    "pval" in line and "padj" in line
+                ):  # check for 'pval' for backwards compatibility
+                    headers = w
+                    continue  # keep last comment line as headers
+                # assume first non-comment line is header
+                if number_of_conditions == -1:
+                    # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
+                    number_of_conditions = int((len(w) - 6) / 2)
+                    headers = headers[3 : 3 + number_of_conditions]
+                    headers = [x.replace("Mean_", "") for x in headers]
+                else:
+                    means = [
+                        float(x) for x in w[3 : 3 + number_of_conditions]
+                    ]  # take just the columns of means
+                    lfcs = [
+                        float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
+                    ]  # take just the columns of LFCs
+                    each_qval = float(w[-2])
+                    data.append((w, means, lfcs, each_qval))
         
         data.sort(key=lambda x: x[-1])
         hits, LFCs = [], []
@@ -991,20 +992,21 @@ class ResamplingFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Resampling", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         DE = 0
         poslogfc = 0
         neglogfc = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                DE += 1
-                if float(tmp[-3]) > 0:
-                    poslogfc += 1
-                else:
-                    neglogfc += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if float(tmp[-1]) < 0.05:
+                    DE += 1
+                    if float(tmp[-3]) > 0:
+                        poslogfc += 1
+                    else:
+                        neglogfc += 1
 
         text = """Results:
     Conditionally - Essentials: %s
@@ -1017,9 +1019,9 @@ class ResamplingFile(base.TransitFile):
         )
         return text
 
-    def getMenus(self):
+    def get_menus(self):
         menus = []
-        menus.append(("Display in Track View", self.displayInTrackView))
+        menus.append(("Display in Track View", self.display_in_track_view))
         menus.append(("Display Histogram", self.displayHistogram))
         return menus
 
