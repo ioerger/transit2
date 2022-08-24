@@ -216,12 +216,6 @@ def create_panel_area(_):
     panel.progress_panel.Layout()
 
     # progress_sizer.Fit( panel.progress_panel )
-    panel.method_sizer.Add(
-        panel.progress_panel,
-        0,
-        wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
-        5,
-    )
 
     set_progress_range(1000)
     
@@ -240,6 +234,13 @@ def set_panel(new_panel):
     panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
     new_panel.Show()
     old_panel = new_panel
+    
+    panel.method_sizer.Add(
+        panel.progress_panel,
+        0,
+        wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
+        5,
+    )
 panel.set_panel = set_panel
 
 def hide_all_options():
