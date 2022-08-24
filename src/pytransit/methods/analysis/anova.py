@@ -507,7 +507,7 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows, sort_by=["Padj", "Pval"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
@@ -535,9 +535,9 @@ class File(Analysis):
         #
         self.values_for_result_table.update({
             f"Gene Count": len(self.rows),
-            f"Pvals>{Analysis.significance_threshold}": len([
+            f"Padj<{Analysis.significance_threshold}": len([
                 1 for each in self.rows
-                    if each.get("Pval", 0) > Analysis.significance_threshold 
+                    if each.get("Padj", 0) < Analysis.significance_threshold 
             ]),
         })
     
