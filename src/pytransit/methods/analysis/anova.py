@@ -489,14 +489,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith("#"):
-                    if line.startswith('#'+Analysis.identifier):
-                        return True
-                else:
-                    return False
-        return False
+        return transit_tools.file_starts_with('#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None

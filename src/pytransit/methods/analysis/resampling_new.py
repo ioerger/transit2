@@ -863,7 +863,6 @@ class Analysis:
             from pytransit.components.parameter_panel import panel, progress_update
             progress_update(text, percentage)
 
-        #
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
@@ -876,14 +875,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith("#"):
-                    if line.startswith('#'+Analysis.identifier):
-                        return True
-                else:
-                    return False
-        return False
+        return transit_tools.file_starts_with('#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
@@ -895,7 +887,7 @@ class File(Analysis):
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows).Show(),
-                "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                # "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
         
@@ -925,12 +917,12 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def display_histogram(self, display_frame, event):
+    def display_histogram(self, displayFrame, event):
         pass
-        # gene = display_frame.grid.GetCellValue(display_frame.row, 0)
+        # gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
         # filepath = os.path.join(
-        #     ntpath.dirname(display_frame.path),
-        #     transit_tools.fetch_name(display_frame.path),
+        #     ntpath.dirname(displayFrame.path),
+        #     transit_tools.fetch_name(displayFrame.path),
         # )
         # filename = os.path.join(filepath, gene + ".png")
         # if os.path.exists(filename):
@@ -1032,25 +1024,8 @@ class ResamplingFile(base.TransitFile):
     def get_menus(self):
         menus = []
         menus.append(("Display in Track View", self.display_in_track_view))
-        menus.append(("Display Histogram", self.displayHistogram))
+        menus.append(("Display Histogram", self.display_histogram))
         return menus
-
-    def displayHistogram(self, displayFrame, event):
-        gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
-        filepath = os.path.join(
-            ntpath.dirname(displayFrame.path),
-            transit_tools.fetch_name(displayFrame.path),
-        )
-        filename = os.path.join(filepath, gene + ".png")
-        if os.path.exists(filename):
-            imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
-            imgWindow.Show()
-        else:
-            transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-            print("Error Displaying File. Histogram image does not exist.")
-
-
-
 
     
 Method = GUI = Analysis

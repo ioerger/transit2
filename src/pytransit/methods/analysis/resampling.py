@@ -100,10 +100,10 @@ class ResamplingFile(base.TransitFile):
     def get_menus(self):
         menus = []
         menus.append(("Display in Track View", self.display_in_track_view))
-        menus.append(("Display Histogram", self.displayHistogram))
+        menus.append(("Display Histogram", self.display_histogram))
         return menus
 
-    def displayHistogram(self, displayFrame, event):
+    def display_histogram(self, displayFrame, event):
         gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
         filepath = os.path.join(
             ntpath.dirname(displayFrame.path),

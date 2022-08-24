@@ -516,6 +516,14 @@ if True:
         result_file_classes.append(a_class)
         return a_class
     
+    def file_starts_with(path, identifier):
+        with open(path) as in_file:
+            for line in in_file:
+                if line.startswith('#'+identifier):
+                    return True
+                break
+        return False
+    
     def read_result(path):
         result_object = None
         for FileClass in result_file_classes:
