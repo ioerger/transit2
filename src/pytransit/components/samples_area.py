@@ -114,7 +114,7 @@ def create_sample_area(frame):
                                 for each_sample in universal.session_data.samples:
                                     sample_table.add(dict(
                                         # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                                        name=basename(each_sample.path),
+                                        id=each_sample.id,
                                         condition=each_sample.extra_data.get("condition", "[None]"),
                                         path=each_sample.path,
                                     ))
@@ -158,5 +158,42 @@ def create_sample_area(frame):
                 border=5,
                 expand=True,
             )
+    
+    
+    
+    # 
+    # FIXME: FOR DEBUGGING ONLY
+    # 
+    if True:
+        from os import remove, getcwd
+        for each_cwig_path, each_metadata_path in zip([f"{getcwd()}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"], [f"{getcwd()}/src/pytransit/data/222_samples_metadata_cg.txt"]):
+            transit_tools.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
+            with gui_tools.nice_error_log:
+                universal.session_data.combined_wigs.append(
+                    tnseq_tools.CombinedWig(
+                        main_path=each_cwig_path,
+                        metadata_path=each_metadata_path,
+                    )
+                )
+        
+        transit_tools.log(f"Done")
+
+            
+        # 
+        # add graphical entries for each condition
+        # 
+        if True:
+            for each_sample in universal.session_data.samples:
+                sample_table.add(dict(
+                    # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                    id=each_sample.id,
+                    condition=each_sample.extra_data.get("condition", "[None]"),
+                    path=each_sample.path,
+                ))
+            
+            for each_condition in universal.session_data.conditions:
+                conditions_table.add(dict(
+                    name=each_condition.name,
+                ))
         
     return wx_object

@@ -225,8 +225,8 @@ class MainFrame(wx.Frame):
         self.SetSizer(bSizer2)
         self.Layout()
 
-        self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
-        # self.statusBar.SetStatusText("Track View!")
+        self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
+        # self.status_bar.SetStatusText("Track View!")
 
         self.SetIcon(images.transit_icon.GetIcon())
 

@@ -30,19 +30,22 @@ except ImportError:
 #   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
 
 class Wig:
-    def __init__(self, path, fingerprint=None, column_index=None, rows=None, extra_data=None):
+    def __init__(self, path, *, rows=None, fingerprint=None, id=None, column_index=None, extra_data=None):
+        from random import random
+        
         self.path            = path
-        self.fingerprint     = fingerprint or self.path
-        self.column_index    = column_index
         self.rows            = rows or []
         self.comments        = []
         
-        from random import random
+        self.fingerprint     = fingerprint or self.path
+        self.column_index    = column_index
+        self.id              = id or f"{basename((fingerprint if fingerprint else path))}_" + (f"{random()}".replace(".", ""))[0:4]
+        # TODO: use super_hash instead of random so the id's dont change with every run
+        
+        
         self.extra_data = LazyDict(extra_data)
         if self.extra_data.get("condition", None) is None:
             self.extra_data["condition"] = basename(path)
-        if self.extra_data.get("id", None) is None:
-            self.extra_data["id"] = f"{self.extra_data.get('condition', None)}{random()}".replace(".", "")
         
     def load(self):
         pass # TODO
@@ -456,10 +459,11 @@ class CombinedWig:
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(
-                    fingerprint=wig_fingerprint,
-                    column_index=column_index,
                     path=self.main_path,
                     rows=list(zip(self.sites, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    fingerprint=wig_fingerprint,
+                    column_index=column_index,
                     extra_data=LazyDict(
                         is_part_of_cwig=True,
                         condition=self.metadata.condition_for(wig_fingerprint=wig_fingerprint),

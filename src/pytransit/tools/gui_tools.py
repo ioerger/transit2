@@ -34,8 +34,8 @@ def handle_traceback(traceback_obj):
     import traceback
     frame = universal.frame
     print(''.join(traceback.format_tb(traceback_obj)))
-    if frame and hasattr(frame, "statusBar") and hasattr(frame.statusBar, "SetStatusText"):
-        frame.statusBar.SetStatusText("Error: "+str(error.args))
+    if frame and hasattr(frame, "status_bar") and hasattr(frame.status_bar, "SetStatusText"):
+        frame.status_bar.SetStatusText("Error: "+str(error.args))
 
 def show_message(MSG=""):
     
@@ -43,8 +43,8 @@ def show_message(MSG=""):
 
 def set_status(message):
     frame = universal.frame
-    if frame and universal.interface == "gui":
-        frame.statusBar.SetStatusText(message)
+    if frame and universal.interface == "gui" and hasattr(frame, "status_bar"):
+        frame.status_bar.SetStatusText(message)
         wx.Yield()
 
 def ask_for_files(message):
@@ -131,7 +131,7 @@ class NiceErrorLog(object):
             print(''.join(traceback.format_tb(traceback_obj)))
             frame = universal.frame
             if frame:
-                frame.statusBar.SetStatusText("Error: "+str(error.args))
+                frame.status_bar.SetStatusText("Error: "+str(error.args))
 
 nice_error_log = NiceErrorLog()
 

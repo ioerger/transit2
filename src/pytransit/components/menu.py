@@ -606,7 +606,7 @@ def method_select_func(selected_name, event):
                 analysis_methods[name].gui.panel.Show()
             except Exception as error:
                 pass
-            frame.statusBar.SetStatusText("[%s]" % analysis_methods[name].short_name)
+            frame.status_bar.SetStatusText("[%s]" % analysis_methods[name].short_name)
 
         parameter_panel.show_progress_section()
         panel.method_choice = selected_name

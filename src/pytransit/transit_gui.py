@@ -155,7 +155,7 @@ class TnSeekFrame(wx.Frame):
         # Timer
         self.timer = wx.Timer(self)
         def clear_status(event):
-            self.statusBar.SetStatusText("")
+            self.status_bar.SetStatusText("")
             self.timer.Stop()
         self.Bind(wx.EVT_TIMER, clear_status, self.timer)
 
@@ -167,8 +167,8 @@ class TnSeekFrame(wx.Frame):
         self.transposons = ["himar1", "tn5"]
         self.verbose = True
         
-        self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
-        self.statusBar.SetStatusText("Welcome to TRANSIT")
+        self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
+        self.status_bar.SetStatusText("Welcome to TRANSIT")
         
         pub.subscribe(self.save_histogram, "histogram")
         create_menu(self)

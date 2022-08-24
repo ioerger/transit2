@@ -60,7 +60,7 @@ class Analysis:
         ctrldata=None,
         expdata=None,
         annotation_path=None,
-        output_file=None,
+        output_path=None,
         normalization="TTR",
         samples=10000,
         adaptive=False,
@@ -212,7 +212,7 @@ class Analysis:
             # get annotation
             # 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            if not transit_tools.validate_annotation(Analysis.inputs.annotation):
+            if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
                 return None
             
             # 
@@ -233,9 +233,6 @@ class Analysis:
             if not Analysis.inputs.output_path:
                 return None
             
-            # open the file
-            Analysis.inputs.output_file = open(Analysis.inputs.output_path, "w")
-            
             # 
             # extract universal data
             # 
@@ -251,6 +248,9 @@ class Analysis:
                     Analysis.inputs.expdata,
                 ],
             )
+            assert Analysis.inputs.ctrldata != "[None]", "Control group can't be None"
+            assert Analysis.inputs.expdata != "[None]", "Experimental group can't be None"
+            
             # backwards compatibility
             Analysis.inputs.ctrldata = [Analysis.inputs.combined_wig_params["conditions"][0]]
             Analysis.inputs.expdata = [Analysis.inputs.combined_wig_params["conditions"][1]]
@@ -302,8 +302,6 @@ class Analysis:
             sys.exit(0)
         winz = True if "winz" in kwargs else False
 
-        output_file = open(output_path, "w")
-
         # check for unrecognized flags
         flags = (
             "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split()
@@ -338,7 +336,7 @@ class Analysis:
         self.inputs.update(dict(
             ctrldata=ctrldata,
             expdata=expdata,
-            output_file=output_file,
+            output_path=output_path,
             normalization=normalization,
             samples=samples,
             adaptive=adaptive,
@@ -376,8 +374,8 @@ class Analysis:
             histPath = ""
             if self.inputs.do_histogram:
                 histPath = os.path.join(
-                    os.path.dirname(self.inputs.output_file.name),
-                    transit_tools.fetch_name(self.inputs.output_file.name) + "_histograms",
+                    os.path.dirname(self.inputs.output_path),
+                    transit_tools.fetch_name(self.inputs.output_path) + "_histograms",
                 )
                 if not os.path.isdir(histPath):
                     os.makedirs(histPath)
@@ -426,7 +424,6 @@ class Analysis:
                 output = transit_tools.get_validated_data(
                     self.inputs.ctrldata, wxobj=self.wxobj
                 )
-                print(f'''transit_tools.get_validated_data = {output}''')
                 (data_ctrl, position_ctrl, *_) = output
                 (data_exp, position_exp) = transit_tools.get_validated_data(
                     self.inputs.expdata, wxobj=self.wxobj
@@ -435,9 +432,7 @@ class Analysis:
             (K_exp, N_exp) = data_exp.shape
 
             if not self.inputs.diff_strains and (N_ctrl != N_exp):
-                self.transit_error(
-                    "Error: Ctrl and Exp wig files don't have the same number of sites."
-                )
+                self.transit_error("Error: Ctrl and Exp wig files don't have the same number of sites.")
                 self.transit_error("Make sure all .wig files come from the same strain.")
                 return
             # (data, position) = transit_tools.get_validated_data(self.inputs.ctrldata+self.inputs.expdata, wxobj=self.wxobj)
@@ -491,10 +486,124 @@ class Analysis:
                         self.inputs.exp_lib_str = ""
             
             (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
-            self.write_output(data, qval, start_time)
-
-            self.finish()
-            transit_tools.log("Finished resampling Method")
+            # 
+            # write output
+            # 
+            if True:
+                # 
+                # generate rows
+                # 
+                rows = []
+                for row_index, row in enumerate(data):
+                    (
+                        orf,
+                        name,
+                        desc,
+                        n,
+                        mean1,
+                        mean2,
+                        sum1,
+                        sum2,
+                        test_obs,
+                        log2FC,
+                        pval_2tail,
+                    ) = row
+                    if self.inputs.Z == True:
+                        p = pval_2tail / 2  # convert from 2-sided back to 1-sided
+                        if p == 0:
+                            p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
+                        if p == 1:
+                            p = 1 - 1e-5
+                        z = scipy.stats.norm.ppf(p)
+                        if log2FC > 0:
+                            z *= -1
+                        rows.append(
+                            (
+                                "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f\n"
+                                % (
+                                    orf,
+                                    name,
+                                    desc,
+                                    n,
+                                    mean1,
+                                    mean2,
+                                    log2FC,
+                                    sum1,
+                                    sum2,
+                                    test_obs,
+                                    pval_2tail,
+                                    z,
+                                    qval[row_index],
+                                )
+                            ).split('\t')
+                        )
+                    else:
+                        rows.append(
+                            (
+                                "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f\n"
+                                % (
+                                    orf,
+                                    name,
+                                    desc,
+                                    n,
+                                    mean1,
+                                    mean2,
+                                    log2FC,
+                                    sum1,
+                                    sum2,
+                                    test_obs,
+                                    pval_2tail,
+                                    qval[row_index],
+                                )
+                            ).split('\t')
+                        )
+                
+                # 
+                # write to file
+                # 
+                transit_tools.write_result(
+                    path=self.inputs.output_path,
+                    file_kind=Analysis.identifier,
+                    rows=rows,
+                    column_names=Analysis.columns if not self.inputs.Z else [
+                        "Orf",
+                        "Name",
+                        "Desc",
+                        "Sites",
+                        "Mean Ctrl",
+                        "Mean Exp",
+                        "log2FC",
+                        "Sum Ctrl",
+                        "Sum Exp",
+                        "Delta Mean",
+                        "p-value",
+                        "Z-score",
+                        "Adj. p-value",
+                    ],
+                    extra_info=dict(
+                        parameters=dict(
+                            samples=self.inputs.samples,
+                            norm=self.inputs.normalization,
+                            histograms=self.inputs.do_histogram,
+                            adaptive=self.inputs.adaptive,
+                            excludeZeros=not self.inputs.include_zeros,
+                            pseudocounts=self.inputs.pseudocount,
+                            LOESS=self.inputs.LOESS,
+                            trim_Nterm=self.inputs.n_terminus,
+                            trim_Cterm=self.inputs.c_terminus,
+                        ),
+                        control_data=(",".join(self.inputs.ctrldata)),
+                        experimental_data=(",".join(self.inputs.expdata)),
+                        annotation_path=self.inputs.annotation_path,
+                        **({} if not self.inputs.diff_strains else dict(
+                            annotation_path_exp=self.inputs.annotation_path_exp,
+                        )),
+                        time=(time.time() - start_time),
+                    ),
+                )
+                results_area.add(self.inputs.output_path)
+                
+            transit_tools.log(f"Finished running {Analysis.short_name}")
 
     def preprocess_data(self, position, data):
         (K, N) = data.shape
@@ -540,144 +649,6 @@ class Analysis:
 
         return (numpy.array(d_filtered), numpy.array(cond_filtered))
 
-    def write_output(self, data, qval, start_time):
-
-        self.inputs.output_file.write("#Resampling\n")
-        if self.wxobj:
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.inputs.output_file.write(
-                "#GUI with: norm=%s, samples=%s, pseudocounts=%1.2f, adaptive=%s, histogram=%s, include_zeros=%s, output=%s\n"
-                % (
-                    self.inputs.normalization,
-                    self.inputs.samples,
-                    self.inputs.pseudocount,
-                    self.inputs.adaptive,
-                    self.inputs.do_histogram,
-                    self.inputs.include_zeros,
-                    self.inputs.output_file.name.encode("utf-8"),
-                )
-            )
-        else:
-            self.inputs.output_file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        self.inputs.output_file.write(
-            "#Parameters: samples=%s, norm=%s, histograms=%s, adaptive=%s, excludeZeros=%s, pseudocounts=%s, LOESS=%s, trim_Nterm=%s, trim_Cterm=%s\n"
-            % (
-                self.inputs.samples,
-                self.inputs.normalization,
-                self.inputs.do_histogram,
-                self.inputs.adaptive,
-                not self.inputs.include_zeros,
-                self.inputs.pseudocount,
-                self.inputs.LOESS,
-                self.inputs.n_terminus,
-                self.inputs.c_terminus,
-            )
-        )
-        self.inputs.output_file.write(
-            "#Control Data: %s\n" % (",".join(self.inputs.ctrldata).encode("utf-8"))
-        )
-        self.inputs.output_file.write(
-            "#Experimental Data: %s\n" % (",".join(self.inputs.expdata).encode("utf-8"))
-        )
-        self.inputs.output_file.write(
-            "#Annotation path: %s %s\n"
-            % (
-                self.inputs.annotation_path.encode("utf-8"),
-                self.inputs.annotation_path_exp.encode("utf-8") if self.inputs.diff_strains else "",
-            )
-        )
-        self.inputs.output_file.write("#Time: %s\n" % (time.time() - start_time))
-        # Z = True # include Z-score column 
-        columns = Analysis.columns if not self.inputs.Z else [
-            "Orf",
-            "Name",
-            "Desc",
-            "Sites",
-            "Mean Ctrl",
-            "Mean Exp",
-            "log2FC",
-            "Sum Ctrl",
-            "Sum Exp",
-            "Delta Mean",
-            "p-value",
-            "Z-score",
-            "Adj. p-value",
-        ]
-        self.inputs.output_file.write("#%s\n" % "\t".join(columns))
-
-        for row_index, row in enumerate(data):
-            (
-                orf,
-                name,
-                desc,
-                n,
-                mean1,
-                mean2,
-                sum1,
-                sum2,
-                test_obs,
-                log2FC,
-                pval_2tail,
-            ) = row
-            if self.inputs.Z == True:
-                p = pval_2tail / 2  # convert from 2-sided back to 1-sided
-                if p == 0:
-                    p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
-                if p == 1:
-                    p = 1 - 1e-5
-                z = scipy.stats.norm.ppf(p)
-                if log2FC > 0:
-                    z *= -1
-                self.inputs.output_file.write(
-                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f\n"
-                    % (
-                        orf,
-                        name,
-                        desc,
-                        n,
-                        mean1,
-                        mean2,
-                        log2FC,
-                        sum1,
-                        sum2,
-                        test_obs,
-                        pval_2tail,
-                        z,
-                        qval[row_index],
-                    )
-                )
-            else:
-                self.inputs.output_file.write(
-                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f\n"
-                    % (
-                        orf,
-                        name,
-                        desc,
-                        n,
-                        mean1,
-                        mean2,
-                        log2FC,
-                        sum1,
-                        sum2,
-                        test_obs,
-                        pval_2tail,
-                        qval[row_index],
-                    )
-                )
-        self.inputs.output_file.close()
-
-        transit_tools.log("Adding File: %s" % (self.inputs.output_file.name))
-        results_area.add(self.inputs.output_file.name)
-
     def winsorize_resampling(self, counts):
         # input is insertion counts for gene as pre-flattened numpy array
         counts = counts.tolist()
@@ -696,20 +667,6 @@ class Analysis:
         N = len(G_ctrl)
         count = 0
         
-        # print("G_ctrl", repr(G_ctrl))
-        # print("G_exp", repr(G_exp))
-        # print("doLibraryResampling", doLibraryResampling)
-        # print("histPath", histPath)
-        # print("self.inputs.diff_strains", self.inputs.diff_strains)
-        # print("self.inputs.include_zeros", self.inputs.include_zeros)
-        # print("self.inputs.pseudocount", self.inputs.pseudocount)
-        # print("self.inputs.winz", self.inputs.winz)
-        # print("self.inputs.samples", self.inputs.samples)
-        # print("self.inputs.adaptive", self.inputs.adaptive)
-        # print("self.inputs.ctrl_lib_str", self.inputs.ctrl_lib_str)
-        # print("self.inputs.exp_lib_str", self.inputs.exp_lib_str)
-        # print("self.inputs.do_histogram", self.inputs.do_histogram)
-
         for gene in G_ctrl:
             if gene.orf not in G_exp:
                 if self.inputs.diff_strains:
@@ -725,7 +682,6 @@ class Analysis:
 
             gene_exp = G_exp[gene.orf]
             count += 1
-            # print(f'''gene = __{gene.name}__''')
             
             if not self.inputs.diff_strains and gene.n != gene_exp.n:
                 self.transit_error(
@@ -750,26 +706,16 @@ class Analysis:
                     data2,
                 ) = (0, 0, 0, 0, 1.00, 1.00, 1.00, [], [0], [0])
             else:
-                # print("here1")
                 if not self.inputs.include_zeros:
-                    # print("here1.1")
                     ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
                     ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
-                    # print(f'''here1.1: ii_ctrl = {ii_ctrl}''')
                 else:
-                    # print("here1.2")
                     ii_ctrl = numpy.ones(gene.n) == 1
                     ii_exp = numpy.ones(gene_exp.n) == 1
-                    # print(f'''here1.2: ii_ctrl = {ii_ctrl}''')
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
-                # print(f'''ii_ctrl = {ii_ctrl}''')
-                # print(f'''ii_exp = {ii_exp}''')
-                # print(f'''gene.reads = {gene.reads}''')
                 data1 = gene.reads[:, ii_ctrl].flatten()
                 data2 = gene_exp.reads[:, ii_exp].flatten()
-                # print(f'''data1 = {data1}''')
-                # print(f'''data2 = {data2}''')
                 if self.inputs.winz:
                     data1 = self.winsorize_resampling(data1)
                     data2 = self.winsorize_resampling(data2)
@@ -875,7 +821,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with('#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
@@ -886,7 +832,7 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows, sort_by=["Padj", "Pval"]).Show(),
                 # "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
@@ -989,6 +935,80 @@ class File(Analysis):
         results_area.add(output_path)
         gui_tools.show_image(output_path)
 
+    def graph_volcano_plot(dataset_name, dataset_type, dataset_path):
+        try:
+            X = []
+            Y = []
+            header = []
+            qval_list = []
+            bad = []
+            col_logFC = -6
+            col_pval = -2
+            col_qval = -1
+            ii = 0
+            with open(dataset_path) as file:
+                for line in file:
+                    if line.startswith("#"):
+                        tmp = line.split("\t")
+                        temp_col_logfc = [
+                            i
+                            for (i, x) in enumerate(tmp)
+                            if "logfc" in x.lower()
+                            or "log-fc" in x.lower()
+                            or "log2fc" in x.lower()
+                        ]
+                        temp_col_pval = [
+                            i
+                            for (i, x) in enumerate(tmp)
+                            if ("pval" in x.lower() or "p-val" in x.lower())
+                            and "adj" not in x.lower()
+                        ]
+                        if temp_col_logfc:
+                            col_logFC = temp_col_logfc[-1]
+                        if temp_col_pval:
+                            col_pval = temp_col_pval[-1]
+                        continue
+
+                    tmp = line.strip().split("\t")
+                    try:
+                        log10qval = -math.log(float(tmp[col_pval].strip()), 10)
+                    except ValueError as e:
+                        bad.append(ii)
+                        log10qval = 0
+
+                    log2FC = float(tmp[col_logFC])
+
+                    qval_list.append( (float(tmp[col_qval]), float(tmp[col_pval].strip())) )
+                    X.append(log2FC)
+                    Y.append(log10qval)
+                    ii += 1
+            count = 0
+            threshold = 0.00001
+            backup_thresh = 0.00001
+            qval_list.sort()
+            for (q, p) in qval_list:
+                backup_thresh = p
+                if q > 0.05:
+                    break
+                threshold = p
+                count += 1
+
+            if threshold == 0:
+                threshold = backup_thresh
+            for ii in bad:
+                Y[ii] = max(Y)
+            plt.plot(X, Y, "bo")
+            plt.axhline(
+                -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3
+            )
+            plt.xlabel("Log Fold Change (base 2)")
+            plt.ylabel("-Log p-value (base 10)")
+            plt.suptitle("Resampling - Volcano plot")
+            plt.title("Adjusted threshold (red line): %1.8f" % threshold)
+            plt.show()
+
+        except Exception as e:
+            print("Error occurred creating plot:", str(e))
 
 class ResamplingFile(base.TransitFile):
     def __init__(self):

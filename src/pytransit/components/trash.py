@@ -141,7 +141,7 @@ class TrashFrame(view_trash.MainFrame):
 
     def track_message(self, text, time=3000):
         transit_tools.log(text, track_prefix)
-        self.statusBar.SetStatusText(text)
+        self.status_bar.SetStatusText(text)
         if time > 0:
             self.timer.Start(time)
 
@@ -153,7 +153,7 @@ class TrashFrame(view_trash.MainFrame):
             traceback.print_exc()
 
     def clearStatus(self, event):
-        self.statusBar.SetStatusText("")
+        self.status_bar.SetStatusText("")
         self.timer.Stop()
 
     def leftFunc(self, event):

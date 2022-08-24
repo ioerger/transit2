@@ -519,7 +519,7 @@ if True:
     def file_starts_with(path, identifier):
         with open(path) as in_file:
             for line in in_file:
-                if line.startswith('#'+identifier):
+                if line.startswith(identifier):
                     return True
                 break
         return False
@@ -531,7 +531,7 @@ if True:
             try:
                 loadable = FileClass.can_load(path)
             except Exception as error:
-                pass
+                print(error)
             if loadable:
                 result_object = FileClass(path=path)
         

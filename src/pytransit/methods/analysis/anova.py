@@ -489,7 +489,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with('#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
