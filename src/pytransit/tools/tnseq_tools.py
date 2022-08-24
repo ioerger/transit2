@@ -9,7 +9,7 @@ from os.path import isabs, isfile, isdir, join, dirname, basename, exists, split
 import numpy
 import scipy.stats
 import ez_yaml
-from super_map import LazyDict, stringify
+from pytransit.basics.lazy_dict import LazyDict, stringify
 import pytransit.basics.csv as csv
 from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import line_count_of, flatten_once, no_duplicates, indent

@@ -9,7 +9,7 @@ import heapq
 import collections
 
 import numpy
-from super_map import LazyDict
+from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel

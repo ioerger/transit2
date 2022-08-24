@@ -15,7 +15,7 @@ import scipy.stats
 import heapq
 import math
 import statsmodels.stats.multitest
-from super_map import LazyDict
+from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL

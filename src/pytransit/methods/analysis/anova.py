@@ -9,7 +9,7 @@ import collections
 import heapq
 
 import numpy
-from super_map import LazyDict
+from pytransit.basics.lazy_dict import LazyDict
 
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.components.file_display as file_display
