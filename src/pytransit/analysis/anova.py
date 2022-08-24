@@ -460,8 +460,11 @@ class Analysis:
                     *[
                         f"LFC_{condition_name}" for condition_name in conditions_list
                     ],
-                    "pval",
-                    "padj",
+                    "MSR",
+                    "MSE+alpha",
+                    "Fstat",
+                    "Pval",
+                    "Padj",
                     "status"
                 ]
                 
