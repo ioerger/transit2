@@ -45,7 +45,7 @@ def set_status(message):
     frame = universal.frame
     if frame:
         frame.statusBar.SetStatusText(message)
-        wx.Yield()
+        wx.GetApp().Yield()
 
 def ask_for_files(message):
     import os

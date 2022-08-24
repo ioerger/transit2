@@ -62,18 +62,19 @@ class GumbelFile(base.TransitFile):
         unc = 0
         non = 0
         short = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if tmp[-1] == "E":
-                ess += 1
-            if tmp[-1] == "U":
-                unc += 1
-            if tmp[-1] == "NE":
-                non += 1
-            if tmp[-1] == "S":
-                short += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if tmp[-1] == "E":
+                    ess += 1
+                if tmp[-1] == "U":
+                    unc += 1
+                if tmp[-1] == "NE":
+                    non += 1
+                if tmp[-1] == "S":
+                    short += 1
 
         text = """Results:
     Essentials: %s

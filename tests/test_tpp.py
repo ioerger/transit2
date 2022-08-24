@@ -104,11 +104,12 @@ MULTICONTIG_AUTO_IDS = [
         "#   3: 38111" ]
 
 def get_stats(path):
-    for line in open(path):
-        if line.startswith("#"):
-            print(line[1:].split(":"))
-            continue
-        break
+    with open(path) as file:
+        for line in file:
+            if line.startswith("#"):
+                print(line[1:].split(":"))
+                continue
+            break
     return [float(x) if (type(x) != list) else x for x in tmp[2:]]
 
 def verify_stats(stats_file, expected):

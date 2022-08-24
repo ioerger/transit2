@@ -74,14 +74,15 @@ class GriffinFile(base.TransitFile):
         unc = 0
         non = 0
         short = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                ess += 1
-            else:
-                non += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if float(tmp[-1]) < 0.05:
+                    ess += 1
+                else:
+                    non += 1
 
         text = """Results:
     Essentials: %s

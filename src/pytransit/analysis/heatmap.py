@@ -142,32 +142,33 @@ class HeatmapMethod(base.SingleConditionMethod):
         data, hits = [], []
         n = -1  # number of conditions
 
-        for line in open(self.infile):
-            w = line.rstrip().split("\t")
-            if line[0] == "#" or (
-                "pval" in line and "padj" in line
-            ):  # check for 'pval' for backwards compatibility
-                headers = w
-                continue  # keep last comment line as headers
-            # assume first non-comment line is header
-            if n == -1:
-                # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
-                # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
-                if self.filetype == "anova":
-                    n = int((len(w) - 6) / 2)
-                elif self.filetype == "zinb":
-                    n = int((len(headers) - 6) / 4)
-                headers = headers[3 : 3 + n]
-                headers = [x.replace("Mean_", "") for x in headers]
-            else:
-                means = [
-                    float(x) for x in w[3 : 3 + n]
-                ]  # take just the columns of means
-                lfcs = [
-                    float(x) for x in w[3 + n : 3 + n + n]
-                ]  # take just the columns of LFCs
-                qval = float(w[-2])
-                data.append((w, means, lfcs, qval))
+        with open(self.infile) as file:
+            for line in file:
+                w = line.rstrip().split("\t")
+                if line[0] == "#" or (
+                    "pval" in line and "padj" in line
+                ):  # check for 'pval' for backwards compatibility
+                    headers = w
+                    continue  # keep last comment line as headers
+                # assume first non-comment line is header
+                if n == -1:
+                    # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
+                    # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
+                    if self.filetype == "anova":
+                        n = int((len(w) - 6) / 2)
+                    elif self.filetype == "zinb":
+                        n = int((len(headers) - 6) / 4)
+                    headers = headers[3 : 3 + n]
+                    headers = [x.replace("Mean_", "") for x in headers]
+                else:
+                    means = [
+                        float(x) for x in w[3 : 3 + n]
+                    ]  # take just the columns of means
+                    lfcs = [
+                        float(x) for x in w[3 + n : 3 + n + n]
+                    ]  # take just the columns of LFCs
+                    qval = float(w[-2])
+                    data.append((w, means, lfcs, qval))
 
         data.sort(key=lambda x: x[-1])
         hits, LFCs = [], []

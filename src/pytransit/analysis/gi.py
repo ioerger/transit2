@@ -76,13 +76,14 @@ class GIFile(base.TransitFile):
 
     def getHeader(self, path):
         types_to_counts = {}
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if tmp[-1] not in types_to_counts:
-                types_to_counts[tmp[-1]] = 0
-            types_to_counts[tmp[-1]] += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if tmp[-1] not in types_to_counts:
+                    types_to_counts[tmp[-1]] = 0
+                types_to_counts[tmp[-1]] += 1
 
         text = """
 Results:

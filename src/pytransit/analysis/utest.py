@@ -69,16 +69,17 @@ class UTestFile(base.TransitFile):
         DE = 0
         poslogfc = 0
         neglogfc = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if float(tmp[-1]) < 0.05:
-                DE += 1
-                if float(tmp[-4]) > 0:
-                    poslogfc += 1
-                else:
-                    neglogfc += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if float(tmp[-1]) < 0.05:
+                    DE += 1
+                    if float(tmp[-4]) > 0:
+                        poslogfc += 1
+                    else:
+                        neglogfc += 1
 
         text = """Results:
     Conditionally - Essentials: %s
