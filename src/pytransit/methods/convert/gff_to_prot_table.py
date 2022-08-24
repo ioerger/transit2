@@ -6,7 +6,7 @@ from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 import csv
 import traceback
 import pytransit.tools.transit_tools as transit_tools
-from pytransit.methods.convert import base
+from pytransit.methods import convert_base as base
 
 ############# Description ##################
 

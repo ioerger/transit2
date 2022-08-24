@@ -34,38 +34,38 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
-from pytransit.universal_data import SessionData, universal
-from pytransit.tools.gui_tools import bind_to, rgba, color
-from pytransit.basics.lazy_dict import LazyDict
+from pytransit.tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
+from pytransit.universal_data                    import SessionData, universal
+from pytransit.tools.gui_tools                   import bind_to, rgba, color
+from pytransit.basics.lazy_dict                  import LazyDict
 from pytransit.components.generic.window_manager import WindowManager
-from pytransit.components.generic.box import Row, Column
-from pytransit.components.generic.text import Text
-from pytransit.components.generic.frame import InnerFrame
-from pytransit.components.annotation_area import create_annotation_area
-from pytransit.components.samples_area import create_sample_area
-from pytransit.components.results_area import create_results_area
-from pytransit.components.parameter_panel import create_panel_area
-from pytransit.components.menu import create_menu
-from pytransit.methods.analysis   import methods
-from pytransit.methods.export     import methods as export_methods
-from pytransit.methods.convert    import methods as convert_methods
-from pytransit.tools.norm_tools import methods as norm_methods
+from pytransit.components.generic.box            import Row, Column
+from pytransit.components.generic.text           import Text
+from pytransit.components.generic.frame          import InnerFrame
+from pytransit.components.annotation_area        import create_annotation_area
+from pytransit.components.samples_area           import create_sample_area
+from pytransit.components.results_area           import create_results_area
+from pytransit.components.parameter_panel        import create_panel_area
+from pytransit.components.menu                   import create_menu
+from pytransit.methods.analysis                  import methods
+from pytransit.methods.export                    import methods as export_methods
+from pytransit.methods.convert                   import methods as convert_methods
+from pytransit.tools.norm_tools                  import methods as norm_methods
 
 import pytransit
 import pytransit.methods.analysis
 import pytransit.methods.export
 import pytransit.methods.convert
-import pytransit.components.parameter_panel as parameter_panel
-import pytransit.trash as trash
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
-import pytransit.file_display as file_display
-import pytransit.qc_display as qc_display
-import pytransit.images as images
+import pytransit.components.parameter_panel as parameter_panel
+import pytransit.components.trash as trash
+import pytransit.components.file_display as file_display
+import pytransit.components.qc_display as qc_display
+import pytransit.components.images as images
 
 class TnSeekFrame(wx.Frame):
     instructions_text = """

@@ -7,7 +7,7 @@ import heapq
 
 import numpy
 
-from pytransit.methods.analysis import base
+from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import HAS_R
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools

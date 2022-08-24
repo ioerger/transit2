@@ -24,8 +24,8 @@ try:
 except Exception as e:
     HAS_WX = False
 
-import pytransit.view_trash as view_trash
-import pytransit.draw_trash as draw_trash
+import pytransit.components.view_trash as view_trash
+import pytransit.components.draw_trash as draw_trash
 from math import *
 import os
 import ntpath

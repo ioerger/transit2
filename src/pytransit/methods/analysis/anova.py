@@ -12,7 +12,7 @@ import numpy
 from super_map import LazyDict
 
 import pytransit.tools.gui_tools as gui_tools
-import pytransit.file_display as file_display
+import pytransit.components.file_display as file_display
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
@@ -547,7 +547,7 @@ class File(Analysis):
         # )
         # filename = os.path.join(filepath, gene + ".png")
         # if os.path.exists(filename):
-        #     imgWindow = pytransit.file_display.ImgFrame(None, filename)
+        #     imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
         #     imgWindow.Show()
         # else:
         #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")

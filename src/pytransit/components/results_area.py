@@ -6,7 +6,7 @@ from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory, load_known_transit_file
 
 import pytransit.tools.gui_tools as gui_tools
-import pytransit.file_display as file_display
+import pytransit.components.file_display as file_display
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text

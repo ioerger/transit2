@@ -3,7 +3,7 @@ from functools import partial
 
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.tools.transit_tools as transit_tools
-import pytransit.qc_display as qc_display
+import pytransit.components.qc_display as qc_display
 from pytransit.universal_data import SessionData, universal
 import pytransit
 
@@ -504,7 +504,7 @@ def create_menu(frame):
             help_menu.Append(about_option)
             def when_about_option_clicked(event):
                 with gui_tools.nice_error_log:
-                    import pytransit.images as images
+                    import pytransit.components.images as images
                     
                     description = """TRANSIT is a tool for analysing TnSeq data. It provides an easy to use graphical interface and access to several different analysis methods that allow the user to determine essentiality within a single condition as well as between two conditions.
 

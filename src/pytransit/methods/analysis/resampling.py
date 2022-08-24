@@ -14,7 +14,7 @@ import scipy.stats
 import datetime
 import heapq
 
-from pytransit.methods.analysis import base
+from pytransit.methods import analysis_base as base
 import pytransit
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
@@ -111,7 +111,7 @@ class ResamplingFile(base.TransitFile):
         )
         filename = os.path.join(filepath, gene + ".png")
         if os.path.exists(filename):
-            imgWindow = pytransit.file_display.ImgFrame(None, filename)
+            imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
             imgWindow.Show()
         else:
             transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")

@@ -18,8 +18,8 @@ except Exception as e:
     HAS_WX = False
 
 
-# import pytransit.images
-from pytransit import images
+# import pytransit.components.images
+from pytransit.components import images
 
 ###########################################################################
 ## Class MainFrame

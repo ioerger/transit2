@@ -7,7 +7,7 @@ from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.tools.transit_tools as transit_tools
-import pytransit.images as images
+import pytransit.components.images as images
 import pytransit
 
 from pytransit.components.generic.box import Column, Row

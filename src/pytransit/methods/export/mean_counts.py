@@ -11,7 +11,7 @@ import numpy
 import scipy.stats
 import datetime
 
-from pytransit.methods.export import base
+from pytransit.methods import export_base as base
 import pytransit
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools

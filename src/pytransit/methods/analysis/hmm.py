@@ -12,7 +12,7 @@ import numpy
 import scipy.stats
 import datetime
 
-from pytransit.methods.analysis import base
+from pytransit.methods import analysis_base as base
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools

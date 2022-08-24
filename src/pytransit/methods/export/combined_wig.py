@@ -3,7 +3,7 @@ import sys
 import os
 import time
 
-from pytransit.methods.export import base
+from pytransit.methods import export_base as base
 from pytransit.tools import transit_tools
 from pytransit.tools import tnseq_tools
 from pytransit.tools import norm_tools

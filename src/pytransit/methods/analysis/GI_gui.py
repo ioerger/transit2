@@ -17,12 +17,12 @@ import math
 import statsmodels.stats.multitest
 from super_map import LazyDict
 
-from pytransit.methods.analysis import base
+from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.methods.analysis import base
+from pytransit.methods import analysis_base as base
 import pytransit
 import pytransit.tools.gui_tools as gui_tools
-import pytransit.file_display as file_display
+import pytransit.components.file_display as file_display
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
