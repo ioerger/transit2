@@ -1,6 +1,6 @@
-from pytransit.transit_tools import wx, pub
+from pytransit.tools.transit_tools import wx, pub
 from pytransit.universal_data import universal
-import pytransit.gui_tools as gui_tools
+import pytransit.tools.gui_tools as gui_tools
 
 default_label_size = (-1, -1)
 default_widget_size = (100, -1)
@@ -46,7 +46,7 @@ if True:
         lab_size=None,
         widget_size=None,
     ):
-        from pytransit.analysis.base import InfoIcon
+        from pytransit.methods.analysis.base import InfoIcon
         
         if not lab_size:
             lab_size = (100, -1)
@@ -77,7 +77,7 @@ if True:
             lab_size=None,
             widget_size=None,
         ):
-            from pytransit.analysis.base import InfoIcon
+            from pytransit.methods.analysis.base import InfoIcon
             if not lab_size:
                 lab_size = default_label_size
             if not widget_size:
@@ -97,7 +97,7 @@ if True:
             return label, text_box, sizer
             
     def create_check_box_getter(panel, sizer, label_text="", default_value=False, tooltip_text="", widget_size=None):
-        from pytransit.analysis.base import InfoIcon
+        from pytransit.methods.analysis.base import InfoIcon
         if not widget_size:
             widget_size = (-1, -1)
         

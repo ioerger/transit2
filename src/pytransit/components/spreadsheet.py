@@ -1,7 +1,7 @@
 import wx.grid
 
-import pytransit.gui_tools as gui_tools
-from pytransit.transit_tools import wx
+import pytransit.tools.gui_tools as gui_tools
+from pytransit.tools.transit_tools import wx
 from pytransit.universal_data import universal
 
 class TransitTable(wx.grid.GridTableBase):

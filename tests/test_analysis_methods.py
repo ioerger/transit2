@@ -13,25 +13,25 @@ import unittest
 from transit_test import *
 
 import pytransit
-from pytransit import norm_tools
-from pytransit import tnseq_tools
-from pytransit.transit_tools import HAS_R
+from pytransit.tools import norm_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools.transit_tools import HAS_R
 
 # Single condition methods
-from pytransit.analysis.anova    import Analysis as AnovaMethod
-from pytransit.analysis.gumbel   import GumbelMethod
-from pytransit.analysis.binomial import BinomialMethod
-from pytransit.analysis.griffin  import GriffinMethod
-from pytransit.analysis.hmm      import HMMMethod
-from pytransit.analysis.zinb     import ZinbMethod
+from pytransit.methods.analysis.anova    import Analysis as AnovaMethod
+from pytransit.methods.analysis.gumbel   import GumbelMethod
+from pytransit.methods.analysis.binomial import BinomialMethod
+from pytransit.methods.analysis.griffin  import GriffinMethod
+from pytransit.methods.analysis.hmm      import HMMMethod
+from pytransit.methods.analysis.zinb     import ZinbMethod
 
 # Comparative methods
-from pytransit.analysis.resampling  import ResamplingMethod
-from pytransit.analysis.rankproduct import RankProductMethod
-from pytransit.analysis.utest       import UTestMethod
+from pytransit.methods.analysis.resampling  import ResamplingMethod
+from pytransit.methods.analysis.rankproduct import RankProductMethod
+from pytransit.methods.analysis.utest       import UTestMethod
 
 # Genetic Interactions
-from pytransit.analysis.gi import GIMethod
+from pytransit.methods.analysis.gi import GIMethod
 
 class TestMethods(TransitTestCase):
     def test_Gumbel(self):

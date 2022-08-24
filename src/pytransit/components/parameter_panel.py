@@ -4,9 +4,9 @@ import sys
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-import pytransit.gui_tools as gui_tools
-import pytransit.transit_tools as transit_tools
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.transit_tools as transit_tools
 import pytransit.images as images
 import pytransit
 
@@ -243,7 +243,7 @@ def set_panel(new_panel):
 panel.set_panel = set_panel
 
 def hide_all_options():
-    from pytransit.analysis import methods
+    from pytransit.methods.analysis import methods
     
     hide_progress_section()
     for name in methods:
@@ -276,7 +276,7 @@ def progress_update(text, percent):
     sys.stdout.flush()
     
     if HAS_WX:
-        import pytransit.gui_tools as gui_tools
+        import pytransit.tools.gui_tools as gui_tools
         # update progress bar
         panel.progress_percent = percent
         thousands = round(panel.progress_percent*10)

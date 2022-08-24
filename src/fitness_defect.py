@@ -1,5 +1,5 @@
 import sys, random, numpy
-import pytransit.tnseq_tools
+import pytransit.tools.tnseq_tools
 from statsmodels.stats.multitest import fdrcorrection
 
 
@@ -69,7 +69,7 @@ for x in sys.argv:
 print
 
 coords, counts = read_wig(sys.argv[1])
-genes = pytransit.tnseq_tools.read_genes(sys.argv[2])
+genes = pytransit.tools.tnseq_tools.read_genes(sys.argv[2])
 
 noness = remove_essential_regions(counts, 5)  # run length
 print "# sites: %s, noness: %s" % (len(counts), len(noness))

@@ -1,6 +1,6 @@
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
-import pytransit.gui_tools as gui_tools
+import pytransit.tools.gui_tools as gui_tools
 
 if not HAS_WX:
     class InfoIcon: pass

@@ -1,8 +1,8 @@
 from collections import defaultdict
 from functools import partial
 
-import pytransit.gui_tools as gui_tools
-import pytransit.transit_tools as transit_tools
+import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.transit_tools as transit_tools
 import pytransit.qc_display as qc_display
 from pytransit.universal_data import SessionData, universal
 import pytransit
@@ -18,10 +18,10 @@ documentation_url = "http://saclab.tamu.edu/essentiality/transit/transit.html"
 def create_menu(frame):
     # must imported inside the function to avoid circular import
     import pytransit.components.parameter_panel as parameter_panel
-    from pytransit.analysis   import methods as analysis_methods
-    from pytransit.export     import methods as export_methods
-    from pytransit.convert    import methods as convert_methods
-    from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+    from pytransit.methods.analysis   import methods as analysis_methods
+    from pytransit.methods.export     import methods as export_methods
+    from pytransit.methods.convert    import methods as convert_methods
+    from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
     
     global selected_export_menu_item
     global convert_menu_item
@@ -578,7 +578,7 @@ def method_select_func(selected_name, event):
     else:
         panel.method_sizer_text.Show()
         
-        from pytransit.analysis import methods as analysis_methods
+        from pytransit.methods.analysis import methods as analysis_methods
         
         matched_name = None
         # Get selected Method and hide Others
