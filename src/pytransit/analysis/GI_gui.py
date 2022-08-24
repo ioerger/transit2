@@ -238,7 +238,7 @@ class Analysis:
             dataB1 = data[indexes[condB1]]
             dataB2 = data[indexes[condB2]]
 
-            results = self.GI(dataA1,dataA2,dataB1,dataB2,sites,condA1,condA2,condB1,condB2,sample_table)
+            (results,adjusted_prob,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
 
             # 
             # write output
@@ -248,14 +248,15 @@ class Analysis:
             transit_tools.log(f"Adding File: {self.inputs.output_path}")
             results_area.add(self.inputs.output_path)
 
-            #write_GI_results(results) # will open and close file, or print to console
+            # will open and close file, or print to console
+            self.print_GI(results,adjusted_prob,adjusted_label,condA1,condA2,condB1,condB2,sample_table) 
 
             transit_tools.log("Finished Genetic Interaction analysis")
             transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     # is self.annotation_path already set?
 
-    def GI(self,dataA1,dataA2,dataB1,dataB2,position,condA1,condA2,condB1,condB2,sample_table): # position is vector of TAsite coords
+    def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
 
         # Get Gene objects for each condition
         G_A1 = tnseq_tools.Genes(
@@ -334,7 +335,7 @@ class Analysis:
 
         k0 = 1.0
         nu0 = 1.0
-        data = []
+        results = [] # results vectors for each gene
 
         postprob = []
         count = 0
@@ -444,7 +445,7 @@ class Analysis:
                 u_delta_logFC = 10
 
             postprob.append(probROPE)
-            data.append( ###? change to 'results'?
+            results.append(
                 (
                     gene.orf,
                     gene.name,
@@ -473,8 +474,8 @@ class Analysis:
 
         # for HDI, maybe I should sort on abs(mean_delta_logFC); however, need to sort by prob to calculate BFDR
         probcol = -2  # probROPEs
-        data.sort(key=lambda x: x[probcol])
-        sortedprobs = numpy.array([x[probcol] for x in data])
+        results.sort(key=lambda x: x[probcol])
+        sortedprobs = numpy.array([x[probcol] for x in results])
 
         # BFDR method: Newton et al (2004). Detecting differential gene expression with a semiparametric hierarchical mixture method.  Biostatistics, 5:155-176.
 
@@ -501,9 +502,9 @@ class Analysis:
         #            adjusted_prob = [adjusted_prob[ii] for ii in sorted_index]
         #            data = [data[ii] for ii in sorted_index]
 
-        ###? should I append adjusted_prob and adjusted_label or type_of_interaction to results before returning?
+        return (results,adjusted_prob,adjusted_label) # these are parallel arrays, one row or val for each gene
 
-        # Print output
+    def print_GI(self,results,adjusted_prob,adjusted_label,condA1,condA2,condB1,condB2,sample_table): 
 
         self.output = sys.stdout # print to console if not output file defined
         if self.inputs.output_path != None:
@@ -556,7 +557,7 @@ class Analysis:
         )
 
         # Write gene results
-        for i, row in enumerate(data):
+        for i, row in enumerate(results):
             # 1   2    3        4                5              6               7                8            9            10              11             12            13         14
             (
                 orf,
