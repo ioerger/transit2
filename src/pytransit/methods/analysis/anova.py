@@ -452,34 +452,26 @@ class Analysis:
                             ]
                         )
                 
-                column_names = [
-                    "Rv",
-                    "Gene",
-                    "TAs",
-                    *[
-                        f"Mean_{condition_name}" for condition_name in conditions_list
-                    ],
-                    *[
-                        f"LFC_{condition_name}" for condition_name in conditions_list
-                    ],
-                    "MSR",
-                    "MSE+alpha",
-                    "Fstat",
-                    "Pval",
-                    "Padj",
-                    "status"
-                ]
-                
-                # TODO: make summary stats here
-                
                 # 
                 # write to file
                 # 
                 transit_tools.write_result(
                     path=self.inputs.output_path,
                     file_kind=Analysis.identifier,
-                    column_names=column_names,
                     rows=rows,
+                    column_names=[
+                        "Rv",
+                        "Gene",
+                        "TAs",
+                        *[ f"Mean_{condition_name}" for condition_name in conditions_list ],
+                        *[  f"LFC_{condition_name}" for condition_name in conditions_list ],
+                        "MSR",
+                        "MSE+alpha",
+                        "Fstat",
+                        "Pval",
+                        "Padj",
+                        "status"
+                    ],
                     extra_info=dict(
                         parameters=dict(
                             normalization=self.inputs.normalization,
@@ -542,7 +534,8 @@ class File(Analysis):
         # get summary stats
         #
         self.values_for_result_table.update({
-            f"pvals>{Analysis.significance_threshold}": len([
+            f"Gene Count": len(self.rows),
+            f"Pvals>{Analysis.significance_threshold}": len([
                 1 for each in self.rows
                     if each.get("Pval", 0) > Analysis.significance_threshold 
             ]),
