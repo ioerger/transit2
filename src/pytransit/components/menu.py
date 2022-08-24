@@ -58,7 +58,7 @@ def create_menu(frame):
                 
                 for name in export_methods:
                     method = export_methods[name]
-                    method.gui.defineMenuItem(frame, method.label)
+                    method.gui.define_menu_item(frame, method.label)
                     temp_menu_item = method.gui.menuitem
                     selected_export_menu_item.Append(temp_menu_item)
                     
@@ -296,7 +296,7 @@ def create_menu(frame):
                     gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
 
             for name in convert_methods:
-                convert_methods[name].gui.defineMenuItem(frame, convert_methods[name].label)
+                convert_methods[name].gui.define_menu_item(frame, convert_methods[name].label)
                 temp_menu_item = convert_methods[name].gui.menuitem
                 convert_menu_item.Append(temp_menu_item)
 

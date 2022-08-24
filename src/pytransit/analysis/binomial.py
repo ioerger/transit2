@@ -82,7 +82,7 @@ class BinomialFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Binomial", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         ess = 0
         unc = 0
         non = 0
@@ -640,7 +640,7 @@ class BinomialMethod(base.SingleConditionMethod):
         z_bar = numpy.apply_along_axis(numpy.mean, 1, Z[:, self.burnin :])
         theta_bar = numpy.apply_along_axis(numpy.mean, 1, theta[:, self.burnin :])
         # (ess_threshold, noness_threshold) = stat_tools.fdr_post_prob(z_bar)
-        (ess_threshold, noness_threshold) = stat_tools.bayesian_ess_thresholds(z_bar)
+        (ess_threshold, noness_threshold) = stat_tools.bayesian_essentiality_thresholds(z_bar)
 
         self.output.write("#Binomial\n")
         # output.write("#Command: %s\n" % " ".join(["%s=%s" %(key,val) for (key,val) in kwargs.items()]))

@@ -42,9 +42,6 @@ def WxBitmapToWxImage(myBitmap):
     return wx.ImageFromBitmap(myBitmap)
 
 
-# -----
-
-
 def PilImageToWxBitmap(myPilImage):
     return WxImageToWxBitmap(PilImageToWxImage(myPilImage))
 

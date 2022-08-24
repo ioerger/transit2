@@ -74,7 +74,7 @@ class GIFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#GI", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         types_to_counts = {}
         with open(path) as file:
             for line in file:
@@ -101,9 +101,9 @@ Results:
 
         return text
 
-    def getMenus(self):
+    def get_menus(self):
         menus = []
-        menus.append(("Display in Track View", self.displayInTrackView))
+        menus.append(("Display in Track View", self.display_in_track_view))
         return menus
 
 
@@ -937,11 +937,11 @@ class GIMethod(base.QuadConditionMethod):
                 alpha = 0.05
 
                 # Get Bounds of the HDI
-                l_logFC_A, u_logFC_A = stat_tools.HDI_from_MCMC(logFC_A_post, 1 - alpha)
+                l_logFC_A, u_logFC_A = stat_tools.hdi_from_mcmc(logFC_A_post, 1 - alpha)
 
-                l_logFC_B, u_logFC_B = stat_tools.HDI_from_MCMC(logFC_B_post, 1 - alpha)
+                l_logFC_B, u_logFC_B = stat_tools.hdi_from_mcmc(logFC_B_post, 1 - alpha)
 
-                l_delta_logFC, u_delta_logFC = stat_tools.HDI_from_MCMC(
+                l_delta_logFC, u_delta_logFC = stat_tools.hdi_from_mcmc(
                     delta_logFC_post, 1 - alpha
                 )
 
@@ -1038,7 +1038,7 @@ class GIMethod(base.QuadConditionMethod):
             adjusted_label = "BFDR"
 
         elif self.signif == "FWER":
-            fwer = stat_tools.FWER_Bayes(sortedprobs)
+            fwer = stat_tools.fwer_bayes(sortedprobs)
             # fwer.sort() # should not need this if monotonic
             adjusted_prob = fwer
             adjusted_label = "FWER"

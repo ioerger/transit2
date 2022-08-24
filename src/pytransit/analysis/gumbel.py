@@ -57,7 +57,7 @@ class GumbelFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Gumbel", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         ess = 0
         unc = 0
         non = 0
@@ -519,8 +519,8 @@ class GumbelMethod(base.SingleConditionMethod):
                     phi_new > 1
                     or phi_new <= 0
                     or (
-                        self.F_non(phi_new, N[i0], R[i0])
-                        - self.F_non(phi_old, N[i0], R[i0])
+                        self.f_non(phi_new, N[i0], R[i0])
+                        - self.f_non(phi_old, N[i0], R[i0])
                     )
                     < math.log(random.uniform(0, 1))
                 ):
@@ -559,7 +559,7 @@ class GumbelMethod(base.SingleConditionMethod):
             progress_update(text, percentage)
 
         ZBAR = numpy.apply_along_axis(numpy.mean, 1, Z_sample)
-        (ess_t, non_t) = stat_tools.bayesian_ess_thresholds(ZBAR)
+        (ess_t, non_t) = stat_tools.bayesian_essentiality_thresholds(ZBAR)
         binomial_n = math.log10(0.05) / math.log10(G.global_phi())
 
         # Orf    k   n   r   s   zbar
@@ -648,9 +648,9 @@ class GumbelMethod(base.SingleConditionMethod):
     def good_orf(self, gene):
         return gene.n >= 3 and gene.t >= 150
 
-    def ExpectedRuns_cached(self, n, q):
+    def expected_runs_cached(self, n, q):
         if (n, q) not in self.cache_expruns:
-            self.cache_expruns[(n, q)] = tnseq_tools.ExpectedRuns(n, q)
+            self.cache_expruns[(n, q)] = tnseq_tools.expected_runs(n, q)
         return self.cache_expruns[(n, q)]
 
     def classify(self, n, r, p):
@@ -659,11 +659,11 @@ class GumbelMethod(base.SingleConditionMethod):
         q = 1 - p
         B = 1 / math.log(1 / p)
         u = math.log(n * q, 1 / p)
-        BetaGamma = B * tnseq_tools.getGamma()
+        BetaGamma = B * tnseq_tools.get_gamma()
         if (
             n < EXACT
         ):  # estimate more accurately based on expected run len, using exact calc for small genes
-            exprun = self.ExpectedRuns_cached(n, p)
+            exprun = self.expected_runs_cached(n, p)
             u = (
                 exprun - BetaGamma
             )  # u is mu of Gumbel (mean=mu+gamma*beta); matching of moments
@@ -674,31 +674,31 @@ class GumbelMethod(base.SingleConditionMethod):
         else:
             return 0
 
-    def F_non(self, p, N, R):  # pass in P_nonins as p
+    def f_non(self, p, N, R):  # pass in P_nonins as p
         q = 1.0 - p
-        BetaGamma = tnseq_tools.getGamma() / math.log(1 / p)
+        BetaGamma = tnseq_tools.get_gamma() / math.log(1 / p)
         total = numpy.log(scipy.stats.beta.pdf(p, ALPHA, BETA))
         mu = numpy.log(N * q) / numpy.log(1 / p)
         for i in range(
             len(N)
         ):  # estimate more accurately based on expected run len, using exact calc for small genes
             if N[i] < EXACT:
-                mu[i] = self.ExpectedRuns_cached(int(N[i]), p) - BetaGamma
+                mu[i] = self.expected_runs_cached(int(N[i]), p) - BetaGamma
         sigma = 1 / math.log(1 / p)
-        # for i in range(len(N)): print('\t'.join([str(x) for x in N[i],R[i],self.ExpectedRuns_cached(int(N[i]),q),mu[i],scipy.stats.gumbel_r.pdf(R[i], mu[i], sigma)]))
+        # for i in range(len(N)): print('\t'.join([str(x) for x in N[i],R[i],self.expected_runs_cached(int(N[i]),q),mu[i],scipy.stats.gumbel_r.pdf(R[i], mu[i], sigma)]))
         total += numpy.sum(scipy.stats.gumbel_r.logpdf(R, mu, sigma))
         return total
 
     def sample_Z(self, p, w1, N, R, S, T, mu_s, sigma_s, SIG):
         G = len(N)
         q = 1.0 - p
-        BetaGamma = tnseq_tools.getGamma() / math.log(1 / p)
+        BetaGamma = tnseq_tools.get_gamma() / math.log(1 / p)
         mu = numpy.log(N * q) / numpy.log(1 / p)
         for i in range(
             len(N)
         ):  # estimate more accurately based on expected run len, using exact calc for small genes
             if N[i] < EXACT:
-                mu[i] = self.ExpectedRuns_cached(int(N[i]), p) - BetaGamma
+                mu[i] = self.expected_runs_cached(int(N[i]), p) - BetaGamma
         sigma = 1.0 / math.log(1.0 / p)
         h0 = (
             (numpy.exp(scipy.stats.gumbel_r.logpdf(R, mu, sigma)))

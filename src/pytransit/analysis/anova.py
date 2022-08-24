@@ -73,7 +73,7 @@ class Analysis:
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
             -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
-            -alpha <N> := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+            -alpha <N> := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
             -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
     
@@ -110,7 +110,7 @@ class Analysis:
         # 
         # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
         # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-        # --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+        # --ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
         # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
         # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
         # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
@@ -191,7 +191,7 @@ class Analysis:
         winz              = "winz" in kwargs
         pseudocount       = int(kwargs.get("PC", 5))
         alpha             = float(kwargs.get("alpha", 1000))
-        refs              = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating LFCs
+        refs              = kwargs.get("-ref", [])  # list of condition names to use a reference for calculating lfc_s
         if refs != []: refs = refs.split(",")
         excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
         included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
@@ -223,22 +223,22 @@ class Analysis:
             Site :: Number
             Condition :: String
         """
-        nTASites = len(sites)
-        wigsByConditions = collections.defaultdict(lambda: [])
+        n_ta_sites = len(sites)
+        wigs_by_conditions = collections.defaultdict(lambda: [])
         for i, c in enumerate(conditions):
-            wigsByConditions[c].append(i)
+            wigs_by_conditions[c].append(i)
 
         return {
             c: numpy.mean(transit_tools.winsorize(data[wigIndex][:, sites]))
-            if nTASites > 0
+            if n_ta_sites > 0
             else 0
-            for (c, wigIndex) in wigsByConditions.items()
+            for (c, wigIndex) in wigs_by_conditions.items()
         }
 
-    def means_by_rv(self, data, RvSiteindexesMap, genes, conditions):
+    def means_by_rv(self, data, rv_site_indexes_map, genes, conditions):
         """
             Returns Dictionary of mean values by condition
-            ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition]) -> {Rv: {Condition: Number}}
+            ([[Wigdata]], {rv: SiteIndex}, [Gene], [Condition]) -> {rv: {Condition: Number}}
             Wigdata :: [Number]
             SiteIndex :: Number
             Gene :: {start, end, rv, gene, strand}
@@ -246,9 +246,9 @@ class Analysis:
         """
         means_by_rv = {}
         for gene in genes:
-            Rv = gene["rv"]
-            means_by_rv[Rv] = self.means_by_condition_for_gene(
-                RvSiteindexesMap[Rv], conditions, data
+            rv = gene["rv"]
+            means_by_rv[rv] = self.means_by_condition_for_gene(
+                rv_site_indexes_map[rv], conditions, data
             )
         return means_by_rv
 
@@ -260,21 +260,21 @@ class Analysis:
             Condition :: String
             DataForCondition :: [Number]
         """
-        countsByCondition = collections.defaultdict(lambda: [])
-        countSum = 0
+        counts_by_condition = collections.defaultdict(lambda: [])
+        count_sum = 0
         for i, c in enumerate(conditions):
-            countSum += numpy.sum(wig_list[i])
-            countsByCondition[c].append(wig_list[i])
+            count_sum += numpy.sum(wig_list[i])
+            counts_by_condition[c].append(wig_list[i])
 
         return (
-            countSum,
-            [numpy.array(v).flatten() for v in countsByCondition.values()],
+            count_sum,
+            [numpy.array(v).flatten() for v in counts_by_condition.values()],
         )
 
-    def calculate_anova(self, data, genes, means_by_rv, RvSiteindexesMap, conditions):
+    def calculate_anova(self, data, genes, means_by_rv, rv_site_indexes_map, conditions):
         """
             Runs Anova (grouping data by condition) and returns p and q values
-            ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
+            ([[Wigdata]], [Gene], {rv: {Condition: Mean}}, {rv: [SiteIndex]}, [Condition]) -> Tuple([Number], [Number])
             Wigdata :: [Number]
             Gene :: {start, end, rv, gene, strand}
             Mean :: Number
@@ -287,53 +287,53 @@ class Analysis:
         
         count = 0
 
-        MSR, MSE, Fstats, pvals, Rvs, status = [],[],[],[],[],[]
+        msrs, mses, f_stats, pvals, rvs, status = [],[],[],[],[],[]
         for gene in genes:
             count += 1
-            Rv = gene["rv"]
-            if len(RvSiteindexesMap[Rv]) <= 1:
+            rv = gene["rv"]
+            if len(rv_site_indexes_map[rv]) <= 1:
                 status.append("TA sites <= 1")
-                msr,mse,Fstat,pval = 0,0,-1,1
+                msr,mse,f_stat,pval = 0,0,-1,1
             else:
-                countSum, countsVec = self.group_by_condition(
-                    list(map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)),
+                count_sum, counts_vec = self.group_by_condition(
+                    list(map(lambda wigData: wigData[rv_site_indexes_map[rv]], data)),
                     conditions,
                 )
                 if self.inputs.winz:
-                    countsVec = transit_tools.winsorize(countsVec)
+                    counts_vec = transit_tools.winsorize(counts_vec)
 
-                if countSum == 0:
-                    msr,mse,Fstat,pval = 0,0,-1,1
+                if count_sum == 0:
+                    msr,mse,f_stat,pval = 0,0,-1,1
                     status.append("No counts in all conditions")
                 else:
-                    Fstat,pval = scipy.stats.f_oneway(*countsVec)
+                    f_stat,pval = scipy.stats.f_oneway(*counts_vec)
                     status.append("-")
-                    # countsVec is a list of numpy arrays, or could be a list of lists
+                    # counts_vec is a list of numpy arrays, or could be a list of lists
                     # pooled counts for each condition, over TAs in gene and replicates
-                    if isinstance(countsVec[0],numpy.ndarray): 
-                      countsVecAsArrays = countsVec
-                      countsVecAsLists = [grp.tolist() for grp in countsVec]
+                    if isinstance(counts_vec[0],numpy.ndarray): 
+                      counts_vec_as_arrays = counts_vec
+                      counts_vecAsLists = [grp.tolist() for grp in counts_vec]
                     else:
-                      countsVecAsArrays = [numpy.array(grp) for grp in countsVec]
-                      countsVecAsLists = countsVec
-                    allcounts = [item for sublist in countsVecAsLists for item in sublist]
-                    grandmean = numpy.mean(allcounts)
-                    groupmeans = [numpy.mean(grp) for grp in countsVecAsArrays]
-                    k,n = len(countsVec),len(allcounts)
-                    dfBetween,dfWithin = k-1,n-k
+                      counts_vec_as_arrays = [numpy.array(grp) for grp in counts_vec]
+                      counts_vecAsLists = counts_vec
+                    all_counts = [item for sublist in counts_vecAsLists for item in sublist]
+                    grand_mean = numpy.mean(all_counts)
+                    group_means = [numpy.mean(grp) for grp in counts_vec_as_arrays]
+                    k,n = len(counts_vec),len(all_counts)
+                    df_between,df_within = k-1,n-k
                     msr,mse = 0,0
-                    for grp in countsVecAsArrays: msr += grp.size*(numpy.mean(grp)-grandmean)**2/float(dfBetween)
-                    for grp,mn in zip(countsVecAsArrays,groupmeans): mse += numpy.sum((grp-mn)**2) 
-                    mse /= float(dfWithin)
+                    for grp in counts_vec_as_arrays: msr += grp.size*(numpy.mean(grp)-grand_mean)**2/float(df_between)
+                    for grp,mn in zip(counts_vec_as_arrays,group_means): mse += numpy.sum((grp-mn)**2) 
+                    mse /= float(df_within)
                     mse = mse+self.inputs.alpha ### moderation
-                    Fmod = msr/float(mse)
-                    Pmod = scipy.stats.f.sf(Fmod,dfBetween,dfWithin)
-                    Fstat,pval = Fmod,Pmod
+                    f_mod = msr/float(mse)
+                    Pmod = scipy.stats.f.sf(f_mod, df_between, df_within)
+                    f_stat,pval = f_mod,Pmod
             pvals.append(pval)   
-            Fstats.append(Fstat) 
-            MSR.append(msr)
-            MSE.append(mse)
-            Rvs.append(Rv)
+            f_stats.append(f_stat) 
+            msrs.append(msr)
+            mses.append(mse)
+            rvs.append(rv)
 
             # Update progress
             percentage = 100.0 * count / len(genes)
@@ -344,16 +344,16 @@ class Analysis:
         qvals = numpy.full(pvals.shape, numpy.nan)
         qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals[mask])[1]  # BH, alpha=0.05
 
-        msr, mse, f, p, q, statusMap = {},{},{},{},{},{}
-        for i,rv in enumerate(Rvs):
-            msr[rv],mse[rv],f[rv],p[rv],q[rv],statusMap[rv] = MSR[i],MSE[i],Fstats[i],pvals[i],qvals[i],status[i]
-        return (msr, mse, f, p, q, statusMap)
+        msr, mse, f, p, q, status_map = {},{},{},{},{},{}
+        for i,rv in enumerate(rvs):
+            msr[rv], mse[rv], f[rv], p[rv], q[rv], status_map[rv] = msrs[i], mses[i], f_stats[i], pvals[i], qvals[i], status[i]
+        return msr, mse, f, p, q, status_map
     
     def calc_lfcs(self, means, refs=[], pseudocount=5):
         if len(refs) == 0:
             refs = means  # if ref condition(s) not explicitly defined, use mean of all
-        grandmean = numpy.mean(refs)
-        lfcs = [math.log((x + pseudocount) / float(grandmean + pseudocount), 2) for x in means]
+        grand_mean = numpy.mean(refs)
+        lfcs = [math.log((x + pseudocount) / float(grand_mean + pseudocount), 2) for x in means]
         return lfcs
 
     def Run(self):
@@ -407,15 +407,15 @@ class Analysis:
             # 
             if True:
                 transit_tools.log("processing data")
-                TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
-                RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
+                TASiteindexMap = {ta: i for i, ta in enumerate(sites)}
+                rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
                     genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
                 )
-                means_by_rv = self.means_by_rv(data, RvSiteindexesMap, genes, conditions)
+                means_by_rv = self.means_by_rv(data, rv_site_indexes_map, genes, conditions)
 
                 transit_tools.log("Running Anova")
-                MSR, MSE, Fstats, pvals, qvals, run_status = self.calculate_anova(
-                    data, genes, means_by_rv, RvSiteindexesMap, conditions
+                msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
+                    data, genes, means_by_rv, rv_site_indexes_map, conditions
                 )
             
             # 
@@ -438,13 +438,13 @@ class Analysis:
                             [
                                 each_rv,
                                 gene["gene"],
-                                str(len(RvSiteindexesMap[each_rv])),
+                                str(len(rv_site_indexes_map[each_rv])),
                             ] + [
                                 "%0.2f" % x for x in means
                             ] + [
                                 "%0.3f" % x for x in lfcs
                             ] +  [
-                                "%f" % x for x in [MSR[each_rv], MSE[each_rv], Fstats[each_rv], pvals[each_rv], qvals[each_rv]]
+                                "%f" % x for x in [msrs[each_rv], mses[each_rv], f_stats[each_rv], pvals[each_rv], qvals[each_rv]]
                             ] + [
                                 run_status[each_rv]
                             ]
@@ -554,61 +554,62 @@ class File(Analysis):
         #     print("Error Displaying File. Histogram image does not exist.")
 
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        if not HAS_R:
-            raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
-        headers = None
-        data, hits = [], []
-        number_of_conditions = -1
+        with gui_tools.nice_error_log:
+            if not HAS_R:
+                raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
+            headers = None
+            data, hits = [], []
+            number_of_conditions = -1
 
-        with open(infile) as file:
-            for line in file:
-                w = line.rstrip().split("\t")
-                if line[0] == "#" or (
-                    "pval" in line and "padj" in line
-                ):  # check for 'pval' for backwards compatibility
-                    headers = w
-                    continue  # keep last comment line as headers
-                # assume first non-comment line is header
-                if number_of_conditions == -1:
-                    # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
-                    number_of_conditions = int((len(w) - 6) / 2)
-                    headers = headers[3 : 3 + number_of_conditions]
-                    headers = [x.replace("Mean_", "") for x in headers]
-                else:
-                    means = [
-                        float(x) for x in w[3 : 3 + number_of_conditions]
-                    ]  # take just the columns of means
-                    lfcs = [
-                        float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                    ]  # take just the columns of LFCs
-                    each_qval = float(w[-2])
-                    data.append((w, means, lfcs, each_qval))
-        
-        data.sort(key=lambda x: x[-1])
-        hits, LFCs = [], []
-        for k, (w, means, lfcs, each_qval) in enumerate(data):
-            if (topk == -1 and each_qval < qval) or (
-                topk != -1 and k < topk
-            ):
-                mm = round(numpy.mean(means), 1)
-                if mm < low_mean_filter:
-                    print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-                else:
-                    hits.append(w)
-                    LFCs.append(lfcs)
+            with open(infile) as file:
+                for line in file:
+                    w = line.rstrip().split("\t")
+                    if line[0] == "#" or (
+                        "pval" in line and "padj" in line
+                    ):  # check for 'pval' for backwards compatibility
+                        headers = w
+                        continue  # keep last comment line as headers
+                    # assume first non-comment line is header
+                    if number_of_conditions == -1:
+                        # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, lfc_s) X number_of_conditions conditions)
+                        number_of_conditions = int((len(w) - 6) / 2)
+                        headers = headers[3 : 3 + number_of_conditions]
+                        headers = [x.replace("Mean_", "") for x in headers]
+                    else:
+                        means = [
+                            float(x) for x in w[3 : 3 + number_of_conditions]
+                        ]  # take just the columns of means
+                        lfcs = [
+                            float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
+                        ]  # take just the columns of lfc_s
+                        each_qval = float(w[-2])
+                        data.append((w, means, lfcs, each_qval))
+            
+            data.sort(key=lambda x: x[-1])
+            hits, lfc_s = [], []
+            for k, (w, means, lfcs, each_qval) in enumerate(data):
+                if (topk == -1 and each_qval < qval) or (
+                    topk != -1 and k < topk
+                ):
+                    mm = round(numpy.mean(means), 1)
+                    if mm < low_mean_filter:
+                        print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
+                    else:
+                        hits.append(w)
+                        lfc_s.append(lfcs)
 
-        print("heatmap based on %s genes" % len(hits))
-        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
-        hash = {}
-        headers = [h.replace("Mean_", "") for h in headers]
-        for i, col in enumerate(headers):
-            hash[col] = FloatVector([x[i] for x in LFCs])
-        df = DataFrame(hash)
-        transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
-        
-        # add it as a result
-        results_area.add(output_path)
-        gui_tools.show_image(output_path)
+            print("heatmap based on %s genes" % len(hits))
+            gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
+            hash = {}
+            headers = [h.replace("Mean_", "") for h in headers]
+            for i, col in enumerate(headers):
+                hash[col] = FloatVector([x[i] for x in lfc_s])
+            df = DataFrame(hash)
+            transit_tools.r_heatmap_func(df, StrVector(gene_names), output_path)
+            
+            # add it as a result
+            results_area.add(output_path)
+            gui_tools.show_image(output_path)
     
 Method = GUI = Analysis
 Analysis() # make sure there's one instance

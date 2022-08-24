@@ -17,9 +17,9 @@ from pytransit.basics.misc import line_count_of, flatten_once, no_duplicates, in
 try:
     from pytransit import norm_tools
 
-    noNorm = False
+    no_norm = False
 except ImportError:
-    noNorm = True
+    no_norm = True
     warnings.warn(
         "Problem importing the norm_tools.py module. Read-counts will not be normalized. Some functions may not work."
     )
@@ -703,7 +703,7 @@ class Gene:
     #
 
     def get_gap_span(self):
-        """Returns the span of the maxrun of the gene (i.e. number of nucleotides).
+        """Returns the span of the max_run of the gene (i.e. number of nucleotides).
 
         Returns:
             int: Number of nucleotides spanned by the max run.
@@ -711,7 +711,7 @@ class Gene:
         if len(self.position) > 0:
             if self.r == 0:
                 return 0
-            index = runindex(self.runs)
+            index = run_index(self.runs)
             # maxii = numpy.argmax(self.runs)
             maxii = numpy.argwhere(self.runs == numpy.max(self.runs)).flatten()[-1]
             runstart = index[maxii]
@@ -951,7 +951,7 @@ class Genes:
 
         hash = get_pos_hash(self.annotation)
 
-        if not noNorm:
+        if not no_norm:
             (data, factors) = norm_tools.normalize_data(
                 data, norm, self.wig_list, self.annotation
             )
@@ -1190,7 +1190,7 @@ class Genes:
         Returns:
             int: Max run across all genes.
         """
-        return maxrun(self.tosses())
+        return max_run(self.tosses())
 
     #
 
@@ -1288,7 +1288,7 @@ def runs(data):
         return [0]
     return runs
 
-def runindex(runs):
+def run_index(runs):
     """Returns a list of the indexes of the start of the runs; complements runs().
 
     Arguments:
@@ -1299,16 +1299,16 @@ def runindex(runs):
     """
     index = 0
     index_list = []
-    runindex = 0
+    the_run_index = 0
     for r in runs:
         for i in range(r):
             if i == 0:
-                runindex = index
+                the_run_index = index
             index += 1
         if r == 0:
-            runindex = index
+            the_run_index = index
             index += 1
-        index_list.append(runindex)
+        index_list.append(the_run_index)
     return index_list
 
 def get_file_types(wig_list):
@@ -1338,7 +1338,6 @@ def get_file_types(wig_list):
                     break
                 prev_pos = pos
     return types
-
 
 def check_wig_includes_zeros(wig_list):
     """Returns boolean list showing whether the given files include empty sites
@@ -1424,7 +1423,6 @@ def get_data_zero_fill(wig_list):
 
 
 def get_data_w_genome(wig_list, genome):
-
     X = read_genome(genome)
     N = len(X)
     positions = []
@@ -1867,7 +1865,7 @@ def read_genome(path):
             seq += line.strip()
     return seq
 
-def maxrun(lst, item=0):
+def max_run(lst, item=0):
     """Returns the length of the maximum run an item in a given list.
 
     Arguments:
@@ -1892,27 +1890,27 @@ def maxrun(lst, item=0):
             i += 1
     return best
 
-def getR1(n):
+def get_r1(n):
     """Small Correction term. Defaults to 0.000016 for now"""
     return 0.000016
 
-def getR2(n):
+def get_r2(n):
     """Small Correction term. Defaults to 0.00006 for now"""
     return 0.00006
 
-def getE1(n):
+def get_e1(n):
     """Small Correction term. Defaults to 0.01 for now"""
     return 0.01
 
-def getE2(n):
+def get_e2(n):
     """Small Correction term. Defaults to 0.01 for now"""
     return 0.01
 
-def getGamma():
+def get_gamma():
     """Euler-Mascheroni constant ~ 0.577215664901 """
     return 0.5772156649015328606
 
-def ExpectedRuns(n, pnon):
+def expected_runs(n, pnon):
     """Expected value of the run of non=insertions (Schilling, 1990):
 
         ER_n =  log(1/p)(nq) + gamma/ln(1/p) -1/2 + r1(n) + E1(n)
@@ -1942,20 +1940,20 @@ def ExpectedRuns(n, pnon):
         return ERn
 
     pins = 1 - pnon
-    gamma = getGamma()
-    r1 = getR1(n)
-    E1 = getE1(n)
+    gamma = get_gamma()
+    r1 = get_r1(n)
+    E1 = get_e1(n)
     A = math.log(n * pins, 1.0 / pnon)
     B = gamma / math.log(1.0 / pnon)
     ER = A + B - 0.5 + r1 + E1
     return ER
 
-def VarR(n, pnon):
+def variance_run(n, pnon):
     """Variance of the expected run of non-insertons (Schilling, 1990):
 
     .. math::
 
-        VarR_n =  (pi^2)/(6*ln(1/p)^2) + 1/12 + r2(n) + E2(n)
+        variance_run_n =  (pi^2)/(6*ln(1/p)^2) + 1/12 + r2(n) + E2(n)
 
 
     Arguments:
@@ -1965,13 +1963,13 @@ def VarR(n, pnon):
     Returns:
         float: Variance of the length of the maximum run.
     """
-    r2 = getR2(n)
-    E2 = getE2(n)
+    r2 = get_r2(n)
+    E2 = get_e2(n)
     A = math.pow(math.pi, 2.0) / (6 * math.pow(math.log(1.0 / pnon), 2.0))
     V = A + 1 / 12.0 + r2 + E2
     return V
 
-def GumbelCDF(x, u, B):
+def gumbel_cdf(x, u, B):
     """CDF of the Gumbel distribution:
 
         e^(-e^( (u-x)/B))
@@ -2024,10 +2022,10 @@ def griffin_analysis(genes_obj, pins):
                 1.0 / pnon
             )  # beta param of Gumbel distn; like tau in our Bioinfo paper
             # u = math.log(gene.n*pins, 1.0/pnon) # instead, calculate this based on estimate of ExpectedRun() length below
-            exprun = ExpectedRuns(gene.n, pnon)
+            exprun = expected_runs(gene.n, pnon)
             # u is mu of Gumbel (mean=mu+gamma*beta); matching of moments; like Eq 5 in Schilling, but subtract off unneeded terms
-            u = exprun - getGamma() / math.log(1.0 / pnon)
-            pval = 1.0 - GumbelCDF(gene.r, u, B)
+            u = exprun - get_gamma() / math.log(1.0 / pnon)
+            pval = 1.0 - gumbel_cdf(gene.r, u, B)
             results.append(
                 [gene.orf, gene.name, gene.desc, gene.k, gene.n, gene.r, exprun, pval]
             )
@@ -2085,7 +2083,7 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
     """
     ([Gene], {TAsite: Siteindex}) -> {Rv: Siteindex}
     """
-    RvSiteindexesMap = {}
+    rv_site_indexes_map = {}
     for g, gene in enumerate(genes):
         siteindexes = []
         start = gene["start"] if gene["strand"] == "+" else gene["start"] + 3
@@ -2098,5 +2096,5 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 continue
             if co in TASiteindexMap:
                 siteindexes.append(TASiteindexMap[co])
-        RvSiteindexesMap[gene["rv"]] = siteindexes
-    return RvSiteindexesMap
+        rv_site_indexes_map[gene["rv"]] = siteindexes
+    return rv_site_indexes_map

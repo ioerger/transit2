@@ -70,7 +70,7 @@ class ResamplingFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Resampling", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         DE = 0
         poslogfc = 0
         neglogfc = 0
@@ -97,9 +97,9 @@ class ResamplingFile(base.TransitFile):
         )
         return text
 
-    def getMenus(self):
+    def get_menus(self):
         menus = []
-        menus.append(("Display in Track View", self.displayInTrackView))
+        menus.append(("Display in Track View", self.display_in_track_view))
         menus.append(("Display Histogram", self.displayHistogram))
         return menus
 
@@ -936,8 +936,8 @@ class ResamplingMethod(base.DualConditionMethod):
                         data1,
                         data2,
                         S=self.samples,
-                        testFunc=stat_tools.F_mean_diff_dict,
-                        permFunc=stat_tools.F_shuffle_dict_libraries,
+                        testFunc=stat_tools.f_mean_diff_dict,
+                        permFunc=stat_tools.f_shuffle_dict_libraries,
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
@@ -957,8 +957,8 @@ class ResamplingMethod(base.DualConditionMethod):
                         data1,
                         data2,
                         S=self.samples,
-                        testFunc=stat_tools.F_mean_diff_flat,
-                        permFunc=stat_tools.F_shuffle_flat,
+                        testFunc=stat_tools.f_mean_diff_flat,
+                        permFunc=stat_tools.f_shuffle_flat,
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
@@ -1014,7 +1014,7 @@ class ResamplingMethod(base.DualConditionMethod):
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Performing Benjamini-Hochberg Correction")
         data.sort()
-        qval = stat_tools.BH_fdr_correction([row[-1] for row in data])
+        qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
         return (data, qval)
 

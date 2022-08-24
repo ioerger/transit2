@@ -52,7 +52,7 @@ class PathwayFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#Example", columns)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         text = """This is file contains analysis of pathways enriched among sigificant genes from resampling."""
         return text
 

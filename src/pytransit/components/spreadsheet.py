@@ -163,7 +163,7 @@ class SpreadSheet(wx.Frame):
         val = self.grid.GetCellValue(self.row, 0)
 
         self.Refresh()
-        for (menuname, menufunc) in self.filetype.getMenus():
+        for (menuname, menufunc) in self.filetype.get_menus():
             newid = wx.NewId()
             menu.Append(newid, menuname)
             newmenufunc = partial(menufunc, self)

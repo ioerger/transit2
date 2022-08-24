@@ -174,46 +174,21 @@ if HAS_WX:
 working_directory = os.getcwd()
 
 def fetch_name(filepath):
-    
     return os.path.splitext(ntpath.basename(filepath))[0]
-
 
 def basename(filepath):
     return ntpath.basename(filepath)
 
-
 def dirname(filepath):
     return os.path.dirname(os.path.abspath(filepath))
 
-def getTabTableData(path, colnames):
-    
-    row = 0
-    data = []
-    with open(path) as file:
-        for line in file:
-            if line.startswith("#"):
-                continue
-            tmp = line.split("\t")
-            tmp[-1] = tmp[-1].strip()
-            rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
-            data.append((row, rowdict))
-            row += 1
-
-    return data
-
-
-def ShowAskWarning(MSG=""):
-    
-    dial = wx.MessageDialog(
-        None, MSG, "Warning", wx.OK | wx.CANCEL | wx.ICON_EXCLAMATION
-    )
+def show_ask_warning(MSG=""):
+    dial = wx.MessageDialog(None, MSG, "Warning", wx.OK | wx.CANCEL | wx.ICON_EXCLAMATION)
     return dial.ShowModal()
-
 
 def show_error_dialog(message):
     dial = wx.MessageDialog(None, message, "Error", wx.OK | wx.ICON_ERROR)
     dial.ShowModal()
-
 
 def log(message, *args, **kwargs):
     import inspect
@@ -246,25 +221,19 @@ def transit_error(text):
     except:
         pass
 
-
 def validate_annotation(annotation):
-    
     if not annotation or not os.path.exists(annotation):
         transit_error("Error: No or Invalid annotation file selected!")
         return False
     return True
 
-
 def validate_control_datasets(ctrldata):
-    
     if len(ctrldata) == 0:
         transit_error("Error: No control datasets selected!")
         return False
     return True
 
-
 def validate_both_datasets(ctrldata, expdata):
-    
     if len(ctrldata) == 0 and len(expdata) == 0:
         transit_error("Error: No datasets selected!")
         return False
@@ -277,15 +246,12 @@ def validate_both_datasets(ctrldata, expdata):
     else:
         return True
 
-
 def validate_transposons_used(datasets, transposons, justWarn=True):
-
-    
     # Check if transposon type is okay.
     unknown = tnseq_tools.get_unknown_file_types(datasets, transposons)
     if unknown:
         if justWarn:
-            answer = ShowAskWarning(
+            answer = show_ask_warning(
                 "Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: %s. Proceeding may lead to errors. Click OK to continue."
                 % (",".join(unknown))
             )
@@ -301,7 +267,6 @@ def validate_transposons_used(datasets, transposons, justWarn=True):
             return False
 
     return True
-
 
 def validate_wig_format(wig_list, wxobj=None):
     # Check if the .wig files include zeros or not
@@ -345,10 +310,8 @@ def validate_wig_format(wig_list, wxobj=None):
             genome = ""
     return (status, genome)
 
-
 def validate_filetypes(datasets, transposons, justWarn=True):
     validate_transposons_used(datasets, transposons, justWarn)
-
 
 def get_pos_hash(path):
     """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.
@@ -365,7 +328,6 @@ def get_pos_hash(path):
     else:
         return tnseq_tools.get_pos_hash_pt(path)
 
-
 def get_extended_pos_hash(path):
     """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.
 
@@ -380,7 +342,6 @@ def get_extended_pos_hash(path):
         return tnseq_tools.get_extended_pos_hash_gff(path)
     else:
         return tnseq_tools.get_extended_pos_hash_pt(path)
-
 
 def get_gene_info(path):
     """Returns a dictionary that maps gene id to gene information.
@@ -403,45 +364,7 @@ def get_gene_info(path):
     else:
         return tnseq_tools.get_gene_info_pt(path)
 
-
-def convertToIGV(self, dataset_list, annotationPath, path, normchoice=None):
-
-    if not normchoice:
-        normchoice = "nonorm"
-
-    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
-    (fulldata, factors) = norm_tools.normalize_data(
-        fulldata, normchoice, dataset_list, annotationPath
-    )
-    position = position.astype(int)
-
-    output = open(path, "w")
-    output.write("#Converted to IGV with TRANSIT.\n")
-    if normchoice != "nonorm":
-        output.write("#Reads normalized using '%s'\n" % normchoice)
-
-    output.write("#Files:\n#%s\n" % "\n#".join(dataset_list))
-    output.write(
-        "#Chromosome\tStart\tEnd\tFeature\t%s\tTAs\n"
-        % ("\t".join([transit_tools.fetch_name(D) for D in dataset_list]))
-    )
-    chrom = transit_tools.fetch_name(annotationPath)
-
-    for i, pos in enumerate(position):
-        output.write(
-            "%s\t%s\t%s\tTA%s\t%s\t1\n"
-            % (
-                chrom,
-                position[i],
-                position[i] + 1,
-                position[i],
-                "\t".join(["%1.1f" % fulldata[j][i] for j in range(len(fulldata))]),
-            )
-        )
-    output.close()
-
-
-def convertToCombinedWig(dataset_list, annotationPath, outputPath, normchoice="nonorm"):
+def convert_to_combined_wig(dataset_list, annotationPath, outputPath, normchoice="nonorm"):
     """Normalizes the input datasets and outputs the result in CombinedWig format.
     
     Arguments:
@@ -497,58 +420,6 @@ def convertToCombinedWig(dataset_list, annotationPath, outputPath, normchoice="n
             )
         )
     output.close()
-
-
-def convertToGeneCountSummary(
-    dataset_list, annotationPath, outputPath, normchoice="nonorm"
-):
-    """Normalizes the input datasets and outputs the result in CombinedWig format.
-    
-    Arguments:
-        dataset_list (list): List of paths to datasets in .wig format
-        annotationPath (str): Path to annotation in .prot_table or GFF3 format.
-        outputPath (str): Desired output path.
-        normchoice (str): Choice for normalization method.
-            
-    """
-
-    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
-    (fulldata, factors) = norm_tools.normalize_data(
-        fulldata, normchoice, dataset_list, annotationPath
-    )
-    output = open(outputPath, "w")
-    output.write("#Summarized to Mean Gene Counts with TRANSIT.\n")
-    if normchoice != "nonorm":
-        output.write("#Reads normalized using '%s'\n" % normchoice)
-        if type(factors[0]) == type(0.0):
-            output.write(
-                "#Normalization Factors: %s\n"
-                % "\t".join(["%s" % f for f in factors.flatten()])
-            )
-        else:
-            output.write(
-                "#Normalization Factors: %s\n"
-                % " ".join([",".join(["%s" % bx for bx in b]) for b in factors])
-            )
-
-    (K, N) = fulldata.shape
-    output.write("#Files:\n")
-    for f in dataset_list:
-        output.write("#%s\n" % f)
-
-    # Get Gene objects
-    G = tnseq_tools.Genes(dataset_list, annotationPath, norm=normchoice)
-
-    dataset_header = "\t".join([os.path.basename(D) for D in dataset_list])
-    output.write("#Orf\tName\tNumber of TA sites\t%s\n" % dataset_header)
-    for i, gene in enumerate(G):
-        if gene.n > 0:
-            data_str = "\t".join(["%1.2f" % (M) for M in numpy.mean(gene.reads, 1)])
-        else:
-            data_str = "\t".join(["%1.2f" % (Z) for Z in numpy.zeros(K)])
-        output.write("%s\t%s\t%s\t%s\n" % (gene.orf, gene.name, gene.n, data_str))
-    output.close()
-
 
 def get_validated_data(wig_list, wxobj=None):
     """ Returns a tuple of (data, position) containing a matrix of raw read-counts

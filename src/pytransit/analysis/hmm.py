@@ -81,7 +81,7 @@ class HMMSitesFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#HMM - Sites", columns_sites)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         es = 0
         gd = 0
         ne = 0
@@ -126,7 +126,7 @@ class HMMGenesFile(base.TransitFile):
     def __init__(self):
         base.TransitFile.__init__(self, "#HMM - Genes", columns_genes)
 
-    def getHeader(self, path):
+    def get_header(self, path):
         es = 0
         gd = 0
         ne = 0
@@ -765,8 +765,8 @@ class HMMMethod(base.SingleConditionMethod):
 
             if gene.n > 0:
                 # this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive
-                # E = tnseq_tools.ExpectedRuns(gene.n,   1.0 - theta)
-                # V = tnseq_tools.VarR(gene.n,   1.0 - theta)
+                # E = tnseq_tools.expected_runs(gene.n,   1.0 - theta)
+                # V = tnseq_tools.variance_run(gene.n,   1.0 - theta)
                 if n0 == gene.n:
                     S = "ES"
                 # elif n0 >= int(E+(3*math.sqrt(V))): S = "ES"

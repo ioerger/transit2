@@ -52,7 +52,7 @@ class Analysis(base.TransitAnalysis):
 #    def __init__(self):
 #        base.TransitFile.__init__(self, "#CombinedWig", columns)
 #
-#    def getHeader(self, path):
+#    def get_header(self, path):
 #        text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
 #        return text
 

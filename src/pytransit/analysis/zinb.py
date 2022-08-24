@@ -256,7 +256,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
         return {"mean": means, "nz_mean": nz_means, "nz_perc": nz_percs}
 
-    def stats_by_rv(self, data, RvSiteindexesMap, genes, conditions, interactions):
+    def stats_by_rv(self, data, rv_site_indexes_map, genes, conditions, interactions):
         """
             Returns Dictionary of Stats by condition for each Rv
             ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition], [Interaction]) -> {Rv: {Condition: Number}}
@@ -285,7 +285,7 @@ class ZinbMethod(base.MultiConditionMethod):
         for gene in genes:
             Rv = gene["rv"]
             statsByRv[Rv] = self.stats_for_gene(
-                RvSiteindexesMap[Rv], groupWigIndexMap, data
+                rv_site_indexes_map[Rv], groupWigIndexMap, data
             )
 
         ## TODO :: Any ordering to follow?
@@ -461,7 +461,7 @@ class ZinbMethod(base.MultiConditionMethod):
         genes,
         NZMeanByRep,
         LogZPercByRep,
-        RvSiteindexesMap,
+        rv_site_indexes_map,
         conditions,
         covariates,
         interactions,
@@ -523,7 +523,7 @@ class ZinbMethod(base.MultiConditionMethod):
             ## Single gene case for debugging
             if GENE:
                 Rv = None
-                if GENE in RvSiteindexesMap:
+                if GENE in rv_site_indexes_map:
                     Rv = GENE
                 else:
                     for g in genes:
@@ -538,12 +538,12 @@ class ZinbMethod(base.MultiConditionMethod):
                 transit_tools.log("======================================================================")
                 transit_tools.log(gene["rv"] + " " + gene["gene"])
 
-            if len(RvSiteindexesMap[Rv]) <= 1:
+            if len(rv_site_indexes_map[Rv]) <= 1:
                 status.append("TA sites <= 1, not analyzed")
                 pvals.append(1)
             else:
                 norm_data = list(
-                    map(lambda wigData: wigData[RvSiteindexesMap[Rv]], data)
+                    map(lambda wigData: wigData[rv_site_indexes_map[Rv]], data)
                 )
                 if self.winz:
                     norm_data = self.winsorize(norm_data)
@@ -781,11 +781,11 @@ class ZinbMethod(base.MultiConditionMethod):
         genes = tnseq_tools.read_genes(self.annotation_path)
 
         TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
-        RvSiteindexesMap = tnseq_tools.rv_siteindexes_map(
+        rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
             genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
         )
         statsByRv, statGroupNames = self.stats_by_rv(
-            data, RvSiteindexesMap, genes, conditions, interactions
+            data, rv_site_indexes_map, genes, conditions, interactions
         )
         LogZPercByRep, NZMeanByRep = self.global_stats_for_rep(data)
 
@@ -795,7 +795,7 @@ class ZinbMethod(base.MultiConditionMethod):
             genes,
             NZMeanByRep,
             LogZPercByRep,
-            RvSiteindexesMap,
+            rv_site_indexes_map,
             conditions,
             covariates,
             interactions,
@@ -884,7 +884,7 @@ class ZinbMethod(base.MultiConditionMethod):
                     )
                 LFCs = [numpy.math.log((x + pseudocount) / (m + pseudocount), 2) for x in means]
             vals = (
-                [Rv, gene["gene"], str(len(RvSiteindexesMap[Rv]))]
+                [Rv, gene["gene"], str(len(rv_site_indexes_map[Rv]))]
                 + [
                     "%0.1f" % statsByRv[Rv]["mean"][group]
                     for group in orderedStatGroupNames

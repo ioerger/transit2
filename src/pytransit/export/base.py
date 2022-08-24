@@ -17,11 +17,8 @@ class ExportGUI:
         self.LABELSIZE = (100, -1)
         self.WIDGETSIZE = (100, -1)
 
-    def defineMenuItem(self, wxobj, label):
-        
-
+    def define_menu_item(self, wxobj, label):
         self.wxobj = wxobj
-
         self.menuitem = wx.MenuItem(
             selected_export_menu_item,
             wx.ID_ANY,
