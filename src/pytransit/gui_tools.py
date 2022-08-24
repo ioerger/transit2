@@ -45,7 +45,7 @@ def set_status(message):
     frame = universal.frame
     if frame and universal.interface == "gui":
         frame.statusBar.SetStatusText(message)
-        wx.GetApp().Yield()
+        wx.Yield()
 
 def ask_for_files(message):
     import os

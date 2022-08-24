@@ -287,9 +287,9 @@ def progress_update(text, percent):
         # update status text
         gui_tools.set_status(string)
         
-        wx.GetApp().Yield() # to get the UI to update
+        wx.Yield() # to get the UI to update
 
 def set_progress_range(count):
     with gui_tools.nice_error_log:
         panel.progress.SetRange(count)
-        wx.GetApp().Yield()
+        wx.Yield()
