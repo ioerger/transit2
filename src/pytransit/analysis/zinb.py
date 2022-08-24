@@ -267,6 +267,7 @@ class ZinbMethod(base.MultiConditionMethod):
             Interaction :: String
         """
         
+        from pytransit.transit_tools import SEPARATOR
         
         ## Group wigfiles by (interaction, condition) pair
         ## {'<interaction>_<condition>': [Wigindexes]}
