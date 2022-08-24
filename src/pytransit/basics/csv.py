@@ -35,7 +35,7 @@ def read(path, *, seperator=",", first_row_is_column_names=False, column_names=N
             comments:
                 - A list of strings
                 - One string per line
-                - The comment_symbol itself is not removed from the string
+                - The comment_symbol itself is removed from the string
             
         Arguments:
             path:

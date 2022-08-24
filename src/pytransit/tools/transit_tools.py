@@ -497,20 +497,64 @@ if HAS_R:
     """.replace("    \n", "\n"))
     r_heatmap_func = globalenv["make_heatmap"]
 
-result_file_classes = []
-def ResultsFile(a_class):
-    """
-    @ResultsFile
-    class File:
-        @staticmethod
-        def can_load(args):
-            return False
-    """
-    if not callable(getattr(a_class, "can_load", None)):
-        raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
+# 
+# Results read/write
+# 
+if True:
+    result_file_classes = []
+    def ResultsFile(a_class):
+        """
+        @ResultsFile
+        class File:
+            @staticmethod
+            def can_load(args):
+                return False
+        """
+        if not callable(getattr(a_class, "can_load", None)):
+            raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
+        
+        result_file_classes.append(a_class)
+        return a_class
     
-    result_file_classes.append(a_class)
-    return a_class
+    def read_result(path):
+        result_object = None
+        for FileClass in result_file_classes:
+            loadable = None
+            try:
+                loadable = FileClass.can_load(path)
+            except Exception as error:
+                pass
+            if loadable:
+                result_object = FileClass(path=path)
+        
+        return result_object
+
+    def write_result(*, path, file_kind, extra_info, column_names, rows):
+        assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
+        
+        import ez_yaml
+        import pytransit.basics.csv as csv
+        from pytransit.basics.misc import indent
+        ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
+        
+        extra_info = extra_info or {}
+        
+        # 
+        # write to file
+        # 
+        csv.write(
+            path=path,
+            seperator="\t",
+            comment_symbol="#",
+            comments=[
+                file_kind, # identifier always comes first
+                f"yaml:",
+                f"    Console Command: python3 {' '.join(sys.argv)}",
+                indent(ez_yaml.to_string(extra_info), by="    "),
+                "\t".join(column_names) # column names always last
+            ],
+            rows=rows,
+        )
 
 # input: conditions are per wig; orderingMetdata comes from tnseq_tools.read_samples_metadata()
 # output: conditionsList is selected subset of conditions (unique, in preferred order)
@@ -667,20 +711,6 @@ def get_samples_metadata(metadata):
                 for i in range(len(header)):
                     data[header[i]].append(w[i])
     return data
-
-def load_known_transit_file(path):
-    result_object = None
-    for FileClass in result_file_classes:
-        loadable = None
-        try:
-            loadable = FileClass.can_load(path)
-        except Exception as error:
-            pass
-        if loadable:
-            result_object = FileClass(path=path)
-    
-    return result_object
-
 
 def handle_help_flag(kwargs, usage_string):
     if kwargs.get("-help", False) or kwargs.get("h", False):

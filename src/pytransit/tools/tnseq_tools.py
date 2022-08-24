@@ -2099,31 +2099,3 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 siteindexes.append(TASiteindexMap[co])
         rv_site_indexes_map[gene["rv"]] = siteindexes
     return rv_site_indexes_map
-
-def standard_write(*, path, file_kind, parameters, columns):
-    assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
-    
-    import ez_yaml
-    import pytransit.basics.csv as csv
-    from pytransit.basics.misc import indent
-    ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
-    
-    # 
-    # write to file
-    # 
-    csv.write(
-        path=path,
-        seperator="\t",
-        comment_symbol="#",
-        comments=[
-            file_kind, # identifier always comes first
-            f"yaml:",
-            f"    Console Command: python3 {' '.join(sys.argv)}",
-            f"    Parameters:",
-            ez_yaml.to_string(parameters),
-            "\t".join(column_names) # column names always last
-        ],
-        rows=rows,
-    )
-    transit_tools.log("Finished Anova analysis")
-    transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")

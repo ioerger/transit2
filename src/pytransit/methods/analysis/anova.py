@@ -35,6 +35,8 @@ class Analysis:
     long_desc   = """Perform Anova analysis"""
     transposons = [ "himar1", "tn5" ]
     
+    significance_threshold = 0.05
+    
     inputs = LazyDict(
         combined_wig=None,
         metadata=None,
@@ -473,17 +475,19 @@ class Analysis:
                 # 
                 # write to file
                 # 
-                csv.write(
+                transit_tools.write_result(
                     path=self.inputs.output_path,
-                    seperator="\t",
-                    comment_symbol="#",
-                    comments=[
-                        Analysis.identifier, # identifier always comes first
-                        f"Console: python3 {' '.join(sys.argv)}",
-                        f"parameters: normalization={self.inputs.normalization}, trimming={self.inputs.n_terminus}/{self.inputs.c_terminus}% (N/C), pseudocounts={self.inputs.pseudocount}, alpha={self.inputs.alpha}",
-                        "\t".join(column_names) # column names always last
-                    ],
+                    file_kind=Analysis.identifier,
+                    column_names=column_names,
                     rows=rows,
+                    extra_info=dict(
+                        parameters=dict(
+                            normalization=self.inputs.normalization,
+                            trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
+                            pseudocounts=self.inputs.pseudocount,
+                            alpha=self.inputs.alpha,
+                        ),
+                    ),
                 )
                 transit_tools.log("Finished Anova analysis")
                 transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")
@@ -529,11 +533,20 @@ class File(Analysis):
         #
         self.rows = []
         for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
+            self.rows.append({
+                each_column_name: each_cell
+                    for each_column_name, each_cell in zip(self.column_names, each_row)
+            })
         
+        # 
+        # get summary stats
+        #
+        self.values_for_result_table.update({
+            f"pvals>{Analysis.significance_threshold}": len([
+                1 for each in self.rows
+                    if each.get("Pval", 0) > Analysis.significance_threshold 
+            ]),
+        })
     
     def __str__(self):
         return f"""
