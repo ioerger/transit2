@@ -189,14 +189,15 @@ def getTabTableData(path, colnames):
     
     row = 0
     data = []
-    for line in open(path):
-        if line.startswith("#"):
-            continue
-        tmp = line.split("\t")
-        tmp[-1] = tmp[-1].strip()
-        rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
-        data.append((row, rowdict))
-        row += 1
+    with open(path) as file:
+        for line in file:
+            if line.startswith("#"):
+                continue
+            tmp = line.split("\t")
+            tmp[-1] = tmp[-1].strip()
+            rowdict = dict([(colnames[i], tmp[i]) for i in range(len(colnames))])
+            data.append((row, rowdict))
+            row += 1
 
     return data
 
@@ -782,17 +783,18 @@ def filter_wigs_by_conditions3(
 def get_samples_metadata(metadata):
     data = {}
     header = None
-    for line in open(metadata):
-        if line[0] == "#":
-            continue
-        w = line.rstrip().split("\t")
-        if header == None:
-            header = w
-            for col in header:
-                data[col] = []
-        else:
-            for i in range(len(header)):
-                data[header[i]].append(w[i])
+    with open(metadata) as file:
+        for line in file:
+            if line[0] == "#":
+                continue
+            w = line.rstrip().split("\t")
+            if header == None:
+                header = w
+                for col in header:
+                    data[col] = []
+            else:
+                for i in range(len(header)):
+                    data[header[i]].append(w[i])
     return data
 
 def load_known_transit_file(path):

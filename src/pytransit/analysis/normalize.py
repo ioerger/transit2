@@ -144,10 +144,11 @@ class NormalizeMethod(base.SingleConditionMethod):
 
         # determine ref genome from first; assume they are all the same; assume wigs have 2 header lines
         line2 = "variableStep chrom="  # unknown
-        for line in open(infile):
-            if line.startswith("variableStep"):
-                line2 = line.rstrip()
-                break
+        with open(infile) as file:
+            for line in file:
+                if line.startswith("variableStep"):
+                    line2 = line.rstrip()
+                    break
 
         if self.combined_wig == True:
             (sites, data, files) = tnseq_tools.read_combined_wig(self.ctrldata[0])

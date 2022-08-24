@@ -43,7 +43,7 @@ def show_message(MSG=""):
 
 def set_status(message):
     frame = universal.frame
-    if frame:
+    if frame and universal.interface == "gui":
         frame.statusBar.SetStatusText(message)
         wx.GetApp().Yield()
 

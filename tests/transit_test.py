@@ -72,11 +72,12 @@ class TransitTestCase(unittest.TestCase):
 
 def count_hits(path):
     hits = 0
-    for line in open(path):
-        if line.startswith("#"): continue
-        tmp = line.split("\t")
-        if float(tmp[-1]) < 0.05:
-            hits+=1
+    with open(path) as file:
+        for line in file:
+            if line.startswith("#"): continue
+            tmp = line.split("\t")
+            if float(tmp[-1]) < 0.05:
+                hits+=1
     return hits
 
 # for ANOVA output; assume last 3 columns are pval, qval, and status
@@ -86,13 +87,14 @@ def significant_pvals_qvals(fname, pcol=-2, qcol=-1):
     #with open(fname) as f:
     #    lines = f.readlines()
     #for line in lines[2:]:
-    for line in open(fname):
-        if line[0]=='#': continue
-        if "pval" in line and "padj" in line: continue
-        cols = line.split("\t")
-        # Read in position as int, and readcounts as float
-        pvals.append(float(cols[pcol]))
-        qvals.append(float(cols[qcol]))
+    with open(fname) as file:
+        for line in file:
+            if line[0]=='#': continue
+            if "pval" in line and "padj" in line: continue
+            cols = line.split("\t")
+            # Read in position as int, and readcounts as float
+            pvals.append(float(cols[pcol]))
+            qvals.append(float(cols[qcol]))
 
     return (list(filter(lambda p: p < 0.05, pvals)), list(filter(lambda q: q < 0.05, qvals)))
 

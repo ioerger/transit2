@@ -560,28 +560,29 @@ class File(Analysis):
         data, hits = [], []
         number_of_conditions = -1
 
-        for line in open(infile):
-            w = line.rstrip().split("\t")
-            if line[0] == "#" or (
-                "pval" in line and "padj" in line
-            ):  # check for 'pval' for backwards compatibility
-                headers = w
-                continue  # keep last comment line as headers
-            # assume first non-comment line is header
-            if number_of_conditions == -1:
-                # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
-                number_of_conditions = int((len(w) - 6) / 2)
-                headers = headers[3 : 3 + number_of_conditions]
-                headers = [x.replace("Mean_", "") for x in headers]
-            else:
-                means = [
-                    float(x) for x in w[3 : 3 + number_of_conditions]
-                ]  # take just the columns of means
-                lfcs = [
-                    float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                ]  # take just the columns of LFCs
-                each_qval = float(w[-2])
-                data.append((w, means, lfcs, each_qval))
+        with open(infile) as file:
+            for line in file:
+                w = line.rstrip().split("\t")
+                if line[0] == "#" or (
+                    "pval" in line and "padj" in line
+                ):  # check for 'pval' for backwards compatibility
+                    headers = w
+                    continue  # keep last comment line as headers
+                # assume first non-comment line is header
+                if number_of_conditions == -1:
+                    # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
+                    number_of_conditions = int((len(w) - 6) / 2)
+                    headers = headers[3 : 3 + number_of_conditions]
+                    headers = [x.replace("Mean_", "") for x in headers]
+                else:
+                    means = [
+                        float(x) for x in w[3 : 3 + number_of_conditions]
+                    ]  # take just the columns of means
+                    lfcs = [
+                        float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
+                    ]  # take just the columns of LFCs
+                    each_qval = float(w[-2])
+                    data.append((w, means, lfcs, each_qval))
         
         data.sort(key=lambda x: x[-1])
         hits, LFCs = [], []

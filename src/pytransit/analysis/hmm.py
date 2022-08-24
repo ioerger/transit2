@@ -87,25 +87,26 @@ class HMMSitesFile(base.TransitFile):
         ne = 0
         ga = 0
         T = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if len(tmp) == 7:
-                col = -1
-            else:
-                col = -2
-            if tmp[col] == "ES":
-                es += 1
-            elif tmp[col] == "GD":
-                gd += 1
-            elif tmp[col] == "NE":
-                ne += 1
-            elif tmp[col] == "GA":
-                ga += 1
-            else:
-                print(tmp)
-            T += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if len(tmp) == 7:
+                    col = -1
+                else:
+                    col = -2
+                if tmp[col] == "ES":
+                    es += 1
+                elif tmp[col] == "GD":
+                    gd += 1
+                elif tmp[col] == "NE":
+                    ne += 1
+                elif tmp[col] == "GA":
+                    ga += 1
+                else:
+                    print(tmp)
+                T += 1
 
         text = """Results:
     Essential: %1.1f%%
@@ -131,20 +132,21 @@ class HMMGenesFile(base.TransitFile):
         ne = 0
         ga = 0
         T = 0
-        for line in open(path):
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            if len(tmp) < 5:
-                continue
-            if tmp[-1] == "ES":
-                es += 1
-            if tmp[-1] == "GD":
-                gd += 1
-            if tmp[-1] == "NE":
-                ne += 1
-            if tmp[-1] == "GA":
-                ga += 1
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                if len(tmp) < 5:
+                    continue
+                if tmp[-1] == "ES":
+                    es += 1
+                if tmp[-1] == "GD":
+                    gd += 1
+                if tmp[-1] == "NE":
+                    ne += 1
+                if tmp[-1] == "GA":
+                    ga += 1
 
         text = """Results:
     Essential: %s

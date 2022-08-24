@@ -1,7 +1,13 @@
 import sys
-sys.path.insert(0, '../src/')
-
 import os
+basedir = os.path.dirname(__file__)
+sys.path.insert(0, basedir + '/../src/')
+
+import shutil
+import unittest
+
+from transit_test import *
+
 import shutil
 import unittest
 import os
@@ -13,7 +19,6 @@ import pytransit.norm_tools as norm_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.stat_tools as stat_tools
 import pytransit.transit_tools as transit_tools
-
 
 
 class TestTnSeqTools(TransitTestCase):

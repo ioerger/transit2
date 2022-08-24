@@ -8,6 +8,7 @@ import heapq
 import numpy
 
 from pytransit.analysis import base
+from pytransit.transit_tools import HAS_R
 import pytransit.transit_tools as transit_tools
 import pytransit.tnseq_tools as tnseq_tools
 import pytransit.norm_tools as norm_tools
@@ -86,10 +87,11 @@ class ZinbMethod(base.MultiConditionMethod):
             self.prot_table = None
         else:
             self.prot_table = {}
-            for line in open(prot_table):
-                w = line.rstrip().split("\t")
-                rv, descr = w[8], w[0]
-                self.prot_table[rv] = descr
+            with open(prot_table) as file:
+                for line in file:
+                    w = line.rstrip().split("\t")
+                    rv, descr = w[8], w[0]
+                    self.prot_table[rv] = descr
 
     @classmethod
     def transit_error(self, msg):
@@ -265,6 +267,7 @@ class ZinbMethod(base.MultiConditionMethod):
             Interaction :: String
         """
         
+        from pytransit.transit_tools import SEPARATOR
         
         ## Group wigfiles by (interaction, condition) pair
         ## {'<interaction>_<condition>': [Wigindexes]}

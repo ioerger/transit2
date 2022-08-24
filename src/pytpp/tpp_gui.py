@@ -714,12 +714,13 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
 
         def read_stats_file(self, fname):
             stats = {}
-            for line in open(fname):
-                w = line.rstrip().split()
-                val = ""
-                if len(w) > 2:
-                    val = w[2]
-                stats[w[1]] = val
+            with open(fname) as file:
+                for line in file:
+                    w = line.rstrip().split()
+                    val = ""
+                    if len(w) > 2:
+                        val = w[2]
+                    stats[w[1]] = val
             return stats
 
         #
