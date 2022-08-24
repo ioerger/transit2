@@ -34,23 +34,23 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 
-from pytransit.tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
-from pytransit.universal_data                    import SessionData, universal
-from pytransit.tools.gui_tools                   import bind_to, rgba, color
-from pytransit.basics.lazy_dict                  import LazyDict
-from pytransit.components.generic.window_manager import WindowManager
-from pytransit.components.generic.box            import Row, Column
-from pytransit.components.generic.text           import Text
-from pytransit.components.generic.frame          import InnerFrame
-from pytransit.components.annotation_area        import create_annotation_area
-from pytransit.components.samples_area           import create_sample_area
-from pytransit.components.results_area           import create_results_area
-from pytransit.components.parameter_panel        import create_panel_area
-from pytransit.components.menu                   import create_menu
 from pytransit.methods.analysis                  import methods
-from pytransit.methods.export                    import methods as export_methods
 from pytransit.methods.convert                   import methods as convert_methods
+from pytransit.methods.export                    import methods as export_methods
+from pytransit.tools.gui_tools                   import bind_to, rgba, color
 from pytransit.tools.norm_tools                  import methods as norm_methods
+from pytransit.tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
+from pytransit.components.generic.box            import Row, Column
+from pytransit.components.generic.frame          import InnerFrame
+from pytransit.components.generic.text           import Text
+from pytransit.components.generic.window_manager import WindowManager
+from pytransit.components.menu                   import create_menu
+from pytransit.components.parameter_panel        import create_panel_area
+from pytransit.components.results_area           import create_results_area
+from pytransit.components.samples_area           import create_sample_area
+from pytransit.components.annotation_area        import create_annotation_area
+from pytransit.basics.lazy_dict                  import LazyDict
+from pytransit.universal_data                    import SessionData, universal
 
 import pytransit
 import pytransit.methods.analysis

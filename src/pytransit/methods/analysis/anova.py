@@ -473,6 +473,7 @@ class Analysis:
                 csv.write(
                     path=self.inputs.output_path,
                     seperator="\t",
+                    comment_symbol="#",
                     comments=[
                         Analysis.identifier, # identifier always comes first
                         f"Console: python3 {' '.join(sys.argv)}",
@@ -515,7 +516,7 @@ class File(Analysis):
         # 
         # get column names
         # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True)
+        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
         self.column_names = comments[-1].split("\t")

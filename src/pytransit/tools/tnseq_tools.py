@@ -8,7 +8,6 @@ from os.path import isabs, isfile, isdir, join, dirname, basename, exists, split
 
 import numpy
 import scipy.stats
-import ez_yaml
 from pytransit.basics.lazy_dict import LazyDict, stringify
 import pytransit.basics.csv as csv
 from pytransit.basics.named_list import named_list
@@ -84,7 +83,7 @@ class CombinedWigMetadata:
         self.path = path
         self.headers = []
         self.rows = []
-        self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_headers=True)
+        self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         self.conditions = no_duplicates(
             Condition(
                 name=each_row["Condition"],
@@ -242,6 +241,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
             WigData :: [Number]
             Filename :: String
         """
+        import ez_yaml
         import pytransit.tools.transit_tools as transit_tools
         
         sites, counts_by_wig, files, extra_data = [], [], [], {}
@@ -377,7 +377,8 @@ class CombinedWig:
         return counts_for_wig
     
     def _load_main_path(self):
-        comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_headers=False)
+        import ez_yaml
+        comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
         
         sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
@@ -2098,3 +2099,31 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 siteindexes.append(TASiteindexMap[co])
         rv_site_indexes_map[gene["rv"]] = siteindexes
     return rv_site_indexes_map
+
+def standard_write(*, path, file_kind, parameters, columns):
+    assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
+    
+    import ez_yaml
+    import pytransit.basics.csv as csv
+    from pytransit.basics.misc import indent
+    ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
+    
+    # 
+    # write to file
+    # 
+    csv.write(
+        path=path,
+        seperator="\t",
+        comment_symbol="#",
+        comments=[
+            file_kind, # identifier always comes first
+            f"yaml:",
+            f"    Console Command: python3 {' '.join(sys.argv)}",
+            f"    Parameters:",
+            ez_yaml.to_string(parameters),
+            "\t".join(column_names) # column names always last
+        ],
+        rows=rows,
+    )
+    transit_tools.log("Finished Anova analysis")
+    transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")

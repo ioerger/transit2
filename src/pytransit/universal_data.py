@@ -1,7 +1,5 @@
 from random import random
 
-import ez_yaml
-
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
