@@ -517,7 +517,7 @@ class CombinedWig:
             ''')
 
         data_per_path = numpy.zeros((len(list_of_paths), line_count))
-        position = numpy.zeros(line_count, dtype=int)
+        position_per_line = numpy.zeros(line_count, dtype=int)
         for path_index, path in enumerate(list_of_paths):
             line_index = 0
             prev_pos   = 0
@@ -526,10 +526,10 @@ class CombinedWig:
                     if line[0] not in "0123456789": # not sure why this is here -- Jeff
                         continue
                     
-                    tmp      = line.split()
-                    pos      = int(tmp[0])
-                    rd       = float(tmp[1])
-                    prev_pos = pos
+                    tmp           = line.split()
+                    each_position = int(tmp[0])
+                    rd            = float(tmp[1])
+                    prev_pos      = each_position
 
                     try:
                         data_per_path[path_index, line_index] = rd
@@ -541,10 +541,10 @@ class CombinedWig:
                             Original Error:\n{error}
                             
                         ''')
-                    position[line_index] = pos
+                    position_per_line[line_index] = each_position
                     line_index += 1
         
-        return data_per_path, position
+        return data_per_path, position_per_line
     
 # backwards compatibility
 read_samples_metadata = CombinedWigMetadata.read_condition_data

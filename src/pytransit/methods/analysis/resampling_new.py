@@ -156,13 +156,43 @@ class Analysis:
             self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
             self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
             self.value_getters.genome_positional_bias = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            # FIXME: LOESS button create_button(panel, sizer, *, label)
-            self.value_getters.adaptive               = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
+            @create_button(self.panel, main_sizer, label="Preview LOESS fit")
+            def when_loess_preview_clicked(event):
+                from pytransit.components.samples_area import sample_table
+                datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
+                
+                if not datasets_selected:
+                    transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
+                    return
+                
+                # FIXME: don't read from file, because the data is in a combined wig file (and this expects individual wigs)
+                data_per_path, position_per_line = tnseq_tools.CombinedWig.gather_wig_data(datasets_selected)
+                number_of_paths, number_of_lines = data_per_path.shape # => number_of_lines = len(position_per_line)
+                window = 100
+                for each_path_index in range(number_of_paths):
+
+                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
+                    x_w = numpy.zeros(number_of_windows)
+                    y_w = numpy.zeros(number_of_windows)
+                    for window_index in range(number_of_windows):
+                        x_w[window_index] = window * window_index
+                        y_w[window_index] = sum(data_per_path[each_path_index][window * window_index : window * (window_index + 1)])
+
+                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                    plt.plot(x_w, y_w, "g+")
+                    plt.plot(x_w, y_smooth, "b-")
+                    plt.xlabel("Genomic Position (TA sites)")
+                    plt.ylabel("Reads per 100 insertion sites")
+
+                    plt.title("LOESS Fit - %s" % transit_tools.basename(datasets_selected[each_path_index]))
+                    plt.show()
+            
+            self.value_getters.adaptive                = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
             create_run_button(self.panel, main_sizer)
-            
+        
         parameter_panel.set_panel(self.panel)
         self.panel.SetSizer(main_sizer)
         self.panel.Layout()
@@ -182,9 +212,8 @@ class Analysis:
             # get annotation
             # 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            # FIXME: enable this once I get a valid annotation file example
-            # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
-            #     return None
+            if not transit_tools.validate_annotation(Analysis.inputs.annotation):
+                return None
             
             # 
             # setup custom inputs
@@ -212,21 +241,14 @@ class Analysis:
             # 
             cwig_path     = universal.session_data.combined_wigs[0].main_path
             metadata_path = universal.session_data.combined_wigs[0].metadata.path
-            conditions    = universal.session_data.conditions
-            condition_names = [ each.name for each in conditions ]
-            
-            # FIXME: conditions need to come from GUI 
-            # from pytransit.components.samples_area import sample_table
-            # selected_rows = sample_table.selected_rows
-            
             
             from pytransit.components.samples_area import sample_table
             Analysis.inputs.combined_wig_params = dict(
                 combined_wig=cwig_path,
                 samples_metadata=metadata_path,
                 conditions=[
-                    condition_names[0],
-                    condition_names[1],
+                    Analysis.inputs.ctrldata,
+                    Analysis.inputs.expdata,
                 ],
             )
             # backwards compatibility
