@@ -19,7 +19,7 @@ from pytransit.methods.analysis.binomial import BinomialMethod
 from pytransit.methods.analysis.griffin import GriffinMethod
 from pytransit.methods.analysis.hmm import HMMMethod
 
-from pytransit.methods.analysis.resampling import ResamplingMethod
+from pytransit.methods.analysis.resampling import Analysis as ResamplingMethod
 from pytransit.methods.analysis.rankproduct import RankProductMethod
 
 

@@ -1,3 +1,4 @@
+import pytransit.tools.transit_tools as transit_tools
 from pytransit.tools.transit_tools import wx, pub
 from pytransit.universal_data import universal
 import pytransit.tools.gui_tools as gui_tools
@@ -138,6 +139,43 @@ if True:
 # 
 # 
 if True:
+    def create_preview_loess_button(panel, sizer):
+        @create_button(panel, sizer, label="Preview LOESS fit")
+        def when_loess_preview_clicked(event):
+            import numpy
+            import matplotlib
+            import matplotlib.pyplot as plt
+            from pytransit.components.samples_area import sample_table
+            import pytransit.tools.stat_tools as stat_tools
+            
+            if not [ each_row for each_row in sample_table.selected_rows ]:
+                transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
+                return
+            
+            from pytransit.universal_data import universal
+            from pytransit.tools.tnseq_tools import Wig
+            wig_objects = universal.session_data.selected_samples
+            data_per_path, position_per_line = Wig.selected_as_gathered_data(wig_objects)
+            number_of_wigs, number_of_lines = data_per_path.shape # => number_of_lines = len(position_per_line)
+            window = 100
+            for each_path_index in range(number_of_wigs):
+
+                number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
+                x_w = numpy.zeros(number_of_windows)
+                y_w = numpy.zeros(number_of_windows)
+                for window_index in range(number_of_windows):
+                    x_w[window_index] = window * window_index
+                    y_w[window_index] = sum(data_per_path[each_path_index][window * window_index : window * (window_index + 1)])
+
+                y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                plt.plot(x_w, y_w, "g+")
+                plt.plot(x_w, y_smooth, "b-")
+                plt.xlabel("Genomic Position (TA sites)")
+                plt.ylabel("Reads per 100 insertion sites")
+                
+                plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
+                plt.show()
+    
     def create_normalization_input(panel, sizer, default="TTR"):
         (
             label,

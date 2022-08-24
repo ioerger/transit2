@@ -110,7 +110,10 @@ def create_menu(frame):
                             transit_tools.log(
                                 "Converting annotation file from prot_table format to PTT format"
                             )
-                        (data, position) = tnseq_tools.CombinedWig.gather_wig_data(datasets)
+                        from pytransit.universal_data import universal
+                        from pytransit.tools.tnseq_tools import Wig
+                        wig_objects = universal.session_data.selected_samples
+                        data, position = Wig.selected_as_gathered_data(wig_objects)
                         orf2info = transit_tools.get_gene_info(annotation_path)
                         hash = transit_tools.get_pos_hash(annotation_path)
                         (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
@@ -239,13 +242,8 @@ def create_menu(frame):
                             transit_tools.log(
                                 "Converting annotation file from PTT format to prot_table format"
                             )
-                        # (data, position) = tnseq_tools.CombinedWig.gather_wig_data(datasets)
-                        # orf2info = transit_tools.get_gene_info(annotation_path)
-                        # hash = transit_tools.get_pos_hash(annotation_path)
-                        # (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(hash, data, position, orf2info)
 
                         output = open(output_path, "w")
-                        # output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
                         with open(annotation_path) as file:
                             for line in file:
                                 if line.startswith("#"):
@@ -342,20 +340,26 @@ def create_menu(frame):
             view_menu_item.Append(scatter_menu_item)
             def when_scatter_plot_clicked(event):
                 with gui_tools.nice_error_log:
+                    import numpy
+                    import matplotlib
+                    import matplotlib.pyplot as plt
+                    from pytransit.components.samples_area import sample_table
+                    import pytransit.tools.stat_tools as stat_tools
                     from pytransit.components.samples_area import sample_table
                     selected_rows = sample_table.selected_rows
-                    if len(dataset_paths) == 2:
-                        if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_row['name'] for each_row in selected_rows ]}")
-                        data, position = tnseq_tools.CombinedWig.gather_wig_data(
-                            list_of_paths=[ each_row["path"] for each_row in selected_rows ],
-                        )
+                    if len(selected_rows) == 2:
+                        if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_row['id'] for each_row in selected_rows ]}")
+                        from pytransit.universal_data import universal
+                        from pytransit.tools.tnseq_tools import Wig
+                        wig_objects = universal.session_data.selected_samples
+                        data, position = Wig.selected_as_gathered_data(wig_objects)
                         x = data[0, :]
                         y = data[1, :]
 
                         plt.plot(x, y, "bo")
                         plt.title("Scatter plot - Reads at TA sites")
-                        plt.xlabel(selected_rows[0]["name"])
-                        plt.ylabel(selected_rows[1]["name"])
+                        plt.xlabel(selected_rows[0]["id"])
+                        plt.ylabel(selected_rows[1]["id"])
                         plt.show()
                     else:
                         transit_tools.show_error_dialog("Please make sure only two datasets are selected (across control and experimental datasets).")
@@ -370,6 +374,7 @@ def create_menu(frame):
             def when_track_view_clicked(event, gene=""):
                 with gui_tools.nice_error_log:
                     from pytransit.components.samples_area import sample_table
+                    import pytransit.components.trash as trash
                     annotation_path = universal.session_data.annotation_path
                     datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
 
@@ -399,7 +404,7 @@ def create_menu(frame):
             def when_quality_control_clicked(event):
                 with gui_tools.nice_error_log:
                     from pytransit.components.samples_area import sample_table
-                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ] 
+                    datasets = [ each_row["id"] for each_row in sample_table.selected_rows ] 
                     number_of_files = len(datasets)
 
                     if number_of_files <= 0:
@@ -407,7 +412,7 @@ def create_menu(frame):
                     else:
                         transit_tools.log(f"Displaying results: {datasets}")
                         try:
-                            qc_window = qc_display.qcFrame(frame, datasets)
+                            qc_window = qc_display.QualityControlFrame(frame, datasets)
                             qc_window.Show()
                         except Exception as error:
                             raise Exception(f"Error occured displaying file: {error}")

@@ -47,6 +47,14 @@ class Wig:
         if self.extra_data.get("condition", None) is None:
             self.extra_data["condition"] = basename(path)
         
+    @property
+    def positions(self):
+        return [ each[0] for each in self.rows ]
+    
+    @property
+    def insertion_counts(self):
+        return [ each[1] for each in self.rows ]
+    
     def load(self):
         pass # TODO
     
@@ -58,6 +66,20 @@ class Wig:
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
+
+    @staticmethod
+    def selected_as_gathered_data(wig_objects):
+        import numpy
+        from pytransit.universal_data import universal
+        
+        # fail fast
+        if len(wig_objects) == 0:
+            return numpy.zeros((0,0)), numpy.array([])
+        
+        # get positions
+        positions = wig_objects[0].positions
+        read_counts_per_wig = [ each_wig.insertion_counts for each_wig in wig_objects ]
+        return numpy.array(read_counts_per_wig), numpy.array(positions)
 
 class Condition:
     def __init__(self, name, is_disabled=False, extra_data=None):
@@ -379,6 +401,11 @@ class CombinedWig:
                 )
         return counts_for_wig
     
+    def wig_with_id(self, id):
+        for each in self.samples:
+            if each.id == id:
+                return each
+    
     def _load_main_path(self):
         import ez_yaml
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
@@ -532,11 +559,11 @@ class CombinedWig:
                     
                     tmp           = line.split()
                     each_position = int(tmp[0])
-                    rd            = float(tmp[1])
+                    read_count    = float(tmp[1])
                     prev_pos      = each_position
 
                     try:
-                        data_per_path[path_index, line_index] = rd
+                        data_per_path[path_index, line_index] = read_count
                     except Exception as error:
                         raise Exception(f'''
                             

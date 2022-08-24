@@ -70,7 +70,7 @@ class Table:
             column_index = self._key_to_column_index(each_key)
             self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
         
-        self._state.data_values.append(dict(python_obj))
+        self._state.data_values.append(python_obj)
     
     @property
     def length(self):
