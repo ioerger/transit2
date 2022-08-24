@@ -43,18 +43,18 @@ if True:
         label_text="",
         options=[""],
         tooltip_text="",
-        lab_size=None,
+        label_size=None,
         widget_size=None,
     ):
         from pytransit.methods.analysis_base import InfoIcon
         
-        if not lab_size:
-            lab_size = (100, -1)
+        if not label_size:
+            label_size = (100, -1)
         if not widget_size:
             widget_size = (100, -1)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, lab_size, 0)
+        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
         label.Wrap(-1)
         choice_box = wx.Choice(panel, wx.ID_ANY, wx.DefaultPosition, widget_size, options, 0 )
         choice_box.SetSelection(0)
@@ -74,17 +74,17 @@ if True:
             label_text="",
             default_value="",
             tooltip_text="",
-            lab_size=None,
+            label_size=None,
             widget_size=None,
         ):
             from pytransit.methods.analysis_base import InfoIcon
-            if not lab_size:
-                lab_size = default_label_size
+            if not label_size:
+                label_size = default_label_size
             if not widget_size:
                 widget_size = default_widget_size
 
             sizer = wx.BoxSizer(wx.HORIZONTAL)
-            label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, lab_size, 0)
+            label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
             label.Wrap(-1)
             text_box = wx.TextCtrl(panel, wx.ID_ANY, f"{default_value}", wx.DefaultPosition, widget_size, 0)
             
@@ -118,7 +118,7 @@ if True:
         
         return lambda *args: check_box.GetValue()
     
-    def create_text_box_getter(panel, sizer, label_text="", default_value="", tooltip_text="", lab_size=None, widget_size=None,):
+    def create_text_box_getter(panel, sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,):
         (
             _,
             wxobj,
@@ -218,6 +218,36 @@ if True:
             return without_empty_strings
         
         return get_value
+    
+    def create_control_condition_input(panel, sizer):
+        (
+            label,
+            ref_condition_wxobj,
+            ref_condition_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            "Control Condition:",
+            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            "which condition(s) to use as the control group",
+            label_size=(150, 20),
+        )
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+    
+    def create_experimental_condition_input(panel, sizer):
+        (
+            label,
+            ref_condition_wxobj,
+            ref_condition_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            "Experimental Condition:",
+            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            "which condition(s) to use as the experimental group",
+            label_size=(160, 20),
+        )
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_n_terminus_input(panel, sizer):
         get_text = create_text_box_getter(

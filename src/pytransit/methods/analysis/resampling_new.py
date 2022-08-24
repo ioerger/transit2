@@ -30,11 +30,11 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "#Resampling"
+    identifier  = "Resampling"
     short_name = "resampling - new"
     long_name = "Resampling (Permutation test)"
     short_desc = "Resampling test of conditional essentiality between two conditions"
@@ -57,11 +57,8 @@ class Analysis:
     ]
     
     inputs = LazyDict(
-        # Fix these
         ctrldata=None,
         expdata=None,
-        
-        # 
         annotation_path=None,
         output_file=None,
         normalization="TTR",
@@ -84,17 +81,6 @@ class Analysis:
         combined_wig_params=None,
     )
     
-    valid_cli_flags = [
-        "-n",
-        "--include-conditions",
-        "--exclude-conditions",
-        "--ref",
-        "-iN",
-        "-iC",
-        "-PC",
-        "-alpha",
-        "-winz",
-    ]
     usage_string = f"""
         python3 {sys.argv[0]} resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
         ---
@@ -162,6 +148,8 @@ class Analysis:
         if True:
             sample_getter          = create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
             
+            self.value_getters.ctrldata               = create_control_condition_input(self.panel, main_sizer)
+            self.value_getters.expdata                = create_experimental_condition_input(self.panel, main_sizer)
             self.value_getters.samples                = lambda *args: int(sample_getter(*args))
             self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
@@ -869,7 +857,7 @@ class File(Analysis):
         with open(path) as in_file:
             for line in in_file:
                 if line.startswith("#"):
-                    if line.startswith(Analysis.identifier):
+                    if line.startswith('#'+Analysis.identifier):
                         return True
                 else:
                     return False
