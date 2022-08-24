@@ -11,7 +11,6 @@ from .normalize          import Analysis; methods["normalize"         ] = Analys
 from .pathway_enrichment import Analysis; methods["pathway_enrichment"] = Analysis()
 from .rankproduct        import Analysis; methods["rankproduct"       ] = Analysis()
 from .resampling         import Analysis; methods["resampling"        ] = Analysis()
-from .resampling_new     import Analysis; methods["resampling_new"    ] = Analysis()
 from .tn5gaps            import Analysis; methods["tn5gaps"           ] = Analysis()
 from .tnseq_stats_gui    import Analysis; methods["tnseq_stats_gui"   ] = Analysis()
 from .ttnfitness         import Analysis; methods["ttnfitness"        ] = Analysis()
