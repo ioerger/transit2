@@ -17,6 +17,7 @@ from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.tools.tnseq_tools import Wig
 import pytransit
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.components.file_display as file_display
@@ -30,7 +31,7 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button
 command_name = sys.argv[0]
 
 class Analysis:
@@ -156,37 +157,7 @@ class Analysis:
             self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
             self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
             self.value_getters.genome_positional_bias = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            @create_button(self.panel, main_sizer, label="Preview LOESS fit")
-            def when_loess_preview_clicked(event):
-                from pytransit.components.samples_area import sample_table
-                datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
-                
-                if not datasets_selected:
-                    transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
-                    return
-                
-                # FIXME: don't read from file, because the data is in a combined wig file (and this expects individual wigs)
-                data_per_path, position_per_line = tnseq_tools.CombinedWig.gather_wig_data(datasets_selected)
-                number_of_paths, number_of_lines = data_per_path.shape # => number_of_lines = len(position_per_line)
-                window = 100
-                for each_path_index in range(number_of_paths):
-
-                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                    x_w = numpy.zeros(number_of_windows)
-                    y_w = numpy.zeros(number_of_windows)
-                    for window_index in range(number_of_windows):
-                        x_w[window_index] = window * window_index
-                        y_w[window_index] = sum(data_per_path[each_path_index][window * window_index : window * (window_index + 1)])
-
-                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                    plt.plot(x_w, y_w, "g+")
-                    plt.plot(x_w, y_smooth, "b-")
-                    plt.xlabel("Genomic Position (TA sites)")
-                    plt.ylabel("Reads per 100 insertion sites")
-
-                    plt.title("LOESS Fit - %s" % transit_tools.basename(datasets_selected[each_path_index]))
-                    plt.show()
-            
+            create_preview_loess_button(self.panel, main_sizer)
             self.value_getters.adaptive                = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
@@ -435,7 +406,6 @@ class Analysis:
                 self.transit_error("Error: Ctrl and Exp wig files don't have the same number of sites.")
                 self.transit_error("Make sure all .wig files come from the same strain.")
                 return
-            # (data, position) = transit_tools.get_validated_data(self.inputs.ctrldata+self.inputs.expdata, wxobj=self.wxobj)
 
             transit_tools.log("Preprocessing Ctrl data...")
             data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)

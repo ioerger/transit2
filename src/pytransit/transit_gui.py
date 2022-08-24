@@ -245,8 +245,11 @@ class TnSeekFrame(wx.Frame):
         if not datasets_selected:
             transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
             return
-
-        data, position = tnseq_tools.CombinedWig.gather_wig_data(datasets_selected)
+        
+        from pytransit.universal_data import universal
+        from pytransit.tools.tnseq_tools import Wig
+        wig_objects = universal.session_data.selected_samples
+        data, position = Wig.selected_as_gathered_data(wig_objects)
         (K, N) = data.shape
         window = 100
         for j in range(K):

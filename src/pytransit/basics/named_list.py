@@ -16,6 +16,8 @@ def named_list(names):
                 return super(NamedList, self).__getitem__(key)
             # assume its a name
             else:
+                if isinstance(key, slice):
+                    return names[key]
                 try:
                     index = names.index(key)
                 except ValueError as error:

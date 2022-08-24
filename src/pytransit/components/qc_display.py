@@ -57,11 +57,11 @@ def WxImageToWxBitmap(myWxImage):
 
 
 ###########################################################################
-## Class qcFrame
+## Class QualityControlFrame
 ###########################################################################
 
 
-class qcFrame(wx.Frame):
+class QualityControlFrame(wx.Frame):
     def __init__(self, parent, datasets):
 
         try:
@@ -69,7 +69,7 @@ class qcFrame(wx.Frame):
             self.index_stats = 0
             self.plots_list = []
 
-            self.wig_list = datasets
+            self.wig_ids = datasets
 
             wx.Frame.__init__(
                 self,
@@ -265,15 +265,12 @@ class qcFrame(wx.Frame):
 
             ############################
             self.norm = "nonorm"
-            (self.data, self.position) = tnseq_tools.CombinedWig.gather_wig_data(self.wig_list)
+            from pytransit.universal_data import universal
+            from pytransit.tools.tnseq_tools import Wig
+            wig_objects = [ universal.session_data.combined_wigs[0].wig_with_id(each_id) for each_id in self.wig_ids ]
+            self.data, self.position = Wig.selected_as_gathered_data(wig_objects)
 
             self.refresh()
-            # self.updateFiles()
-            # self.addPlots()
-            # self.statsListCtrl.Select(0)
-            # self.onStatsItemSelect(None)
-            ###########################
-            # self.bSizer9.Fit()
 
         except Exception as e:
             print(self.qc_prefix, "Error:", e)
@@ -286,7 +283,6 @@ class qcFrame(wx.Frame):
 
     def refresh(self):
         try:
-            # (self.data, self.position) = tnseq_tools.CombinedWig.gather_wig_data(self.wig_list)
             self.plots_list = []
             self.statsListCtrl.DeleteAllItems()
             (self.normdata, factors) = norm_tools.normalize_data(self.data, self.norm)
@@ -305,7 +301,7 @@ class qcFrame(wx.Frame):
 
         try:
             for j, row in enumerate(self.normdata):
-                name = transit_tools.basename(self.wig_list[j])
+                name = transit_tools.basename(self.wig_ids[j])
                 (
                     density,
                     meanrd,
@@ -349,8 +345,7 @@ class qcFrame(wx.Frame):
         try:
             for i, reads in enumerate(self.normdata):
                 # Data
-                name = transit_tools.basename(self.wig_list[i])
-                # reads,position = tnseq_tools.CombinedWig.gather_wig_data([])
+                name = transit_tools.basename(self.wig_ids[i])
                 nzreads = reads[reads > 0]
                 n_nz = len(nzreads)
                 truncnzreads = sorted(nzreads)[: int(n_nz * 0.99)]
