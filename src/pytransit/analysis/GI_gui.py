@@ -33,7 +33,6 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-#nfrom pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input, define_choice_box
 from pytransit.components.panel_helpers import *
 
 command_name = sys.argv[0]
@@ -47,13 +46,27 @@ class Analysis:
     transposons = [ "himar1" ]
     
     inputs = LazyDict(
-        conditionA1=None,
-        conditionB1=None,
-        conditionA2=None,
-        conditionB2=None,
-        combined_wig=None,
-        normalization=None,
-        output_path=None,
+          combined_wig=None,
+          metadata=None,
+          condA1=None,
+          condA2=None,
+          condB1=None,
+          condB2=None,
+
+          annotation_path=None,
+          output_path=None,
+
+          normalization=None,
+          samples=None,
+          rope=None,
+          signif=None,
+          replicates=None,
+          includeZeros=None,
+
+          LOESS=None,
+          ignore_codon=None,
+          n_terminus=None,
+          c_terminus=None,
     )
     
     valid_cli_flags = [
@@ -101,7 +114,8 @@ class Analysis:
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
-    def create_input_field(self, panel, sizer, label, value,tooltip=None):
+    # this is awkward: merge these two functions? specify output type? catch invalid input errors?
+    def create_int_input_field(self, panel, sizer, label, value,tooltip=None):
         get_text = create_text_box_getter(
             panel,
             sizer,
@@ -109,8 +123,35 @@ class Analysis:
             default_value=value,
             tooltip_text=tooltip,
         )
-        return lambda *args: float(get_text())
+        return lambda *args: int(get_text())
 
+    def create_float_input_field(self, panel, sizer, label, value,tooltip=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label,
+            default_value=value,
+            tooltip_text=tooltip,
+        )
+        return lambda *args: float(get_text()) # what if can't parse as float? validate input
+
+    def create_signif_choice_box(self, panel, sizer):
+        (
+            signif_label,
+            signif_wxobj,
+            signif_sizer,
+        ) = define_choice_box(
+            panel,
+            "Significance method: ",
+            ["HDI","prob","BFDR","FWER"],
+            "tooltip",  # fill in explanation...
+        )
+        sizer.Add(signif_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        # return a value-getter
+        default = "HDI"
+        signif_wxobj.SetSelection(signif_wxobj.FindString(default))
+        return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())
+    
     def define_panel(self, _):
         self.panel = make_panel()
 
@@ -124,12 +165,12 @@ class Analysis:
         self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
         self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
         self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-        self.value_getters.samples = self.create_input_field(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
-        self.value_getters.rope = self.create_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
-        # to do:
-        # checkbox [off] for 'correct for genome position bias' (view LOESS fit)
-        # checkbox [on] for 'include sites with all zeros'
-        # dropdown based on new CL flag for 'significance method': -signif <HDI,prob,BFDR,FWER>
+        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"number of random trials in Monte Carlo simulation; affects precision of P-values")
+        self.value_getters.rope = self.create_float_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+        self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # +tooltip_text?
+        self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text?
+        #self.value_getters.signif = define_choice_box(self.panel,label_text="Significance method:",options=["HDI","prob","BFDR","FWER"]) # default is HDI
+        self.value_getters.signif = self.create_signif_choice_box(self.panel,main_sizer)
         create_run_button(self.panel, main_sizer)
 
         parameter_panel.set_panel(self.panel)
@@ -177,22 +218,58 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(cls, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-        transit_tools.handle_help_flag(kwargs, cls.usage_string)
-        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
+    def from_args(cls, args, kwargs):
+        #(args, kwargs) = transit_tools.clean_args(rawargs)
+        #transit_tools.handle_help_flag(kwargs, cls.usage_string)
+        #transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
 
-        normalization = kwargs.get("n", "nonorm") 
-        output_path = kwargs.get("o", None)
+        # if len(args)<7: usage...; exit
+
+        combined_wig = args[0]
+        metadata = args[1]
+        condA1 = args[2]
+        condA2 = args[3]
+        condB1 = args[4]
+        condB2 = args[5]
+
+        annotation_path = args[6]
+        output_path = args[7]
+
+        normalization = kwargs.get("n", "TTR")
+        samples = int(kwargs.get("s", 10000))
+        rope = float(kwargs.get("-rope", 0.5))  # fixed! changed int to float
+        signif = kwargs.get("signif", "HDI")
+        replicates = kwargs.get("r", "Sum")
+        includeZeros = kwargs.get("iz", False)
+
+        LOESS = kwargs.get("l", False)
+        ignore_codon = True
+        n_terminus = float(kwargs.get("iN", 0.00))
+        c_terminus = float(kwargs.get("iC", 0.00))
 
         # save all the data
         Analysis.inputs.update(dict(
-            combined_wig=combined_wig, ###? what if user gives a list of wig files instead of a combined_wig?
-            annotation=annotation_path,
-            normalization=normalization,
-            output_path=output_path,
-            n_terminus=0,
-            c_terminus=0,
+          combined_wig=combined_wig,
+          metadata=metadata,
+          condA1=condA1,
+          condA2=condA2,
+          condB1=condB1,
+          condB2=condB2,
+
+          annotation_path=annotation_path,
+          output_path=output_path,
+
+          normalization=normalization,
+          samples=samples,
+          rope=rope,
+          signif=signif,
+          replicates=replicates,
+          includeZeros=includeZeros,
+
+          LOESS=LOESS,
+          ignore_codon=ignore_codon,
+          n_terminus=n_terminus,
+          c_terminus=c_terminus
         ))
         
         return Analysis.instance
@@ -201,13 +278,6 @@ class Analysis:
         with gui_tools.nice_error_log:
             transit_tools.log("Starting Genetic Interaction analysis")
             start_time = time.time()
-
-            self.inputs.n_terminus = 0
-            self.inputs.c_terminus = 0
-            self.inputs.samples = 100
-            self.inputs.includeZeros = False
-            self.inputs.rope=0.5
-            self.inputs.signif="HDI"
 
             # 
             # get data

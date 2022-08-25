@@ -133,7 +133,7 @@ class Analysis:
 #        transit_tools.handle_help_flag(kwargs, cls.usage_string)
 #        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
 
-        wigs = args
+        wigs = args # should be args[0]?
         combined_wig = kwargs.get("c", None)
         normalization = kwargs.get("n", "nonorm") 
         output_path = kwargs.get("o", None)
