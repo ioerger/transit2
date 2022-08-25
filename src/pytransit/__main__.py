@@ -38,7 +38,7 @@ def main(*args, **kwargs):
         if not args and ("h" in kwargs or "-help" in kwargs):
             print_help()
             sys.exit(0)
-    
+
     # 
     # GUI Mode
     # 
@@ -82,7 +82,7 @@ def main(*args, **kwargs):
         def run(method, args):
             setup_object = None
             try:
-                setup_object = method.from_args(args)
+                setup_object = method.from_args(args,kwargs)
             # dont show traceback for invalid argument errors
             except console_tools.InvalidArgumentException as error:
                 print("Error: %s" % str(error))

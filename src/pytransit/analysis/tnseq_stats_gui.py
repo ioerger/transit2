@@ -127,17 +127,25 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(cls, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-        transit_tools.handle_help_flag(kwargs, cls.usage_string)
-        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
+    def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
+#    def from_args(cls, rawargs):
+#        (args, kwargs) = transit_tools.clean_args(rawargs)
+#        transit_tools.handle_help_flag(kwargs, cls.usage_string)
+#        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
 
+        wigs = args
+        combined_wig = kwargs.get("c", None)
         normalization = kwargs.get("n", "nonorm") 
         output_path = kwargs.get("o", None)
 
+        if combined_wig == None and len(wigs) == 0:
+            print(cls.usage_string)
+            sys.exit(0)
+
         # save all the data
         Analysis.inputs.update(dict(
-            combined_wig=combined_wig, ### what if user gives a list of wig files instead of a combined_wig?
+            wigs=wigs, ### what if user gives a list of wig files instead of a combined_wig?
+            combined_wig=combined_wig, 
             normalization=normalization,
             output_path=output_path,
         ))
@@ -157,12 +165,11 @@ class Analysis:
             # 
             # get data
             # 
-            transit_tools.log("Getting Data")
-            if True:
-                sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+            transit_tools.log("Getting Data from %s" % self.inputs.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
                 
-                transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
-                data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+            transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
+            data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
                 
             # 
             # process data
@@ -176,9 +183,6 @@ class Analysis:
             # 
             # note: first comment line is filetype, last comment line is column headers
 
-            transit_tools.log(f"Adding File: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
-
             file = sys.stdout # print to console if not output file defined
             if self.inputs.output_path != None:
                file = open(self.inputs.output_path, "w")
@@ -190,6 +194,9 @@ class Analysis:
               file.write("\t".join([str(x) for x in vals]) + "\n")
 
             if self.inputs.output_path != None: file.close()
+            if False: # if is_GUI and self.inputs.output_path!=None:
+              transit_tools.log(f"Adding File: {self.inputs.output_path}")
+              results_area.add(self.inputs.output_path)
             transit_tools.log("Finished TnseqStats")
             transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
