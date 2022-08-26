@@ -68,7 +68,7 @@ class Wig:
         )""".replace("\n        ", "\n")
     
     def __hash__(self):
-        return hash(tuple(self.path, self.column_index))
+        return hash((self.path, self.column_index))
     
     def __eq__(self, other):
         return hash(other) == self.__hash__()
