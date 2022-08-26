@@ -362,10 +362,10 @@ class CombinedWig:
         )""".replace("\n        ", "\n")
     
     # 
-    # sites
+    # positions
     # 
     @property
-    def sites(self):
+    def positions(self):
         return [ each.position for each in self.rows ]
     
     # 
@@ -493,7 +493,7 @@ class CombinedWig:
             self.samples.append(
                 Wig(
                     path=self.main_path,
-                    rows=list(zip(self.sites, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(self.positions, read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
