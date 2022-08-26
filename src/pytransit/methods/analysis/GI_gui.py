@@ -33,7 +33,8 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input, define_choice_box
+#nfrom pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input, define_choice_box
+from pytransit.components.panel_helpers import *
 
 command_name = sys.argv[0]
 
@@ -100,6 +101,16 @@ class Analysis:
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
+    def create_input_field(self, panel, sizer, label, value,tooltip=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label,
+            default_value=value,
+            tooltip_text=tooltip,
+        )
+        return lambda *args: float(get_text())
+
     def define_panel(self, _):
         self.panel = make_panel()
 
@@ -111,6 +122,14 @@ class Analysis:
         self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
         self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
         self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
+        self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
+        self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
+        self.value_getters.samples = self.create_input_field(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
+        self.value_getters.rope = self.create_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+        # to do:
+        # checkbox [off] for 'correct for genome position bias' (view LOESS fit)
+        # checkbox [on] for 'include sites with all zeros'
+        # dropdown based on new CL flag for 'significance method': -signif <HDI,prob,BFDR,FWER>
         create_run_button(self.panel, main_sizer)
 
         parameter_panel.set_panel(self.panel)
@@ -238,7 +257,8 @@ class Analysis:
             dataB1 = data[indexes[condB1]]
             dataB2 = data[indexes[condB2]]
 
-            results = self.GI(dataA1,dataA2,dataB1,dataB2,sites,condA1,condA2,condB1,condB2,sample_table)
+            # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
+            (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
 
             # 
             # write output
@@ -248,14 +268,15 @@ class Analysis:
             transit_tools.log(f"Adding File: {self.inputs.output_path}")
             results_area.add(self.inputs.output_path)
 
-            #write_GI_results(results) # will open and close file, or print to console
+            # will open and close file, or print to console
+            self.print_GI(results,adjusted_label,condA1,condA2,condB1,condB2,sample_table) 
 
             transit_tools.log("Finished Genetic Interaction analysis")
             transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     # is self.annotation_path already set?
 
-    def GI(self,dataA1,dataA2,dataB1,dataB2,position,condA1,condA2,condB1,condB2,sample_table): # position is vector of TAsite coords
+    def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
 
         # Get Gene objects for each condition
         G_A1 = tnseq_tools.Genes(
@@ -334,7 +355,7 @@ class Analysis:
 
         k0 = 1.0
         nu0 = 1.0
-        data = []
+        results = [] # results vectors for each gene
 
         postprob = []
         count = 0
@@ -444,7 +465,7 @@ class Analysis:
                 u_delta_logFC = 10
 
             postprob.append(probROPE)
-            data.append( ###? change to 'results'?
+            results.append(
                 (
                     gene.orf,
                     gene.name,
@@ -473,8 +494,8 @@ class Analysis:
 
         # for HDI, maybe I should sort on abs(mean_delta_logFC); however, need to sort by prob to calculate BFDR
         probcol = -2  # probROPEs
-        data.sort(key=lambda x: x[probcol])
-        sortedprobs = numpy.array([x[probcol] for x in data])
+        results.sort(key=lambda x: x[probcol])
+        sortedprobs = numpy.array([x[probcol] for x in results])
 
         # BFDR method: Newton et al (2004). Detecting differential gene expression with a semiparametric hierarchical mixture method.  Biostatistics, 5:155-176.
 
@@ -501,63 +522,9 @@ class Analysis:
         #            adjusted_prob = [adjusted_prob[ii] for ii in sorted_index]
         #            data = [data[ii] for ii in sorted_index]
 
-        ###? should I append adjusted_prob and adjusted_label or type_of_interaction to results before returning?
-
-        # Print output
-
-        self.output = sys.stdout # print to console if not output file defined
-        if self.inputs.output_path != None:
-            self.output = open(self.inputs.output_path, "w")
-        self.output.write("%s\n" % self.identifier)
-
-        if True: # was 'if self.wxobj:', try universal.interface=="gui" or "console" ###?
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            #memberstr = ""
-            #for m in members:
-            #    memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write( ###?
-                "#parameters: norm=%s, samples=%s, includeZeros=%s, output=%s\n"
-                % (
-                    self.inputs.normalization,
-                    self.inputs.samples,
-                    self.inputs.includeZeros,
-                    self.output.name.encode("utf-8"), ###?
-                )
-            )
-        # originally, we wrote CLI args from console into output file, if console mode:
-        #    self.output.write("#Console: python3 %s\n" % " ".join(sys.argv)) ###?
-
-        now = str(datetime.datetime.now())
-        now = now[: now.rfind(".")]
-        self.output.write("#Date: " + now + "\n")
-        # self.output.write("#Runtime: %s s\n" % (time.time() - start_time))
-
-        self.output.write("#Strain A, Condition 1): %s\n" % condA1) # also print sample names? ### ?
-        self.output.write("#Strain A, Condition 2): %s\n" % condA2) # also print sample names? ### ?
-        self.output.write("#Strain B, Condition 1): %s\n" % condB1) # also print sample names? ### ?
-        self.output.write("#Strain B, Condition 2): %s\n" % condB2) # also print sample names? ### ?
-        self.output.write("#Annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
-        self.output.write("#ROPE=%s, method for significance=%s\n" % (self.inputs.rope, self.inputs.signif))
-        if self.inputs.signif == "HDI":
-            self.output.write("#Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE\n")
-        elif self.inputs.signif in "prob BDFR FWER":
-            self.output.write("#Significant interactions are those whose %s-adjusted probability of the delta-logFC falling within ROPE is < 0.05.\n" % (adjusted_label))
-
-        # Write column names (redundant with self.columns)
-        self.output.write(
-            "#ORF\tName\tNumber of TA Sites\tMean count (Strain A Condition 1)\tMean count (Strain A Condition 2)\tMean count (Strain B Condition 1)\tMean count (Strain B Condition 2)\tMean logFC (Strain A)\tMean logFC (Strain B) \tMean delta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
-            % adjusted_label
-        )
-
-        # Write gene results
-        for i, row in enumerate(data):
-            # 1   2    3        4                5              6               7                8            9            10              11             12            13         14
+        # determine type of interactions
+        extended_results = []
+        for i, row in enumerate(results):
             (
                 orf,
                 name,
@@ -584,10 +551,93 @@ class Analysis:
             if self.inputs.signif == "HDI" and not_HDI_overlap_bit:
                 type_of_interaction = interaction
 
+            # switch order of last 2 vals, and append 2 more...
             new_row = tuple(
                 list(row[:-2])
                 + [not_HDI_overlap_bit, probROPE, adjusted_prob[i], type_of_interaction]
             )
+            extended_results.append(new_row)
+
+        return extended_results,adjusted_label # results: one row for each gene
+
+    def print_GI(self,results,adjusted_label,condA1,condA2,condB1,condB2,sample_table): 
+
+        self.output = sys.stdout # print to console if not output file defined
+        if self.inputs.output_path != None:
+            self.output = open(self.inputs.output_path, "w")
+        self.output.write("%s\n" % self.identifier)
+
+        if True: # was 'if self.wxobj:', try universal.interface=="gui" or "console" ###?
+            members = sorted(
+                [
+                    attr
+                    for attr in dir(self)
+                    if not callable(getattr(self, attr)) and not attr.startswith("__")
+                ]
+            )
+            #memberstr = ""
+            #for m in members:
+            #    memberstr += "%s = %s, " % (m, getattr(self, m))
+            self.output.write( 
+                "#parameters: norm=%s, samples=%s, includeZeros=%s, output=%s\n"
+                % (
+                    self.inputs.normalization,
+                    self.inputs.samples,
+                    self.inputs.includeZeros,
+                    self.output.name.encode("utf-8"), ###? add more params
+                )
+            )
+        # originally, we wrote CLI args from console into output file, if console mode:
+        #    self.output.write("#Console: python3 %s\n" % " ".join(sys.argv)) ###? I should print command
+
+        now = str(datetime.datetime.now())
+        now = now[: now.rfind(".")]
+        self.output.write("#Date: " + now + "\n")
+        # self.output.write("#Runtime: %s s\n" % (time.time() - start_time))
+
+        condA1samples = [x["name"] for x in sample_table.rows if x["condition"]==condA1]
+        condA2samples = [x["name"] for x in sample_table.rows if x["condition"]==condA2]
+        condB1samples = [x["name"] for x in sample_table.rows if x["condition"]==condB1]
+        condB2samples = [x["name"] for x in sample_table.rows if x["condition"]==condB2]
+
+        self.output.write("#Strain A, Condition 1): %s: %s\n" % (condA1,','.join(condA1samples)))
+        self.output.write("#Strain A, Condition 2): %s: %s\n" % (condA2,','.join(condA2samples)))
+        self.output.write("#Strain B, Condition 1): %s: %s\n" % (condB1,','.join(condB1samples)))
+        self.output.write("#Strain B, Condition 2): %s: %s\n" % (condB2,','.join(condB2samples)))
+        self.output.write("#Annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
+        self.output.write("#ROPE=%s, method for significance=%s\n" % (self.inputs.rope, self.inputs.signif))
+        if self.inputs.signif == "HDI":
+            self.output.write("#Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE\n")
+        elif self.inputs.signif in "prob BDFR FWER":
+            self.output.write("#Significant interactions are those whose %s-adjusted probability of the delta-logFC falling within ROPE is < 0.05.\n" % (adjusted_label))
+
+        # Write column names (redundant with self.columns)
+        self.output.write(
+            "#ORF\tName\tNumber of TA Sites\tMean count (Strain A Condition 1)\tMean count (Strain A Condition 2)\tMean count (Strain B Condition 1)\tMean count (Strain B Condition 2)\tMean logFC (Strain A)\tMean logFC (Strain B) \tMean delta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
+            % adjusted_label
+        )
+
+        # Write gene results
+        for i, new_row in enumerate(results):
+            (
+                orf,
+                name,
+                n,
+                mean_muA1_post,
+                mean_muA2_post,
+                mean_muB1_post,
+                mean_muB2_post,
+                mean_logFC_A,
+                mean_logFC_B,
+                mean_delta_logFC,
+                l_delta_logFC,
+                u_delta_logFC,
+                not_HDI_overlap_bit,
+                probROPE,
+                adjusted_prob,
+                type_of_interaction
+            ) = new_row
+
             self.output.write(
                 "%s\t%s\t%d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%s\t%1.8f\t%1.8f\t%s\n"
                 % new_row
@@ -598,8 +648,6 @@ class Analysis:
         results_area.add(self.output.name)                         
         #self.finish()
         transit_tools.log("Finished Genetic Interactions Method")
-
-    def write_GI_results(self,results,condA1,condA2,condB1,condB2,sample_table): pass 
 
     @staticmethod
     def classify_interaction(delta_logFC, logFC_KO, logFC_WT):
