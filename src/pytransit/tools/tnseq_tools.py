@@ -66,6 +66,12 @@ class Wig:
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
+    
+    def __hash__(self):
+        return hash(tuple(self.path, self.column_index))
+    
+    def __eq__(self, other):
+        return hash(other) == self.__hash__()
 
     @staticmethod
     def selected_as_gathered_data(wig_objects):
