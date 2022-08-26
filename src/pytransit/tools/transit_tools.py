@@ -767,4 +767,4 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     if wig_fingerprints:
         wig_objects = [ each for each in wig_objects if each.id in wig_fingerprints ]
     
-    data, position = Wig.selected_as_gathered_data(wig_objects)
+    return Wig.selected_as_gathered_data(wig_objects)
