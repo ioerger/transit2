@@ -88,15 +88,13 @@ class Wig:
         return numpy.array(read_counts_per_wig), numpy.array(positions)
 
 class Condition:
-    def __init__(self, name, is_disabled=False, extra_data=None):
+    def __init__(self, name, extra_data=None):
         self.name = name
-        self.is_disabled = is_disabled
         self.extra_data = LazyDict(extra_data or {})
     
     def __repr__(self):
         return f"""Condition(
             name={self.name},
-            is_disabled={self.is_disabled},
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
     
