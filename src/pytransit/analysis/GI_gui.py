@@ -47,7 +47,7 @@ class Analysis:
     
     inputs = LazyDict(
           combined_wig=None,
-          metadata=None,
+          metadata_path=None,
           condA1=None,
           condA2=None,
           condB1=None,
@@ -187,7 +187,9 @@ class Analysis:
             # 
             wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
             Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-            
+            Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+            print(Analysis.inputs.metadata_path)
+
             # 
             # get annotation
             # 
@@ -226,7 +228,7 @@ class Analysis:
         # if len(args)<7: usage...; exit
 
         combined_wig = args[0]
-        metadata = args[1]
+        metadata_path = args[1]
         condA1 = args[2]
         condA2 = args[3]
         condB1 = args[4]
@@ -250,7 +252,7 @@ class Analysis:
         # save all the data
         Analysis.inputs.update(dict(
           combined_wig=combined_wig,
-          metadata=metadata,
+          metadata_path=metadata_path,
           condA1=condA1,
           condA2=condA2,
           condB1=condB1,
@@ -279,9 +281,8 @@ class Analysis:
             transit_tools.log("Starting Genetic Interaction analysis")
             start_time = time.time()
 
-            # 
+            ##########################
             # get data
-            # 
 
             transit_tools.log("Getting Data")
             sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
@@ -294,29 +295,38 @@ class Analysis:
             #   for j in range(K):
             #     data[j] = stat_tools.loess_correction(position, data[j])
 
+            # is it better to read the metadata directly, rather than pulling from samples_table, to accommodate console mode?
+            metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+            #for sample in metadata.rows:
+            #  print("%s\t%s" % (sample["Id"],sample["Condition"]))
 
-            # 
+
+            ##########################
             # process data
             # 
             # note: self.inputs.condA1 = self.value_getters.condA1()
 
             transit_tools.log("processing data")
+
             # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
-            # could also pull this info from universal.session_data.samples?
-            from pytransit.components.samples_area import sample_table
+
             indexes = {}
-            for i,row in enumerate(sample_table.rows): # defined in components/generic/table.py
-              cond = row["condition"]
+            #from pytransit.components.samples_area import sample_table
+            #for i,row in enumerate(sample_table.rows): # defined in components/generic/table.py
+            for i,row in enumerate(metadata.rows): 
+              cond = row["Condition"] # "condition" for samples_table
               if cond not in indexes: indexes[cond] = []
               indexes[cond].append(i)
             condA1 = self.inputs.condA1
             condA2 = self.inputs.condA2
             condB1 = self.inputs.condB1
             condB2 = self.inputs.condB2
+
             if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0)
             if condA2 not in indexes or len(indexes[condA2])==0: print("error: no samples found for condition %s" % condA2); sys.exit(0)
             if condB1 not in indexes or len(indexes[condB1])==0: print("error: no samples found for condition %s" % condB1); sys.exit(0)
             if condB2 not in indexes or len(indexes[condB2])==0: print("error: no samples found for condition %s" % condB2); sys.exit(0)
+
             print("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
             print("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
             print("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
@@ -330,7 +340,7 @@ class Analysis:
             # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
             (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
 
-            # 
+            ######################
             # write output
             # 
             # note: first comment line is filetype, last comment line is column headers
@@ -339,7 +349,7 @@ class Analysis:
             results_area.add(self.inputs.output_path)
 
             # will open and close file, or print to console
-            self.print_GI(results,adjusted_label,condA1,condA2,condB1,condB2,sample_table) 
+            self.print_GI_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
 
             transit_tools.log("Finished Genetic Interaction analysis")
             transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
@@ -630,7 +640,7 @@ class Analysis:
 
         return extended_results,adjusted_label # results: one row for each gene
 
-    def print_GI(self,results,adjusted_label,condA1,condA2,condB1,condB2,sample_table): 
+    def print_GI_results(self,results,adjusted_label,condA1,condA2,condB1,condB2,metadata): 
 
         self.output = sys.stdout # print to console if not output file defined
         if self.inputs.output_path != None:
@@ -665,10 +675,10 @@ class Analysis:
         self.output.write("#Date: " + now + "\n")
         # self.output.write("#Runtime: %s s\n" % (time.time() - start_time))
 
-        condA1samples = [x["name"] for x in sample_table.rows if x["condition"]==condA1]
-        condA2samples = [x["name"] for x in sample_table.rows if x["condition"]==condA2]
-        condB1samples = [x["name"] for x in sample_table.rows if x["condition"]==condB1]
-        condB2samples = [x["name"] for x in sample_table.rows if x["condition"]==condB2]
+        condA1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA1]
+        condA2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA2]
+        condB1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB1]
+        condB2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB2]
 
         self.output.write("#Strain A, Condition 1): %s: %s\n" % (condA1,','.join(condA1samples)))
         self.output.write("#Strain A, Condition 2): %s: %s\n" % (condA2,','.join(condA2samples)))
@@ -714,8 +724,9 @@ class Analysis:
             )
 
         if self.inputs.output_path != None: self.output.close() # otherwise, it is sys.stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)                         
+        if universal.interface=="gui":
+          transit_tools.log("Adding File: %s" % (self.output.name))
+          results_area.add(self.output.name)                         
         #self.finish()
         transit_tools.log("Finished Genetic Interactions Method")
 

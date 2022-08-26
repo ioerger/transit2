@@ -194,7 +194,7 @@ class Analysis:
               file.write("\t".join([str(x) for x in vals]) + "\n")
 
             if self.inputs.output_path != None: file.close()
-            if False: # if is_GUI and self.inputs.output_path!=None:
+            if universal.interface=="gui" and self.inputs.output_path!=None:
               transit_tools.log(f"Adding File: {self.inputs.output_path}")
               results_area.add(self.inputs.output_path)
             transit_tools.log("Finished TnseqStats")
