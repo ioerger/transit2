@@ -744,3 +744,27 @@ def winsorize(counts):
             [n_minus_1 if count == n else count for count in wig] for wig in counts
         ]
         return numpy.array(result)
+
+def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None, selected_samples=False):
+    from pytransit.universal_data import universal
+    from pytransit.tools.tnseq_tools import Wig
+    
+    wig_objects = universal.session_data.samples
+    # default to all samples unless selected_samples is true
+    if selected_samples:
+        wig_objects = universal.session_data.selected_samples
+    
+    # filter by conditions if needed
+    if conditions:
+        condition_names = [ (each if isinstance(each, str) else each.name) for each in conditions ]
+        wig_objects = [ each for each in wig_objects if each.extra_data.get("condition", None) in condition_names ]
+    
+    # filter by wig_ids if needed
+    if wig_ids:
+        wig_objects = [ each for each in wig_objects if each.id in wig_ids ]
+    
+    # filter by wig_fingerprints if needed
+    if wig_fingerprints:
+        wig_objects = [ each for each in wig_objects if each.id in wig_fingerprints ]
+    
+    return Wig.selected_as_gathered_data(wig_objects)

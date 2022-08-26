@@ -89,18 +89,13 @@ def create_menu(frame):
             convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
             def when_annotation_pt_to_ptt_clicked(event):
                 with gui_tools.nice_error_log:
-                    from pytransit.components.samples_area import sample_table
-                    
                     annotation_path = universal.session_data.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".ptt.table"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
 
-                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
                     if not annotation_path:
                         transit_tools.show_error_dialog("Error: No annotation file selected.")
-                    elif not datasets:
-                        transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
                     else:
 
                         output_path = frame.SaveFile(default_dir, default_file)
@@ -110,10 +105,8 @@ def create_menu(frame):
                             transit_tools.log(
                                 "Converting annotation file from prot_table format to PTT format"
                             )
-                        from pytransit.universal_data import universal
-                        from pytransit.tools.tnseq_tools import Wig
-                        wig_objects = universal.session_data.selected_samples
-                        data, position = Wig.selected_as_gathered_data(wig_objects)
+                        from pytransit.tools.transit_tools import gather_sample_data_for
+                        data, position = gather_sample_data_for(selected_samples=True)
                         orf2info = transit_tools.get_gene_info(annotation_path)
                         hash = transit_tools.get_pos_hash(annotation_path)
                         (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
@@ -221,18 +214,14 @@ def create_menu(frame):
             convert_menu_item.Append(annotation_convert_ptt_to_pt)
             def when_annotation_ptt_to_pt_clicked(event):
                 with gui_tools.nice_error_log:
-                    from pytransit.components.samples_area import sample_table
                     
                     annotation_path = universal.session_data.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
 
-                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ] 
                     if not annotation_path:
                         transit_tools.show_error_dialog("Error: No annotation file selected.")
-                    # elif not datasets:
-                    #    transit_tools.show_error_dialog("Error: Please add a .wig dataset, to determine TA sites.")
                     else:
 
                         output_path = frame.SaveFile(default_dir, default_file)
@@ -343,26 +332,22 @@ def create_menu(frame):
                     import numpy
                     import matplotlib
                     import matplotlib.pyplot as plt
-                    from pytransit.components.samples_area import sample_table
                     import pytransit.tools.stat_tools as stat_tools
-                    from pytransit.components.samples_area import sample_table
-                    selected_rows = sample_table.selected_rows
-                    if len(selected_rows) == 2:
-                        if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_row['id'] for each_row in selected_rows ]}")
-                        from pytransit.universal_data import universal
-                        from pytransit.tools.tnseq_tools import Wig
-                        wig_objects = universal.session_data.selected_samples
-                        data, position = Wig.selected_as_gathered_data(wig_objects)
+                    selected_samples = universal.session_data.selected_samples
+                    if len(selected_samples) == 2:
+                        if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
+                        from pytransit.tools.transit_tools import gather_sample_data_for
+                        data, position = gather_sample_data_for(selected_samples=True)
                         x = data[0, :]
                         y = data[1, :]
 
                         plt.plot(x, y, "bo")
                         plt.title("Scatter plot - Reads at TA sites")
-                        plt.xlabel(selected_rows[0]["id"])
-                        plt.ylabel(selected_rows[1]["id"])
+                        plt.xlabel(selected_samples[0].id)
+                        plt.ylabel(selected_samples[1].id)
                         plt.show()
                     else:
-                        transit_tools.show_error_dialog("Please make sure only two datasets are selected (across control and experimental datasets).")
+                        transit_tools.show_error_dialog("Please make sure only two samples are selected")
             frame.Bind(wx.EVT_MENU, when_scatter_plot_clicked, id=scatter_menu_item.GetId() )
 
         # 
@@ -373,21 +358,20 @@ def create_menu(frame):
             view_menu_item.Append(track_view_option)
             def when_track_view_clicked(event, gene=""):
                 with gui_tools.nice_error_log:
-                    from pytransit.components.samples_area import sample_table
                     import pytransit.components.trash as trash
                     annotation_path = universal.session_data.annotation_path
-                    datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
+                    wig_ids = [ each_sample.id for each_sample in universal.session_data.selected_samples ]
 
-                    if datasets and annotation_path:
+                    if wig_ids and annotation_path:
                         if frame.verbose:
                             transit_tools.log(
                                 "Visualizing counts for: %s"
-                                % ", ".join([transit_tools.fetch_name(d) for d in datasets])
+                                % ", ".join(wig_ids)
                             )
-                        view_window = trash.TrashFrame(frame, datasets, annotation_path, gene=gene)
+                        view_window = trash.TrashFrame(frame, wig_ids, annotation_path, gene=gene)
                         view_window.Show()
-                    elif not datasets:
-                        transit_tools.show_error_dialog("Error: No datasets selected.")
+                    elif not wig_ids:
+                        transit_tools.show_error_dialog("Error: No samples selected.")
                         return
                     else:
                         transit_tools.show_error_dialog("Error: No annotation file selected.")
@@ -403,16 +387,15 @@ def create_menu(frame):
             view_menu_item.Append( quality_control_option )
             def when_quality_control_clicked(event):
                 with gui_tools.nice_error_log:
-                    from pytransit.components.samples_area import sample_table
-                    datasets = [ each_row["id"] for each_row in sample_table.selected_rows ] 
-                    number_of_files = len(datasets)
+                    wig_ids = [ each_sample.id for each_sample in universal.session_data.selected_samples ] 
+                    number_of_files = len(wig_ids)
 
                     if number_of_files <= 0:
                         raise Exception(f'''No Datasets selected, unable to run''')
                     else:
-                        transit_tools.log(f"Displaying results: {datasets}")
+                        transit_tools.log(f"Displaying results: {wig_ids}")
                         try:
-                            qc_window = qc_display.QualityControlFrame(frame, datasets)
+                            qc_window = qc_display.QualityControlFrame(frame, wig_ids)
                             qc_window.Show()
                         except Exception as error:
                             raise Exception(f"Error occured displaying file: {error}")
@@ -624,15 +607,11 @@ def method_select_func(selected_name, event):
 # UNUSED 
 def annotation_gff3_to_pt(event):
     with gui_tools.nice_error_log:
-        from pytransit.components.samples_area import sample_table
-        
         annotation_path = universal.session_data.annotation_path
         default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
         # default_dir = os.path.dirname(os.path.realpath(__file__))
         default_dir = os.getcwd()
 
-        datasets = [ each_row["path"] for each_row in sample_table.selected_rows ]
-        
         if not annotation_path:
             transit_tools.show_error_dialog("Error: No annotation file selected.")
         else:

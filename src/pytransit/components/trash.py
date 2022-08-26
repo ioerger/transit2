@@ -77,7 +77,7 @@ class TrashFrame(view_trash.MainFrame):
     def __init__(
         self,
         parent,
-        dataset_list=["H37Rv_Sassetti_glycerol.wig"],
+        wig_ids=["H37Rv_Sassetti_glycerol.wig"],
         annotation="H37Rv.prot_table",
         gene="",
         scale=None,
@@ -109,12 +109,10 @@ class TrashFrame(view_trash.MainFrame):
             self.name2id[name].append(orf)
 
         self.lowerid2id = dict([(x.lower(), x) for x in self.orf2data.keys()])
-        self.labels = [fetch_name(d) for d in dataset_list] + ["All"]
+        self.labels = wig_ids + ["All"]
         
-        from pytransit.universal_data import universal
-        from pytransit.tools.tnseq_tools import Wig
-        wig_objects = universal.session_data.selected_samples
-        self.fulldata, self.position = Wig.selected_as_gathered_data(wig_objects)
+        from pytransit.tools.transit_tools import gather_sample_data_for
+        self.data, self.position = gather_sample_data_for(selected_samples=True)
 
         # Save normalized data
         (self.fulldata_norm, self.factors) = norm_tools.normalize_data(
@@ -128,7 +126,7 @@ class TrashFrame(view_trash.MainFrame):
         self.feature_data = feature_data
 
         if not scale:
-            scale = [150] * len(dataset_list)
+            scale = [150] * len(wig_ids)
         self.scale = scale
         self.globalScale = False
 

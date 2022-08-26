@@ -62,14 +62,14 @@ def WxImageToWxBitmap(myWxImage):
 
 
 class QualityControlFrame(wx.Frame):
-    def __init__(self, parent, datasets):
+    def __init__(self, parent, wig_ids):
 
         try:
             self.qc_prefix = "[QualityControl]"
             self.index_stats = 0
             self.plots_list = []
 
-            self.wig_ids = datasets
+            self.wig_ids = wig_ids
 
             wx.Frame.__init__(
                 self,
@@ -265,10 +265,8 @@ class QualityControlFrame(wx.Frame):
 
             ############################
             self.norm = "nonorm"
-            from pytransit.universal_data import universal
-            from pytransit.tools.tnseq_tools import Wig
-            wig_objects = [ universal.session_data.combined_wigs[0].wig_with_id(each_id) for each_id in self.wig_ids ]
-            self.data, self.position = Wig.selected_as_gathered_data(wig_objects)
+            from pytransit.tools.transit_tools import gather_sample_data_for
+            self.data, self.position = gather_sample_data_for(wig_ids=self.wig_ids)
 
             self.refresh()
 

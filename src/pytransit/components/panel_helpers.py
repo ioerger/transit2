@@ -145,10 +145,9 @@ if True:
             import numpy
             import matplotlib
             import matplotlib.pyplot as plt
-            from pytransit.components.samples_area import sample_table
             import pytransit.tools.stat_tools as stat_tools
             
-            if not [ each_row for each_row in sample_table.selected_rows ]:
+            if not universal.session_data.selected_samples:
                 transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
                 return
             

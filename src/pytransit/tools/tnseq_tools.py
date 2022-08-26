@@ -66,6 +66,12 @@ class Wig:
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
+    
+    def __hash__(self):
+        return hash((self.path, self.column_index))
+    
+    def __eq__(self, other):
+        return hash(other) == self.__hash__()
 
     @staticmethod
     def selected_as_gathered_data(wig_objects):
@@ -82,15 +88,13 @@ class Wig:
         return numpy.array(read_counts_per_wig), numpy.array(positions)
 
 class Condition:
-    def __init__(self, name, is_disabled=False, extra_data=None):
+    def __init__(self, name, extra_data=None):
         self.name = name
-        self.is_disabled = is_disabled
         self.extra_data = LazyDict(extra_data or {})
     
     def __repr__(self):
         return f"""Condition(
             name={self.name},
-            is_disabled={self.is_disabled},
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
     
@@ -132,7 +136,7 @@ class CombinedWigMetadata:
             if each_row["Filename"] == wig_fingerprint:
                 return each_row["Id"]
     
-    def wigs_for(self, condition):
+    def fingerprints_for(self, condition):
         return [
             each_row["Filename"]
                 for each_row in self.rows
@@ -356,10 +360,10 @@ class CombinedWig:
         )""".replace("\n        ", "\n")
     
     # 
-    # sites
+    # positions
     # 
     @property
-    def sites(self):
+    def positions(self):
         return [ each.position for each in self.rows ]
     
     # 
@@ -487,7 +491,7 @@ class CombinedWig:
             self.samples.append(
                 Wig(
                     path=self.main_path,
-                    rows=list(zip(self.sites, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(self.positions, read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
