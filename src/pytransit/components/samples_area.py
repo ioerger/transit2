@@ -2,6 +2,7 @@ import os
 
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
+from pytransit.basics.misc import singleton, no_duplicates, flatten_once
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 import pytransit.tools.gui_tools as gui_tools
@@ -13,11 +14,13 @@ from pytransit.components.generic.text import Text
 from pytransit.components.generic.button import Button
 from pytransit.components.generic.table import Table
 
-
 # 
 # Samples
 # 
 sample_table, conditions_table = None, None
+def get_selected_samples():
+    return [ each["__wig_obj"] for each in sample_table.selected_rows ]
+
 def create_sample_area(frame):
     global sample_table
     global conditions_table
@@ -128,8 +131,6 @@ def create_sample_area(frame):
                 expand=True,
             )
     
-    
-    
     # 
     # FIXME: FOR DEBUGGING ONLY
     # 
@@ -142,9 +143,13 @@ def create_sample_area(frame):
         
     return wx_object
     
-
-
 def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
+    """
+        just a helper method
+        once the "FIXME: FOR DEBUGGING ONLY" is removed, this should 
+        probably be inlined again for clarity (will only have one caller)
+    """
+    
     # 
     # load the data from the files
     # 

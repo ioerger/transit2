@@ -110,10 +110,8 @@ def create_menu(frame):
                             transit_tools.log(
                                 "Converting annotation file from prot_table format to PTT format"
                             )
-                        from pytransit.universal_data import universal
-                        from pytransit.tools.tnseq_tools import Wig
-                        wig_objects = universal.session_data.selected_samples
-                        data, position = Wig.selected_as_gathered_data(wig_objects)
+                        from pytransit.tools.transit_tools import gather_sample_data_for
+                        data, position = gather_sample_data_for(selected_samples=True)
                         orf2info = transit_tools.get_gene_info(annotation_path)
                         hash = transit_tools.get_pos_hash(annotation_path)
                         (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
@@ -349,10 +347,8 @@ def create_menu(frame):
                     selected_rows = sample_table.selected_rows
                     if len(selected_rows) == 2:
                         if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_row['id'] for each_row in selected_rows ]}")
-                        from pytransit.universal_data import universal
-                        from pytransit.tools.tnseq_tools import Wig
-                        wig_objects = universal.session_data.selected_samples
-                        data, position = Wig.selected_as_gathered_data(wig_objects)
+                        from pytransit.tools.transit_tools import gather_sample_data_for
+                        data, position = gather_sample_data_for(selected_samples=True)
                         x = data[0, :]
                         y = data[1, :]
 

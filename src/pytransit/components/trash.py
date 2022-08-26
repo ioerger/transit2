@@ -111,10 +111,8 @@ class TrashFrame(view_trash.MainFrame):
         self.lowerid2id = dict([(x.lower(), x) for x in self.orf2data.keys()])
         self.labels = [fetch_name(d) for d in dataset_list] + ["All"]
         
-        from pytransit.universal_data import universal
-        from pytransit.tools.tnseq_tools import Wig
-        wig_objects = universal.session_data.selected_samples
-        self.fulldata, self.position = Wig.selected_as_gathered_data(wig_objects)
+        from pytransit.tools.transit_tools import gather_sample_data_for
+        self.data, self.position = gather_sample_data_for(selected_samples=True)
 
         # Save normalized data
         (self.fulldata_norm, self.factors) = norm_tools.normalize_data(

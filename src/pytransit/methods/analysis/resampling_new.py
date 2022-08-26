@@ -17,7 +17,6 @@ from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.tools.tnseq_tools import Wig
 import pytransit
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.components.file_display as file_display

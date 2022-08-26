@@ -77,3 +77,6 @@ def indent(string, by, ignore_first=False):
     string = string if isinstance(string, str) else stringify(string)
     start = indent_string if not ignore_first else ""
     return start + string.replace("\n", "\n"+indent_string)
+
+def singleton(my_class):                                             
+    return my_class()

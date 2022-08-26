@@ -238,40 +238,6 @@ class TnSeekFrame(wx.Frame):
         dlg.Destroy()
         return path
 
-    def when_loess_prev_clicked(self, event):
-        from pytransit.components.samples_area import sample_table
-        datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
-        
-        if not datasets_selected:
-            transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
-            return
-        
-        from pytransit.universal_data import universal
-        from pytransit.tools.tnseq_tools import Wig
-        wig_objects = universal.session_data.selected_samples
-        data, position = Wig.selected_as_gathered_data(wig_objects)
-        (K, N) = data.shape
-        window = 100
-        for j in range(K):
-
-            size = (
-                int(len(position) / window) + 1
-            )  # python3 requires explicit rounding to int
-            x_w = numpy.zeros(size)
-            y_w = numpy.zeros(size)
-            for i in range(size):
-                x_w[i] = window * i
-                y_w[i] = sum(data[j][window * i : window * (i + 1)])
-
-            y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-            plt.plot(x_w, y_w, "g+")
-            plt.plot(x_w, y_smooth, "b-")
-            plt.xlabel("Genomic Position (TA sites)")
-            plt.ylabel("Reads per 100 insertion sites")
-
-            plt.title("LOESS Fit - %s" % transit_tools.basename(datasets_selected[j]))
-            plt.show()
-
     def choose_normalization(self):
         norm_methods_choices = sorted(norm_methods.keys())
         dlg = wx.SingleChoiceDialog(
