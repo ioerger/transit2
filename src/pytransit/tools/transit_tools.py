@@ -756,7 +756,8 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     
     # filter by conditions if needed
     if conditions:
-        wig_objects = [ each for each in wig_objects if each.extra_data.get("condition", None) in conditions ]
+        condition_names = [ (each if isinstance(each, str) else each.name) for each in conditions ]
+        wig_objects = [ each for each in wig_objects if each.extra_data.get("condition", None) in condition_names ]
     
     # filter by wig_ids if needed
     if wig_ids:
