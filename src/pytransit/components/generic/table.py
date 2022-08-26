@@ -1,8 +1,8 @@
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-import pytransit.gui_tools as gui_tools
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+import pytransit.tools.gui_tools as gui_tools
 
 class Table:
     """
@@ -70,7 +70,7 @@ class Table:
             column_index = self._key_to_column_index(each_key)
             self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
         
-        self._state.data_values.append(dict(python_obj))
+        self._state.data_values.append(python_obj)
     
     @property
     def length(self):

@@ -72,8 +72,11 @@ def line_count_of(file_path):
     return count
 
 def indent(string, by, ignore_first=False):
-    from super_map import stringify
+    from pytransit.basics.lazy_dict import stringify
     indent_string = (" "*by) if isinstance(by, int) else by
     string = string if isinstance(string, str) else stringify(string)
     start = indent_string if not ignore_first else ""
     return start + string.replace("\n", "\n"+indent_string)
+
+def singleton(my_class):                                             
+    return my_class()

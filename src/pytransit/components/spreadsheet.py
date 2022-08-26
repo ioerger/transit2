@@ -1,7 +1,7 @@
 import wx.grid
 
-import pytransit.gui_tools as gui_tools
-from pytransit.transit_tools import wx
+import pytransit.tools.gui_tools as gui_tools
+from pytransit.tools.transit_tools import wx
 from pytransit.universal_data import universal
 
 class TransitTable(wx.grid.GridTableBase):
@@ -78,7 +78,7 @@ class SpreadSheet(wx.Frame):
     max_width = 1500
     max_height = 800
     
-    def __init__(self, title, heading, column_names, rows):
+    def __init__(self, title, heading, column_names, rows, sort_by=[]):
         wx.Frame.__init__(self, universal.frame, size=(-1,-1))
         self.parent = universal.frame
         self.col = 0
@@ -135,6 +135,15 @@ class SpreadSheet(wx.Frame):
         self.SetMinSize((width, height))
 
         self.Layout()
+        
+        for each_name in reversed(sort_by):
+            if each_name not in self.column_names:
+                print(f"Warning: sort_by included this: {each_name}, but it wasnt a column_name: {self.column_names}")
+                continue
+            else:
+                self.grid.GetTable().SortColumn(self.column_names.index(each_name))
+        self.grid.ForceRefresh()
+            
 
     def AutoResizeCols(self):
         self.grid.AutoSizeColumns(False)
@@ -147,6 +156,7 @@ class SpreadSheet(wx.Frame):
 
     def OnLabelDoubleClicked(self, evt):
         col = evt.GetCol()
+        print(f'''col = {col}''')
         if col != -1:
             self.grid.GetTable().SortColumn(col)
             self.grid.ForceRefresh()
