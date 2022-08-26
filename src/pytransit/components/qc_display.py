@@ -62,14 +62,14 @@ def WxImageToWxBitmap(myWxImage):
 
 
 class QualityControlFrame(wx.Frame):
-    def __init__(self, parent, datasets):
+    def __init__(self, parent, wig_ids):
 
         try:
             self.qc_prefix = "[QualityControl]"
             self.index_stats = 0
             self.plots_list = []
 
-            self.wig_ids = datasets
+            self.wig_ids = wig_ids
 
             wx.Frame.__init__(
                 self,
