@@ -138,7 +138,7 @@ class CombinedWigMetadata:
             if each_row["Filename"] == wig_fingerprint:
                 return each_row["Id"]
     
-    def wigs_for(self, condition):
+    def fingerprints_for(self, condition):
         return [
             each_row["Filename"]
                 for each_row in self.rows
