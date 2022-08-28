@@ -2,22 +2,25 @@ import os
 
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
+from pytransit.basics.misc import singleton, no_duplicates, flatten_once
 from pytransit.universal_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-import pytransit.gui_tools as gui_tools
-import pytransit.transit_tools as transit_tools
-import pytransit.tnseq_tools as tnseq_tools
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.transit_tools as transit_tools
+import pytransit.tools.tnseq_tools as tnseq_tools
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
 from pytransit.components.generic.button import Button
 from pytransit.components.generic.table import Table
 
-
 # 
 # Samples
 # 
 sample_table, conditions_table = None, None
+def get_selected_samples():
+    return [ each["__wig_obj"] for each in sample_table.selected_rows ]
+
 def create_sample_area(frame):
     global sample_table
     global conditions_table
@@ -91,38 +94,7 @@ def create_sample_area(frame):
                                     metadata_dialog.Destroy()
                             file_dialog.Destroy()
                             
-                            # 
-                            # load the data from the files
-                            # 
-                            for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
-                                transit_tools.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
-                                with gui_tools.nice_error_log:
-                                    universal.session_data.combined_wigs.append(
-                                        tnseq_tools.CombinedWig(
-                                            main_path=each_cwig_path,
-                                            metadata_path=each_metadata_path,
-                                        )
-                                    )
-                            
-                            transit_tools.log(f"Done")
-
-                                
-                            # 
-                            # add graphical entries for each condition
-                            # 
-                            if True:
-                                for each_sample in universal.session_data.samples:
-                                    sample_table.add(dict(
-                                        # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                                        name=basename(each_sample.path),
-                                        condition=each_sample.extra_data.get("condition", "[None]"),
-                                        path=each_sample.path,
-                                    ))
-                                
-                                for each_condition in universal.session_data.conditions:
-                                    conditions_table.add(dict(
-                                        name=each_condition.name,
-                                    ))
+                            load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
                 inner_sample_sizer.Add(combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
                 
@@ -158,5 +130,56 @@ def create_sample_area(frame):
                 border=5,
                 expand=True,
             )
+    
+    # 
+    # FIXME: FOR DEBUGGING ONLY
+    # 
+    if False:
+        from os import remove, getcwd
+        load_combined_wigs_and_metadatas(
+            [f"{getcwd()}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
+            [f"{getcwd()}/src/pytransit/data/222_samples_metadata_cg.txt"],
+        )
         
     return wx_object
+    
+def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
+    """
+        just a helper method
+        once the "FIXME: FOR DEBUGGING ONLY" is removed, this should 
+        probably be inlined again for clarity (will only have one caller)
+    """
+    
+    # 
+    # load the data from the files
+    # 
+    for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
+        transit_tools.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
+        with gui_tools.nice_error_log:
+            universal.session_data.combined_wigs.append(
+                tnseq_tools.CombinedWig(
+                    main_path=each_cwig_path,
+                    metadata_path=each_metadata_path,
+                )
+            )
+    
+    transit_tools.log(f"Done")
+
+        
+    # 
+    # add graphical entries for each condition
+    # 
+    if True:
+        for each_sample in universal.session_data.samples:
+            sample_table.add(dict(
+                # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                id=each_sample.id,
+                condition=each_sample.extra_data.get("condition", "[None]"),
+                path=each_sample.path,
+                __wig_obj=each_sample,
+            ))
+        
+        for each_condition in universal.session_data.conditions:
+            conditions_table.add(dict(
+                name=each_condition.name,
+            ))

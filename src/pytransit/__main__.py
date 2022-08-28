@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import pytransit.console_tools as console_tools
+import pytransit.tools.console_tools as console_tools
 from pytransit.universal_data import universal
 
 def main(*args, **kwargs):
@@ -75,9 +75,9 @@ def main(*args, **kwargs):
     else:
         universal.interface = "console"
         import matplotlib
-        from pytransit.analysis import methods as analysis_methods
-        from pytransit.export   import methods as export_methods
-        from pytransit.convert  import methods as convert_methods
+        from pytransit.methods.analysis import methods as analysis_methods
+        from pytransit.methods.export   import methods as export_methods
+        from pytransit.methods.convert  import methods as convert_methods
         
         def run(method, args):
             setup_object = None
@@ -155,12 +155,12 @@ def main(*args, **kwargs):
             print(f"Usage: python {sys.argv[0]} <method>")
 
 def run_main():
-    from pytransit.console_tools import clean_args
+    from pytransit.tools.console_tools import clean_args
     (args, kwargs) = clean_args(sys.argv[1:])
     main(*args, **kwargs)
 
 def print_help():
-    from pytransit.analysis import methods as analysis_methods
+    from pytransit.methods.analysis import methods as analysis_methods
     print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
     print("Analysis methods: ")
     for each_analysis_method in analysis_methods:

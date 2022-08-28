@@ -34,38 +34,38 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
-from pytransit.universal_data import SessionData, universal
-from pytransit.gui_tools import bind_to, rgba, color
-from pytransit.basics.lazy_dict import LazyDict
+from pytransit.methods.analysis                  import methods
+from pytransit.methods.convert                   import methods as convert_methods
+from pytransit.methods.export                    import methods as export_methods
+from pytransit.tools.gui_tools                   import bind_to, rgba, color
+from pytransit.tools.norm_tools                  import methods as norm_methods
+from pytransit.tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
+from pytransit.components.generic.box            import Row, Column
+from pytransit.components.generic.frame          import InnerFrame
+from pytransit.components.generic.text           import Text
 from pytransit.components.generic.window_manager import WindowManager
-from pytransit.components.generic.box import Row, Column
-from pytransit.components.generic.text import Text
-from pytransit.components.generic.frame import InnerFrame
-from pytransit.components.annotation_area import create_annotation_area
-from pytransit.components.samples_area import create_sample_area
-from pytransit.components.results_area import create_results_area
-from pytransit.components.parameter_panel import create_panel_area
-from pytransit.components.menu import create_menu
-from pytransit.analysis   import methods
-from pytransit.export     import methods as export_methods
-from pytransit.convert    import methods as convert_methods
-from pytransit.norm_tools import methods as norm_methods
+from pytransit.components.menu                   import create_menu
+from pytransit.components.parameter_panel        import create_panel_area
+from pytransit.components.results_area           import create_results_area
+from pytransit.components.samples_area           import create_sample_area
+from pytransit.components.annotation_area        import create_annotation_area
+from pytransit.basics.lazy_dict                  import LazyDict
+from pytransit.universal_data                    import SessionData, universal
 
 import pytransit
-import pytransit.analysis
-import pytransit.export
-import pytransit.convert
+import pytransit.methods.analysis
+import pytransit.methods.export
+import pytransit.methods.convert
+import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.transit_tools as transit_tools
+import pytransit.tools.tnseq_tools as tnseq_tools
+import pytransit.tools.norm_tools as norm_tools
+import pytransit.tools.stat_tools as stat_tools
 import pytransit.components.parameter_panel as parameter_panel
-import pytransit.trash as trash
-import pytransit.gui_tools as gui_tools
-import pytransit.transit_tools as transit_tools
-import pytransit.tnseq_tools as tnseq_tools
-import pytransit.norm_tools as norm_tools
-import pytransit.stat_tools as stat_tools
-import pytransit.file_display as file_display
-import pytransit.qc_display as qc_display
-import pytransit.images as images
+import pytransit.components.trash as trash
+import pytransit.components.file_display as file_display
+import pytransit.components.qc_display as qc_display
+import pytransit.components.images as images
 
 class TnSeekFrame(wx.Frame):
     instructions_text = """
@@ -155,7 +155,7 @@ class TnSeekFrame(wx.Frame):
         # Timer
         self.timer = wx.Timer(self)
         def clear_status(event):
-            self.statusBar.SetStatusText("")
+            self.status_bar.SetStatusText("")
             self.timer.Stop()
         self.Bind(wx.EVT_TIMER, clear_status, self.timer)
 
@@ -167,8 +167,8 @@ class TnSeekFrame(wx.Frame):
         self.transposons = ["himar1", "tn5"]
         self.verbose = True
         
-        self.statusBar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
-        self.statusBar.SetStatusText("Welcome to TRANSIT")
+        self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
+        self.status_bar.SetStatusText("Welcome to TRANSIT")
         
         pub.subscribe(self.save_histogram, "histogram")
         create_menu(self)
@@ -237,37 +237,6 @@ class TnSeekFrame(wx.Frame):
                 transit_tools.log("You chose the following file: %s" % path)
         dlg.Destroy()
         return path
-
-    def when_loess_prev_clicked(self, event):
-        from pytransit.components.samples_area import sample_table
-        datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
-        
-        if not datasets_selected:
-            transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
-            return
-
-        data, position = tnseq_tools.CombinedWig.gather_wig_data(datasets_selected)
-        (K, N) = data.shape
-        window = 100
-        for j in range(K):
-
-            size = (
-                int(len(position) / window) + 1
-            )  # python3 requires explicit rounding to int
-            x_w = numpy.zeros(size)
-            y_w = numpy.zeros(size)
-            for i in range(size):
-                x_w[i] = window * i
-                y_w[i] = sum(data[j][window * i : window * (i + 1)])
-
-            y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-            plt.plot(x_w, y_w, "g+")
-            plt.plot(x_w, y_smooth, "b-")
-            plt.xlabel("Genomic Position (TA sites)")
-            plt.ylabel("Reads per 100 insertion sites")
-
-            plt.title("LOESS Fit - %s" % transit_tools.basename(datasets_selected[j]))
-            plt.show()
 
     def choose_normalization(self):
         norm_methods_choices = sorted(norm_methods.keys())

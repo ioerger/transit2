@@ -11,16 +11,16 @@ import numpy
 
 from transit_test import *
 
-import pytransit.norm_tools as norm_tools
-import pytransit.tnseq_tools as tnseq_tools
+import pytransit.tools.norm_tools as norm_tools
+import pytransit.tools.tnseq_tools as tnseq_tools
 
-from pytransit.analysis.gumbel import GumbelMethod
-from pytransit.analysis.binomial import BinomialMethod
-from pytransit.analysis.griffin import GriffinMethod
-from pytransit.analysis.hmm import HMMMethod
+from pytransit.methods.analysis.gumbel import GumbelMethod
+from pytransit.methods.analysis.binomial import BinomialMethod
+from pytransit.methods.analysis.griffin import GriffinMethod
+from pytransit.methods.analysis.hmm import HMMMethod
 
-from pytransit.analysis.resampling import ResamplingMethod
-from pytransit.analysis.rankproduct import RankProductMethod
+from pytransit.methods.analysis.resampling import ResamplingMethod
+from pytransit.methods.analysis.rankproduct import RankProductMethod
 
 
 # RAW STATISTICS:

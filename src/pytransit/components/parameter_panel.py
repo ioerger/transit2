@@ -4,10 +4,10 @@ import sys
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-import pytransit.gui_tools as gui_tools
-import pytransit.transit_tools as transit_tools
-import pytransit.images as images
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.transit_tools as transit_tools
+import pytransit.components.images as images
 import pytransit
 
 from pytransit.components.generic.box import Column, Row
@@ -18,7 +18,9 @@ from pytransit.components.generic.table import Table
 # 
 # options window
 # 
-panel = LazyDict()
+panel = LazyDict(
+    progress_sizer=None,
+)
 def create_panel_area(_):
     panel.progress_percent = 0
     
@@ -211,17 +213,11 @@ def create_panel_area(_):
             progress_sizer.Add(panel.progress, 0, wx.ALL | wx.EXPAND, 0)
 
     # panel.progress_panel.BackgroundColour = (0, 0, 250)
+    panel.progress_sizer = progress_sizer
     panel.progress_panel.SetSizer(progress_sizer)
     panel.progress_panel.SetMaxSize(wx.Size(200, 100))
     panel.progress_panel.Layout()
-
     # progress_sizer.Fit( panel.progress_panel )
-    panel.method_sizer.Add(
-        panel.progress_panel,
-        0,
-        wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
-        5,
-    )
 
     set_progress_range(1000)
     
@@ -232,18 +228,34 @@ def create_panel_area(_):
 
 old_panel = None
 def set_panel(new_panel):
-    global old_panel
-    if old_panel != None:
-        old_panel.Hide()
-    hide_all_options()
-    new_panel.Show()
-    panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
-    new_panel.Show()
-    old_panel = new_panel
+    with gui_tools.nice_error_log:
+        global old_panel
+        if old_panel != None:
+            old_panel.Hide()
+        hide_all_options()
+        
+        try: panel.method_sizer.Detach(panel.progress_panel)
+        except Exception as error: print(error)
+        try: panel.method_sizer.Detach(new_panel)
+        except Exception as error: print(error)
+        
+        panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
+        new_panel.Show()
+        panel.method_sizer.Add(
+            panel.progress_panel,
+            0,
+            wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
+            5,
+        )
+        panel.progress_panel.Layout()
+        panel.method_sizer.Fit(panel.progress_panel)
+        panel.method_sizer.Fit(new_panel)
+        old_panel = new_panel
+    
 panel.set_panel = set_panel
 
 def hide_all_options():
-    from pytransit.analysis import methods
+    from pytransit.methods.analysis import methods
     
     hide_progress_section()
     for name in methods:
@@ -276,7 +288,7 @@ def progress_update(text, percent):
     sys.stdout.flush()
     
     if HAS_WX:
-        import pytransit.gui_tools as gui_tools
+        import pytransit.tools.gui_tools as gui_tools
         # update progress bar
         panel.progress_percent = percent
         thousands = round(panel.progress_percent*10)

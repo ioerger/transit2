@@ -1,8 +1,8 @@
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
-from pytransit.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-import pytransit.gui_tools as gui_tools
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+import pytransit.tools.gui_tools as gui_tools
 from pytransit.components.generic.box import Column
 
 class WindowManager:
