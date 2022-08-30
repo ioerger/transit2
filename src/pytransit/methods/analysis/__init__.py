@@ -14,6 +14,6 @@ from .resampling         import Analysis; methods["resampling"        ] = Analys
 from .resampling_new     import Analysis; methods["resampling_new"    ] = Analysis()
 from .tn5gaps            import Analysis; methods["tn5gaps"           ] = Analysis()
 from .tnseq_stats_gui    import Analysis; methods["tnseq_stats_gui"   ] = Analysis()
-from .ttnfitness         import Analysis; methods["ttnfitness"        ] = Analysis()
+from .ttnfitness_gui     import Analysis; methods["ttnfitness_gui"    ] = Analysis()
 from .utest              import Analysis; methods["utest"             ] = Analysis()
 from .zinb               import Analysis; methods["zinb"              ] = Analysis()
