@@ -179,7 +179,7 @@ class Analysis:
     def Run(self):
         with gui_tools.nice_error_log:
             transit_tools.log("Starting tnseq_stats analysis")
-            start_time = time.time()
+            self.start_time = time.time()
 
             #######################
             # get data
@@ -235,29 +235,22 @@ class Analysis:
 
             transit_tools.log("processing data")
 
-            TA_sites_df,Models_df,gene_obj_dict = self.calc_ttnfitness(genome,G,self.inputs.gumbel_results_path)
+            TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls = self.calc_ttnfitness(genome,G,self.inputs.gumbel_results_path)
 
             ###########################
             # write output
             # 
             # note: first header line is filetype, last header line is column headers
 
-            file = sys.stdout # print to console if not output file defined
-            if self.inputs.output_path != None:
-               file = open(self.inputs.output_path, "w")
-            file.write("%s\n" % self.identifier)
-            #file.write("#normalization: %s\n" % self.inputs.normalization)
+            self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path)
 
-            # I think the column headers will be printed by write_ttnfitness_results(); will it also open the 2 output files?
-
-            self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict)
-
-            if self.inputs.output_path != None: file.close()
-            if universal.interface=="gui" and self.inputs.output_path!=None:
-              transit_tools.log(f"Adding File: {self.inputs.output_path}")
+            if universal.interface=="gui" and self.inputs.genes_output_path!=None:
+              transit_tools.log(f"Adding File: {self.inputs.genes_output_path}")
               results_area.add(self.inputs.output_path)
+              transit_tools.log(f"Adding File: {self.inputs.sites_output_path}")
+              results_area.add(self.inputs.site_output_path)
             transit_tools.log("Finished TnseqStats")
-            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+            transit_tools.log("Time: %0.1fs\n" % (time.time() - self.start_time))
 
     # returns: TA_sites_df , Models_df , gene_obj_dict
 
@@ -400,9 +393,7 @@ class Analysis:
             dtype=str,
         )
 
-        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(
-            TA_sites_df
-        )
+        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df)
         phi = 1.0 - saturation
         significant_n = math.log10(0.05) / math.log10(phi)
 
@@ -529,9 +520,9 @@ class Analysis:
         # Models_df.loc[(Models_df["mod ttn Coef"]==0) & (Models_df["mod ttn Adjusted Pval"]<0.05),"mod ttn States"]="NE"
         # Models_df.loc[(Models_df["mod ttn Adjusted Pval"]>0.05),"mod ttn States"]="NE"
 
-        return (TA_sites_df,Models_df,gene_obj_dict)
+        return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
-    def write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict):
+    def write_ttnfitness_results(self,TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,genes_output_path,sites_output_path):
         transit_tools.log("Writing To Output Files")
         # Write Models Information to CSV
         # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj Pval
@@ -636,8 +627,15 @@ class Analysis:
         assesment_cnt = output_df["TTN-Fitness Assessment"].value_counts()
         # mod_assesment_cnt = output_df["Mod TTN-Fitness Assessment"].value_counts()
 
-        self.output.write("#TTNFitness\n")
-        if self.wxobj:
+
+        ########################
+        # write genes data
+
+        self.output = open(genes_output_path,"w")
+        self.output.write("%s\n" % self.identifier)
+
+        print("self.wxobj: "+str(self.wxobj))
+        if self.wxobj: 
             members = sorted(
                 [
                     attr
@@ -651,7 +649,7 @@ class Analysis:
             self.output.write(
                 "#GUI with: ctrldata=%s, annotation=%s, output=%s\n"
                 % (
-                    ",".join(self.ctrldata).encode("utf-8"),
+                    ",".join(self.inputs.wig_files).encode("utf-8"),
                     self.annotation_path.encode("utf-8"),
                     self.output.name.encode("utf-8"),
                 )
@@ -659,14 +657,15 @@ class Analysis:
         else:
             self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
 
-        self.output.write("#Data: %s\n" % (",".join(self.ctrldata).encode("utf-8")))
+        self.output.write("#Data: %s\n" % (",".join(self.inputs.wig_files).encode("utf-8")))
         self.output.write(
-            "#Annotation path: %s\n" % self.annotation_path.encode("utf-8")
+            "#Annotation path: %s\n" % self.inputs.annotation_path.encode("utf-8")
         )
-        self.output.write("#Time: %s\n" % (time.time() - start_time))
+        self.output.write("#Time: %s\n" % (time.time() - self.start_time))
+        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df)
         self.output.write("#Saturation of Dataset: %s\n" % (saturation))
         self.output.write(
-            "#Assesment Counts: %s ES, %s ESB, %s GD, %s GA, %s NE, %s U \n"
+            "#Assessment Counts: %s ES, %s ESB, %s GD, %s GA, %s NE, %s U \n"
             % (
                 assesment_cnt["ES"],
                 assesment_cnt["ESB"],
@@ -692,22 +691,24 @@ class Analysis:
             ]
         ]
 
-        output2_data = TA_sites_df.to_csv(header=True, sep="\t", index=False).split(
-            "\n"
-        )
-        vals = "\n".join(output2_data)
-        self.output2_file.write(vals)
-        self.output2_file.close()
-
         output_data = output_df.to_csv(header=True, sep="\t", index=False).split("\n")
         vals = "\n".join(output_data)
         self.output.write(vals)
         self.output.close()
 
+        # write sites data
+
+        output2 = open(sites_output_path,"w")
+        output2.write("%s\n" % self.identifier)
+        output2_data = TA_sites_df.to_csv(header=True, sep="\t", index=False).split("\n")
+        vals = "\n".join(output2_data)
+        output2.write(vals)
+        output2.close()
+
         transit_tools.log("")  # Printing empty line to flush stdout
         transit_tools.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
-        self.finish()
+        #self.finish()
         transit_tools.log("Finished TTNFitness Method")
 
 
