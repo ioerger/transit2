@@ -100,9 +100,14 @@ class Analysis:
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         self.value_getters = LazyDict()
 
-        self.value_getters.gumbel_results_path = self.create_input_field(self.panel,main_sizer,label="Gumbel results file:",value="",tooltip="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
-        self.value_getters.genome_path = self.create_input_field(self.panel,main_sizer,label="Genome sequence file:",value="",tooltip="For example, a .fasta or .fna file.")
-        self.value_getters.output_basename = self.create_input_field(self.panel,main_sizer,label="Basename for output files",value="ttnfitness",tooltip="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files.")
+        self.value_getters.condition = create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
+        self.value_getters.gumbel_results_path = self.create_input_field(self.panel,main_sizer, \
+          label="Gumbel results file:",value="glycerol_gumbel.out", \
+          tooltip="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
+        self.value_getters.genome_path = self.create_input_field(self.panel,main_sizer, \
+          label="Genome sequence file:",value="H37Rv.fna",tooltip="For example, a .fasta or .fna file.")
+        self.value_getters.output_basename = self.create_input_field(self.panel,main_sizer, \
+          label="Basename for output files",value="ttnfitness.test",tooltip="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files.")
         # can get annotation from GUI; must ask for genome file
         self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR 
         create_run_button(self.panel, main_sizer)
@@ -118,14 +123,17 @@ class Analysis:
             # 
             # get wig files
             # 
+
             combined_wig = universal.session_data.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
+            # assume all samples are in the same metadata file
+            Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path 
             
             # 
             # get annotation
             # 
 
-            Analysis.inputs.annotation_path = universal.session_data.annotation # not needed for tnseq_stats
+            Analysis.inputs.annotation_path = universal.session_data.annotation_path
             # FIXME: enable this once I get a valid annotation file example
             # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
             #     return None
@@ -133,6 +141,8 @@ class Analysis:
             # 
             # setup custom inputs
             # 
+            # gets genome_path, etc...
+
             for each_key, each_getter in Analysis.instance.value_getters.items():
                 try:
                     Analysis.inputs[each_key] = each_getter()
@@ -145,17 +155,21 @@ class Analysis:
             # ttnfitness has 2 output files: "ttnfitness_genes.dat" and "ttnfitness_sites.dat"
             # 
 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="ttnfitness_genes.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
-            )
+#            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+#                default_file_name="ttnfitness_genes.dat",
+#                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+#            )
+#
+#            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+#                default_file_name="ttnfitness_sites.dat",
+#                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+#            )
 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="ttnfitness_sites.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
-            )
+            Analysis.inputs.genes_output_path = "%s.genes.dat" % (Analysis.inputs.output_basename)
+            Analysis.inputs.sites_output_path = "%s.sites.dat" % (Analysis.inputs.output_basename)
 
-            if not Analysis.inputs.output_path: return None
+
+            #if not Analysis.inputs.output_path: return None ### why?
             return Analysis.instance
 
     @classmethod
@@ -184,11 +198,21 @@ class Analysis:
             #######################
             # get data
 
-            if self.inputs.combined_wig!=None: 
+            if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
               transit_tools.log("Getting Data from %s" % self.inputs.combined_wig)
-              sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+              position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
 
-              # read metadata
+              metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+              indexes = {}
+              for i,row in enumerate(metadata.rows): 
+                cond = row["Condition"] 
+                if cond not in indexes: indexes[cond] = []
+                indexes[cond].append(i)
+              cond = Analysis.inputs.condition
+              ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
+              transit_tools.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
+              data = data[indexes[cond]] # project array down to samples selected by condition
+
               # now, select the columns in data corresponding to samples that are replicates of desired condition...
 
             elif self.inputs.wig_files!=None:
@@ -197,7 +221,7 @@ class Analysis:
 
             else: print("error: must provide either combined_wig or list of wig files"); sys.exit(0) ##### use transit.error()?
                 
-            (K, N) = data.shape
+            (K, N) = data.shape 
 
             # normalize the counts
             if self.inputs.normalization and self.inputs.normalization != "nonorm":
@@ -634,36 +658,49 @@ class Analysis:
         self.output = open(genes_output_path,"w")
         self.output.write("%s\n" % self.identifier)
 
-        print("self.wxobj: "+str(self.wxobj))
-        if self.wxobj: 
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write(
-                "#GUI with: ctrldata=%s, annotation=%s, output=%s\n"
-                % (
-                    ",".join(self.inputs.wig_files).encode("utf-8"),
-                    self.annotation_path.encode("utf-8"),
-                    self.output.name.encode("utf-8"),
-                )
-            )
-        else:
-            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        ###??? what is the purpose of this? print all params and filenames
+        ###??? it appears that self.wxobj==None even in GUI mode
+        ###??? use universal.interface=="gui"?
+#        if self.wxobj: 
+#            members = sorted(
+#                [
+#                    attr
+#                    for attr in dir(self)
+#                    if not callable(getattr(self, attr)) and not attr.startswith("__")
+#                ]
+#            )
+#            memberstr = ""
+#            for m in members:
+#                memberstr += "%s = %s, " % (m, getattr(self, m))
+#            self.output.write(
+#                "#GUI with: ctrldata=%s, annotation=%s, output=%s\n"
+#                % (
+#                    ",".join(self.inputs.wig_files).encode("utf-8"), # only defined for console mode
+#                    self.annotation_path.encode("utf-8"),
+#                    self.output.name.encode("utf-8"),
+#               )
+#            )
+#        else: # console mode
+#            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
+#
+#        self.output.write("#Data: %s\n" % (",".join(self.inputs.wig_files).encode("utf-8")))
+#        self.output.write(
+#            "#Annotation path: %s\n" % self.inputs.annotation_path.encode("utf-8")
+#        )
 
-        self.output.write("#Data: %s\n" % (",".join(self.inputs.wig_files).encode("utf-8")))
-        self.output.write(
-            "#Annotation path: %s\n" % self.inputs.annotation_path.encode("utf-8")
-        )
-        self.output.write("#Time: %s\n" % (time.time() - self.start_time))
+        if universal.interface=="console":
+          self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        if Analysis.inputs.wig_files!=None:
+          self.output.write("# samples analyzed:\n") # consider "datasets merged"
+          for x in Analysis.inputs.wig_files: self.output.write("#   %s\n" % x)
+        if Analysis.inputs.combined_wig!=None: # add list of sample ids? see indexes in Run(), pass into write_ttn()?
+          self.output.write("# samples analyzed: combined_wig=%s, condition=%s\n" % (Analysis.inputs.combined_wig,Analysis.inputs.condition))
+
+        # print any other parameters...
+
         saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df)
         self.output.write("#Saturation of Dataset: %s\n" % (saturation))
+        self.output.write("#Time: %s\n" % (time.time() - self.start_time))
         self.output.write(
             "#Assessment Counts: %s ES, %s ESB, %s GD, %s GA, %s NE, %s U \n"
             % (
