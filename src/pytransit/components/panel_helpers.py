@@ -42,7 +42,7 @@ if True:
     def create_file_input(panel, sizer, *, button_label, message="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*"'):
         """
             Example:
-                file_path_getter = create_file_input(panel, sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*"')
+                file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*"')
                 file_path_or_none = file_path_getter()
         """
         run_button = wx.Button(

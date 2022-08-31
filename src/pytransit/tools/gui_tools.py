@@ -52,7 +52,7 @@ def ask_for_files(
         *,
         default_folder=None,
         default_file_name="",
-        allowed_extensions='All files (*.*)|*.*"',
+        allowed_extensions='All files (*.*)|*.*',
     ):
         import os
         output = []
@@ -74,7 +74,7 @@ def ask_for_file(
         *,
         default_folder=None,
         default_file_name="",
-        allowed_extensions='All files (*.*)|*.*"',
+        allowed_extensions='All files (*.*)|*.*',
     ):
         
         path = None
@@ -94,7 +94,7 @@ def ask_for_file(
 def ask_for_output_file_path(
         default_folder=None,
         default_file_name="",
-        output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+        output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
     ):
         path = None
         if not default_folder:
