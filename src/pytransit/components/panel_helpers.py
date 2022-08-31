@@ -39,6 +39,36 @@ if True:
             return wrapper
         return decorator
     
+    def create_file_input(panel, sizer, *, button_label, message="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*"'):
+        """
+            Example:
+                file_path_getter = create_file_input(panel, sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*"')
+                file_path_or_none = file_path_getter()
+        """
+        run_button = wx.Button(
+            panel,
+            wx.ID_ANY,
+            button_label,
+            wx.DefaultPosition,
+            wx.DefaultSize,
+            0,
+        )
+        sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        the_file_path = None
+        # whenever the button is clicked, set the file
+        @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
+        def when_button_clicked(*args,**kwargs):
+            nonlocal the_file_path
+            with gui_tools.nice_error_log:
+                # set the file path variable
+                the_file_path = gui_tools.ask_for_file(
+                    message=message,
+                    default_folder=default_folder,
+                    default_file_name=default_file_name,
+                    allowed_extensions=allowed_extensions,
+                )
+        return lambda *args, **kwargs: the_file_path
+    
     def define_choice_box(
         panel,
         label_text="",
