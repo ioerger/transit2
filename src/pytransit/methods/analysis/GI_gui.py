@@ -100,20 +100,6 @@ class Analysis:
     def __repr__(self):
         return f"{self.inputs}"
 
-    def create_condition_choice(self, panel, sizer, name):
-        (
-            label,
-            ref_condition_wxobj,
-            ref_condition_choice_sizer,
-        ) = define_choice_box(
-            panel,
-            name,
-            [ "[None]" ] + [x.name for x in universal.session_data.conditions],
-            "choose condition",
-        )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
-    
     # this is awkward: merge these two functions? specify output type? catch invalid input errors?
     def create_int_input_field(self, panel, sizer, label, value,tooltip=None):
         get_text = create_text_box_getter(
@@ -188,7 +174,6 @@ class Analysis:
             wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
             Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
             Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
-            print(Analysis.inputs.metadata_path)
 
             # 
             # get annotation
