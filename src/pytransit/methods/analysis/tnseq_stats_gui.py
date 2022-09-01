@@ -17,6 +17,7 @@ from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
 from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.console_tools as console_tools
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
@@ -127,10 +128,9 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(cls, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-        transit_tools.handle_help_flag(kwargs, cls.usage_string)
-        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
+    def from_args(cls, args, kwargs):
+        console_tools.handle_help_flag(kwargs, cls.usage_string)
+        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
         normalization = kwargs.get("n", "nonorm") 
         output_path = kwargs.get("o", None)

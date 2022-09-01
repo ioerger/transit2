@@ -103,14 +103,13 @@ class CorrplotMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         if not HAS_R:
             raise Exception(f'''
                 Error: R and rpy2 (~= 3.0) required to run corrplot.
                 After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"
             ''')
         
-        (args, kwargs) = transit_tools.clean_args(rawargs)
         if kwargs.get("-help", False):
             print(self.usage_string)
             sys.exit(0)
@@ -120,9 +119,9 @@ class CorrplotMethod(base.SingleConditionMethod):
         self.gene_means = args[0]
         self.outfile = args[1]
         self.filetype = "gene_means"
-        if "-anova" in rawargs:
+        if "-anova" in kwargs or "anova" in kwargs:
             self.filetype = "anova"
-        if "-zinb" in rawargs:
+        if "-zinb" in kwargs or "zinb" in kwargs:
             self.filetype = "zinb"
         return self(self.gene_means, outfile=self.outfile)
 

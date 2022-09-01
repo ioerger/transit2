@@ -168,7 +168,7 @@ def write(path, *, rows, column_names=[], seperator=",", eol="\n", comment_symbo
         for each in comments:
             yield from f"{each}".replace("\r", "").split("\n")
     
-    with open(path, 'w') as the_file:
+    with open(path, 'w+') as the_file:
         # 
         # comments
         # 

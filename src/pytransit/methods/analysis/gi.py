@@ -728,9 +728,7 @@ class GIMethod(base.QuadConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
-
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
 
         # ctrl-vs-exp = condition 1-vs-2
         # originally, MAD defined order of CL args this way: strA/cond1, strB/cond1, strA/cond2, strB/cond

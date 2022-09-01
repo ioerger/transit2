@@ -100,7 +100,7 @@ class ZinbMethod(base.MultiConditionMethod):
         )  # for some reason, transit_error() in base class or transit_tools doesn't work right; needs @classmethod
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         from pytransit.tools.transit_tools import DEBUG
         if not HAS_R:
             print("Error: R and rpy2 (~= 3.0) required to run ZINB analysis.")
@@ -108,8 +108,6 @@ class ZinbMethod(base.MultiConditionMethod):
                 "After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\""
             )
             sys.exit(0)
-
-        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
             print(ZinbMethod.usage_string)
@@ -150,11 +148,12 @@ class ZinbMethod(base.MultiConditionMethod):
 
         # check for unrecognized flags
         flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --condition --covars --interactions --gene --ref --prot_table -winz".split()
-        for arg in rawargs:
-            if arg[0] == "-" and arg not in flags:
-                self.transit_error("flag unrecognized: %s" % arg)
-                print(ZinbMethod.usage_string)
-                sys.exit(0)
+        import pytransit.tools.console_tools as console_tools
+        console_tools.handle_unrecognized_flags(
+            flags,
+            kwargs,
+            self.usage_string,
+        )
 
         return self(
             combined_wig,

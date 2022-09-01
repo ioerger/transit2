@@ -111,11 +111,9 @@ class NormalizeMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         from pytransit.tools.console_tools import InvalidArgumentException
         
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-
         isCombinedWig = "c" in kwargs
         if (not isCombinedWig and len(args) < 2) or (isCombinedWig and len(args) < 1):
             raise InvalidArgumentException("Must provide all necessary arguments")

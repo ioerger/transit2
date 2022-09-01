@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-python3 ./src/transit.py anova \
-    /Users/jeffhykin/repos/transit/src/pytransit/data/cholesterol_glycerol_combined.dat \
-    /Users/jeffhykin/repos/transit/src/pytransit/data/samples_metadata_cg.txt \
-    /Users/jeffhykin/repos/transit/src/pytransit/genomes/H37Rv.prot_table \
-    /Users/jeffhykin/repos/transit/src/pytransit/genomes/anova.test.dat

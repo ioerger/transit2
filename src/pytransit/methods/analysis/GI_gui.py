@@ -24,6 +24,7 @@ import pytransit
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.components.file_display as file_display
 import pytransit.tools.transit_tools as transit_tools
+import pytransit.tools.console_tools as console_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
@@ -177,10 +178,9 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(cls, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-        transit_tools.handle_help_flag(kwargs, cls.usage_string)
-        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
+    def from_args(cls, args, kwargs):
+        console_tools.handle_help_flag(kwargs, cls.usage_string)
+        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
         normalization = kwargs.get("n", "nonorm") 
         output_path = kwargs.get("o", None)

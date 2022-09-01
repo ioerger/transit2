@@ -129,8 +129,7 @@ class PathwayMethod(base.AnalysisMethod):
         pass
 
     @classmethod
-    def from_args(self, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
         resamplingFile = args[0]
         associations = args[1]
         pathways = args[2]
