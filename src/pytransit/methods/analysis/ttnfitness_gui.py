@@ -57,8 +57,8 @@ class Analysis:
     # -n for normalization?
     ]
 
-    usage_string = f"""usage: python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel output file> <output1 file> <output2 file>""" # the old way, with multiple wigs as input
-    #usage_string = f"""usage: python3 %s ttnfitness <combined_wig> <sample_metadata> <condition> <gumbel_output_file> <genome .fna> <annotation .prot_table> <gumbel output file> <genes_output_file> <sites_output_file>"""
+    usage_string = f"""usage: python3 %s ttnfitness_gui <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
+    #usage_string = f"""usage: python3 %s ttnfitness <combined_wig> <sample_metadata> <condition> <gumbel_output_file> <genome .fna> <annotation .prot_table> <gumbel output file> <genes_output_file> <sites_output_file>""" # add '-c' to indicate combined_wig?
     
     wxobj = None
     panel = None
@@ -185,7 +185,8 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
-      # usage: python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel output file> <output1 file> <output2 file>""" # the old way, with multiple wigs as input
+
+      if len(args)!=6: print(cls.usage_string); sys.exit(0) # use transit_error()?
 
       Analysis.inputs.update(dict(
         combined_wig = None,
