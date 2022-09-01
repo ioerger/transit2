@@ -95,11 +95,12 @@ def create_results_area(frame):
     
         @results.table.events.on_select
         def _(event):
-            row = results.table.rows[event.GetIndex()]
-            dropdown_options_for_row = row.get("__dropdown_options", None)
-            if isinstance(dropdown_options_for_row, dict):
-                # attach all their callbacks to the dropdown
-                change_file_action_choices(dropdown_options_for_row)
+            with gui_tools.nice_error_log:
+                row = results.table.rows[event.GetIndex()]
+                dropdown_options_for_row = row.get("__dropdown_options", None)
+                if isinstance(dropdown_options_for_row, dict):
+                    # attach all their callbacks to the dropdown
+                    change_file_action_choices(dropdown_options_for_row)
             
         results_sizer.Add(
             results.table.wx_object,
@@ -112,49 +113,52 @@ def create_results_area(frame):
 
 
 def change_file_action_choices(new_choices):
-    new_choices = {
-        "[None]": lambda event: None, # always have a none option, and always make it the first option
-        **new_choices,
-    }
-    
-    # hide the old one before showing the new one
-    if results.file_action_choice_element != None:
-        results.file_action_choice_element.Hide()
-    
-    results.file_action_choice_element = wx.Choice(
-        universal.frame,
-        wx.ID_ANY,
-        wx.DefaultPosition,
-        wx.DefaultSize,
-        list(new_choices.keys()),
-        0,
-    )
-    results.file_action_choice_element.SetSelection(0)
-    results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
-    
-    @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
-    def _(event):
-        choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
-        # run the callback that corrisponds the the choice
-        new_choices[choice](event)
+    with gui_tools.nice_error_log:
+        new_choices = {
+            "[None]": lambda event: None, # always have a none option, and always make it the first option
+            **new_choices,
+        }
+        
+        # hide the old one before showing the new one
+        if results.file_action_choice_element != None:
+            results.file_action_choice_element.Hide()
+        
+        results.file_action_choice_element = wx.Choice(
+            universal.frame,
+            wx.ID_ANY,
+            wx.DefaultPosition,
+            wx.DefaultSize,
+            list(new_choices.keys()),
+            0,
+        )
+        results.file_action_choice_element.SetSelection(0)
+        results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
+        results.header.Layout()
+        
+        @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
+        def _(event):
+            choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
+            # run the callback that corrisponds the the choice
+            new_choices[choice](event)
     
 
 def add(path):
-    # if not a recognized file type
-    values_for_result_table = dict(
-        name=basename(path),
-        type="Unknown",
-        path=path,
-    )
-    # if recognized
-    result_object = read_result(path)
-    if result_object:
-        values_for_result_table = result_object.values_for_result_table
-    
-    if universal.interface == "gui" and HAS_WX:
-        print(f'''result_object = {result_object}''')
-        print(f'''values_for_result_table = {values_for_result_table}''')
-        results.table.add(values_for_result_table)
+    with gui_tools.nice_error_log:
+        # if not a recognized file type
+        values_for_result_table = dict(
+            name=basename(path),
+            type="Unknown",
+            path=path,
+        )
+        # if recognized
+        result_object = read_result(path)
+        if result_object:
+            values_for_result_table = result_object.values_for_result_table
+        
+        if universal.interface == "gui" and HAS_WX:
+            print(f'''result_object = {result_object}''')
+            print(f'''values_for_result_table = {values_for_result_table}''')
+            results.table.add(values_for_result_table)
 # 
 # 
 # helpers
@@ -192,7 +196,7 @@ def file_action_func(event):
         transit_tools.show_error_dialog("Please select a results file to plot!")
 
 def graph_gene_counts(dataset_name, dataset_type, dataset_path):
-    try:
+    with gui_tools.nice_error_log:
         if dataset_type == "Resampling":
             X = []
             with open(dataset_path) as file:
@@ -219,11 +223,6 @@ def graph_gene_counts(dataset_name, dataset_type, dataset_path):
             plt.show()
         else:
             transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
-
-    except Exception as e:
-        transit_tools.log("Error occurred creating plot: %s" % str(e))
-        traceback.print_exc()
-
 
 def graph_ranked_zbar(dataset_name, dataset_type, dataset_path):
     try:

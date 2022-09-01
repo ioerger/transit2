@@ -800,7 +800,7 @@ class File(Analysis):
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows, sort_by=[ "Adj. p-value", "p-value" ]).Show(),
-                # "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
             })
         )
         
@@ -830,21 +830,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def display_histogram(self, displayFrame, event):
-        pass
-        # gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
-        # filepath = os.path.join(
-        #     ntpath.dirname(displayFrame.path),
-        #     transit_tools.fetch_name(displayFrame.path),
-        # )
-        # filename = os.path.join(filepath, gene + ".png")
-        # if os.path.exists(filename):
-        #     imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
-        #     imgWindow.Show()
-        # else:
-        #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-        #     print("Error Displaying File. Histogram image does not exist.")
-
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         if not HAS_R:
             raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
@@ -902,14 +887,19 @@ class File(Analysis):
         results_area.add(output_path)
         gui_tools.show_image(output_path)
 
-    def graph_volcano_plot(self, dataset_name, dataset_type, dataset_path):
-        try:
+    def graph_volcano_plot(self):
+        with gui_tools.nice_error_log:
+            try: import matplotlib.pyplot as plt
+            except:
+                print("Error: cannot do histograms")
+                self.inputs.do_histogram = False
+                
             log10_adjusted_p_values = []
             log2_fc_values    = [ each_row["log2FC"]       for each_row in self.rows ]
             adjusted_p_values = [ each_row["Adj. p-value"] for each_row in self.rows ]
             q_and_p_values_list = []
             for row_index, (each_adjusted_p_value, each_row) in enumerate(zip(adjusted_p_values, self.rows)):
-                q_value = each_row[-1] # FIXME: this doesn't seem right, but its what was in the code originally
+                q_value = list(each_row.values())[-1] # FIXME: this doesn't seem right, but its what was in the code originally
                 try:
                     log10_p_value = -math.log(float(each_adjusted_p_value), 10)
                 except ValueError as e:
@@ -924,7 +914,7 @@ class File(Analysis):
             good_values = [ each for each in log10_adjusted_p_values if each is not None ]
             max_log10_adjusted_p_values = max(good_values)
             # replace None values with max value
-            log10_adjusted_p_values = [ (each if each is not None else max_log10_adjusted_p_values) in log10_adjusted_p_values ]
+            log10_adjusted_p_values = [ (each if each is not None else max_log10_adjusted_p_values) for each in log10_adjusted_p_values ]
             
             # 
             # compute threshold (q_and_p_values_list, )
@@ -954,9 +944,6 @@ class File(Analysis):
             plt.suptitle("Resampling - Volcano plot")
             plt.title("Adjusted threshold (red line): %1.8f" % threshold)
             plt.show()
-
-        except Exception as e:
-            print("Error occurred creating plot:", str(e))
 
 class ResamplingFile(base.TransitFile):
     def __init__(self):
