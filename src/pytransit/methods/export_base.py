@@ -54,7 +54,7 @@ class ExportMethod:
         raise NotImplementedError
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         raise NotImplementedError
 
     def Run(self):

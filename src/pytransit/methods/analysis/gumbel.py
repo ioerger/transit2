@@ -372,9 +372,7 @@ class GumbelMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
-
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
 
         ctrldata = args[0].split(",")
         annotationPath = args[1]

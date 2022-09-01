@@ -126,8 +126,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
 
         if len(args) != 3:  # wigs prot_table output
             print("Error: Incorrect number of args. See usage")

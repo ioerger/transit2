@@ -103,15 +103,14 @@ class HeatmapMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         if not HAS_R:
             raise Exception(f'''
                 Error: R and rpy2 (~= 3.0) required to run corrplot.
                 After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"
             ''')
         
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-        if len(rawargs) < 3:
+        if len(args) < 3:
             print(self.usage_string)
             sys.exit(-1)
 

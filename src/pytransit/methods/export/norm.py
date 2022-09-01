@@ -106,10 +106,8 @@ class NormMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         from pytransit.tools.console_tools import InvalidArgumentException
-        
-        (args, kwargs) = transit_tools.clean_args(rawargs)
         if len(args) < 3:
             raise InvalidArgumentException("Must provide all necessary arguments")
 

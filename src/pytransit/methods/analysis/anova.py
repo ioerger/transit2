@@ -17,6 +17,7 @@ import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
+import pytransit.tools.console_tools as console_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
@@ -178,10 +179,9 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(cls, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
-        transit_tools.handle_help_flag(kwargs, cls.usage_string)
-        transit_tools.handle_unrecognized_flags(cls.valid_cli_flags, rawargs, cls.usage_string)
+    def from_args(cls, args, kwargs):
+        console_tools.handle_help_flag(kwargs, cls.usage_string)
+        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
         combined_wig      = args[0]
         annotation_path   = args[2]
