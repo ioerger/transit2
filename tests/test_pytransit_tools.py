@@ -22,8 +22,6 @@ import pytransit.tools.transit_tools as transit_tools
 
 
 class TestTnSeqTools(TransitTestCase):
-
-
     def test_read_data(self):
         data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         K,N = data.shape
@@ -66,14 +64,11 @@ class TestTnSeqTools(TransitTestCase):
         self.assertEqual(G[0].orf, test_orf)
         self.assertEqual(G[0].name, test_name)
 
-
     def test_file_types(self):
         types = tnseq_tools.get_file_types(all_data_list)
         types = set(types)
         self.assertEqual(len(types), 1)
         self.assertTrue("himar1" in types)
-
-#
 
     def test_normalization(self):
         N = len(all_data_list)
@@ -81,42 +76,30 @@ class TestTnSeqTools(TransitTestCase):
         norm_data,factors = norm_tools.normalize_data(data, "TTR")
         self.assertFalse((factors == numpy.ones(N)).all())
 
-#
-
     def test_clean_args_negative_arguments(self):
         TEST_RAWARGS = ["test", "-p", "-10"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(int(kwargs.get("p",0)), -10)
-
-#
 
     def test_clean_args_flag_without_arguments(self):
         TEST_RAWARGS = ["test", "-p"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertTrue(kwargs.get("p",False))
 
-#
-
     def test_clean_args_positional_arguments(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "e"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(args, ["a", "b", "c", "e"])
-
-#
 
     def test_clean_args_positional_arguments_w_quotes(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(args, ["a", "b", "c", "test this"])
 
-#
-
     def test_clean_args_flag_arguments_w_quotes(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "-p", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(kwargs.get("p"), "test this")
-
-#
 
     def test_clean_args_flag_arguments_with_double_dash(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "--p", "test this"]
@@ -124,9 +107,6 @@ class TestTnSeqTools(TransitTestCase):
         self.assertFalse("p" in kwargs)
         self.assertFalse("--p" in kwargs)
         self.assertTrue("-p" in kwargs)
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
