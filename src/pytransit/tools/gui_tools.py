@@ -47,26 +47,54 @@ def set_status(message):
         frame.status_bar.SetStatusText(message)
         wx.Yield()
 
-def ask_for_files(message):
-    import os
-    frame = universal.frame
-    file_dialog = wx.FileDialog(
-        frame,
-        message=message,
-        defaultDir=os.getcwd(),
-        defaultFile="",
-        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-    )
-    output = None
-    if file_dialog.ShowModal() == wx.ID_OK:
-        output = list(file_dialog.GetPaths())
-    file_dialog.Destroy()
-    return output
+def ask_for_files(
+        message, 
+        *,
+        default_folder=None,
+        default_file_name="",
+        allowed_extensions='All files (*.*)|*.*',
+    ):
+        import os
+        output = []
+        file_dialog = wx.FileDialog(
+            universal.frame,
+            message=message,
+            defaultDir=default_folder or os.getcwd(),
+            defaultFile=default_file_name,
+            wildcard=allowed_extensions,
+            style=wx.FD_MULTIPLE | wx.FD_SHOW_HIDDEN | wx.FD_OPEN,
+        )
+        if file_dialog.ShowModal() == wx.ID_OK:
+            output = list(file_dialog.GetPaths())
+        file_dialog.Destroy()
+        return output
+
+def ask_for_file(
+        message, 
+        *,
+        default_folder=None,
+        default_file_name="",
+        allowed_extensions='All files (*.*)|*.*',
+    ):
+        
+        path = None
+        file_dialog = wx.FileDialog(
+            universal.frame,
+            message=message,
+            defaultDir=default_folder or os.getcwd(),
+            defaultFile=default_file_name,
+            wildcard=allowed_extensions,
+            style=wx.FD_SHOW_HIDDEN | wx.FD_OPEN,
+        )
+        if file_dialog.ShowModal() == wx.ID_OK:
+            path = file_dialog.GetPath()
+        file_dialog.Destroy()
+        return path
 
 def ask_for_output_file_path(
         default_folder=None,
         default_file_name="",
-        output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+        output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
     ):
         path = None
         if not default_folder:
