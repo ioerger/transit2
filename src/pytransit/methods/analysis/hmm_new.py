@@ -26,11 +26,11 @@ import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
 import pytransit.basics.csv as csv
+import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
-from pytransit.components.samples_area import sample_table
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button, create_choice_input
 command_name = sys.argv[0]
@@ -140,7 +140,7 @@ class Analysis:
         if True:
             self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
             self.value_getters.replicates             = create_choice_input(self.panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-            self.value_getters.selected_wig_id        = create_choice_input(self.panel, main_sizer, label="Wig data:", options=[ each["id"] for each in sample_table.selected_rows ])
+            self.value_getters.selected_wig_id        = create_choice_input(self.panel, main_sizer, label="Wig data:", options=[ each["id"] for each in samples_area.sample_table.rows ])
             self.value_getters.condition              = create_control_condition_input(self.panel, main_sizer)
             self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
@@ -197,7 +197,7 @@ class Analysis:
             # 
             # extract universal data
             # 
-            Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions = transit_tools.gather_sample_data_for(conditions=[ self.value_getters.condition() ])
+            Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions = transit_tools.gather_sample_data_for(conditions=[ Analysis.instance.value_getters.condition() ])
             
             return Analysis.instance
 
@@ -236,7 +236,7 @@ class Analysis:
 
     def Run(self):
         with gui_tools.nice_error_log:
-            self.maxiterations = 100 # TODO: calculate this properly
+            self.max_iterations = len(Analysis.inputs.ctrl_positions) * 4 + 1 # FIXME: I'm not sure this is right -- Jeff
             self.count = 1
             transit_tools.log("Starting HMM Method")
             start_time = time.time()
@@ -248,7 +248,7 @@ class Analysis:
             if self.inputs.normalization != "nonorm":
                 transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
                 (data, factors) = norm_tools.normalize_data(
-                    data, self.inputs.normalization, [], self.inputs.annotation_path
+                    data, self.inputs.normalization, annotationPath=self.inputs.annotation_path,
                 )
 
             # Do loess
@@ -457,7 +457,7 @@ class Analysis:
             if numpy.sum(alpha[:, t]) == 0:
                 alpha[:, t] = 0.0000000000001
 
-            percentage = (100.0 * self.count / self.maxiterations)
+            percentage = (100.0 * self.count / self.max_iterations)
             text = "Running HMM Method... %1.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
@@ -490,7 +490,7 @@ class Analysis:
             if C.any():
                 beta[:, t] = beta[:, t] * C[t]
             
-            percentage = (100.0 * self.count / self.maxiterations)
+            percentage = (100.0 * self.count / self.max_iterations)
             text = "Running HMM Method... %1.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
@@ -516,7 +516,7 @@ class Analysis:
             delta[:, t] = nus.max(1) + numpy.log(b_o)
             Q[:, t] = nus.argmax(1)
             
-            percentage = (100.0 * self.count / self.maxiterations)
+            percentage = (100.0 * self.count / self.max_iterations)
             text = "Running HMM Method... %5.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
@@ -526,14 +526,14 @@ class Analysis:
         for t in range(T - 2, -1, -1):
             Q_opt.insert(0, Q[Q_opt[0], t + 1])
 
-            percentage = (100.0 * self.count / self.maxiterations)
+            percentage = (100.0 * self.count / self.max_iterations)
             text = "Running HMM Method... %5.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
 
         numpy.seterr(divide="warn")
-        percentage = (100.0 * self.count / self.maxiterations)
+        percentage = (100.0 * self.count / self.max_iterations)
         text = "Running HMM Method... %5.1f%%" % percentage
         if self.count % 1000 == 0:
             progress_update(text, percentage)
@@ -560,7 +560,7 @@ class Analysis:
             pos2state = dict([(position[t], states[t]) for t in range(len(states))])
             theta = numpy.mean(data > 0)
             G = tnseq_tools.Genes(
-                CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
+                tnseq_tools.CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
                 self.inputs.annotation_path,
                 data=data,
                 position=position,

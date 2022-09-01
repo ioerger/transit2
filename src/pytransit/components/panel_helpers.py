@@ -135,7 +135,7 @@ if True:
         if len(options) == 0:
             options.append("")
         if default_option is None:
-            default_option = options
+            default_option = options[0]
         # 
         # create box
         # 
@@ -151,7 +151,7 @@ if True:
         )
         sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
-        wxobj.SetSelection(wxobj.FindString(default))
+        wxobj.SetSelection(wxobj.FindString(default_option))
         return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
         
     def define_text_box(

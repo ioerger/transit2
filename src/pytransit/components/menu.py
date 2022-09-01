@@ -435,10 +435,8 @@ def create_menu(frame):
                             each_method = analysis_methods[each_method_name]
                             if each_method.gui.panel:
                                 each_method.gui.panel.Hide()
-                        try:
+                        with gui_tools.nice_error_log:
                             the_method.gui.define_panel(frame)
-                        except Exception as error:
-                            transit_tools.log(f"Tried to define panel for {the_full_name} but it failed: {error}")
                         return method_select_func(the_full_name, event)
                     return load_method_wrapper
                 

@@ -7,6 +7,7 @@ from .griffin            import Analysis; methods["griffin"           ] = Analys
 from .gumbel             import Analysis; methods["gumbel"            ] = Analysis()
 from .heatmap            import Analysis; methods["heatmap"           ] = Analysis()
 from .hmm                import Analysis; methods["hmm"               ] = Analysis()
+from .hmm_new            import Analysis; methods["hmm_new"           ] = Analysis()
 from .normalize          import Analysis; methods["normalize"         ] = Analysis()
 from .pathway_enrichment import Analysis; methods["pathway_enrichment"] = Analysis()
 from .rankproduct        import Analysis; methods["rankproduct"       ] = Analysis()
