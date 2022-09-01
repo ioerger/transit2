@@ -19,7 +19,6 @@ from pytransit.basics.misc import flatten_once, no_duplicates
 
 class SessionData(LazyDict):
     annotation_path = f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table" # FIXME: default value is for debugging only
-    standalone_wigs = []
     combined_wigs = []
     
     @property
