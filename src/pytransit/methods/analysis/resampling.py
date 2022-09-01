@@ -369,7 +369,7 @@ class Analysis:
                 )
                 condition_names = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
                 datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
-                    data, condition_names, self.inputs.combined_wig_params["conditions"]
+                    data, condition_names, self.inputs.combined_wig_params["conditions"],
                 )
                 control_condition = self.inputs.combined_wig_params["conditions"][0]
                 experimental_condition = self.inputs.combined_wig_params["conditions"][1]
@@ -393,7 +393,6 @@ class Analysis:
                     self.inputs.ctrldata, wxobj=self.wxobj
                 )
                 (data_ctrl, position_ctrl, *_) = output
-                print(f'''self.inputs.expdata = {self.inputs.expdata}''')
                 (data_exp, position_exp) = transit_tools.get_validated_data(
                     self.inputs.expdata, wxobj=self.wxobj
                 )
