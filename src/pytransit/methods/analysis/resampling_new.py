@@ -19,6 +19,7 @@ from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 import pytransit
 import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.console_tools as console_tools
 import pytransit.components.file_display as file_display
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
@@ -231,8 +232,7 @@ class Analysis:
             return Analysis.instance
 
     @classmethod
-    def from_args(self, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
 
         isCombinedWig = True if kwargs.get("c", False) else False
         combined_wig_params = None
@@ -272,14 +272,11 @@ class Analysis:
         winz = True if "winz" in kwargs else False
 
         # check for unrecognized flags
-        flags = (
-            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split()
+        console_tools.handle_unrecognized_flags(
+            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split(),
+            kwargs,
+            self.usage_string,
         )
-        for arg in rawargs:
-            if arg[0] == "-" and arg not in flags:
-                self.transit_error("flag unrecognized: %s" % arg)
-                print(self.usage_string)
-                sys.exit(0)
 
         normalization = kwargs.get("n", "TTR")
         samples = int(kwargs.get("s", 10000))

@@ -1,11 +1,11 @@
 #GI_gui
-#parameters: norm=TTR, samples=100, includeZeros=False, output=b'/Users/jeffhykin/repos/transit/src/pytransit/GI_test.dat'
+#parameters: norm=TTR, samples=100, includeZeros=False, output=b'./src/pytransit/GI_test.dat'
 #Date: 2022-08-24 13:22:56
 #Strain A, Condition 1): Input: macrophages.comwig,macrophages.comwig,macrophages.comwig,macrophages.comwig
 #Strain A, Condition 2): Tcell: macrophages.comwig,macrophages.comwig,macrophages.comwig,macrophages.comwig
 #Strain B, Condition 1): Untreated: macrophages.comwig,macrophages.comwig,macrophages.comwig
 #Strain B, Condition 2): Rapa: macrophages.comwig,macrophages.comwig,macrophages.comwig
-#Annotation path: b'/Users/jeffhykin/repos/transit/src/pytransit/data.ignore/H37RvBD1_short.prot_table'
+#Annotation path: b'./src/pytransit/data.ignore/H37RvBD1_short.prot_table'
 #ROPE=0.5, method for significance=HDI
 #Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE
 #ORF	Name	Number of TA Sites	Mean count (Strain A Condition 1)	Mean count (Strain A Condition 2)	Mean count (Strain B Condition 1)	Mean count (Strain B Condition 2)	Mean logFC (Strain A)	Mean logFC (Strain B) 	Mean delta logFC	Lower Bound delta logFC	Upper Bound delta logFC	Is HDI outside ROPE?	Prob. of delta-logFC being within ROPE	un-Adjusted Probability	Type of Interaction

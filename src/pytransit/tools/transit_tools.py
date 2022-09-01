@@ -720,17 +720,6 @@ def get_samples_metadata(metadata):
                     data[header[i]].append(w[i])
     return data
 
-def handle_help_flag(kwargs, usage_string):
-    if kwargs.get("-help", False) or kwargs.get("h", False):
-        print(usage_string)
-        sys.exit(0)
-
-def handle_unrecognized_flags(flags, rawargs, usage_string):
-    for arg in rawargs:
-        if arg[0] == "-" and arg not in flags:
-            raise Exception(f'''unrecognized flag: {arg}\n\n{usage_string}''')
-
-
 def winsorize(counts):
     # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
     unique_counts = numpy.unique(numpy.concatenate(counts))

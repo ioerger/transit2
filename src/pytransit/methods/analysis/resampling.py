@@ -20,6 +20,7 @@ import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
+import pytransit.tools.console_tools as console_tools
 
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
 
@@ -427,9 +428,7 @@ class ResamplingMethod(base.DualConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
-
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
 
         isCombinedWig = True if kwargs.get("c", False) else False
         combinedWigParams = None
@@ -471,14 +470,11 @@ class ResamplingMethod(base.DualConditionMethod):
         output_file = open(output_path, "w")
 
         # check for unrecognized flags
-        flags = (
-            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split()
+        console_tools.handle_unrecognized_flags(
+            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split(),
+            kwargs,
+            self.usage_string,
         )
-        for arg in rawargs:
-            if arg[0] == "-" and arg not in flags:
-                self.transit_error("flag unrecognized: %s" % arg)
-                print(ZinbMethod.usage_string)
-                sys.exit(0)
 
         normalization = kwargs.get("n", "TTR")
         samples = int(kwargs.get("s", 10000))

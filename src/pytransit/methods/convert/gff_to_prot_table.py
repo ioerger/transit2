@@ -78,8 +78,7 @@ class GffProtMethod(base.ConvertMethod):
         return self(annotationPath, output_file, wxobj)
 
     @classmethod
-    def from_args(self, rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(self, args, kwargs):
         if len(args) < 2:
             print("Error: Please specify Input and Output paths")
             print(self.usage_string)

@@ -95,11 +95,12 @@ def create_results_area(frame):
     
         @results.table.events.on_select
         def _(event):
-            row = results.table.rows[event.GetIndex()]
-            dropdown_options_for_row = row.get("__dropdown_options", None)
-            if isinstance(dropdown_options_for_row, dict):
-                # attach all their callbacks to the dropdown
-                change_file_action_choices(dropdown_options_for_row)
+            with gui_tools.nice_error_log:
+                row = results.table.rows[event.GetIndex()]
+                dropdown_options_for_row = row.get("__dropdown_options", None)
+                if isinstance(dropdown_options_for_row, dict):
+                    # attach all their callbacks to the dropdown
+                    change_file_action_choices(dropdown_options_for_row)
             
         results_sizer.Add(
             results.table.wx_object,
@@ -112,49 +113,52 @@ def create_results_area(frame):
 
 
 def change_file_action_choices(new_choices):
-    new_choices = {
-        "[None]": lambda event: None, # always have a none option, and always make it the first option
-        **new_choices,
-    }
-    
-    # hide the old one before showing the new one
-    if results.file_action_choice_element != None:
-        results.file_action_choice_element.Hide()
-    
-    results.file_action_choice_element = wx.Choice(
-        universal.frame,
-        wx.ID_ANY,
-        wx.DefaultPosition,
-        wx.DefaultSize,
-        list(new_choices.keys()),
-        0,
-    )
-    results.file_action_choice_element.SetSelection(0)
-    results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
-    
-    @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
-    def _(event):
-        choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
-        # run the callback that corrisponds the the choice
-        new_choices[choice](event)
+    with gui_tools.nice_error_log:
+        new_choices = {
+            "[None]": lambda event: None, # always have a none option, and always make it the first option
+            **new_choices,
+        }
+        
+        # hide the old one before showing the new one
+        if results.file_action_choice_element != None:
+            results.file_action_choice_element.Hide()
+        
+        results.file_action_choice_element = wx.Choice(
+            universal.frame,
+            wx.ID_ANY,
+            wx.DefaultPosition,
+            wx.DefaultSize,
+            list(new_choices.keys()),
+            0,
+        )
+        results.file_action_choice_element.SetSelection(0)
+        results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
+        results.header.Layout()
+        
+        @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
+        def _(event):
+            choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
+            # run the callback that corrisponds the the choice
+            new_choices[choice](event)
     
 
 def add(path):
-    # if not a recognized file type
-    values_for_result_table = dict(
-        name=basename(path),
-        type="Unknown",
-        path=path,
-    )
-    # if recognized
-    result_object = read_result(path)
-    if result_object:
-        values_for_result_table = result_object.values_for_result_table
-    
-    if universal.interface == "gui" and HAS_WX:
-        print(f'''result_object = {result_object}''')
-        print(f'''values_for_result_table = {values_for_result_table}''')
-        results.table.add(values_for_result_table)
+    with gui_tools.nice_error_log:
+        # if not a recognized file type
+        values_for_result_table = dict(
+            name=basename(path),
+            type="Unknown",
+            path=path,
+        )
+        # if recognized
+        result_object = read_result(path)
+        if result_object:
+            values_for_result_table = result_object.values_for_result_table
+        
+        if universal.interface == "gui" and HAS_WX:
+            print(f'''result_object = {result_object}''')
+            print(f'''values_for_result_table = {values_for_result_table}''')
+            results.table.add(values_for_result_table)
 # 
 # 
 # helpers
@@ -180,9 +184,7 @@ def file_action_func(event):
                 % (plot_name, dataset_name)
             )
 
-        if plot_name == "Create a Volcano Plot":
-            graph_volcano_plot(dataset_name, dataset_type, dataset_path)
-        elif plot_name == "Plot Histogram of logFC of Gene Counts":
+        if plot_name == "Plot Histogram of logFC of Gene Counts":
             graph_gene_counts(dataset_name, dataset_type, dataset_path)
         elif plot_name == "Plot Ranked Probability of Essentiality":
             graph_ranked_zbar(dataset_name, dataset_type, dataset_path)
@@ -194,7 +196,7 @@ def file_action_func(event):
         transit_tools.show_error_dialog("Please select a results file to plot!")
 
 def graph_gene_counts(dataset_name, dataset_type, dataset_path):
-    try:
+    with gui_tools.nice_error_log:
         if dataset_type == "Resampling":
             X = []
             with open(dataset_path) as file:
@@ -221,92 +223,6 @@ def graph_gene_counts(dataset_name, dataset_type, dataset_path):
             plt.show()
         else:
             transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
-
-    except Exception as e:
-        transit_tools.log("Error occurred creating plot: %s" % str(e))
-        traceback.print_exc()
-
-
-def graph_volcano_plot(dataset_name, dataset_type, dataset_path):
-    try:
-        if dataset_type == "Resampling":
-            X = []
-            Y = []
-            header = []
-            qval_list = []
-            bad = []
-            col_logFC = -6
-            col_pval = -2
-            col_qval = -1
-            ii = 0
-            with open(dataset_path) as file:
-                for line in file:
-                    if line.startswith("#"):
-                        tmp = line.split("\t")
-                        temp_col_logfc = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if "logfc" in x.lower()
-                            or "log-fc" in x.lower()
-                            or "log2fc" in x.lower()
-                        ]
-                        temp_col_pval = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if ("pval" in x.lower() or "p-val" in x.lower())
-                            and "adj" not in x.lower()
-                        ]
-                        if temp_col_logfc:
-                            col_logFC = temp_col_logfc[-1]
-                        if temp_col_pval:
-                            col_pval = temp_col_pval[-1]
-                        continue
-
-                    tmp = line.strip().split("\t")
-                    try:
-                        log10qval = -math.log(float(tmp[col_pval].strip()), 10)
-                    except ValueError as e:
-                        bad.append(ii)
-                        log10qval = 0
-
-                    log2FC = float(tmp[col_logFC])
-
-                    qval_list.append(
-                        (float(tmp[col_qval]), float(tmp[col_pval].strip()))
-                    )
-                    X.append(log2FC)
-                    Y.append(log10qval)
-                    ii += 1
-            count = 0
-            threshold = 0.00001
-            backup_thresh = 0.00001
-            qval_list.sort()
-            for (q, p) in qval_list:
-                backup_thresh = p
-                if q > 0.05:
-                    break
-                threshold = p
-                count += 1
-
-            if threshold == 0:
-                threshold = backup_thresh
-            for ii in bad:
-                Y[ii] = max(Y)
-            plt.plot(X, Y, "bo")
-            plt.axhline(
-                -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3
-            )
-            plt.xlabel("Log Fold Change (base 2)")
-            plt.ylabel("-Log p-value (base 10)")
-            plt.suptitle("Resampling - Volcano plot")
-            plt.title("Adjusted threshold (red line): %1.8f" % threshold)
-            plt.show()
-        else:
-            transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
-
-    except Exception as e:
-        print("Error occurred creating plot:", str(e))
-
 
 def graph_ranked_zbar(dataset_name, dataset_type, dataset_path):
     try:

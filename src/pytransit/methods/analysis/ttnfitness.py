@@ -175,9 +175,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_args(self, rawargs):
+    def from_args(self, args, kwargs):
         import statsmodels.api as sm
-        (args, kwargs) = transit_tools.clean_args(rawargs)
 
         ctrldata = args[0].split(",")
         annotationPath = args[1]
