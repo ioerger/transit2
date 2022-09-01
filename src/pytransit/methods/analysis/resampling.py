@@ -276,7 +276,7 @@ class Analysis:
         console_tools.handle_unrecognized_flags(
             "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split(),
             kwargs,
-            self.usage_string,
+            Analysis.usage_string,
         )
 
         normalization = kwargs.get("n", "TTR")
@@ -320,7 +320,8 @@ class Analysis:
             winz=winz,
             Z=Z,
             diff_strains=diff_strains,
-            annotation_path_exp=annotation_path_exp if diff_strains else annotation_path,
+            annotation_path=annotation_path,
+            annotation_path_exp=annotation_path,
             combined_wig_params=combined_wig_params,
         ))
         return Analysis.instance
@@ -392,6 +393,7 @@ class Analysis:
                     self.inputs.ctrldata, wxobj=self.wxobj
                 )
                 (data_ctrl, position_ctrl, *_) = output
+                print(f'''self.inputs.expdata = {self.inputs.expdata}''')
                 (data_exp, position_exp) = transit_tools.get_validated_data(
                     self.inputs.expdata, wxobj=self.wxobj
                 )
@@ -420,7 +422,7 @@ class Analysis:
             )
             G_exp = tnseq_tools.Genes(
                 self.inputs.expdata,
-                self.inputs.annotation_path_exp,
+                self.inputs.annotation_path_exp or self.inputs.annotation_path,
                 ignore_codon=self.inputs.ignore_codon,
                 n_terminus=self.inputs.n_terminus,
                 c_terminus=self.inputs.c_terminus,
