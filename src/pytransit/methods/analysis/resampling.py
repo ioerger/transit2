@@ -902,72 +902,53 @@ class File(Analysis):
         results_area.add(output_path)
         gui_tools.show_image(output_path)
 
-    def graph_volcano_plot(dataset_name, dataset_type, dataset_path):
+    def graph_volcano_plot(self, dataset_name, dataset_type, dataset_path):
         try:
-            X = []
-            Y = []
-            header = []
-            qval_list = []
-            bad = []
-            col_logFC = -6
-            col_pval = -2
-            col_qval = -1
-            ii = 0
-            with open(dataset_path) as file:
-                for line in file:
-                    if line.startswith("#"):
-                        tmp = line.split("\t")
-                        temp_col_logfc = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if "logfc" in x.lower()
-                            or "log-fc" in x.lower()
-                            or "log2fc" in x.lower()
-                        ]
-                        temp_col_pval = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if ("pval" in x.lower() or "p-val" in x.lower())
-                            and "adj" not in x.lower()
-                        ]
-                        if temp_col_logfc:
-                            col_logFC = temp_col_logfc[-1]
-                        if temp_col_pval:
-                            col_pval = temp_col_pval[-1]
-                        continue
+            log10_adjusted_p_values = []
+            log2_fc_values    = [ each_row["log2FC"]       for each_row in self.rows ]
+            adjusted_p_values = [ each_row["Adj. p-value"] for each_row in self.rows ]
+            q_and_p_values_list = []
+            for row_index, (each_adjusted_p_value, each_row) in enumerate(zip(adjusted_p_values, self.rows)):
+                q_value = each_row[-1] # FIXME: this doesn't seem right, but its what was in the code originally
+                try:
+                    log10_p_value = -math.log(float(each_adjusted_p_value), 10)
+                except ValueError as e:
+                    log10_p_value = None
+                
+                q_and_p_values_list.append( (q_value, each_adjusted_p_value))
+                log10_adjusted_p_values.append(log10_p_value)
+            
+            # 
+            # replace missing values
+            # 
+            good_values = [ each for each in log10_adjusted_p_values if each is not None ]
+            max_log10_adjusted_p_values = max(good_values)
+            # replace None values with max value
+            log10_adjusted_p_values = [ (each if each is not None else max_log10_adjusted_p_values) in log10_adjusted_p_values ]
+            
+            # 
+            # compute threshold (q_and_p_values_list, )
+            # 
+            if True:
+                count = 0
+                threshold = 0.00001
+                backup_thresh = 0.00001
+                q_and_p_values_list.sort()
+                for (q, p) in q_and_p_values_list:
+                    backup_thresh = p
+                    if q > 0.05:
+                        break
+                    threshold = p
+                    count += 1
 
-                    tmp = line.strip().split("\t")
-                    try:
-                        log10qval = -math.log(float(tmp[col_pval].strip()), 10)
-                    except ValueError as e:
-                        bad.append(ii)
-                        log10qval = 0
-
-                    log2FC = float(tmp[col_logFC])
-
-                    qval_list.append( (float(tmp[col_qval]), float(tmp[col_pval].strip())) )
-                    X.append(log2FC)
-                    Y.append(log10qval)
-                    ii += 1
-            count = 0
-            threshold = 0.00001
-            backup_thresh = 0.00001
-            qval_list.sort()
-            for (q, p) in qval_list:
-                backup_thresh = p
-                if q > 0.05:
-                    break
-                threshold = p
-                count += 1
-
-            if threshold == 0:
-                threshold = backup_thresh
-            for ii in bad:
-                Y[ii] = max(Y)
-            plt.plot(X, Y, "bo")
-            plt.axhline(
-                -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3
-            )
+                if threshold == 0:
+                    threshold = backup_thresh
+            
+            # 
+            # plot (log2_fc_values, log10_adjusted_p_values, threshold)
+            # 
+            plt.plot(log2_fc_values, log10_adjusted_p_values, "bo")
+            plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")
             plt.ylabel("-Log p-value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
