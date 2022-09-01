@@ -110,11 +110,11 @@ class Analysis:
         #  label="Genome sequence file:",value="H37Rv.fna",tooltip="For example, a .fasta or .fna file.")
 
         self.value_getters.gumbel_results_path = create_file_input(self.panel,main_sizer, \
-          button_label="Gumbel results file",default_file_name="glycerol_gumbel.out",allowed_extensions="All files (*.*)|*.*")
-          #tooltip="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
+          button_label="Gumbel results file",default_file_name="glycerol_gumbel.out",allowed_extensions="All files (*.*)|*.*", \
+          tooltip_text="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
 
         self.value_getters.genome_path = create_file_input(self.panel,main_sizer, \
-          button_label="Load genome sequence file",message="foo",default_file_name="H37Rv.fna",allowed_extensions="Fasta files (*.fna)|*.fna") # also *.fa? *.fasta?
+          button_label="Load genome sequence file",default_file_name="H37Rv.fna",allowed_extensions="Fasta files (*.fa;*.fna;*.fasta))|*.fa;*.fna;*.fasta")
 
         self.value_getters.output_basename = self.create_input_field(self.panel,main_sizer, \
           label="Basename for output files",value="ttnfitness.test",tooltip="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files.")
