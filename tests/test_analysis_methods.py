@@ -27,7 +27,7 @@ from pytransit.methods.analysis.hmm      import HMMMethod
 from pytransit.methods.analysis.zinb     import ZinbMethod
 
 # Comparative methods
-from pytransit.methods.analysis.resampling  import Analysis as ResamplingMethod
+from pytransit.methods.analysis.resampling  import ResamplingMethod
 from pytransit.methods.analysis.rankproduct import RankProductMethod
 from pytransit.methods.analysis.utest       import UTestMethod
 
