@@ -111,10 +111,13 @@ class Analysis:
 
         self.value_getters.gumbel_results_path = create_file_input(self.panel,main_sizer, \
           button_label="Gumbel results file",default_file_name="glycerol_gumbel.out",allowed_extensions="All files (*.*)|*.*", \
+          popup_title="Choose Gumbel results file", \
           tooltip_text="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
 
         self.value_getters.genome_path = create_file_input(self.panel,main_sizer, \
-          button_label="Load genome sequence file",default_file_name="H37Rv.fna",allowed_extensions="Fasta files (*.fa;*.fna;*.fasta))|*.fa;*.fna;*.fasta")
+          popup_title="Choose genome sequence file", \
+          button_label="Load genome sequence file",default_file_name="H37Rv.fna",allowed_extensions="Fasta files (*.fa;*.fna;*.fasta))|*.fa;*.fna;*.fasta", \
+          tooltip_text="Genome sequence file (.fna) must match annotation file (.prot_table)")
 
         self.value_getters.output_basename = self.create_input_field(self.panel,main_sizer, \
           label="Basename for output files",value="ttnfitness.test",tooltip="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files.")
