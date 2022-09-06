@@ -888,6 +888,10 @@ class File(Analysis):
         gui_tools.show_image(output_path)
 
     def graph_volcano_plot(self):
+        # questions:
+            # are the selected rows correct ("log2FC", "Adj. p-value")?
+            # what is the q_value supposed to be?
+            # why are some log2 and the other axis log10?
         with gui_tools.nice_error_log:
             try: import matplotlib.pyplot as plt
             except:
@@ -899,7 +903,7 @@ class File(Analysis):
             adjusted_p_values = [ each_row["Adj. p-value"] for each_row in self.rows ]
             q_and_p_values_list = []
             for row_index, (each_adjusted_p_value, each_row) in enumerate(zip(adjusted_p_values, self.rows)):
-                q_value = list(each_row.values())[-1] # FIXME: this doesn't seem right, but its what was in the code originally
+                q_value = list(each_row.values())[-1] # FIXME: this doesn't seem right, but its what was in the code originall. The -1 column currently is "Adj. p-value"
                 try:
                     log10_p_value = -math.log(float(each_adjusted_p_value), 10)
                 except ValueError as e:
