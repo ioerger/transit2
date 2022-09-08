@@ -62,7 +62,7 @@ def main(*args, **kwargs):
             app = wx.App(False)
 
             # create an object of CalcFrame
-            frame = transit_gui.TnSeekFrame(None, DEBUG)
+            frame = transit_gui.TnSeqFrame(None, DEBUG)
             # show the frame
             frame.Show(True)
             frame.Maximize(True)
