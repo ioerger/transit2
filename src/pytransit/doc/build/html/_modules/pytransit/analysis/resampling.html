@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pytransit.analysis.resampling &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> TRANSIT
+            <img src="../../../_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>pytransit.analysis.resampling</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pytransit.analysis.resampling</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">wx</span>
+    <span class="n">WX_VERSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">version</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">hasWx</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">hasWx</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">WX_VERSION</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">if</span> <span class="n">hasWx</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">wx.xrc</span>
+    <span class="kn">from</span> <span class="nn">wx.lib.buttons</span> <span class="kn">import</span> <span class="n">GenBitmapTextButton</span>
+    <span class="kn">from</span> <span class="nn">pubsub</span> <span class="kn">import</span> <span class="n">pub</span>
+    <span class="kn">import</span> <span class="nn">wx.adv</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">ntpath</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+
+<span class="kn">from</span> <span class="nn">pytransit.analysis</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">import</span> <span class="nn">pytransit</span>
+<span class="kn">import</span> <span class="nn">pytransit.transit_tools</span> <span class="k">as</span> <span class="nn">transit_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.tnseq_tools</span> <span class="k">as</span> <span class="nn">tnseq_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.norm_tools</span> <span class="k">as</span> <span class="nn">norm_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.stat_tools</span> <span class="k">as</span> <span class="nn">stat_tools</span>
+
+
+
+<span class="c1">############# GUI ELEMENTS ##################</span>
+
+<span class="n">short_name</span> <span class="o">=</span> <span class="s2">&quot;resampling&quot;</span>
+<span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Resampling (Permutation test)&quot;</span>
+<span class="n">short_desc</span> <span class="o">=</span> <span class="s2">&quot;Resampling test of conditional essentiality between two conditions&quot;</span>
+<span class="n">long_desc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization.&quot;&quot;&quot;</span>
+
+<span class="n">transposons</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;himar1&quot;</span><span class="p">,</span> <span class="s2">&quot;tn5&quot;</span><span class="p">]</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Orf&quot;</span><span class="p">,</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span><span class="s2">&quot;Desc&quot;</span><span class="p">,</span><span class="s2">&quot;Sites&quot;</span><span class="p">,</span><span class="s2">&quot;Mean Ctrl&quot;</span><span class="p">,</span><span class="s2">&quot;Mean Exp&quot;</span><span class="p">,</span><span class="s2">&quot;log2FC&quot;</span><span class="p">,</span> <span class="s2">&quot;Sum Ctrl&quot;</span><span class="p">,</span> <span class="s2">&quot;Sum Exp&quot;</span><span class="p">,</span> <span class="s2">&quot;Delta Mean&quot;</span><span class="p">,</span><span class="s2">&quot;p-value&quot;</span><span class="p">,</span><span class="s2">&quot;Adj. p-value&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ResamplingAnalysis"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingAnalysis">[docs]</a><span class="k">class</span> <span class="nc">ResamplingAnalysis</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">TransitAnalysis</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">TransitAnalysis</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">short_desc</span><span class="p">,</span> <span class="n">long_desc</span><span class="p">,</span> <span class="n">transposons</span><span class="p">,</span> <span class="n">ResamplingMethod</span><span class="p">,</span> <span class="n">ResamplingGUI</span><span class="p">,</span> <span class="p">[</span><span class="n">ResamplingFile</span><span class="p">])</span></div>
+
+
+
+<span class="c1">############# FILE ##################</span>
+
+<div class="viewcode-block" id="ResamplingFile"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile">[docs]</a><span class="k">class</span> <span class="nc">ResamplingFile</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">TransitFile</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">TransitFile</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;#Resampling&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ResamplingFile.getHeader"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile.getHeader">[docs]</a>    <span class="k">def</span> <span class="nf">getHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">DE</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">poslogfc</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">neglogfc</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+                <span class="n">DE</span> <span class="o">+=</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">poslogfc</span><span class="o">+=</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">neglogfc</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Results:</span>
+<span class="s2">    Conditionally - Essentials: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">        Less Essential in Experimental datasets: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">        More Essential in Experimental datasets: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">DE</span><span class="p">,</span> <span class="n">poslogfc</span><span class="p">,</span> <span class="n">neglogfc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span></div>
+
+
+<div class="viewcode-block" id="ResamplingFile.getMenus"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile.getMenus">[docs]</a>    <span class="k">def</span> <span class="nf">getMenus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">menus</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">menus</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Display in Track View&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">displayInTrackView</span><span class="p">))</span>
+        <span class="n">menus</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Display Histogram&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">displayHistogram</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">menus</span></div>
+
+<div class="viewcode-block" id="ResamplingFile.displayHistogram"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile.displayHistogram">[docs]</a>    <span class="k">def</span> <span class="nf">displayHistogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">displayFrame</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+            <span class="n">gene</span> <span class="o">=</span> <span class="n">displayFrame</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">GetCellValue</span><span class="p">(</span><span class="n">displayFrame</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ntpath</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">displayFrame</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">fetch_name</span><span class="p">(</span><span class="n">displayFrame</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">gene</span><span class="o">+</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="n">imgWindow</span> <span class="o">=</span> <span class="n">pytransit</span><span class="o">.</span><span class="n">fileDisplay</span><span class="o">.</span><span class="n">ImgFrame</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">imgWindow</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transit_tools</span><span class="o">.</span><span class="n">ShowError</span><span class="p">(</span><span class="n">MSG</span><span class="o">=</span><span class="s2">&quot;Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error Displaying File. Histogram image does not exist.&quot;</span><span class="p">)</span></div></div>
+
+
+
+
+<span class="c1">############# GUI ##################</span>
+
+<div class="viewcode-block" id="ResamplingGUI"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI">[docs]</a><span class="k">class</span> <span class="nc">ResamplingGUI</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">AnalysisGUI</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ResamplingGUI.definePanel"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI.definePanel">[docs]</a>    <span class="k">def</span> <span class="nf">definePanel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wxobj</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span> <span class="o">=</span> <span class="n">wxobj</span>
+        <span class="n">resamplingPanel</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">optionsWindow</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultSize</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">TAB_TRAVERSAL</span> <span class="p">)</span>
+
+        <span class="n">resamplingSizer</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="p">)</span>
+
+        <span class="n">resamplingLabel</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">StaticText</span><span class="p">(</span> <span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;resampling Options&quot;</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="n">resamplingLabel</span><span class="o">.</span><span class="n">SetFont</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">BOLD</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">resamplingLabel</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">ALIGN_CENTER_HORIZONTAL</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="n">resamplingTopSizer</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">HORIZONTAL</span> <span class="p">)</span>
+
+        <span class="n">resamplingTopSizer2</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">HORIZONTAL</span> <span class="p">)</span>
+
+        <span class="n">resamplingLabelSizer</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="p">)</span>
+
+        <span class="n">mainSizer1</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="p">)</span>
+
+        <span class="c1">#(, , Sizer) = self.defineChoiceBox(resamplingPanel, u&quot;&quot;, u&quot;&quot;, &quot;&quot;)</span>
+        <span class="c1">#mainSizer1.Add(Sizer, 1, wx.EXPAND, 5 )</span>
+
+        <span class="c1"># Samples</span>
+        <span class="p">(</span><span class="n">resamplingSampleLabel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingSampleText</span><span class="p">,</span> <span class="n">sampleSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineTextBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Samples:&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;10000&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.&quot;</span><span class="p">)</span>
+        <span class="n">mainSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">sampleSizer</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="c1"># Pseudocount - changing the semantics on 3/5/20</span>
+        <span class="c1">#(resamplingPseudocountLabel, self.wxobj.resamplingPseudocountText, pseudoSizer) = self.defineTextBox(resamplingPanel, u&quot;Pseudocount:&quot;, u&quot;0.0&quot;, &quot;Adds pseudo-counts to the each data-point. Useful to dampen the effects of small counts which may lead to deceptively high log-FC.&quot;)</span>
+        <span class="p">(</span><span class="n">resamplingPseudocountLabel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingPseudocountText</span><span class="p">,</span> <span class="n">pseudoSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineTextBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Pseudocount:&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="s2">&quot;Pseudo-counts used in calculating log-fold-chnage. Useful to dampen the effects of small counts which may lead to deceptively high LFC.&quot;</span><span class="p">)</span>
+        <span class="n">mainSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">pseudoSizer</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="c1"># Norm</span>
+        <span class="n">resamplingNormChoiceChoices</span> <span class="o">=</span> <span class="p">[</span> <span class="sa">u</span><span class="s2">&quot;TTR&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;nzmean&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;totreads&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;zinfnb&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;quantile&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;betageom&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;nonorm&quot;</span> <span class="p">]</span>
+        <span class="p">(</span><span class="n">resamplingNormLabel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingNormChoice</span><span class="p">,</span> <span class="n">normSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineChoiceBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Normalization: &quot;</span><span class="p">,</span> <span class="n">resamplingNormChoiceChoices</span><span class="p">,</span> <span class="s2">&quot;Choice of normalization method. The default choice, &#39;TTR&#39;, normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. &quot;</span><span class="p">)</span>
+        <span class="n">mainSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">normSizer</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+
+
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">mainSizer1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+
+
+
+
+        <span class="c1"># LOESS Check</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingLoessCheck</span><span class="p">,</span> <span class="n">loessCheckSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineCheckBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">labelText</span><span class="o">=</span><span class="s2">&quot;Correct for Genome Positional Bias&quot;</span><span class="p">,</span> <span class="n">widgetCheck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widgetSize</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tooltipText</span><span class="o">=</span><span class="s2">&quot;Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.&quot;</span><span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">loessCheckSizer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="c1"># LOESS Button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingLoessPrev</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span> <span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Preview LOESS fit&quot;</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultSize</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingLoessPrev</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="c1"># Adaptive Check</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingAdaptiveCheckBox</span><span class="p">,</span> <span class="n">adaptiveSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineCheckBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">labelText</span><span class="o">=</span><span class="s2">&quot;Adaptive Resampling (Faster)&quot;</span><span class="p">,</span> <span class="n">widgetCheck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widgetSize</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tooltipText</span><span class="o">=</span><span class="s2">&quot;Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.&quot;</span><span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">adaptiveSizer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="c1"># Histogram Check</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingHistogramCheckBox</span><span class="p">,</span> <span class="n">histSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineCheckBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">labelText</span><span class="o">=</span><span class="s2">&quot;Generate Resampling Histograms&quot;</span><span class="p">,</span> <span class="n">widgetCheck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widgetSize</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tooltipText</span><span class="o">=</span><span class="s2">&quot;Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.&quot;</span><span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">histSizer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+        <span class="c1"># Zeros Check</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingZeroCheckBox</span><span class="p">,</span> <span class="n">zeroSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineCheckBox</span><span class="p">(</span><span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">labelText</span><span class="o">=</span><span class="s2">&quot;Include sites with all zeros&quot;</span><span class="p">,</span> <span class="n">widgetCheck</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">widgetSize</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tooltipText</span><span class="o">=</span><span class="s2">&quot;Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).&quot;</span><span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">zeroSizer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+        <span class="n">resamplingButton</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span> <span class="n">resamplingPanel</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Run resampling&quot;</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultSize</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">resamplingButton</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">ALIGN_CENTER_HORIZONTAL</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+        <span class="n">resamplingPanel</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span> <span class="n">resamplingSizer</span> <span class="p">)</span>
+        <span class="n">resamplingPanel</span><span class="o">.</span><span class="n">Layout</span><span class="p">()</span>
+        <span class="n">resamplingSizer</span><span class="o">.</span><span class="n">Fit</span><span class="p">(</span> <span class="n">resamplingPanel</span> <span class="p">)</span>
+
+        <span class="c1">#Connect events</span>
+        <span class="n">resamplingButton</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">RunMethod</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingLoessPrev</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">LoessPrevFunc</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel</span> <span class="o">=</span> <span class="n">resamplingPanel</span></div>
+
+<div class="viewcode-block" id="ResamplingGUI.GlobalEnable"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI.GlobalEnable">[docs]</a>    <span class="k">def</span> <span class="nf">GlobalEnable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">ctrlLibText</span><span class="o">.</span><span class="n">Enable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">expLibText</span><span class="o">.</span><span class="n">Enable</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ResamplingGUI.GlobalDisable"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI.GlobalDisable">[docs]</a>    <span class="k">def</span> <span class="nf">GlobalDisable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">ctrlLibText</span><span class="o">.</span><span class="n">Disable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">expLibText</span><span class="o">.</span><span class="n">Disable</span><span class="p">()</span></div></div>
+
+
+
+<span class="c1">########## CLASS #######################</span>
+
+<div class="viewcode-block" id="ResamplingMethod"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod">[docs]</a><span class="k">class</span> <span class="nc">ResamplingMethod</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DualConditionMethod</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    resampling</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">ctrldata</span><span class="p">,</span>
+                <span class="n">expdata</span><span class="p">,</span>
+                <span class="n">annotation_path</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;TTR&quot;</span><span class="p">,</span>
+                <span class="n">samples</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+                <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">doHistogram</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">includeZeros</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">pseudocount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">replicates</span><span class="o">=</span><span class="s2">&quot;Sum&quot;</span><span class="p">,</span>
+                <span class="n">LOESS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">ignoreCodon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">NTerminus</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">CTerminus</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">ctrl_lib_str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">exp_lib_str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">winz</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">wxobj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">diffStrains</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">annotation_path_exp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">combinedWigParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">base</span><span class="o">.</span><span class="n">DualConditionMethod</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">short_desc</span><span class="p">,</span> <span class="n">long_desc</span><span class="p">,</span> <span class="n">ctrldata</span><span class="p">,</span> <span class="n">expdata</span><span class="p">,</span> <span class="n">annotation_path</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span> <span class="n">replicates</span><span class="o">=</span><span class="n">replicates</span><span class="p">,</span> <span class="n">LOESS</span><span class="o">=</span><span class="n">LOESS</span><span class="p">,</span> <span class="n">NTerminus</span><span class="o">=</span><span class="n">NTerminus</span><span class="p">,</span> <span class="n">CTerminus</span><span class="o">=</span><span class="n">CTerminus</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="n">wxobj</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span> <span class="o">=</span> <span class="n">adaptive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doHistogram</span> <span class="o">=</span> <span class="n">doHistogram</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">includeZeros</span> <span class="o">=</span> <span class="n">includeZeros</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudocount</span> <span class="o">=</span> <span class="n">pseudocount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span> <span class="o">=</span> <span class="n">ctrl_lib_str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span> <span class="o">=</span> <span class="n">exp_lib_str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffStrains</span> <span class="o">=</span> <span class="n">diffStrains</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path_exp</span> <span class="o">=</span> <span class="n">annotation_path_exp</span> <span class="k">if</span> <span class="n">diffStrains</span> <span class="k">else</span> <span class="n">annotation_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span> <span class="o">=</span> <span class="n">combinedWigParams</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">winz</span> <span class="o">=</span> <span class="n">winz</span>
+
+<div class="viewcode-block" id="ResamplingMethod.fromGUI"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.fromGUI">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromGUI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wxobj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="c1">#Get Annotation file</span>
+        <span class="n">annot_paths</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">annotationPath</span> <span class="o">=</span> <span class="n">annot_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">diffStrains</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">annotationPathExp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">annot_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">annotationPathExp</span> <span class="o">=</span> <span class="n">annot_paths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">diffStrains</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_annotation</span><span class="p">(</span><span class="n">annotationPath</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">annotationPathExp</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_annotation</span><span class="p">(</span><span class="n">annotationPathExp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1">#Get selected files</span>
+        <span class="n">ctrldata</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">ctrlSelected</span><span class="p">()</span>
+        <span class="n">expdata</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">expSelected</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_both_datasets</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span> <span class="n">expdata</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1">#Validate transposon types</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_transposons_used</span><span class="p">(</span><span class="n">ctrldata</span><span class="o">+</span><span class="n">expdata</span><span class="p">,</span> <span class="n">transposons</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+
+        <span class="c1">#Read the parameters from the wxPython widgets</span>
+        <span class="n">ignoreCodon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingSampleText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">())</span>
+        <span class="n">normalization</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingNormChoice</span><span class="o">.</span><span class="n">GetString</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingNormChoice</span><span class="o">.</span><span class="n">GetCurrentSelection</span><span class="p">())</span>
+        <span class="n">replicates</span><span class="o">=</span><span class="s2">&quot;Sum&quot;</span>
+        <span class="n">adaptive</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingAdaptiveCheckBox</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+        <span class="n">doHistogram</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingHistogramCheckBox</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+
+        <span class="n">includeZeros</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingZeroCheckBox</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+        <span class="n">pseudocount</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingPseudocountText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">())</span>
+        <span class="n">LOESS</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">resamplingLoessCheck</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+
+        <span class="c1"># Global Parameters</span>
+        <span class="n">NTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">globalNTerminusText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">())</span>
+        <span class="n">CTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">globalCTerminusText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">())</span>
+        <span class="n">ctrl_lib_str</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">ctrlLibText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+        <span class="n">exp_lib_str</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">expLibText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+
+
+        <span class="c1">#Get output path</span>
+        <span class="c1">#defaultFileName = &quot;resampling_output_s%d_pc%1.2f&quot; % (samples, pseudocount)</span>
+        <span class="c1">#if adaptive: defaultFileName+= &quot;_adaptive&quot;</span>
+        <span class="c1">#if includeZeros: defaultFileName+= &quot;_iz&quot;</span>
+        <span class="c1">#defaultFileName+=&quot;.dat&quot;</span>
+        <span class="n">defaultFileName</span> <span class="o">=</span> <span class="s2">&quot;resampling_output.dat&quot;</span> <span class="c1"># simplified</span>
+
+        <span class="n">defaultDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">SaveFile</span><span class="p">(</span><span class="n">defaultDir</span><span class="p">,</span> <span class="n">defaultFileName</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span>
+                <span class="n">expdata</span><span class="p">,</span>
+                <span class="n">annotationPath</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="p">,</span>
+                <span class="n">samples</span><span class="p">,</span>
+                <span class="n">adaptive</span><span class="p">,</span>
+                <span class="n">doHistogram</span><span class="p">,</span>
+                <span class="n">includeZeros</span><span class="p">,</span>
+                <span class="n">pseudocount</span><span class="p">,</span>
+                <span class="n">replicates</span><span class="p">,</span>
+                <span class="n">LOESS</span><span class="p">,</span>
+                <span class="n">ignoreCodon</span><span class="p">,</span>
+                <span class="n">NTerminus</span><span class="p">,</span>
+                <span class="n">CTerminus</span><span class="p">,</span>
+                <span class="n">ctrl_lib_str</span><span class="p">,</span>
+                <span class="n">exp_lib_str</span><span class="p">,</span> <span class="n">wxobj</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">diffStrains</span> <span class="o">=</span> <span class="n">diffStrains</span><span class="p">,</span> <span class="n">annotation_path_exp</span> <span class="o">=</span> <span class="n">annotationPathExp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.fromargs"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.fromargs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawargs</span><span class="p">):</span>
+
+        <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">cleanargs</span><span class="p">(</span><span class="n">rawargs</span><span class="p">)</span>
+
+        <span class="n">isCombinedWig</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">combinedWigParams</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">isCombinedWig</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">5</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Incorrect number of args. See usage&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_string</span><span class="p">())</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">combinedWigParams</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;combined_wig&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">),</span>
+                <span class="s2">&quot;samples_metadata&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;conditions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="p">}</span>
+            <span class="n">annot_paths</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="c1"># to show contrasted conditions for combined_wigs in output header </span>
+            <span class="n">ctrldata</span> <span class="o">=</span> <span class="p">[</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s2">&quot;conditions&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> 
+            <span class="n">expdata</span> <span class="o">=</span> <span class="p">[</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s2">&quot;conditions&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Incorrect number of args. See usage&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_string</span><span class="p">())</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ctrldata</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">expdata</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">annot_paths</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">annotationPath</span> <span class="o">=</span> <span class="n">annot_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">diffStrains</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">annotationPathExp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">annot_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">annotationPathExp</span> <span class="o">=</span> <span class="n">annot_paths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">diffStrains</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">diffStrains</span> <span class="ow">and</span> <span class="n">isCombinedWig</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Cannot have combined wig and different annotation files.&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">winz</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s2">&quot;winz&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="n">output_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+        <span class="c1"># check for unrecognized flags</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="s2">&quot;-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">rawargs</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;-&#39;</span> <span class="ow">and</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;flag unrecognized: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">ZinbMethod</span><span class="o">.</span><span class="n">usage_string</span><span class="p">())</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">normalization</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;TTR&quot;</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">))</span>
+        <span class="n">adaptive</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">doHistogram</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">replicates</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;Sum&quot;</span><span class="p">)</span>
+        <span class="n">excludeZeros</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ez&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">includeZeros</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">excludeZeros</span>
+        <span class="n">pseudocount</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PC&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="c1"># use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s2">&quot;Z&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="n">LOESS</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">ignoreCodon</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">NTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iN&quot;</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">))</span> <span class="c1"># integer interpreted as percentage</span>
+        <span class="n">CTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iC&quot;</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">))</span>
+        <span class="n">ctrl_lib_str</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;-ctrl_lib&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">exp_lib_str</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;-exp_lib&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span>
+                <span class="n">expdata</span><span class="p">,</span>
+                <span class="n">annotationPath</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="p">,</span>
+                <span class="n">samples</span><span class="p">,</span>
+                <span class="n">adaptive</span><span class="p">,</span>
+                <span class="n">doHistogram</span><span class="p">,</span>
+                <span class="n">includeZeros</span><span class="p">,</span>
+                <span class="n">pseudocount</span><span class="p">,</span>
+                <span class="n">replicates</span><span class="p">,</span>
+                <span class="n">LOESS</span><span class="p">,</span>
+                <span class="n">ignoreCodon</span><span class="p">,</span>
+                <span class="n">NTerminus</span><span class="p">,</span>
+                <span class="n">CTerminus</span><span class="p">,</span>
+                <span class="n">ctrl_lib_str</span><span class="p">,</span>
+                <span class="n">exp_lib_str</span><span class="p">,</span> 
+                <span class="n">winz</span> <span class="o">=</span> <span class="n">winz</span><span class="p">,</span>
+                <span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span><span class="p">,</span> <span class="n">diffStrains</span> <span class="o">=</span> <span class="n">diffStrains</span><span class="p">,</span> <span class="n">annotation_path_exp</span> <span class="o">=</span> <span class="n">annotationPathExp</span><span class="p">,</span> <span class="n">combinedWigParams</span> <span class="o">=</span> <span class="n">combinedWigParams</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.preprocess_data"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.preprocess_data">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">N</span><span class="p">)</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">!=</span> <span class="s2">&quot;nonorm&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Normalizing using: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">expdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LOESS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Performing LOESS Correction&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_tools</span><span class="o">.</span><span class="n">loess_correction</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.wigs_to_conditions"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.wigs_to_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">wigs_to_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditionsByFile</span><span class="p">,</span> <span class="n">filenamesInCombWig</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns list of conditions corresponding to given wigfiles.</span>
+<span class="sd">            ({FileName: Condition}, [FileName]) -&gt; [Condition]</span>
+<span class="sd">            Condition :: [String]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">conditionsByFile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenamesInCombWig</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.filter_wigs_by_conditions"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.filter_wigs_by_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">filter_wigs_by_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">included_conditions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Filters conditions from wig to ctrl, exp conditions only</span>
+<span class="sd">            ([[Wigdata]], [ConditionCtrl, ConditionExp]) -&gt; Tuple([[Wigdata]], [Condition])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d_filtered</span><span class="p">,</span> <span class="n">cond_filtered</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">included_conditions</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Only 2 conditions expected&quot;</span><span class="p">,</span> <span class="n">included_conditions</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">conditions</span><span class="p">):</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">included_conditions</span><span class="p">):</span>
+            <span class="n">d_filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">cond_filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conditions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d_filtered</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cond_filtered</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.Run"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.Run">[docs]</a>    <span class="k">def</span> <span class="nf">Run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1">#if not self.wxobj:</span>
+        <span class="c1">#    # Force matplotlib to use good backend for png.</span>
+        <span class="c1">#    import matplotlib.pyplot as plt</span>
+        <span class="c1">#elif &quot;matplotlib.pyplot&quot; not in sys.modules:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: cannot do histograms&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doHistogram</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Starting resampling Method&quot;</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">winz</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Winsorizing insertion counts&quot;</span><span class="p">)</span>
+
+        <span class="n">histPath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doHistogram</span><span class="p">:</span>
+            <span class="n">histPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">fetch_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;_histograms&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">histPath</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">histPath</span><span class="p">)</span>
+
+        <span class="c1">#Get orf data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Getting Data&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffStrains</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Multiple annotation files found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Mapping ctrl data to </span><span class="si">{0}</span><span class="s2">, exp data to </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path_exp</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filenamesInCombWig</span><span class="p">)</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">read_combined_wig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s1">&#39;combined_wig&#39;</span><span class="p">])</span>
+            <span class="n">conditionsByFile</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">read_samples_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s1">&#39;samples_metadata&#39;</span><span class="p">])</span>
+            <span class="n">conditions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wigs_to_conditions</span><span class="p">(</span><span class="n">conditionsByFile</span><span class="p">,</span> <span class="n">filenamesInCombWig</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">conditions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_wigs_by_conditions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s1">&#39;conditions&#39;</span><span class="p">])</span>
+            <span class="n">data_ctrl</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="n">conditions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s1">&#39;conditions&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>
+            <span class="n">data_exp</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="n">conditions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinedWigParams</span><span class="p">[</span><span class="s1">&#39;conditions&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">position_ctrl</span><span class="p">,</span> <span class="n">position_exp</span> <span class="o">=</span> <span class="n">position</span><span class="p">,</span> <span class="n">position</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">data_ctrl</span><span class="p">,</span> <span class="n">position_ctrl</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">get_validated_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">data_exp</span><span class="p">,</span> <span class="n">position_exp</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">get_validated_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expdata</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">K_ctrl</span><span class="p">,</span> <span class="n">N_ctrl</span><span class="p">)</span> <span class="o">=</span> <span class="n">data_ctrl</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">(</span><span class="n">K_exp</span><span class="p">,</span> <span class="n">N_exp</span><span class="p">)</span> <span class="o">=</span> <span class="n">data_exp</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffStrains</span> <span class="ow">and</span> <span class="p">(</span><span class="n">N_ctrl</span> <span class="o">!=</span> <span class="n">N_exp</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: Ctrl and Exp wig files don&#39;t have the same number of sites.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Make sure all .wig files come from the same strain.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Preprocessing Ctrl data...&quot;</span><span class="p">)</span>
+        <span class="n">data_ctrl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_data</span><span class="p">(</span><span class="n">position_ctrl</span><span class="p">,</span> <span class="n">data_ctrl</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Preprocessing Exp data...&quot;</span><span class="p">)</span>
+        <span class="n">data_exp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_data</span><span class="p">(</span><span class="n">position_exp</span><span class="p">,</span> <span class="n">data_exp</span><span class="p">)</span>
+
+        <span class="n">G_ctrl</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">Genes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">,</span> <span class="n">ignoreCodon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignoreCodon</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">NTerminus</span><span class="p">,</span> <span class="n">cterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CTerminus</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data_ctrl</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position_ctrl</span><span class="p">)</span>
+        <span class="n">G_exp</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">Genes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path_exp</span><span class="p">,</span> <span class="n">ignoreCodon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignoreCodon</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">NTerminus</span><span class="p">,</span> <span class="n">cterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CTerminus</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data_exp</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position_exp</span><span class="p">)</span>
+
+        <span class="n">doLibraryResampling</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># If library string not empty</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span><span class="p">:</span>
+            <span class="n">letters_ctrl</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span><span class="p">)</span>
+            <span class="n">letters_exp</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span><span class="p">)</span>
+
+            <span class="c1"># Check if using exactly 1 letters; i.e. no different libraries</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">letters_ctrl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">letters_exp</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="c1"># If using more than one letter, then check no differences in set</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lib_diff</span> <span class="o">=</span> <span class="n">letters_ctrl</span> <span class="o">^</span> <span class="n">letters_exp</span>
+                <span class="c1"># Check that their differences</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">lib_diff</span><span class="p">:</span>
+                    <span class="n">doLibraryResampling</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">transit_tools</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: Library Strings (Ctrl = </span><span class="si">%s</span><span class="s2">, Exp = </span><span class="si">%s</span><span class="s2">) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">qval</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_resampling</span><span class="p">(</span><span class="n">G_ctrl</span><span class="p">,</span> <span class="n">G_exp</span><span class="p">,</span> <span class="n">doLibraryResampling</span><span class="p">,</span> <span class="n">histPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_output</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">qval</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Finished resampling Method&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.write_output"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.write_output">[docs]</a>    <span class="k">def</span> <span class="nf">write_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">qval</span><span class="p">,</span> <span class="n">start_time</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Resampling</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="p">:</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">attr</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)])</span>
+            <span class="n">memberstr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+                <span class="n">memberstr</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">, &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#GUI with: norm=</span><span class="si">%s</span><span class="s2">, samples=</span><span class="si">%s</span><span class="s2">, pseudocounts=</span><span class="si">%1.2f</span><span class="s2">, adaptive=</span><span class="si">%s</span><span class="s2">, histogram=</span><span class="si">%s</span><span class="s2">, includeZeros=</span><span class="si">%s</span><span class="s2">, output=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudocount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doHistogram</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeZeros</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Console: python3 </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Parameters: samples=</span><span class="si">%s</span><span class="s2">, norm=</span><span class="si">%s</span><span class="s2">, histograms=</span><span class="si">%s</span><span class="s2">, adaptive=</span><span class="si">%s</span><span class="s2">, excludeZeros=</span><span class="si">%s</span><span class="s2">, pseudocounts=</span><span class="si">%s</span><span class="s2">, LOESS=</span><span class="si">%s</span><span class="s2">, trim_Nterm=</span><span class="si">%s</span><span class="s2">, trim_Cterm=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doHistogram</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">,</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeZeros</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pseudocount</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">LOESS</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">NTerminus</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">CTerminus</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Control Data: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Experimental Data: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expdata</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Annotation path: </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path_exp</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffStrains</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Time: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="c1">#Z = True # include Z-score column in resampling output?</span>
+        <span class="k">global</span> <span class="n">columns</span> <span class="c1"># consider redefining columns above (for GUI)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Orf&quot;</span><span class="p">,</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span><span class="s2">&quot;Desc&quot;</span><span class="p">,</span><span class="s2">&quot;Sites&quot;</span><span class="p">,</span><span class="s2">&quot;Mean Ctrl&quot;</span><span class="p">,</span><span class="s2">&quot;Mean Exp&quot;</span><span class="p">,</span><span class="s2">&quot;log2FC&quot;</span><span class="p">,</span> <span class="s2">&quot;Sum Ctrl&quot;</span><span class="p">,</span> <span class="s2">&quot;Sum Exp&quot;</span><span class="p">,</span> <span class="s2">&quot;Delta Mean&quot;</span><span class="p">,</span><span class="s2">&quot;p-value&quot;</span><span class="p">,</span><span class="s2">&quot;Z-score&quot;</span><span class="p">,</span><span class="s2">&quot;Adj. p-value&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">sum1</span><span class="p">,</span> <span class="n">sum2</span><span class="p">,</span> <span class="n">test_obs</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_2tail</span><span class="p">)</span> <span class="o">=</span> <span class="n">row</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+              <span class="n">p</span> <span class="o">=</span> <span class="n">pval_2tail</span><span class="o">/</span><span class="mi">2</span> <span class="c1"># convert from 2-sided back to 1-sided</span>
+              <span class="k">if</span> <span class="n">p</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">1e-5</span> <span class="c1"># or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default</span>
+              <span class="k">if</span> <span class="n">p</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span> <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="mf">1e-5</span>
+              <span class="n">z</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+              <span class="k">if</span> <span class="n">log2FC</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span> <span class="n">z</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%d</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.2f</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.2f</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.5f</span><span class="se">\t</span><span class="si">%0.2f</span><span class="se">\t</span><span class="si">%1.5f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">sum1</span><span class="p">,</span> <span class="n">sum2</span><span class="p">,</span> <span class="n">test_obs</span><span class="p">,</span> <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">qval</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%d</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.2f</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.2f</span><span class="se">\t</span><span class="si">%1.1f</span><span class="se">\t</span><span class="si">%1.5f</span><span class="se">\t</span><span class="si">%1.5f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">sum1</span><span class="p">,</span> <span class="n">sum2</span><span class="p">,</span> <span class="n">test_obs</span><span class="p">,</span> <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">qval</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Adding File: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">filetype</span><span class="o">=</span><span class="s2">&quot;Resampling&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.winsorize_resampling"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.winsorize_resampling">[docs]</a>    <span class="k">def</span> <span class="nf">winsorize_resampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">counts</span><span class="p">):</span>
+      <span class="c1"># input is insertion counts for gene as pre-flattened numpy array</span>
+      <span class="n">counts</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">:</span> <span class="k">return</span> <span class="n">counts</span>
+      <span class="n">s</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">counts</span> <span class="c1"># don&#39;t do anything if there is only 1 non-zero value</span>
+      <span class="n">c2</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">]</span>
+      <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span></div>
+
+      <span class="c1">#unique_counts = numpy.unique(counts)</span>
+      <span class="c1">#if (len(unique_counts) &lt; 2): return counts</span>
+      <span class="c1">#else:</span>
+      <span class="c1">#  n, n_minus_1 = unique_counts[heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)]</span>
+      <span class="c1">#  result = [[ n_minus_1 if count == n else count for count in wig] for wig in counts]</span>
+      <span class="c1">#  return numpy.array(result)</span>
+
+<div class="viewcode-block" id="ResamplingMethod.run_resampling"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.run_resampling">[docs]</a>    <span class="k">def</span> <span class="nf">run_resampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G_ctrl</span><span class="p">,</span> <span class="n">G_exp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">doLibraryResampling</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">histPath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">G_ctrl</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">G_ctrl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gene</span><span class="o">.</span><span class="n">orf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G_exp</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffStrains</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: Gene in ctrl data not present in exp data&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Make sure all .wig files come from the same strain.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">([],</span> <span class="p">[])</span>
+
+            <span class="n">gene_exp</span> <span class="o">=</span> <span class="n">G_exp</span><span class="p">[</span><span class="n">gene</span><span class="o">.</span><span class="n">orf</span><span class="p">]</span>
+            <span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffStrains</span> <span class="ow">and</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span> <span class="o">!=</span> <span class="n">gene_exp</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: No. of TA sites in Exp and Ctrl data are different&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Make sure all .wig files come from the same strain.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">([],</span> <span class="p">[])</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">k</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">gene_exp</span><span class="o">.</span><span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">gene_exp</span><span class="o">.</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_ltail</span><span class="p">,</span> <span class="n">pval_utail</span><span class="p">,</span>  <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">testlist</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeZeros</span><span class="p">:</span>
+                    <span class="n">ii_ctrl</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">reads</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="n">ii_exp</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gene_exp</span><span class="o">.</span><span class="n">reads</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ii_ctrl</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">ii_exp</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">gene_exp</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+                <span class="c1">#data1 = gene.reads[:,ii_ctrl].flatten() + self.pseudocount # we used to have an option to add pseudocounts to each observation, like this</span>
+                <span class="n">data1</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">reads</span><span class="p">[:,</span><span class="n">ii_ctrl</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">data2</span> <span class="o">=</span> <span class="n">gene_exp</span><span class="o">.</span><span class="n">reads</span><span class="p">[:,</span><span class="n">ii_exp</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">winz</span><span class="p">:</span> <span class="n">data1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winsorize_resampling</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span> <span class="n">data2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winsorize_resampling</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">doLibraryResampling</span><span class="p">:</span>
+                    <span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_ltail</span><span class="p">,</span> <span class="n">pval_utail</span><span class="p">,</span>  <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">testlist</span><span class="p">)</span> <span class="o">=</span>  <span class="n">stat_tools</span><span class="o">.</span><span class="n">resampling</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="n">testFunc</span><span class="o">=</span><span class="n">stat_tools</span><span class="o">.</span><span class="n">F_mean_diff_dict</span><span class="p">,</span> <span class="n">permFunc</span><span class="o">=</span><span class="n">stat_tools</span><span class="o">.</span><span class="n">F_shuffle_dict_libraries</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">,</span> <span class="n">lib_str1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">lib_str2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span><span class="p">,</span><span class="n">PC</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pseudocount</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_ltail</span><span class="p">,</span> <span class="n">pval_utail</span><span class="p">,</span>  <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">testlist</span><span class="p">)</span> <span class="o">=</span>  <span class="n">stat_tools</span><span class="o">.</span><span class="n">resampling</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="n">testFunc</span><span class="o">=</span><span class="n">stat_tools</span><span class="o">.</span><span class="n">F_mean_diff_flat</span><span class="p">,</span> <span class="n">permFunc</span><span class="o">=</span><span class="n">stat_tools</span><span class="o">.</span><span class="n">F_shuffle_flat</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">,</span> <span class="n">lib_str1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">lib_str2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_lib_str</span><span class="p">,</span><span class="n">PC</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pseudocount</span><span class="p">)</span>
+
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doHistogram</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+                <span class="k">if</span> <span class="n">testlist</span><span class="p">:</span>
+                    <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">testlist</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Delta Mean&#39;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Probability&#39;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> - Histogram of Delta Mean&#39;</span> <span class="o">%</span> <span class="n">gene</span><span class="o">.</span><span class="n">orf</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">genePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">histPath</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">orf</span> <span class="o">+</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">histPath</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">histPath</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">genePath</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+
+
+            <span class="n">sum1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+            <span class="n">sum2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">gene</span><span class="o">.</span><span class="n">orf</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">desc</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">sum1</span><span class="p">,</span> <span class="n">sum2</span><span class="p">,</span> <span class="n">test_obs</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_2tail</span><span class="p">])</span>
+
+            <span class="c1"># Update progress</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running Resampling Method... </span><span class="si">%5.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="n">count</span><span class="o">/</span><span class="n">N</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+
+
+        <span class="c1">#</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># Printing empty line to flush stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Performing Benjamini-Hochberg Correction&quot;</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">qval</span> <span class="o">=</span> <span class="n">stat_tools</span><span class="o">.</span><span class="n">BH_fdr_correction</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">qval</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResamplingMethod.usage_string"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.usage_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">usage_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        python3 </span><span class="si">%s</span><span class="s2"> resampling &lt;comma-separated .wig control files&gt; &lt;comma-separated .wig experimental files&gt; &lt;annotation .prot_table or GFF3&gt; &lt;output file&gt; [Optional Arguments]</span>
+<span class="s2">        ---</span>
+<span class="s2">        OR</span>
+<span class="s2">        ---</span>
+<span class="s2">        python3 </span><span class="si">%s</span><span class="s2"> resampling -c &lt;combined wig file&gt; &lt;samples_metadata file&gt; &lt;ctrl condition name&gt; &lt;exp condition name&gt; &lt;annotation .prot_table&gt; &lt;output file&gt; [Optional Arguments]</span>
+<span class="s2">        NB: The ctrl and exp condition names should match Condition names in samples_metadata file.</span>
+
+<span class="s2">        Optional Arguments:</span>
+<span class="s2">        -s &lt;integer&gt;    :=  Number of samples. Default: -s 10000</span>
+<span class="s2">        -n &lt;string&gt;     :=  Normalization method. Default: -n TTR</span>
+<span class="s2">        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.</span>
+<span class="s2">        -a              :=  Perform adaptive resampling. Default: Turned Off.</span>
+<span class="s2">        -ez             :=  Exclude rows with zero across conditions. Default: Turned off</span>
+<span class="s2">                            (i.e. include rows with zeros).</span>
+<span class="s2">        -PC &lt;float&gt;     :=  Pseudocounts used in calculating LFC. (default: 1)</span>
+<span class="s2">        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias.</span>
+<span class="s2">                            Default: Turned Off.</span>
+<span class="s2">        -iN &lt;int&gt;       :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0</span>
+<span class="s2">        -iC &lt;int&gt;       :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0</span>
+<span class="s2">        --ctrl_lib      :=  String of letters representing library of control files in order</span>
+<span class="s2">                            e.g. &#39;AABB&#39;. Default empty. Letters used must also be used in --exp_lib</span>
+<span class="s2">                            If non-empty, resampling will limit permutations to within-libraries.</span>
+
+<span class="s2">        --exp_lib       :=  String of letters representing library of experimental files in order</span>
+<span class="s2">                            e.g. &#39;ABAB&#39;. Default empty. Letters used must also be used in --ctrl_lib</span>
+<span class="s2">                            If non-empty, resampling will limit permutations to within-libraries.</span>
+<span class="s2">        -winz           :=  winsorize insertion counts for each gene in each condition </span>
+<span class="s2">                            (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">cleanargs</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="c1">#TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)</span>
+
+    <span class="n">G</span> <span class="o">=</span> <span class="n">ResamplingMethod</span><span class="o">.</span><span class="n">fromargs</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">console_message</span><span class="p">(</span><span class="s2">&quot;Printing the member variables:&quot;</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">print_members</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running:&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">Run</span><span class="p">()</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

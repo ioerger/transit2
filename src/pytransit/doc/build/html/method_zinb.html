@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZINB &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Normalization" href="method_normalization.html" />
+    <link rel="prev" title="ANOVA" href="method_anova.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ZINB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#combined-wig-files">Combined wig files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#samples-metadata-file">Samples Metadata File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#covariates-and-interactions">Covariates and Interactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#categorical-vs-numeric-covariates">Categorical vs Numeric Covariates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statistical-significance-what-the-p-values-mean-in-the-zinb-output">Statistical Significance - What the P-values Mean in the ZINB Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-and-diagnostics">Output and Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-time">Run-time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>ZINB</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_zinb.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="transit-clionly" id="zinb">
+<span id="id1"></span><h1>ZINB<a class="headerlink" href="#zinb" title="Permalink to this headline"></a></h1>
+<p>The ZINB (Zero-Inflated Negative Binomial) method is used to determine
+which genes exhibit <em>statistically significant variability across multiple
+conditions</em>, in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others).
+Like <a class="reference internal" href="method_anova.html#anova"><span class="std std-ref">ANOVA</span></a>, the ZINB method takes a
+<em>combined_wig</em> file (which combines multiple datasets in one file) and
+a <em>samples_metadata</em> file (which describes which samples/replicates
+belong to which experimental conditions).</p>
+<p>ZINB can be applied to two or more conditions at a time.  Thus it
+subsumes <a class="reference internal" href="method_resampling.html#resampling"><span class="std std-ref">resampling</span></a>.  Our testing suggests that
+ZINB typically identifies 10-20% more varying genes than resampling
+(and vastly out-performs ANOVA for detecting significant variability
+across conditions).  Furthermore, because of how ZINB treats magnitude
+of read counts separately from local saturation in a gene, it
+occasionally identifies genes with variability not detectable by
+resampling analysis.</p>
+<p>Note: ZINB analysis requires R (statistical analysis software)
+to be installed on your system, along with the ‘pscl’ R package.
+See <a class="reference internal" href="transit_install.html#install-zinb"><span class="std std-ref">Installation Instructions</span></a>.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline"></a></h2>
+<div class="line-block">
+<div class="line">For a formal description of how this method works, see our paper <a class="reference internal" href="transit_overview.html#zinb" id="id2"><span>[ZINB]</span></a>:</div>
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">Subramaniyam S, DeJesus MA, Zaveri A, Smith CM, Baker RE, Ehrt S, Schnappinger D, Sassetti CM, Ioerger TR. (2019).  <a class="reference external" href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-019-3156-z">Statistical analysis of variability in TnSeq data across conditions using Zero-Inflated Negative Binomial regression.</a>, <em>BMC Bioinformatics</em>. 2019 Nov 21;20(1):603. doi: 10.1186/s12859-019-3156-z.</div>
+</div>
+</div>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">zinb</span> <span class="o">&lt;</span><span class="n">combined</span> <span class="n">wig</span> <span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">samples_metadata</span> <span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">Optional</span> <span class="n">Arguments</span><span class="p">]</span>
+      <span class="n">Optional</span> <span class="n">Arguments</span><span class="p">:</span>
+      <span class="o">-</span><span class="n">n</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span>                 <span class="o">:=</span>  <span class="n">Normalization</span> <span class="n">method</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">n</span> <span class="n">TTR</span>
+      <span class="o">--</span><span class="n">prot_table</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>     <span class="o">:=</span> <span class="k">for</span> <span class="n">appending</span> <span class="n">annotations</span> <span class="n">of</span> <span class="n">genes</span>
+      <span class="o">--</span><span class="n">condition</span>                 <span class="o">:=</span>  <span class="n">columnname</span> <span class="p">(</span><span class="ow">in</span> <span class="n">samples_metadata</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="k">as</span> <span class="n">the</span> <span class="n">Condition</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="s2">&quot;Condition&quot;</span>
+      <span class="o">--</span><span class="n">covars</span> <span class="o">&lt;</span><span class="n">covar1</span><span class="p">,</span><span class="o">...&gt;</span>       <span class="o">:=</span>  <span class="n">Comma</span> <span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">covariates</span> <span class="p">(</span><span class="ow">in</span> <span class="n">metadata</span> <span class="n">file</span><span class="p">)</span> <span class="n">to</span> <span class="n">include</span><span class="p">,</span> <span class="k">for</span> <span class="n">the</span> <span class="n">analysis</span><span class="o">.</span>
+      <span class="o">--</span><span class="n">interactions</span> <span class="o">&lt;</span><span class="n">covar1</span><span class="p">,</span><span class="o">...&gt;</span> <span class="o">:=</span>  <span class="n">Comma</span> <span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">covariates</span> <span class="n">to</span> <span class="n">include</span><span class="p">,</span> <span class="n">that</span> <span class="n">interact</span> <span class="k">with</span> <span class="n">the</span> <span class="n">condition</span> <span class="k">for</span> <span class="n">the</span> <span class="n">analysis</span><span class="o">.</span>
+      <span class="o">--</span><span class="n">exclude</span><span class="o">-</span><span class="n">conditions</span> <span class="o">&lt;</span><span class="n">cond1</span><span class="p">,</span><span class="o">...&gt;</span> <span class="o">:=</span>  <span class="n">Comma</span> <span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="n">to</span> <span class="n">ignore</span> <span class="k">for</span> <span class="n">the</span> <span class="n">analysis</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="kc">None</span>
+      <span class="o">--</span><span class="n">include</span><span class="o">-</span><span class="n">conditions</span> <span class="o">&lt;</span><span class="n">cond1</span><span class="p">,</span><span class="o">...&gt;</span> <span class="o">:=</span>  <span class="n">Comma</span> <span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="n">to</span> <span class="n">include</span> <span class="k">for</span> <span class="n">the</span> <span class="n">analysis</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">All</span>
+      <span class="o">--</span><span class="n">ref</span> <span class="o">&lt;</span><span class="n">cond</span><span class="o">&gt;</span>                <span class="o">:=</span> <span class="n">which</span> <span class="n">condition</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="k">as</span> <span class="n">a</span> <span class="n">reference</span> <span class="k">for</span> <span class="n">calculating</span> <span class="n">LFCs</span> <span class="p">(</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="k">if</span> <span class="n">more</span> <span class="n">than</span> <span class="n">one</span><span class="p">)</span> <span class="p">(</span><span class="n">by</span> <span class="n">default</span><span class="p">,</span> <span class="n">LFCs</span> <span class="k">for</span> <span class="n">each</span> <span class="n">condition</span> <span class="n">are</span> <span class="n">computed</span> <span class="n">relative</span> <span class="n">to</span> <span class="n">the</span> <span class="n">grandmean</span> <span class="n">across</span> <span class="nb">all</span> <span class="n">condintions</span><span class="p">)</span>
+      <span class="o">-</span><span class="n">iN</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>                 <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">within</span> <span class="n">given</span> <span class="n">percentage</span> <span class="n">of</span> <span class="n">the</span> <span class="n">N</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">5</span>
+      <span class="o">-</span><span class="n">iC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>                 <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">within</span> <span class="n">given</span> <span class="n">percentage</span> <span class="n">of</span> <span class="n">the</span> <span class="n">C</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">5</span>
+      <span class="o">-</span><span class="n">PC</span> <span class="o">&lt;</span><span class="n">N</span><span class="o">&gt;</span>                     <span class="o">:=</span>  <span class="n">Pseudocounts</span> <span class="n">used</span> <span class="ow">in</span> <span class="n">calculating</span> <span class="n">LFCs</span> <span class="ow">in</span> <span class="n">output</span> <span class="n">file</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">PC</span> <span class="mi">5</span>
+      <span class="o">-</span><span class="n">winz</span>                       <span class="o">:=</span> <span class="n">winsorize</span> <span class="n">insertion</span> <span class="n">counts</span> <span class="k">for</span> <span class="n">each</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">condition</span> <span class="p">(</span><span class="n">replace</span> <span class="nb">max</span> <span class="n">cnt</span> <span class="k">with</span> <span class="mi">2</span><span class="n">nd</span> <span class="n">highest</span><span class="p">;</span> <span class="n">helps</span> <span class="n">mitigate</span> <span class="n">effect</span> <span class="n">of</span> <span class="n">outliers</span><span class="p">)</span>
+      <span class="o">-</span><span class="n">v</span>                          <span class="o">:=</span> <span class="n">verbose</span><span class="p">,</span> <span class="nb">print</span> <span class="n">out</span> <span class="n">the</span> <span class="n">model</span> <span class="n">coefficients</span> <span class="k">for</span> <span class="n">each</span> <span class="n">gene</span><span class="o">.</span>
+      <span class="o">--</span><span class="n">gene</span> <span class="o">&lt;</span><span class="n">Orf</span> <span class="nb">id</span> <span class="ow">or</span> <span class="n">Gene</span> <span class="n">name</span><span class="o">&gt;:=</span> <span class="n">Run</span> <span class="n">method</span> <span class="k">for</span> <span class="n">one</span> <span class="n">gene</span> <span class="ow">and</span> <span class="nb">print</span> <span class="n">model</span> <span class="n">output</span><span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="combined-wig-files">
+<span id="combined-wig"></span><h2>Combined wig files<a class="headerlink" href="#combined-wig-files" title="Permalink to this headline"></a></h2>
+<p>Transit now supports a new file format called ‘combined_wig’ which basically
+combines multiple wig files into one file (with multiple columns).  This is
+used for some of the new analysis methods for larger collections of datasets, like <a class="reference internal" href="method_anova.html#anova"><span class="std std-ref">Anova</span></a>, <a class="reference internal" href="transit_overview.html#zinb"><span class="std std-ref">ZINB</span></a>.
+Combined_wig files can created through the Transit GUI
+(File-&gt;Export-&gt;Selected_Datasets-&gt;Combined_wig), or via the command line.
+You can specify the normalization method you want to use with a flag.
+TTR is the default, but other relevant normalization options would be ‘nonorm’
+(i.e. preserve raw counts) and ‘betageom’ (this corrects for skew, but is slow).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">export</span> <span class="n">combined_wig</span> <span class="o">--</span><span class="n">help</span>
+
+<span class="n">usage</span><span class="p">:</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">export</span> <span class="n">combined_wig</span> <span class="o">&lt;</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="o">.</span><span class="n">wig</span> <span class="n">files</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span>
+
+<span class="o">&gt;</span> <span class="n">python3</span> <span class="o">../</span><span class="n">transit</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">export</span> <span class="n">combined_wig</span> <span class="n">Rv_1_H37RvRef</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">Rv_2_H37RvRef</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">Rv_3_H37RvRef</span><span class="o">.</span><span class="n">wig</span> <span class="n">H37Rv</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">clinicals_combined_TTR</span><span class="o">.</span><span class="n">wig</span> <span class="o">-</span><span class="n">n</span> <span class="n">TTR</span>
+</pre></div>
+</div>
+</section>
+<section id="samples-metadata-file">
+<span id="samples-metadata"></span><h2>Samples Metadata File<a class="headerlink" href="#samples-metadata-file" title="Permalink to this headline"></a></h2>
+<p>Format of the <em>samples_metadata</em> file: a tab-separated file (which you
+can edit in Excel) with 3 columns: Id, Condition, and Filename (it
+must have these headers).  You can include other columns of info, but
+do not include additional rows.  Individual rows can be commented out
+by prefixing them with a ‘#’.  Here is an example of a samples
+metadata file: The filenames should match what is shown in the header
+of the combined_wig (including pathnames, if present).</p>
+<p>Note: the Condition column should have a unique label for each distinct condition (the same label shared only among replicates).
+If there are attributes that distinguish the conditions (such as strain, treatment, etc), they could be included as additional columns (e.g. covariates).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ID</span>      <span class="n">Condition</span>    <span class="n">Filename</span>
+<span class="n">glyc1</span>   <span class="n">glycerol</span>     <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">glycerol_rep1</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">glyc2</span>   <span class="n">glycerol</span>     <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">glycerol_rep2</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">chol1</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep1</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">chol2</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep2</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">chol2</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep3</span><span class="o">.</span><span class="n">wig</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p>The following parameters are available for the ZINB method:</p>
+<ul class="simple">
+<li><p><strong>--prot_table &lt;filename&gt;:</strong> for appending annotations of genes</p></li>
+<li><p><strong>--include-conditions &lt;cond1,…&gt;:</strong> Includes the given set of conditions from the ZINB test. Conditions not in this list are ignored. Note: this is useful for specifying the order in which the columns are listed in the output file.</p></li>
+<li><p><strong>--exclude-conditions &lt;cond1,…&gt;:</strong> Ignores the given set of conditions from the ZINB test.</p></li>
+<li><p><strong>--ref &lt;cond&gt;:</strong> which condition to use as a reference when computing LFCs in the output file. By default, LFCs for each condition are computed relative to the grandmean across all condintions.</p></li>
+<li><p><strong>-n &lt;TTR|betageom|nonorm…&gt;:</strong> Determines which Normalization method to
+use when comparing datasets (Default: -n TTR). Proper normalization is important as it
+ensures that other sources of variability are not mistakenly treated
+as real differences. See the <a class="reference internal" href="transit_normalization_tutorial.html#normalization"><span class="std std-ref">Normalization</span></a> section for a description
+of normalization method available in TRANSIT.</p></li>
+<li><p><strong>--condition &lt;covar&gt;:</strong> column name (in samples_metadata) to use as the primary Condition being evaluated (to test for significant variability of insertions among conditions). Default: “Condition” (column name in metadata)</p></li>
+<li><p><strong>--covars &lt;covar1,…&gt;:</strong> Comma separated list of covariates (columns in metadata file) to include, for the analysis.  If additional covariates distinguishing the samples are available, such as library, timepoint, or genotype, they may be “factored out” of the test of the primary condition. (variation due to covars is accounted for in the model, but not considered in evaluating the effect on variability due to the primary condition)</p></li>
+<li><p><strong>--interactions &lt;covar1,…&gt;:</strong> Comma separated list of covariates (cols in metadata) to include, that interact with the condition for the analysis. (variation due to these variables <em>is</em> included in testing the effect of the main condition)</p></li>
+<li><p><strong>-PC &lt;N&gt;:</strong> Pseudocounts used in calculating LFCs in output file. (Default: -PC 5)</p></li>
+<li><p><strong>-winz</strong>: <a class="reference external" href="https://en.wikipedia.org/wiki/Winsorizing">winsorize</a> insertion counts for each gene in each condition.
+Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.</p></li>
+</ul>
+</section>
+<section id="covariates-and-interactions">
+<h2>Covariates and Interactions<a class="headerlink" href="#covariates-and-interactions" title="Permalink to this headline"></a></h2>
+<p>While ZINB is focus on identifying variability of insertion counts across conditions,
+the linear model also allows you to take other variables into account.
+There are two types of auxilliary variables: <em>covariates</em> and <em>interactions</em>. These can be provided as extra columns in the samples metadata file.
+Covariates are attributes of the individual samples that could have a systematic
+effect on the insertion counts which we would like to account for and subsequently ignore
+(like nuissance variables). Examples include things like batch or library.</p>
+<p>Interactions are extra variables for which we want to test their effect on the
+main variable (or condition).  For example, suppose we collect TnSeq data at several
+different timepoints (e.g. length of incubation or infection).  If we just test
+time as the condition, we will be identifying genes that vary over time (if timepoints
+are numeric, think of the model as fitting a ‘slope’ to the counts).
+But suppose we have data for both a wild-type and knock-out strain.  Then we might be
+interested in genes for which the time-dependent behavior <em>differs</em> between the two
+strains (think: different ‘slopes’). In such a case, we would say strain and time interact.</p>
+<p>If covariates distinguishing the samples are available,
+such as batch or library, they may be
+incorporated in the ZINB model by using the <strong>--covars</strong> flag and samples
+metadata file. For example, consider the following samples metadata
+file, with a column describing the batch information of each
+replicate.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ID</span>      <span class="n">Condition</span>    <span class="n">Filename</span>                                     <span class="n">Batch</span>
+<span class="n">glyc1</span>   <span class="n">glycerol</span>     <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">glycerol_rep1</span><span class="o">.</span><span class="n">wig</span>        <span class="n">B1</span>
+<span class="n">glyc2</span>   <span class="n">glycerol</span>     <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">glycerol_rep2</span><span class="o">.</span><span class="n">wig</span>        <span class="n">B2</span>
+<span class="n">chol1</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep1</span><span class="o">.</span><span class="n">wig</span>     <span class="n">B1</span>
+<span class="n">chol2</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep2</span><span class="o">.</span><span class="n">wig</span>     <span class="n">B2</span>
+<span class="n">chol2</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep3</span><span class="o">.</span><span class="n">wig</span>     <span class="n">B2</span>
+</pre></div>
+</div>
+<p>This information can be included to eliminate variability due to batch by using
+the <strong>--covars</strong> flag.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">zinb</span> <span class="n">combined</span><span class="o">.</span><span class="n">wig</span> <span class="n">samples</span><span class="o">.</span><span class="n">metadata</span> <span class="n">prot</span><span class="o">.</span><span class="n">table</span> <span class="n">output</span><span class="o">.</span><span class="n">file</span> <span class="o">--</span><span class="n">covars</span> <span class="n">Batch</span>
+</pre></div>
+</div>
+<p>Similarly, an interaction variable may be included in the model.
+This is specified by the user with the <strong>--interactions</strong> flag,
+followed by the name of a column in the samples metadata to test as the interaction
+with the condition. If there are multiple interactions, they may be given as a comma-separated list.</p>
+<p>To give an example,
+consider an experiment where the condition represents
+a treatment (e.g. with values ‘treated’ and ‘control’), and we have another column
+called Strain (with values ‘wild-type’ and ‘mutant’).
+If we want to test whether the effect of the treatment (versus control)
+differs depending on the strain, we could do this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">zinb</span> <span class="n">combined</span><span class="o">.</span><span class="n">wig</span> <span class="n">samples</span><span class="o">.</span><span class="n">metadata</span> <span class="n">prot</span><span class="o">.</span><span class="n">table</span> <span class="n">output</span><span class="o">.</span><span class="n">file</span> <span class="o">--</span><span class="n">interactions</span> <span class="n">Strain</span>
+</pre></div>
+</div>
+<p>In this case, the condition is implicitly assumed to be the column in the samples metadata file
+labeled ‘Condition’.  If you want to specify a different column to use as the primary condition to
+test (for example, if Treatment were a distinct column), you can use the <strong>--condition</strong> flag:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">zinb</span> <span class="n">combined</span><span class="o">.</span><span class="n">wig</span> <span class="n">samples</span><span class="o">.</span><span class="n">metadata</span> <span class="n">prot</span><span class="o">.</span><span class="n">table</span> <span class="n">output</span><span class="o">.</span><span class="n">file</span> <span class="o">--</span><span class="n">condition</span> <span class="n">Treatment</span> <span class="o">--</span><span class="n">interactions</span> <span class="n">Strain</span>
+</pre></div>
+</div>
+<p>The difference between how covariates and interactions are handeled in the model
+is discussed below in the section on Statistical Significance.</p>
+</section>
+<section id="categorical-vs-numeric-covariates">
+<h2>Categorical vs Numeric Covariates<a class="headerlink" href="#categorical-vs-numeric-covariates" title="Permalink to this headline"></a></h2>
+<p>In some cases, covariates are intended to be treated as categorical
+variables, like ‘batch’ or ‘library’ or ‘medium’.
+In other cases, a covariate might be a numeric value, such as
+‘time’ or ‘concentration’, in which the ordering of values is
+relevant.  The ZINB implementation tries to guess the type of each covariate.
+If they are strings, they are treated as discrete factors (each with
+their own distinct parameter).  If the given covariate can
+be parsed as numbers, the model interprets them as real values.  In this
+case, the covariate is treated as a linear factor (regressor), and is
+incorporated in the model as a single coefficient, capturing the slope or
+trend in the insertion counts as the covariate value increases.</p>
+</section>
+<section id="statistical-significance-what-the-p-values-mean-in-the-zinb-output">
+<h2>Statistical Significance - What the P-values Mean in the ZINB Output<a class="headerlink" href="#statistical-significance-what-the-p-values-mean-in-the-zinb-output" title="Permalink to this headline"></a></h2>
+<p>Formally, the P-value is from a likelihood ratio test (LRT) between a
+condition-dependent ZINB model (<span class="math notranslate nohighlight">\(m_1\)</span>) and a
+condition-independent (null) ZINB model (<span class="math notranslate nohighlight">\(m_0\)</span>).</p>
+<div class="math notranslate nohighlight">
+\[2 \ ln \frac{L(m_1)}{L(m_0)} \sim \chi^2_{df}\]</div>
+<p>where L(.) is the ZINB likelihood function, and <span class="math notranslate nohighlight">\(\chi^2_{df}\)</span> is
+the chi-squared distribution with degrees of freedom (df) equal to
+difference in the number of parameters bewteen the two models.  The p-value is
+calculated based on this distribution.</p>
+<p>In a simple case where variability across a set of conditions X is being tested,
+you can think of the model approximately as:</p>
+<div class="math notranslate nohighlight">
+\[m_1: ln \ \mu = \alpha_0+\vec\alpha X\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mu\)</span> is an estimate of the mean (non-zero) insertion
+count in a gene (a parameter in the likelihood function for ZINB),
+<span class="math notranslate nohighlight">\(\alpha_0\)</span> is a constant (the mean across all
+conditions), and <span class="math notranslate nohighlight">\(\vec\alpha\)</span> is a vector of coefficients
+representing the deviation of the mean count in each condition.
+(There is a corresponding equation for estimating the saturation as a
+function of condition.)</p>
+<p>To evaluate whether the variability across conditions is significant, we
+compare to a null model, where the counts are estimated by the global mean only
+(dropping the condition variable X).</p>
+<div class="math notranslate nohighlight">
+\[m_0: ln \ \mu = \alpha_0\]</div>
+<p>When a covariate C is available, it is incorporated in both models (additively),
+to account for the effect of the covariate in <span class="math notranslate nohighlight">\(m_1\)</span>. Coefficients in <span class="math notranslate nohighlight">\(\vec\beta\)</span>
+represent systematic effects on the mean count due to the covariate, and effectively
+get subtracted out of the condition coefficients, but <span class="math notranslate nohighlight">\(\vec\beta\)</span> is also
+included in the null model <span class="math notranslate nohighlight">\(m_0\)</span>, since we want to discount the effect of C on the
+likelihood and focus on evaluting the effect of X.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}m_1: ln \ \mu = \alpha_0 + \vec\alpha X + \vec\beta C\\m_0: ln \ \mu = \alpha_0 + \vec\beta C\end{aligned}\end{align} \]</div>
+<p>When an interaction I is being tested, it is incorporated <em>multiplicatively</em> in
+the main model <span class="math notranslate nohighlight">\(m_1\)</span> and <em>additively</em> in the null model <span class="math notranslate nohighlight">\(m_0\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}m_1: ln \ \mu = \alpha_0 + \vec\alpha X + \vec\beta I + \vec\gamma X*I\\m_0: ln \ \mu = \alpha_0 + \vec\alpha X + \vec\beta I\end{aligned}\end{align} \]</div>
+<p>The meaning of this is that the coefficients <span class="math notranslate nohighlight">\(\vec\alpha\)</span> and
+<span class="math notranslate nohighlight">\(\vec\beta\)</span> capture the additive effects of how the mean
+insertion count in a gene depends on the condition variable and the
+interaction variable, respectively, and the X*I term captures
+additional (non-additive) deviations (which is the traditional way
+interactions are handled in generalized linear models, GLMs).  Thus,
+if there were no interaction, one would expect the mean in datasets
+representing the <em>combination</em> of X and I to be predicted by the
+offsets for each independently.  To the extend that this is not the
+case, we say that X and I interaction, and the coefficients
+<span class="math notranslate nohighlight">\(\gamma\)</span> for X*I capture these deviations (non-additive
+effects).</p>
+<p>For example, think of condition X as Strain (e.g. wild-type vs mutant),
+and interaction I as Treatment (e.g. treated versus control).
+Then the main model would look like this:</p>
+<div class="math notranslate nohighlight">
+\[m_1: ln \ \mu = \alpha_0 + \alpha_1 WT  + \alpha_2 mutant + \beta_1 control + \beta_2 treated + \gamma mutant * treated\]</div>
+<p>and this would be compared to the following null model (without the interaction term):</p>
+<div class="math notranslate nohighlight">
+\[m_0: ln \ \mu = \alpha_0 + \alpha_1 WT  + \alpha_2 mutant + \beta_1 control + \beta_2 treated\]</div>
+</section>
+<section id="output-and-diagnostics">
+<h2>Output and Diagnostics<a class="headerlink" href="#output-and-diagnostics" title="Permalink to this headline"></a></h2>
+<p>The ZINB method outputs a tab-delimited file with results for each
+gene in the genome. P-values are adjusted for multiple comparisons using
+the Benjamini-Hochberg procedure (called “q-values” or “p-adj.”). A
+typical threshold for conditional essentiality on is q-value &lt; 0.05.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Orf</p></td>
+<td><p>Gene ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Name of the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>TAs</p></td>
+<td><p>Number of TA sites in Gene</p></td>
+</tr>
+<tr class="row-odd"><td><p>Means…</p></td>
+<td><p>Mean read-counts for each condition</p></td>
+</tr>
+<tr class="row-even"><td><p>LFCs…</p></td>
+<td><p>Log-fold-change (base 2) of mean insertion count relative to
+mean across all conditions. Pseudo-counts of 5 are added.
+If only 2 conditions, LFC is based on ratio of second to first.</p></td>
+</tr>
+<tr class="row-odd"><td><p>NZmeans…</p></td>
+<td><p>Mean read-counts at non-zero zites for each condition</p></td>
+</tr>
+<tr class="row-even"><td><p>NZpercs…</p></td>
+<td><p>Saturation (percentage of non-zero sites) for each condition</p></td>
+</tr>
+<tr class="row-odd"><td><p>p-value</p></td>
+<td><p>P-value calculated by the ZINB test.</p></td>
+</tr>
+<tr class="row-even"><td><p>p-adj</p></td>
+<td><p>Adjusted p-value controlling for the FDR (Benjamini-Hochberg)</p></td>
+</tr>
+<tr class="row-odd"><td><p>status</p></td>
+<td><p>Diagnostic information (explanation for genes not analyzed)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>LFCs</strong> (log-fold-changes):
+For each condition, the LFC is calculated as the log-base-2 of the
+ratio of mean insertion count in that condition <strong>relative to the
+mean of means across all the conditions</strong> (by default).
+However, you can change this by desginating a specific reference condition using the flag <strong>--ref</strong>.
+(If there are multiple reference conditions, they may be given as a comma separated list.)
+(If you are using interactions, it is more complicated to specify a reference condition by name because they have to include the interactions, e.g. as shown in the column headers in the output file.)
+Pseudocount are incorporated to reduce the impact of noise on LFCs, based on the formula below.
+The pseudocounts can be adjusted using the -PC flag.
+Changing the pseudocounts (via -PC) can reduce the artifactual appearance of genes with
+high-magnitude LFCs but that have small overall counts (which are susceptible to noise).
+Changing the pseudocounts will not affect the analysis of statistical significance and hence number of varying genes, however.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LFC</span> <span class="o">=</span> <span class="n">log2</span><span class="p">((</span><span class="n">mean_insertions_in_condition</span> <span class="o">+</span> <span class="n">PC</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">mean_of_means_across_all_conditions</span> <span class="o">+</span> <span class="n">PC</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="run-time">
+<h2>Run-time<a class="headerlink" href="#run-time" title="Permalink to this headline"></a></h2>
+<p>A typical run of the ZINB method takes ~5 minutes to analze a combined wig
+file with 6 conditions, 3 replicates per condition. It will, of
+course, run more slowly if you have many more conditions.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_anova.html" class="btn btn-neutral float-left" title="ANOVA" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_normalization.html" class="btn btn-neutral float-right" title="Normalization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

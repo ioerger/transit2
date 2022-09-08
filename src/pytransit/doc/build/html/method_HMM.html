@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HMM &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Resampling" href="method_resampling.html" />
+    <link rel="prev" title="Tn5Gaps" href="method_tn5gaps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HMM</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-and-diagnostics">Output and Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-time">Run-time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>HMM</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_HMM.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hmm">
+<span id="id1"></span><h1>HMM<a class="headerlink" href="#hmm" title="Permalink to this headline"></a></h1>
+<p>The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Intended only for <strong>Himar1</strong> datasets.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline"></a></h2>
+<div class="line-block">
+<div class="line">For a formal description of how this method works, see our paper <a class="reference internal" href="transit_overview.html#dejesus2013hmm" id="id2"><span>[DeJesus2013HMM]</span></a>:</div>
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">DeJesus, M.A., Ioerger, T.R. <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/24103077">A Hidden Markov Model for identifying essential and growth-defect regions in bacterial genomes from transposon insertion sequencing data.</a> <em>BMC Bioinformatics.</em> 2013. 14:303</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">hmm</span> <span class="o">&lt;</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="o">.</span><span class="n">wig</span> <span class="n">files</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span> <span class="ow">or</span> <span class="n">GFF3</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span>
+      <span class="n">Optional</span> <span class="n">Arguments</span><span class="p">:</span>
+          <span class="o">-</span><span class="n">r</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">How</span> <span class="n">to</span> <span class="n">handle</span> <span class="n">replicates</span><span class="o">.</span> <span class="n">Sum</span><span class="p">,</span> <span class="n">Mean</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">r</span> <span class="n">Mean</span>
+          <span class="o">-</span><span class="n">l</span>              <span class="o">:=</span>  <span class="n">Perform</span> <span class="n">LOESS</span> <span class="n">Correction</span><span class="p">;</span> <span class="n">Helps</span> <span class="n">remove</span> <span class="n">possible</span> <span class="n">genomic</span> <span class="n">position</span> <span class="n">bias</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">Off</span><span class="o">.</span>
+          <span class="o">-</span><span class="n">iN</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">at</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">N</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">0</span>
+          <span class="o">-</span><span class="n">iC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">at</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">C</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p>The HMM method automatically estimates the necessary statistical
+parameters from the datasets. You can change how the method handles
+replicate datasets:</p>
+<ul class="simple">
+<li><p><strong>Replicates:</strong> Determines how the HMM deals with replicate datasets
+by either averaging the read-counts or summing read counts across
+datasets. For regular datasets (i.e. mean-read count &gt; 100) the
+recommended setting is to average read-counts together. For sparse
+datasets, it summing read-counts may produce more accurate results.</p></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="output-and-diagnostics">
+<h2>Output and Diagnostics<a class="headerlink" href="#output-and-diagnostics" title="Permalink to this headline"></a></h2>
+<div class="line-block">
+<div class="line">The HMM method outputs two files. The first file provides the most
+likely assignment of states for all the TA sites in the genome. Sites
+can belong to one of the following states: “E” (Essential), “GD”
+(Growth-Defect), “NE” (Non-Essential), or “GA” (Growth-Advantage). In
+addition, the output includes the probability of the particular site
+belonging to the given state. The columns of this file are defined as
+follows:</div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 89%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column #</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Coordinate of TA site</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Observed Read Counts</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Probability for ES state</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Probability for GD state</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>Probability for NE state</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Probability for GA state</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>State Classification (ES = Essential, GD = Growth Defect, NE = Non-Essential, GA = Growth-Defect)</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>Gene(s) that share(s) the TA site.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">The second file provides a gene-level classification for all the
+genes in the genome. Genes are classified as “E” (Essential), “GD”
+(Growth-Defect), “NE” (Non-Essential), or “GA” (Growth-Advantage)
+depending on the number of sites within the gene that belong to those
+states.</div>
+</div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 84%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Orf</p></td>
+<td><p>Gene ID</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Gene Name</p></td>
+</tr>
+<tr class="row-even"><td><p>Desc</p></td>
+<td><p>Gene Description</p></td>
+</tr>
+<tr class="row-odd"><td><p>N</p></td>
+<td><p>Number of TA sites</p></td>
+</tr>
+<tr class="row-even"><td><p>n0</p></td>
+<td><p>Number of sites labeled ES (Essential)</p></td>
+</tr>
+<tr class="row-odd"><td><p>n1</p></td>
+<td><p>Number of sites labeled GD (Growth-Defect)</p></td>
+</tr>
+<tr class="row-even"><td><p>n2</p></td>
+<td><p>Number of sites labeled NE (Non-Essential)</p></td>
+</tr>
+<tr class="row-odd"><td><p>n3</p></td>
+<td><p>Number of sites labeled GA (Growth-Advantage)</p></td>
+</tr>
+<tr class="row-even"><td><p>Avg. Insertions</p></td>
+<td><p>Mean insertion rate within the gene</p></td>
+</tr>
+<tr class="row-odd"><td><p>Avg. Reads</p></td>
+<td><p>Mean read count within the gene</p></td>
+</tr>
+<tr class="row-even"><td><p>State Call</p></td>
+<td><p>State Classification (ES = Essential, GD = Growth Defect, NE = Non-Essential, GA = Growth-Defect)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">Note: Libraries that are too sparse (e.g. &lt; 30%) or which contain
+very low read-counts may be problematic for the HMM method, causing it
+to label too many Growth-Defect genes.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="run-time">
+<h2>Run-time<a class="headerlink" href="#run-time" title="Permalink to this headline"></a></h2>
+<div class="line-block">
+<div class="line">The HMM method takes less than 10 minutes to complete. The parameters
+of the method should not affect the running-time.</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_tn5gaps.html" class="btn btn-neutral float-left" title="Tn5Gaps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_resampling.html" class="btn btn-neutral float-right" title="Resampling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

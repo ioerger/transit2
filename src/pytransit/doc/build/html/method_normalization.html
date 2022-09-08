@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Normalization &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pathway Enrichment Analysis" href="method_pathway_enrichment.html" />
+    <link rel="prev" title="ZINB" href="method_zinb.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command-line">Command-line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Normalization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_normalization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="normalization">
+<span id="id1"></span><h1>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline"></a></h1>
+<p>Proper normalization is important as it ensures that other sources of
+variability are not mistakenly treated as real differences in
+datasets. TRANSIT provides various normalization methods, which are
+briefly described below:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>TTR:</strong></dt><dd><p>Trimmed Total Reads (TTR), normalized by the total
+read-counts (like totreads), but trims top and bottom 5% of
+read-counts. <strong>This is the recommended normalization method for most cases</strong>
+as it has the beneffit of normalizing for difference in
+saturation in the context of resampling.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>nzmean:</strong></dt><dd><p>Normalizes datasets to have the same mean over the
+non-zero sites.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>totreads:</strong></dt><dd><p>Normalizes datasets by total read-counts, and scales
+them to have the same mean over all counts.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>zinfnb:</strong></dt><dd><p>Fits a zero-inflated negative binomial model, and then
+divides read-counts by the mean. The zero-inflated negative
+binomial model will treat some empty sites as belonging to the
+“true” negative binomial distribution responsible for read-counts
+while treating the others as “essential” (and thus not influencing
+its parameters).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>quantile:</strong></dt><dd><p>Normalizes datasets using the quantile normalization
+method described by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/12538238">Bolstad et al.
+(2003)</a>. In this
+normalization procedure, datasets are sorted, an empirical
+distribution is estimated as the mean across the sorted datasets
+at each site, and then the original (unsorted) datasets are
+assigned values from the empirical distribution based on their
+quantiles.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>betageom:</strong></dt><dd><p>Normalizes the datasets to fit an “ideal” Geometric
+distribution with a variable probability parameter <em>p</em>. Specially
+useful for datasets that contain a large skew. See <a class="reference internal" href="transit_features.html#bgc"><span class="std std-ref">Beta-Geometric Correction</span></a> .</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>nonorm:</strong></dt><dd><p>No normalization is performed.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<section id="command-line">
+<h2>Command-line<a class="headerlink" href="#command-line" title="Permalink to this headline"></a></h2>
+<p>In addition to choosing normalization for various analyses in the GUI,
+you can also call Transit to normalize wig files from the command-line,
+as shown in this example:</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">normalize</span> <span class="o">--</span><span class="n">help</span>
+
+<span class="n">usage</span><span class="p">:</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">normalize</span> <span class="o">&lt;</span><span class="nb">input</span><span class="o">.</span><span class="n">wig</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span><span class="o">.</span><span class="n">wig</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">TTR</span><span class="o">|</span><span class="n">betageom</span><span class="p">]</span>
+   <span class="ow">or</span><span class="p">:</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">normalize</span> <span class="o">-</span><span class="n">c</span> <span class="o">&lt;</span><span class="n">combined_wig</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">TTR</span><span class="o">|</span><span class="n">betageom</span><span class="p">]</span>
+
+<span class="o">&gt;</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">normalize</span> <span class="n">Rv_1_H37RvRef</span><span class="o">.</span><span class="n">wig</span> <span class="n">Rv_1_H37RvRef_TTR</span><span class="o">.</span><span class="n">wig</span> <span class="o">-</span><span class="n">n</span> <span class="n">TTR</span>
+
+<span class="o">&gt;</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">normalize</span> <span class="n">Rv_1_H37RvRef</span><span class="o">.</span><span class="n">wig</span> <span class="n">Rv_1_H37RvRef_BG</span><span class="o">.</span><span class="n">wig</span> <span class="o">-</span><span class="n">n</span> <span class="n">betageom</span>
+</pre></div>
+</div>
+<p>The normalize command now also works on <a href="#id2"><span class="problematic" id="id3">combined_wig_</span></a> files too.
+If the input file is a combined_wig file, indicate it with a ‘-c’ flag.</p>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_zinb.html" class="btn btn-neutral float-left" title="ZINB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_pathway_enrichment.html" class="btn btn-neutral float-right" title="Pathway Enrichment Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tn5Gaps &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HMM" href="method_HMM.html" />
+    <link rel="prev" title="Griffin" href="method_griffin.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tn5Gaps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#outputs-and-diagnostics">Outputs and diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-time">Run-time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Tn5Gaps</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_tn5gaps.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tn5gaps">
+<span id="id1"></span><h1>Tn5Gaps<a class="headerlink" href="#tn5gaps" title="Permalink to this headline"></a></h1>
+<p>The Tn5Gaps method can be used to determine which genes are essential
+in a single condition for <strong>Tn5</strong> datasets. It does an analysis of the
+insertions at each site within the genome, makes a call for a given
+gene based on the length of the most heavily overlapping run of sites
+without insertions (gaps), calculates the probability of this using a
+the Gumbel distribution.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Intended only for <strong>Tn5</strong> datasets.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline"></a></h2>
+<p>This method is loosely is based on the original gumbel analysis
+method described in this paper:</p>
+<p>Griffin, J.E., Gawronski, J.D., DeJesus, M.A., Ioerger, T.R., Akerley, B.J., Sassetti, C.M. (2011).
+<a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/21980284">High-resolution phenotypic profiling defines genes essential for mycobacterial survival and cholesterol catabolism.</a>  <em>PLoS Pathogens</em>, 7(9):e1002251.</p>
+<p>The Tn5Gaps method modifies the original method in order to work on
+Tn5 datasets, which have significantly lower saturation of insertion sites
+than Himar1 datasets. The main difference comes from the fact that
+the runs of non-insertion (or “gaps”) are analyzed throughout the whole
+genome, including non-coding regions, instead of within single genes.
+In doing so, the expected maximum run length is calculated and a
+p-value can be derived for every run. A gene is then classified by
+using the p-value of the run with the largest number of nucleotides
+overlapping with the gene.</p>
+<p>This method was tested on a Salmonella Tn5 dataset presented in this paper:</p>
+<p>Langridge GC, Phan MD, Turner DJ, Perkins TT, Parts L, Haase J,
+Charles I, Maskell DJ, Peters SE, Dougan G, Wain J, Parkhill J, Turner
+AK. (2009). <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/19826075">Simultaneous assay of every Salmonella Typhi gene using one million
+transposon mutants.</a> <em>Genome Res.</em> , 19(12):2308-16.</p>
+<p>This data was downloaded from SRA (located <a class="reference external" href="http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP000051">here</a>) , and used to make
+wig files (<a class="reference external" href="http://orca1.tamu.edu/essentiality/transit/data/salmonella_baseline.wig">baseline</a> and <a class="reference external" href="http://orca1.tamu.edu/essentiality/transit/data/salmonella_bile.wig">bile</a>) and the following 4 baseline datasets
+were merged to make a wig file: (IL2_2122_1,3,6,8). Our analysis
+produced 415 genes with adjusted p-values less than 0.05, indicating
+essentiality, and the analysis from the above paper produced 356
+essential genes. Of these 356 essential genes, 344 overlap with the
+output of our analysis.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">../../../</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">tn5gaps</span> <span class="o">&lt;</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="o">.</span><span class="n">wig</span> <span class="n">files</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span> <span class="ow">or</span> <span class="n">GFF3</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">Optional</span> <span class="n">Arguments</span><span class="p">]</span>
+
+    <span class="n">Optional</span> <span class="n">Arguments</span><span class="p">:</span>
+    <span class="o">-</span><span class="n">m</span> <span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span>    <span class="o">:=</span>  <span class="n">Smallest</span> <span class="n">read</span><span class="o">-</span><span class="n">count</span> <span class="n">to</span> <span class="n">consider</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">m</span> <span class="mi">1</span>
+    <span class="o">-</span><span class="n">r</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">How</span> <span class="n">to</span> <span class="n">handle</span> <span class="n">replicates</span><span class="o">.</span> <span class="n">Sum</span> <span class="ow">or</span> <span class="n">Mean</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">r</span> <span class="n">Sum</span>
+    <span class="o">-</span><span class="n">iN</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">within</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">N</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">0</span>
+    <span class="o">-</span><span class="n">iC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">within</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">C</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p><strong>Minimum Read:</strong> The minimum read count that is considered a true read. Because the Gumbel method depends on determining gaps of TA sites lacking insertions, it may be suceptible to spurious reads (e.g. errors). The default value of 1 will consider all reads as true reads. A value of 2, for example, will ignore read counts of 1.</p></li>
+<li><p><strong>Replicates:</strong> Determines how to deal with replicates by averaging the read-counts or suming read counts accross datasets. This should not have an affect for the Gumbel method, aside from potentially affecting spurious reads.</p></li>
+<li><p><strong>-iN:</strong> Trimming of insertions in N-terminus (given as percentage of ORF length, e.g. “5” for 5%; default=0)</p></li>
+<li><p><strong>-iC:</strong> Trimming of insertions in C-terminus (given as percentage of ORF length, e.g. “5” for 5%; default=0)</p></li>
+</ul>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">PATH</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">tn5gaps</span> <span class="n">salmonella_baseline</span><span class="o">.</span><span class="n">wig</span> <span class="n">Salmonella</span><span class="o">-</span><span class="n">Ty2</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">salmonella_baseline_tn5gaps_trimmed</span><span class="o">.</span><span class="n">dat</span> <span class="o">-</span><span class="n">m</span> <span class="mi">2</span> <span class="o">-</span><span class="n">r</span> <span class="n">Sum</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">5</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>These input and output files can be downloaded from the <strong>Example Data</strong> section on the <a class="reference external" href="http://saclab.tamu.edu/essentiality/transit/index.html">Transit home page</a> .</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="outputs-and-diagnostics">
+<h2>Outputs and diagnostics<a class="headerlink" href="#outputs-and-diagnostics" title="Permalink to this headline"></a></h2>
+<p>The Tn5Gaps method generates a tab-separated output file at the
+location chosen by the user. This file will automatically be loaded
+into the Results Files section of the GUI, allowing you to display it
+as a table. Alternatively, the file can be opened in a spreadsheet
+software like Excel as a tab-separated file. The columns of the output
+file are defined as follows:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ORF</p></td>
+<td><p>Gene ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Name of the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>Desc</p></td>
+<td><p>Gene description.</p></td>
+</tr>
+<tr class="row-odd"><td><p>k</p></td>
+<td><p>Number of Transposon Insertions Observed within the ORF.</p></td>
+</tr>
+<tr class="row-even"><td><p>n</p></td>
+<td><p>Total Number of TA dinucleotides within the ORF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>r</p></td>
+<td><p>Length of the Maximum Run of Non-Insertions observed.</p></td>
+</tr>
+<tr class="row-even"><td><p>ovr</p></td>
+<td><p>The number of nucleotides in the overlap with the longest run partially covering the gene.</p></td>
+</tr>
+<tr class="row-odd"><td><p>lenovr</p></td>
+<td><p>The length of the above run with the largest overlap with the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>pval</p></td>
+<td><p>P-value calculated by the permutation test.</p></td>
+</tr>
+<tr class="row-odd"><td><p>padj</p></td>
+<td><p>Adjusted p-value controlling for the FDR (Benjamini-Hochberg).</p></td>
+</tr>
+<tr class="row-even"><td><p>call</p></td>
+<td><p>Essentiality call for the gene. Depends on FDR corrected thresholds. Essential or Non-Essential.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="run-time">
+<h2>Run-time<a class="headerlink" href="#run-time" title="Permalink to this headline"></a></h2>
+<p>The Tn5Gaps method takes on the order of 10 minutes.
+Other notes: Tn5Gaps can be run on multiple replicates; replicate
+datasets will be automatically merged.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_griffin.html" class="btn btn-neutral float-left" title="Griffin" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_HMM.html" class="btn btn-neutral float-right" title="HMM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

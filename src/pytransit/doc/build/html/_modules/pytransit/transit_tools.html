@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pytransit.transit_tools &mdash; TRANSIT v3.2.3 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> TRANSIT
+            <img src="../../_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_features.html">Quality Control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_methods.html">Analysis Methods (Expand Me First!)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pytransit.transit_tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pytransit.transit_tools</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2015.</span>
+<span class="c1">#   Michael A. DeJesus, Chaitra Ambadipudi, and  Thomas R. Ioerger.</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#    This file is part of TRANSIT.</span>
+<span class="c1">#</span>
+<span class="c1">#    TRANSIT is free software: you can redistribute it and/or modify</span>
+<span class="c1">#    it under the terms of the GNU General Public License as published by</span>
+<span class="c1">#    the Free Software Foundation, either version 3 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#    TRANSIT is distributed in the hope that it will be useful,</span>
+<span class="c1">#    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">#    GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#    You should have received a copy of the GNU General Public License</span>
+<span class="c1">#    along with TRANSIT.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">wx</span>
+    <span class="n">WX_VERSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">version</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">hasWx</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">hasWx</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">WX_VERSION</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">if</span> <span class="n">hasWx</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">wx.xrc</span>
+    <span class="kn">from</span> <span class="nn">wx.lib.buttons</span> <span class="kn">import</span> <span class="n">GenBitmapTextButton</span>
+    <span class="kn">from</span> <span class="nn">pubsub</span> <span class="kn">import</span> <span class="n">pub</span>
+    <span class="kn">import</span> <span class="nn">wx.adv</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">ntpath</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">pytransit</span>
+<span class="kn">import</span> <span class="nn">pytransit.tnseq_tools</span> <span class="k">as</span> <span class="nn">tnseq_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.norm_tools</span> <span class="k">as</span> <span class="nn">norm_tools</span>
+
+
+<span class="k">if</span> <span class="n">hasWx</span><span class="p">:</span>
+<div class="viewcode-block" id="AssumeZerosDialog"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.AssumeZerosDialog">[docs]</a>    <span class="k">class</span> <span class="nc">AssumeZerosDialog</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Dialog</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ID_HIMAR1</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">NewId</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ID_TN5</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">NewId</span><span class="p">()</span>
+
+            <span class="n">wx</span><span class="o">.</span><span class="n">Dialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Dialog&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ID_HIMAR1</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">NewId</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ID_TN5</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">NewId</span><span class="p">()</span>
+    
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetSize</span><span class="p">((</span><span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="s2">&quot;Warning:  Wig Files Do Not Include Empty Sites&quot;</span><span class="p">)</span>
+
+            <span class="n">mainSizer</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="n">mainSizer</span><span class="p">)</span>
+    
+            <span class="n">warningText</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">One or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). The analysis methods in TRANSIT require knowing ALL possible insertion sites, even those without reads.</span>
+<span class="s2">    </span>
+<span class="s2">    Please indicate how you want to proceed:</span>
+
+<span class="s2">    As Himar1: You will need to provide the DNA sequence (.fasta format) and TRANSIT will automatically determine empty TA sites.</span>
+
+<span class="s2">    As Tn5: TRANSIT will assume all nucleotides are possible insertion sites. Those not included in the .wig file are assumed to be zero.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+            <span class="n">warningStaticBox</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">StaticText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="n">warningText</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="p">)</span>
+            <span class="n">warningStaticBox</span><span class="o">.</span><span class="n">Wrap</span><span class="p">(</span><span class="mi">480</span><span class="p">)</span>
+            <span class="n">mainSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">warningStaticBox</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    
+            <span class="n">button_sizer</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">)</span>
+            <span class="n">himar1Button</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID_HIMAR1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Proceed as Himar1&#39;</span><span class="p">)</span>
+            <span class="n">tn5Button</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID_TN5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Proceed as Tn5&#39;</span><span class="p">)</span>
+            <span class="n">cancelButton</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_CANCEL</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Cancel&#39;</span><span class="p">)</span>
+
+    
+            <span class="n">button_sizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">himar1Button</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">button_sizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">tn5Button</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">button_sizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">cancelButton</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+            <span class="n">mainSizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">button_sizer</span><span class="p">,</span>
+                <span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">ALIGN_CENTER</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">TOP</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+
+            <span class="n">himar1Button</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OnClose</span><span class="p">)</span>
+            <span class="n">tn5Button</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OnClose</span><span class="p">)</span>
+            <span class="n">cancelButton</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OnClose</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AssumeZerosDialog.OnClose"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.AssumeZerosDialog.OnClose">[docs]</a>        <span class="k">def</span> <span class="nf">OnClose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsModal</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">EndModal</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">EventObject</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span></div></div>
+
+
+
+<div class="viewcode-block" id="aton"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.aton">[docs]</a><span class="k">def</span> <span class="nf">aton</span><span class="p">(</span><span class="n">aa</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">return</span><span class="p">(((</span><span class="n">aa</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="parseCoords"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.parseCoords">[docs]</a><span class="k">def</span> <span class="nf">parseCoords</span><span class="p">(</span><span class="n">strand</span><span class="p">,</span> <span class="n">aa_start</span><span class="p">,</span> <span class="n">aa_end</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
+        <span class="k">return</span><span class="p">((</span><span class="n">aton</span><span class="p">(</span><span class="n">aa_start</span><span class="p">)</span> <span class="o">+</span> <span class="n">start</span><span class="p">,</span>  <span class="n">aton</span><span class="p">(</span><span class="n">aa_end</span><span class="p">)</span> <span class="o">+</span> <span class="n">start</span><span class="p">))</span>
+    <span class="c1"># Coordinates are Reversed... to match with Trash FILE TA coordinates</span>
+    <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+        <span class="k">return</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">aton</span><span class="p">(</span><span class="n">aa_end</span><span class="p">),</span> <span class="n">end</span> <span class="o">-</span> <span class="n">aton</span><span class="p">(</span><span class="n">aa_start</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_name"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.fetch_name">[docs]</a><span class="k">def</span> <span class="nf">fetch_name</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">ntpath</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="basename"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.basename">[docs]</a><span class="k">def</span> <span class="nf">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">return</span> <span class="n">ntpath</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dirname"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.dirname">[docs]</a><span class="k">def</span> <span class="nf">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="cleanargs"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.cleanargs">[docs]</a><span class="k">def</span> <span class="nf">cleanargs</span><span class="p">(</span><span class="n">rawargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list and a dictionary with positional and keyword arguments.</span>
+
+<span class="sd">    -This function assumes flags must start with a &quot;-&quot; and and cannot be a </span>
+<span class="sd">        number (but can include them).</span>
+<span class="sd">    </span>
+<span class="sd">    -Flags should either be followed by the value they want to be associated </span>
+<span class="sd">        with (i.e. -p 5) or will be assigned a value of True in the dictionary.</span>
+
+<span class="sd">    -The dictionary will map flags to the name given minus ONE &quot;-&quot; sign in</span>
+<span class="sd">        front. If you use TWO minus signs in the flag name (i.e. --verbose), </span>
+<span class="sd">        the dictionary key will be the name with ONE minus sign in front </span>
+<span class="sd">        (i.e. {&quot;-verbose&quot;:True}).</span>
+<span class="sd">    </span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        rawargs (list): List of positional/keyword arguments. As obtained from</span>
+<span class="sd">                         sys.argv.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of positional arguments (i.e. arguments without flags),</span>
+<span class="sd">                in order provided.</span>
+<span class="sd">        dict: Dictionary mapping flag (key is flag minus the first &quot;-&quot;) and</span>
+<span class="sd">                their values.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Loop through list of arguments</span>
+    <span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rawargs</span><span class="p">):</span>
+        <span class="c1"># If the current argument starts with &quot;-&quot;, then it&#39;s probably a flag</span>
+        <span class="k">if</span> <span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
+            <span class="c1"># Check if next argument is a number</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">nextIsNumber</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">nextIsNumber</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">stillNotFinished</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rawargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stillNotFinished</span><span class="p">:</span>
+                <span class="n">nextIsNotArgument</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                <span class="n">nextLooksLikeList</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nextIsNotArgument</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">nextLooksLikeList</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+            <span class="c1"># If still things in list, and they look like arguments to a flag, add them to dict </span>
+            <span class="k">if</span> <span class="n">stillNotFinished</span> <span class="ow">and</span> <span class="p">(</span><span class="n">nextIsNotArgument</span> <span class="ow">or</span> <span class="n">nextLooksLikeList</span> <span class="ow">or</span> <span class="n">nextIsNumber</span><span class="p">):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="p">][</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Else it&#39;s a flag but without arguments/values so assign it True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="p">][</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Else, it&#39;s probably a positional arguement without flags</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rawargs</span><span class="p">[</span><span class="n">count</span><span class="p">])</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getTabTableData"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.getTabTableData">[docs]</a><span class="k">def</span> <span class="nf">getTabTableData</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">colnames</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span> <span class="k">continue</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">rowdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">colnames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">colnames</span><span class="p">))])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">,</span> <span class="n">rowdict</span><span class="p">))</span>
+        <span class="n">row</span><span class="o">+=</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="ShowMessage"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.ShowMessage">[docs]</a><span class="k">def</span> <span class="nf">ShowMessage</span><span class="p">(</span><span class="n">MSG</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">wx</span><span class="o">.</span><span class="n">MessageBox</span><span class="p">(</span><span class="n">MSG</span><span class="p">,</span> <span class="s1">&#39;Info&#39;</span><span class="p">,</span>
+        <span class="n">wx</span><span class="o">.</span><span class="n">OK</span> <span class="o">|</span> <span class="n">wx</span><span class="o">.</span><span class="n">ICON_INFORMATION</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ShowAskWarning"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.ShowAskWarning">[docs]</a><span class="k">def</span> <span class="nf">ShowAskWarning</span><span class="p">(</span><span class="n">MSG</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">dial</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">MSG</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">,</span>
+        <span class="n">wx</span><span class="o">.</span><span class="n">OK</span> <span class="o">|</span> <span class="n">wx</span><span class="o">.</span><span class="n">CANCEL</span> <span class="o">|</span> <span class="n">wx</span><span class="o">.</span><span class="n">ICON_EXCLAMATION</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dial</span><span class="o">.</span><span class="n">ShowModal</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ShowError"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.ShowError">[docs]</a><span class="k">def</span> <span class="nf">ShowError</span><span class="p">(</span><span class="n">MSG</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">dial</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">MSG</span><span class="p">,</span> <span class="s1">&#39;Error&#39;</span><span class="p">,</span>
+        <span class="n">wx</span><span class="o">.</span><span class="n">OK</span> <span class="o">|</span> <span class="n">wx</span><span class="o">.</span><span class="n">ICON_ERROR</span><span class="p">)</span>
+    <span class="n">dial</span><span class="o">.</span><span class="n">ShowModal</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="transit_message"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.transit_message">[docs]</a><span class="k">def</span> <span class="nf">transit_message</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">pytransit</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="transit_error"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.transit_error">[docs]</a><span class="k">def</span> <span class="nf">transit_error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">transit_message</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ShowError</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="validate_annotation"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.validate_annotation">[docs]</a><span class="k">def</span> <span class="nf">validate_annotation</span><span class="p">(</span><span class="n">annotation</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">annotation</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">annotation</span><span class="p">):</span>
+        <span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: No or Invalid annotation file selected!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="validate_control_datasets"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.validate_control_datasets">[docs]</a><span class="k">def</span> <span class="nf">validate_control_datasets</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: No control datasets selected!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="validate_both_datasets"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.validate_both_datasets">[docs]</a><span class="k">def</span> <span class="nf">validate_both_datasets</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span> <span class="n">expdata</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">expdata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: No datasets selected!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: No control datasets selected!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">expdata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: No experimental datasets selected!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="validate_transposons_used"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.validate_transposons_used">[docs]</a><span class="k">def</span> <span class="nf">validate_transposons_used</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">transposons</span><span class="p">,</span> <span class="n">justWarn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> 
+
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="c1"># Check if transposon type is okay.</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_unknown_file_types</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">transposons</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">justWarn</span><span class="p">:</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="n">ShowAskWarning</span><span class="p">(</span><span class="s2">&quot;Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: </span><span class="si">%s</span><span class="s2">. Proceeding may lead to errors. Click OK to continue.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span> <span class="n">join</span><span class="p">(</span><span class="n">unknown</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_CANCEL</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;Error: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span> <span class="n">join</span><span class="p">(</span><span class="n">unknown</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="validate_wig_format"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.validate_wig_format">[docs]</a><span class="k">def</span> <span class="nf">validate_wig_format</span><span class="p">(</span><span class="n">wig_list</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Check if the .wig files include zeros or not</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">genome</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">includesZeros</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">check_wig_includes_zeros</span><span class="p">(</span><span class="n">wig_list</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">includesZeros</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">includesZeros</span><span class="p">):</span>
+        <span class="c1"># If console mode, just print(a warning)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wxobj</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">hasWx</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">One or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). Proceeding as if data was Tn5 (all other sites assumed to be zero)!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Else check their decision</span>
+        <span class="n">dlg</span> <span class="o">=</span> <span class="n">AssumeZerosDialog</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">dlg</span><span class="o">.</span><span class="n">ShowModal</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="n">dlg</span><span class="o">.</span><span class="n">ID_HIMAR1</span> <span class="ow">and</span> <span class="n">wxobj</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c1"># Get genome</span>
+            <span class="n">wc</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|</span><span class="se">\n</span><span class="s2">All files (*.*)|*.*&quot;</span>
+            <span class="n">gen_dlg</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">FileDialog</span><span class="p">(</span><span class="n">wxobj</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Save file as ...&quot;</span><span class="p">,</span> <span class="n">defaultDir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">defaultFile</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">wildcard</span><span class="o">=</span><span class="n">wc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">FD_OPEN</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gen_dlg</span><span class="o">.</span><span class="n">ShowModal</span><span class="p">()</span> <span class="o">==</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_OK</span><span class="p">:</span>
+                <span class="n">genome</span> <span class="o">=</span> <span class="n">gen_dlg</span><span class="o">.</span><span class="n">GetPath</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">genome</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">elif</span> <span class="n">result</span> <span class="o">==</span> <span class="n">dlg</span><span class="o">.</span><span class="n">ID_TN5</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">genome</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="n">genome</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">genome</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_filetypes"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.validate_filetypes">[docs]</a><span class="k">def</span> <span class="nf">validate_filetypes</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">transposons</span><span class="p">,</span> <span class="n">justWarn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">validate_transposons_used</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">transposons</span><span class="p">,</span> <span class="n">justWarn</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_pos_hash"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.get_pos_hash">[docs]</a><span class="k">def</span> <span class="nf">get_pos_hash</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        path (str): Path to annotation in .prot_table or GFF3 format.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary of position to list of genes that share that position.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_extension</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.gff&quot;</span><span class="p">,</span> <span class="s2">&quot;.gff3&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_pos_hash_gff</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_pos_hash_pt</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+       
+
+<div class="viewcode-block" id="get_extended_pos_hash"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.get_extended_pos_hash">[docs]</a><span class="k">def</span> <span class="nf">get_extended_pos_hash</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        path (str): Path to annotation in .prot_table or GFF3 format.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary of position to list of genes that share that position.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_extension</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.gff&quot;</span><span class="p">,</span> <span class="s2">&quot;.gff3&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_extended_pos_hash_gff</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_extended_pos_hash_pt</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_gene_info"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.get_gene_info">[docs]</a><span class="k">def</span> <span class="nf">get_gene_info</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dictionary that maps gene id to gene information.</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        path (str): Path to annotation in .prot_table or GFF3 format.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary of gene id to tuple of information:</span>
+<span class="sd">            - name</span>
+<span class="sd">            - description</span>
+<span class="sd">            - start coordinate</span>
+<span class="sd">            - end coordinate</span>
+<span class="sd">            - strand</span>
+<span class="sd">            </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_extension</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.gff&quot;</span><span class="p">,</span> <span class="s2">&quot;.gff3&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_gene_info_gff</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_gene_info_pt</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convertToIGV"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.convertToIGV">[docs]</a><span class="k">def</span> <span class="nf">convertToIGV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">normchoice</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">normchoice</span><span class="p">:</span>
+        <span class="n">normchoice</span> <span class="o">=</span> <span class="s2">&quot;nonorm&quot;</span>
+
+    <span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">normchoice</span><span class="p">,</span> <span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">)</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Converted to IGV with TRANSIT.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">normchoice</span> <span class="o">!=</span> <span class="s2">&quot;nonorm&quot;</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Reads normalized using &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">normchoice</span><span class="p">)</span>
+
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Files:</span><span class="se">\n</span><span class="s2">#</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">#&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">))</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Chromosome</span><span class="se">\t</span><span class="s2">Start</span><span class="se">\t</span><span class="s2">End</span><span class="se">\t</span><span class="s2">Feature</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="s2">TAs</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">transit_tools</span><span class="o">.</span><span class="n">fetch_name</span><span class="p">(</span><span class="n">D</span><span class="p">)</span> <span class="k">for</span> <span class="n">D</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">])))</span>
+    <span class="n">chrom</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">fetch_name</span><span class="p">(</span><span class="n">annotationPath</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">position</span><span class="p">):</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="s2">TA</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="s2">1</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">position</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">position</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">position</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%1.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fulldata</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fulldata</span><span class="p">))])))</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+
+<div class="viewcode-block" id="convertToCombinedWig"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.convertToCombinedWig">[docs]</a><span class="k">def</span> <span class="nf">convertToCombinedWig</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">,</span> <span class="n">outputPath</span><span class="p">,</span> <span class="n">normchoice</span><span class="o">=</span><span class="s2">&quot;nonorm&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalizes the input datasets and outputs the result in CombinedWig format.</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        dataset_list (list): List of paths to datasets in .wig format</span>
+<span class="sd">        annotationPath (str): Path to annotation in .prot_table or GFF3 format.</span>
+<span class="sd">        outputPath (str): Desired output path.</span>
+<span class="sd">        normchoice (str): Choice for normalization method.</span>
+<span class="sd">            </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">normchoice</span><span class="p">,</span> <span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">)</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="nb">hash</span> <span class="o">=</span> <span class="n">get_pos_hash</span><span class="p">(</span><span class="n">annotationPath</span><span class="p">)</span>
+    <span class="n">rv2info</span> <span class="o">=</span> <span class="n">get_gene_info</span><span class="p">(</span><span class="n">annotationPath</span><span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Converted to CombinedWig with TRANSIT.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">normchoice</span> <span class="o">!=</span> <span class="s2">&quot;nonorm&quot;</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Reads normalized using &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">normchoice</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">factors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="mf">0.0</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Normalization Factors: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">factors</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Normalization Factors: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">bx</span> <span class="k">for</span> <span class="n">bx</span> <span class="ow">in</span> <span class="n">b</span><span class="p">])</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">]))</span>
+
+    <span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">N</span><span class="p">)</span> <span class="o">=</span> <span class="n">fulldata</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Files:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">position</span><span class="p">):</span>
+        <span class="c1">#output.write(&quot;%-10d %s  %s\n&quot; % (position[i], &quot;&quot;.join([&quot;%7.1f&quot; % c for c in fulldata[:,i]]),&quot;,&quot;.join([&quot;%s (%s)&quot; % (orf,rv2info.get(orf,[&quot;-&quot;])[0]) for orf in hash.get(position[i], [])])   ))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">position</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%1.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fulldata</span><span class="p">[:,</span><span class="n">i</span><span class="p">]]),</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span><span class="n">rv2info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">orf</span><span class="p">,[</span><span class="s2">&quot;-&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">orf</span> <span class="ow">in</span> <span class="nb">hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">position</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">[])])</span>   <span class="p">))</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="convertToGeneCountSummary"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.convertToGeneCountSummary">[docs]</a><span class="k">def</span> <span class="nf">convertToGeneCountSummary</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">,</span> <span class="n">outputPath</span><span class="p">,</span> <span class="n">normchoice</span><span class="o">=</span><span class="s2">&quot;nonorm&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalizes the input datasets and outputs the result in CombinedWig format.</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        dataset_list (list): List of paths to datasets in .wig format</span>
+<span class="sd">        annotationPath (str): Path to annotation in .prot_table or GFF3 format.</span>
+<span class="sd">        outputPath (str): Desired output path.</span>
+<span class="sd">        normchoice (str): Choice for normalization method.</span>
+<span class="sd">            </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">)</span> 
+    <span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">fulldata</span><span class="p">,</span> <span class="n">normchoice</span><span class="p">,</span> <span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Summarized to Mean Gene Counts with TRANSIT.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">normchoice</span> <span class="o">!=</span> <span class="s2">&quot;nonorm&quot;</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Reads normalized using &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">normchoice</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">factors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="mf">0.0</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Normalization Factors: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">factors</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Normalization Factors: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">bx</span> <span class="k">for</span> <span class="n">bx</span> <span class="ow">in</span> <span class="n">b</span><span class="p">])</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">]))</span>
+
+    <span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">N</span><span class="p">)</span> <span class="o">=</span> <span class="n">fulldata</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Files:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Get Gene objects</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">Genes</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">annotationPath</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">normchoice</span><span class="p">)</span>
+
+    <span class="n">dataset_header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">D</span><span class="p">)</span> <span class="k">for</span> <span class="n">D</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">])</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Orf</span><span class="se">\t</span><span class="s2">Name</span><span class="se">\t</span><span class="s2">Number of TA sites</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dataset_header</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">gene</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%1.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">reads</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%1.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="k">for</span> <span class="n">Z</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">K</span><span class="p">)])</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">orf</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">data_str</span><span class="p">))</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+
+<div class="viewcode-block" id="get_validated_data"><a class="viewcode-back" href="../../transit.html#pytransit.transit_tools.get_validated_data">[docs]</a><span class="k">def</span> <span class="nf">get_validated_data</span><span class="p">(</span><span class="n">wig_list</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns a tuple of (data, position) containing a matrix of raw read-counts</span>
+<span class="sd">        , and list of coordinates. </span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        wig_list (list): List of paths to wig files.</span>
+<span class="sd">        wxobj (object): wxPython GUI object for warnings</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: Two lists containing data and positions of the wig files given.</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; import pytransit.tnseq_tools as tnseq_tools</span>
+<span class="sd">        &gt;&gt;&gt; (data, position) = tnseq_tools.get_validated_data([&quot;data/glycerol_H37Rv_rep1.wig&quot;, &quot;data/glycerol_H37Rv_rep2.wig&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; print(data)</span>
+<span class="sd">        array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],</span>
+<span class="sd">               [ 0.,  0.,  0., ...,  0.,  0.,  0.]])</span>
+
+<span class="sd">    .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.norm_tools.normalize_data`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">genome</span><span class="p">)</span> <span class="o">=</span> <span class="n">validate_wig_format</span><span class="p">(</span><span class="n">wig_list</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="n">wxobj</span><span class="p">)</span>
+
+    <span class="c1"># Regular file with empty sites</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">wig_list</span><span class="p">)</span>    
+    <span class="c1"># No empty sites, decided to proceed as Himar1</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data_w_genome</span><span class="p">(</span><span class="n">wig_list</span><span class="p">,</span> <span class="n">genome</span><span class="p">)</span>
+    <span class="c1"># No empty sites, decided to proceed as Tn5</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data_zero_fill</span><span class="p">(</span><span class="n">wig_list</span><span class="p">)</span>
+    <span class="c1"># Didn&#39;t choose either.... what!?</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">get_data</span><span class="p">([])</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

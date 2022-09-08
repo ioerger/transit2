@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pathway Enrichment Analysis &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="corrplot" href="method_corrplot.html" />
+    <link rel="prev" title="Normalization" href="method_normalization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pathway Enrichment Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#auxilliary-pathway-files-in-transit-data-directory">Auxilliary Pathway Files in Transit Data Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-recommendations">Current Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Pathway Enrichment Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_pathway_enrichment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="transit-clionly" id="pathway-enrichment-analysis">
+<h1>Pathway Enrichment Analysis<a class="headerlink" href="#pathway-enrichment-analysis" title="Permalink to this headline"></a></h1>
+<p>Pathway Enrichment Analysis provides a method to
+identify enrichment of functionally-related genes among those that are
+conditionally essential (i.e.
+significantly more or less essential between two conditions).
+The analysis is typically applied as post-processing step to the hits identified
+by a comparative analysis, such as <em>resampling</em>.
+Several analytical method are provided:
+Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis)
+by <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/16199517">Subramanian et al (2005)</a>,
+and <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/17848398">Ontologizer</a>.
+For Fisher’s exact test,
+genes in the resampling output file with adjusted p-value &lt; 0.05 are taken as hits,
+and evaluated for overlap with functional categories of genes.
+The GSEA methods use the whole list of genes, ranked in order of statistical significance
+(without requiring a cutoff), to calculate enrichment.</p>
+<p>Three systems of categories are provided for (but you can add your own):
+the Sanger functional categories of genes determined in the
+original annotation of the H37Rv genome (<a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/9634230">Cole et al, 1998</a>,
+with subsequent updates),
+COG categories (<a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/25428365">Clusters of Orthologous Genes</a>) and
+also GO terms (Gene Ontology).  The supporting files for <em>M. tuberculosis</em>
+H37Rv are in the src/pytransit/data/ directory.</p>
+<p>For other organisms, it might be possible to download COG categories from
+<a class="reference external" href="http://www.ncbi.nlm.nih.gov/COG/">http://www.ncbi.nlm.nih.gov/COG/</a>
+and GO terms from <a class="reference external" href="http://www.geneontology.org">http://www.geneontology.org</a>
+or <a class="reference external" href="http://patricbrc.org">http://patricbrc.org</a>.
+If these files can be obtained for your organism, they will have to be converted into
+the <em>associations</em> file format described below. (The <em>pathways</em> files for COG categories and GO terms
+in the Transit data directory should still work, because they just encode pathways names for all terms/ids.)</p>
+<p>At present, pathway enrichment analysis is only implemented as a command-line function,
+and is not available in the Transit GUI.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="o">&gt;</span> <span class="n">python3</span> <span class="o">../../</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">pathway_enrichment</span> <span class="o">&lt;</span><span class="n">resampling_file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">associations</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">pathways</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output_file</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">M</span> <span class="o">&lt;</span><span class="n">FET</span><span class="o">|</span><span class="n">GSEA</span><span class="o">|</span><span class="n">GO</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">PC</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">ranking</span> <span class="n">SLPV</span><span class="o">|</span><span class="n">LFC</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">Nperm</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">Pval_col</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">Qval_col</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">]</span>  <span class="p">[</span><span class="o">-</span><span class="n">LFC_col</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">]</span>
+
+ <span class="n">Optional</span> <span class="n">parameters</span><span class="p">:</span>
+    <span class="o">-</span><span class="n">M</span> <span class="n">FET</span><span class="o">|</span><span class="n">GSEA</span><span class="o">|</span><span class="n">ONT</span><span class="p">:</span>     <span class="n">method</span> <span class="n">to</span> <span class="n">use</span><span class="p">,</span> <span class="n">FET</span> <span class="k">for</span> <span class="n">Fisher</span><span class="s1">&#39;s Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)</span>
+    <span class="o">-</span><span class="n">Pval_col</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>    <span class="p">:</span> <span class="n">indicate</span> <span class="n">column</span> <span class="k">with</span> <span class="o">*</span><span class="n">raw</span><span class="o">*</span> <span class="n">P</span><span class="o">-</span><span class="n">values</span> <span class="p">(</span><span class="n">starting</span> <span class="k">with</span> <span class="mi">0</span><span class="p">;</span> <span class="n">can</span> <span class="n">also</span> <span class="n">be</span> <span class="n">negative</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="o">-</span><span class="mi">1</span> <span class="n">means</span> <span class="n">last</span> <span class="n">col</span><span class="p">)</span> <span class="p">(</span><span class="n">used</span> <span class="k">for</span> <span class="n">sorting</span><span class="p">)</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="n">second</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">last</span> <span class="n">column</span><span class="p">)</span>
+    <span class="o">-</span><span class="n">Qval_col</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>    <span class="p">:</span> <span class="n">indicate</span> <span class="n">column</span> <span class="k">with</span> <span class="o">*</span><span class="n">adjusted</span><span class="o">*</span> <span class="n">P</span><span class="o">-</span><span class="n">values</span> <span class="p">(</span><span class="n">starting</span> <span class="k">with</span> <span class="mi">0</span><span class="p">;</span> <span class="n">can</span> <span class="n">also</span> <span class="n">be</span> <span class="n">negative</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="o">-</span><span class="mi">1</span> <span class="n">means</span> <span class="n">last</span> <span class="n">col</span><span class="p">)</span> <span class="p">(</span><span class="n">used</span> <span class="k">for</span> <span class="n">significant</span> <span class="n">cutoff</span><span class="p">)</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">GSEA</span><span class="o">...</span>
+    <span class="o">-</span><span class="n">ranking</span> <span class="n">SLPV</span><span class="o">|</span><span class="n">LFC</span>  <span class="p">:</span> <span class="n">SLPV</span> <span class="ow">is</span> <span class="n">signed</span><span class="o">-</span><span class="n">log</span><span class="o">-</span><span class="n">p</span><span class="o">-</span><span class="n">value</span> <span class="p">(</span><span class="n">default</span><span class="p">);</span> <span class="n">LFC</span> <span class="ow">is</span> <span class="n">log2</span><span class="o">-</span><span class="n">fold</span><span class="o">-</span><span class="n">change</span> <span class="kn">from</span> <span class="nn">resampling</span>
+    <span class="o">-</span><span class="n">LFC_col</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>     <span class="p">:</span> <span class="n">indicate</span> <span class="n">column</span> <span class="k">with</span> <span class="n">log2FC</span> <span class="p">(</span><span class="n">starting</span> <span class="k">with</span> <span class="mi">0</span><span class="p">;</span> <span class="n">can</span> <span class="n">also</span> <span class="n">be</span> <span class="n">negative</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="o">-</span><span class="mi">1</span> <span class="n">means</span> <span class="n">last</span> <span class="n">col</span><span class="p">)</span> <span class="p">(</span><span class="n">used</span> <span class="k">for</span> <span class="n">ranking</span> <span class="n">genes</span> <span class="n">by</span> <span class="n">SLPV</span> <span class="ow">or</span> <span class="n">LFC</span><span class="p">)</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>         <span class="p">:</span> <span class="n">exponent</span> <span class="n">to</span> <span class="n">use</span> <span class="ow">in</span> <span class="n">calculating</span> <span class="n">enrichment</span> <span class="n">score</span><span class="p">;</span> <span class="n">recommend</span> <span class="n">trying</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> <span class="p">(</span><span class="k">as</span> <span class="ow">in</span> <span class="n">Subramaniam</span> <span class="n">et</span> <span class="n">al</span><span class="p">,</span> <span class="mi">2005</span><span class="p">)</span>
+    <span class="o">-</span><span class="n">Nperm</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>       <span class="p">:</span> <span class="n">number</span> <span class="n">of</span> <span class="n">permutations</span> <span class="n">to</span> <span class="n">simulate</span> <span class="k">for</span> <span class="n">null</span> <span class="n">distribution</span> <span class="n">to</span> <span class="n">determine</span> <span class="n">p</span><span class="o">-</span><span class="n">value</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">FET</span><span class="o">...</span>
+    <span class="o">-</span><span class="n">PC</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>          <span class="p">:</span>  <span class="n">pseudo</span><span class="o">-</span><span class="n">counts</span> <span class="n">to</span> <span class="n">use</span> <span class="ow">in</span> <span class="n">calculating</span> <span class="n">p</span><span class="o">-</span><span class="n">value</span> <span class="n">based</span> <span class="n">on</span> <span class="n">hypergeometric</span> <span class="n">distribution</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Resampling File</strong></dt><dd><p>The resampling file is the one obtained after using the resampling method in Transit. (It is a tab separated file with 11 columns.) GSEA method makes usage of the last column (adjusted P-value)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Associations File</strong></dt><dd><p>This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines.  It is OK if there are no associations listed for some genes.  Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Example</span><span class="p">:</span> <span class="n">H37Rv_sanger_roles</span><span class="o">.</span><span class="n">dat</span>
+
+<span class="n">Rv3823c</span>       <span class="n">II</span><span class="o">.</span><span class="n">C</span><span class="mf">.4</span>
+<span class="n">Rv3823c</span>       <span class="n">II</span><span class="o">.</span><span class="n">C</span>
+<span class="n">Rv3823c</span>       <span class="n">II</span>
+<span class="n">Rv0337c</span>       <span class="n">I</span><span class="o">.</span><span class="n">D</span><span class="mf">.2</span>
+<span class="n">Rv0337c</span>       <span class="n">I</span><span class="o">.</span><span class="n">D</span>
+<span class="n">Rv0337c</span>       <span class="n">I</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Pathways File</strong></dt><dd><p>This is a tab-separated text file with 2 columns: pathway id, and pathway name.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Example</span><span class="p">:</span> <span class="n">sanger_roles</span><span class="o">.</span><span class="n">dat</span>
+
+<span class="n">I</span>     <span class="n">Small</span><span class="o">-</span><span class="n">molecule</span> <span class="n">metabolism</span>
+<span class="n">I</span><span class="o">.</span><span class="n">A</span>   <span class="n">Degradation</span>
+<span class="n">I</span><span class="o">.</span><span class="n">A</span><span class="mf">.1</span> <span class="n">Carbon</span> <span class="n">compounds</span>
+<span class="n">I</span><span class="o">.</span><span class="n">A</span><span class="mf">.2</span> <span class="n">Amino</span> <span class="n">acids</span> <span class="ow">and</span> <span class="n">amines</span>
+<span class="n">I</span><span class="o">.</span><span class="n">A</span><span class="mf">.3</span> <span class="n">Fatty</span> <span class="n">acids</span>
+<span class="n">I</span><span class="o">.</span><span class="n">A</span><span class="mf">.4</span> <span class="n">Phosphorous</span> <span class="n">compounds</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<ul>
+<li><p><strong>--Pval_col &lt;int&gt;</strong>: indicate column with <em>raw</em> P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)</p></li>
+<li><p><strong>--Qval_col &lt;int&gt;</strong>: indicate column with <em>adjusted</em> P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)</p></li>
+<li><dl>
+<dt><strong>-M [FET|GSEA|ONT]</strong></dt><dd><p>Methodology to be used. FET is used by default (even without specifying -M).</p>
+</dd>
+<dt><strong>-M FET</strong></dt><dd><p>This implements Fisher’s Exact Test (hypergeometric distribution) to determine a p-value for each pathway, based on the proportion of pathway member observed in list of hits (conditionally essential gene by resampling, padj&lt;0.05) compared to the background proportion in the overall genome, and p-values are adjusted post-hoc by the Benjamini-Hochberg procedure to limit the FDR to 5%.</p>
+<p>In the output file, an “enrichment score” is reported, which is the ratio of the observed number of pathway members among the hits to the expected number.  Pseudocounts of 2 are included in the calculation to reduce the bias toward small pathways with only a few genes; this can be adjusted with the -PC flag (below).</p>
+<p>FET can be used with GO terms.</p>
+<p>Additional flags for FET:</p>
+<ul class="simple">
+<li><p><strong>-PC &lt;int&gt;</strong>: Pseudocounts used in calculating the enrichment score and p-value by hypergeometic distribution. Default: PC=2.</p></li>
+</ul>
+</dd>
+<dt><strong>-M GSEA</strong></dt><dd><p>Gene Set Enrichment Analysis. GSEA assess the significance of a pathway by looking at how the members fall in the ranking of all genes.  The genes are first ranked by significance from resampling.  Specifically, they are sorted by signed-log-p-value, SLPV=sign(LFC)*(log(pval)), which puts them in order so that the most significant genes with negative LFC are at the top, the most significant with positive LFC are at the bottom, and insignificant genes fall in the middle.  Roughly, GSEA computes the mean rank of pathway members, and evaluates significance based on a simulated a null distribution.  p-values are again adjusted at the end by BH.</p>
+<p><a class="reference external" href="http://www.pnas.org/content/102/43/15545.short">Subramanian, A., Tamayo, P., Mootha, V. K., Mukherjee, S., Ebert, B. L., Gillette, M. A., … &amp; Mesirov, J. P. (2005).  `ene set enrichment analysis: a knowledge-based approach for interpreting genome-wide expression profiles. Proceedings of the National Academy of Sciences, 102(43), 15545-15550.</a></p>
+<p>GSEA can be used with GO terms.</p>
+<p>Additional flags for GSEA:</p>
+<ul class="simple">
+<li><p><strong>-ranking SLPV|LFC</strong>: method used to rank all genes; SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling</p></li>
+<li><p><strong>-p &lt;float&gt;</strong>: exponent to use in calculating enrichment score; recommend trying ‘-p 0’ (default) or ‘-p 1’ (as used in Subramaniam et al, 2005)</p></li>
+<li><p><strong>-Nperm &lt;int&gt;</strong>: number of permutations to simulate for null distribution to determine p-value (default=10000)</p></li>
+<li><p><strong>--LFC_col &lt;int&gt;</strong>: indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)</p></li>
+</ul>
+</dd>
+<dt><strong>-M ONT</strong></dt><dd><p>Ontologizer is a specialized method for GO terms that takes parent-child relationships into account among nodes in the GO hierarchy.  This can enhance the specificity of pathways detected as significant.  (The problem is that there are many GO terms in the hierarchy covering similar or identical sets of genes, and often, if one node is significantly enriched, then several of its ancestors will be too, which obscures the results with redundant hits; Ontologizer reduces the significance of nodes if their probability distribution among hits can be explained by their parents.) Hierarhical relationships among GO terms are encoded in an OBO file, which is included in the src/pytransit/data/ directory.</p>
+<p><a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/17848398">Grossmann S, Bauer S, Robinson PN, Vingron M. Improved detection of overrepresentation of Gene-Ontology annotations with parent child analysis. Bioinformatics. 2007 Nov 15;23(22):3024-31.</a></p>
+</dd>
+</dl>
+<p>For the ONT method in pathway_enrichment, the enrichment for a given
+GO term can be expressed (in a simplified way, leaving out the
+pseudocounts) as:</p>
+</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">enrichment</span> <span class="o">=</span> <span class="n">log</span> <span class="p">(</span>  <span class="p">(</span><span class="n">b</span><span class="o">/</span><span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">m</span><span class="o">/</span><span class="n">p</span><span class="p">)</span>  <span class="p">)</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><p>where:</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>b is the number of genes with this GO term in the subset of hits (e.g. conditional essentials from resampling, with qval&lt;0.05)</p></li>
+<li><p>q is the number of genes in the subset of hits with a parent of this GO term</p></li>
+<li><p>m is the total number of genes with this GO term in the genome</p></li>
+<li><p>p is the number of genes in the genome with a parent of this GO term</p></li>
+</ul>
+<blockquote>
+<div><p>So enrichment is the log of the ratio of 2 ratios:</p>
+<ol class="arabic simple">
+<li><p>the relative abundance of genes with this GO term compared to those with a parent GO term   among the hits</p></li>
+<li><p>the relative abundance of genes with this GO term compared to those with a parent GO term   in the whole genome</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="auxilliary-pathway-files-in-transit-data-directory">
+<h2>Auxilliary Pathway Files in Transit Data Directory<a class="headerlink" href="#auxilliary-pathway-files-in-transit-data-directory" title="Permalink to this headline"></a></h2>
+<p>These files for pathway analysis are distributed in the Transit data directory
+(e.g. transit/src/pytransit/data/).</p>
+<p>Note: The “Sanger” roles are custom pathway associations for
+<em>M. tuberculosis</em> defined in the original Nature paper on
+the H37Rv genome sequence <a class="reference external" href="https://www.nature.com/articles/31159">(Cole et al., 1998)</a> (Table 1).  They are more specific
+that COG categories, but less specific than GO terms.  For other
+organisms, one should be able to find GO terms (e.g. on PATRIC,
+Uniprot, or geneontology.org) and COG roles (from
+<a class="reference external" href="https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/">https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/</a>, <a class="reference external" href="https://academic.oup.com/nar/article/49/D1/D274/5964069">(Galerpin et al, 2021)</a> ).</p>
+<p>Pathway association files for <em>M. smegmatis</em> mc2 155 are also provided in the table below.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 18%" />
+<col style="width: 33%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>system</p></th>
+<th class="head"><p>num roles</p></th>
+<th class="head"><p>applicable methods</p></th>
+<th class="head"><p>associations of genes with roles</p></th>
+<th class="head"><p>pathway definitions/role names</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>COG</p></td>
+<td><p>25</p></td>
+<td><p>FET*, GSEA</p></td>
+<td><p>H37Rv_COG_roles.dat;
+smeg_COG_roles.dat</p></td>
+<td><p>COG_roles.dat</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sanger</p></td>
+<td><p>153</p></td>
+<td><p>FET*, GSEA*</p></td>
+<td><p>H37Rv_sanger_roles.dat</p></td>
+<td><p>sanger_roles.dat</p></td>
+</tr>
+<tr class="row-even"><td><p>GO</p></td>
+<td><p>2545</p></td>
+<td><p>ONT*</p></td>
+<td><p>H37Rv_GO_terms.txt;
+smeg_GO_terms.txt</p></td>
+<td><p>gene_ontology.1_2.3-11-18.obo</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td><p>FET, GSEA</p></td>
+<td><p>H37Rv_GO_terms.txt;
+smeg_GO_terms.txt</p></td>
+<td><p>GO_term_names.dat</p></td>
+</tr>
+</tbody>
+</table>
+<p>‘*’ means <em>recommended</em> combination of method with system of functional categories</p>
+</section>
+<section id="current-recommendations">
+<h2>Current Recommendations<a class="headerlink" href="#current-recommendations" title="Permalink to this headline"></a></h2>
+<p>Here are the recommended combinations of pathway methods to use for different systems of functional categories:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For COG, use ‘-M FET’</p></li>
+<li><p>For Sanger roles, try both FET and GSEA</p></li>
+<li><p>For GO terms, use ‘M -ONT’</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># uses Fisher&#39;s exact test by default (with PC=2 as pseudocounts)
+&gt; transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_glyc_chol_Sanger.txt
+
+# can do this with GO terms too
+&gt; transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_glyc_chol_GO.txt
+
+# with COG categories
+&gt; transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_COG_roles.dat $DATA/COG_roles.dat pathways_glyc_chol_COG.txt
+
+# can also do GSEA method (on any system of functional categories)
+&gt; transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_Sanger_GSEA.txt -M GSEA
+
+# Ontologizer is a specialized method for GO terms
+&gt; transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_Ontologizer.txt -M ONT
+</pre></div>
+</div>
+<p>The $DATA environment variable in these examples refers to the Transit data directory, e.g. src/pytransit/data/.</p>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_normalization.html" class="btn btn-neutral float-left" title="Normalization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_corrplot.html" class="btn btn-neutral float-right" title="corrplot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+hr.transit-sectionend {
+  border-top: 2px solid black;
+}
+
+.transit-clionly h2:after {
+  content: "(command line only)";
+}
+
+.rst-content .line-block {
+  margin-bottom: 10px;
+}
+

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pytransit.analysis package &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>pytransit.analysis package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pytransit.analysis.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pytransit-analysis-package">
+<h1>pytransit.analysis package<a class="headerlink" href="#pytransit-analysis-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-pytransit.analysis.base">
+<span id="pytransit-analysis-base-module"></span><h2>pytransit.analysis.base module<a class="headerlink" href="#module-pytransit.analysis.base" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">AnalysisGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.Enable">
+<span class="sig-name descname"><span class="pre">Enable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.Enable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.Enable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.GlobalDisable">
+<span class="sig-name descname"><span class="pre">GlobalDisable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.GlobalDisable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.GlobalDisable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.GlobalEnable">
+<span class="sig-name descname"><span class="pre">GlobalEnable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.GlobalEnable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.GlobalEnable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.GlobalHide">
+<span class="sig-name descname"><span class="pre">GlobalHide</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.GlobalHide"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.GlobalHide" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.GlobalShow">
+<span class="sig-name descname"><span class="pre">GlobalShow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.GlobalShow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.GlobalShow" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.Hide">
+<span class="sig-name descname"><span class="pre">Hide</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.Hide"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.Hide" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.Show">
+<span class="sig-name descname"><span class="pre">Show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.Show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.Show" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.defineCheckBox">
+<span class="sig-name descname"><span class="pre">defineCheckBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgetCheck</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltipText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgetSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.defineCheckBox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.defineCheckBox" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.defineChoiceBox">
+<span class="sig-name descname"><span class="pre">defineChoiceBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgetChoice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltipText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgetSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.defineChoiceBox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.defineChoiceBox" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisGUI.defineTextBox">
+<span class="sig-name descname"><span class="pre">defineTextBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgetText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltipText</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgetSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisGUI.defineTextBox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisGUI.defineTextBox" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">AnalysisMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">short_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic class for analysis methods. Inherited by SingleMethod and ComparisonMethod.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.add_file">
+<span class="sig-name descname"><span class="pre">add_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.add_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.add_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.console_message">
+<span class="sig-name descname"><span class="pre">console_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.console_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.console_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.console_message_inplace">
+<span class="sig-name descname"><span class="pre">console_message_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.console_message_inplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.console_message_inplace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.finish">
+<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.finish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.finish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.fromconsole">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromconsole</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.fromconsole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.fromconsole" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.print_members">
+<span class="sig-name descname"><span class="pre">print_members</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.print_members"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.print_members" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.progress_range">
+<span class="sig-name descname"><span class="pre">progress_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.progress_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.progress_range" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.progress_update">
+<span class="sig-name descname"><span class="pre">progress_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.progress_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.progress_update" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.status_message">
+<span class="sig-name descname"><span class="pre">status_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.status_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.status_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.transit_error">
+<span class="sig-name descname"><span class="pre">transit_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.transit_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.transit_error" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.transit_message">
+<span class="sig-name descname"><span class="pre">transit_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.transit_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.transit_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.transit_message_inplace">
+<span class="sig-name descname"><span class="pre">transit_message_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.transit_message_inplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.transit_message_inplace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.transit_warning">
+<span class="sig-name descname"><span class="pre">transit_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.transit_warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.transit_warning" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.AnalysisMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#AnalysisMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.AnalysisMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.DualConditionMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">DualConditionMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">short_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#DualConditionMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.DualConditionMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisMethod" title="pytransit.analysis.base.AnalysisMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisMethod</span></code></a></p>
+<p>Class to be inherited by analysis methods that determine changes in essentiality between two conditions (e.g. Resampling, DEHMM).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.InfoIcon">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">InfoIcon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#InfoIcon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.InfoIcon" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">wx._core.StaticBitmap</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pytransit.analysis.base.InvalidArgumentException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">InvalidArgumentException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#InvalidArgumentException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.InvalidArgumentException" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.MultiConditionMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">MultiConditionMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">short_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_wig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nterm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cterm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#MultiConditionMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.MultiConditionMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisMethod" title="pytransit.analysis.base.AnalysisMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisMethod</span></code></a></p>
+<p>Class to be inherited by analysis methods that compare essentiality between multiple conditions (e.g Anova).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions">
+<span class="sig-name descname"><span class="pre">filter_wigs_by_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#MultiConditionMethod.filter_wigs_by_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Filters conditions that are excluded/included.
+([[Wigdata]], [Condition], [[Covar]], [Condition], [Condition]) -&gt; Tuple([[Wigdata]], [Condition])</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions2">
+<span class="sig-name descname"><span class="pre">filter_wigs_by_conditions2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditionsList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#MultiConditionMethod.filter_wigs_by_conditions2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions2" title="Permalink to this definition"></a></dt>
+<dd><p>Filters conditions that are excluded/included.
+([[Wigdata]], [Condition], [[Covar]], [Condition], [Condition]) -&gt; Tuple([[Wigdata]], [Condition])</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions3">
+<span class="sig-name descname"><span class="pre">filter_wigs_by_conditions3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileNames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditionNames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_cond</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_cond</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#MultiConditionMethod.filter_wigs_by_conditions3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions3" title="Permalink to this definition"></a></dt>
+<dd><p>Filters conditions that are excluded/included; also extract cond, covar, and interaction labels
+conditionNames: based on original Conditions column in metadata
+conditions: user might have specified an alternative column to analyze (list of labels parallel to wigs)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.MultiConditionMethod.get_samples_metadata">
+<span class="sig-name descname"><span class="pre">get_samples_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#MultiConditionMethod.get_samples_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.MultiConditionMethod.get_samples_metadata" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.MultiConditionMethod.select_conditions">
+<span class="sig-name descname"><span class="pre">select_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orderingMetadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#MultiConditionMethod.select_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.MultiConditionMethod.select_conditions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.QuadConditionMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">QuadConditionMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">short_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrldataA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrldataB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expdataA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expdataB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#QuadConditionMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.QuadConditionMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisMethod" title="pytransit.analysis.base.AnalysisMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisMethod</span></code></a></p>
+<p>Class to be inherited by analysis methods that determine changes in essentiality between four conditions (e.g. GI).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.SingleConditionMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">SingleConditionMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">short_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_desc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#SingleConditionMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.SingleConditionMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisMethod" title="pytransit.analysis.base.AnalysisMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisMethod</span></code></a></p>
+<p>Class to be inherited by analysis methods that determine essentiality in a single condition (e.g. Gumbel, Binomial, HMM).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">TransitAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sn,</span> <span class="pre">ln,</span> <span class="pre">short_desc,</span> <span class="pre">long_desc,</span> <span class="pre">tn,</span> <span class="pre">method_class=&lt;class</span> <span class="pre">'pytransit.analysis.base.AnalysisMethod'&gt;,</span> <span class="pre">gui_class=&lt;class</span> <span class="pre">'pytransit.analysis.base.AnalysisGUI'&gt;,</span> <span class="pre">filetypes=[&lt;class</span> <span class="pre">'pytransit.analysis.base.TransitFile'&gt;]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitAnalysis.fullname">
+<span class="sig-name descname"><span class="pre">fullname</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitAnalysis.fullname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitAnalysis.fullname" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitAnalysis.getDescriptionText">
+<span class="sig-name descname"><span class="pre">getDescriptionText</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitAnalysis.getDescriptionText"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitAnalysis.getDescriptionText" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitAnalysis.getInstructionsText">
+<span class="sig-name descname"><span class="pre">getInstructionsText</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitAnalysis.getInstructionsText"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitAnalysis.getInstructionsText" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitAnalysis.getTransposonsText">
+<span class="sig-name descname"><span class="pre">getTransposonsText</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitAnalysis.getTransposonsText"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitAnalysis.getTransposonsText" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">TransitFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#Unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitGUIBase" title="pytransit.analysis.base.TransitGUIBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitGUIBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitFile.displayInTrackView">
+<span class="sig-name descname"><span class="pre">displayInTrackView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">displayFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitFile.displayInTrackView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitFile.displayInTrackView" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitFile.getData">
+<span class="sig-name descname"><span class="pre">getData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colnames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitFile.getData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitFile.getData" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitFile.getMenus">
+<span class="sig-name descname"><span class="pre">getMenus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitFile.getMenus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitFile.getMenus" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.base.</span></span><span class="sig-name descname"><span class="pre">TransitGUIBase</span></span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.console_message">
+<span class="sig-name descname"><span class="pre">console_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.console_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.console_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.console_message_inplace">
+<span class="sig-name descname"><span class="pre">console_message_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.console_message_inplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.console_message_inplace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.status_message">
+<span class="sig-name descname"><span class="pre">status_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.status_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.status_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.transit_error">
+<span class="sig-name descname"><span class="pre">transit_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.transit_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.transit_error" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.transit_message">
+<span class="sig-name descname"><span class="pre">transit_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.transit_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.transit_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.transit_message_inplace">
+<span class="sig-name descname"><span class="pre">transit_message_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.transit_message_inplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.transit_message_inplace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.base.TransitGUIBase.transit_warning">
+<span class="sig-name descname"><span class="pre">transit_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/base.html#TransitGUIBase.transit_warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.base.TransitGUIBase.transit_warning" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.binomial">
+<span id="pytransit-analysis-binomial-module"></span><h2>pytransit.analysis.binomial module<a class="headerlink" href="#module-pytransit.analysis.binomial" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.binomial.</span></span><span class="sig-name descname"><span class="pre">BinomialAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.binomial.</span></span><span class="sig-name descname"><span class="pre">BinomialFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.binomial.</span></span><span class="sig-name descname"><span class="pre">BinomialGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.binomial.</span></span><span class="sig-name descname"><span class="pre">BinomialMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burnin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.SingleConditionMethod" title="pytransit.analysis.base.SingleConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.SingleConditionMethod</span></code></a></p>
+<p>binomial</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.binomial.BinomialMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/binomial.html#BinomialMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.binomial.BinomialMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.example">
+<span id="pytransit-analysis-example-module"></span><h2>pytransit.analysis.example module<a class="headerlink" href="#module-pytransit.analysis.example" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.example.</span></span><span class="sig-name descname"><span class="pre">ExampleAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.example.</span></span><span class="sig-name descname"><span class="pre">ExampleFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.example.</span></span><span class="sig-name descname"><span class="pre">ExampleGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.example.</span></span><span class="sig-name descname"><span class="pre">ExampleMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.SingleConditionMethod" title="pytransit.analysis.base.SingleConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.SingleConditionMethod</span></code></a></p>
+<p>Example</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.example.ExampleMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/example.html#ExampleMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.example.ExampleMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.griffin">
+<span id="pytransit-analysis-griffin-module"></span><h2>pytransit.analysis.griffin module<a class="headerlink" href="#module-pytransit.analysis.griffin" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.griffin.</span></span><span class="sig-name descname"><span class="pre">GriffinAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.griffin.</span></span><span class="sig-name descname"><span class="pre">GriffinFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.griffin.</span></span><span class="sig-name descname"><span class="pre">GriffinGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.griffin.</span></span><span class="sig-name descname"><span class="pre">GriffinMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.SingleConditionMethod" title="pytransit.analysis.base.SingleConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.SingleConditionMethod</span></code></a></p>
+<p>griffin</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.griffin.GriffinMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/griffin.html#GriffinMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.griffin.GriffinMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.gumbel">
+<span id="pytransit-analysis-gumbel-module"></span><h2>pytransit.analysis.gumbel module<a class="headerlink" href="#module-pytransit.analysis.gumbel" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.gumbel.</span></span><span class="sig-name descname"><span class="pre">GumbelAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.gumbel.</span></span><span class="sig-name descname"><span class="pre">GumbelFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.gumbel.</span></span><span class="sig-name descname"><span class="pre">GumbelGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.gumbel.</span></span><span class="sig-name descname"><span class="pre">GumbelMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burnin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.SingleConditionMethod" title="pytransit.analysis.base.SingleConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.SingleConditionMethod</span></code></a></p>
+<p>Gumbel</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.ExpectedRuns_cached">
+<span class="sig-name descname"><span class="pre">ExpectedRuns_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.ExpectedRuns_cached"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.ExpectedRuns_cached" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.F_non">
+<span class="sig-name descname"><span class="pre">F_non</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.F_non"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.F_non" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.classify">
+<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.classify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.classify" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.good_orf">
+<span class="sig-name descname"><span class="pre">good_orf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gene</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.good_orf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.good_orf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.sample_Z">
+<span class="sig-name descname"><span class="pre">sample_Z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SIG</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.sample_Z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.sample_Z" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.sigmoid">
+<span class="sig-name descname"><span class="pre">sigmoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.sigmoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.sigmoid" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.gumbel.GumbelMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/gumbel.html#GumbelMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.gumbel.GumbelMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.hmm">
+<span id="pytransit-analysis-hmm-module"></span><h2>pytransit.analysis.hmm module<a class="headerlink" href="#module-pytransit.analysis.hmm" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.hmm.</span></span><span class="sig-name descname"><span class="pre">HMMAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.hmm.</span></span><span class="sig-name descname"><span class="pre">HMMGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMGenesFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.hmm.</span></span><span class="sig-name descname"><span class="pre">HMMGenesFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMGenesFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMGenesFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMGenesFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMGenesFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMGenesFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.hmm.</span></span><span class="sig-name descname"><span class="pre">HMMMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.SingleConditionMethod" title="pytransit.analysis.base.SingleConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.SingleConditionMethod</span></code></a></p>
+<p>HMM</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.backward_procedure">
+<span class="sig-name descname"><span class="pre">backward_procedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">O</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([],</span> <span class="pre">dtype=float64)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.backward_procedure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.backward_procedure" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.calculate_pins">
+<span class="sig-name descname"><span class="pre">calculate_pins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reads</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.calculate_pins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.calculate_pins" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.forward_procedure">
+<span class="sig-name descname"><span class="pre">forward_procedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">O</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.forward_procedure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.forward_procedure" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.post_process_genes">
+<span class="sig-name descname"><span class="pre">post_process_genes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.post_process_genes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.post_process_genes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMMethod.viterbi">
+<span class="sig-name descname"><span class="pre">viterbi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">O</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMMethod.viterbi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMMethod.viterbi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMSitesFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.hmm.</span></span><span class="sig-name descname"><span class="pre">HMMSitesFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMSitesFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMSitesFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.hmm.HMMSitesFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/hmm.html#HMMSitesFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.hmm.HMMSitesFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.rankproduct">
+<span id="pytransit-analysis-rankproduct-module"></span><h2>pytransit.analysis.rankproduct module<a class="headerlink" href="#module-pytransit.analysis.rankproduct" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.rankproduct.</span></span><span class="sig-name descname"><span class="pre">RankProductAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.rankproduct.</span></span><span class="sig-name descname"><span class="pre">RankProductFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.rankproduct.</span></span><span class="sig-name descname"><span class="pre">RankProductGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.rankproduct.</span></span><span class="sig-name descname"><span class="pre">RankProductMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TTR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doHistogram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.DualConditionMethod" title="pytransit.analysis.base.DualConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.DualConditionMethod</span></code></a></p>
+<p>rankproduct</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.rankproduct.RankProductMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/rankproduct.html#RankProductMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.rankproduct.RankProductMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.resampling">
+<span id="pytransit-analysis-resampling-module"></span><h2>pytransit.analysis.resampling module<a class="headerlink" href="#module-pytransit.analysis.resampling" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.resampling.</span></span><span class="sig-name descname"><span class="pre">ResamplingAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.resampling.</span></span><span class="sig-name descname"><span class="pre">ResamplingFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingFile.displayHistogram">
+<span class="sig-name descname"><span class="pre">displayHistogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">displayFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingFile.displayHistogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingFile.displayHistogram" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingFile.getMenus">
+<span class="sig-name descname"><span class="pre">getMenus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingFile.getMenus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingFile.getMenus" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.resampling.</span></span><span class="sig-name descname"><span class="pre">ResamplingGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingGUI.GlobalDisable">
+<span class="sig-name descname"><span class="pre">GlobalDisable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingGUI.GlobalDisable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingGUI.GlobalDisable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingGUI.GlobalEnable">
+<span class="sig-name descname"><span class="pre">GlobalEnable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingGUI.GlobalEnable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingGUI.GlobalEnable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.resampling.</span></span><span class="sig-name descname"><span class="pre">ResamplingMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TTR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doHistogram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">includeZeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pseudocount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_lib_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_lib_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffStrains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path_exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combinedWigParams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.DualConditionMethod" title="pytransit.analysis.base.DualConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.DualConditionMethod</span></code></a></p>
+<p>resampling</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.filter_wigs_by_conditions">
+<span class="sig-name descname"><span class="pre">filter_wigs_by_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.filter_wigs_by_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.filter_wigs_by_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Filters conditions from wig to ctrl, exp conditions only
+([[Wigdata]], [ConditionCtrl, ConditionExp]) -&gt; Tuple([[Wigdata]], [Condition])</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.preprocess_data">
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.preprocess_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.preprocess_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.run_resampling">
+<span class="sig-name descname"><span class="pre">run_resampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G_ctrl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G_exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doLibraryResampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histPath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.run_resampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.run_resampling" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.wigs_to_conditions">
+<span class="sig-name descname"><span class="pre">wigs_to_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conditionsByFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenamesInCombWig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.wigs_to_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.wigs_to_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of conditions corresponding to given wigfiles.
+({FileName: Condition}, [FileName]) -&gt; [Condition]
+Condition :: [String]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.winsorize_resampling">
+<span class="sig-name descname"><span class="pre">winsorize_resampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.winsorize_resampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.winsorize_resampling" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.resampling.ResamplingMethod.write_output">
+<span class="sig-name descname"><span class="pre">write_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/resampling.html#ResamplingMethod.write_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.resampling.ResamplingMethod.write_output" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.tn5gaps">
+<span id="pytransit-analysis-tn5gaps-module"></span><h2>pytransit.analysis.tn5gaps module<a class="headerlink" href="#module-pytransit.analysis.tn5gaps" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.tn5gaps.</span></span><span class="sig-name descname"><span class="pre">Tn5GapsAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.tn5gaps.</span></span><span class="sig-name descname"><span class="pre">Tn5GapsFile</span></span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitFile" title="pytransit.analysis.base.TransitFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsFile.getHeader">
+<span class="sig-name descname"><span class="pre">getHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsFile.getHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsFile.getHeader" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.tn5gaps.</span></span><span class="sig-name descname"><span class="pre">Tn5GapsGUI</span></span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsGUI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.AnalysisGUI" title="pytransit.analysis.base.AnalysisGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.AnalysisGUI</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsGUI.definePanel">
+<span class="sig-name descname"><span class="pre">definePanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsGUI.definePanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsGUI.definePanel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.tn5gaps.</span></span><span class="sig-name descname"><span class="pre">Tn5GapsMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LOESS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignoreCodon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CTerminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.SingleConditionMethod" title="pytransit.analysis.base.SingleConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.SingleConditionMethod</span></code></a></p>
+<p>Example</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod.calc_overlap">
+<span class="sig-name descname"><span class="pre">calc_overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_interv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_interv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod.calc_overlap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod.calc_overlap" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod.fromGUI">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wxobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod.fromGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod.fromGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod.intersect_size">
+<span class="sig-name descname"><span class="pre">intersect_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intv1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intv2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod.intersect_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod.intersect_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.tn5gaps.Tn5GapsMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/tn5gaps.html#Tn5GapsMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.tn5gaps.Tn5GapsMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytransit.analysis.anova">
+<span id="pytransit-analysis-anova-module"></span><h2>pytransit.analysis.anova module<a class="headerlink" href="#module-pytransit.analysis.anova" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.anova.</span></span><span class="sig-name descname"><span class="pre">AnovaAnalysis</span></span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.TransitAnalysis" title="pytransit.analysis.base.TransitAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.TransitAnalysis</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytransit.analysis.anova.</span></span><span class="sig-name descname"><span class="pre">AnovaMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">combined_wig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nterm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cterm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pytransit.analysis.base.MultiConditionMethod" title="pytransit.analysis.base.MultiConditionMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">pytransit.analysis.base.MultiConditionMethod</span></code></a></p>
+<p>anova</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.Run">
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.Run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.calcLFCs">
+<span class="sig-name descname"><span class="pre">calcLFCs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">means</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.calcLFCs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.calcLFCs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.fromargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.fromargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.fromargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.group_by_condition">
+<span class="sig-name descname"><span class="pre">group_by_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wigList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.group_by_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.group_by_condition" title="Permalink to this definition"></a></dt>
+<dd><p>Returns array of datasets, where each dataset corresponds to one condition.
+([[Wigdata]], [Condition]) -&gt; [[DataForCondition]]
+Wigdata :: [Number]
+Condition :: String
+DataForCondition :: [Number]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.means_by_condition_for_gene">
+<span class="sig-name descname"><span class="pre">means_by_condition_for_gene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sites</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.means_by_condition_for_gene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.means_by_condition_for_gene" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a dictionary of {Condition: Mean} for each condition.
+([Site], [Condition]) -&gt; {Condition: Number}
+Site :: Number
+Condition :: String</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.means_by_rv">
+<span class="sig-name descname"><span class="pre">means_by_rv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RvSiteindexesMap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.means_by_rv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.means_by_rv" title="Permalink to this definition"></a></dt>
+<dd><p>Returns Dictionary of mean values by condition
+([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition]) -&gt; {Rv: {Condition: Number}}
+Wigdata :: [Number]
+SiteIndex :: Number
+Gene :: {start, end, rv, gene, strand}
+Condition :: String</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.run_anova">
+<span class="sig-name descname"><span class="pre">run_anova</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MeansByRv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RvSiteindexesMap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.run_anova"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.run_anova" title="Permalink to this definition"></a></dt>
+<dd><p>Runs Anova (grouping data by condition) and returns p and q values
+([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -&gt; Tuple([Number], [Number])
+Wigdata :: [Number]
+Gene :: {start, end, rv, gene, strand}
+Mean :: Number
+SiteIndex: Integer
+Condition :: String</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.transit_error">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transit_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.transit_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.transit_error" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.usage_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">usage_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.usage_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.usage_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.wigs_to_conditions">
+<span class="sig-name descname"><span class="pre">wigs_to_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conditionsByFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenamesInCombWig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.wigs_to_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.wigs_to_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of conditions corresponding to given wigfiles.
+({FileName: Condition}, [FileName]) -&gt; [Condition]
+Condition :: [String]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.AnovaMethod.winsorize">
+<span class="sig-name descname"><span class="pre">winsorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#AnovaMethod.winsorize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.AnovaMethod.winsorize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytransit.analysis.anova.main">
+<span class="sig-prename descclassname"><span class="pre">pytransit.analysis.anova.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pytransit/analysis/anova.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pytransit.analysis.anova.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pytransit.analysis">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pytransit.analysis" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

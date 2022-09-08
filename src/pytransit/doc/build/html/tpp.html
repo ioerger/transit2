@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TPP Overview &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="transit package" href="transit.html" />
+    <link rel="prev" title="Console Mode Cheat-Sheet" href="transit_console_cheatsheet.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>TPP Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tpp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tpp-overview">
+<h1>TPP Overview<a class="headerlink" href="#tpp-overview" title="Permalink to this headline"></a></h1>
+<p>TPP is a software tool for processing raw reads (e.g. .fastq files,
+<em>untrimmed</em>) from an Tn-Seq experiment, extracting counts of transposon
+insertions at individual TA dinucleotides sites in a genome (“read
+counts”, or more specifically “template counts”, see below), and writing
+this information out in
+<a class="reference external" href="http://genome.ucsc.edu/goldenpath/help/wiggle.html">.wig</a> format
+suitable for input to <a class="reference external" href="index.html">TRANSIT</a>. In addition, TPP
+calculates some useful statistics and diagnostics on the dataset.</p>
+<p>There are many way to do pre-processing of Tn-Seq datasets, and it can
+depend on the the protocol used for Tn-Seq, the conventions used by the
+sequencing center, etc. However, TPP is written to accommodate the most
+common situation among our collaborating labs. In particular, it is
+oriented toward the Tn-Seq protocol developed in the Sassetti lab and
+described in <a class="reference external" href="http://www.springer.com/biomed/human+genetics/book/978-1-4939-2397-7">(Long et al,
+2015)</a>,
+which uses a barcoding system to uniquely identifying reads from
+distinct transposon-junction DNA fragments. This allows raw read counts
+to be reduced to unique <strong>template counts</strong>, eliminating effects of PCR
+bias. The sequencing must be done in paired-end (PE) mode (with a
+minimum read-length of around 50 bp). The transposon terminus appears in
+the prefix of read1 reads, and barcodes are embedded in read2 reads.</p>
+<p>The suffixes of read1 and read2 contain nucleotides from the genomic
+region adjacent to the transposon insertion. These subsequences must be
+mapped into the genome. TPP uses
+<a class="reference external" href="http://bio-bwa.sourceforge.net/">BWA</a> (Burroughs-Wheeler Aligner) to
+do this mapping. It is a widely-used tool, but you will have to install
+it on your system. Mapping large datasets takes time, on the order of 15
+minutes (depending on many factors), so you will have to be patient.</p>
+<p>Subsequent to the BWA mapping step, TPP does a bunch of post-processing
+steps. Primarily, it tabulates raw read counts at each TA site in the
+reference genome, reduces them to template counts, and writes this out
+in .wig format (as input for TRANSIT). It also calculates and reports
+some statistics on the dataset which a useful for diagnostic purposes.
+These are saved in local file caled “.tn_stats”. The GUI automatically
+reads all the .tn_stats files from previously processed datasets in a
+directory and displays them in a table.</p>
+<p>The GUI interface is set-up basically as a graphical front-end that
+allows you to specify input files and parameters to get a job started.
+Once you press START, the graphical window goes away, and the
+pre-processing begins, printing out status messages in the original
+terminal window. You can also run TPP directly from the command-line
+with the GUI, by providing all the inputs via command-line arguments.</p>
+<p>TPP has a few optional parameters in the interface. We intend to add
+other options in the future, so if you have suggestions, let us know. In
+particular, if you have some datasets that requires special processing
+(such as if different primer sequences were used for PCR amplification,
+or a different barcoding system, or different contaminant sequences to
+search for, etc.), we might be able to add some options to deal with
+this.</p>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<p>TPP should work equivalently on Macs, PCs running Windows, or Unix
+machines. TPP is fundamentally a python script that has a graphical user
+interface (GUI) written in wxPython. Its major dependency is that it
+calls BWA to map reads. TPP is packaged as a part of TRANSIT.</p>
+<p>See: <a class="reference internal" href="transit_install.html#install-link"><span class="std std-ref">Transit/TPP installation</span></a></p>
+<dl class="simple">
+<dt>Requirements (in addition to TRANSIT requirement):</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="http://bio-bwa.sourceforge.net/">BWA version 0.7.12</a> (can put
+this directory anywhere; be sure to run ‘make’ to build bwa executable
+<a class="reference external" href="http://saclab.tamu.edu/essentiality/transit/bwa-0.7.12_windows.zip">pre-compiled version for 64-bit Windows</a>)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Since TPP is a python script, there is nothing to compile or ‘make’.</p>
+</section>
+<section id="running-tpp">
+<h1>Running TPP<a class="headerlink" href="#running-tpp" title="Permalink to this headline"></a></h1>
+<p>TPP may be run from the command line (e.g. of a terminal window or
+shell) by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">PATH</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">tpp</span><span class="o">.</span><span class="n">py</span>
+
+<span class="c1"># If installed as PyPI package</span>
+<span class="n">tpp</span>
+</pre></div>
+</div>
+<p>where PATH is the path to the TRANSIT installation directory. This
+should pop up the GUI window, looking like this…</p>
+<a class="reference internal image-reference" href="_images/TPP-screenshot.png"><img alt="_images/TPP-screenshot.png" class="align-center" src="_images/TPP-screenshot.png" style="width: 800px;" /></a>
+<p>Note, TPP can process paired-end reads, as well as single-end datasets.
+(just leave the filename for read2 blank)</p>
+<p>The main fields to fill out in the GUI are…</p>
+<ul class="simple">
+<li><p><strong>Reference genome</strong> - This is the sequence in Fasta format against which
+the reads will be mapped.  The reference genome may contain multiple
+contigs (hence a ‘multi-fasta’ file, with multiple headers starting with ‘&gt;’),
+or in fact may include a comma-separated list of fasta files.</p></li>
+<li><p><strong>Replicon ids</strong> - If your genome sequence has only one contig (the usual case),
+you don’t have to do anthing here (leave blank).  If you have mutiple contigs
+(e.g. multiple chomosomes, or plasmids included, etc.), you can give them
+unqiue labels/ids as a comma-separated list.  This will be used as filename
+suffixes for the output .wig files (a separate file with insertion counts
+at TA sites for each replicon).  If you have many (anonymous) contigs, e.g.
+from a de novo assembly, you can enter ‘auto’ in this field, and it will generate
+numerical ids for filename suffixes, 1,2…n for however many contigs are in
+the file.</p></li>
+<li><p><strong>Reads1 file</strong> - This should be the raw reads file (<em>untrimmed</em>) for
+read1 in <a class="reference external" href="http://en.wikipedia.org/wiki/FASTQ_format">FASTQ</a> or
+<a class="reference external" href="http://en.wikipedia.org/wiki/FASTA">FASTA</a> format, e.g.
+DATASET_NAME_R1.fastq</p>
+<ul>
+<li><p><em>Note: you can also supply gzipped files for reads, e.g.
+*.fastq.gz</em></p></li>
+</ul>
+</li>
+<li><p><strong>Reads2 file</strong> - this should be the raw reads file (<em>untrimmed</em>) for
+read2 in FASTQ or FASTA format, e.g. DATASET_NAME_R2.fastq</p>
+<ul>
+<li><p><em>Note: if you leave read2 blank, it will process the dataset as
+single-ended. Since there are no barcodes, each read will be
+counted as a unique template.</em></p></li>
+</ul>
+</li>
+<li><p><strong>Prefix</strong> - base to use for output filenames (for the multiple intermediate files that
+will get generated in the process)</p></li>
+<li><p><strong>Protocol used</strong> - Currently, the following TnSeq sample prep protocols are supported.
+These set the default transposon and primer sequence that are
+typically used with each protocol (which can be overridden by -primer), and have a few minor
+differences in processing reads.</p></li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Sassetti</strong> - DNA is sheared into fragments, sequencing adapters are ligated, and
+then transposon:genomic junctions are amplified by PCR.
+Thus a portion (~20bp) of the Himar1 terminus appears as a prefix in the
+reads, which is stripped off prior to mapping to genome.  Also, read 2 contains a
+random nucleotide barcode, which is used to reduce read counts at TA sites to unique template
+counts, which reduces noise.  See <a class="reference external" href="http://www.springer.com/biomed/human+genetics/book/978-1-4939-2397-7">Long et al. (2015)</a>.</p></li>
+<li><p><strong>Tn5</strong> - This is a different transposon than Himar1.  The main difference between Tn5 and Himar1
+is that it is not restricted to insertions at TA dinucleotides, and can insert
+randomly anywhere in the genome.  In principle, this could result in higher saturation
+(more insertions per gene; insertions at hundreds of thousands of sites are common).
+Thus the .wig files generated list insertion counts at every coordinate genome-wide
+(not just TA sites), though most counts are still 0.
+Analysis of Tn5 datasets has some unique challenges, which are discussed in
+<a class="reference external" href="transit_methods.html">Transit Methods</a>.
+See <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792183/">Langridge et al. (2009)</a>.</p></li>
+<li><p><strong>Mme1</strong> - This can be used with a variant of the Himar1 transposon, but the
+method of selecting and amplifying transposon:genomic junctions is different.
+The Mme1 (or MmeI) restriction enzyme is used to recognize a site in the terminus of
+the transposon, and makes a cut 18-20bp downstream into the genomic region.
+Thus the reads are much shorter, and also there
+is no need for read2 (these are typically single-ended datasets).
+For now, most users pre-trim their raw reads down to 16-20bp by using another tool
+to strip off the transposon prefix and adapter suffix.
+If you do this, you should set your primer sequence to “” in TPP.
+See
+<a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4389836/">Santiago et al. (2015)</a>.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p><strong>Transposon used</strong> - Himar1 is assumed by default, but you can set it to
+Tn5 to process libraries of that type. The main consequences of this
+setting are: 1) the selected transposon determines the nucleotide
+prefix to be recognized in read 1, and 2) for Himar1, reads are
+counted only at TA sites, whereas for Tn5, reads are counted at ALL
+sites in the genome (since it does not have significant sequence
+specificity) and written out in the .counts and .wig files.</p></li>
+<li><p><strong>Primer sequence</strong> - This represents the end of the transposon that
+appears as a constant prefix in read 1 (possibly shifted by a few
+random bases), resulting from amplifying transposon:genomic junctions.
+TPP searches for this prefix and strips it off, to
+map the suffixes of reads into the genome.  TPP has default sequences
+defined for both Himar1 and Tn5 data, based on the most commonly
+used protocols (<a class="reference external" href="http://www.springer.com/biomed/human+genetics/book/978-1-4939-2397-7">Long et al. (2015)</a>; <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792183/">Langridge et al. (2009)</a>).  However, if you amplify junctions with a different
+primer, this field gives you the opportunity to change the sequence
+TPP searches for in each read.  Note that you should not
+enter the ENTIRE primer sequence, but rather just
+the part of the primer sequence that will show up at the beginning
+of every read.  If you preprocess your reads by trimming off the 5’ transposon
+prefixes, you could set this to blank, and TPP will process all your reads; but
+we don’t recommend doing it this way.</p></li>
+<li><p><strong>Max reads</strong> - Normally, leave this blank by default, and TPP will
+process all reads. However, if you want to do a quick run on a subset
+of the data, you can select a smaller number. This is mainly for
+testing purposes.</p></li>
+<li><p><strong>Mismatches</strong> - this is for searching for the sequence patterns in reads
+corresponding to the transposon prefix in R1 and the constant adapter
+sequences surrounding the barcode in R2; we suggest using a default
+value of 1 mismatch</p></li>
+<li><p><strong>Primer start window</strong> - a pair of integers separated by a comma (P,Q), which constrains
+the location in the read to search for the start of the primer sequence; default
+is set to 0,20 (which is typically where it will be found for samples prepared
+using the Sassetti protocol, i.e. near the beginning of reads, with some small
+random shifts)</p></li>
+<li><p><strong>BWA executable</strong> - you’ll have to find the path to where the executable is installed</p></li>
+<li><p><strong>BWA algorithm</strong> - there are 2 options: ‘aln’ and ‘mem’.  ‘aln’ was originally used in Transit,
+but the default has now been switched to ‘mem’, which should be able to map more reads</p></li>
+<li><p><strong>BWA flags</strong> - if you want to pass through options to BWA</p></li>
+<li><p><strong>BarSeq Catalog</strong> - this is not finished yet, but we are working on it.  Stay tuned…</p></li>
+</ul>
+<p>Once you have filled all these fields out, you can press START (or
+QUIT). At this point the GUI window will disappear, and the data
+processing commences in the original terminal/shell windows. It prints
+out a lot of information to let you know what it is doing (and error
+messages, if anything goes wrong). Many intermediate files get
+generated. It takes awhile (like on the order of 15 minutes), most of
+which is taken up by the mapping-reads step by BWA.</p>
+<p>Subsequent to the BWA mapping step, TPP does a bunch of post-processing
+steps. Primarily, it tabulates raw read counts at each TA site in the
+reference genome, reduces them to template counts, and writes this out
+in .wig format (as input for essentiality analysis in TRANSIT). It also
+calculates and reports some statistics on the dataset which a useful for
+diagnostic purposes. These are saved in local file caled
+“<strong>.tn_stats</strong>”. The GUI automatically reads all the .tn_stats files
+from previously processed datasets in a directory and displays them in a
+table.</p>
+<p>TPP uses a local config file called “<strong>tpp.cfg</strong>” to remember parameter
+settings from run to run. This makes it convenient so that you don’t
+have to type in things like the path to the BWA executable or reference
+genome over and over again. You just have to do it once, and TPP will
+remember.</p>
+<p><strong>Command-line mode:</strong> TPP may be run on a dataset directly from the
+command-line without invoking the user interface (GUI) by providing it
+filenames and parameters as command-line arguments.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python</span> <span class="n">tpp</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">help</span>
+
+<span class="n">usage</span><span class="p">:</span> <span class="n">python</span> <span class="n">PATH</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">tpp</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">bwa</span> <span class="o">&lt;</span><span class="n">EXECUTABLE_WITH_PATH</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">ref</span> <span class="o">&lt;</span><span class="n">fasta</span><span class="o">-</span><span class="n">file</span><span class="o">|</span><span class="n">comma_separated_list</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">reads1</span> <span class="o">&lt;</span><span class="n">FASTQ_OR_FASTA_FILE</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">reads2</span> <span class="o">&lt;</span><span class="n">FASTQ_OR_FASTA_FILE</span><span class="o">&gt;</span><span class="p">]</span> <span class="o">-</span><span class="n">output</span> <span class="o">&lt;</span><span class="n">BASE_FILENAME</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">OPTIONAL</span> <span class="n">ARGS</span><span class="p">]</span>
+<span class="n">OPTIONAL</span> <span class="n">ARGS</span><span class="p">:</span>
+<span class="o">-</span><span class="n">protocol</span> <span class="p">[</span><span class="n">Sassetti</span><span class="o">|</span><span class="n">Tn5</span><span class="o">|</span><span class="n">Mme1</span><span class="p">]</span> <span class="c1"># which sample prep protocol was used?; sassetti protocol is the default; this sets the default transposon and primer sequence</span>
+<span class="o">-</span><span class="n">primer</span> <span class="o">&lt;</span><span class="n">seq</span><span class="o">&gt;</span>      <span class="c1"># prefix of reads corresponding to end of transposon at junction with genomic sequence; can override default seq</span>
+<span class="o">-</span><span class="n">maxreads</span> <span class="o">&lt;</span><span class="n">INT</span><span class="o">&gt;</span>
+<span class="o">-</span><span class="n">mismatches</span> <span class="o">&lt;</span><span class="n">INT</span><span class="o">&gt;</span>  <span class="c1"># when searching for constant regions in reads 1 and 2; default is 1</span>
+<span class="o">-</span><span class="n">flags</span> <span class="s2">&quot;&lt;STRING&gt;&quot;</span>  <span class="c1"># args to pass to BWA</span>
+<span class="o">-</span><span class="n">primer</span><span class="o">-</span><span class="n">start</span><span class="o">-</span><span class="n">window</span> <span class="n">INT</span><span class="p">,</span><span class="n">INT</span> <span class="c1"># position in read to search for start of primer; default is [0,20]</span>
+<span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="n">size</span> <span class="n">INT</span>   <span class="c1"># automatic method to set window</span>
+<span class="o">-</span><span class="n">barseq_catalog_in</span><span class="o">|-</span><span class="n">barseq_catalog_out</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;</span>
+<span class="o">-</span><span class="n">replicon</span><span class="o">-</span><span class="n">ids</span> <span class="o">&lt;</span><span class="n">comma_separated_list_of_names</span><span class="o">&gt;</span> <span class="c1"># if multiple replicons/genomes/contigs/sequences were provided in -ref, give them names.</span>
+                                              <span class="c1"># Enter &#39;auto&#39; for autogenerated ids.</span>
+</pre></div>
+</div>
+<p>The input arguments and file types are as follows:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 40%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>-bwa</p></td>
+<td><p>path executable</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>-bwa-alg</p></td>
+<td><p>‘mem’ (default) or ‘aln’ (the old way)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>-flag</p></td>
+<td><p>parameters to pass to BWA</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>-ref</p></td>
+<td><p>reference genome sequence</p></td>
+<td><p>FASTA file or comma-separated list of files</p></td>
+</tr>
+<tr class="row-even"><td><p>-replicon-ids</p></td>
+<td><p>comma-separated list of names to use for contigs</p></td>
+<td><p>necessary only if genome seq has multiple contigs.
+Enter ‘auto’ for autogenerating ids.</p></td>
+</tr>
+<tr class="row-odd"><td><p>-reads1</p></td>
+<td><p>file of read 1 of paired reads</p></td>
+<td><p>FASTA or FASTQ format (or gzipped)</p></td>
+</tr>
+<tr class="row-even"><td><p>-reads2</p></td>
+<td><p>file of read 2 of paired reads
+(optional for single-end reads)</p></td>
+<td><p>FASTA or FASTQ format (or gzipped)</p></td>
+</tr>
+<tr class="row-odd"><td><p>-output</p></td>
+<td><p>base filename to use for output files</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>-maxreads</p></td>
+<td><p>subset of reads to process (optional)</p></td>
+<td><p>default is to use all reads</p></td>
+</tr>
+<tr class="row-odd"><td><p>-mismatches</p></td>
+<td><p>how many to allow when searching reads for
+sequence patterns</p></td>
+<td><p>default is 1 mismatch</p></td>
+</tr>
+<tr class="row-even"><td><p>-protocol</p></td>
+<td><p>Sassetti (default)</p></td>
+<td><p>The Sassetti sample prep protocol (with barcodes in
+read2). Assumes Himar1 transposon.</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Tn5</p></td>
+<td><p>Reads can map to any site, not just TAs.</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Mme1</p></td>
+<td><p>Use of restriction enzyme recognizing the
+terminus of the Himar1 transposon.</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td><p><em>These choices set the default transposon and
+primer sequence.</em></p></td>
+</tr>
+<tr class="row-even"><td><p>-primer</p></td>
+<td><p>nucleotide sequence</p></td>
+<td><p>Constant prefix of reads that TPP searches for.
+default: ACTTATCAGCCAACCTGTTA (terminus of Himar1)</p></td>
+</tr>
+<tr class="row-odd"><td><p>-primer-start-window</p></td>
+<td><p>INT,INT (default is 0,20)</p></td>
+<td><p>Start and end nucleotides in read 1
+in which to search for start of Tn prefix.</p></td>
+</tr>
+</tbody>
+</table>
+<p>(Note: if you have already run TPP once, the you can leave out the
+specification of the path for BWA, and it will automatically take the
+path stored in the config file, tpp.cfg. Same for ref, if you always use
+the same reference sequence.)</p>
+<p>(The -primer-start-window flag specifies the range of nucleotide in read 1
+to search for the start of the primer sequence (which is the end of the transposon).
+This is useful to narrow the down the region to search from the whole read
+(especially if the primer sequence is short, e.g. &lt;10bp),
+to avoid spurious matches in reads not representing true transposon:genomic junctions.
+Depending on the protocol and
+primer design, the constant sequence corresponding the the end of the transposon
+usually occurs near the beginning of the read, possibly at varying (shifted) positions.
+However, if your primer sequence is long enough (e.g &gt;16bp), then the changes of
+spurious matches (e.g. to the reference genome) is quite low.)</p>
+</section>
+<section id="mapping-to-genomes-with-multiple-contigs">
+<h1>Mapping to Genomes with Multiple Contigs<a class="headerlink" href="#mapping-to-genomes-with-multiple-contigs" title="Permalink to this headline"></a></h1>
+<p>Occasionally, it is useful to process TnSeq data where the reference genome consists of multiple sequences,
+such as multiple chromosomes (e.g. <em>Vibrio cholera</em>), or a chromosome + plasmid, or it might be
+a new strain with an incomplete assembly (multiple contigs not yet assembled into a single continuous scaffold).
+While TPP was originally designed for mapping reads to one sequence at a time, it has recently been
+extended to process multiple contigs in parallel (with help from Robert Jenquin and William Matern).</p>
+<p>You can provide either a single merged reference sequence (multi-fasta file, with several
+header lines and sequences), or a comma-separated list of input fasta files (command-line only).
+If multiple sequences are provided to TPP, you will have to include an additional flag on the
+command line called <em>-replicon-ids</em> (again, a comma-separated list; the number of ids needs to match
+the number of input sequences. Use ‘auto’ to autogenerate ids).</p>
+<p>In the GUI, there is a new field for specifiying replicon-ids as well.
+If there is just one sequence or contig, you can leave replicon-ids blank; you do not have to specify it
+in the GUI or on the command line.</p>
+<p>In such situations, TPP will generate multiple .wig files, each with the base filename (arg of ‘-output’ flag),
+suffixed with a replicon-id.</p>
+<p>For example, consider the following example command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python</span> <span class="n">tpp</span><span class="o">.</span><span class="n">py</span> <span class="n">python</span> <span class="o">-</span><span class="n">bwa</span> <span class="o">../../</span><span class="n">bwa</span><span class="o">-</span><span class="mf">0.7.12</span><span class="o">/</span><span class="n">bwa</span> <span class="o">-</span><span class="n">ref</span> <span class="n">avium104</span><span class="o">.</span><span class="n">fna</span><span class="p">,</span><span class="n">pMAH135</span><span class="o">.</span><span class="n">fna</span> <span class="o">-</span><span class="n">replicon</span><span class="o">-</span><span class="n">ids</span> <span class="n">avium104</span><span class="p">,</span><span class="n">pMAH135</span> <span class="o">-</span><span class="n">reads1</span> <span class="n">TnSeq</span><span class="o">-</span><span class="n">avium</span><span class="o">-</span><span class="mi">7</span><span class="n">H10</span><span class="o">-</span><span class="n">A1_R1</span><span class="o">.</span><span class="n">fastq</span> <span class="o">-</span><span class="n">reads2</span> <span class="n">TnSeq</span><span class="o">-</span><span class="n">avium</span><span class="o">-</span><span class="mi">7</span><span class="n">H10</span><span class="o">-</span><span class="n">A1_R2</span><span class="o">.</span><span class="n">fastq</span> <span class="o">-</span><span class="n">output</span> <span class="n">TnSeq</span><span class="o">-</span><span class="n">avium</span><span class="o">-</span><span class="mi">7</span><span class="n">H10</span><span class="o">-</span><span class="n">A1</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">This command would generate output these files:</div>
+<div class="line"><em>TnSeq-avium-7H10-A1_avium104.wig</em> and <em>TnSeq-avium-7H10-A1_pMAH135.wig</em>.</div>
+</div>
+</section>
+<section id="overview-of-data-processing-procedure">
+<h1>Overview of Data Processing Procedure<a class="headerlink" href="#overview-of-data-processing-procedure" title="Permalink to this headline"></a></h1>
+<p>Here is a brief summary of the steps performed in converting raw reads
+(.fastq files) into template counts:</p>
+<ol class="arabic simple">
+<li><p>Convert .fastq files to .fasta format (.reads).</p></li>
+<li><p>Identify reads with the transposon prefix in R1 . The sequence
+searched for is ACTTATCAGCCAACCTGTTA (or TAAGAGACAG for Tn5), which must start between cycles
+5 and 10 (inclusive). (Note that this ends in the canonical terminus
+of the Himar1 transposon, TGTTA.) The “staggered” position of this
+sequence is due to insertion a few nucleotides of variable length in
+the primers used in the Tn-Seq sample prep protocol (e.g. 4 variants
+of Sol_AP1_57, etc.). The number of mimatches allowed in searching
+reads for the transposon sequence pattern can be adjusted as an
+option in the interface; the default is 1.</p></li>
+<li><p>Extract genomic part of read 1. This is the suffix following the
+transposon sequence pattern above. However, for reads coming from
+fragments shorter than the read length, the adapter might appear at
+the other end of R1, TACCACGACCA. If so, the adapter suffix is
+stripped off. (These are referred to as “truncated” reads, but they
+can still be mapped into the genome just fine by BWA.) The length of
+the genomic part must be at least 20 bp.</p></li>
+<li><p>Extract barcodes from read 2. Read 2 is searched for
+GATGGCCGGTGGATTTGTGnnnnnnnnnnTGGTCGTGGTAT”. The length of the barcode
+is typically 10 bp, but can be varaible, and must be between 5-15 bp.</p></li>
+<li><p>Extract genomic portions of read 2. This is the part following
+TGGTCGTGGTAT…. It is often the whole suffix of the read. However,
+if the read comes from a short DNA fragment that is shorter than the
+read length, the adapter on the other end might appear, in which case
+it is stripped off and the nucleotides in the middle representing the
+genomic insert, TGGTCGTGGTATxxxxxxxTAACAGGTTGGCTGATAAG. The insert
+must be at least 20 bp long (inserts shorter than this are discarded,
+as they might map to spurious locations in the genome).</p></li>
+<li><p>Map genomic parts of R1 and R2 into the genome using BWA. Mismatches
+are allowed, but indels are ignored. No trimming is performed. BWA is
+run in ‘sampe’ mode (treating reads as pairs). Both reads of a pair
+must map (on opposite strands) to be counted.</p></li>
+<li><p>Count the reads mapping to each TA site in the reference genome (or all sites for Tn5).</p></li>
+<li><p>Reduce raw read counts to unique template counts. Group reads by
+barcode AND mapping location of read 2 (aka fragment “endpoints”).</p></li>
+<li><p>Output template counts at each TA site in a .wig file.</p></li>
+<li><p>Calculate statistics like insertion_density and NZ_mean. Look for
+the site with the max template count. Look for reads matching the
+primer or vector sequences.</p></li>
+</ol>
+</section>
+<section id="statistics">
+<span id="tpp-statistics"></span><h1>Statistics<a class="headerlink" href="#statistics" title="Permalink to this headline"></a></h1>
+<p>See also: <a class="reference internal" href="transit_features.html#transit-quality-control"><span class="std std-ref">Transit Quality Control</span></a></p>
+<p>Here is an explanation of the statistics that are saved in the
+.tn_stats file and displayed in the table in the GUI. For convenience,
+all the statistics are written out on one line with tab-separation at
+the of the .tn_stats file, to make it easy to add it as a row in a
+spreadsheet, as some people like to do to track multiple datasets.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 84%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Statistic</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>total_reads</p></td>
+<td><p>total number of reads in the original .fastq/.fasta</p></td>
+</tr>
+<tr class="row-odd"><td><p>truncated_reads</p></td>
+<td><p>reads representing DNA fragments shorter than the read length; adapter appears at end of read 1 and is stripped for mapping</p></td>
+</tr>
+<tr class="row-even"><td><p>TGTTA_reads</p></td>
+<td><p>number of reads with a proper transposon prefix (ending in TGTTA in read1)</p></td>
+</tr>
+<tr class="row-odd"><td><p>reads1_mapped</p></td>
+<td><p>number of R1 mappped into genome (independent of R2)</p></td>
+</tr>
+<tr class="row-even"><td><p>reads2_mapped</p></td>
+<td><p>number of R2 mappped into genome (independent of R1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>mapped_reads</strong></p></td>
+<td><p>number of reads which mapped into the genome (requiring both read1 and read2 to map)</p></td>
+</tr>
+<tr class="row-even"><td><p>read_count</p></td>
+<td><p>total reads mapping to TA sites (mapped reads excluding those mapping to non-TA sites)</p></td>
+</tr>
+<tr class="row-odd"><td><p>template_count</p></td>
+<td><p>reduction of mapped reads to unique templates using barcodes</p></td>
+</tr>
+<tr class="row-even"><td><p>template_ratio</p></td>
+<td><p>read_count / template_count</p></td>
+</tr>
+<tr class="row-odd"><td><p>TA_sites</p></td>
+<td><p>total number of TA dinucleotides in the genome</p></td>
+</tr>
+<tr class="row-even"><td><p>TAs_hit</p></td>
+<td><p>number of TA sites with at least 1 insertion</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>insertion_density</strong></p></td>
+<td><p>TAs_hit / TA_sites</p></td>
+</tr>
+<tr class="row-even"><td><p>max_count</p></td>
+<td><p>the maximum number of templates observed at any TA site</p></td>
+</tr>
+<tr class="row-odd"><td><p>max_site</p></td>
+<td><p>the coordinate of the site where the max count occurs</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>NZ_mean</strong></p></td>
+<td><p>mean template count over non-zero TA sites</p></td>
+</tr>
+<tr class="row-odd"><td><p>FR_corr</p></td>
+<td><p>correlation between template counts on Fwd strand versus Rev strand</p></td>
+</tr>
+<tr class="row-even"><td><p>BC_corr</p></td>
+<td><p>correlation between read counts and template counts over non-zero sites</p></td>
+</tr>
+<tr class="row-odd"><td><p>primer_matches</p></td>
+<td><p>how many reads match the Himar1 primer sequence (primer-dimer problem in sample prep)</p></td>
+</tr>
+<tr class="row-even"><td><p>vector_matches</p></td>
+<td><p>how many reads match the phiMycoMarT7 sequence (transposon vector) used in Tn mutant library construction</p></td>
+</tr>
+<tr class="row-odd"><td><p>adapter</p></td>
+<td><p>how many reads match the Illumina adapter (primer-dimers, no inserts).</p></td>
+</tr>
+<tr class="row-even"><td><p>misprimed</p></td>
+<td><p>how many reads match the Himar1 primer but lack the TGTTA, meaning they primed at random sites (non-Tn junctions)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Here is an example of a .tn_stats file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># title: Tn-Seq Pre-Processor</span>
+<span class="c1"># date: 08/03/2016 13:01:47</span>
+<span class="c1"># command: python ../../src/tpp.py -bwa /pacific/home/ioerger/bwa-0.7.12/bwa -ref H37Rv.fna -reads1 TnSeq_H37Rv_CB_1M_R1.fastq -reads2 TnSeq_H37Rv_CB_1M_R2.fastq -output TnSeq_H37Rv_CB</span>
+<span class="c1"># transposon type: Himar1</span>
+<span class="c1"># read1: TnSeq_H37Rv_CB_1M_R1.fastq</span>
+<span class="c1"># read2: TnSeq_H37Rv_CB_1M_R2.fastq</span>
+<span class="c1"># ref_genome: H37Rv.fna</span>
+<span class="c1"># total_reads 1000000 (or read pairs)</span>
+<span class="c1"># TGTTA_reads 977626 (reads with valid Tn prefix, and insert size&gt;20bp)</span>
+<span class="c1"># reads1_mapped 943233</span>
+<span class="c1"># reads2_mapped 892527</span>
+<span class="c1"># mapped_reads 885796 (both R1 and R2 map into genome)</span>
+<span class="c1"># read_count 879663 (TA sites only, for Himar1)</span>
+<span class="c1"># template_count 605660</span>
+<span class="c1"># template_ratio 1.45 (reads per template)</span>
+<span class="c1"># TA_sites 74605</span>
+<span class="c1"># TAs_hit 50382</span>
+<span class="c1"># density 0.675</span>
+<span class="c1"># max_count 356 (among templates)</span>
+<span class="c1"># max_site 2631639 (coordinate)</span>
+<span class="c1"># NZ_mean 12.0 (among templates)</span>
+<span class="c1"># FR_corr 0.821 (Fwd templates vs. Rev templates)</span>
+<span class="c1"># BC_corr 0.990 (reads vs. templates, summed over both strands)</span>
+<span class="c1"># primer_matches: 10190 reads (1.0%) contain CTAGAGGGCCCAATTCGCCCTATAGTGAGT (Himar1)</span>
+<span class="c1"># vector_matches: 5608 reads (0.6%) contain CTAGACCGTCCAGTCTGGCAGGCCGGAAAC (phiMycoMarT7)</span>
+<span class="c1"># adapter_matches: 0 reads (0.0%) contain GATCGGAAGAGCACACGTCTGAACTCCAGTCAC (Illumina/TruSeq index)</span>
+<span class="c1"># misprimed_reads: 6390 reads (0.6%) contain Himar1 prefix but don&#39;t end in TGTTA</span>
+<span class="c1"># read_length: 125 bp</span>
+<span class="c1"># mean_R1_genomic_length: 92.9 bp</span>
+<span class="c1"># mean_R2_genomic_length: 79.1 bp</span>
+<span class="n">TnSeq_H37Rv_CB_1M_R1</span><span class="o">.</span><span class="n">fastq</span>  <span class="n">TnSeq_H37Rv_CB_1M_R2</span><span class="o">.</span><span class="n">fastq</span>  <span class="mi">1000000</span> <span class="mi">977626</span>  <span class="mi">943233</span>  <span class="mi">892527</span>  <span class="mi">885796</span>  <span class="mi">879663</span>  <span class="mi">605660</span>  <span class="mf">1.45240398904</span>   <span class="mi">74605</span>   <span class="mi">50382</span>   <span class="mi">356</span> <span class="mf">0.675316667784</span>  <span class="mi">2631639</span> <span class="mf">12.0213568338</span>   <span class="mf">0.8209081083</span>    <span class="mf">0.989912222642</span>  <span class="mi">10190</span>   <span class="mi">5608</span>    <span class="mi">0</span>   <span class="mi">6390</span>
+</pre></div>
+</div>
+<p><strong>Interpretation:</strong> To assess the quality of a dataset, I would
+recommend starting by looking at these primary statistics:</p>
+<ol class="arabic simple">
+<li><p><strong>mapped reads</strong>: should be on the order of several million
+mapped_reads; if there is a significant reduction from total_reads,
+look at reads1_mapped and reads2_mapped and truncated_reads to
+figure what might have gone wrong; you might try allowing 2
+mismatches</p></li>
+<li><p><strong>primer/vector_matches</strong>: check whether a lot of the reads might be
+matching the primer or vector sequences; if they match the vector, it
+suggests your library still has phage contamination from the original
+infection; if there are a lot of primer reads, these probably
+represent “primer-dimers”, which could be reduced by inproving
+fragment size selection during sample prep.</p></li>
+<li><p><strong>insertion density</strong>: good libraries should have insertions in at least
+~35% of TA sites for meaningful statistical analysis</p></li>
+<li><p><strong>NZ_mean</strong>: good datasets should have a mean of around 50 templates
+per site for sufficient dynamic range</p></li>
+</ol>
+<p>If something doesn’t look right, the other statistics might be helpful
+in figuring out what went wrong. If you see a significant reduction in
+reads, it could be due to some poor sequencing cycles, or using the
+wrong reference genome, or a contaminant of some type. Some attrition is
+to be expected (loss of maybe 10-40% of the reads). The last 2
+statistics indicate 2 common cases: how many reads match the primer or
+vector sequences. Hopefully these counts will be low, but if they
+represent a large fraction of your reads, it could mean you have a
+problem with your sample prep protocol or Tn mutant library,
+respectively.</p>
+<p><strong>Comments or Questions?</strong></p>
+<p>TPP was developed by <a class="reference external" href="http://faculty.cse.tamu.edu/ioerger/">Thomas R.
+Ioerger</a> at Texas A&amp;M
+University. If you have any comments or questions, please feel free to
+send me an email at: <code class="docutils literal notranslate"><span class="pre">ioerger&#64;cs.tamu.edu</span></code></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transit_console_cheatsheet.html" class="btn btn-neutral float-left" title="Console Mode Cheat-Sheet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transit.html" class="btn btn-neutral float-right" title="transit package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

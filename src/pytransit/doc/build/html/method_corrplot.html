@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>corrplot &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="heatmap" href="method_heatmap.html" />
+    <link rel="prev" title="Pathway Enrichment Analysis" href="method_pathway_enrichment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">corrplot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>corrplot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_corrplot.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="transit-clionly" id="id1">
+<h1>corrplot<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h1>
+<p>A useful tool when evaluating the quality of a collection of TnSeq datasets is to make a
+<em>correlation plot</em> of the mean insertion counts (averaged at the gene-level) among samples.
+While it is difficult to state unequivocally
+how much correlation there should be between samples from different conditions
+(or even between replicates of the same condition),
+the corrplot can often reveal individual samples which stand out as being far less
+correlated with all the others (which subsequently might be excluded from analyses).</p>
+<p><strong>Note</strong>: The <em>corrplot</em> command calls R, which must be installed on your system,
+and relies on the ‘corrplot’ R package.
+See <a class="reference internal" href="transit_install.html#install-zinb"><span class="std std-ref">Installation Instructions</span></a>.</p>
+<section id="usage">
+<h2>Usage:<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">corrplot</span> <span class="o">&lt;</span><span class="n">mean_counts</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span><span class="o">.</span><span class="n">png</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">anova</span><span class="o">|-</span><span class="n">zinb</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The simplest usage is without the flags at the end.
+The mean_counts file is generated by the ‘export mean_counts’ command, and gives
+the mean insertion count for each gene in each sample.</p>
+<p>Here is an example of making a corrplot:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">transit</span> <span class="n">corrplot</span> <span class="n">glyc_chol_combined</span><span class="o">.</span><span class="n">wig</span><span class="o">.</span><span class="n">txt</span> <span class="n">glyc_chol_corrplot</span><span class="o">.</span><span class="n">png</span>
+<span class="n">correlations</span> <span class="n">based</span> <span class="n">on</span> <span class="mi">3990</span> <span class="n">genes</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/glyc_chol_corrplot.png"><img alt="_images/glyc_chol_corrplot.png" class="align-center" src="_images/glyc_chol_corrplot.png" style="width: 300px;" /></a>
+<p>A corrplot can also be generated from the output of ANOVA or ZINB
+analysis, showing relationships among the conditions themselves
+(i.e. with replicates merged, rather than correlations among
+individual samples).  Importantly, the correlations are based only on
+the <em>subset</em> of genes identified as significantly varying (Padj &lt;
+0:05) in order to enhance the patterns, since otherwise they would be
+washed out by the rest of the genes in the genome, the majority of
+which usually do not exhibit significant variation in counts.</p>
+<p>Here is an example which generates the following image showing the corrplot among
+several different growth conditions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">corrplot</span> <span class="n">anova_iron</span><span class="o">.</span><span class="n">txt</span> <span class="n">iron_corrplot_anova</span><span class="o">.</span><span class="n">png</span> <span class="o">-</span><span class="n">anova</span>
+<span class="n">correlations</span> <span class="n">based</span> <span class="n">on</span> <span class="mi">229</span> <span class="n">genes</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/iron_corrplot_anova.png"><img alt="_images/iron_corrplot_anova.png" class="align-center" src="_images/iron_corrplot_anova.png" style="width: 300px;" /></a>
+<p>Note that if an ANOVA or ZINB output file (both of which contain mean
+counts for each gene in each condition) is supplied in place of
+mean_counts, the <em>last</em> argument of corrplot must be set to either
+‘-anova’ or ‘-zinb’ to indicate the type of file being provided as the
+first argument.</p>
+<p>Note: corrplot requires R (statistical analysis software)
+to be installed on your system.  See <a class="reference internal" href="transit_install.html#install-zinb"><span class="std std-ref">Installation Instructions</span></a>.</p>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_pathway_enrichment.html" class="btn btn-neutral float-left" title="Pathway Enrichment Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_heatmap.html" class="btn btn-neutral float-right" title="heatmap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

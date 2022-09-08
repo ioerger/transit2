@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running TRANSIT &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quality Control" href="transit_features.html" />
+    <link rel="prev" title="Installation" href="transit_install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running TRANSIT</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#gui-mode">GUI Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-mode">Command line Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prot-tables-annotations">Prot_tables (Annotations)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tn5-datasets">Tn5 Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Running TRANSIT</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transit_running.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-transit">
+<h1>Running TRANSIT<a class="headerlink" href="#running-transit" title="Permalink to this headline"></a></h1>
+<p>TRANSIT can be run in either GUI mode or in console mode. GUI Mode
+will be run if TRANSIT is not given any command-line arguments. If any
+arguments are given, TRANSIT will run in console-mode.</p>
+<p>The exact commands will vary depending on the method of
+installation. Details are given below:</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="gui-mode">
+<h2>GUI Mode<a class="headerlink" href="#gui-mode" title="Permalink to this headline"></a></h2>
+<p>In general, if you installed TRANSIT as a python package (e.g. using
+<em>pip install tnseq-transit</em>), then the proper way to run TRANSIT in
+GUI mode is simply to type the following into a console:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">transit</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In windows, you will likely have to navigate to C:\Python2.7\Scripts to be able to recognize the transit.exe file.</p>
+</div>
+<p>If, however, you installed transit by downloading and extracting the source-code archive, you can run TRANSIT in GUI mode by typing in the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">PATH</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>where PATH is the path to the TRANSIT installation directory. You might be able to double-click on icon for transit.py, if your OS associates .py files with python and automatically runs them.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note, because TRANSIT has a graphical user interface, if you are trying to run TRANSIT in GUI mode across a network, for example by running on a unix server but displaying on a desktop machine, you will probably need to use ‘ssh -Y’ and a local X11 client (like Xming or Cygwin/X on PCs). This will allow the GUI component to be properly displayed accross the network connection.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="command-line-mode">
+<h2>Command line Mode<a class="headerlink" href="#command-line-mode" title="Permalink to this headline"></a></h2>
+<p>TRANSIT can also be run purely the command line, without a GUI interface. This is convenient if you want to run many analyses in batch, as you can write a script that automatically runs several analyses in parallel or in sequence</p>
+<p>If you installed TRANSIT as a python package, you can get a list of possible arguments by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">transit</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>Or if you installed it by downloading and extracting an archive with the source code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">PATH</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>In most cases TRANSIT expects the user to specify which analysis method they wish to run as their first argument. The user will need to type the short-name of the analysis method desired, e.g. “gumbel”, “hmm”, or “resampling”. By choosing a method, and adding the “-h” flag, you will get a list of all the necessary parameters and optional flags for the chosen method.</p>
+<p>If you installed TRANSIT as a python package, you can achieve this by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">transit</span> <span class="n">gumbel</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>Or if you installed it by downloading and extracting an archive with the source code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">PATH</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">gumbel</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>See example usages of supported methods in <span class="xref std std-ref">Analysis Methods</span> section.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="prot-tables-annotations">
+<h2>Prot_tables (Annotations)<a class="headerlink" href="#prot-tables-annotations" title="Permalink to this headline"></a></h2>
+<p>Most of the methods in Transit use a custom format for genome annotations called a ‘.prot_table’.
+It is a simple tab-separated text file with specific columns, as originally defined for genomes
+in Genbank many years ago.</p>
+<p>The required columns are:</p>
+<ol class="arabic simple">
+<li><p>gene function description</p></li>
+<li><p>start coordinate</p></li>
+<li><p>end coordinate</p></li>
+<li><p>strand</p></li>
+<li><p>length of protein product (in amino acids)</p></li>
+<li><p>don’t care</p></li>
+<li><p>don’t care</p></li>
+<li><p>gene name (like “dnaA”)</p></li>
+<li><p>ORF id (like Rv0001)</p></li>
+</ol>
+<p>It is crucial to use the same .prot_table corresponding to the genome sequence that was
+used to generate the wig file (count insertions) by TPP.  This is because the
+coordinates of TA sites in the wig file and the coordinates of ORF boundaries
+must use the same coordinate system (which can be thrown out of register by indels).</p>
+<p>Suppose you have a .prot_table for genome A, and you want to map reads to
+another genome B which is closely related, but for which you do not have an annotation.
+You can use the following web-app ( <a class="reference external" href="http://saclab.tamu.edu/cgi-bin/iutils/app.cgi">Prot_table Adjustment Tool</a> )
+to convert the annotation for A to B
+by adjusting all the coordinates of ORFs from A to B according to a genome alignment.
+For example, you could use this to map known ORFs in H37Rv to sequences of other strains, like HN878 or CDC1551.
+(Even though they have their own annotations, it might be helpful to use the genes as defined in H37Rv)</p>
+<p>While some Transit methods can also work with .gff (or .gff3) files,
+the flexibility of the .gff format makes it difficult to anticipate all possible encoding schemes.
+Therefore, to simplify things, we recommend you convert your .gff file to .prot_table format
+once at the beginning and then use that for all work with Transit,
+which can be done through the GUI (under ‘Convert’ in menu), or on the command-line as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">convert</span> <span class="n">gff_to_prot_table</span> <span class="o">&lt;.</span><span class="n">gff</span><span class="o">&gt;</span> <span class="o">&lt;.</span><span class="n">prot_table</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="tn5-datasets">
+<span id="tn5-main-overview"></span><h2>Tn5 Datasets<a class="headerlink" href="#tn5-datasets" title="Permalink to this headline"></a></h2>
+<p>Transit can now process and analyze Tn5 datasets  This is a different transposon than Himar1.
+The major difference is Tn5 can insert at any site in the genome, and is not restricted
+to TA dinucleotides (and saturation is typically much lower).  This affects
+the statistical analyses (which were originally designed for Himar1 and can’t directly
+be applied to Tn5). Therefore, <a class="reference internal" href="method_resampling.html#resampling"><span class="std std-ref">Resampling</span></a> was extended to handle Tn5 for comparative analysis, and
+<a class="reference internal" href="method_tn5gaps.html#tn5gaps"><span class="std std-ref">Tn5Gaps</span></a> is a new statistical model for identifying essential genes in single Tn5 datasets.
+Amplification of Tn5 libraries
+uses different primers, and this affects the pre-processing by TPP.  But TPP has
+be modified to recognize the primer sequence for the most widely
+used protocol for Tn5.  Furthermore, TPP now has an option for users to define their
+own primer sequences, if they use a different sample prep protocol.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transit_install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transit_features.html" class="btn btn-neutral float-right" title="Quality Control" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

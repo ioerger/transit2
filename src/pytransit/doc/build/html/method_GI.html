@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genetic Interactions &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ANOVA" href="method_anova.html" />
+    <link rel="prev" title="Mann-Whitney U-test (utest)" href="method_Utest.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Genetic Interactions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statistical-significance">Statistical Significance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-and-diagnostics">Output and Diagnostics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Genetic Interactions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_GI.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="genetic-interactions">
+<span id="id1"></span><h1>Genetic Interactions<a class="headerlink" href="#genetic-interactions" title="Permalink to this headline"></a></h1>
+<p>The genetic interactions (GI) method is a comparative analysis used
+used to determine genetic interactions. It is a Bayesian method
+that estimates the distribution of log fold-changes (logFC) in two
+strain backgrounds under different conditions, and identifies significantly
+large changes in enrichment (delta_logFC) to identify those genes
+that imply a genetic interaction.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Can be used for both <strong>Himar1</strong> and <strong>Tn5</strong> datasets</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline"></a></h2>
+<p>GI performs a comparison among 4 groups of datasets, strain A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
+It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain.</p>
+<p>If you think of the effect of treatment as a log-fold-change (e.g. of
+the insert counts between control and treatment in strain A), which is
+like a “slope”, then the interacting genes are those that exhibit a difference
+in the effect of the treatment between the strains, and hence a difference in the
+slopes between strain A and B (represented by ‘delta_LFC’ in the output file).</p>
+<div class="line-block">
+<div class="line">For a formal description of how this method works, see our paper <a class="reference internal" href="transit_overview.html#dejesus2017nar" id="id2"><span>[DeJesus2017NAR]</span></a>:</div>
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">DeJesus, M.A., Nambi, S., Smith, C.M., Baker, R.E., Sassetti, C.M., Ioerger, T.R. <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/28334803">Statistical analysis of genetic interactions in Tn-Seq data.</a> <em>Nucleic Acids Research.</em> 2017. 45(11):e93. doi: 10.1093/nar/gkx128.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="statistical-significance">
+<h2>Statistical Significance<a class="headerlink" href="#statistical-significance" title="Permalink to this headline"></a></h2>
+<p>The computation that is done by GI is to compute the posterior distribution of the delta_LFC (or mean change in slopes)
+through Bayesian sampling.
+The primary method to determine significance of genes is whethter this the mean_delta_LFC is significantly differnt than 0.
+However, since the mean_delta_LFC is a distribution, we represent it by a Highest Density Interval, HDI, which is
+similar to a 95% confidence interval.  Furthermore, rather than asking whether the HDI overlaps 0 exactly, we expand the interval
+around 0 to a Region of Probable Equivalence (ROPE), which is set to [-0.5,0.5] by default.  Hence the significant genes
+are those for which the HDI does not overlap the ROPE.  GI has a flag to  adjust the size of the ROPE, if desired.</p>
+<p>In the GI output file, the final column give the significance call, along with type of interaction.
+If a gene is not significant, it will be marked with “<strong>No Interaction</strong>” (for the HDI method, meaning HDI overlaps the ROPE).
+If a gene IS significant, then its interaction will be cateogrized in 3 types (see NAR paper):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Aggravating</strong> - mean_delta_LFC is negative; gene is more required in treatment than control in the B strain, compared to the A strain</p></li>
+<li><p><strong>Suppressive</strong> - mean_delta_LFC is positive, and the gene was not conditionally essential in strain A (flat slope), but becomes conditionally non-essential in strain B when treated (positive slope)</p></li>
+<li><p><strong>Alleviating</strong> - mean_delta_LFC is positive, but the conditional requirement (negative slope) of the gene in strain A with treatment is “cancelled” by the modification in strain B</p></li>
+</ul>
+</div></blockquote>
+<img alt="_images/genetic_interaction_types.png" src="_images/genetic_interaction_types.png" />
+<p>A limitation of this HDI approach is that it is discrete (i.e. overlap is either True or False), but does not provide a quantitative metric
+for the degree of overlap.  Thus a second method for assessing significance of genetic interactions is to compute
+the probability of overlap.  The lower the probability, the more differnt the delta_LFC is from 0, indicating a more
+significant interaction.  In this case, genes with prob &lt; 0.05 are considered interactions and classified by the 3 types above,
+while genes with prob &gt;= 0.05 are marked as “No Interaction”.</p>
+<p>In addition, since we are calculating significance for thousands of genes in parallel,
+many researchers prefer to have some method for correcting for multiple tests, to control the false discovery rate.
+However, FDR correction is generally used only for frequentist analyses, and he GI method is fundamentally a Bayesian approach.
+Technically, in a Bayesian framework, FDR correction is not needed.  Any adjustment for expectations about number of hits
+would be achieved through adjusting parameters for prior distributions.  Nonetheless, GI includes options for
+two methods that approximate FDR correction: <strong>BFDR</strong> (Bayesian False Discovery Rate correction,
+<a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/15054023/">Newton M.A., Noueiry A., Sarkar D., Ahlquist P. (2004). Detecting differential gene expression with a semiparametric hierarchical
+mixture method. Biostatistics, 5:155–176.</a>) and FWER (Familty-Wise
+Error Rate control).  When these corrections are applied, a threshold of 0.05 for the adjusted probability of overlap
+is used for each, and this determines which
+genes are classified as interacting (1 of 3 types) or  marked as “No Interaction”, as above.</p>
+<p>In order to enable users to evaluate these various methods for determining significance of interactions,
+a ‘-signif’ flag is provided for the GI method.  The options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>-signif HDI</strong>: significant genes are those for which the HDI does not overlap the ROPE</p></li>
+<li><p><strong>-signif prob</strong>: significant genes are those with prob &lt; 0.05, where ‘prob’ is probability that HDI overlaps the ROPE (default)</p></li>
+<li><p><strong>-signif BFDR</strong>: significant genes are those with adjusted prob &lt; 0.05, where prob is adjusted by the BFDR method</p></li>
+<li><p><strong>-signif FWER</strong>: significant genes are those with adjusted prob &lt; 0.05, where prob is adjusted by the FWER method</p></li>
+</ul>
+</div></blockquote>
+<p>‘-signif prob’ is the default method.</p>
+<p>In the output file, the genes are sorted by the probability that the HDI overlaps the ROPE.
+The genes at the top are rougly the genes with the highest absolute value of mean_delta_LFC.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">/</span><span class="n">pacific</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">ioerger</span><span class="o">/</span><span class="n">transit</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">GI</span> <span class="o">&lt;</span><span class="n">wigs_for_strA_cond1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">wigs_for_strA_cond2</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">wigs_for_strB_cond1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">wigs_for_strB_cond2</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span> <span class="ow">or</span> <span class="n">GFF3</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">Optional</span> <span class="n">Arguments</span><span class="p">]</span>
+
+      <span class="n">GI</span> <span class="n">performs</span> <span class="n">a</span> <span class="n">comparison</span> <span class="n">among</span> <span class="mi">4</span> <span class="n">groups</span> <span class="n">of</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">strain</span> <span class="n">A</span> <span class="ow">and</span> <span class="n">B</span> <span class="n">assessed</span> <span class="ow">in</span> <span class="n">conditions</span> <span class="mi">1</span> <span class="ow">and</span> <span class="mi">2</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">control</span> <span class="n">vs</span> <span class="n">treatment</span><span class="p">)</span><span class="o">.</span>
+      <span class="n">It</span> <span class="n">looks</span> <span class="k">for</span> <span class="n">interactions</span> <span class="n">where</span> <span class="n">the</span> <span class="n">response</span> <span class="n">to</span> <span class="n">the</span> <span class="n">treatment</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="n">effect</span> <span class="n">on</span> <span class="n">insertion</span> <span class="n">counts</span><span class="p">)</span> <span class="n">depends</span> <span class="n">on</span> <span class="n">the</span> <span class="n">strain</span> <span class="p">(</span><span class="n">output</span> <span class="n">variable</span><span class="p">:</span> <span class="n">delta_LFC</span><span class="p">)</span><span class="o">.</span>
+      <span class="n">Provide</span> <span class="n">replicates</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">group</span> <span class="k">as</span> <span class="n">a</span> <span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">wig</span> <span class="n">files</span><span class="o">.</span>
+      <span class="n">HDI</span> <span class="ow">is</span> <span class="n">highest</span> <span class="n">density</span> <span class="n">interval</span> <span class="k">for</span> <span class="n">posterior</span> <span class="n">distribution</span> <span class="n">of</span> <span class="n">delta_LFC</span><span class="p">,</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">like</span> <span class="n">a</span> <span class="n">confidence</span> <span class="n">interval</span> <span class="n">on</span> <span class="n">difference</span> <span class="n">of</span> <span class="n">slopes</span><span class="o">.</span>
+      <span class="n">Genes</span> <span class="n">are</span> <span class="nb">sorted</span> <span class="n">by</span> <span class="n">probability</span> <span class="n">of</span> <span class="n">HDI</span> <span class="n">overlapping</span> <span class="k">with</span> <span class="n">ROPE</span><span class="o">.</span> <span class="p">(</span><span class="n">genes</span> <span class="k">with</span> <span class="n">the</span> <span class="n">highest</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mean_delta_logFC</span><span class="p">)</span> <span class="n">are</span> <span class="n">near</span> <span class="n">the</span> <span class="n">top</span><span class="p">,</span> <span class="n">approximately</span><span class="p">)</span>
+      <span class="n">Significant</span> <span class="n">genes</span> <span class="n">are</span> <span class="n">indicated</span> <span class="n">by</span> <span class="s1">&#39;Type of Interaction&#39;</span> <span class="n">column</span> <span class="p">(</span><span class="n">No</span> <span class="n">Interaction</span><span class="p">,</span> <span class="n">Aggravating</span><span class="p">,</span> <span class="n">Alleviating</span><span class="p">,</span> <span class="n">Suppressive</span><span class="p">)</span><span class="o">.</span>
+        <span class="n">By</span> <span class="n">default</span><span class="p">,</span> <span class="n">hits</span> <span class="n">are</span> <span class="n">defined</span> <span class="k">as</span> <span class="s2">&quot;Is HDI outside of ROPE?&quot;</span><span class="o">=</span><span class="n">TRUE</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="n">non</span><span class="o">-</span><span class="n">overlap</span> <span class="n">of</span> <span class="n">delta_LFC</span> <span class="n">posterior</span> <span class="n">distritbuion</span> <span class="k">with</span> <span class="n">Region</span> <span class="n">of</span> <span class="n">Probably</span> <span class="n">Equivalence</span> <span class="n">around</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">Alternative</span> <span class="n">methods</span> <span class="k">for</span> <span class="n">significance</span><span class="p">:</span> <span class="n">use</span> <span class="o">-</span><span class="n">signif</span> <span class="n">flag</span> <span class="k">with</span> <span class="n">prob</span><span class="p">,</span> <span class="n">BFDR</span><span class="p">,</span> <span class="ow">or</span> <span class="n">FWER</span><span class="o">.</span> <span class="n">These</span> <span class="n">affect</span> <span class="s1">&#39;Type of Interaction&#39;</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="n">which</span> <span class="n">genes</span> <span class="n">are</span> <span class="n">labeled</span> <span class="s1">&#39;No Interaction&#39;</span><span class="p">)</span>
+
+      <span class="n">Optional</span> <span class="n">Arguments</span><span class="p">:</span>
+      <span class="o">-</span><span class="n">s</span> <span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span>    <span class="o">:=</span>  <span class="n">Number</span> <span class="n">of</span> <span class="n">samples</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">s</span> <span class="mi">10000</span>
+      <span class="o">--</span><span class="n">rope</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>  <span class="o">:=</span>  <span class="n">Region</span> <span class="n">of</span> <span class="n">Practical</span> <span class="n">Equivalence</span><span class="o">.</span> <span class="n">Area</span> <span class="n">around</span> <span class="mi">0</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="mi">0</span> <span class="o">+/-</span> <span class="n">ROPE</span><span class="p">)</span> <span class="n">that</span> <span class="ow">is</span> <span class="n">NOT</span> <span class="n">of</span> <span class="n">interest</span><span class="o">.</span> <span class="n">Can</span> <span class="n">be</span> <span class="n">thought</span> <span class="n">of</span> <span class="n">similar</span> <span class="n">to</span> <span class="n">the</span> <span class="n">area</span> <span class="n">of</span> <span class="n">the</span> <span class="n">null</span><span class="o">-</span><span class="n">hypothesis</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">--</span><span class="n">rope</span> <span class="mf">0.5</span>
+      <span class="o">-</span><span class="n">n</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Normalization</span> <span class="n">method</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">n</span> <span class="n">TTR</span>
+      <span class="o">-</span><span class="n">iz</span>             <span class="o">:=</span>  <span class="n">Include</span> <span class="n">rows</span> <span class="k">with</span> <span class="n">zero</span> <span class="n">across</span> <span class="n">conditions</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">l</span>              <span class="o">:=</span>  <span class="n">Perform</span> <span class="n">LOESS</span> <span class="n">Correction</span><span class="p">;</span> <span class="n">Helps</span> <span class="n">remove</span> <span class="n">possible</span> <span class="n">genomic</span> <span class="n">position</span> <span class="n">bias</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">Turned</span> <span class="n">Off</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">iN</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">at</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">N</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">0</span>
+      <span class="o">-</span><span class="n">iC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">at</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">C</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">0</span>
+      <span class="o">-</span><span class="n">signif</span> <span class="n">HDI</span>     <span class="o">:=</span>  <span class="p">(</span><span class="n">default</span><span class="p">)</span> <span class="n">Significant</span> <span class="k">if</span> <span class="n">HDI</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">overlap</span> <span class="n">ROPE</span><span class="p">;</span> <span class="k">if</span> <span class="n">HDI</span> <span class="n">overlaps</span> <span class="n">ROPE</span><span class="p">,</span> <span class="s1">&#39;Type of Interaction&#39;</span> <span class="ow">is</span> <span class="nb">set</span> <span class="n">to</span> <span class="s1">&#39;No Interaction&#39;</span>
+      <span class="o">-</span><span class="n">signif</span> <span class="n">prob</span>    <span class="o">:=</span>  <span class="n">Optionally</span><span class="p">,</span> <span class="n">significant</span> <span class="n">hits</span> <span class="n">are</span> <span class="n">re</span><span class="o">-</span><span class="n">defined</span> <span class="n">based</span> <span class="n">on</span> <span class="n">probability</span> <span class="p">(</span><span class="n">degree</span><span class="p">)</span> <span class="n">of</span> <span class="n">overlap</span> <span class="n">of</span> <span class="n">HDI</span> <span class="k">with</span> <span class="n">ROPE</span><span class="p">,</span> <span class="n">prob</span><span class="o">&lt;</span><span class="mf">0.05</span> <span class="p">(</span><span class="n">no</span> <span class="n">adjustment</span><span class="p">)</span>
+      <span class="o">-</span><span class="n">signif</span> <span class="n">BFDR</span>    <span class="o">:=</span>  <span class="n">Apply</span> <span class="s2">&quot;Bayesian&quot;</span> <span class="n">FDR</span> <span class="n">correction</span> <span class="p">(</span><span class="n">see</span> <span class="n">doc</span><span class="p">)</span> <span class="n">to</span> <span class="n">adjust</span> <span class="n">HDI</span><span class="o">-</span><span class="n">ROPE</span> <span class="n">overlap</span> <span class="n">probabilities</span> <span class="n">so</span> <span class="n">that</span> <span class="n">significant</span> <span class="n">hits</span> <span class="n">are</span> <span class="n">re</span><span class="o">-</span><span class="n">defined</span> <span class="k">as</span> <span class="n">BFDR</span><span class="o">&lt;</span><span class="mf">0.05</span>
+      <span class="o">-</span><span class="n">signif</span> <span class="n">FWER</span>    <span class="o">:=</span>  <span class="n">Apply</span> <span class="s2">&quot;Bayesian&quot;</span> <span class="n">FWER</span> <span class="n">correction</span> <span class="p">(</span><span class="n">see</span> <span class="n">doc</span><span class="p">)</span> <span class="n">to</span> <span class="n">adjust</span> <span class="n">HDI</span><span class="o">-</span><span class="n">ROPE</span> <span class="n">overlap</span> <span class="n">probabilities</span> <span class="n">so</span> <span class="n">that</span> <span class="n">significant</span> <span class="n">hits</span> <span class="n">are</span> <span class="n">re</span><span class="o">-</span><span class="n">defined</span> <span class="k">as</span> <span class="n">FWER</span><span class="o">&lt;</span><span class="mf">0.05</span>
+</pre></div>
+</div>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<p>In this example, the effect of a knockout of SigB is being evaluated for its effect on tolerance of isoniazid.
+Some genes may become more essential (or less) in the presence of INH in the wild-type strain.
+The genes implied to interact with SigB are those whose response to INH changes in the knock-out strain compared to the wild-type.
+Note there are 2 replicates in each of the 4 groups of datasets.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">GI</span> <span class="n">WT_untreated1</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">WT_untreated2</span><span class="o">.</span><span class="n">wig</span> <span class="n">WT_INH_1</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">WT_INH_2</span><span class="o">.</span><span class="n">wig</span> <span class="n">delta_SigB_untreated1</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">delta_SigB_untreated2</span><span class="o">.</span><span class="n">wig</span> <span class="n">delta_SigB_INH_1</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">delta_SigB_INH_2</span><span class="o">.</span><span class="n">wig</span> <span class="n">mc2_155_tamu</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">GI_delta_SigB_INH</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p>The resampling method is non-parametric, and therefore does not require
+any parameters governing the distributions or the model. The following
+parameters are available for the method:</p>
+<ul class="simple">
+<li><p><strong>Samples:</strong> The number of samples (permutations) to perform. The
+larger the number of samples, the more resolution the p-values
+calculated will have, at the expense of longer computation time. The
+resampling method runs on 10,000 samples by default.</p></li>
+<li><p><strong>ROPE:</strong> Region of Practical Equivalence. This region defines an area
+around 0.0 that represents differences in the log fold-change that are
+practically equivalent to zero. This aids in ignoring spurious changes
+in the logFC that would otherwise be identified under a strict
+null-hypothesis of no difference.</p></li>
+<li><p><strong>Include Zeros:</strong> Select to include  sites that are zero. This is the
+preferred behavior, however, unselecting this (thus ignoring sites that)
+are zero accross all dataset (i.e. completely empty), is useful for
+decreasing running time (specially for large datasets like Tn5).</p></li>
+<li><p><strong>Normalization Method:</strong> Determines which normalization method to
+use when comparing datasets. Proper normalization is important as it
+ensures that other sources of variability are not mistakenly treated
+as real differences. See the <a class="reference internal" href="transit_normalization_tutorial.html#normalization"><span class="std std-ref">Normalization</span></a> section for a description
+of normalization method available in TRANSIT.</p></li>
+<li><p><strong>Significance Method:</strong></p></li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p>-signif HDI: significant genes are those for which the HDI does not overlap the ROPE</p></li>
+<li><p>-signif prob: significant genes are those with prob &lt; 0.05, where ‘prob’ is porbability that HDI overlap the ROPE (default)</p></li>
+<li><p>-signif BFDR: significant genes are those with adjusted prob &lt; 0.05, where prob is adjusted by the BFDR method</p></li>
+<li><p>-signif FWER: significant genes are those with adjusted prob &lt; 0.05, where prob is adjusted by the FWER method</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="output-and-diagnostics">
+<h2>Output and Diagnostics<a class="headerlink" href="#output-and-diagnostics" title="Permalink to this headline"></a></h2>
+<p>The GI method outputs a tab-delimited file with results for each
+gene in the genome.
+All genes are sorted by significance using the probability that the HDI overlaps the ROPE.
+Significant genes are those NOT marked with ‘No Interaction’ in the last column.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 44%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Orf</p></td>
+<td><p>Gene ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Name of the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>Number of TA Sites</p></td>
+<td><p>Number of TA sites in the gene.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mean count (Strain A Condition 1)</p></td>
+<td><p>Mean read count in strain A, condition 1</p></td>
+</tr>
+<tr class="row-even"><td><p>Mean count (Strain A Condition 2)</p></td>
+<td><p>Mean read count in strain A, condition 2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mean count (Strain B Condition 1)</p></td>
+<td><p>Mean read count in strain B, condition 1</p></td>
+</tr>
+<tr class="row-even"><td><p>Mean count (Strain B Condition 2)</p></td>
+<td><p>Mean read count in strain B, condition 2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mean logFC (Strain A)</p></td>
+<td><p>The log2 fold-change in read-count for strain A</p></td>
+</tr>
+<tr class="row-even"><td><p>Mean logFC (Strain B)</p></td>
+<td><p>The log2 fold-change in read-count for strain B</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mean delta logFC</p></td>
+<td><p>The difference in log2 fold-change between B and A</p></td>
+</tr>
+<tr class="row-even"><td><p>Lower Bound delta logFC</p></td>
+<td><p>Lower bound of the difference (delta logFC)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Upper Bound delta logFC</p></td>
+<td><p>Upper bound of the difference (delta logFC)</p></td>
+</tr>
+<tr class="row-even"><td><p>Prob. of delta-logFC being within ROPE</p></td>
+<td><p>Portion of the delta-logFC within ROPE</p></td>
+</tr>
+<tr class="row-odd"><td><p>Adjusted Probability (BFDR)</p></td>
+<td><p>Posterior probability adjusted for comparisons</p></td>
+</tr>
+<tr class="row-even"><td><p>Is HDI outside ROPE?</p></td>
+<td><p>True/False whether the delta-logFC overlaps ROPE</p></td>
+</tr>
+<tr class="row-odd"><td><p>Type of Interaction</p></td>
+<td><p>Final classification.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_Utest.html" class="btn btn-neutral float-left" title="Mann-Whitney U-test (utest)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_anova.html" class="btn btn-neutral float-right" title="ANOVA" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

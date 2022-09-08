@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Index</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.__contains__">__contains__() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.__contains__">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.__eq__">__eq__() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.__eq__">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.__getitem__">__getitem__() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.__getitem__">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.__getitem__">(pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.__getitem__">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.__len__">__len__() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.__len__">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.__lt__">__lt__() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.__lt__">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.__str__">__str__() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.__str__">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.__str__">(pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.__str__">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.aboutFunc">aboutFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.aboutFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.norm_tools.AdaptiveBGCNorm">AdaptiveBGCNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.AdaptiveBGCNorm">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.add_file">add_file() (pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.addFeatureFunc">addFeatureFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.addFeatureFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.addFile">addFile() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.addFileFunc">addFileFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.addFileFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.addPlots">addPlots() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.allSelected">allSelected() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.allViewFunc">allViewFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.allViewFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI">AnalysisGUI (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod">AnalysisMethod (class in pytransit.analysis.base)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.annotationFileFunc">annotationFileFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.annotationFileFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.annotationGFF3_to_PT">annotationGFF3_to_PT() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.annotationGFF3_to_PT">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.annotationPT_to_GFF3">annotationPT_to_GFF3() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.annotationPT_to_GFF3">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.annotationPT_to_PTT">annotationPT_to_PTT() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.annotationPT_to_PTT">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.annotationPTT_to_PT">annotationPTT_to_PT() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.annotationPTT_to_PT">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaAnalysis">AnovaAnalysis (class in pytransit.analysis.anova)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod">AnovaMethod (class in pytransit.analysis.anova)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.AssumeZerosDialog">AssumeZerosDialog (class in pytransit.transit_gui)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_tools.AssumeZerosDialog">(class in pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.AssumeZerosDialog">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_tools.aton">aton() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.aton">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitGridFrame.AutoResizeCols">AutoResizeCols() (pytransit.fileDisplay.TransitGridFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.backward_procedure">backward_procedure() (pytransit.analysis.hmm.HMMMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.basename">basename() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.basename">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.bayesian_ess_thresholds">bayesian_ess_thresholds() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.bayesian_ess_thresholds">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.BetaGeomNorm">BetaGeomNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.BetaGeomNorm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.bFDR">bFDR() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.bFDR">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.BH_fdr_correction">BH_fdr_correction() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.BH_fdr_correction">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.binom">binom() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.binom">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.binom_cdf">binom_cdf() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.binom_cdf">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.binom_test">binom_test() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.binom_test">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialAnalysis">BinomialAnalysis (class in pytransit.analysis.binomial)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialFile">BinomialFile (class in pytransit.analysis.binomial)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialGUI">BinomialGUI (class in pytransit.analysis.binomial)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialMethod">BinomialMethod (class in pytransit.analysis.binomial)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.boxcoxTable">boxcoxTable() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.boxcoxTable">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.boxcoxtransform">boxcoxtransform() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.boxcoxtransform">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod.calc_overlap">calc_overlap() (pytransit.analysis.tn5gaps.Tn5GapsMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.calcLFCs">calcLFCs() (pytransit.analysis.anova.AnovaMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.calculate_pins">calculate_pins() (pytransit.analysis.hmm.HMMMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.changedMaxFunc">changedMaxFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.changedMaxFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.check_wig_includes_zeros">check_wig_includes_zeros() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.check_wig_includes_zeros">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.checkHMMFeature">checkHMMFeature() (pytransit.trash.TrashFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.chooseNormalization">chooseNormalization() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.choseMethodsMenu">choseMethodsMenu() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.classify">classify() (pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.cleanargs">cleanargs() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.cleanargs">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.cleaninfgeom">cleaninfgeom() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.cleaninfgeom">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.AdaptiveBGCNorm.cleaninfgeom">(pytransit.norm_tools.AdaptiveBGCNorm method)</a>, <a href="transit.html#pytransit.norm_tools.AdaptiveBGCNorm.cleaninfgeom">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.BetaGeomNorm.cleaninfgeom">(pytransit.norm_tools.BetaGeomNorm method)</a>, <a href="transit.html#pytransit.norm_tools.BetaGeomNorm.cleaninfgeom">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.clearStatus">clearStatus() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.clearStatus">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+        <li><a href="pytransit.html#pytransit.trash.TrashFrame.clearStatus">(pytransit.trash.TrashFrame method)</a>
+</li>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.clearStatus">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.stat_tools.comb">comb() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.comb">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.comb1">comb1() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.comb1">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.combine_lib_dicts">combine_lib_dicts() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.combine_lib_dicts">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.combine_replicates">combine_replicates() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.combine_replicates">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.console_message">console_message() (pytransit.analysis.base.AnalysisMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.console_message">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.console_message_inplace">console_message_inplace() (pytransit.analysis.base.AnalysisMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.console_message_inplace">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ConvertSelectFunc">ConvertSelectFunc() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.convertToCombinedWig">convertToCombinedWig() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.convertToCombinedWig">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.convertToGeneCountSummary">convertToGeneCountSummary() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.convertToGeneCountSummary">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.convertToIGV">convertToIGV() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.convertToIGV">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.cterm">cterm (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.cterm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ctrlAll">ctrlAll() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.ctrlRemoveFunc">ctrlRemoveFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ctrlRemoveFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ctrlSelected">ctrlSelected() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.ctrlToIGV">ctrlToIGV() (pytransit.transit_gui.MainFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ctrlViewFunc">ctrlViewFunc() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.cumulative_average">cumulative_average() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.cumulative_average">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.datasetSelectFunc">datasetSelectFunc() (pytransit.trash.TrashFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.dberndiff">dberndiff() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.dberndiff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.dbinomdiff">dbinomdiff() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.dbinomdiff">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.defineCheckBox">defineCheckBox() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.defineChoiceBox">defineChoiceBox() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.definePanel">definePanel() (pytransit.analysis.base.AnalysisGUI method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialGUI.definePanel">(pytransit.analysis.binomial.BinomialGUI method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinGUI.definePanel">(pytransit.analysis.griffin.GriffinGUI method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelGUI.definePanel">(pytransit.analysis.gumbel.GumbelGUI method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMGUI.definePanel">(pytransit.analysis.hmm.HMMGUI method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductGUI.definePanel">(pytransit.analysis.rankproduct.RankProductGUI method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI.definePanel">(pytransit.analysis.resampling.ResamplingGUI method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsGUI.definePanel">(pytransit.analysis.tn5gaps.Tn5GapsGUI method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.defineTextBox">defineTextBox() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.desc">desc (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.desc">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_tools.dirname">dirname() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.dirname">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.displayFileFunc">displayFileFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.displayFileFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile.displayHistogram">displayHistogram() (pytransit.analysis.resampling.ResamplingFile method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitFile.displayInTrackView">displayInTrackView() (pytransit.analysis.base.TransitFile method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.documentationFunc">documentationFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.documentationFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.draw_trash.draw_canvas">draw_canvas() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.draw_trash.draw_features">draw_features() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.draw_trash.draw_genes">draw_genes() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.draw_trash.draw_reads">draw_reads() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.draw_trash.draw_scale">draw_scale() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.draw_trash.draw_ta_sites">draw_ta_sites() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.DrawCanvas">DrawCanvas() (pytransit.trash.TrashFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.DualConditionMethod">DualConditionMethod (class in pytransit.analysis.base)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.norm_tools.ecdf">ecdf() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.ecdf">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.AdaptiveBGCNorm.ecdf">(pytransit.norm_tools.AdaptiveBGCNorm method)</a>, <a href="transit.html#pytransit.norm_tools.AdaptiveBGCNorm.ecdf">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.BetaGeomNorm.ecdf">(pytransit.norm_tools.BetaGeomNorm method)</a>, <a href="transit.html#pytransit.norm_tools.BetaGeomNorm.ecdf">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.norm_tools.EmpHistNorm">EmpHistNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.EmpHistNorm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.empirical_theta">empirical_theta() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.empirical_theta">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.TTRNorm.empirical_theta">(pytransit.norm_tools.TTRNorm method)</a>, <a href="transit.html#pytransit.norm_tools.TTRNorm.empirical_theta">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.Enable">Enable() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.end">end (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.end">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleAnalysis">ExampleAnalysis (class in pytransit.analysis.example)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleFile">ExampleFile (class in pytransit.analysis.example)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleGUI">ExampleGUI (class in pytransit.analysis.example)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleMethod">ExampleMethod (class in pytransit.analysis.example)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.Exit">Exit() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.Exit">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.expAll">expAll() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.ExpectedRuns">ExpectedRuns() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.ExpectedRuns">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.ExpectedRuns_cached">ExpectedRuns_cached() (pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ExportSelectFunc">ExportSelectFunc() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.expRemoveFunc">expRemoveFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.expRemoveFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.expSelected">expSelected() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.expToIGV">expToIGV() (pytransit.transit_gui.MainFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.expViewFunc">expViewFunc() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.F_mean_diff_dict">F_mean_diff_dict() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.F_mean_diff_dict">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.F_mean_diff_flat">F_mean_diff_flat() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.F_mean_diff_flat">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.F_non">F_non() (pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.F_shuffle_dict_libraries">F_shuffle_dict_libraries() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.F_shuffle_dict_libraries">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.F_shuffle_flat">F_shuffle_flat() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.F_shuffle_flat">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.F_sum_diff_dict">F_sum_diff_dict() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.F_sum_diff_dict">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.F_sum_diff_flat">F_sum_diff_flat() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.F_sum_diff_flat">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.fact">fact() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.fact">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.fetch_name">fetch_name() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.fetch_name">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.fetch_name">(in module pytransit.trash)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.fileActionFunc">fileActionFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.fileActionFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.fileSelected">fileSelected() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions">filter_wigs_by_conditions() (pytransit.analysis.base.MultiConditionMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.filter_wigs_by_conditions">(pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions2">filter_wigs_by_conditions2() (pytransit.analysis.base.MultiConditionMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.MultiConditionMethod.filter_wigs_by_conditions3">filter_wigs_by_conditions3() (pytransit.analysis.base.MultiConditionMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.filterMethodsByTransposon">filterMethodsByTransposon() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.finish">finish() (pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.finishRun">finishRun() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.forward_procedure">forward_procedure() (pytransit.analysis.hmm.HMMMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.fromargs">fromargs() (pytransit.analysis.anova.AnovaMethod class method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.fromargs">(pytransit.analysis.base.AnalysisMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialMethod.fromargs">(pytransit.analysis.binomial.BinomialMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleMethod.fromargs">(pytransit.analysis.example.ExampleMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinMethod.fromargs">(pytransit.analysis.griffin.GriffinMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.fromargs">(pytransit.analysis.gumbel.GumbelMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.fromargs">(pytransit.analysis.hmm.HMMMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductMethod.fromargs">(pytransit.analysis.rankproduct.RankProductMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.fromargs">(pytransit.analysis.resampling.ResamplingMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod.fromargs">(pytransit.analysis.tn5gaps.Tn5GapsMethod class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.fromconsole">fromconsole() (pytransit.analysis.base.AnalysisMethod class method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.fromGUI">fromGUI() (pytransit.analysis.base.AnalysisMethod class method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialMethod.fromGUI">(pytransit.analysis.binomial.BinomialMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleMethod.fromGUI">(pytransit.analysis.example.ExampleMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinMethod.fromGUI">(pytransit.analysis.griffin.GriffinMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.fromGUI">(pytransit.analysis.gumbel.GumbelMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.fromGUI">(pytransit.analysis.hmm.HMMMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductMethod.fromGUI">(pytransit.analysis.rankproduct.RankProductMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.fromGUI">(pytransit.analysis.resampling.ResamplingMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod.fromGUI">(pytransit.analysis.tn5gaps.Tn5GapsMethod class method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitAnalysis.fullname">fullname() (pytransit.analysis.base.TransitAnalysis method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.FWER_Bayes">FWER_Bayes() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.FWER_Bayes">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.Fzinfnb">Fzinfnb() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.Fzinfnb">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.EmpHistNorm.Fzinfnb">(pytransit.norm_tools.EmpHistNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.EmpHistNorm.Fzinfnb">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene">Gene (class in pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes">Genes (class in pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.genes">genes (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.genes">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_coordinate_map">get_coordinate_map() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_coordinate_map">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_data">get_data() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_data">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_data_stats">get_data_stats() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_data_stats">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_data_w_genome">get_data_w_genome() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_data_w_genome">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_data_zero_fill">get_data_zero_fill() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_data_zero_fill">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.draw_trash.get_dynamic_height">get_dynamic_height() (in module pytransit.draw_trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.get_extended_pos_hash">get_extended_pos_hash() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.get_extended_pos_hash">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_extended_pos_hash_gff">get_extended_pos_hash_gff() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_extended_pos_hash_gff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_extended_pos_hash_pt">get_extended_pos_hash_pt() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_extended_pos_hash_pt">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_file_types">get_file_types() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_file_types">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.get_gap_span">get_gap_span() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.get_gap_span">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_gene_info">get_gene_info() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_gene_info">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_tools.get_gene_info">(in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.get_gene_info">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_gene_info_gff">get_gene_info_gff() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_gene_info_gff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_gene_info_pt">get_gene_info_pt() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_gene_info_pt">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.get_gene_span">get_gene_span() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.get_gene_span">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_genes_in_range">get_genes_in_range() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_genes_in_range">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.get_lib_data_dict">get_lib_data_dict() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.get_lib_data_dict">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_pos_hash">get_pos_hash() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_pos_hash">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_tools.get_pos_hash">(in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.get_pos_hash">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_pos_hash_gff">get_pos_hash_gff() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_pos_hash_gff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_pos_hash_pt">get_pos_hash_pt() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_pos_hash_pt">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.MultiConditionMethod.get_samples_metadata">get_samples_metadata() (pytransit.analysis.base.MultiConditionMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_unknown_file_types">get_unknown_file_types() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_unknown_file_types">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.get_validated_data">get_validated_data() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.get_validated_data">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.get_wig_stats">get_wig_stats() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.get_wig_stats">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.GetColLabelValue">GetColLabelValue() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitFile.getData">getData() (pytransit.analysis.base.TransitFile method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitAnalysis.getDescriptionText">getDescriptionText() (pytransit.analysis.base.TransitAnalysis method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.getE1">getE1() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.getE1">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.getE2">getE2() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.getE2">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.getGamma">getGamma() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.getGamma">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitFile.getHeader">getHeader() (pytransit.analysis.base.TransitFile method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialFile.getHeader">(pytransit.analysis.binomial.BinomialFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleFile.getHeader">(pytransit.analysis.example.ExampleFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinFile.getHeader">(pytransit.analysis.griffin.GriffinFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelFile.getHeader">(pytransit.analysis.gumbel.GumbelFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMGenesFile.getHeader">(pytransit.analysis.hmm.HMMGenesFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMSitesFile.getHeader">(pytransit.analysis.hmm.HMMSitesFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile.getHeader">(pytransit.analysis.resampling.ResamplingFile method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsFile.getHeader">(pytransit.analysis.tn5gaps.Tn5GapsFile method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.getHMMHash">getHMMHash() (pytransit.trash.TrashFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.getInfoFromFileType">getInfoFromFileType() (in module pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitAnalysis.getInstructionsText">getInstructionsText() (pytransit.analysis.base.TransitAnalysis method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitFile.getMenus">getMenus() (pytransit.analysis.base.TransitFile method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile.getMenus">(pytransit.analysis.resampling.ResamplingFile method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.GetNumberCols">GetNumberCols() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.GetNumberRows">GetNumberRows() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.getR1">getR1() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.getR1">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.getR2">getR2() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.getR2">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.GetRawValue">GetRawValue() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.GetRowLabelValue">GetRowLabelValue() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.getTabTableData">getTabTableData() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.getTabTableData">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitAnalysis.getTransposonsText">getTransposonsText() (pytransit.analysis.base.TransitAnalysis method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.GetValue">GetValue() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.global_insertion">global_insertion() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.global_insertion">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.global_phi">global_phi() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.global_phi">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.global_reads">global_reads() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.global_reads">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.global_run">global_run() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.global_run">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.global_sites">global_sites() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.global_sites">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.global_theta">global_theta() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.global_theta">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.GlobalDisable">GlobalDisable() (pytransit.analysis.base.AnalysisGUI method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI.GlobalDisable">(pytransit.analysis.resampling.ResamplingGUI method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.GlobalEnable">GlobalEnable() (pytransit.analysis.base.AnalysisGUI method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI.GlobalEnable">(pytransit.analysis.resampling.ResamplingGUI method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.GlobalHide">GlobalHide() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.GlobalShow">GlobalShow() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.good_orf">good_orf() (pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.graphGeneCounts">graphGeneCounts() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.graphRankedZbar">graphRankedZbar() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.graphVolcanoPlot">graphVolcanoPlot() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.griffin_analysis">griffin_analysis() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.griffin_analysis">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinAnalysis">GriffinAnalysis (class in pytransit.analysis.griffin)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinFile">GriffinFile (class in pytransit.analysis.griffin)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinGUI">GriffinGUI (class in pytransit.analysis.griffin)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinMethod">GriffinMethod (class in pytransit.analysis.griffin)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.group_by_condition">group_by_condition() (pytransit.analysis.anova.AnovaMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelAnalysis">GumbelAnalysis (class in pytransit.analysis.gumbel)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.GumbelCDF">GumbelCDF() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.GumbelCDF">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelFile">GumbelFile (class in pytransit.analysis.gumbel)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelGUI">GumbelGUI (class in pytransit.analysis.gumbel)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod">GumbelMethod (class in pytransit.analysis.gumbel)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.HDI_from_MCMC">HDI_from_MCMC() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.HDI_from_MCMC">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.Hide">Hide() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideAllOptions">HideAllOptions() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideGlobalCTerminus">HideGlobalCTerminus() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideGlobalCtrlLibraries">HideGlobalCtrlLibraries() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideGlobalExpLibraries">HideGlobalExpLibraries() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideGlobalLibraries">HideGlobalLibraries() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideGlobalNTerminus">HideGlobalNTerminus() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideGlobalOptions">HideGlobalOptions() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.HideProgressSection">HideProgressSection() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMAnalysis">HMMAnalysis (class in pytransit.analysis.hmm)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMGenesFile">HMMGenesFile (class in pytransit.analysis.hmm)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMGUI">HMMGUI (class in pytransit.analysis.hmm)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod">HMMMethod (class in pytransit.analysis.hmm)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMSitesFile">HMMSitesFile (class in pytransit.analysis.hmm)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.ignoreCodon">ignoreCodon (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.ignoreCodon">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.ImgFrame">ImgFrame (class in pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.include_nc">include_nc (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.include_nc">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.InfoIcon">InfoIcon (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod.intersect_size">intersect_size() (pytransit.analysis.tn5gaps.Tn5GapsMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.InvalidArgumentException">InvalidArgumentException</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.isEven">isEven() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.isEven">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.leftFunc">leftFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.leftFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.loadCtrlFile">loadCtrlFile() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.loadCtrlFileFunc">loadCtrlFileFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.loadCtrlFileFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.loadExpFile">loadExpFile() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.loadExpFileFunc">loadExpFileFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.loadExpFileFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_gap_span">local_gap_span() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_gap_span">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_gene_span">local_gene_span() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_gene_span">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_insertions">local_insertions() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_insertions">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_phis">local_phis() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_phis">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_reads">local_reads() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_reads">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_runs">local_runs() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_runs">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_sites">local_sites() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_sites">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.local_thetas">local_thetas() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.local_thetas">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.loess">loess() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.loess">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.loess_correction">loess_correction() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.loess_correction">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.LoessPrevFunc">LoessPrevFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.LoessPrevFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.stat_tools.log_fac">log_fac() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.log_fac">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.loglik">loglik() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.loglik">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.main">main() (in module pytransit.analysis.anova)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame">MainFrame (class in pytransit.transit_gui)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame">(class in pytransit.view_trash)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.maxrun">maxrun() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.maxrun">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.means_by_condition_for_gene">means_by_condition_for_gene() (pytransit.analysis.anova.AnovaMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.means_by_rv">means_by_rv() (pytransit.analysis.anova.AnovaMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.MethodSelectFunc">MethodSelectFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.MethodSelectFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.minread">minread (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.minread">[1]</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit">pytransit</a>, <a href="transit.html#module-pytransit">[1]</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis">pytransit.analysis</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.anova">pytransit.analysis.anova</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.base">pytransit.analysis.base</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.binomial">pytransit.analysis.binomial</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.example">pytransit.analysis.example</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.griffin">pytransit.analysis.griffin</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.gumbel">pytransit.analysis.gumbel</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.hmm">pytransit.analysis.hmm</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.rankproduct">pytransit.analysis.rankproduct</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.resampling">pytransit.analysis.resampling</a>
+</li>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.tn5gaps">pytransit.analysis.tn5gaps</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.draw_trash">pytransit.draw_trash</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.fileDisplay">pytransit.fileDisplay</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.images">pytransit.images</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.norm_tools">pytransit.norm_tools</a>, <a href="transit.html#module-pytransit.norm_tools">[1]</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.qcDisplay">pytransit.qcDisplay</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.stat_tools">pytransit.stat_tools</a>, <a href="transit.html#module-pytransit.stat_tools">[1]</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.tnseq_tools">pytransit.tnseq_tools</a>, <a href="transit.html#module-pytransit.tnseq_tools">[1]</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.transit_gui">pytransit.transit_gui</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.transit_tools">pytransit.transit_tools</a>, <a href="transit.html#module-pytransit.transit_tools">[1]</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.trash">pytransit.trash</a>
+</li>
+        <li><a href="pytransit.html#module-pytransit.view_trash">pytransit.view_trash</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.MultiConditionMethod">MultiConditionMethod (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.multinomial">multinomial() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.multinomial">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.my_perm">my_perm() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.my_perm">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.norm_tools.AdaptiveBGCNorm.name">name (pytransit.norm_tools.AdaptiveBGCNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.AdaptiveBGCNorm.name">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.BetaGeomNorm.name">(pytransit.norm_tools.BetaGeomNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.BetaGeomNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.EmpHistNorm.name">(pytransit.norm_tools.EmpHistNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.EmpHistNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.NoNorm.name">(pytransit.norm_tools.NoNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.NoNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.NormMethod.name">(pytransit.norm_tools.NormMethod attribute)</a>, <a href="transit.html#pytransit.norm_tools.NormMethod.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.NZMeanNorm.name">(pytransit.norm_tools.NZMeanNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.NZMeanNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.QuantileNorm.name">(pytransit.norm_tools.QuantileNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.QuantileNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.TotReadsNorm.name">(pytransit.norm_tools.TotReadsNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.TotReadsNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.TTRNorm.name">(pytransit.norm_tools.TTRNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.TTRNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.ZeroInflatedNBNorm.name">(pytransit.norm_tools.ZeroInflatedNBNorm attribute)</a>, <a href="transit.html#pytransit.norm_tools.ZeroInflatedNBNorm.name">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.name">(pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.name">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.norm_tools.NoNorm">NoNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.NoNorm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.norm">norm (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.norm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.norm">norm() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.norm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.norm_to_target">norm_to_target() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.norm_to_target">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.draw_trash.normalize">normalize() (in module pytransit.draw_trash)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.AdaptiveBGCNorm.normalize">(pytransit.norm_tools.AdaptiveBGCNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.AdaptiveBGCNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.BetaGeomNorm.normalize">(pytransit.norm_tools.BetaGeomNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.BetaGeomNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.EmpHistNorm.normalize">(pytransit.norm_tools.EmpHistNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.EmpHistNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.NoNorm.normalize">(pytransit.norm_tools.NoNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.NoNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.NormMethod.normalize">(pytransit.norm_tools.NormMethod static method)</a>, <a href="transit.html#pytransit.norm_tools.NormMethod.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.NZMeanNorm.normalize">(pytransit.norm_tools.NZMeanNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.NZMeanNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.QuantileNorm.normalize">(pytransit.norm_tools.QuantileNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.QuantileNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.TotReadsNorm.normalize">(pytransit.norm_tools.TotReadsNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.TotReadsNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.TTRNorm.normalize">(pytransit.norm_tools.TTRNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.TTRNorm.normalize">[1]</a>
+</li>
+        <li><a href="pytransit.html#pytransit.norm_tools.ZeroInflatedNBNorm.normalize">(pytransit.norm_tools.ZeroInflatedNBNorm static method)</a>, <a href="transit.html#pytransit.norm_tools.ZeroInflatedNBNorm.normalize">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.norm_tools.normalize_data">normalize_data() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.normalize_data">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.NormMethod">NormMethod (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.NormMethod">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.nterm">nterm (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.nterm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.NZMeanNorm">NZMeanNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.NZMeanNorm">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitGridFrame.OnCellRightClicked">OnCellRightClicked() (pytransit.fileDisplay.TransitGridFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.OnClose">OnClose() (pytransit.qcDisplay.qcFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.AssumeZerosDialog.OnClose">(pytransit.transit_gui.AssumeZerosDialog method)</a>
+</li>
+        <li><a href="pytransit.html#pytransit.transit_tools.AssumeZerosDialog.OnClose">(pytransit.transit_tools.AssumeZerosDialog method)</a>, <a href="transit.html#pytransit.transit_tools.AssumeZerosDialog.OnClose">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.onHimar1Checked">onHimar1Checked() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.onHimar1Checked">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitGridFrame.OnLabelDoubleClicked">OnLabelDoubleClicked() (pytransit.fileDisplay.TransitGridFrame method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.onNormSelect">onNormSelect() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.onStatsItemSelect">onStatsItemSelect() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.onTn5Checked">onTn5Checked() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.onTn5Checked">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.OpenFile">OpenFile() (pytransit.transit_gui.TnSeekFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.TrashFrame.OpenFile">(pytransit.trash.TrashFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.orf">orf (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.orf">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.orf2index">orf2index (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.orf2index">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.parse_lib_index">parse_lib_index() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.parse_lib_index">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.parseCoords">parseCoords() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.parseCoords">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.phi">phi() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.phi">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.phi_coefficient">phi_coefficient() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.phi_coefficient">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.PilImageToWxBitmap">PilImageToWxBitmap() (in module pytransit.qcDisplay)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.PilImageToWxBitmap">(in module pytransit.trash)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.PilImageToWxImage">PilImageToWxImage() (in module pytransit.qcDisplay)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.PilImageToWxImage">(in module pytransit.trash)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.position">position (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.position">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.post_process_genes">post_process_genes() (pytransit.analysis.hmm.HMMMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.preprocess_data">preprocess_data() (pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.print_members">print_members() (pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.progress_range">progress_range() (pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.progress_update">progress_update() (pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.protTable">protTable (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.protTable">[1]</a>
+</li>
+      <li>
+    pytransit
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit">module</a>, <a href="transit.html#module-pytransit">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.anova
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.anova">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.base
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.binomial
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.binomial">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.example
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.example">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.griffin
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.griffin">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.gumbel
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.gumbel">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    pytransit.analysis.hmm
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.hmm">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.rankproduct
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.rankproduct">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.resampling
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.resampling">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.analysis.tn5gaps
+
+      <ul>
+        <li><a href="pytransit.analysis.html#module-pytransit.analysis.tn5gaps">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.draw_trash
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.draw_trash">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.fileDisplay
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.fileDisplay">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.images
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.images">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.norm_tools
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.norm_tools">module</a>, <a href="transit.html#module-pytransit.norm_tools">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.qcDisplay
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.qcDisplay">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.stat_tools
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.stat_tools">module</a>, <a href="transit.html#module-pytransit.stat_tools">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.tnseq_tools
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.tnseq_tools">module</a>, <a href="transit.html#module-pytransit.tnseq_tools">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.transit_gui
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.transit_gui">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.transit_tools
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.transit_tools">module</a>, <a href="transit.html#module-pytransit.transit_tools">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.trash
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.trash">module</a>
+</li>
+      </ul></li>
+      <li>
+    pytransit.view_trash
+
+      <ul>
+        <li><a href="pytransit.html#module-pytransit.view_trash">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.qberndiff">qberndiff() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.qberndiff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.qbinomdiff">qbinomdiff() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.qbinomdiff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame">qcFrame (class in pytransit.qcDisplay)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.qcFunc">qcFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.qcFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.QuadConditionMethod">QuadConditionMethod (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.QuantileNorm">QuantileNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.QuantileNorm">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductAnalysis">RankProductAnalysis (class in pytransit.analysis.rankproduct)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductFile">RankProductFile (class in pytransit.analysis.rankproduct)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductGUI">RankProductGUI (class in pytransit.analysis.rankproduct)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductMethod">RankProductMethod (class in pytransit.analysis.rankproduct)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.read_combined_wig">read_combined_wig() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.read_combined_wig">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.read_genes">read_genes() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.read_genes">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.read_genome">read_genome() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.read_genome">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.read_samples_metadata">read_samples_metadata() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.read_samples_metadata">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.reads">reads (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.reads">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.refresh">refresh() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.refreshPlots">refreshPlots() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.regress">regress() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.regress">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.reps">reps (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.reps">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.resampling">resampling() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.resampling">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingAnalysis">ResamplingAnalysis (class in pytransit.analysis.resampling)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingFile">ResamplingFile (class in pytransit.analysis.resampling)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingGUI">ResamplingGUI (class in pytransit.analysis.resampling)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod">ResamplingMethod (class in pytransit.analysis.resampling)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.resetFunc">resetFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.resetFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ResetProgress">ResetProgress() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.rightFunc">rightFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.rightFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.Run">Run() (pytransit.analysis.anova.AnovaMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.Run">(pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialMethod.Run">(pytransit.analysis.binomial.BinomialMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleMethod.Run">(pytransit.analysis.example.ExampleMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinMethod.Run">(pytransit.analysis.griffin.GriffinMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.Run">(pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.Run">(pytransit.analysis.hmm.HMMMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductMethod.Run">(pytransit.analysis.rankproduct.RankProductMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.Run">(pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod.Run">(pytransit.analysis.tn5gaps.Tn5GapsMethod method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.run_anova">run_anova() (pytransit.analysis.anova.AnovaMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.run_resampling">run_resampling() (pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.RunBinomialFunc">RunBinomialFunc() (pytransit.transit_gui.MainFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.RunDEHMMFunc">RunDEHMMFunc() (pytransit.transit_gui.MainFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.RunHMMFunc">RunHMMFunc() (pytransit.transit_gui.MainFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.runindex">runindex() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.runindex">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.RunMethod">RunMethod() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.RunResamplingFunc">RunResamplingFunc() (pytransit.transit_gui.MainFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.runs">runs() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.runs">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.runs_w_info">runs_w_info() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.runs_w_info">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.rv_siteindexes_map">rv_siteindexes_map() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.rv_siteindexes_map">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.sample_trunc_norm_post">sample_trunc_norm_post() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.sample_trunc_norm_post">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.sample_Z">sample_Z() (pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.SaveFile">SaveFile() (pytransit.transit_gui.TnSeekFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.TrashFrame.SaveFile">(pytransit.trash.TrashFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.saveHistogram">saveHistogram() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.saveImageFunc">saveImageFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.saveImageFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.scaleFunc">scaleFunc() (pytransit.trash.TrashFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.MainFrame.scatterFunc">scatterFunc() (pytransit.transit_gui.MainFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.scatterFunc">(pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.searchFunc">searchFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.searchFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.MultiConditionMethod.select_conditions">select_conditions() (pytransit.analysis.base.MultiConditionMethod method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.setProgressRange">setProgressRange() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.SetValue">SetValue() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisGUI.Show">Show() (pytransit.analysis.base.AnalysisGUI method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.ShowAskWarning">ShowAskWarning() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.ShowAskWarning">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_tools.ShowError">ShowError() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.ShowError">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowGlobalCTerminus">ShowGlobalCTerminus() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowGlobalCtrlLibraries">ShowGlobalCtrlLibraries() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowGlobalExpLibraries">ShowGlobalExpLibraries() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowGlobalLibraries">ShowGlobalLibraries() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowGlobalNTerminus">ShowGlobalNTerminus() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowGlobalOptions">ShowGlobalOptions() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.ShowMessage">ShowMessage() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.ShowMessage">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.ShowProgressSection">ShowProgressSection() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.sigmoid">sigmoid() (pytransit.analysis.gumbel.GumbelMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.SingleConditionMethod">SingleConditionMethod (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.SortableListCtrl">SortableListCtrl (class in pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable.SortColumn">SortColumn() (pytransit.fileDisplay.TransitTable method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.start">start (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.start">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.statsSelected">statsSelected() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.status_message">status_message() (pytransit.analysis.base.AnalysisMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.status_message">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.strand">strand (pytransit.tnseq_tools.Gene attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.strand">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.stat_tools.text_histogram">text_histogram() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.text_histogram">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.theta">theta() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.theta">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsAnalysis">Tn5GapsAnalysis (class in pytransit.analysis.tn5gaps)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsFile">Tn5GapsFile (class in pytransit.analysis.tn5gaps)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsGUI">Tn5GapsGUI (class in pytransit.analysis.tn5gaps)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod">Tn5GapsMethod (class in pytransit.analysis.tn5gaps)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame">TnSeekFrame (class in pytransit.transit_gui)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.tosses">tosses() (pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.tosses">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.tossify">tossify() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.tossify">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Gene.total_reads">total_reads() (pytransit.tnseq_tools.Gene method)</a>, <a href="transit.html#pytransit.tnseq_tools.Gene.total_reads">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.total_reads">(pytransit.tnseq_tools.Genes method)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.total_reads">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.norm_tools.TotReadsNorm">TotReadsNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.TotReadsNorm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.track_message">track_message() (pytransit.trash.TrashFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.transformToRange">transformToRange() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.transformToRange">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.transit_error">transit_error() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.transit_error">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.transit_error">(pytransit.analysis.anova.AnovaMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.transit_error">(pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.transit_error">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_tools.transit_message">transit_message() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.transit_message">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.transit_message">(pytransit.analysis.base.AnalysisMethod method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.transit_message">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.transit_message_inplace">transit_message_inplace() (pytransit.analysis.base.AnalysisMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.transit_message_inplace">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.transit_warning">transit_warning() (pytransit.analysis.base.AnalysisMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase.transit_warning">(pytransit.analysis.base.TransitGUIBase method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitAnalysis">TransitAnalysis (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitFile">TransitFile (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitGridFrame">TransitGridFrame (class in pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.base.TransitGUIBase">TransitGUIBase (class in pytransit.analysis.base)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.TransitTable">TransitTable (class in pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame">TrashFrame (class in pytransit.trash)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.tricoeff">tricoeff() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.tricoeff">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.stat_tools.tricube">tricube() (in module pytransit.stat_tools)</a>, <a href="transit.html#pytransit.stat_tools.tricube">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.trimmed_empirical_mu">trimmed_empirical_mu() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.trimmed_empirical_mu">[1]</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.norm_tools.TTRNorm.trimmed_empirical_mu">(pytransit.norm_tools.TTRNorm method)</a>, <a href="transit.html#pytransit.norm_tools.TTRNorm.trimmed_empirical_mu">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.norm_tools.TTRNorm">TTRNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.TTRNorm">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.fileDisplay.unknownColNames">unknownColNames() (in module pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.unknownFileHeaderText">unknownFileHeaderText() (in module pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.fileDisplay.unknownTableData">unknownTableData() (in module pytransit.fileDisplay)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.qcFrame.updateFiles">updateFiles() (pytransit.qcDisplay.qcFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.updateFunc">updateFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.updateFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.updateGraphChoices">updateGraphChoices() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.updateProgress">updateProgress() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_gui.TnSeekFrame.updateStatus">updateStatus() (pytransit.transit_gui.TnSeekFrame method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.usage_string">usage_string() (pytransit.analysis.anova.AnovaMethod class method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.base.AnalysisMethod.usage_string">(pytransit.analysis.base.AnalysisMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.binomial.BinomialMethod.usage_string">(pytransit.analysis.binomial.BinomialMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.example.ExampleMethod.usage_string">(pytransit.analysis.example.ExampleMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.griffin.GriffinMethod.usage_string">(pytransit.analysis.griffin.GriffinMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.gumbel.GumbelMethod.usage_string">(pytransit.analysis.gumbel.GumbelMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.usage_string">(pytransit.analysis.hmm.HMMMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.rankproduct.RankProductMethod.usage_string">(pytransit.analysis.rankproduct.RankProductMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.usage_string">(pytransit.analysis.resampling.ResamplingMethod class method)</a>
+</li>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.tn5gaps.Tn5GapsMethod.usage_string">(pytransit.analysis.tn5gaps.Tn5GapsMethod class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_tools.validate_annotation">validate_annotation() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.validate_annotation">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.validate_both_datasets">validate_both_datasets() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.validate_both_datasets">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.validate_control_datasets">validate_control_datasets() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.validate_control_datasets">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.validate_filetypes">validate_filetypes() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.validate_filetypes">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.transit_tools.validate_transposons_used">validate_transposons_used() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.validate_transposons_used">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.transit_tools.validate_wig_format">validate_wig_format() (in module pytransit.transit_tools)</a>, <a href="transit.html#pytransit.transit_tools.validate_wig_format">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.VarR">VarR() (in module pytransit.tnseq_tools)</a>, <a href="transit.html#pytransit.tnseq_tools.VarR">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.viterbi">viterbi() (pytransit.analysis.hmm.HMMMethod method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.tnseq_tools.Genes.wigList">wigList (pytransit.tnseq_tools.Genes attribute)</a>, <a href="transit.html#pytransit.tnseq_tools.Genes.wigList">[1]</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.wigs_to_conditions">wigs_to_conditions() (pytransit.analysis.anova.AnovaMethod method)</a>
+
+      <ul>
+        <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.wigs_to_conditions">(pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.winsorize">winsorize() (pytransit.analysis.anova.AnovaMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.winsorize_resampling">winsorize_resampling() (pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+      <li><a href="pytransit.analysis.html#pytransit.analysis.resampling.ResamplingMethod.write_output">write_output() (pytransit.analysis.resampling.ResamplingMethod method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.qcDisplay.WxBitmapToPilImage">WxBitmapToPilImage() (in module pytransit.qcDisplay)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.WxBitmapToPilImage">(in module pytransit.trash)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.WxBitmapToWxImage">WxBitmapToWxImage() (in module pytransit.qcDisplay)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.WxBitmapToWxImage">(in module pytransit.trash)</a>
+</li>
+      </ul></li>
+      <li><a href="pytransit.html#pytransit.qcDisplay.WxImageToWxBitmap">WxImageToWxBitmap() (in module pytransit.qcDisplay)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.trash.WxImageToWxBitmap">(in module pytransit.trash)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.norm_tools.ZeroInflatedNBNorm">ZeroInflatedNBNorm (class in pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.ZeroInflatedNBNorm">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.norm_tools.zinfnb_factors">zinfnb_factors() (in module pytransit.norm_tools)</a>, <a href="transit.html#pytransit.norm_tools.zinfnb_factors">[1]</a>
+</li>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.zoomInFunc">zoomInFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.zoomInFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pytransit.html#pytransit.trash.TrashFrame.zoomOutFunc">zoomOutFunc() (pytransit.trash.TrashFrame method)</a>
+
+      <ul>
+        <li><a href="pytransit.html#pytransit.view_trash.MainFrame.zoomOutFunc">(pytransit.view_trash.MainFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

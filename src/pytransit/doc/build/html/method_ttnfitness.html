@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TTN-Fitness &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial: Genetic Interactions Analysis" href="transit_interactions_tutorial.html" />
+    <link rel="prev" title="heatmap" href="method_heatmap.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TTN-Fitness</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-of-running-the-ttn-fitness-methodology-on-the-sample-glycerol-data">Example of running the TTN-Fitness methodology on the sample glycerol data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>TTN-Fitness</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_ttnfitness.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="transit-clionly" id="ttn-fitness">
+<h1>TTN-Fitness<a class="headerlink" href="#ttn-fitness" title="Permalink to this headline"></a></h1>
+<p>TTN-Fitness provides a method for estimating the fitness of genes in a single
+condition, while correcting for biases in Himar1 insertion preferences at TA sites
+based on surrounding nucleotides. The frequency of insertions depends on nucleotides
+surrounding TA sites. This model captures that effect.</p>
+<p>Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for
+evaluating essentiality. Gumbel distinguishes between ES (essential) from NE (non-essential).
+HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and
+GA (growth advantage; inflated counts; mutant has selective advantage) categories.
+Quantifying the magnitude of the fitness defect is risky because the counts at
+individual TA sites can be noisy. Sometimes the counts at a TA site in a gene can span
+a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis
+of the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.</p>
+<p>These insertion preferences are influenced by the nucleotide context of each TA site.  The TTN-Fitness
+method uses a statistical model based on surrounding nucleotides to estimate the insertion bias of each site.
+Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio is 0 for
+ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.</p>
+<p>For additional details, see our paper:</p>
+<p><a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/34665010/">Choudhery, Sanjeevani et al. “Modeling Site-Specific Nucleotide Biases Affecting Himar1 Transposon Insertion
+Frequencies in TnSeq Data Sets.” mSystems vol. 6,5 (2021): e0087621. doi:10.1128/mSystems.00876-21</a></p>
+<ul class="simple">
+<li><p>This methodology is best suited for libraries created with the Himar1 transposon.</p></li>
+<li><p>The model itself does not need to be re-trained to make prediction on a dataset. Our data (Choudhery, 2021) shows
+this model generalizes across other bacterial species.</p></li>
+<li><p>This methodology can handle multiple replicates. More replicates increase the saturation of TA sites in non-essential
+genes. This allows for higher accuracy and precision of the insertion counts at TA sites of a genome.</p></li>
+</ul>
+<p>Note that the TTN-Fitness model is primarily aimed at analyzing GD (growth-defect) genes (and NE, GA) in terms of magnitudes of counts,
+but not really ES/ESB genes, which are determined by other analyses (based on absence of insertions). ES genes are
+essential genes have been previously labeled as such by the Gumbel method. ESB genes
+are genes that have no insertions and are are long enough to be significant by a Binomial
+method (see paper).  Since counts are so close to 0 for these, the insertion biased on
+the transposon is irrelevant.  Thus, the predictive model is not really used for these genes.</p>
+<p>TTN-Fitness is more sensitive to deviations in insertion counts
+(compared to expected insertion counts) and therefore tends to call
+more GD and GA genes than other analysis methods.</p>
+<p>On an average machine, running this methodology on a dataset takes about 5 minutes</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">ttnfitness</span> <span class="o">&lt;</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="o">.</span><span class="n">wig</span> <span class="n">files</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">genome</span> <span class="o">.</span><span class="n">fna</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">gumbel</span> <span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">gene</span><span class="o">-</span><span class="n">wise</span> <span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">ta</span><span class="o">-</span><span class="n">site</span> <span class="n">wise</span> <span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span>
+<span class="o">-</span>  <span class="n">gumbel</span> <span class="n">output</span> <span class="n">file</span><span class="p">:</span><span class="o">*</span> <span class="n">The</span> <span class="n">Gumbel</span> <span class="n">method</span> <span class="n">must</span> <span class="n">be</span> <span class="n">run</span> <span class="n">first</span> <span class="n">on</span> <span class="n">the</span> <span class="n">dataset</span><span class="o">.</span><span class="n">The</span> <span class="n">output</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Gumbel</span> <span class="n">method</span> <span class="ow">is</span> <span class="n">provided</span> <span class="k">as</span> <span class="n">an</span> <span class="nb">input</span>
+   <span class="n">to</span> <span class="n">this</span> <span class="n">method</span><span class="o">.</span> <span class="n">ES</span> <span class="p">(</span><span class="n">essential</span> <span class="n">by</span> <span class="n">Gumbel</span><span class="p">)</span> <span class="ow">and</span> <span class="n">EB</span> <span class="p">(</span><span class="n">essential</span> <span class="n">by</span> <span class="n">Binomial</span><span class="p">)</span> <span class="ow">is</span> <span class="n">calculated</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">TTN</span><span class="o">-</span><span class="n">Fitness</span> <span class="n">method</span> <span class="n">via</span> <span class="n">this</span> <span class="n">files</span>
+</pre></div>
+</div>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline"></a></h2>
+<p>There are two outputs files. One file details the assessment per gene and one details the assessment per TA site.</p>
+<p>The first output file is a tab-delimited file where the last column, titled TTN-Fitness Calls reports the essentiality call of
+each given gene. The call is one of following:</p>
+<ul class="simple">
+<li><p>NE = Non-essential.</p></li>
+<li><p>ES = essential based on Gumbel</p></li>
+<li><p>ESB = essential based on Binomial**</p></li>
+<li><p>GA = Growth Advantage</p></li>
+<li><p>GD = Growth Defect</p></li>
+<li><p>U = Uncertain [for genes that are too short]</p></li>
+</ul>
+<p>** this is an alternative model for identifying essential genes that complements the Gumbel calculation, which tends to
+call short genes with few TA sites Uncertain, especially at lower levels of saturation; see Choudhery et al, 2021</p>
+<p>The Fitness Ratio reported in this file is a modification of the M1 coefficient to reflect the amount of fitness defect per gene.
+This ratio was calculated as:</p>
+<div class="math notranslate nohighlight">
+\[Fitness \ Ratio = e^{(M1\ coefficient - median[M1\ coefficients])}\]</div>
+<p>This value ranges from 0 to infinity.
+Genes with a value around 1 are non-essential.
+If less than 1, this value indicates the level of growth defect
+that is caused by disruption of the gene by transpoon insertion.
+The closer the ratio of a gene is to 0, the more essential a gene is.
+If greater than 1, it indicates the level of growth advantage of the mutant.
+The histograms below shows the distribution of the fitness ratios calculated
+for each of the essentiality categories. The genes
+assessed as GD have a ratio that is typically below 0.5,
+those labeled GA are mostly above 1.0 and the ratios of genes assessed
+as NE have a peak at 1 and are restricted to the center of the plot.</p>
+<a class="reference internal image-reference" href="_images/ttnfitness_coef_distribution.png"><img alt="_images/ttnfitness_coef_distribution.png" class="align-center" src="_images/ttnfitness_coef_distribution.png" style="width: 1000px;" /></a>
+<p>The Fitness Ratio quantifies the qualitative calls seen in the TTN-Fitness Calls Column. These two columns are the last two
+columns in the output file and are the primary columns per gene reflecting the assessments made by our model.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Orf</p></td>
+<td><p>Gene ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Name of the Gene</p></td>
+</tr>
+<tr class="row-even"><td><p>Description</p></td>
+<td><p>Gene description</p></td>
+</tr>
+<tr class="row-odd"><td><p>Total # TA Sites</p></td>
+<td><p>Total number of TA sites in the Gene</p></td>
+</tr>
+<tr class="row-even"><td><p>#Sites with insertions</p></td>
+<td><p>Number of TA sites in the Gene with insertions</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gene Saturation</p></td>
+<td><p>Percentage of TA sites in the Gene with insertions</p></td>
+</tr>
+<tr class="row-even"><td><p>Gene+TTN (M1) Coef</p></td>
+<td><p>The coefficient of a given gene in M1 model</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gene+TTN (M1) Adj Pval</p></td>
+<td><p>The BF adjusted p-value of a coef of a gene in M1</p></td>
+</tr>
+<tr class="row-even"><td><p>Mean Insertion Count</p></td>
+<td><p>The mean insertion count at TA sites in a given gene</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Fitness Ratio</strong></p></td>
+<td><p><strong>Adjusted M1 coefficients to quantify fitness defect per gene</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>TTN-Fitness Assessment</strong></p></td>
+<td><p><strong>Calls made for a given gene using the M1 Coef and Adjusted Pval</strong></p></td>
+</tr>
+</tbody>
+</table>
+<p>The second output file is a tab-seperated file of details of the TTN Fitness method per TA Site.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Coord</p></td>
+<td><p>Coordinate of TA Site</p></td>
+</tr>
+<tr class="row-odd"><td><p>Orf</p></td>
+<td><p>Gene ID</p></td>
+</tr>
+<tr class="row-even"><td><p>Name</p></td>
+<td><p>Name of the Gene</p></td>
+</tr>
+<tr class="row-odd"><td><p>Uqstream TTN</p></td>
+<td><p>Nucleotides in position 1,2,3 and 4 from the TA site</p></td>
+</tr>
+<tr class="row-even"><td><p>Downstream TTN</p></td>
+<td><p>Reverse Complement of Nucleotides in position -1,-2,-3 and -4 from the TA site</p></td>
+</tr>
+<tr class="row-odd"><td><p>TTN Fitness Assessment</p></td>
+<td><p>Fitness Call for the Gene</p></td>
+</tr>
+<tr class="row-even"><td><p>Insertion Counts</p></td>
+<td><p>Number of Insertions at TA site</p></td>
+</tr>
+<tr class="row-odd"><td><p>Local Average</p></td>
+<td><p>The average number of insertions +5 to -5 from the TA site</p></td>
+</tr>
+<tr class="row-even"><td><p>M1 Predicted Counts</p></td>
+<td><p>TTN+gene based predictions at the TA site using TTN Fitness model</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="example-of-running-the-ttn-fitness-methodology-on-the-sample-glycerol-data">
+<h2>Example of running the TTN-Fitness methodology on the sample glycerol data<a class="headerlink" href="#example-of-running-the-ttn-fitness-methodology-on-the-sample-glycerol-data" title="Permalink to this headline"></a></h2>
+<p>1. Run the Gumbel Analysis</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">gumbel</span> <span class="n">glycerol_H37Rv_rep1</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">glycerol_H37Rv_rep2</span><span class="o">.</span><span class="n">wig</span> <span class="n">H37Rv</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">gylcerol_H37Rv</span><span class="o">.</span><span class="n">gumbel</span><span class="o">.</span><span class="n">out</span>
+</pre></div>
+</div>
+<p>2. Use the output of the Gumbel Analysis as the input to the TTTN-Fitness method</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">ttnfitness</span> <span class="n">glycerol_H37Rv_rep1</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">glycerol_H37Rv_rep2</span><span class="o">.</span><span class="n">wig</span> <span class="n">H37Rv</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">H37Rv</span><span class="o">.</span><span class="n">fna</span> <span class="n">glycerol_H37Rv</span><span class="o">.</span><span class="n">gumbel</span><span class="o">.</span><span class="n">out</span> <span class="n">ttnfitness_glycerol_H37Rv_gene</span><span class="o">.</span><span class="n">txt</span> <span class="n">ttnfitness_glycerol_H37Rv_TAsite</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>The resulting ttnfitness_glycerol_H37Rv_gene.txt out should contain TTN Fitness Assessments breakdown similar to:</p>
+<ul class="simple">
+<li><p>172 ES</p></li>
+<li><p>501 ESB</p></li>
+<li><p>2680 NE</p></li>
+<li><p>195 GA</p></li>
+<li><p>359 GD</p></li>
+<li><p>72 U</p></li>
+</ul>
+<p>The resulting ttnfitness_glycerol_H37Rv_TAsite.txt should contain 62,622 TA sites</p>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_heatmap.html" class="btn btn-neutral float-left" title="heatmap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transit_interactions_tutorial.html" class="btn btn-neutral float-right" title="Tutorial: Genetic Interactions Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

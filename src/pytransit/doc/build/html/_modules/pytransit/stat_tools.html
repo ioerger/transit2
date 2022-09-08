@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pytransit.stat_tools &mdash; TRANSIT v3.2.3 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> TRANSIT
+            <img src="../../_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_features.html">Quality Control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_methods.html">Analysis Methods (Expand Me First!)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pytransit.stat_tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pytransit.stat_tools</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+
+
+
+<div class="viewcode-block" id="sample_trunc_norm_post"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.sample_trunc_norm_post">[docs]</a><span class="k">def</span> <span class="nf">sample_trunc_norm_post</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">mu0</span><span class="p">,</span> <span class="n">s20</span><span class="p">,</span> <span class="n">k0</span><span class="p">,</span> <span class="n">nu0</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">s2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ybar</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">kn</span> <span class="o">=</span> <span class="n">k0</span><span class="o">+</span><span class="n">n</span>
+    <span class="n">nun</span> <span class="o">=</span> <span class="n">nu0</span><span class="o">+</span><span class="n">n</span>
+    <span class="n">mun</span> <span class="o">=</span> <span class="p">(</span><span class="n">k0</span><span class="o">*</span><span class="n">mu0</span> <span class="o">+</span> <span class="n">n</span><span class="o">*</span><span class="n">ybar</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kn</span><span class="p">)</span>
+    <span class="n">s2n</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nun</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">nu0</span><span class="o">*</span><span class="n">s20</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">s2</span> <span class="o">+</span> <span class="p">(</span><span class="n">k0</span><span class="o">*</span><span class="n">n</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kn</span><span class="p">))</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">ybar</span><span class="o">-</span><span class="n">mu0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">s2_post</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">gamma</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">nun</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">2.0</span><span class="o">/</span><span class="p">(</span><span class="n">s2n</span><span class="o">*</span><span class="n">nun</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">S</span><span class="p">)</span>
+
+    <span class="c1"># Truncated Normal since counts can&#39;t be negative</span>
+    <span class="n">min_mu</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_mu</span> <span class="o">=</span> <span class="mi">1000000</span>
+    <span class="n">trunc_a</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_mu</span><span class="o">-</span><span class="n">mun</span><span class="p">)</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s2_post</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kn</span><span class="p">))</span>
+    <span class="n">trunc_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_mu</span><span class="o">-</span><span class="n">mun</span><span class="p">)</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s2_post</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kn</span><span class="p">))</span>
+
+    <span class="n">mu_post</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">truncnorm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">trunc_a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">trunc_b</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mun</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s2_post</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kn</span><span class="p">)),</span> <span class="n">size</span><span class="o">=</span><span class="n">S</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">mu_post</span><span class="p">,</span> <span class="n">s2_post</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="FWER_Bayes"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.FWER_Bayes">[docs]</a><span class="k">def</span> <span class="nf">FWER_Bayes</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+    <span class="n">P_NULL</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">P_NULL</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">P_NULL</span><span class="p">)</span>
+    <span class="n">P_ALT</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">P_ALT</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">W</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">P_ALT</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="bFDR"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.bFDR">[docs]</a><span class="k">def</span> <span class="nf">bFDR</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+    <span class="n">P_NULL</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">P_ALT</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">P_ALT</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">P_NULL</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">P_ALT</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="HDI_from_MCMC"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.HDI_from_MCMC">[docs]</a><span class="k">def</span> <span class="nf">HDI_from_MCMC</span><span class="p">(</span><span class="n">posterior_samples</span><span class="p">,</span> <span class="n">credible_mass</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+    <span class="c1"># Credit to &#39;user72564&#39;</span>
+    <span class="c1"># https://stackoverflow.com/questions/22284502/highest-posterior-density-region-and-central-credible-region</span>
+    <span class="c1"># Computes highest density interval from a sample of representative values,</span>
+    <span class="c1"># estimated as the shortest credible interval</span>
+    <span class="c1"># Takes Arguments posterior_samples (samples from posterior) and credible mass (normally .95)</span>
+    <span class="n">sorted_points</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">posterior_samples</span><span class="p">)</span>
+    <span class="n">ciIdxInc</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">credible_mass</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_points</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    <span class="n">nCIs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_points</span><span class="p">)</span> <span class="o">-</span> <span class="n">ciIdxInc</span>
+    <span class="n">ciWidth</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">nCIs</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nCIs</span><span class="p">):</span>
+        <span class="n">ciWidth</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">ciIdxInc</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">HDImin</span> <span class="o">=</span> <span class="n">sorted_points</span><span class="p">[</span><span class="n">ciWidth</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">ciWidth</span><span class="p">))]</span>
+    <span class="n">HDImax</span> <span class="o">=</span> <span class="n">sorted_points</span><span class="p">[</span><span class="n">ciWidth</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">ciWidth</span><span class="p">))</span><span class="o">+</span><span class="n">ciIdxInc</span><span class="p">]</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">HDImin</span><span class="p">,</span> <span class="n">HDImax</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="transformToRange"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.transformToRange">[docs]</a><span class="k">def</span> <span class="nf">transformToRange</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">new_min</span><span class="p">,</span> <span class="n">new_max</span><span class="p">,</span> <span class="n">old_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">old_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">old_min</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">old_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">old_max</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">old_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    
+    <span class="n">old_range</span> <span class="o">=</span> <span class="n">old_max</span> <span class="o">-</span> <span class="n">old_min</span>
+
+    <span class="n">new_range</span> <span class="o">=</span> <span class="n">new_max</span> <span class="o">-</span> <span class="n">new_min</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">old_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">old_range</span> <span class="o">*</span> <span class="n">new_range</span> <span class="o">+</span> <span class="n">new_min</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">]</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="fact"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.fact">[docs]</a><span class="k">def</span> <span class="nf">fact</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="comb1"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.comb1">[docs]</a><span class="k">def</span> <span class="nf">comb1</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">k</span><span class="p">):</span>
+    <span class="n">prod</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="n">prod</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">i</span><span class="p">))</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="comb"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.comb">[docs]</a><span class="k">def</span> <span class="nf">comb</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">n</span> <span class="o">-</span> <span class="n">k</span><span class="p">:</span> <span class="c1"># take advantage of symmetry</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">k</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">//</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="norm"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.norm">[docs]</a><span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span><span class="n">sigma</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normal distribution&quot;&quot;&quot;</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span> <span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">mu</span><span class="p">)</span><span class="o">/</span><span class="n">sigma</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="binom"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.binom">[docs]</a><span class="k">def</span> <span class="nf">binom</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Binomial distribution. Uses Normal approximation for large &#39;n&#39; &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">n</span><span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">))</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">comb</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="binom_cdf"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.binom_cdf">[docs]</a><span class="k">def</span> <span class="nf">binom_cdf</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;CDF of the binomial distribution&quot;&quot;&quot;</span>
+    <span class="k">return</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">binom</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)]))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="binom_test"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.binom_test">[docs]</a><span class="k">def</span> <span class="nf">binom_test</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;two-sided&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Does a binomial test given success, trials and probability.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;less&quot;</span><span class="p">:</span> <span class="k">return</span><span class="p">(</span><span class="n">binom_cdf</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;greater&quot;</span><span class="p">:</span> <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">binom_cdf</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#return(k == 0)</span>
+        <span class="k">elif</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#return(k == n)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">relErr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-7</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">binom</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">p</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">m</span><span class="p">:</span> <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">):</span>
+                <span class="n">ri</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">m</span><span class="p">)),</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">ri</span> <span class="k">if</span> <span class="n">binom</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="o">*</span><span class="n">relErr</span><span class="p">])</span>
+                <span class="k">return</span><span class="p">(</span><span class="n">binom_cdf</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">binom_cdf</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">y</span><span class="p">),</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ri</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">m</span><span class="p">)))</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">ri</span> <span class="k">if</span> <span class="n">binom</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="o">*</span><span class="n">relErr</span><span class="p">])</span>
+                <span class="k">return</span><span class="p">(</span><span class="n">binom_cdf</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">binom_cdf</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)))</span></div>
+
+
+<span class="c1">##############################</span>
+<span class="c1"># Bernoulli Diff Distribution</span>
+<div class="viewcode-block" id="dberndiff"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.dberndiff">[docs]</a><span class="k">def</span> <span class="nf">dberndiff</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">peq</span><span class="p">,</span> <span class="n">p01</span><span class="p">,</span> <span class="n">p10</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(()):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">peq</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">p01</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">p10</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+<span class="c1">#</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">d</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">p01</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">peq</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">d</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">p10</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="qberndiff"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.qberndiff">[docs]</a><span class="k">def</span> <span class="nf">qberndiff</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">peq</span><span class="p">,</span> <span class="n">p01</span><span class="p">,</span> <span class="n">p10</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span> <span class="n">dberndiff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">peq</span><span class="p">,</span> <span class="n">p01</span><span class="p">,</span> <span class="n">p10</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">])</span></div>
+
+<span class="c1">#############################</span>
+<span class="c1"># Binomial Diff Distribution</span>
+
+<div class="viewcode-block" id="dbinomdiff"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.dbinomdiff">[docs]</a><span class="k">def</span> <span class="nf">dbinomdiff</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">my_perm</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">multinomial</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="qbinomdiff"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.qbinomdiff">[docs]</a><span class="k">def</span> <span class="nf">qbinomdiff</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">peq</span><span class="p">,</span> <span class="n">p01</span><span class="p">,</span> <span class="n">p10</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span> <span class="n">dbinomdiff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">peq</span><span class="p">,</span> <span class="n">p01</span><span class="p">,</span> <span class="n">p10</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">])</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="my_perm"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.my_perm">[docs]</a><span class="k">def</span> <span class="nf">my_perm</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="k">if</span> <span class="n">isEven</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                <span class="n">S</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">),</span> <span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)))</span>
+<span class="c1">#</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">S</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">d</span><span class="p">))</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+                    <span class="n">S</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span> <span class="o">-</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+<span class="c1">#</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                <span class="n">S</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+                    <span class="n">S</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
+<span class="c1">#</span>
+    <span class="k">return</span> <span class="n">S</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="multinomial"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.multinomial">[docs]</a><span class="k">def</span> <span class="nf">multinomial</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">P</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tricoeff</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span> <span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">K</span><span class="p">))</span> <span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tricoeff</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span> <span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">K</span><span class="p">))</span> <span class="p">],</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="log_fac"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.log_fac">[docs]</a><span class="k">def</span> <span class="nf">log_fac</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="tricoeff"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.tricoeff">[docs]</a><span class="k">def</span> <span class="nf">tricoeff</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">LOG_FAC</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="n">LOG_FAC</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">LOG_FAC</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_fac</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="c1">#</span>
+        <span class="n">LOG_FAC</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOG_FAC</span><span class="p">)</span>
+<span class="c1">#</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">LOG_FAC</span><span class="p">[</span><span class="n">N</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">LOG_FAC</span><span class="p">[</span><span class="n">S</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">LOG_FAC</span><span class="p">[</span><span class="n">S</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">LOG_FAC</span><span class="p">[</span><span class="n">S</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]))</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="isEven"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.isEven">[docs]</a><span class="k">def</span> <span class="nf">isEven</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="regress"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.regress">[docs]</a><span class="k">def</span> <span class="nf">regress</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs linear regression given two vectors, X, Y.&quot;&quot;&quot;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">xbar</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">ybar</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+    <span class="n">xybar</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">x2bar</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="n">xybar</span> <span class="o">-</span> <span class="n">xbar</span><span class="o">*</span><span class="n">ybar</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">x2bar</span> <span class="o">-</span> <span class="n">xbar</span><span class="o">*</span><span class="n">xbar</span><span class="p">)</span>
+    <span class="n">A0</span> <span class="o">=</span> <span class="n">ybar</span> <span class="o">-</span> <span class="n">B</span><span class="o">*</span><span class="n">xbar</span>
+
+    <span class="n">yfit</span> <span class="o">=</span> <span class="p">[</span> <span class="n">A0</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="n">yres</span> <span class="o">=</span> <span class="p">[</span><span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">A0</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">yres</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">A0</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="boxcoxtransform"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.boxcoxtransform">[docs]</a><span class="k">def</span> <span class="nf">boxcoxtransform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lambdax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a box-cox transformation to data vector X.</span>
+<span class="sd">    WARNING: elements of X should be all positive! </span>
+<span class="sd">    Fixed: &#39;&gt;&#39; has changed to &#39;&lt;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Nonpositive value(s) in X vector&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">lambdax</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0e-5</span><span class="p">:</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span><span class="p">((</span><span class="n">x</span><span class="o">**</span><span class="n">lambdax</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">/</span><span class="n">lambdax</span><span class="p">)</span></div>
+    <span class="c1">#return math.log(x) if abs(lambdax) &lt; 1.0e-5 else (x**lambdax - 1.0)/lambdax</span>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="loglik"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.loglik">[docs]</a><span class="k">def</span> <span class="nf">loglik</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">lambdax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the log-likelihood function for a transformed vector Xtransform.     </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">Xtrans</span> <span class="o">=</span> <span class="p">[</span><span class="n">boxcoxtransform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lambdax</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">]</span>
+    <span class="n">meanX</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">Xtrans</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">S2</span> <span class="o">=</span> <span class="p">(</span><span class="n">lambdax</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">])</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="n">x</span><span class="o">-</span><span class="n">meanX</span><span class="p">)</span> <span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xtrans</span><span class="p">])</span>
+    <span class="n">S1</span><span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">n</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">S</span><span class="o">/</span><span class="n">n</span><span class="p">)</span> 
+    <span class="k">return</span>  <span class="n">S2</span><span class="o">+</span><span class="n">S1</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="boxcoxTable"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.boxcoxTable">[docs]</a><span class="k">def</span> <span class="nf">boxcoxTable</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">minlambda</span><span class="p">,</span> <span class="n">maxlambda</span><span class="p">,</span> <span class="n">dellambda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a table of (loglik function, lambda) pairs</span>
+<span class="sd">    for the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a table (lambda, loglik)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">vallambda</span> <span class="o">=</span> <span class="n">minlambda</span>
+    <span class="k">while</span> <span class="n">vallambda</span> <span class="o">&lt;=</span> <span class="n">maxlambda</span><span class="o">+</span><span class="mf">1.0e-5</span><span class="p">:</span>
+        <span class="n">llik</span> <span class="o">=</span> <span class="n">loglik</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">vallambda</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">llik</span><span class="p">,</span> <span class="n">vallambda</span><span class="p">))</span>
+        <span class="n">vallambda</span> <span class="o">+=</span> <span class="n">dellambda</span>
+    <span class="k">return</span> <span class="n">out</span>  </div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="phi_coefficient"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.phi_coefficient">[docs]</a><span class="k">def</span> <span class="nf">phi_coefficient</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the phi-coefficient for two bool arrays&quot;&quot;&quot;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">Y</span><span class="p">),</span> <span class="s2">&quot;Length of arrays must be equal&quot;</span>
+    <span class="n">x1y1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>  <span class="o">==</span>  <span class="mi">1</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">x1y0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>  <span class="o">==</span>  <span class="mi">0</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">x0y1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>  <span class="o">==</span>  <span class="mi">1</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">x0y0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>  <span class="o">==</span>  <span class="mi">0</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">x1y1</span> <span class="o">+</span> <span class="n">x1y0</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">x0y1</span> <span class="o">+</span> <span class="n">x0y0</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">x1y1</span> <span class="o">+</span> <span class="n">x0y1</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="n">x1y0</span> <span class="o">+</span> <span class="n">x0y0</span>
+    <span class="n">phi_coeff</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1y1</span><span class="o">*</span><span class="n">x0y0</span> <span class="o">-</span> <span class="n">x1y0</span><span class="o">*</span><span class="n">x0y1</span><span class="p">)</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x1</span><span class="o">*</span><span class="n">x0</span><span class="o">*</span><span class="n">y1</span><span class="o">*</span><span class="n">y0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phi_coeff</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="BH_fdr_correction"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.BH_fdr_correction">[docs]</a><span class="k">def</span> <span class="nf">BH_fdr_correction</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adjusts p-values using the Benjamini Hochberg procedure&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">qvalues</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">pvalues</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">pvalues</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">pvalues</span> <span class="o">=</span> <span class="n">pvalues</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span>
+        <span class="n">qvalues</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span> <span class="o">*</span> <span class="n">pvalues</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+ 
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">qvalues</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">qvalues</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">qvalues</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">qvalues</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+    <span class="n">p2qval</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pvalues</span><span class="p">,</span><span class="n">qvalues</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p2qval</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">X</span><span class="p">])</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="bayesian_ess_thresholds"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.bayesian_ess_thresholds">[docs]</a><span class="k">def</span> <span class="nf">bayesian_ess_thresholds</span><span class="p">(</span><span class="n">Z_raw</span><span class="p">,</span> <span class="n">ALPHA</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns Essentiality Thresholds using a BH-like procedure&quot;&quot;&quot;</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">Z_raw</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">Z</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+
+    <span class="n">ess_threshold</span> <span class="o">=</span> <span class="mf">1.00</span>
+    <span class="n">INDEX</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">INDEX</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+        <span class="n">wi</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">Z</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ai_n</span> <span class="o">=</span> <span class="p">(</span><span class="n">ALPHA</span><span class="o">*</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">N</span>
+        <span class="n">mean_wi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">delta_w</span> <span class="o">=</span> <span class="n">wi</span> <span class="o">-</span> <span class="n">mean_wi</span>
+        <span class="c1">#if count &lt; 30: print(i, wi, ai_n, delta_w)</span>
+        <span class="k">if</span> <span class="n">delta_w</span> <span class="o">&gt;</span> <span class="n">ai_n</span><span class="p">:</span>
+            <span class="n">ess_threshold</span> <span class="o">=</span> <span class="n">Z</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1">#print(&quot;i&quot;, i)</span>
+            <span class="k">break</span>
+
+    <span class="n">noness_threshold</span> <span class="o">=</span> <span class="mf">0.00</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">INDEX</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">INDEX</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">INDEX</span><span class="p">:</span>
+        <span class="n">wi</span> <span class="o">=</span> <span class="n">Z</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ai_n</span> <span class="o">=</span> <span class="p">(</span><span class="n">ALPHA</span><span class="o">*</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">N</span>
+        <span class="n">mean_wi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">delta_w</span> <span class="o">=</span> <span class="n">Z</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean_wi</span>
+        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+        <span class="c1">#print(count)</span>
+        <span class="c1">#if count &lt; 20:</span>
+        <span class="c1">#   print(i, wi, ai_n, mean_wi, delta_w, N-i+1, N-1, W[N-i-1], W[i-1])</span>
+
+        <span class="k">if</span> <span class="n">ai_n</span> <span class="o">&gt;</span> <span class="n">delta_w</span><span class="p">:</span>
+        <span class="c1">#   print(i, wi, ai_n, mean_wi, delta_w, N-i+1, N-1, W[N-i-1], W[i-1])</span>
+            <span class="k">break</span>
+        <span class="n">noness_threshold</span> <span class="o">=</span> <span class="n">Z</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">ess_threshold</span><span class="p">,</span> <span class="n">noness_threshold</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="tricube"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.tricube">[docs]</a><span class="k">def</span> <span class="nf">tricube</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">X</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">X</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">ii</span><span class="p">]),</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="loess"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.loess">[docs]</a><span class="k">def</span> <span class="nf">loess</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">smoothed</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">tricube</span><span class="p">((</span><span class="n">X</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">sW</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+        <span class="n">wsX</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="o">*</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">wsY</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="o">*</span><span class="n">Y</span><span class="p">)</span>
+        <span class="n">wsXY</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="o">*</span><span class="n">X</span><span class="o">*</span><span class="n">Y</span><span class="p">)</span>
+        <span class="n">sXX</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">X</span><span class="o">*</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="n">sW</span> <span class="o">*</span> <span class="n">wsXY</span> <span class="o">-</span> <span class="n">wsX</span> <span class="o">*</span> <span class="n">wsY</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">sW</span> <span class="o">*</span> <span class="n">sXX</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wsX</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="n">wsY</span> <span class="o">-</span> <span class="n">B</span><span class="o">*</span><span class="n">wsX</span><span class="p">)</span> <span class="o">/</span> <span class="n">sW</span>
+        <span class="n">smoothed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">A</span>
+    <span class="k">return</span> <span class="n">smoothed</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="loess_correction"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.loess_correction">[docs]</a><span class="k">def</span> <span class="nf">loess_correction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="c1">#TODO: Write docstring</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">/</span><span class="n">window</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">x_w</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">y_w</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">x_w</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">window</span><span class="o">*</span><span class="n">i</span>
+        <span class="n">y_w</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">window</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="n">window</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+
+    <span class="n">ysmooth</span> <span class="o">=</span> <span class="n">loess</span><span class="p">(</span><span class="n">x_w</span><span class="p">,</span> <span class="n">y_w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+    <span class="n">mline</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_w</span><span class="p">)</span>
+    <span class="n">y_w</span> <span class="o">*</span> <span class="p">(</span><span class="n">ysmooth</span><span class="o">/</span><span class="n">mline</span><span class="p">)</span>
+
+    <span class="n">normalized_Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">normalized_Y</span><span class="p">[</span><span class="n">window</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="n">window</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="n">window</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="n">window</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ysmooth</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">mline</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normalized_Y</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="F_mean_diff_flat"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.F_mean_diff_flat">[docs]</a><span class="k">def</span> <span class="nf">F_mean_diff_flat</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">A</span><span class="p">)</span></div>
+
+<span class="c1"># </span>
+   
+<div class="viewcode-block" id="F_sum_diff_flat"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.F_sum_diff_flat">[docs]</a><span class="k">def</span> <span class="nf">F_sum_diff_flat</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">A</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="F_mean_diff_dict"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.F_mean_diff_dict">[docs]</a><span class="k">def</span> <span class="nf">F_mean_diff_dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+    <span class="n">data1_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">data2_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">data1_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">data2_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">D</span><span class="p">:</span>
+        <span class="n">data1_total</span><span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">data1_size</span><span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">data2_total</span><span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">data2_size</span><span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">data2_total</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">data2_size</span><span class="p">))</span> <span class="o">-</span> <span class="p">(</span><span class="n">data1_total</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">data1_size</span><span class="p">))</span></div>
+
+<span class="c1"># </span>
+
+<div class="viewcode-block" id="F_sum_diff_dict"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.F_sum_diff_dict">[docs]</a><span class="k">def</span> <span class="nf">F_sum_diff_dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">data1_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">data2_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">D</span><span class="p">:</span>
+        <span class="n">data1_total</span><span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">data2_total</span><span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">data2_total</span> <span class="o">-</span> <span class="n">data1_total</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="F_shuffle_flat"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.F_shuffle_flat">[docs]</a><span class="k">def</span> <span class="nf">F_shuffle_flat</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="F_shuffle_dict_libraries"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.F_shuffle_dict_libraries">[docs]</a><span class="k">def</span> <span class="nf">F_shuffle_dict_libraries</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">D</span><span class="p">:</span>
+        <span class="c1">#print(&quot;L&quot;, L)</span>
+        <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">combined</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">D</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1">#print(&quot;combined&quot;, combined)</span>
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
+        <span class="c1">#print(&quot;perm&quot;, perm)</span>
+        <span class="c1">#print(&quot;perm[:n1]&quot;, perm[:n1])</span>
+        <span class="n">E</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">perm</span><span class="p">[:</span><span class="n">n1</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">n1</span><span class="p">:]],</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="c1">#print(&quot;D[L]&quot;, D[L])</span>
+    <span class="k">return</span> <span class="n">E</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="resampling"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.resampling">[docs]</a><span class="k">def</span> <span class="nf">resampling</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">testFunc</span><span class="o">=</span><span class="n">F_mean_diff_flat</span><span class="p">,</span>
+            <span class="n">permFunc</span><span class="o">=</span><span class="n">F_shuffle_flat</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lib_str1</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lib_str2</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="n">PC</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Does a permutation test on two sets of data.</span>
+
+<span class="sd">    Performs the resampling / permutation test given two sets of data using a</span>
+<span class="sd">    function defining the test statistic and a function defining how to permute</span>
+<span class="sd">    the data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ar: List or numpy array with the first set of observations.</span>
+<span class="sd">        data2: List or numpy array with the second set of observations.</span>
+<span class="sd">        S: Number of permutation tests (or samples) to obtain.</span>
+<span class="sd">        testFunc: Function defining the desired test statistic. Should accept</span>
+<span class="sd">                two lists as arguments. Default is difference in means between</span>
+<span class="sd">                the observations.</span>
+<span class="sd">        permFunc: Function defining the way to permute the data. Should accept</span>
+<span class="sd">                one argument, the combined set of data. Default is random</span>
+<span class="sd">                shuffle.</span>
+<span class="sd">        adaptive: Cuts-off resampling early depending on significance.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple with described values</span>
+<span class="sd">            - test_obs -- Test statistic of observation.</span>
+<span class="sd">            - mean1 -- Arithmetic mean of first set of data.</span>
+<span class="sd">            - mean2 -- Arithmetic mean of second set of data.</span>
+<span class="sd">            - log2FC -- Normalized log2FC the means.</span>
+<span class="sd">            - pval_ltail -- Lower tail p-value.</span>
+<span class="sd">            - pval_utail -- Upper tail p-value.</span>
+<span class="sd">            - pval_2tail -- Two-tailed p-value.</span>
+<span class="sd">            - test_sample -- List of samples of the test statistic.</span>
+<span class="sd">    </span>
+<span class="sd">    :Example:</span>
+<span class="sd">        &gt;&gt;&gt; import pytransit.stat_tools as stat_tools</span>
+<span class="sd">        &gt;&gt;&gt; import numpy</span>
+<span class="sd">        &gt;&gt;&gt; X = numpy.random.random(100)</span>
+<span class="sd">        &gt;&gt;&gt; Y = numpy.random.random(100)</span>
+<span class="sd">        &gt;&gt;&gt; (test_obs, mean1, mean2, log2fc, pval_ltail, pval_utail, pval_2tail, test_sample) = stat_tools.resampling(X,Y)</span>
+<span class="sd">        &gt;&gt;&gt; pval_2tail</span>
+<span class="sd">        0.2167</span>
+<span class="sd">        &gt;&gt;&gt; test_sample[:3]</span>
+<span class="sd">        [0.076213992904990535, -0.0052513291091412784, -0.0038425140184765172]</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Do basic sanity checks:</span>
+    <span class="c1"># - Check library strings match in some way</span>
+    <span class="n">lib_diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lib_str1</span><span class="p">)</span> <span class="o">^</span> <span class="nb">set</span><span class="p">(</span><span class="n">lib_str2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lib_diff</span><span class="p">:</span>
+        <span class="c1">#raise ValueError(&quot;At least one library string has a letter not used by the other:\ %s&quot; % &quot;, &quot;.join(lib_diff))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one library string has a letter not used by the other: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lib_diff</span><span class="p">))</span>
+
+    <span class="c1"># - Check input has some data</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Data1 cannot be empty&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Data2 cannot be empty&quot;</span>
+
+    <span class="n">count_ltail</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">count_utail</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">count_2tail</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">test_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Calculate basic statistics for the input data:</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span>
+
+    <span class="n">mean1</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">mean1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+    <span class="n">mean2</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">mean2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">PC</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span> <span class="n">log2FC</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">mean2</span><span class="o">+</span><span class="n">PC</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">mean1</span><span class="o">+</span><span class="n">PC</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># as of 3/5/20</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c1"># Only adjust log2FC if one of the means is zero</span>
+      <span class="k">if</span> <span class="n">mean1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">mean2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="n">log2FC</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">mean2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">mean1</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span> <span class="n">log2FC</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">mean2</span><span class="o">+</span><span class="mf">1.0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">mean1</span><span class="o">+</span><span class="mf">1.0</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+
+ 
+    <span class="c1"># Get stats and info based on whether working with libraries or not:</span>
+    <span class="n">nTAs</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">lib_str1</span><span class="p">:</span>
+        <span class="c1"># Get number of TA sites implied</span>
+        <span class="n">nTAs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span><span class="o">//</span><span class="nb">len</span><span class="p">(</span><span class="n">lib_str1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data2</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span><span class="o">//</span><span class="nb">len</span><span class="p">(</span><span class="n">lib_str2</span><span class="p">)</span> <span class="o">==</span> <span class="n">nTAs</span><span class="p">,</span> <span class="s2">&quot;Datasets do not have matching sites;</span><span class="se">\</span>
+<span class="s2">             check input data and library strings.&quot;</span>
+        <span class="c1"># Get data</span>
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">get_lib_data_dict</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">lib_str1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">lib_str2</span><span class="p">,</span> <span class="n">nTAs</span><span class="p">)</span>
+        <span class="n">test_obs</span> <span class="o">=</span> <span class="n">testFunc</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">test_obs</span> <span class="o">=</span> <span class="n">testFunc</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Could not apply test function to input data!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;data1&quot;</span><span class="p">,</span> <span class="n">data1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;data2&quot;</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n1</span><span class="o">+</span><span class="n">n2</span><span class="p">)</span>
+        <span class="n">perm</span><span class="p">[:</span><span class="n">n1</span><span class="p">]</span> <span class="o">=</span> <span class="n">data1</span>
+        <span class="n">perm</span><span class="p">[</span><span class="n">n1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">data2</span>
+
+
+
+    <span class="n">count_ltail</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">count_utail</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">count_2tail</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">test_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">s_performed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">S</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">perm</span> <span class="o">=</span> <span class="n">permFunc</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">lib_str1</span><span class="p">:</span>
+                <span class="n">test_sample</span> <span class="o">=</span> <span class="n">testFunc</span><span class="p">(</span><span class="n">perm</span><span class="p">[:</span><span class="n">n1</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">n1</span><span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">test_sample</span> <span class="o">=</span> <span class="n">testFunc</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test_sample</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">test_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_sample</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">test_sample</span> <span class="o">&lt;=</span> <span class="n">test_obs</span><span class="p">:</span> <span class="n">count_ltail</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">test_sample</span> <span class="o">&gt;=</span> <span class="n">test_obs</span><span class="p">:</span> <span class="n">count_utail</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">test_sample</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">test_obs</span><span class="p">):</span> <span class="n">count_2tail</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="n">s_performed</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">adaptive</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s_performed</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">S</span><span class="o">*</span><span class="mf">0.01</span><span class="p">)</span> <span class="ow">or</span> <span class="n">s_performed</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">S</span><span class="o">*</span><span class="mf">0.1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">s_performed</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">S</span><span class="o">*</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">count_2tail</span> <span class="o">&gt;=</span> <span class="nb">round</span><span class="p">(</span><span class="n">S</span><span class="o">*</span><span class="mf">0.01</span><span class="o">*</span><span class="mf">0.10</span><span class="p">):</span>
+                        <span class="k">break</span>
+
+
+
+    <span class="n">pval_ltail</span> <span class="o">=</span> <span class="n">count_ltail</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">s_performed</span><span class="p">)</span>
+    <span class="n">pval_utail</span> <span class="o">=</span> <span class="n">count_utail</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">s_performed</span><span class="p">)</span>
+    <span class="n">pval_2tail</span> <span class="o">=</span> <span class="n">count_2tail</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">s_performed</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_ltail</span><span class="p">,</span> <span class="n">pval_utail</span><span class="p">,</span>  <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">test_list</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="cumulative_average"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.cumulative_average">[docs]</a><span class="k">def</span> <span class="nf">cumulative_average</span><span class="p">(</span><span class="n">new_x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">prev_avg</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">new_x</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">prev_avg</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="text_histogram"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.text_histogram">[docs]</a><span class="k">def</span> <span class="nf">text_histogram</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">nBins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">obs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">MIN</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">MAX</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">bin_list</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">MIN</span><span class="p">,</span> <span class="n">MAX</span><span class="p">,</span> <span class="n">nBins</span><span class="p">)</span>
+    <span class="n">hit_flag</span> <span class="o">=</span> <span class="s2">&quot;-&gt;&quot;</span><span class="p">;</span> <span class="n">empty_flag</span> <span class="o">=</span> <span class="s2">&quot;  &quot;</span>
+    <span class="k">for</span> <span class="n">b_l</span><span class="p">,</span> <span class="n">b_u</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bin_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">bin_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">b_l</span> <span class="o">&lt;=</span> <span class="n">X</span><span class="p">,</span>  <span class="n">X</span> <span class="o">&lt;</span> <span class="n">b_u</span><span class="p">)</span>
+        <span class="n">density</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">b_l</span> <span class="o">&lt;=</span> <span class="n">obs</span> <span class="o">&lt;</span> <span class="n">b_u</span><span class="p">):</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">hit_flag</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flag</span>  <span class="o">=</span> <span class="n">empty_flag</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%-12f</span><span class="se">\t</span><span class="si">%s</span><span class="s2">|</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">b_l</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">resolution</span><span class="o">*</span><span class="n">density</span><span class="p">)))</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">bin_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">X</span><span class="p">,</span>  <span class="n">X</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">obs</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bin_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">obs</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">hit_flag</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">empty_flag</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%-12f</span><span class="se">\t</span><span class="si">%s</span><span class="s2">|</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bin_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">flag</span><span class="p">,</span>  <span class="s2">&quot;#&quot;</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">resolution</span><span class="o">*</span><span class="n">density</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="parse_lib_index"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.parse_lib_index">[docs]</a><span class="k">def</span> <span class="nf">parse_lib_index</span><span class="p">(</span><span class="n">nData</span><span class="p">,</span> <span class="n">libstr</span><span class="p">,</span> <span class="n">nTAs</span><span class="p">):</span>
+    <span class="n">full_index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nData</span><span class="p">)</span>
+    <span class="n">lib_to_index</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">L</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">libstr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">L</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lib_to_index</span><span class="p">:</span> <span class="n">lib_to_index</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lib_to_index</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">full_index</span><span class="p">[</span><span class="n">k</span><span class="o">*</span><span class="n">nTAs</span><span class="p">:((</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nTAs</span><span class="p">)])</span>
+    <span class="k">for</span> <span class="n">L</span><span class="p">,</span><span class="n">index</span> <span class="ow">in</span> <span class="n">lib_to_index</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">lib_to_index</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lib_to_index</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="combine_lib_dicts"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.combine_lib_dicts">[docs]</a><span class="k">def</span> <span class="nf">combine_lib_dicts</span><span class="p">(</span><span class="n">L1</span><span class="p">,</span> <span class="n">L2</span><span class="p">):</span>
+    <span class="n">KEYS</span> <span class="o">=</span> <span class="n">L1</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">DATA</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="n">KEYS</span><span class="p">:</span>
+        <span class="n">DATA</span><span class="p">[</span><span class="n">K</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">L1</span><span class="p">[</span><span class="n">K</span><span class="p">],</span> <span class="n">L2</span><span class="p">[</span><span class="n">K</span><span class="p">]],</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DATA</span></div>
+
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="get_lib_data_dict"><a class="viewcode-back" href="../../transit.html#pytransit.stat_tools.get_lib_data_dict">[docs]</a><span class="k">def</span> <span class="nf">get_lib_data_dict</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">exp_lib_str</span><span class="p">,</span> <span class="n">nTAs</span><span class="p">):</span>
+    <span class="n">lib1_index_dict</span> <span class="o">=</span> <span class="n">parse_lib_index</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">),</span> <span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">nTAs</span><span class="p">)</span>
+    <span class="n">lib2_index_dict</span> <span class="o">=</span> <span class="n">parse_lib_index</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data2</span><span class="p">),</span> <span class="n">exp_lib_str</span><span class="p">,</span> <span class="n">nTAs</span><span class="p">)</span>
+
+    <span class="n">lib1_data_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">L</span><span class="p">,</span> <span class="n">data1</span><span class="p">[</span><span class="n">lib1_index_dict</span><span class="p">[</span><span class="n">L</span><span class="p">]])</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lib1_index_dict</span><span class="p">)])</span>
+    <span class="n">lib2_data_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">L</span><span class="p">,</span> <span class="n">data2</span><span class="p">[</span><span class="n">lib2_index_dict</span><span class="p">[</span><span class="n">L</span><span class="p">]])</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lib2_index_dict</span><span class="p">)])</span>
+
+    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">combine_lib_dicts</span><span class="p">(</span><span class="n">lib1_data_dict</span><span class="p">,</span> <span class="n">lib2_data_dict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_dict</span></div>
+
+
+<span class="c1">#TEST-CASES</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    n = 20</span>
+<span class="sd">    p = 0.5</span>
+<span class="sd">    k = 14</span>
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;#########################################&quot;)</span>
+<span class="sd">    print(&quot;############ BINOM TEST #################&quot;)</span>
+<span class="sd">    print(&quot;#########################################&quot;)</span>
+<span class="sd">    print(&quot;Coin Tosses: %d&quot; % n)</span>
+<span class="sd">    print(&quot;Success Prob: %3.2f&quot; % p)</span>
+<span class="sd">    print(&quot;Observed: %d&quot; % k)</span>
+
+
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;Left-Tail Test:&quot;)</span>
+<span class="sd">    print(&quot;%d tosses, p-value = %f&quot; % (k, binom_test(k,n,p,&quot;less&quot;)))</span>
+
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;Right-Tail Test:&quot;)</span>
+<span class="sd">    print(&quot;%d tosses, p-value = %f&quot; % (k, binom_test(k,n,p,&quot;greater&quot;)))</span>
+
+
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;Two-Sided Test:&quot;)</span>
+<span class="sd">    print(&quot;%d tosses, p-value = %f&quot; % (k, binom_test(k,n,p,&quot;two-sided&quot;)))</span>
+
+
+
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;#########################################&quot;)</span>
+<span class="sd">    print(&quot;############ RESAMPLING #################&quot;)</span>
+<span class="sd">    print(&quot;#########################################&quot;)</span>
+
+<span class="sd">    data1 = scipy.stats.norm.rvs(100,10, size=1000)</span>
+<span class="sd">    data2 = scipy.stats.norm.rvs(105,10, size=1000)</span>
+
+<span class="sd">    (test_obs, mean1, mean2, log2FC, pval_ltail, pval_utail,  pval_2tail, test_list) = resampling(data1, data2, S=10000)</span>
+<span class="sd">    print(&quot;Data1:&quot;)</span>
+<span class="sd">    text_histogram(data1, nBins = 20)</span>
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;Data2:&quot;)</span>
+<span class="sd">    text_histogram(data2, nBins = 20)</span>
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;Results:&quot;, (test_obs, mean1, mean2, log2FC, pval_ltail, pval_utail,  pval_2tail))</span>
+<span class="sd">    print(&quot;&quot;)</span>
+<span class="sd">    print(&quot;Resampling Histogram:&quot;   )</span>
+<span class="sd">    text_histogram(test_list, nBins = 20, obs=test_obs)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">## TEST</span>
+    <span class="kn">import</span> <span class="nn">pytransit.transit_tools</span> <span class="k">as</span> <span class="nn">transit_tools</span>
+    <span class="kn">import</span> <span class="nn">pytransit.tnseq_tools</span> <span class="k">as</span> <span class="nn">tnseq_tools</span>
+    <span class="kn">import</span> <span class="nn">pytransit.norm_tools</span> <span class="k">as</span> <span class="nn">norm_tools</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+
+    <span class="n">ctrldata</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/H37Rv_day0_rep1.wig&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/Rv2680_day0_rep1.wig&quot;</span><span class="p">,</span> 
+                <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/H37Rv_day0_rep2.wig&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/Rv2680_day0_rep2.wig&quot;</span><span class="p">]</span>
+
+
+    <span class="n">expdata</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/H37Rv_day32_rep1.wig&quot;</span><span class="p">,</span> 
+               <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/H37Rv_day32_rep2.wig&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/H37Rv_day32_rep3.wig&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/Rv2680_day32_rep1.wig&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/Rv2680_day32_rep2.wig&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/Rv2680_day32_rep3.wig&quot;</span><span class="p">]</span>
+
+    <span class="n">annotation</span> <span class="o">=</span> <span class="s2">&quot;/pacific/home/mdejesus/transit/tests/GI/H37Rv.prot_table&quot;</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">202</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">DO_LIB</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">DO_LIB</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    
+    
+    <span class="k">if</span> <span class="n">DO_LIB</span><span class="p">:</span>
+        <span class="n">ctrl_lib_str</span> <span class="o">=</span> <span class="s2">&quot;ABAB&quot;</span>
+        <span class="n">exp_lib_str</span> <span class="o">=</span> <span class="s2">&quot;AAABBB&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ctrl_lib_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">exp_lib_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    
+    <span class="n">Kctrl</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">)</span>
+    <span class="n">Kexp</span>  <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expdata</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">get_validated_data</span><span class="p">(</span><span class="n">ctrldata</span><span class="o">+</span><span class="n">expdata</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">N</span><span class="p">)</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;TTR&quot;</span><span class="p">,</span> <span class="n">ctrldata</span><span class="o">+</span><span class="n">expdata</span><span class="p">,</span> <span class="n">annotation</span><span class="p">)</span>
+
+    <span class="n">G</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">Genes</span><span class="p">(</span><span class="n">ctrldata</span> <span class="o">+</span> <span class="n">expdata</span><span class="p">,</span> <span class="n">annotation</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">)</span>
+
+
+    <span class="n">gene</span> <span class="o">=</span> <span class="n">G</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;#  (</span><span class="si">%s</span><span class="s2">)  NEW TEST:   </span><span class="si">%s</span><span class="s2">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">DO_LIB</span><span class="p">,</span> <span class="n">gene</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+       
+
+ 
+    <span class="n">ii</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        
+    <span class="n">data1</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">reads</span><span class="p">[:</span><span class="n">Kctrl</span><span class="p">,</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">data2</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">reads</span><span class="p">[</span><span class="n">Kctrl</span><span class="p">:,</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    
+    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">get_lib_data_dict</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">exp_lib_str</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">DO_LIB</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_ltail</span><span class="p">,</span> <span class="n">pval_utail</span><span class="p">,</span>  <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">testlist</span><span class="p">)</span> <span class="o">=</span>  <span class="n">resampling</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">testFunc</span><span class="o">=</span><span class="n">F_mean_diff_dict</span><span class="p">,</span> <span class="n">permFunc</span><span class="o">=</span><span class="n">F_shuffle_dict_libraries</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lib_str1</span><span class="o">=</span><span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">lib_str2</span><span class="o">=</span><span class="n">exp_lib_str</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">test_obs</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">log2FC</span><span class="p">,</span> <span class="n">pval_ltail</span><span class="p">,</span> <span class="n">pval_utail</span><span class="p">,</span>  <span class="n">pval_2tail</span><span class="p">,</span> <span class="n">testlist</span><span class="p">)</span> <span class="o">=</span>  <span class="n">resampling</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">testFunc</span><span class="o">=</span><span class="n">F_mean_diff_flat</span><span class="p">,</span> <span class="n">permFunc</span><span class="o">=</span><span class="n">F_shuffle_flat</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lib_str1</span><span class="o">=</span><span class="n">ctrl_lib_str</span><span class="p">,</span> <span class="n">lib_str2</span><span class="o">=</span><span class="n">exp_lib_str</span><span class="p">)</span>
+        
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Resampling Histogram:&quot;</span><span class="p">)</span>
+    <span class="n">text_histogram</span><span class="p">(</span><span class="n">testlist</span><span class="p">,</span> <span class="n">nBins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">test_obs</span><span class="p">)</span>
+    
+     
+        
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

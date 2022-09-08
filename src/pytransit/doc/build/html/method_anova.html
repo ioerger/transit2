@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANOVA &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ZINB" href="method_zinb.html" />
+    <link rel="prev" title="Genetic Interactions" href="method_GI.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ANOVA</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-and-diagnostics">Output and Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-time">Run-time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>ANOVA</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_anova.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="transit-clionly" id="anova">
+<span id="id1"></span><h1>ANOVA<a class="headerlink" href="#anova" title="Permalink to this headline"></a></h1>
+<p>The Anova (Analysis of variance) method is used to determine which genes
+exhibit statistically significant variability of insertion counts across multiple conditions.
+Unlike other methods which take a comma-separated list of wig files as input,
+the method takes a <em>combined_wig</em> file (which combined multiple datasets in one file)
+and a <em>samples_metadata</em> file (which describes which samples/replicates belong
+to which experimental conditions).</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline"></a></h2>
+<p>The method performs the <a class="reference external" href="https://en.wikipedia.org/wiki/Analysis_of_variance?oldformat=true#The_F-test">One-way anova test</a> for each gene across conditions.
+It takes into account variability of normalized transposon insertion counts among TA sites
+and among replicates,
+to determine if the differences among the mean counts for each condition are significant.</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">anova</span> <span class="o">&lt;</span><span class="n">combined</span> <span class="n">wig</span> <span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">samples_metadata</span> <span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">Optional</span> <span class="n">Arguments</span><span class="p">]</span>
+      <span class="n">Optional</span> <span class="n">Arguments</span><span class="p">:</span>
+      <span class="o">-</span><span class="n">n</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span>         <span class="o">:=</span>  <span class="n">Normalization</span> <span class="n">method</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">n</span> <span class="n">TTR</span>
+      <span class="o">--</span><span class="n">exclude</span><span class="o">-</span><span class="n">conditions</span> <span class="o">&lt;</span><span class="n">cond1</span><span class="p">,</span><span class="o">...&gt;</span> <span class="o">:=</span>  <span class="n">Comma</span> <span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="n">to</span> <span class="n">ignore</span> <span class="k">for</span> <span class="n">the</span> <span class="n">analysis</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="kc">None</span>
+      <span class="o">--</span><span class="n">include</span><span class="o">-</span><span class="n">conditions</span> <span class="o">&lt;</span><span class="n">cond1</span><span class="p">,</span><span class="o">...&gt;</span> <span class="o">:=</span>  <span class="n">Comma</span> <span class="n">separated</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="n">to</span> <span class="n">include</span> <span class="k">for</span> <span class="n">the</span> <span class="n">analysis</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">All</span>
+      <span class="o">--</span><span class="n">ref</span> <span class="o">&lt;</span><span class="n">cond</span><span class="o">&gt;</span> <span class="o">:=</span> <span class="n">which</span> <span class="n">condition</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="k">as</span> <span class="n">a</span> <span class="n">reference</span> <span class="k">for</span> <span class="n">calculating</span> <span class="n">LFCs</span> <span class="p">(</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="k">if</span> <span class="n">multiple</span> <span class="n">conditions</span><span class="p">)</span> <span class="p">(</span><span class="n">by</span> <span class="n">default</span><span class="p">,</span> <span class="n">LFCs</span> <span class="k">for</span> <span class="n">each</span> <span class="n">condition</span> <span class="n">are</span> <span class="n">computed</span> <span class="n">relative</span> <span class="n">to</span> <span class="n">the</span> <span class="n">grandmean</span> <span class="n">across</span> <span class="nb">all</span> <span class="n">condintions</span><span class="p">)</span>
+      <span class="o">-</span><span class="n">iN</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span> <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occurring</span> <span class="n">within</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">N</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">0</span>
+      <span class="o">-</span><span class="n">iC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span> <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occurring</span> <span class="n">within</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">C</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">0</span>
+      <span class="o">-</span><span class="n">PC</span>         <span class="o">:=</span> <span class="n">Pseudocounts</span> <span class="n">to</span> <span class="n">use</span> <span class="ow">in</span> <span class="n">calculating</span> <span class="n">LFCs</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">PC</span> <span class="mi">5</span>
+      <span class="o">-</span><span class="n">winz</span>       <span class="o">:=</span>  <span class="n">winsorize</span> <span class="n">insertion</span> <span class="n">counts</span> <span class="k">for</span> <span class="n">each</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">condition</span>
+                      <span class="p">(</span><span class="n">replace</span> <span class="nb">max</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">gene</span> <span class="k">with</span> <span class="mi">2</span><span class="n">nd</span> <span class="n">highest</span><span class="p">;</span> <span class="n">helps</span> <span class="n">mitigate</span> <span class="n">effect</span> <span class="n">of</span> <span class="n">outliers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output file generated by ANOVA identifies which genes exhibit statistically
+significant variability in counts across conditions (see Output and Diagnostics below).</p>
+<p>Note: the combined_wig input file can be generated from multiple wig
+files through the Transit GUI
+(File-&gt;Export-&gt;Selected_Datasets-&gt;Combined_wig), or via the ‘export’
+command on the command-line (see <a href="#id2"><span class="problematic" id="id3">combined_wig_</span></a>).</p>
+<p>Format of the <strong>samples metadata file</strong>: a tab-separated file (which you can edit in Excel)
+with 3 columns: Id, Condition, and Filename (it must have these headers).  You can include
+other columns of info, but do not include additional rows.  Individual rows can be
+commented out by prefixing them with a ‘#’.  Here is an example of a samples metadata file:
+The filenames should match what is shown in the header of the combined_wig (including pathnames, if present).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ID</span>      <span class="n">Condition</span>    <span class="n">Filename</span>
+<span class="n">glyc1</span>   <span class="n">glycerol</span>     <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">glycerol_rep1</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">glyc2</span>   <span class="n">glycerol</span>     <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">glycerol_rep2</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">chol1</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep1</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">chol2</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep2</span><span class="o">.</span><span class="n">wig</span>
+<span class="n">chol2</span>   <span class="n">cholesterol</span>  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">example_data</span><span class="o">/</span><span class="n">cholesterol_rep3</span><span class="o">.</span><span class="n">wig</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p>The following parameters are available for the ANOVA method:</p>
+<ul class="simple">
+<li><p><strong>--include-conditions:</strong> Includes the given set of conditions from the ZINB test. Conditions not in this list are ignored. Note: this is useful for specifying the order in which the columns are listed in the output file.</p></li>
+<li><p><strong>--exclude-conditions:</strong> Can use this to drop conditions not of interest.</p></li>
+<li><p><strong>--ref:</strong> Specify which condition to use as a reference for computing LFCs.
+By default, LFCs for each gene in each condition are calculated with respect
+to the <em>grand mean</em> count across all conditions (so conditions with higher counts will be balanced
+with conditions with lower counts).  However, if there is a defined reference condition
+in the data, it may be specified using <strong>--ref</strong> (in which case LFCs for that condition will
+be around 0, and will be positive or negative for the other conditions, depending on whether
+counts are higher or lower than the reference condintion.  If there is more than one
+condition to use as reference (i.e. pooled), they may be given as a comma-separated list.</p></li>
+<li><p><strong>-n</strong> Normalization Method. Determines which normalization method to
+use when comparing datasets. Proper normalization is important as it
+ensures that other sources of variability are not mistakenly treated
+as real differences. See the <a class="reference internal" href="transit_normalization_tutorial.html#normalization"><span class="std std-ref">Normalization</span></a> section for a description
+of normalization method available in TRANSIT.</p></li>
+<li><p><strong>-PC</strong> Pseudocounts to use in calculating LFCs (see below). Default: -PC 5</p></li>
+<li><p><strong>-winz</strong>: <a class="reference external" href="https://en.wikipedia.org/wiki/Winsorizing">winsorize</a> insertion counts for each gene in each condition.
+Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.</p></li>
+</ul>
+</section>
+<section id="output-and-diagnostics">
+<h2>Output and Diagnostics<a class="headerlink" href="#output-and-diagnostics" title="Permalink to this headline"></a></h2>
+<p>The anova method outputs a tab-delimited file with results for each
+gene in the genome. P-values are adjusted for multiple comparisons using
+the Benjamini-Hochberg procedure (called “q-values” or “p-adj.”). A
+typical threshold for conditional essentiality on is q-value &lt; 0.05.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 82%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Orf</p></td>
+<td><p>Gene ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Name of the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>TAs</p></td>
+<td><p>Number of TA sites in Gene</p></td>
+</tr>
+<tr class="row-odd"><td><p>Means…</p></td>
+<td><p>Mean readcounts for each condition</p></td>
+</tr>
+<tr class="row-even"><td><p>LFCs…</p></td>
+<td><p>Log-fold-changes of counts in each condition vs mean across all conditions</p></td>
+</tr>
+<tr class="row-odd"><td><p>p-value</p></td>
+<td><p>P-value calculated by the Anova test.</p></td>
+</tr>
+<tr class="row-even"><td><p>p-adj</p></td>
+<td><p>Adjusted p-value controlling for the FDR (Benjamini-Hochberg)</p></td>
+</tr>
+<tr class="row-odd"><td><p>status</p></td>
+<td><p>Debug information (If any)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>LFCs</strong> (log-fold-changes):
+For each condition, the LFC is calculated as the log-base-2 of the
+ratio of mean insertion count in that condition <strong>relative to the
+mean of means across all the conditions</strong>.
+Pseudocount are incorporated to reduce the impact of noise on LFCs, based on the formula below.
+The pseudocounts can be adjusted using the -PC flag.
+Changing the pseudocounts (via -PC) can reduce the artifactual appearance of genes with
+high-magnitude LFCs but that have small overall counts (which are susceptible to noise).
+Changing the pseudocounts will not affect the analysis of statistical significance and hence number of varying genes, however.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LFC</span> <span class="o">=</span> <span class="n">log2</span><span class="p">((</span><span class="n">mean_insertions_in_condition</span> <span class="o">+</span> <span class="n">PC</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">mean_of_means_across_all_conditions</span> <span class="o">+</span> <span class="n">PC</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="run-time">
+<h2>Run-time<a class="headerlink" href="#run-time" title="Permalink to this headline"></a></h2>
+<p>A typical run of the anova method takes less than 1 minute for a combined wig file with 6 conditions, 3 replicates per condition.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_GI.html" class="btn btn-neutral float-left" title="Genetic Interactions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_zinb.html" class="btn btn-neutral float-right" title="ZINB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

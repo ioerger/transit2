@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resampling &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mann-Whitney U-test (utest)" href="method_Utest.html" />
+    <link rel="prev" title="HMM" href="method_HMM.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Resampling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#doing-resampling-with-a-combined-wig-file">Doing resampling with a combined_wig file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#doing-resampling-with-datasets-from-different-libraries">Doing resampling with datasets from different libraries.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#doing-resampling-between-different-strains">Doing resampling between different strains.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-and-diagnostics">Output and Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-time">Run-time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Resampling</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/method_resampling.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="resampling">
+<span id="id1"></span><h1>Resampling<a class="headerlink" href="#resampling" title="Permalink to this headline"></a></h1>
+<p>The resampling method is a comparative analysis the allows that can be
+used to determine conditional essentiality of genes. It is based on a
+permutation test, and is capable of determining read-counts that are
+significantly different across conditions.</p>
+<p>See <a class="reference internal" href="method_pathway_enrichment.html#gsea"><span class="std std-ref">Pathway Enrichment Analysis</span></a> for post-processing the hits to
+determine if the hits are associated with a particular functional catogory
+of genes or known biological pathway.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Can be used for both <strong>Himar1</strong> and <strong>Tn5</strong> datasets</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline"></a></h2>
+<p>This technique has yet to be formally published in the context of
+differential essentiality analysis. Briefly, the read-counts at each
+genes are determined for each replicate of each condition. The mean
+read-count in condition A is subtracted from the mean read-count in
+condition B, to obtain an observed difference in means. The TA
+sites are then permuted for a given number of “samples”. For each one of
+these permutations, the difference in read-counts is determined. This
+forms a null distribution, from which a p-value is calculated for the
+original, observed difference in read-counts.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">resampling</span> <span class="o">&lt;</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="o">.</span><span class="n">wig</span> <span class="n">control</span> <span class="n">files</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">comma</span><span class="o">-</span><span class="n">separated</span> <span class="o">.</span><span class="n">wig</span> <span class="n">experimental</span> <span class="n">files</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span> <span class="ow">or</span> <span class="n">GFF3</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">Optional</span> <span class="n">Arguments</span><span class="p">]</span>
+      <span class="n">Optional</span> <span class="n">Arguments</span><span class="p">:</span>
+      <span class="o">-</span><span class="n">s</span> <span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span>    <span class="o">:=</span>  <span class="n">Number</span> <span class="n">of</span> <span class="n">samples</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">s</span> <span class="mi">10000</span>
+      <span class="o">-</span><span class="n">n</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Normalization</span> <span class="n">method</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">n</span> <span class="n">TTR</span>
+      <span class="o">-</span><span class="n">h</span>              <span class="o">:=</span>  <span class="n">Output</span> <span class="n">histogram</span> <span class="n">of</span> <span class="n">the</span> <span class="n">permutations</span> <span class="k">for</span> <span class="n">each</span> <span class="n">gene</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">Turned</span> <span class="n">Off</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">a</span>              <span class="o">:=</span>  <span class="n">Perform</span> <span class="n">adaptive</span> <span class="n">resampling</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">Turned</span> <span class="n">Off</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">ez</span>             <span class="o">:=</span>  <span class="n">Exclude</span> <span class="n">rows</span> <span class="k">with</span> <span class="n">zero</span> <span class="n">accross</span> <span class="n">conditions</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="n">Turned</span> <span class="n">off</span>
+                          <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span> <span class="n">include</span> <span class="n">rows</span> <span class="k">with</span> <span class="n">zeros</span><span class="p">)</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">PC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Pseudocounts</span> <span class="n">used</span> <span class="ow">in</span> <span class="n">calculating</span> <span class="n">LFC</span><span class="o">.</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="o">-</span><span class="n">l</span>              <span class="o">:=</span>  <span class="n">Perform</span> <span class="n">LOESS</span> <span class="n">Correction</span><span class="p">;</span> <span class="n">Helps</span> <span class="n">remove</span> <span class="n">possible</span> <span class="n">genomic</span> <span class="n">position</span> <span class="n">bias</span><span class="o">.</span>
+                          <span class="n">Default</span><span class="p">:</span> <span class="n">Turned</span> <span class="n">Off</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">iN</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">at</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">N</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iN</span> <span class="mi">0</span>
+      <span class="o">-</span><span class="n">iC</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span>     <span class="o">:=</span>  <span class="n">Ignore</span> <span class="n">TAs</span> <span class="n">occuring</span> <span class="n">at</span> <span class="n">given</span> <span class="n">percentage</span> <span class="p">(</span><span class="k">as</span> <span class="n">integer</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">C</span> <span class="n">terminus</span><span class="o">.</span> <span class="n">Default</span><span class="p">:</span> <span class="o">-</span><span class="n">iC</span> <span class="mi">0</span>
+      <span class="o">--</span><span class="n">ctrl_lib</span>      <span class="o">:=</span>  <span class="n">String</span> <span class="n">of</span> <span class="n">letters</span> <span class="n">representing</span> <span class="n">library</span> <span class="n">of</span> <span class="n">control</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">order</span>
+                          <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="s1">&#39;AABB&#39;</span><span class="o">.</span> <span class="n">Default</span> <span class="n">empty</span><span class="o">.</span> <span class="n">Letters</span> <span class="n">used</span> <span class="n">must</span> <span class="n">also</span> <span class="n">be</span> <span class="n">used</span> <span class="ow">in</span> <span class="o">--</span><span class="n">exp_lib</span>
+                          <span class="n">If</span> <span class="n">non</span><span class="o">-</span><span class="n">empty</span><span class="p">,</span> <span class="n">resampling</span> <span class="n">will</span> <span class="n">limit</span> <span class="n">permutations</span> <span class="n">to</span> <span class="n">within</span><span class="o">-</span><span class="n">libraries</span><span class="o">.</span>
+
+      <span class="o">--</span><span class="n">exp_lib</span>       <span class="o">:=</span>  <span class="n">String</span> <span class="n">of</span> <span class="n">letters</span> <span class="n">representing</span> <span class="n">library</span> <span class="n">of</span> <span class="n">experimental</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">order</span>
+                          <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="s1">&#39;ABAB&#39;</span><span class="o">.</span> <span class="n">Default</span> <span class="n">empty</span><span class="o">.</span> <span class="n">Letters</span> <span class="n">used</span> <span class="n">must</span> <span class="n">also</span> <span class="n">be</span> <span class="n">used</span> <span class="ow">in</span> <span class="o">--</span><span class="n">ctrl_lib</span>
+                          <span class="n">If</span> <span class="n">non</span><span class="o">-</span><span class="n">empty</span><span class="p">,</span> <span class="n">resampling</span> <span class="n">will</span> <span class="n">limit</span> <span class="n">permutations</span> <span class="n">to</span> <span class="n">within</span><span class="o">-</span><span class="n">libraries</span><span class="o">.</span>
+      <span class="o">-</span><span class="n">winz</span>           <span class="o">:=</span>  <span class="n">winsorize</span> <span class="n">insertion</span> <span class="n">counts</span> <span class="k">for</span> <span class="n">each</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">condition</span>
+                          <span class="p">(</span><span class="n">replace</span> <span class="nb">max</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">gene</span> <span class="k">with</span> <span class="mi">2</span><span class="n">nd</span> <span class="n">highest</span><span class="p">;</span> <span class="n">helps</span> <span class="n">mitigate</span> <span class="n">effect</span> <span class="n">of</span> <span class="n">outliers</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p>The resampling method is non-parametric, and therefore does not require
+any parameters governing the distributions or the model. The following
+parameters are available for the method:</p>
+<ul class="simple">
+<li><p><strong>Samples:</strong> The number of samples (permutations) to perform. The
+larger the number of samples, the more resolution the p-values
+calculated will have, at the expense of longer computation time. The
+resampling method runs on 10,000 samples by default.</p></li>
+<li><p><strong>Output Histograms:</strong> Determines whether to output .png images of
+the histograms obtained from resampling the difference in
+read-counts.</p></li>
+<li><p><strong>Adaptive Resampling:</strong> An optional “adaptive” version of resampling
+which accelerates the calculation by terminating early for genes
+which are likely not significant. This dramatically speeds up the
+computation at the cost of less accurate estimates for those genes
+that terminate early (i.e. deemed not significant). This option is
+OFF by default. (see Notes below)</p></li>
+<li><p><strong>Include Zeros:</strong> Select to include  sites that are zero. This is the
+preferred behavior, however, unselecting this (thus ignoring sites that)
+are zero accross all dataset (i.e. completely empty), is useful for
+decreasing running time (specially for large datasets like Tn5).</p></li>
+<li><p><strong>Normalization Method:</strong> Determines which normalization method to
+use when comparing datasets. Proper normalization is important as it
+ensures that other sources of variability are not mistakenly treated
+as real differences. See the <a class="reference internal" href="transit_normalization_tutorial.html#normalization"><span class="std std-ref">Normalization</span></a> section for a description
+of normalization method available in TRANSIT.</p></li>
+<li><p><strong>--ctrl_lib, --exp_lib:</strong> These are for doing resampling with datasets from multiple libraries, see below.</p></li>
+<li><p><strong>-iN, -iC:</strong> Trimming of TA sites near N- and C-terminus.
+The default for trimming TA sites in the termini of ORFs is 0.
+However, TA sites in the stop codon (e.g. TAG) are automatically excluded.
+Trimming is specified as a percentage (as an integer), so, for example,
+if you want to trim TA sites within 5% of the termini, you would
+add the flags ‘-iN 5 -iC 5’ (not 0.05).</p></li>
+<li><p><strong>–Pval_col &lt;int&gt;</strong>: index of column with P-values (starting from 0)</p></li>
+<li><p><strong>-PC</strong>: Pseudocounts used in calculation of LFCs (log-fold-changes, see Output and Diagnostics) in
+resampling output file.
+To suppress the appearance of artifacts due to high-magnitude of LFCs from
+genes with low insertion counts (which
+are more susceptible to noise), one can increase the pseudocounts using <a href="#id2"><span class="problematic" id="id3">`</span></a>-PC’.
+Increasing PC to a value like 5 (which is
+reasonable, given that TTR normalization scales data so average insertion counts is around 100)
+can further reduce the appearance of artifacts (genes with low counts but large LFCs).
+However, changing pseudocounts only affects the LFCs, and will not change the number of significant genes.</p></li>
+<li><p><strong>-winz</strong>: <a class="reference external" href="https://en.wikipedia.org/wiki/Winsorizing">winsorize</a> insertion counts for each gene in each condition.
+Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.</p></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline"></a></h2>
+<p>I recommend using -a (adaptive resampling). It runs much faster, and the p-values
+will be very close to a full non-adaptive run (all 10,000 samples).</p>
+<p>Occasionally, people ask if resampling can be done on intergenic regions as well.
+It could be done pretty easily (for example by making a prot_table with coordinates
+for the regions between genes).  But it is usually not worthwhile, because most
+intergenic regions are small (&lt;100 bp) contain very few TA sites (often 0-2),
+making it difficult to make confident calls on essentiality.</p>
+</section>
+<section id="doing-resampling-with-a-combined-wig-file">
+<h2>Doing resampling with a combined_wig file<a class="headerlink" href="#doing-resampling-with-a-combined-wig-file" title="Permalink to this headline"></a></h2>
+<p>Resampling can also now take a <a href="#id4"><span class="problematic" id="id5">combined_wig_</span></a> file as input (containing insertion counts
+for multiple sample), along with a <a href="#id6"><span class="problematic" id="id7">samples_metadata_</span></a> file
+that describes the samples. This mode is indicated with a ‘-c’ flag.
+If you want to compare more than two conditions, see <a class="reference internal" href="transit_overview.html#zinb"><span class="std std-ref">ZINB</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span>
+
+<span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">resampling</span> <span class="o">-</span><span class="n">c</span> <span class="o">&lt;</span><span class="n">combined_wig</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">samples_metadata</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">control_condition_name</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">experimental_condition_name</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">annotation</span> <span class="o">.</span><span class="n">prot_table</span> <span class="ow">or</span> <span class="n">GFF3</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">Optional</span> <span class="n">Arguments</span><span class="p">]</span>
+
+<span class="n">example</span><span class="p">:</span>
+
+<span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">resampling</span> <span class="o">-</span><span class="n">c</span> <span class="n">antibiotic_combined_wig</span><span class="o">.</span><span class="n">txt</span> <span class="n">antibiotic_samples_metadata</span><span class="o">.</span><span class="n">txt</span> <span class="n">Untreated</span> <span class="n">Isoniazid</span> <span class="n">H37Rv</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">results</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">a</span>
+</pre></div>
+</div>
+</section>
+<section id="doing-resampling-with-datasets-from-different-libraries">
+<h2>Doing resampling with datasets from different libraries.<a class="headerlink" href="#doing-resampling-with-datasets-from-different-libraries" title="Permalink to this headline"></a></h2>
+<p>In most cases, comparisons are done among samples (replicates) from
+the same library evaluated in two different conditions.  But if the
+samples themselves come from different libraries, then this could
+introduce extra variability, the way resampling is normally done.  To
+compensate for this, if you specify which libraries each dataset comes
+from, the permutations will be restricted to permuting counts only
+among samples within each library.  Statistical significance is still
+determined from all the data in the end (by comparing the obversed
+difference of means between the two conditions to a null distribution).
+Of course, this method makes most sense when you have at least 1 replicate
+from each library in each condition.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="doing-resampling-between-different-strains">
+<h2>Doing resampling between different strains.<a class="headerlink" href="#doing-resampling-between-different-strains" title="Permalink to this headline"></a></h2>
+<p>The most common case is that resampling is done among replicates all
+from the same Tn library, and hence all the datasets (fastq files) are
+mapped to the same refence genome.  Occasionally, it is useful to
+compare TnSeq datasets between two different strains, such as a
+reference strain and a clinical isolate from a different lineage.
+Suppose for simplicity that you want to compare one replicate from
+strain A (e.g. H37Rv) and one replicate from strain B (e.g. CDC1551).
+Resampling was not originally designed to handle this case.  The
+problem is that the TA sites in the .wig files with insertion counts
+might have different coordinates (because of shifts due to indels
+between the genomes).  Furthermore, a given gene might not even have
+the same number of TA sites in the two strains (due to SNPs).  A
+simplistic solution is to just map both datasets to the same genome
+sequence (say H37Rv, for example).  Then a resampling comparison could
+be run as usual, because the TA sites would all be on the same
+coordinate system. This is not ideal, however, because some reads of
+strain B might not map properly to genome A due to SNPs or indels
+between the genomes.  In fact, in more divergent organisms with higher
+genetic diversity, this can cause entire regions to look artificially
+essential, because reads fail to map in genes with a large number of
+SNPs, resulting in the apparent absence of transposon insertions.</p>
+<p>A better approach is to map each library to the custom genome sequence
+of its own strain (using TPP).  It turns out the resampling can still
+be applied (since it is fundamentally a test on the difference of the
+<em>mean</em> insertion count in each gene).  The key to making this work,
+aside from mapping each library to its own genome sequence, is that
+you need an annotation (prot_table) for the second strain that has
+been “adapted” from the first strain.  This is because,
+to do a comparison between conditions for a gene, Transit needs to be
+able to determine which TA sites fall in that gene for each strain.
+This can be achieved by producing a “modified” prot_table, where the
+START and END coordinates of each ORF in strain B have been adjusted
+according to an alignment between genome A and genome B.  You can use
+this web app: <a class="reference external" href="http://saclab.tamu.edu/cgi-bin/iutils/app.cgi/">Prot_table Adjustment Tool</a>, to create a
+modifed prot_table, given the prot_table for one strain and the fasta
+files for both genomes (which will be aligned).  In other words, the
+app allows you to create ‘B.prot_table’ from ‘A.prot_table’ (and ‘A.fna’
+and ‘B.fna’).</p>
+<p>Once you have created B.prot_table, all you need to do is provide
+<em>both</em> prot_tables to resampling (either through the GUI, or on the
+command-line), as a comma-separated list.  For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">transit</span><span class="o">.</span><span class="n">py</span> <span class="n">resampling</span> <span class="n">Rv_1_H37Rv</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="n">Rv_2_H37Rv</span><span class="o">.</span><span class="n">wig</span> <span class="mi">632_1_632</span><span class="n">WGS</span><span class="o">.</span><span class="n">wig</span><span class="p">,</span><span class="mi">632_2_632</span><span class="n">WGS</span><span class="o">.</span><span class="n">wig</span> <span class="n">H37Rv</span><span class="o">.</span><span class="n">prot_table</span><span class="p">,</span><span class="mi">632</span><span class="n">WGS</span><span class="o">.</span><span class="n">prot_table</span> <span class="n">resampling_output</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">a</span>
+</pre></div>
+</div>
+<p>In this example, 2 replicates from H37Rv (which had been mapped to
+H37Rv.fna by TPP) were compared to 2 replicates from strain 632 (which
+had been mapped to 632WGS.fna, the custom genome seq for strain 632).
+The important point is that <strong>two annotations</strong> are given in the 3rd
+arg on the command-line: <strong>H37Rv.prot_table,632WGS.prot_table</strong>.  The
+assumption is that the ORF boundaries for H37Rv will be used to find
+TA sites in Rv_1_H37Rv.wig and Rv_2_H37Rv.wig, and the ORF boundaries
+in 632WGS.prot_table (which had been adapted from H37Rv.prot_table
+using the web app above) will be used to find TA sites in the
+corrsponding regions in 632_1_632WGS.wig and 632_2_632WGS.wig.</p>
+<p>Note that, in contrast to handling datasets from different libraries
+disucssed above, in this case, the assumption is that all replicates
+in condition A will be from one library (and one strain), and all
+replicates in condition B will be from another library (another strain).</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="output-and-diagnostics">
+<h2>Output and Diagnostics<a class="headerlink" href="#output-and-diagnostics" title="Permalink to this headline"></a></h2>
+<p>The resampling method outputs a tab-delimited file with results for each
+gene in the genome. P-values are adjusted for multiple comparisons using
+the Benjamini-Hochberg procedure (called “q-values” or “p-adj.”). A
+typical threshold for conditional essentiality on is q-value &lt; 0.05.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 79%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Orf</p></td>
+<td><p>Gene ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Name of the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>Description</p></td>
+<td><p>Gene description.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sites</p></td>
+<td><p>Number of TA sites in the gene.</p></td>
+</tr>
+<tr class="row-even"><td><p>Mean Ctrl</p></td>
+<td><p>Mean of read counts in condition 1. (avg over TA sites and reps)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mean Exp</p></td>
+<td><p>Mean of read counts in condition 2.</p></td>
+</tr>
+<tr class="row-even"><td><p>log2FC</p></td>
+<td><p>Log-fold-change of exp (treatment) over ctrl (untreated)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sum Ctrl</p></td>
+<td><p>Sum of read counts in condition 1.</p></td>
+</tr>
+<tr class="row-even"><td><p>Sum Exp</p></td>
+<td><p>Sum of read counts in condition 2.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Delta Mean</p></td>
+<td><p>Difference in the MEAN insertion counts.</p></td>
+</tr>
+<tr class="row-even"><td><p>p-value</p></td>
+<td><p>P-value calculated by the permutation test.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Adj. p-value</p></td>
+<td><p>Adjusted p-value controlling for the FDR (Benjamini-Hochberg)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>log2FC:</strong> (log-fold-change, LFC)
+For each gene, the LFC is calculated as the log-base-2 of the
+ratio of mean insertion counts in the experimental (treated) condition vs. the
+control condition (untreated, reference).
+The default is PC=1, which avoids the result being undefined
+for genes with means of 0 in either condition.  Pseudocounts can be
+changed using the -PC flag (above).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LFC</span> <span class="o">=</span> <span class="n">log2</span><span class="p">((</span><span class="n">mean_insertions_in_exp</span> <span class="o">+</span> <span class="n">PC</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">mean_insertions_in_ctrl</span> <span class="o">+</span> <span class="n">PC</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="run-time">
+<h2>Run-time<a class="headerlink" href="#run-time" title="Permalink to this headline"></a></h2>
+<p>A typical run of the resampling method with 10,000 samples will take
+around 45 minutes (with the histogram option ON). Using the <em>adaptive
+resampling</em> option (-a), the run-time is reduced to around 10 minutes.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="transit-sectionend docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method_HMM.html" class="btn btn-neutral float-left" title="HMM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_Utest.html" class="btn btn-neutral float-right" title="Mann-Whitney U-test (utest)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

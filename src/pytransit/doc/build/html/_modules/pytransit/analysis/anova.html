@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pytransit.analysis.anova &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> TRANSIT
+            <img src="../../../_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>pytransit.analysis.anova</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pytransit.analysis.anova</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">statsmodels.stats.multitest</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">from</span> <span class="nn">pytransit.analysis</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">import</span> <span class="nn">pytransit</span>
+<span class="kn">import</span> <span class="nn">pytransit.transit_tools</span> <span class="k">as</span> <span class="nn">transit_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.tnseq_tools</span> <span class="k">as</span> <span class="nn">tnseq_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.norm_tools</span> <span class="k">as</span> <span class="nn">norm_tools</span>
+
+<span class="c1">############# GUI ELEMENTS ##################</span>
+
+<span class="n">short_name</span> <span class="o">=</span> <span class="s2">&quot;anova&quot;</span>
+<span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;anova&quot;</span>
+<span class="n">short_desc</span> <span class="o">=</span> <span class="s2">&quot;Perform Anova analysis&quot;</span>
+<span class="n">long_desc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Perform Anova analysis&quot;&quot;&quot;</span>
+<span class="n">EOL</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="n">transposons</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="AnovaAnalysis"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaAnalysis">[docs]</a><span class="k">class</span> <span class="nc">AnovaAnalysis</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">TransitAnalysis</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">TransitAnalysis</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">short_desc</span><span class="p">,</span> <span class="n">long_desc</span><span class="p">,</span> <span class="n">transposons</span><span class="p">,</span> <span class="n">AnovaMethod</span><span class="p">)</span></div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ANOVA example&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnovaMethod"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod">[docs]</a><span class="k">class</span> <span class="nc">AnovaMethod</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">MultiConditionMethod</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    anova</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">combined_wig</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">annotation</span><span class="p">,</span> <span class="n">normalization</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">excluded_conditions</span><span class="o">=</span><span class="p">[],</span> <span class="n">included_conditions</span><span class="o">=</span><span class="p">[],</span> <span class="n">nterm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">cterm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">PC</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">winz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">refs</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">MultiConditionMethod</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">short_desc</span><span class="p">,</span> <span class="n">long_desc</span><span class="p">,</span> <span class="n">combined_wig</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">annotation</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span> <span class="n">excluded_conditions</span><span class="o">=</span><span class="n">excluded_conditions</span><span class="p">,</span> <span class="n">included_conditions</span><span class="o">=</span><span class="n">included_conditions</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="n">nterm</span><span class="p">,</span> <span class="n">cterm</span><span class="o">=</span><span class="n">cterm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PC</span> <span class="o">=</span> <span class="n">PC</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refs</span> <span class="o">=</span> <span class="n">refs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">winz</span> <span class="o">=</span> <span class="n">winz</span>
+
+<div class="viewcode-block" id="AnovaMethod.transit_error"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.transit_error">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">transit_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">msg</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span> <span class="c1"># for some reason, transit_error() in base class or transit_tools doesn&#39;t work right; needs @classmethod</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.fromargs"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.fromargs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawargs</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">cleanargs</span><span class="p">(</span><span class="n">rawargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;-help&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">AnovaMethod</span><span class="o">.</span><span class="n">usage_string</span><span class="p">())</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">combined_wig</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">annotation</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">normalization</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;TTR&quot;</span><span class="p">)</span>
+        <span class="n">NTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iN&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">CTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iC&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">winz</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s2">&quot;winz&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">PC</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PC&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">refs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;-ref&quot;</span><span class="p">,[])</span> <span class="c1"># list of condition names to use a reference for calculating LFCs</span>
+        <span class="k">if</span> <span class="n">refs</span><span class="o">!=</span><span class="p">[]:</span> <span class="n">refs</span> <span class="o">=</span> <span class="n">refs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">excluded_conditions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;-exclude-conditions&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)))</span>
+        <span class="n">included_conditions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;-include-conditions&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)))</span>
+
+        <span class="c1"># check for unrecognized flags</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="s2">&quot;-n --exclude-conditions --include-conditions -iN -iC -PC --ref -winz&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">rawargs</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;-&#39;</span> <span class="ow">and</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_error</span><span class="p">(</span><span class="s2">&quot;flag unrecognized: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">AnovaMethod</span><span class="o">.</span><span class="n">usage_string</span><span class="p">())</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">combined_wig</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">annotation</span><span class="p">,</span> <span class="n">normalization</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">excluded_conditions</span><span class="p">,</span> <span class="n">included_conditions</span><span class="p">,</span> <span class="n">NTerminus</span><span class="p">,</span> <span class="n">CTerminus</span><span class="p">,</span> <span class="n">PC</span><span class="p">,</span> <span class="n">winz</span><span class="p">,</span> <span class="n">refs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.wigs_to_conditions"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.wigs_to_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">wigs_to_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditionsByFile</span><span class="p">,</span> <span class="n">filenamesInCombWig</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns list of conditions corresponding to given wigfiles.</span>
+<span class="sd">            ({FileName: Condition}, [FileName]) -&gt; [Condition]</span>
+<span class="sd">            Condition :: [String]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">conditionsByFile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unknown_cond_flag</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenamesInCombWig</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.means_by_condition_for_gene"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.means_by_condition_for_gene">[docs]</a>    <span class="k">def</span> <span class="nf">means_by_condition_for_gene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns a dictionary of {Condition: Mean} for each condition.</span>
+<span class="sd">            ([Site], [Condition]) -&gt; {Condition: Number}</span>
+<span class="sd">            Site :: Number</span>
+<span class="sd">            Condition :: String</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nTASites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">wigsByConditions</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">conditions</span><span class="p">):</span>
+            <span class="n">wigsByConditions</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span> <span class="n">c</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">winsorize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">wigIndex</span><span class="p">][:,</span> <span class="n">sites</span><span class="p">]))</span> <span class="k">if</span> <span class="n">nTASites</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">wigIndex</span><span class="p">)</span> <span class="ow">in</span> <span class="n">wigsByConditions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">}</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.means_by_rv"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.means_by_rv">[docs]</a>    <span class="k">def</span> <span class="nf">means_by_rv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">RvSiteindexesMap</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">conditions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns Dictionary of mean values by condition</span>
+<span class="sd">            ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition]) -&gt; {Rv: {Condition: Number}}</span>
+<span class="sd">            Wigdata :: [Number]</span>
+<span class="sd">            SiteIndex :: Number</span>
+<span class="sd">            Gene :: {start, end, rv, gene, strand}</span>
+<span class="sd">            Condition :: String</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">MeansByRv</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="n">Rv</span> <span class="o">=</span> <span class="n">gene</span><span class="p">[</span><span class="s2">&quot;rv&quot;</span><span class="p">]</span>
+            <span class="n">MeansByRv</span><span class="p">[</span><span class="n">Rv</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">means_by_condition_for_gene</span><span class="p">(</span><span class="n">RvSiteindexesMap</span><span class="p">[</span><span class="n">Rv</span><span class="p">],</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MeansByRv</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.group_by_condition"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.group_by_condition">[docs]</a>    <span class="k">def</span> <span class="nf">group_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wigList</span><span class="p">,</span> <span class="n">conditions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns array of datasets, where each dataset corresponds to one condition.</span>
+<span class="sd">            ([[Wigdata]], [Condition]) -&gt; [[DataForCondition]]</span>
+<span class="sd">            Wigdata :: [Number]</span>
+<span class="sd">            Condition :: String</span>
+<span class="sd">            DataForCondition :: [Number]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">countsByCondition</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+        <span class="n">countSum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">conditions</span><span class="p">):</span>
+          <span class="n">countSum</span> <span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">wigList</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+          <span class="n">countsByCondition</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wigList</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">countSum</span><span class="p">,</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">countsByCondition</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span></div>
+
+    <span class="c1"># since this is in both ZINB and ANOVA, should move to stat_tools.py?</span>
+
+<div class="viewcode-block" id="AnovaMethod.winsorize"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.winsorize">[docs]</a>    <span class="k">def</span> <span class="nf">winsorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">counts</span><span class="p">):</span>
+      <span class="c1"># input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene</span>
+      <span class="n">unique_counts</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_counts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">):</span> <span class="k">return</span> <span class="n">counts</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">n_minus_1</span> <span class="o">=</span> <span class="n">unique_counts</span><span class="p">[</span><span class="n">heapq</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_counts</span><span class="p">)),</span> <span class="n">unique_counts</span><span class="o">.</span><span class="n">take</span><span class="p">)]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[[</span> <span class="n">n_minus_1</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">n</span> <span class="k">else</span> <span class="n">count</span> <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">wig</span><span class="p">]</span> <span class="k">for</span> <span class="n">wig</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.run_anova"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.run_anova">[docs]</a>    <span class="k">def</span> <span class="nf">run_anova</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">MeansByRv</span><span class="p">,</span> <span class="n">RvSiteindexesMap</span><span class="p">,</span> <span class="n">conditions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Runs Anova (grouping data by condition) and returns p and q values</span>
+<span class="sd">            ([[Wigdata]], [Gene], {Rv: {Condition: Mean}}, {Rv: [SiteIndex]}, [Condition]) -&gt; Tuple([Number], [Number])</span>
+<span class="sd">            Wigdata :: [Number]</span>
+<span class="sd">            Gene :: {start, end, rv, gene, strand}</span>
+<span class="sd">            Mean :: Number</span>
+<span class="sd">            SiteIndex: Integer</span>
+<span class="sd">            Condition :: String</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">))</span>
+
+        <span class="n">pvals</span><span class="p">,</span><span class="n">Rvs</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="p">[],[],[]</span>
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">Rv</span> <span class="o">=</span> <span class="n">gene</span><span class="p">[</span><span class="s2">&quot;rv&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">RvSiteindexesMap</span><span class="p">[</span><span class="n">Rv</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TA sites &lt;= 1&quot;</span><span class="p">)</span>
+                <span class="n">pvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">countSum</span><span class="p">,</span> <span class="n">countsVec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_by_condition</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">wigData</span><span class="p">:</span> <span class="n">wigData</span><span class="p">[</span><span class="n">RvSiteindexesMap</span><span class="p">[</span><span class="n">Rv</span><span class="p">]],</span> <span class="n">data</span><span class="p">)),</span> <span class="n">conditions</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">winz</span><span class="p">:</span> <span class="n">countsVec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winsorize</span><span class="p">(</span><span class="n">countsVec</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">countSum</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">pval</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">status</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;No counts in all conditions&quot;</span><span class="p">)</span>
+                    <span class="n">pvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pval</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">stat</span><span class="p">,</span><span class="n">pval</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">f_oneway</span><span class="p">(</span><span class="o">*</span><span class="n">countsVec</span><span class="p">)</span>
+                    <span class="n">status</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                    <span class="n">pvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pval</span><span class="p">)</span>
+            <span class="n">Rvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Rv</span><span class="p">)</span>
+
+            <span class="c1"># Update progress</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running Anova Method... </span><span class="si">%5.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="n">count</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+
+        <span class="n">pvals</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pvals</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pvals</span><span class="p">)</span>
+        <span class="n">qvals</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">pvals</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">qvals</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">statsmodels</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">multitest</span><span class="o">.</span><span class="n">fdrcorrection</span><span class="p">(</span><span class="n">pvals</span><span class="p">[</span><span class="n">mask</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># BH, alpha=0.05</span>
+
+        <span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">,</span><span class="n">statusMap</span> <span class="o">=</span> <span class="p">{},{},{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">rv</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Rvs</span><span class="p">):</span>
+            <span class="n">p</span><span class="p">[</span><span class="n">rv</span><span class="p">],</span><span class="n">q</span><span class="p">[</span><span class="n">rv</span><span class="p">],</span><span class="n">statusMap</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="o">=</span> <span class="n">pvals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">qvals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">status</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">statusMap</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.calcLFCs"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.calcLFCs">[docs]</a>    <span class="k">def</span> <span class="nf">calcLFCs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">means</span><span class="p">,</span><span class="n">refs</span><span class="o">=</span><span class="p">[],</span><span class="n">PC</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="n">refs</span> <span class="o">=</span> <span class="n">means</span> <span class="c1"># if ref condition(s) not explicitly defined, use mean of all</span>
+      <span class="n">grandmean</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span>
+      <span class="n">lfcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">x</span><span class="o">+</span><span class="n">PC</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">grandmean</span><span class="o">+</span><span class="n">PC</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">means</span><span class="p">]</span>
+      <span class="k">return</span> <span class="n">lfcs</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.Run"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.Run">[docs]</a>    <span class="k">def</span> <span class="nf">Run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Starting Anova analysis&quot;</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Getting Data&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filenamesInCombWig</span><span class="p">)</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">read_combined_wig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combined_wig</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Normalizing using: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">winz</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Winsorizing insertion counts&quot;</span><span class="p">)</span>
+
+        <span class="n">conditionsByFile</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">orderingMetadata</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">read_samples_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wigs_to_conditions</span><span class="p">(</span>
+            <span class="n">conditionsByFile</span><span class="p">,</span>
+            <span class="n">filenamesInCombWig</span><span class="p">)</span>
+
+        <span class="n">conditionsList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_conditions</span><span class="p">(</span><span class="n">conditions</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">included_conditions</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_conditions</span><span class="p">,</span><span class="n">orderingMetadata</span><span class="p">)</span>
+
+        <span class="n">conditionNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">conditionsByFile</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenamesInCombWig</span><span class="p">]</span>
+        <span class="n">fileNames</span> <span class="o">=</span> <span class="n">filenamesInCombWig</span>
+        
+        <span class="n">data</span><span class="p">,</span> <span class="n">fileNames</span><span class="p">,</span> <span class="n">conditionNames</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_wigs_by_conditions3</span><span class="p">(</span> <span class="c1"># in base.py</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">fileNames</span><span class="p">,</span> <span class="c1"># it looks like fileNames and conditionNames have to be parallel to data (vector of wigs)</span>
+                <span class="n">conditionNames</span><span class="p">,</span> <span class="c1"># original Condition column in samples metadata file</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">included_conditions</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">excluded_conditions</span><span class="p">,</span>
+                <span class="n">conditions</span> <span class="o">=</span> <span class="n">conditionNames</span><span class="p">)</span> <span class="c1"># this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB</span>
+
+        <span class="n">genes</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">read_genes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
+
+        <span class="n">TASiteindexMap</span> <span class="o">=</span> <span class="p">{</span><span class="n">TA</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">TA</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sites</span><span class="p">)}</span>
+        <span class="n">RvSiteindexesMap</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">rv_siteindexes_map</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="n">TASiteindexMap</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">NTerminus</span><span class="p">,</span> <span class="n">cterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CTerminus</span><span class="p">)</span>
+        <span class="n">MeansByRv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">means_by_rv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">RvSiteindexesMap</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Running Anova&quot;</span><span class="p">)</span>
+        <span class="n">pvals</span><span class="p">,</span><span class="n">qvals</span><span class="p">,</span><span class="n">run_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_anova</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">MeansByRv</span><span class="p">,</span> <span class="n">RvSiteindexesMap</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Adding File: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">))</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+        <span class="n">heads</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Rv Gene TAs&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="o">+</span>
+                <span class="p">[</span><span class="s2">&quot;Mean_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">conditionsList</span><span class="p">]</span> <span class="o">+</span>
+                <span class="p">[</span><span class="s2">&quot;LFC_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">conditionsList</span><span class="p">]</span> <span class="o">+</span>
+                <span class="s2">&quot;pval padj&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">])</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Console: python3 </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#parameters: normalization=</span><span class="si">%s</span><span class="s2">, trimming=</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s%%</span><span class="s2"> (N/C), pseudocounts=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">NTerminus</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">CTerminus</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">PC</span><span class="p">))</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">heads</span><span class="p">)</span><span class="o">+</span><span class="n">EOL</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="n">Rv</span> <span class="o">=</span> <span class="n">gene</span><span class="p">[</span><span class="s2">&quot;rv&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">Rv</span> <span class="ow">in</span> <span class="n">MeansByRv</span><span class="p">:</span>
+              <span class="n">means</span> <span class="o">=</span> <span class="p">[</span><span class="n">MeansByRv</span><span class="p">[</span><span class="n">Rv</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditionsList</span><span class="p">]</span>
+              <span class="n">refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MeansByRv</span><span class="p">[</span><span class="n">Rv</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">refs</span><span class="p">]</span>
+              <span class="n">LFCs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcLFCs</span><span class="p">(</span><span class="n">means</span><span class="p">,</span><span class="n">refs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">PC</span><span class="p">)</span>
+              <span class="n">vals</span> <span class="o">=</span> <span class="p">([</span><span class="n">Rv</span><span class="p">,</span> <span class="n">gene</span><span class="p">[</span><span class="s2">&quot;gene&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">RvSiteindexesMap</span><span class="p">[</span><span class="n">Rv</span><span class="p">]))]</span> <span class="o">+</span>
+                      <span class="p">[</span><span class="s2">&quot;</span><span class="si">%0.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">means</span><span class="p">]</span> <span class="o">+</span> 
+                      <span class="p">[</span><span class="s2">&quot;</span><span class="si">%0.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">LFCs</span><span class="p">]</span> <span class="o">+</span> 
+                      <span class="p">[</span><span class="s2">&quot;</span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">pvals</span><span class="p">[</span><span class="n">Rv</span><span class="p">],</span> <span class="n">qvals</span><span class="p">[</span><span class="n">Rv</span><span class="p">]]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">run_status</span><span class="p">[</span><span class="n">Rv</span><span class="p">]])</span>
+              <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="o">+</span><span class="n">EOL</span><span class="p">)</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Finished Anova analysis&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Time: </span><span class="si">%0.1f</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AnovaMethod.usage_string"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.anova.AnovaMethod.usage_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">usage_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">usage</span> <span class="o">=</span>  <span class="s2">&quot;&quot;&quot;Usage: python3 transit.py anova &lt;combined wig file&gt; &lt;samples_metadata file&gt; &lt;annotation .prot_table&gt; &lt;output file&gt; [Optional Arguments]</span>
+<span class="s2"> Optional Arguments:</span>
+<span class="s2">  -n &lt;string&gt;         :=  Normalization method. Default: -n TTR</span>
+<span class="s2">  --include-conditions &lt;cond1,...&gt; := Comma-separated list of conditions to use for analysis (Default: all)</span>
+<span class="s2">  --exclude-conditions &lt;cond1,...&gt; := Comma-separated list of conditions to exclude (Default: none)</span>
+<span class="s2">  --ref &lt;cond&gt; := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)</span>
+<span class="s2">  -iN &lt;N&gt; :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0</span>
+<span class="s2">  -iC &lt;N&gt; :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0</span>
+<span class="s2">  -PC &lt;N&gt; := pseudocounts to use for calculating LFC. Default: -PC 5</span>
+<span class="s2">  -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">usage</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

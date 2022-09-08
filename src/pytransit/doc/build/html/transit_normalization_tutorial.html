@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial: Normalize datasets &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial: Export datasets" href="transit_export_tutorial.html" />
+    <link rel="prev" title="Tutorial: Genetic Interactions Analysis" href="transit_interactions_tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial: Normalize datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#adding-the-annotation-file">Adding the annotation file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-wig-datasets">Add .wig datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#normalize-and-save">Normalize and Save</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#normalization">Normalization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Tutorial: Normalize datasets</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transit_normalization_tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorial-normalize-datasets">
+<h1>Tutorial: Normalize datasets<a class="headerlink" href="#tutorial-normalize-datasets" title="Permalink to this headline"></a></h1>
+<p>TRANSIT has the capability to normalize datasets with different methods,
+and export them to <a class="reference external" href="https://www.broadinstitute.org/igv/">IGV from the Broad Institute</a>
+or a CombinedWig format. This tutorial shows a quick overview of how
+to normalize datasets save them using the GUI mode of transit or through
+the Console mode.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="adding-the-annotation-file">
+<h2>Adding the annotation file<a class="headerlink" href="#adding-the-annotation-file" title="Permalink to this headline"></a></h2>
+<p>Before we can normalize .wig datasets, we need to add an
+annotation file for the organism. Click on the file dialog button, on
+the top of the TRANSIT window (see image below), and browse and select
+the appropriate annotation file. Note: Annotation files must be in
+“.prot_table” or GFF3 format, described above:</p>
+<a class="reference internal image-reference" href="_images/transit_tutorial_annotation.png"><img alt="_images/transit_tutorial_annotation.png" class="align-center" src="_images/transit_tutorial_annotation.png" style="width: 600px;" /></a>
+</section>
+<section id="add-wig-datasets">
+<h2>Add .wig datasets<a class="headerlink" href="#add-wig-datasets" title="Permalink to this headline"></a></h2>
+<p>Next we must choose to add .wig formatted datasets what we wish to
+normalize to CombinedWig format. To add these, we click on the control sample
+file dialog (see image below), and select the desired datasets (one by
+one). In this example, we have two replicates:</p>
+<a class="reference internal image-reference" href="_images/transit_tutorial_control_datasets.png"><img alt="_images/transit_tutorial_control_datasets.png" class="align-center" src="_images/transit_tutorial_control_datasets.png" style="width: 600px;" /></a>
+<p>As we add the datasets they will appear in the table below. Select the datasets
+you wish to normalize.</p>
+</section>
+<section id="normalize-and-save">
+<h2>Normalize and Save<a class="headerlink" href="#normalize-and-save" title="Permalink to this headline"></a></h2>
+<p>After you have selected the desired datasets in the list of datasets added,
+click on “Export -&gt; Selected Datasets” in the menu bar at the top of the TRANSIT
+window, and select the format you desire (e.g. “to IGV” or “to CombinedWig”).
+You will be prompted to pick a normalization method, and a filename.
+Note: Only selected datasets (“Control+Click”) will be normalized and
+saved.</p>
+<a class="reference internal image-reference" href="_images/transit_tutorial_norm_options.png"><img alt="_images/transit_tutorial_norm_options.png" class="align-center" src="_images/transit_tutorial_norm_options.png" style="width: 600px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="normalization">
+<span id="id1"></span><h2>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline"></a></h2>
+<p>Proper normalization is important as it ensures that other sources of variability are not mistakenly treated
+as real differences in datasets. TRANSIT provides various normalization methods, which are briefly described below:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>TTR:</strong></dt><dd><p>Trimmed Total Reads (TTR), normalized by the total
+read-counts (like totreads), but trims top and bottom 5% of
+read-counts. <strong>This is the recommended normalization method for most cases</strong>
+as it has the beneffit of normalizing for difference in
+saturation in the context of resampling.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>nzmean:</strong></dt><dd><p>Normalizes datasets to have the same mean over the
+non-zero sites.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>totreads:</strong></dt><dd><p>Normalizes datasets by total read-counts, and scales
+them to have the same mean over all counts.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>zinfnb:</strong></dt><dd><p>Fits a zero-inflated negative binomial model, and then
+divides read-counts by the mean. The zero-inflated negative
+binomial model will treat some empty sites as belonging to the
+“true” negative binomial distribution responsible for read-counts
+while treating the others as “essential” (and thus not influencing
+its parameters).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>quantile:</strong></dt><dd><p>Normalizes datasets using the quantile normalization
+method described by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/12538238">Bolstad et al.
+(2003)</a>. In this
+normalization procedure, datasets are sorted, an empirical
+distribution is estimated as the mean across the sorted datasets
+at each site, and then the original (unsorted) datasets are
+assigned values from the empirical distribution based on their
+quantiles.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>betageom:</strong></dt><dd><p>Normalizes the datasets to fit an “ideal” Geometric
+distribution with a variable probability parameter <em>p</em>. Specially
+useful for datasets that contain a large skew.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>nonorm:</strong></dt><dd><p>No normalization is performed.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transit_interactions_tutorial.html" class="btn btn-neutral float-left" title="Tutorial: Genetic Interactions Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transit_export_tutorial.html" class="btn btn-neutral float-right" title="Tutorial: Export datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pytransit.analysis.hmm &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> TRANSIT
+            <img src="../../../_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_features.html">Quality Control</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>pytransit.analysis.hmm</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pytransit.analysis.hmm</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">wx</span>
+    <span class="n">WX_VERSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">version</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">hasWx</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">hasWx</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">WX_VERSION</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">if</span> <span class="n">hasWx</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">wx.xrc</span>
+    <span class="kn">from</span> <span class="nn">wx.lib.buttons</span> <span class="kn">import</span> <span class="n">GenBitmapTextButton</span>
+    <span class="kn">from</span> <span class="nn">pubsub</span> <span class="kn">import</span> <span class="n">pub</span>
+    <span class="kn">import</span> <span class="nn">wx.adv</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">from</span> <span class="nn">pytransit.analysis</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">import</span> <span class="nn">pytransit.transit_tools</span> <span class="k">as</span> <span class="nn">transit_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.tnseq_tools</span> <span class="k">as</span> <span class="nn">tnseq_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.norm_tools</span> <span class="k">as</span> <span class="nn">norm_tools</span>
+<span class="kn">import</span> <span class="nn">pytransit.stat_tools</span> <span class="k">as</span> <span class="nn">stat_tools</span>
+
+<span class="c1">#method_name = &quot;hmm&quot;</span>
+
+
+<span class="c1">############# GUI ELEMENTS ##################</span>
+
+<span class="n">short_name</span> <span class="o">=</span> <span class="s2">&quot;hmm&quot;</span>
+<span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;HMM&quot;</span>
+<span class="n">short_desc</span> <span class="o">=</span> <span class="s2">&quot;Analysis of genomic regions using a Hidden Markov Model&quot;</span>
+<span class="n">long_desc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions.</span>
+
+<span class="s2">Reference: DeJesus et al. (2013; BMC Bioinformatics)</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">transposons</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;himar1&quot;</span><span class="p">]</span>
+<span class="n">columns_sites</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">,</span><span class="s2">&quot;Read Count&quot;</span><span class="p">,</span><span class="s2">&quot;Probability - ES&quot;</span><span class="p">,</span><span class="s2">&quot;Probability - GD&quot;</span><span class="p">,</span><span class="s2">&quot;Probability - NE&quot;</span><span class="p">,</span><span class="s2">&quot;Probability - GA&quot;</span><span class="p">,</span><span class="s2">&quot;State&quot;</span><span class="p">,</span><span class="s2">&quot;Gene&quot;</span><span class="p">]</span>
+<span class="n">columns_genes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Orf&quot;</span><span class="p">,</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span><span class="s2">&quot;Description&quot;</span><span class="p">,</span><span class="s2">&quot;Total Sites&quot;</span><span class="p">,</span><span class="s2">&quot;Num. ES&quot;</span><span class="p">,</span><span class="s2">&quot;Num. GD&quot;</span><span class="p">,</span><span class="s2">&quot;Num. NE&quot;</span><span class="p">,</span><span class="s2">&quot;Num. GA&quot;</span><span class="p">,</span> <span class="s2">&quot;Avg. Insertions&quot;</span><span class="p">,</span> <span class="s2">&quot;Avg. Reads&quot;</span><span class="p">,</span> <span class="s2">&quot;State Call&quot;</span><span class="p">]</span> 
+
+
+<span class="c1">############# Analysis Method ##############</span>
+
+<div class="viewcode-block" id="HMMAnalysis"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMAnalysis">[docs]</a><span class="k">class</span> <span class="nc">HMMAnalysis</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">TransitAnalysis</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">TransitAnalysis</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">short_desc</span><span class="p">,</span> <span class="n">long_desc</span><span class="p">,</span> <span class="n">transposons</span><span class="p">,</span> <span class="n">HMMMethod</span><span class="p">,</span> <span class="n">HMMGUI</span><span class="p">,</span> <span class="p">[</span><span class="n">HMMSitesFile</span><span class="p">,</span> <span class="n">HMMGenesFile</span><span class="p">])</span></div>
+
+
+<span class="c1">################## FILE ###################</span>
+
+<div class="viewcode-block" id="HMMSitesFile"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMSitesFile">[docs]</a><span class="k">class</span> <span class="nc">HMMSitesFile</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">TransitFile</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">TransitFile</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;#HMM - Sites&quot;</span><span class="p">,</span> <span class="n">columns_sites</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HMMSitesFile.getHeader"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMSitesFile.getHeader">[docs]</a>    <span class="k">def</span> <span class="nf">getHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">es</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">gd</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">ne</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">ga</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="n">tmp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ES&quot;</span><span class="p">:</span> <span class="n">es</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">tmp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;GD&quot;</span><span class="p">:</span> <span class="n">gd</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">tmp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NE&quot;</span><span class="p">:</span> <span class="n">ne</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">tmp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;GA&quot;</span><span class="p">:</span> <span class="n">ga</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+            <span class="n">T</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Results:</span>
+<span class="s2">    Essential: </span><span class="si">%1.1f%%</span><span class="s2"></span>
+<span class="s2">    Growth-Defect: </span><span class="si">%1.1f%%</span><span class="s2"></span>
+<span class="s2">    Non-Essential: </span><span class="si">%1.1f%%</span><span class="s2"></span>
+<span class="s2">    Growth-Advantage: </span><span class="si">%1.1f%%</span><span class="s2"></span>
+<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="n">es</span><span class="o">/</span><span class="n">T</span><span class="p">,</span> <span class="mf">100.0</span><span class="o">*</span><span class="n">gd</span><span class="o">/</span><span class="n">T</span><span class="p">,</span> <span class="mf">100.0</span><span class="o">*</span><span class="n">ne</span><span class="o">/</span><span class="n">T</span><span class="p">,</span> <span class="mf">100.0</span><span class="o">*</span><span class="n">ga</span><span class="o">/</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span></div></div>
+
+
+
+<div class="viewcode-block" id="HMMGenesFile"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMGenesFile">[docs]</a><span class="k">class</span> <span class="nc">HMMGenesFile</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">TransitFile</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">TransitFile</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;#HMM - Genes&quot;</span><span class="p">,</span> <span class="n">columns_genes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HMMGenesFile.getHeader"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMGenesFile.getHeader">[docs]</a>    <span class="k">def</span> <span class="nf">getHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">es</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">gd</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">ne</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">ga</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ES&quot;</span><span class="p">:</span> <span class="n">es</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;GD&quot;</span><span class="p">:</span> <span class="n">gd</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NE&quot;</span><span class="p">:</span> <span class="n">ne</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;GA&quot;</span><span class="p">:</span> <span class="n">ga</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Results:</span>
+<span class="s2">    Essential: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">    Growth-Defect: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">    Non-Essential: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">    Growth-Advantage: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">es</span><span class="p">,</span> <span class="n">gd</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">ga</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">text</span></div></div>
+
+
+<span class="c1">############# GUI ##################</span>
+
+<div class="viewcode-block" id="HMMGUI"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMGUI">[docs]</a><span class="k">class</span> <span class="nc">HMMGUI</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">AnalysisGUI</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HMMGUI.definePanel"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMGUI.definePanel">[docs]</a>    <span class="k">def</span> <span class="nf">definePanel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wxobj</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span> <span class="o">=</span> <span class="n">wxobj</span>
+        <span class="n">hmmPanel</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">optionsWindow</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultSize</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">TAB_TRAVERSAL</span> <span class="p">)</span>
+
+        <span class="n">hmmSection</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="p">)</span>
+
+        <span class="n">hmmLabel</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">StaticText</span><span class="p">(</span> <span class="n">hmmPanel</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;HMM Options&quot;</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="p">(</span><span class="mi">110</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="n">hmmLabel</span><span class="o">.</span><span class="n">SetFont</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">BOLD</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">hmmSection</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">hmmLabel</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">ALIGN_CENTER_HORIZONTAL</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="n">hmmSizer1</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="p">)</span>
+
+        <span class="c1">#(, , Sizer) = self.defineChoiceBox(hmmPanel, u&quot;&quot;, hmmNormChoiceChoices, &quot;&quot;)</span>
+        <span class="c1">#hmmSizer1.Add(Sizer, 1, wx.EXPAND, 5 )</span>
+
+        <span class="c1"># NORMALIZATION</span>
+        <span class="n">hmmNormChoiceChoices</span> <span class="o">=</span> <span class="p">[</span> <span class="sa">u</span><span class="s2">&quot;TTR&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;nzmean&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;totreads&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;zinfnb&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;quantile&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;betageom&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;nonorm&quot;</span> <span class="p">]</span>
+        <span class="p">(</span><span class="n">hmmNormLabel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmNormChoice</span><span class="p">,</span> <span class="n">normSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineChoiceBox</span><span class="p">(</span><span class="n">hmmPanel</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Normalization:&quot;</span><span class="p">,</span> <span class="n">hmmNormChoiceChoices</span><span class="p">,</span> <span class="s2">&quot;Choice of normalization method. The default choice, &#39;TTR&#39;, normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods.&quot;</span><span class="p">)</span>
+        <span class="n">hmmSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">normSizer</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+        <span class="c1"># REPLICATE</span>
+        <span class="n">hmmRepChoiceChoices</span> <span class="o">=</span> <span class="p">[</span> <span class="sa">u</span><span class="s2">&quot;Sum&quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Mean&quot;</span> <span class="p">]</span>
+        <span class="p">(</span><span class="n">hmmRepLabel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmRepChoice</span><span class="p">,</span> <span class="n">repSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineChoiceBox</span><span class="p">(</span><span class="n">hmmPanel</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Replicates:&quot;</span><span class="p">,</span> <span class="n">hmmRepChoiceChoices</span><span class="p">,</span> <span class="s2">&quot;Determines how to handle replicates, and their read-counts. When using many replicates, using &#39;Mean&#39; may be recommended over &#39;Sum&#39;&quot;</span><span class="p">)</span>
+        <span class="n">hmmSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">repSizer</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+        <span class="c1"># LOESS</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmLoessCheck</span><span class="p">,</span> <span class="n">loessCheckSizer</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defineCheckBox</span><span class="p">(</span><span class="n">hmmPanel</span><span class="p">,</span> <span class="n">labelText</span><span class="o">=</span><span class="s2">&quot;Correct for Genome Positional Bias&quot;</span><span class="p">,</span> <span class="n">widgetCheck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widgetSize</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tooltipText</span><span class="o">=</span><span class="s2">&quot;Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.&quot;</span><span class="p">)</span>
+        <span class="n">hmmSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">loessCheckSizer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="c1"># LOESS Button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmLoessPrev</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span> <span class="n">hmmPanel</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Preview LOESS fit&quot;</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultSize</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="n">hmmSizer1</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmLoessPrev</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+ 
+
+        <span class="n">hmmSection</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">hmmSizer1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+        <span class="n">hmmButton</span> <span class="o">=</span> <span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span> <span class="n">hmmPanel</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ID_ANY</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;Run HMM&quot;</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultPosition</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">DefaultSize</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="n">hmmSection</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span> <span class="n">hmmButton</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">ALIGN_CENTER_HORIZONTAL</span><span class="p">,</span> <span class="mi">5</span> <span class="p">)</span>
+
+
+        <span class="n">hmmPanel</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span> <span class="n">hmmSection</span> <span class="p">)</span>
+        <span class="n">hmmPanel</span><span class="o">.</span><span class="n">Layout</span><span class="p">()</span>
+        <span class="n">hmmSection</span><span class="o">.</span><span class="n">Fit</span><span class="p">(</span> <span class="n">hmmPanel</span> <span class="p">)</span>
+
+        <span class="c1">#Connect events</span>
+        <span class="n">hmmButton</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span> <span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">RunMethod</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmLoessPrev</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="o">.</span><span class="n">LoessPrevFunc</span><span class="p">)</span>        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel</span> <span class="o">=</span>  <span class="n">hmmPanel</span></div></div>
+
+
+
+<span class="c1">########## CLASS #######################</span>
+
+<div class="viewcode-block" id="HMMMethod"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod">[docs]</a><span class="k">class</span> <span class="nc">HMMMethod</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">SingleConditionMethod</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;   </span>
+<span class="sd">    HMM</span>
+<span class="sd"> </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">ctrldata</span><span class="p">,</span>
+                <span class="n">annotation_path</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">replicates</span><span class="o">=</span><span class="s2">&quot;Mean&quot;</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">LOESS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">ignoreCodon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">NTerminus</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">CTerminus</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">base</span><span class="o">.</span><span class="n">SingleConditionMethod</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">short_desc</span><span class="p">,</span> <span class="n">long_desc</span><span class="p">,</span> <span class="n">ctrldata</span><span class="p">,</span> <span class="n">annotation_path</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">replicates</span><span class="o">=</span><span class="n">replicates</span><span class="p">,</span> <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span> <span class="n">LOESS</span><span class="o">=</span><span class="n">LOESS</span><span class="p">,</span> <span class="n">NTerminus</span><span class="o">=</span><span class="n">NTerminus</span><span class="p">,</span> <span class="n">CTerminus</span><span class="o">=</span><span class="n">CTerminus</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="n">wxobj</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span> <span class="o">=</span> <span class="n">T</span><span class="o">*</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="HMMMethod.fromGUI"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.fromGUI">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromGUI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wxobj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+        <span class="c1">#Get Annotation file</span>
+        <span class="n">annotationPath</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">annotation</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_annotation</span><span class="p">(</span><span class="n">annotationPath</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1">#Get selected files</span>
+        <span class="n">ctrldata</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">ctrlSelected</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_control_datasets</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1">#Validate transposon types</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">validate_transposons_used</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span> <span class="n">transposons</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+
+        <span class="c1">#Read the parameters from the wxPython widgets</span>
+        <span class="n">replicates</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">hmmRepChoice</span><span class="o">.</span><span class="n">GetString</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmRepChoice</span><span class="o">.</span><span class="n">GetCurrentSelection</span><span class="p">())</span> 
+        <span class="n">ignoreCodon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">NTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">globalNTerminusText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">())</span>
+        <span class="n">CTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">globalCTerminusText</span><span class="o">.</span><span class="n">GetValue</span><span class="p">())</span>
+        
+        <span class="n">normalization</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">hmmNormChoice</span><span class="o">.</span><span class="n">GetString</span><span class="p">(</span><span class="n">wxobj</span><span class="o">.</span><span class="n">hmmNormChoice</span><span class="o">.</span><span class="n">GetCurrentSelection</span><span class="p">())</span>
+
+        <span class="n">LOESS</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">LOESS</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">hmmLoessCheck</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+
+        <span class="c1">#Get output path</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">defaultFileName</span> <span class="o">=</span> <span class="s2">&quot;hmm_output.dat&quot;</span>
+        <span class="n">defaultDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">wxobj</span><span class="o">.</span><span class="n">SaveFile</span><span class="p">(</span><span class="n">defaultDir</span><span class="p">,</span> <span class="n">defaultFileName</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span>
+                <span class="n">annotationPath</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">replicates</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="p">,</span>
+                <span class="n">LOESS</span><span class="p">,</span>
+                <span class="n">ignoreCodon</span><span class="p">,</span>
+                <span class="n">NTerminus</span><span class="p">,</span>
+                <span class="n">CTerminus</span><span class="p">,</span> <span class="n">wxobj</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HMMMethod.fromargs"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.fromargs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawargs</span><span class="p">):</span> 
+        <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">cleanargs</span><span class="p">(</span><span class="n">rawargs</span><span class="p">)</span>
+
+        <span class="n">ctrldata</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">annotationPath</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">outpath</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+        <span class="n">replicates</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)</span>
+        <span class="n">normalization</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;TTR&quot;</span><span class="p">)</span>
+        <span class="n">LOESS</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">ignoreCodon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">NTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iN&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">CTerminus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iC&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">ctrldata</span><span class="p">,</span>
+                <span class="n">annotationPath</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="p">,</span>
+                <span class="n">replicates</span><span class="p">,</span>
+                <span class="n">normalization</span><span class="p">,</span>
+                <span class="n">LOESS</span><span class="p">,</span>
+                <span class="n">ignoreCodon</span><span class="p">,</span>
+                <span class="n">NTerminus</span><span class="p">,</span>
+                <span class="n">CTerminus</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HMMMethod.Run"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.Run">[docs]</a>    <span class="k">def</span> <span class="nf">Run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Starting HMM Method&quot;</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1">#Get data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Getting Data&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">get_validated_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">,</span> <span class="n">wxobj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">N</span><span class="p">)</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="c1"># Normalize data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">!=</span> <span class="s2">&quot;nonorm&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Normalizing using: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">factors</span><span class="p">)</span> <span class="o">=</span> <span class="n">norm_tools</span><span class="o">.</span><span class="n">normalize_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
+        
+        <span class="c1"># Do LOESS</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LOESS</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Performing LOESS Correction&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_tools</span><span class="o">.</span><span class="n">loess_correction</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+
+        <span class="nb">hash</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">get_pos_hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
+        <span class="n">rv2info</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">get_gene_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Combining Replicates as &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">replicates</span><span class="p">)</span>
+        <span class="n">O</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">combine_replicates</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">replicates</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1"># Adding 1 to because of shifted geometric in scipy</span>
+
+        <span class="c1">#Parameters</span>
+        <span class="n">Nstates</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s2">&quot;ES&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="s2">&quot;GD&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s2">&quot;NE&quot;</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="s2">&quot;GA&quot;</span><span class="p">}</span>
+
+        <span class="n">reads</span> <span class="o">=</span> <span class="n">O</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">reads_nz</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reads</span><span class="p">[</span><span class="n">reads</span> <span class="o">!=</span><span class="mi">0</span> <span class="p">])</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reads_nz</span><span class="p">)</span>
+        <span class="n">mean_r</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">reads_nz</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="mf">0.95</span> <span class="o">*</span> <span class="n">size</span><span class="p">)])</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">mean_r</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>  <span class="n">mean_r</span><span class="p">,</span> <span class="n">mean_r</span><span class="o">*</span><span class="mf">5.0</span><span class="p">])</span>
+        <span class="c1">#mu = numpy.array([1/0.99, 0.1 * mean_r + 2,  mean_r, mean_r*5.0])</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">mu</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Emission Probability Distributions</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">):</span>
+            <span class="n">B</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">geom</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">pmf</span><span class="p">)</span>
+
+        <span class="n">pins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_pins</span><span class="p">(</span><span class="n">O</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pins_obs</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">rd</span> <span class="ow">in</span> <span class="n">O</span> <span class="k">if</span> <span class="n">rd</span> <span class="o">&gt;=</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">O</span><span class="p">))</span>
+        <span class="n">pnon</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">pins</span>
+        <span class="n">pnon_obs</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">pins_obs</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pnon</span> <span class="o">**</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span> <span class="k">break</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nstates</span><span class="p">,</span><span class="n">Nstates</span><span class="p">))</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">B</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">Nstates</span><span class="o">/</span><span class="mi">2</span><span class="p">)](</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">B</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">Nstates</span><span class="o">/</span><span class="mi">2</span><span class="p">)](</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># change to Nstates-1?</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">):</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">*</span><span class="n">Nstates</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+
+        <span class="n">PI</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstates</span><span class="p">)</span> <span class="c1"># Initial state distribution</span>
+        <span class="n">PI</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">;</span> <span class="n">PI</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">0.3</span><span class="o">/</span><span class="p">(</span><span class="n">Nstates</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span><span class="p">)</span>
+        
+
+        <span class="c1">###############</span>
+        <span class="c1">### VITERBI ###</span>
+        <span class="p">(</span><span class="n">Q_opt</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viterbi</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">PI</span><span class="p">,</span> <span class="n">O</span><span class="p">)</span>
+        <span class="c1">###############</span>
+
+        <span class="c1">##################</span>
+        <span class="c1">### ALPHA PASS ###</span>
+        <span class="p">(</span><span class="n">log_Prob_Obs</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_procedure</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">B</span><span class="p">,</span> <span class="n">PI</span><span class="p">,</span> <span class="n">O</span><span class="p">)</span>
+        <span class="c1">##################</span>
+
+        <span class="c1">#################</span>
+        <span class="c1">### BETA PASS ###</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backward_procedure</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">B</span><span class="p">,</span> <span class="n">PI</span><span class="p">,</span> <span class="n">O</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+        <span class="c1">#################</span>
+
+        <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">O</span><span class="p">);</span> <span class="n">total</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">state2count</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">Q_opt</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+            <span class="n">state2count</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">+=</span><span class="mi">1</span>
+            <span class="n">total</span><span class="o">+=</span><span class="mi">1</span>
+ 
+            
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#HMM - Sites</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Tn-HMM</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+ 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wxobj</span><span class="p">:</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">attr</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)])</span>
+            <span class="n">memberstr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+                <span class="n">memberstr</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">, &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#GUI with: ctrldata=</span><span class="si">%s</span><span class="s2">, annotation=</span><span class="si">%s</span><span class="s2">, output=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Console: python3 </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span>
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Mean:</span><span class="se">\t</span><span class="si">%2.2f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">reads_nz</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Median:</span><span class="se">\t</span><span class="si">%2.2f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">reads_nz</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Normalization:</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# LOESS Correction:</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LOESS</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# pins (obs):</span><span class="se">\t</span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pins_obs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# pins (est):</span><span class="se">\t</span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pins</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Run length (r):</span><span class="se">\t</span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">r</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# State means:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#    </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;   &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%8.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">mu</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">)]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Self-Transition Prob:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#    </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;   &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%2.4e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">)]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# State Emission Parameters (theta):</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#    </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;   &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%1.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">)]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# State Distributions:&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#    </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;   &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%2.2f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">state2count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mf">100.0</span><span class="o">/</span><span class="n">total</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstates</span><span class="p">)]))</span>
+         
+
+        <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">Q_opt</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">)]</span>
+        <span class="n">last_orf</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">s_lab</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="s2">&quot;Unknown State&quot;</span><span class="p">)</span>
+            <span class="n">gamma_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span>
+            <span class="n">genes_at_site</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">position</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">])</span>
+            <span class="n">genestr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">genes_at_site</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">genes_at_site</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">genestr</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="n">rv2info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes_at_site</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="p">[</span><span class="n">t</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">O</span><span class="p">[</span><span class="n">t</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%-9.2e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gamma_t</span><span class="p">]),</span> <span class="n">s_lab</span><span class="p">,</span> <span class="n">genestr</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># Printing empty line to flush stdout </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Finished HMM - Sites Method&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Adding File: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">filetype</span><span class="o">=</span><span class="s2">&quot;HMM - Sites&quot;</span><span class="p">)</span>
+        
+        <span class="c1">#Gene Files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Creating HMM Genes Level Output&quot;</span><span class="p">)</span>
+        <span class="n">genes_path</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_genes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> 
+
+        <span class="n">tempObs</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">O</span><span class="p">)))</span>
+        <span class="n">tempObs</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">O</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_process_genes</span><span class="p">(</span><span class="n">tempObs</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">genes_path</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Adding File: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">genes_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">genes_path</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="s2">&quot;HMM - Genes&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_message</span><span class="p">(</span><span class="s2">&quot;Finished HMM Method&quot;</span><span class="p">)</span> </div>
+
+
+<div class="viewcode-block" id="HMMMethod.usage_string"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.usage_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">usage_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;python3 </span><span class="si">%s</span><span class="s2"> hmm &lt;comma-separated .wig files&gt; &lt;annotation .prot_table or GFF3&gt; &lt;output file&gt;</span>
+
+<span class="s2">        Optional Arguments:</span>
+<span class="s2">            -r &lt;string&gt;     :=  How to handle replicates. Sum, Mean. Default: -r Mean</span>
+<span class="s2">            -n &lt;string&gt;     :=  Normalization method. Default: -n TTR</span>
+<span class="s2">            -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.</span>
+<span class="s2">            -iN &lt;float&gt;     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0</span>
+<span class="s2">            -iC &lt;float&gt;     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="HMMMethod.forward_procedure"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.forward_procedure">[docs]</a>    <span class="k">def</span> <span class="nf">forward_procedure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">PI</span><span class="p">,</span> <span class="n">O</span><span class="p">):</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">O</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span>  <span class="n">T</span><span class="p">))</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+        <span class="n">alpha</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">PI</span> <span class="o">*</span> <span class="p">[</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">O</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+
+        <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">alpha</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+            <span class="c1">#B[i](O[:,t])  =&gt;  numpy.prod(B[i](O[:,t]))</span>
+            <span class="c1">#b_o = numpy.array([numpy.prod(B[i](O[:,t])) for i in range(N)])</span>
+            <span class="n">b_o</span> <span class="o">=</span> <span class="p">[</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">O</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        
+            <span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">A</span><span class="p">)</span> <span class="o">*</span> <span class="n">b_o</span>
+            
+            <span class="n">C</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]))</span>
+            <span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">C</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">alpha</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0000000000001</span>
+           
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running HMM Method... </span><span class="si">%1.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">%</span><span class="mi">1000</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="c1">#print(t, O[:,t], alpha[:,t])</span>
+
+        <span class="n">log_Prob_Obs</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">C</span><span class="p">)))</span>
+        <span class="k">return</span><span class="p">((</span> <span class="n">log_Prob_Obs</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">C</span> <span class="p">))</span></div>
+
+<div class="viewcode-block" id="HMMMethod.backward_procedure"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.backward_procedure">[docs]</a>    <span class="k">def</span> <span class="nf">backward_procedure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">PI</span><span class="p">,</span> <span class="n">O</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([])):</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">O</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">T</span><span class="p">))</span>
+
+        <span class="n">beta</span><span class="p">[:,</span><span class="n">T</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">C</span><span class="o">.</span><span class="n">any</span><span class="p">():</span> <span class="n">beta</span><span class="p">[:,</span><span class="n">T</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[:,</span><span class="n">T</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">C</span><span class="p">[</span><span class="n">T</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1">#B[i](O[:,t])  =&gt;  numpy.prod(B[i](O[:,t]))</span>
+            <span class="c1">#b_o = numpy.array([numpy.prod(B[i](O[:,t])) for i in range(N)])</span>
+            <span class="n">b_o</span> <span class="o">=</span> <span class="p">[</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">O</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+
+            <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="p">(</span><span class="n">b_o</span> <span class="o">*</span> <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0000000000001</span>
+
+            <span class="k">if</span> <span class="n">C</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">C</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running HMM Method... </span><span class="si">%1.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">%</span><span class="mi">1000</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="k">return</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HMMMethod.viterbi"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.viterbi">[docs]</a>    <span class="k">def</span> <span class="nf">viterbi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">PI</span><span class="p">,</span> <span class="n">O</span><span class="p">):</span>
+        <span class="n">N</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">O</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">T</span><span class="p">))</span>
+
+        <span class="n">b_o</span> <span class="o">=</span> <span class="p">[</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">O</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        <span class="n">delta</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">PI</span><span class="p">)</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">b_o</span><span class="p">)</span>
+
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">T</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">numpy</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+            <span class="n">b_o</span> <span class="o">=</span> <span class="p">[</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">O</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+            <span class="c1">#nus = delta[:, t-1] + numpy.log(A)</span>
+            <span class="n">nus</span> <span class="o">=</span> <span class="n">delta</span><span class="p">[:,</span> <span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">A</span>
+            <span class="n">delta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">nus</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">b_o</span><span class="p">)</span>
+            <span class="n">Q</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">nus</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running HMM Method... </span><span class="si">%5.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">%</span><span class="mi">1000</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="n">Q_opt</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">delta</span><span class="p">[:,</span><span class="n">T</span><span class="o">-</span><span class="mi">1</span><span class="p">]))]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">Q_opt</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Q</span><span class="p">[</span><span class="n">Q_opt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running HMM Method... </span><span class="si">%5.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">%</span><span class="mi">1000</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="n">numpy</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Running HMM Method... </span><span class="si">%5.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiterations</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_update</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="k">return</span><span class="p">((</span><span class="n">Q_opt</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">Q</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="HMMMethod.calculate_pins"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.calculate_pins">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reads</span><span class="p">):</span>
+        <span class="n">non_ess_reads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">rd</span> <span class="ow">in</span> <span class="n">reads</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">rd</span> <span class="o">&gt;=</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span> <span class="n">non_ess_reads</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+                <span class="n">non_ess_reads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rd</span><span class="p">)</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rd</span><span class="p">)</span>
+
+        <span class="k">return</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">rd</span> <span class="ow">in</span> <span class="n">non_ess_reads</span> <span class="k">if</span> <span class="n">rd</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">non_ess_reads</span><span class="p">))</span> <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HMMMethod.post_process_genes"><a class="viewcode-back" href="../../../pytransit.analysis.html#pytransit.analysis.hmm.HMMMethod.post_process_genes">[docs]</a>    <span class="k">def</span> <span class="nf">post_process_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">pos2state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">position</span><span class="p">[</span><span class="n">t</span><span class="p">],</span><span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">))])</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">tnseq_tools</span><span class="o">.</span><span class="n">Genes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_path</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span> <span class="n">ignoreCodon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">NTerminus</span><span class="p">,</span> <span class="n">cterm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CTerminus</span><span class="p">)</span>
+
+        <span class="n">num2label</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s2">&quot;ES&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="s2">&quot;GD&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s2">&quot;NE&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="s2">&quot;GA&quot;</span><span class="p">}</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#HMM - Genes</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>        
+
+        <span class="n">lines</span><span class="p">,</span><span class="n">counts</span> <span class="o">=</span> <span class="p">[],{}</span>
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">G</span><span class="p">:</span>
+            
+            <span class="n">reads_nz</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">gene</span><span class="o">.</span><span class="n">reads</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">avg_read_nz</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reads_nz</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">avg_read_nz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">reads_nz</span><span class="p">)</span>
+
+            <span class="c1"># State</span>
+            <span class="n">genestates</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos2state</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">gene</span><span class="o">.</span><span class="n">position</span><span class="p">]</span>
+            <span class="n">statedist</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">genestates</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">st</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">statedist</span><span class="p">:</span> <span class="n">statedist</span><span class="p">[</span><span class="n">st</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">statedist</span><span class="p">[</span><span class="n">st</span><span class="p">]</span> <span class="o">+=</span><span class="mi">1</span>
+
+            <span class="c1"># State counts</span>
+            <span class="n">n0</span> <span class="o">=</span> <span class="n">statedist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="n">n1</span> <span class="o">=</span> <span class="n">statedist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="n">n2</span> <span class="o">=</span> <span class="n">statedist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="n">n3</span> <span class="o">=</span> <span class="n">statedist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+
+            <span class="k">if</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive</span>
+                <span class="c1">#E = tnseq_tools.ExpectedRuns(gene.n,   1.0 - theta)</span>
+                <span class="c1">#V = tnseq_tools.VarR(gene.n,   1.0 - theta)</span>
+                <span class="k">if</span> <span class="n">n0</span> <span class="o">==</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">:</span> <span class="n">S</span> <span class="o">=</span> <span class="s2">&quot;ES&quot;</span>
+                <span class="c1">#elif n0 &gt;= int(E+(3*math.sqrt(V))): S = &quot;ES&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([(</span><span class="n">statedist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">S</span> <span class="o">=</span> <span class="n">num2label</span><span class="p">[</span><span class="n">temp</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">E</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">V</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">S</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%1.4f</span><span class="se">\t</span><span class="si">%1.2f</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">orf</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">desc</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">,</span> <span class="n">gene</span><span class="o">.</span><span class="n">theta</span><span class="p">(),</span> <span class="n">avg_read_nz</span><span class="p">,</span> <span class="n">S</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">S</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span> <span class="n">counts</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">counts</span><span class="p">[</span><span class="n">S</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#command line: python3 </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#summary of gene calls: ES=</span><span class="si">%s</span><span class="s2">, GD=</span><span class="si">%s</span><span class="s2">, NE=</span><span class="si">%s</span><span class="s2">, GA=</span><span class="si">%s</span><span class="s2">, N/A=</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="s2">&quot;ES GD NE GA N/A&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()]))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#ORF</span><span class="se">\t</span><span class="s2">gene</span><span class="se">\t</span><span class="s2">annotation</span><span class="se">\t</span><span class="s2">TAs</span><span class="se">\t</span><span class="s2">ES sites</span><span class="se">\t</span><span class="s2">GD sites</span><span class="se">\t</span><span class="s2">NE sites</span><span class="se">\t</span><span class="s2">GA sites</span><span class="se">\t</span><span class="s2">saturation</span><span class="se">\t</span><span class="s2">mean</span><span class="se">\t</span><span class="s2">call</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span> <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+
+    
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">=</span> <span class="n">transit_tools</span><span class="o">.</span><span class="n">cleanargs</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+
+
+    <span class="n">G</span> <span class="o">=</span> <span class="n">HMMMethod</span><span class="o">.</span><span class="n">fromargs</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">console_message</span><span class="p">(</span><span class="s2">&quot;Printing the member variables:&quot;</span><span class="p">)</span>   
+    <span class="n">G</span><span class="o">.</span><span class="n">print_members</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running:&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">Run</span><span class="p">()</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

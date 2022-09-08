@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quality Control &mdash; TRANSIT v3.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/default.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Gumbel" href="method_gumbel.html" />
+    <link rel="prev" title="Running TRANSIT" href="transit_running.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TRANSIT
+            <img src="_static/transit_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                v3.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">TRANSIT MANUAL</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="transit_overview.html">TRANSIT Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_running.html">Running TRANSIT</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quality Control</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#qc-metrics-table">QC Metrics Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qc-plots">QC Plots</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#figure-1-read-count-distribution">Figure 1: Read-Count Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#figure-2-qq-plot-of-read-counts-vs-geometric-distribution">Figure 2: QQ-Plot of Read-Counts vs Geometric Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#figure-3-ranked-plot-of-read-counts">Figure 3: Ranked plot of Read-Counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#interpretation-of-data-quality">Interpretation of Data Quality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#beta-geometric-correction">Beta-Geometric Correction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ANALYSIS METHODS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="method_gumbel.html">Gumbel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_griffin.html">Griffin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_tn5gaps.html">Tn5Gaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_HMM.html">HMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_resampling.html">Resampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_Utest.html">Mann-Whitney U-test (utest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_GI.html">Genetic Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_anova.html">ANOVA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_zinb.html">ZINB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_normalization.html">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_pathway_enrichment.html">Pathway Enrichment Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_corrplot.html">corrplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_heatmap.html">heatmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_ttnfitness.html">TTN-Fitness</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TRANSIT Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit_interactions_tutorial.html">Tutorial: Genetic Interactions Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_normalization_tutorial.html">Tutorial: Normalize datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_export_tutorial.html">Tutorial: Export datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transit_console_cheatsheet.html">Console Mode Cheat-Sheet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">TPP Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html">TPP Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#running-tpp">Running TPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#mapping-to-genomes-with-multiple-contigs">Mapping to Genomes with Multiple Contigs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#overview-of-data-processing-procedure">Overview of Data Processing Procedure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpp.html#statistics">Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transit.html">transit package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRANSIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Quality Control</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transit_features.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quality-control">
+<span id="transit-quality-control"></span><h1>Quality Control<a class="headerlink" href="#quality-control" title="Permalink to this headline"></a></h1>
+<p>TRANSIT has several useful features to help inspect the quality of datasets as
+and export them to different formats. (see also <a class="reference internal" href="tpp.html#tpp-statistics"><span class="std std-ref">TPP Statistics</span></a> )</p>
+<p>As you add datasets to the control or experimental sections, TRANSIT
+automatically provides some metrics like density, average, read-counts and
+max read-count to give you an idea of how the quality of the dataset.</p>
+<p>However, TRANSIT provides more in-depth statistics in the Quality Control
+window. To use this feature, add the annotation file for your organism
+(in .prot_table or GFF3 format). Next, add and highlight/select the desired
+read-count datasets in .wig format. Finally, click on View -&gt; Quality Control.
+This will open up a new window containing a table of metrics for the datasets
+as well as figures corresponding to whatever dataset is currently highlighted.</p>
+<a class="reference internal image-reference" href="_images/transit_quality_control_window.png"><img alt="_images/transit_quality_control_window.png" class="align-center" src="_images/transit_quality_control_window.png" style="width: 600px;" /></a>
+<section id="qc-metrics-table">
+<h2>QC Metrics Table<a class="headerlink" href="#qc-metrics-table" title="Permalink to this headline"></a></h2>
+<p>The Quality Control window contains a table of the datasets and metrics, similar
+to the one in the main TRANSIT interface. This table has an extended set of
+metrics to provide a better picture of the quality of the datasets:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 27%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Header</p></th>
+<th class="head"><p>Column Definition</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>File</p></td>
+<td><p>Name of dataset file.</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Density</p></td>
+<td><p>Fraction of sites with insertions.</p></td>
+<td><p>“Well saturated” Himar1 datasets have &gt;30% saturation. Beneath this, statistical methods may have trouble.</p></td>
+</tr>
+<tr class="row-even"><td><p>Mean Read</p></td>
+<td><p>Average read-count, including empty sites.</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>NZMean Read</p></td>
+<td><p>Average read-count, excluding empty sites.</p></td>
+<td><p>A value between 30-200 is usually good for Himar1 datasets. Too high or too low can indicate problems.</p></td>
+</tr>
+<tr class="row-even"><td><p>NZMedian Read</p></td>
+<td><p>Median read-count, excluding empty sites.</p></td>
+<td><p>As read-counts can often have spikes, median serves as a good robust estimate.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Max Read</p></td>
+<td><p>Largest read-count in the dataset.</p></td>
+<td><p>Useful to determine whether there are outliers/spikes, which may indicate sequencing issues.</p></td>
+</tr>
+<tr class="row-even"><td><p>Total Reads</p></td>
+<td><p>Sum of total read-counts in the dataset.</p></td>
+<td><p>Indicates how much sequencing material was obtained. Typically &gt;1M reads is desired for Himar1 datasets.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Skew</p></td>
+<td><p>Skew of read-counts in the dataset.</p></td>
+<td><p>Large skew may indicate issues with a dataset. Typically a skew &lt; 50 is desired. May be higher when
+library is under strong selection</p></td>
+</tr>
+<tr class="row-even"><td><p>Kurtosis</p></td>
+<td><p>Kurtosis of the read-counts in the dataset.</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="qc-plots">
+<h2>QC Plots<a class="headerlink" href="#qc-plots" title="Permalink to this headline"></a></h2>
+<p>The Quality Control window also contains several plots that are helpful to
+visualize the quality of the datasets. These plots are unique to the dataset
+selected in the Metrics Table (below the figures). They will update depending
+on which row in the Metrics Table is selected:</p>
+<section id="figure-1-read-count-distribution">
+<h3>Figure 1: Read-Count Distribution<a class="headerlink" href="#figure-1-read-count-distribution" title="Permalink to this headline"></a></h3>
+<a class="reference internal image-reference" href="_images/transit_quality_control_histogram.png"><img alt="_images/transit_quality_control_histogram.png" class="align-center" src="_images/transit_quality_control_histogram.png" style="width: 600px;" /></a>
+<p>The first plot in the Quality Control window is a histogram of the non-zero read-counts in the selected dataset. While read-counts are not truly geometrically distributed, “well-behaved” datasets often look “Geometric-like”, i.e. low counts are more frequent than very large counts. Datasets which where this is not the case may reflect a problem.</p>
+</section>
+<section id="figure-2-qq-plot-of-read-counts-vs-geometric-distribution">
+<h3>Figure 2: QQ-Plot of Read-Counts vs Geometric Distribution<a class="headerlink" href="#figure-2-qq-plot-of-read-counts-vs-geometric-distribution" title="Permalink to this headline"></a></h3>
+<a class="reference internal image-reference" href="_images/transit_quality_control_qqplot.png"><img alt="_images/transit_quality_control_qqplot.png" class="align-center" src="_images/transit_quality_control_qqplot.png" style="width: 600px;" /></a>
+<p>The second plot in the Quality Control window is a quantile-quantile plot (“QQ plot”) of the non-zero read-counts in the selected dataset, versus a theoretical geometric distribution fit on these read-counts. While read-counts are not truly geometrically distributed, the geometric distribution (a special case of the Negative Binomial distribution), can serve as a quick comparison to see how well-behaved the datasets are.</p>
+<p>As the read-counts are not truly geometric, some curvature in the QQplot is expected. However, if the plot curves strongly from the identity line (y=x) then the read-counts may be highly skewed. In this case, using the “betageom” normalization option when doing statistical analyses may be a good idea as it is helpful in correcting the skew.</p>
+</section>
+<section id="figure-3-ranked-plot-of-read-counts">
+<h3>Figure 3: Ranked plot of Read-Counts<a class="headerlink" href="#figure-3-ranked-plot-of-read-counts" title="Permalink to this headline"></a></h3>
+<a class="reference internal image-reference" href="_images/transit_quality_control_ranked.png"><img alt="_images/transit_quality_control_ranked.png" class="align-center" src="_images/transit_quality_control_ranked.png" style="width: 600px;" /></a>
+<p>The second plot in the Quality Control window is a plot of the read-counts in sorted order. This may be helpful in indentifying outliers that may exist in the dataset. Typically, some large counts are expected and some normalization methods, like TTR, are robust to such outliers. However, too many outliers, or one single outlier that is overhwelmingly different than the rest may indicate an issue like PCR amplification (especially in libraries constructed older protocols).</p>
+</section>
+</section>
+<section id="interpretation-of-data-quality">
+<h2>Interpretation of Data Quality<a class="headerlink" href="#interpretation-of-data-quality" title="Permalink to this headline"></a></h2>
+<p>It is important to be able to evaluate the quality of datasets.
+In a nutshell, we look at statistics like saturation, and mean read count,
+but also things like max count and skewness.</p>
+<p>There are two ways to do QC in Transit - via the GUI and command-line.
+In the GUI, one can load a set of
+wig files a select “View-&gt;Quality Control” in the menu; this will
+display some plots of read-count distribution.  Ideally, you want most of
+your datasets to fall along the diagonal on a QQ-plot.  Real data will
+often deviate somewhat (I will try to be more quantitative about this in the future),
+but if a dataset skews far off from the diagonal, it could cause problems
+with analytical methods like resampling or the HMM.</p>
+<img alt="http://saclab.tamu.edu/essentiality/transit/QC_example.png" src="http://saclab.tamu.edu/essentiality/transit/QC_example.png" />
+<p>You can also generate the same table to statistics as on the QC panel
+from the command-line using the <span class="xref std std-ref">tnseq_stats</span> command.</p>
+<p>Below the plots are a table of statistics.  While there are not
+rigorous criteria for defining “bad” datasets, rules of thumb I use
+for “good” datasets are: density&gt;30% (ideally &gt;50%) and NZmean&gt;10 (ideally &gt;50).
+In addition, I look
+at MaxReadCount and Skewness as indicators.  Typically, MaxReadCount
+will be in the range of a few thousand to tens-of-thousands.
+If you see individual sites with
+counts in the range of 10<sup>5</sup>-10<sup>6</sup> , it might mean you have some positive
+selection at a site (e.g. biological, or due to PCR jackpotting), and
+this can have the effect of reducing counts and influencing the
+distribution at all the other sites.  If MaxReadCount&lt;100, that is also
+probably problematic (either not enough reads, or possibly skewing).
+Also, skewness&gt;30 often (but not
+always) signals a problem.  Kurtosis doesn’t seem to be very
+meaningful.  The reason it is not easy to boil all these down to a
+simple set of criteria is that some some of the metrics interact with
+each other.</p>
+</section>
+<section id="beta-geometric-correction">
+<span id="bgc"></span><h2>Beta-Geometric Correction<a class="headerlink" href="#beta-geometric-correction" title="Permalink to this headline"></a></h2>
+<p>If you have a “bad” or poorly-behaving or “skewed” dataset (e.g. with mostly low
+counts, dominated by a few high counts), right now the only remedy you
+can try is applying the <strong>Beta-Geometric correction (BGC)</strong>, which is a
+non-linear adjustment to the insertion counts in a wig file to make
+them more like an ideal Geometric distribution (<a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/26932272">DeJesus &amp; Ioerger, 2016</a>). (Note, all the
+other normalizations, like TTR, are linear adjustments, and so they
+can’t correct for skewing.)</p>
+<p>In the GUI, when you are looking, you can change
+the normalization (e.g. from TTR to betageom) using the drop-down.  Be aware that the Beta-Geometric
+normalization is compute-intensive and might take few minutes.</p>
+<p>If it looks like it might help (i.e. if the QQ-plot fits the diagonal better using BG
+normalization),
+you can created BG-corrected versions of individual wig files by
+exporting them using the <a class="reference internal" href="transit_normalization_tutorial.html#normalization"><span class="std std-ref">normalize command</span></a>
+on the command-line with ‘-n betageom’ to specify normalization.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transit_running.html" class="btn btn-neutral float-left" title="Running TRANSIT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="method_gumbel.html" class="btn btn-neutral float-right" title="Gumbel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Michael A. DeJesus &amp; Thomas R. Ioerger.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
