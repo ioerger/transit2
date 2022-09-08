@@ -158,7 +158,7 @@ class TnseqStatsMethod(base.SingleConditionMethod):
             )
         for i in range(data.shape[0]):
             (
-                density,
+                density, # BOOKMARK
                 meanrd,
                 nzmeanrd,
                 nzmedianrd,

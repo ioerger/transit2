@@ -51,7 +51,7 @@ def create_sample_area(frame):
                     frame,
                     1,
                     gui_tools.bit_map,
-                    "Add Files",
+                    "Load Combined Wig and Metadata",
                     size=wx.Size(250, -1),
                 )
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
@@ -171,6 +171,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # 
     if True:
         for each_sample in universal.session_data.samples:
+            # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
             sample_table.add(dict(
                 # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
                 id=each_sample.id,
