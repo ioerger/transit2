@@ -899,27 +899,26 @@ class File(Analysis):
                 self.inputs.do_histogram = False
                 
             log10_adjusted_p_values = []
-            log2_fc_values    = [ each_row["log2FC"]       for each_row in self.rows ]
-            adjusted_p_values = [ each_row["Adj. p-value"] for each_row in self.rows ]
+            log2_fc_values = [ each_row["log2FC"]  for each_row in self.rows ]
+            p_values       = [ each_row["p-value"] for each_row in self.rows ]
             q_and_p_values_list = []
-            for row_index, (each_adjusted_p_value, each_row) in enumerate(zip(adjusted_p_values, self.rows)):
-                q_value = each_adjusted_p_value = each_row["Adj. p-value"] # BOOKMARK
-                q_value = list(each_row.values())[-1] # FIXME: this doesn't seem right, but its what was in the code originall. The -1 column currently is "Adj. p-value"
+            for row_index, (each_p_value, each_row) in enumerate(zip(p_values, self.rows)):
+                q_value = each_row["Adj. p-value"]
                 try:
-                    log10_p_value = -math.log(float(each_adjusted_p_value), 10)
+                    log10_p_value = -math.log(float(each_p_value), 10)
                 except ValueError as e:
                     log10_p_value = None
                 
-                q_and_p_values_list.append( (q_value, each_adjusted_p_value))
-                log10_adjusted_p_values.append(log10_p_value)
+                q_and_p_values_list.append( (q_value, each_p_value))
+                log10_p_values.append(log10_p_value)
             
             # 
             # replace missing values
             # 
-            good_values = [ each for each in log10_adjusted_p_values if each is not None ]
-            max_log10_adjusted_p_values = max(good_values)
+            good_values = [ each for each in log10_p_values if each is not None ]
+            max_log10_p_values = max(good_values)
             # replace None values with max value
-            log10_adjusted_p_values = [ (each if each is not None else max_log10_adjusted_p_values) for each in log10_adjusted_p_values ]
+            log10_p_values = [ (each if each is not None else max_log10_p_values) for each in log10_p_values ]
             
             # 
             # compute threshold (q_and_p_values_list, )
@@ -940,9 +939,9 @@ class File(Analysis):
                     threshold = backup_thresh
             
             # 
-            # plot (log2_fc_values, log10_adjusted_p_values, threshold)
+            # plot (log2_fc_values, log10_p_values, threshold)
             # 
-            plt.plot(log2_fc_values, log10_adjusted_p_values, "bo")
+            plt.plot(log2_fc_values, log10_p_values, "bo")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")
             plt.ylabel("-Log p-value (base 10)")
