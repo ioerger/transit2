@@ -66,7 +66,6 @@ class Analysis:
         normalization="TTR",
         samples=10000,
         adaptive=False,
-        do_histogram=False,
         include_zeros=False,
         pseudocount=1,
         replicates="Sum",
@@ -94,7 +93,6 @@ class Analysis:
         Optional Arguments:
         -s <integer>    :=  Number of samples. Default: -s 10000
         -n <string>     :=  Normalization method. Default: -n TTR
-        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
         -a              :=  Perform adaptive resampling. Default: Turned Off.
         -ez             :=  Exclude rows with zero across conditions. Default: Turned off
                             (i.e. include rows with zeros).
@@ -282,7 +280,6 @@ class Analysis:
         normalization = kwargs.get("n", "TTR")
         samples = int(kwargs.get("s", 10000))
         adaptive = kwargs.get("a", False)
-        do_histogram = kwargs.get("h", False)
         replicates = kwargs.get("r", "Sum")
         excludeZeros = kwargs.get("ez", False)
         include_zeros = not excludeZeros
@@ -307,7 +304,6 @@ class Analysis:
             normalization=normalization,
             samples=samples,
             adaptive=adaptive,
-            do_histogram=do_histogram,
             include_zeros=include_zeros,
             pseudocount=pseudocount,
             replicates=replicates,
@@ -333,8 +329,6 @@ class Analysis:
             if self.inputs.winz:
                 transit_tools.log("Winsorizing insertion counts")
 
-            histPath = ""
-   
             # Get orf data
             transit_tools.log("Getting Data")
             if self.inputs.diff_strains:
@@ -416,7 +410,7 @@ class Analysis:
                 position=position_exp,
             )
 
-            doLibraryResampling = False
+            do_library_resampling = False
             # If library string not empty
             if self.inputs.ctrl_lib_str or self.inputs.exp_lib_str:
                 letters_ctrl = set(self.inputs.ctrl_lib_str)
@@ -430,7 +424,7 @@ class Analysis:
                     lib_diff = letters_ctrl ^ letters_exp
                     # Check that their differences
                     if not lib_diff:
-                        doLibraryResampling = True
+                        do_library_resampling = True
                     else:
                         transit_tools.transit_error(
                             "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
@@ -439,7 +433,7 @@ class Analysis:
                         self.inputs.ctrl_lib_str = ""
                         self.inputs.exp_lib_str = ""
             
-            (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
+            (data, qval) = self.run_resampling(G_ctrl, G_exp, do_library_resampling)
             # 
             # write output
             # 
@@ -614,7 +608,7 @@ class Analysis:
         return numpy.array(c2)
 
     def run_resampling(
-        self, G_ctrl, G_exp=None, doLibraryResampling=False, histPath=""
+        self, G_ctrl, G_exp=None, do_library_resampling=False
     ):
         data = []
         N = len(G_ctrl)
@@ -674,7 +668,7 @@ class Analysis:
                     data2 = self.winsorize_resampling(data2)
                 
                 print(f'''self.inputs.adaptive = {self.inputs.adaptive}''')
-                if doLibraryResampling:
+                if do_library_resampling:
                     (
                         test_obs,
                         mean1,
@@ -716,28 +710,6 @@ class Analysis:
                         lib_str2=self.inputs.exp_lib_str,
                         pseudocount=self.inputs.pseudocount,
                     )
-
-            if self.inputs.do_histogram:
-                import matplotlib.pyplot as plt
-
-                if testlist:
-                    n, bins, patches = plt.hist(
-                        testlist, density=1, facecolor="c", alpha=0.75, bins=100
-                    )
-                else:
-                    n, bins, patches = plt.hist(
-                        [0, 0], density=1, facecolor="c", alpha=0.75, bins=100
-                    )
-                plt.xlabel("Delta Mean")
-                plt.ylabel("Probability")
-                plt.title("%s - Histogram of Delta Mean" % gene.orf)
-                plt.axvline(test_obs, color="r", linestyle="dashed", linewidth=3)
-                plt.grid(True)
-                genePath = os.path.join(histPath, gene.orf + ".png")
-                if not os.path.exists(histPath):
-                    os.makedirs(histPath)
-                plt.savefig(genePath)
-                plt.clf()
 
             sum1 = numpy.sum(data1)
             sum2 = numpy.sum(data2)
@@ -882,21 +854,18 @@ class File(Analysis):
         with gui_tools.nice_error_log:
             try: import matplotlib.pyplot as plt
             except:
-                print("Error: cannot do histograms")
-                self.inputs.do_histogram = False
+                print("Error: cannot do plots, no matplotlib")
                 
-            log10_adjusted_p_values = []
             log2_fc_values = [ each_row["log2FC"]  for each_row in self.rows ]
             p_values       = [ each_row["p-value"] for each_row in self.rows ]
-            q_and_p_values_list = []
-            for row_index, (each_p_value, each_row) in enumerate(zip(p_values, self.rows)):
-                q_value = each_row["Adj. p-value"]
+            q_values       = [ each_row["Adj. p-value"] for each_row in self.rows ]
+            log10_p_values = []
+            for each_p_value in p_values:
                 try:
                     log10_p_value = -math.log(float(each_p_value), 10)
                 except ValueError as e:
                     log10_p_value = None
                 
-                q_and_p_values_list.append( (q_value, each_p_value))
                 log10_p_values.append(log10_p_value)
             
             # 
@@ -908,19 +877,19 @@ class File(Analysis):
             log10_p_values = [ (each if each is not None else max_log10_p_values) for each in log10_p_values ]
             
             # 
-            # compute threshold (q_and_p_values_list, )
+            # compute threshold
             # 
+            # NOTE: find the p-value (horizontal line) that corrisponds to where q-value == 0.05
             if True:
-                count = 0
                 threshold = 0.00001
                 backup_thresh = 0.00001
+                q_and_p_values_list = list(zip(q_values, p_values))
                 q_and_p_values_list.sort()
                 for (q, p) in q_and_p_values_list:
                     backup_thresh = p
                     if q > 0.05:
                         break
-                    threshold = p
-                    count += 1
+                    threshold = p # should be equivlent to: threshold = max(p, threshold) # because they're sorted
 
                 if threshold == 0:
                     threshold = backup_thresh
@@ -933,7 +902,7 @@ class File(Analysis):
             plt.xlabel("Log Fold Change (base 2)")
             plt.ylabel("-Log p-value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
-            plt.title("Adjusted threshold (red line): %1.8f" % threshold)
+            plt.title("Adjusted threshold (red line): P-value=%1.8f" % threshold)
             plt.show()
 
 class ResamplingFile(base.TransitFile):
@@ -970,7 +939,6 @@ class ResamplingFile(base.TransitFile):
     def get_menus(self):
         menus = []
         menus.append(("Display in Track View", self.display_in_track_view))
-        menus.append(("Display Histogram", self.display_histogram))
         return menus
 
     

@@ -586,14 +586,14 @@ class ResamplingMethod(base.DualConditionMethod):
         if self.winz:
             transit_tools.log("Winsorizing insertion counts")
 
-        histPath = ""
+        hist_path = ""
         if self.doHistogram:
-            histPath = os.path.join(
+            hist_path = os.path.join(
                 os.path.dirname(self.output.name),
                 transit_tools.fetch_name(self.output.name) + "_histograms",
             )
-            if not os.path.isdir(histPath):
-                os.makedirs(histPath)
+            if not os.path.isdir(hist_path):
+                os.makedirs(hist_path)
 
         # Get orf data
         transit_tools.log("Getting Data")
@@ -674,7 +674,7 @@ class ResamplingMethod(base.DualConditionMethod):
             position=position_exp,
         )
 
-        doLibraryResampling = False
+        do_library_resampling = False
         # If library string not empty
         if self.ctrl_lib_str or self.exp_lib_str:
             letters_ctrl = set(self.ctrl_lib_str)
@@ -688,7 +688,7 @@ class ResamplingMethod(base.DualConditionMethod):
                 lib_diff = letters_ctrl ^ letters_exp
                 # Check that their differences
                 if not lib_diff:
-                    doLibraryResampling = True
+                    do_library_resampling = True
                 else:
                     transit_tools.transit_error(
                         "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
@@ -697,7 +697,7 @@ class ResamplingMethod(base.DualConditionMethod):
                     self.ctrl_lib_str = ""
                     self.exp_lib_str = ""
 
-        (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
+        (data, qval) = self.run_resampling(G_ctrl, G_exp, do_library_resampling, hist_path)
         self.write_output(data, qval, start_time)
 
         self.finish()
@@ -862,7 +862,7 @@ class ResamplingMethod(base.DualConditionMethod):
         #  return numpy.array(result)
 
     def run_resampling(
-        self, G_ctrl, G_exp=None, doLibraryResampling=False, histPath=""
+        self, G_ctrl, G_exp=None, do_library_resampling=False, hist_path=""
     ):
         data = []
         N = len(G_ctrl)
@@ -922,7 +922,7 @@ class ResamplingMethod(base.DualConditionMethod):
                     data1 = self.winsorize_resampling(data1)
                     data2 = self.winsorize_resampling(data2)
 
-                if doLibraryResampling:
+                if do_library_resampling:
                     (
                         test_obs,
                         mean1,
@@ -981,9 +981,9 @@ class ResamplingMethod(base.DualConditionMethod):
                 plt.title("%s - Histogram of Delta Mean" % gene.orf)
                 plt.axvline(test_obs, color="r", linestyle="dashed", linewidth=3)
                 plt.grid(True)
-                genePath = os.path.join(histPath, gene.orf + ".png")
-                if not os.path.exists(histPath):
-                    os.makedirs(histPath)
+                genePath = os.path.join(hist_path, gene.orf + ".png")
+                if not os.path.exists(hist_path):
+                    os.makedirs(hist_path)
                 plt.savefig(genePath)
                 plt.clf()
 
