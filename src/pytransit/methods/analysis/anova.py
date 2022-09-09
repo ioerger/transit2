@@ -141,42 +141,41 @@ class Analysis:
 
     @classmethod
     def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
-            # 
-            # get wig files
-            # 
-            combined_wig = universal.session_data.combined_wigs[0]
-            Analysis.inputs.combined_wig = combined_wig.main_path
-            Analysis.inputs.metadata     = combined_wig.metadata.path
-            
-            # 
-            # get annotation
-            # 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            # FIXME: enable this once I get a valid annotation file example
-            # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
-            #     return None
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="test1_output.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-            )
-            if not Analysis.inputs.output_path:
-                return None
+        # 
+        # get wig files
+        # 
+        combined_wig = universal.session_data.combined_wigs[0]
+        Analysis.inputs.combined_wig = combined_wig.main_path
+        Analysis.inputs.metadata     = combined_wig.metadata.path
+        
+        # 
+        # get annotation
+        # 
+        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        # FIXME: enable this once I get a valid annotation file example
+        # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
+        #     return None
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="test1_output.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        if not Analysis.inputs.output_path:
+            return None
 
-            return Analysis.instance
+        return Analysis.instance
 
     @classmethod
     def from_args(cls, args, kwargs):
