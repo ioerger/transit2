@@ -575,7 +575,7 @@ class File(Analysis):
                     # assume first non-comment line is header
                     if number_of_conditions == -1:
                         # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, lfc_s) X number_of_conditions conditions)
-                        number_of_conditions = int((len(w) - 6) / 2)
+                        number_of_conditions = int((len(w) - 8) / 2)
                         headers = headers[3 : 3 + number_of_conditions]
                         headers = [x.replace("Mean_", "") for x in headers]
                     else:
@@ -602,13 +602,20 @@ class File(Analysis):
                         lfc_s.append(lfcs)
 
             print("heatmap based on %s genes" % len(hits))
-            gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
-            hash = {}
-            headers = [h.replace("Mean_", "") for h in headers]
-            for i, col in enumerate(headers):
-                hash[col] = FloatVector([x[i] for x in lfc_s])
-            df = DataFrame(hash)
-            transit_tools.r_heatmap_func(df, StrVector(gene_names), output_path)
+            try:
+                gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
+                hash = {}
+                print(f'''headers = {headers}''')
+                headers = [h.replace("Mean_", "") for h in headers]
+                for i, col in enumerate(headers):
+                    print(f'''col = {col}''')
+                    hash[col] = FloatVector([x[i] for x in lfc_s])
+                df = DataFrame(hash)
+                print(f'''df = {df}''')
+                print(f'''StrVector(gene_names) = {StrVector(gene_names)}''')
+                transit_tools.r_heatmap_func(df, StrVector(gene_names), output_path)
+            except Exception as error:
+                print(f'''error = {error}''')
             
             # add it as a result
             results_area.add(output_path)
