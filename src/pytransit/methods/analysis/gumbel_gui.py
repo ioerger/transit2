@@ -282,11 +282,11 @@ class Analysis:
                     self.inputs.annotation_path,
                     data=data,
                     position=position,
-                    #minread=1,  ### add these options?
-                    #reps=self.replicates,
+                    minread=1,  ### add these options?
+                    reps=self.inputs.replicates,
                     #ignore_codon=self.ignore_codon,
-                    #n_terminus=self.n_terminus, 
-                    #c_terminus=self.c_terminus,
+                    n_terminus=self.inputs.iN, 
+                    c_terminus=self.inputs.iC,
                 )
                 N = len(G)
 
