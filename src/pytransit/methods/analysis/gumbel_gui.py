@@ -476,6 +476,12 @@ class Analysis:
                     ),
                 annotation_path=self.inputs.annotation_path,
                 time=(time.time() - self.start_time),
+
+                ES = str(calls.count("E")) + " #essential based on Gumbel",
+                ESB = str(calls.count("EB")) + " #essential based on Binomial",
+                NE = str(calls.count("NE")) + " #non-essential",
+                U = str(calls.count("U")) + " #uncertain",
+                S = str(calls.count("S")) +" #too-short",
             ),
         )
         
