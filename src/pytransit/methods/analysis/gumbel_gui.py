@@ -19,6 +19,7 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
 from pytransit.components.spreadsheet import SpreadSheet
+import pytransit.tools.console_tools as console_tools
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
@@ -26,11 +27,13 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
+from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button
+
 
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "#gumbel_gui"
+    identifier  = "Gumbel"
     short_name  = "gumbel_gui"
     long_name   = "gumbel_gui"
     short_desc = "Bayesian analysis of essentiality based on long gaps."
@@ -38,6 +41,7 @@ class Analysis:
 
     Reference: DeJesus et al. (2013; Bioinformatics)"""
     transposons = ["himar1"]
+    columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
     
     inputs = LazyDict(
         combined_wig = None,
@@ -46,9 +50,21 @@ class Analysis:
         wig_files = None,
         annotation_path = None,
         output_path = None,
-        n_terminus = None,
-        c_terminus = None,
         normalization = "TTR",
+        samples = 10000,
+        burnin = 500,
+        read_count = 1,
+        trim = 1,
+        replicates = "Sum",
+        iN = 0,
+        iC=0,
+
+        cache_expruns = {},
+        cache_nn = {},
+
+        EXACT = 20,
+        ALPHA = 1,
+        BETA =1,
     )
     
     valid_cli_flags = [
@@ -106,35 +122,15 @@ class Analysis:
         self.panel = make_panel()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         self.value_getters = LazyDict()
-
-        self.value_getters.condition = create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
-
-        #self.value_getters.gumbel_results_path = self.create_input_field(self.panel,main_sizer, \
-        #  label="Gumbel results file:",value="glycerol_gumbel.out", \
-        #  tooltip="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
-
-        #self.value_getters.genome_path = self.create_input_field(self.panel,main_sizer, \
-        #  label="Genome sequence file:",value="H37Rv.fna",tooltip="For example, a .fasta or .fna file.")
-
-        self.value_getters.output_basename = self.create_input_field(self.panel,main_sizer, \
-          label="Basename for output files",value="gumbel.test",tooltip="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files.")
-
-        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR 
-
-        self.value_getters.samples = self.create_input_field(self.panel,main_sizer, \
-          label="Number of Samples",value=10000,tooltip=" Number of Samples to Choose")
-
-        self.value_getters.burnin = self.create_input_field(self.panel,main_sizer, \
-        label="Burnin",value=500,tooltip="Burnin")
-
-        self.value_getters.trim = self.create_input_field(self.panel,main_sizer, \
-        label="trim",value=1,tooltip="trim")
-
-        self.value_getters.n_terminus = self.create_input_field(self.panel,main_sizer, \
-        label="N terminus",value=1,tooltip="n terminus")
-
-        self.value_getters.c_terminus  = self.create_input_field(self.panel,main_sizer, \
-        label="C terminus",value=1,tooltip="c terminus")
+        sample_getter                = create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
+        
+        self.value_getters.condition       = create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
+        self.value_getters.normalization   = create_normalization_input(self.panel, main_sizer) # TTR 
+        self.value_getters.samples         = lambda *args: int(sample_getter(*args))
+        self.value_getters.burnin          = self.create_input_field(self.panel,main_sizer, label="Burnin",value=500,tooltip="Burnin")
+        self.value_getters.trim            = self.create_input_field(self.panel,main_sizer, label="trim",value=1,tooltip="trim")
+        self.value_getters.n_terminus      = create_n_terminus_input(self.panel, main_sizer)
+        self.value_getters.c_terminus      = create_c_terminus_input(self.panel, main_sizer)
 
 
         create_run_button(self.panel, main_sizer)
@@ -150,7 +146,6 @@ class Analysis:
             # 
             # get wig files
             # 
-
             combined_wig = universal.session_data.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
@@ -161,7 +156,6 @@ class Analysis:
             # 
             # get annotation
             # 
-
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
             # FIXME: enable this once I get a valid annotation file example
             # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
@@ -178,8 +172,29 @@ class Analysis:
 
             # 
             # get filename for results
-            Analysis.inputs.output_path = "%s.dat" % (Analysis.inputs.output_basename)
+            #Analysis.inputs.output_path = "%s.dat" % (Analysis.inputs.output_basename)
 
+            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+                default_file_name="output.dat",
+                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+            )
+            # if not Analysis.inputs.output_path:
+            #     return None
+
+            # 
+            # extract universal data
+            # 
+            # cwig_path     = universal.session_data.combined_wigs[0].main_path
+            # metadata_path = universal.session_data.combined_wigs[0].metadata.path
+            
+            # Analysis.inputs.combined_wig_params = dict(
+            #     combined_wig=cwig_path,
+            #     samples_metadata=metadata_path,
+            # )
+            
+            # Analysis.inputs.update(dict(
+            #     annotation_path_exp=Analysis.inputs.annotation_path_exp
+            # ))
 
             #if not Analysis.inputs.output_path: return None ### why?
             return Analysis.instance
@@ -189,26 +204,37 @@ class Analysis:
 
       if len(args)!=3: print(cls.usage_string); sys.exit(0) # use transit_error()?
 
+      # check for unrecognized flags
+      console_tools.handle_unrecognized_flags(
+            "-s -b -m -t -r -iN -iC".split(),
+            kwargs,
+            cls.usage_string,
+      )
+
       Analysis.inputs.update(dict(
         combined_wig = None,
         metadata = None,
         wig_files = args[0].split(','),
         annotation_path = args[1],
         output_path = args[2],
-        #normalization = "TTR",
+        normalization = kwargs.get("n", "TTR"),
+        samples = int(kwargs.get("s", 10000)),
+        burnin = int(kwargs.get("b", 500)),
+        read_count = int(kwargs.get("r", 1)),
+        trim = int(kwargs.get("t", 1)),
+        replicates = kwargs.get("r", "Sum"),
+        iN = float(kwargs.get("iN", 0.00)), 
+        iC=float(kwargs.get("iC", 0.00)),
       ))
+
+       
         
       return Analysis.instance
         
     def Run(self):
-        self.cache_expruns = {}
-        self.cache_nn = {}
-
-        self.EXACT = 20
-        self.ALPHA = 1
-        self.BETA =1
+ 
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting tnseq_stats analysis")
+            transit_tools.log("Starting gumbel analysis")
             self.start_time = time.time()
 
             #######################
@@ -239,11 +265,11 @@ class Analysis:
 
             (K, N) = data.shape
             merged = numpy.sum(data, axis=0)
-            self.nsites, nzeros = (
+            self.inputs.nsites, nzeros = (
                 merged.shape[0],
                 numpy.sum(merged == 0),
             )  # perhaps I should say >minCount
-            self.sat = (self.nsites - nzeros) / float(self.nsites)
+            self.inputs.sat = (self.inputs.nsites - nzeros) / float(self.inputs.nsites)
 
             # normalize the counts
             if self.inputs.normalization and self.inputs.normalization != "nonorm":
@@ -273,19 +299,11 @@ class Analysis:
             Z_sample, phi_sample, count, acctot= self.calc_gumbel(G)
 
             ###########################
-            # write output
-            # 
-            # note: first header line is filet ype, last header line is column headers
-            
-            self.write_gumbel_results(G, Z_sample, phi_sample, count, acctot)
+            # write output        
 
-            if universal.interface=="gui" and self.inputs.output_path!=None:
-                transit_tools.log(f"Adding File: {self.inputs.output_path}")
-                results_area.add(self.inputs.output_path)
-                transit_tools.log("Finished TnseqStats")
-                transit_tools.log("Time: %0.1fs\n" % (time.time() - self.start_time))
-            
-    # returns: TA_sites_df , Models_df , gene_obj_dict
+            self.write_gumbel_results(G, Z_sample, phi_sample, count, acctot)
+            results_area.add(self.inputs.output_path)
+            transit_tools.log(f"Finished running {Analysis.short_name}")       
 
     def calc_gumbel(self,G):
         transit_tools.log("Starting Gumbel Method")
@@ -399,51 +417,10 @@ class Analysis:
         return (Z_sample, phi_sample, count, acctot)
 
     def write_gumbel_results(self, G, Z_sample, phi_sample, count, acctot):
-        columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
+        
         ZBAR = numpy.apply_along_axis(numpy.mean, 1, Z_sample)
         (ess_t, non_t) = stat_tools.bayesian_essentiality_thresholds(ZBAR)
         binomial_n = math.log10(0.05) / math.log10(G.global_phi())
-
-        output =  open(self.inputs.output_path,"w")
-             # Orf    k   n   r   s   zbar
-        output.write("#Gumbel\n")
-        if self.wxobj:
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            output.write(
-                "#GUI with: wigfiles=%s, annotation=%s, output=%s, samples=%s, minread=%s, trim=%s\n"
-                % (
-                    ",".join(self.inputs.wig_files).encode("utf-8"),
-                    self.inputs.annotation_path.encode("utf-8"),
-                    self.inputs.outputs_gumbel_path.encode("utf-8"),
-                    self.samples,
-                    self.inputs.minread,
-                    self.trim,
-                )
-            )
-        else:
-            output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-
-        output.write("#Data: %s\n" % (",".join(self.inputs.wig_files).encode("utf-8")))
-        output.write("#Annotation path: %s\n" % self.inputs.annotation_path.encode("utf-8") )
-        output.write("#Trimming of TAs near termini: N-term=%s, C-term=%s (fraction of ORF length)\n" % (self.inputs.n_terminus, self.inputs.c_terminus) )
-        output.write("#Significance thresholds (FDR-corrected): Essential if Zbar>%f, Non-essential if Zbar<%f\n" % (ess_t, non_t) )
-        output.write("#Metropolis-Hastings Acceptance-Rate:\t%2.2f%%\n" % (100.0 * acctot / count) )
-        output.write("#Total Iterations Performed:\t%d\n" % count)
-        output.write("#Sample Size:\t%d\n" % self.samples)
-        output.write("#Total number of TA sites: %s\n" % self.nsites)
-        output.write("#Genome-wide saturation: %s\n" % (round(self.sat, 3)) )  # datasets merged
-        output.write("#phi estimate:\t%f (non-insertion probability in non-essential regions)\n" % numpy.average(phi_sample) )
-        output.write("#Minimum number of TA sites with 0 insertions to be classified as essential by Binomial: \t%0.3f\n" % binomial_n )
-        output.write("#Time: %s s\n" % (round(time.time() - self.start_time, 1)))
 
         i = 0
         data, calls = [], []
@@ -464,38 +441,54 @@ class Analysis:
             else:
                 call = "S"
 
-            data.append(
-                "%s\t%s\t%s\t%d\t%d\t%d\t%d\t%f\t%s\n"
-                % (g.orf, g.name, g.desc, g.k, g.n, g.r, g.s, zbar, call)
-            )
+            # data.append(
+            #     "%s\t%s\t%s\t%d\t%d\t%d\t%d\t%f\t%s\n"
+            #     % (g.orf, g.name, g.desc, g.k, g.n, g.r, g.s, zbar, call)
+            # )
+            data.append([g.orf, g.name, g.desc, g.k, g.n, g.r, g.s, zbar, call])
             calls.append(call)
         data.sort()
 
 
-        output.write("#Summary of Essentiality Calls:\n")
-        output.write("#  E  = %4s (essential based on Gumbel)\n" % (calls.count("E")))
-        output.write("#  EB = %4s (essential based on Binomial)\n" % (calls.count("EB")))
-        output.write("#  NE = %4s (non-essential)\n" % (calls.count("NE")))
-        output.write("#  U  = %4s (uncertain)\n" % (calls.count("U")))
-        output.write("#  S  = %4s (too short)\n" % (calls.count("S")))
+        rows = []
+        for row_index, row in enumerate(data):
+            (orf,name,desc, k,n, r, s, zbar,Call,) = row
+            rows.append(("%s\t%s\t%s\t%d\t%d\t%d\t%1.2f\t%1.1f\t%s" % (orf,name,desc, k,n, r, s, zbar,Call)).split('\t'))
 
-        output.write("#%s\n" % "\t".join(columns))
-        for line in data:
-            output.write(line)
-        output.close()
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.inputs.output_path))
-        results_area.add(self.inputs.output_path)
-        #self.finish()
-        transit_tools.log("Finished Gumbel Method")
+        # 
+        # write to file
+        # 
+        transit_tools.write_result(
+            path=self.inputs.output_path,
+            file_kind=Analysis.identifier,
+            rows=rows,
+            column_names=Analysis.columns,
+            extra_info=dict(
+                parameters=dict(
+                    samples=self.inputs.samples,
+                    norm=self.inputs.normalization,
+                    burnin = self.inputs.burnin,
+                    read_count = self.inputs.read_count,
+                    trim = self.inputs.trim,
+                    replicates = self.inputs.replicates,
+                    iN = self.inputs.iN,
+                    iC=self.inputs.iC,
+                    ),
+                annotation_path=self.inputs.annotation_path,
+                time=(time.time() - self.start_time),
+            ),
+        )
+        
+        
+         
 
     def good_orf(self, gene):
         return gene.n >= 3 and gene.t >= 150
 
     def expected_runs_cached(self, n, q):
-        if (n, q) not in self.cache_expruns:
-            self.cache_expruns[(n, q)] = tnseq_tools.expected_runs(n, q)
-        return self.cache_expruns[(n, q)]
+        if (n, q) not in self.inputs.cache_expruns:
+            self.inputs.cache_expruns[(n, q)] = tnseq_tools.expected_runs(n, q)
+        return self.inputs.cache_expruns[(n, q)]
 
     def classify(self, n, r, p):
         if n == 0:
@@ -505,7 +498,7 @@ class Analysis:
         u = math.log(n * q, 1 / p)
         BetaGamma = B * tnseq_tools.get_gamma()
         if (
-            n < self.EXACT
+            n < self.inputs.EXACT
         ):  # estimate more accurately based on expected run len, using self.EXACT calc for small genes
             exprun = self.expected_runs_cached(n, p)
             u = (
@@ -526,7 +519,7 @@ class Analysis:
         for i in range(
             len(N)
         ):  # estimate more accurately based on expected run len, using self.EXACT calc for small genes
-            if N[i] < self.EXACT:
+            if N[i] < self.inputs.EXACT:
                 mu[i] = self.expected_runs_cached(int(N[i]), p) - BetaGamma
         sigma = 1 / math.log(1 / p)
         # for i in range(len(N)): print('\t'.join([str(x) for x in N[i],R[i],self.expected_runs_cached(int(N[i]),q),mu[i],scipy.stats.gumbel_r.pdf(R[i], mu[i], sigma)]))
@@ -541,7 +534,7 @@ class Analysis:
         for i in range(
             len(N)
         ):  # estimate more accurately based on expected run len, using self.EXACT calc for small genes
-            if N[i] < self.EXACT:
+            if N[i] < self.inputs.EXACT:
                 mu[i] = self.expected_runs_cached(int(N[i]), p) - BetaGamma
         sigma = 1.0 / math.log(1.0 / p)
         h0 = (
@@ -567,7 +560,7 @@ class Analysis:
         N = int(n + 1)
         for i in range(1, N):
             tot += 1.0 / (1.0 + math.exp(Kn * (MEAN_DOMAIN_SPAN - i)))
-        self.cache_nn[n] = tot
+        self.inputs.cache_nn[n] = tot
         return f / tot
 
 
@@ -575,14 +568,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith("#"):
-                    if line.startswith(Analysis.identifier):
-                        return True
-                else:
-                    return False
-        return False
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
@@ -593,7 +579,7 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="tnseq_stats",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows).Show(),
             })
         )
         
