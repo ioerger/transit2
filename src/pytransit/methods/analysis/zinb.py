@@ -12,6 +12,7 @@ from pytransit.tools.transit_tools import HAS_R
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
+import pytransit.tools.logging as logging
 
 ############# GUI ELEMENTS ##################
 
@@ -92,12 +93,6 @@ class ZinbMethod(base.MultiConditionMethod):
                     w = line.rstrip().split("\t")
                     rv, descr = w[8], w[0]
                     self.prot_table[rv] = descr
-
-    @classmethod
-    def transit_error(self, msg):
-        print(
-            "error: %s" % msg
-        )  # for some reason, transit_error() in base class or transit_tools doesn't work right; needs @classmethod
 
     @classmethod
     def from_args(self, args, kwargs):
@@ -198,12 +193,10 @@ class ZinbMethod(base.MultiConditionMethod):
                 for covarsByFile in covariatesMap
             ]
         except KeyError:
-            # self.transit_error("Error: Covariates not found for file {0}".format(f))
-            self.transit_error("Error: Covariates not found for sample:")
             for f in filenamesInCombWig:
                 if f not in covariatesMap[0]:
                     print(f)
-            sys.exit(0)
+            logging.error("Error: Covariates not found for sample:")
 
     def wigs_to_interactions(self, interactionsMap, filenamesInCombWig):
         """
@@ -217,12 +210,10 @@ class ZinbMethod(base.MultiConditionMethod):
                 for covarsByFile in interactionsMap
             ]
         except KeyError:
-            # self.transit_error("Error: Interaction var not found for file {0}".format(f))
-            self.transit_error("Error: Interaction var not found for sample")
             for f in filenamesInCombWig:
                 if f not in interactionsMap[0]:
                     print(f)
-            sys.exit(0)
+            logging.error("Error: Interaction var not found for sample")
 
     def stats_for_gene(self, siteIndexes, groupWigIndexMap, data):
         """
@@ -530,8 +521,7 @@ class ZinbMethod(base.MultiConditionMethod):
                             Rv = g["rv"]
                             break
                 if not Rv:
-                    self.transit_error("Cannot find gene: {0}".format(GENE))
-                    sys.exit(0)
+                    logging.error("Cannot find gene: {0}".format(GENE))
 
             if DEBUG:
                 transit_tools.log("======================================================================")
@@ -678,11 +668,10 @@ class ZinbMethod(base.MultiConditionMethod):
         packnames = ("MASS", "pscl")
         r_packages_needed = [x for x in packnames if not rpackages.isinstalled(x)]
         if len(r_packages_needed) > 0:
-            self.transit_error(
+            logging.error(
                 "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
                 % ({"0": '"{0}"'.format('", "'.join(r_packages_needed))})
             )
-            sys.exit(1)
 
         transit_tools.log("Getting Data")
         (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(

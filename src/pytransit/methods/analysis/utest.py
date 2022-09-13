@@ -518,19 +518,3 @@ class UTestMethod(base.DualConditionMethod):
         -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
         """ % sys.argv[0]
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = UTestMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

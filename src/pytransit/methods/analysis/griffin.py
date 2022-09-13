@@ -388,17 +388,3 @@ class GriffinMethod(base.SingleConditionMethod):
         self.finish()
         transit_tools.log("Finished Griffin Method")
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    G = GriffinMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

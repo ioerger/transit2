@@ -1174,20 +1174,3 @@ class GIMethod(base.QuadConditionMethod):
         else:
             return "N/A"
 
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = GIMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

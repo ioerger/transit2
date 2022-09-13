@@ -810,18 +810,3 @@ class HMMMethod(base.SingleConditionMethod):
         for line in lines:
             output.write(line)
         output.close()
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    G = HMMMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

@@ -182,66 +182,31 @@ def basename(filepath):
 def dirname(filepath):
     return os.path.dirname(os.path.abspath(filepath))
 
-def show_ask_warning(MSG=""):
-    dial = wx.MessageDialog(None, MSG, "Warning", wx.OK | wx.CANCEL | wx.ICON_EXCLAMATION)
-    return dial.ShowModal()
-
-def show_error_dialog(message):
-    dial = wx.MessageDialog(None, message, "Error", wx.OK | wx.ICON_ERROR)
-    dial.ShowModal()
-
-def log(message, *args, **kwargs):
-    import inspect
-    import os
-    message = f"{message} "+ " ".join([ f"{each}" for each in args])
-    
-    # get some context as to who is creating the message
-    stack             = inspect.stack()
-    caller_frame_info = stack[1]
-    file_name         = ""
-    caller_name       = ""
-    try: file_name = os.path.basename(caller_frame_info.filename)
-    except Exception as error: pass # sometimes the caller doesn't have a file name (ex: REPL)
-    try: caller_name = caller_frame_info.function
-    except Exception as error: pass # sometimes the caller doesn't have a function name (ex: lambda)
-    
-    # remove the .py extension
-    if file_name[len(file_name)-3:len(file_name)] == ".py":
-        file_name = file_name[0:len(file_name)-3]
-    
-    print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
-    if HAS_WX:
-        import pytransit.tools.gui_tools as gui_tools
-        gui_tools.set_status(message)
-    
-def transit_error(text):
-    log(text)
-    try:
-        show_error_dialog(text)
-    except:
-        pass
-
 def validate_annotation(annotation):
     if not annotation or not os.path.exists(annotation):
-        transit_error("Error: No or Invalid annotation file selected!")
+        import pytransit.tools.logging as logging
+        logging.error("Error: No or Invalid annotation file selected!")
         return False
     return True
 
 def validate_control_datasets(ctrldata):
     if len(ctrldata) == 0:
-        transit_error("Error: No control datasets selected!")
+        import pytransit.tools.logging as logging
+        logging.error("Error: No control datasets selected!")
         return False
     return True
 
 def validate_both_datasets(ctrldata, expdata):
+    import pytransit.tools.logging as logging
+    
     if len(ctrldata) == 0 and len(expdata) == 0:
-        transit_error("Error: No datasets selected!")
+        logging.error("Error: No datasets selected!")
         return False
     elif len(ctrldata) == 0:
-        transit_error("Error: No control datasets selected!")
+        logging.error("Error: No control datasets selected!")
         return False
     elif len(expdata) == 0:
-        transit_error("Error: No experimental datasets selected!")
+        logging.error("Error: No experimental datasets selected!")
         return False
     else:
         return True
@@ -249,10 +214,12 @@ def validate_both_datasets(ctrldata, expdata):
 def validate_transposons_used(datasets, transposons, justWarn=True):
     # Check if transposon type is okay.
     unknown = tnseq_tools.get_unknown_file_types(datasets, transposons)
+    impor 
     if unknown:
         if justWarn:
-            answer = show_ask_warning(
-                "Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: %s. Proceeding may lead to errors. Click OK to continue."
+            import pytransit.tools.logging as logging
+            answer = logging.warn(
+                "Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: %s"
                 % (",".join(unknown))
             )
             if answer == wx.ID_CANCEL:
@@ -260,7 +227,8 @@ def validate_transposons_used(datasets, transposons, justWarn=True):
             else:
                 return True
         else:
-            transit_error(
+            import pytransit.tools.logging as logging
+            logging.error(
                 "Error: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: %s."
                 % (",".join(unknown))
             )

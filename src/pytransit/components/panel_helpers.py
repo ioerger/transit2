@@ -207,8 +207,9 @@ if True:
             import pytransit.tools.stat_tools as stat_tools
             
             if not universal.session_data.selected_samples:
-                transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
-                return
+                import pytransit.tools.logging as logging
+                # NOTE: was a popup
+                logging.error("Need to select at least one control or experimental dataset.")
             
             from pytransit.universal_data import universal
             from pytransit.tools.tnseq_tools import Wig

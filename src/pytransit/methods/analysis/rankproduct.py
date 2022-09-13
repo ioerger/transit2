@@ -493,19 +493,3 @@ class RankProductMethod(base.DualConditionMethod):
         self.finish()
         transit_tools.log("Finished rankproduct Method")
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = RankProductMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

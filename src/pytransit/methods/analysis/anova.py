@@ -541,21 +541,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def display_histogram(self, display_frame, event):
-        pass
-        # gene = display_frame.grid.GetCellValue(display_frame.row, 0)
-        # filepath = os.path.join(
-        #     ntpath.dirname(display_frame.path),
-        #     transit_tools.fetch_name(display_frame.path),
-        # )
-        # filename = os.path.join(filepath, gene + ".png")
-        # if os.path.exists(filename):
-        #     imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
-        #     imgWindow.Show()
-        # else:
-        #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-        #     print("Error Displaying File. Histogram image does not exist.")
-
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         with gui_tools.nice_error_log:
             if not HAS_R:

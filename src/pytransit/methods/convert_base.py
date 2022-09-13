@@ -61,26 +61,6 @@ class ConvertMethod:
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
 
-    def console_message(self, text):
-        sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    def console_message_inplace(self, text):
-        sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
-        sys.stdout.flush()
-
-    def transit_message_inplace(self, text):
-        self.console_message_inplace(text)
-
-    def transit_error(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.show_error_dialog(text)
-
-    def transit_warning(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.ShowWarning(text)
-
 class TransitConvert:
     def __init__(
         self, sn, ln, desc, lab, method_class=ConvertMethod, gui_class=ConvertGUI

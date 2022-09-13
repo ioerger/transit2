@@ -21,6 +21,7 @@ import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
 import pytransit.tools.console_tools as console_tools
+import pytransit.tools.logging as logging
 
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input
 
@@ -115,8 +116,9 @@ class ResamplingFile(base.TransitFile):
             imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
             imgWindow.Show()
         else:
-            transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-            print("Error Displaying File. Histogram image does not exist.")
+            import pytransit.tools.logging as logging
+            # NOTE: was a popup
+            logging.error("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
 
 
 ############# GUI ##################
@@ -556,8 +558,7 @@ class ResamplingMethod(base.DualConditionMethod):
         """
         d_filtered, cond_filtered = [], []
         if len(included_conditions) != 2:
-            self.transit_error("Only 2 conditions expected", included_conditions)
-            sys.exit(0)
+            logging.error("Only 2 conditions expected", included_conditions)
         for i, c in enumerate(conditions):
             if c.lower() in included_conditions:
                 d_filtered.append(data[i])
@@ -638,11 +639,9 @@ class ResamplingMethod(base.DualConditionMethod):
         (K_exp, N_exp) = data_exp.shape
 
         if not self.diffStrains and (N_ctrl != N_exp):
-            self.transit_error(
-                "Error: Ctrl and Exp wig files don't have the same number of sites."
+            logging.error(
+                "Error: Ctrl and Exp wig files don't have the same number of sites.Make sure all .wig files come from the same strain."
             )
-            self.transit_error("Make sure all .wig files come from the same strain.")
-            return
         # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)
 
         transit_tools.log("Preprocessing Ctrl data...")
@@ -686,12 +685,10 @@ class ResamplingMethod(base.DualConditionMethod):
                 if not lib_diff:
                     doLibraryResampling = True
                 else:
-                    transit_tools.transit_error(
+                    logging.error(
                         "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
                         % (self.ctrl_lib_str, self.exp_lib_str)
                     )
-                    self.ctrl_lib_str = ""
-                    self.exp_lib_str = ""
 
         (data, qval) = self.run_resampling(G_ctrl, G_exp, doLibraryResampling, histPath)
         self.write_output(data, qval, start_time)
@@ -870,25 +867,17 @@ class ResamplingMethod(base.DualConditionMethod):
                 if self.diffStrains:
                     continue
                 else:
-                    self.transit_error(
-                        "Error: Gene in ctrl data not present in exp data"
+                    logging.error(
+                        "Error: Gene in ctrl data not present in exp data. Make sure all .wig files come from the same strain."
                     )
-                    self.transit_error(
-                        "Make sure all .wig files come from the same strain."
-                    )
-                    return ([], [])
 
             gene_exp = G_exp[gene.orf]
             count += 1
 
             if not self.diffStrains and gene.n != gene_exp.n:
-                self.transit_error(
-                    "Error: No. of TA sites in Exp and Ctrl data are different"
+                logging.error(
+                    "Error: No. of TA sites in Exp and Ctrl data are different. Make sure all .wig files come from the same strain."
                 )
-                self.transit_error(
-                    "Make sure all .wig files come from the same strain."
-                )
-                return ([], [])
 
             if (gene.k == 0 and gene_exp.k == 0) or gene.n == 0 or gene_exp.n == 0:
                 (
@@ -1048,19 +1037,3 @@ class ResamplingMethod(base.DualConditionMethod):
             sys.argv[0],
         )
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = ResamplingMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

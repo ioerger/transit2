@@ -193,7 +193,9 @@ def file_action_func(event):
 
         results.file_action_choice_element.SetSelection(0)
     else:
-        transit_tools.show_error_dialog("Please select a results file to plot!")
+        import pytransit.tools.logging as logging
+        # NOTE: was a popup
+        logging.error("Please select a results file to plot!")
 
 def graph_gene_counts(dataset_name, dataset_type, dataset_path):
     with gui_tools.nice_error_log:
@@ -222,7 +224,9 @@ def graph_gene_counts(dataset_name, dataset_type, dataset_path):
             plt.grid(True)
             plt.show()
         else:
-            transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
+            import pytransit.tools.logging as logging
+            # NOTE: was a popup
+            logging.error("Need to select a 'Resampling' results file for this type of plot.")
 
 def graph_ranked_zbar(dataset_name, dataset_type, dataset_path):
     try:

@@ -18,6 +18,7 @@ import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
+import pytransit.tools.logging as logging
 
 # method_name = "example"
 
@@ -227,7 +228,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         # Validate transposon types
         types = tnseq_tools.get_file_types(ctrldata)
         if "himar1" in types:
-            answer = transit_tools.show_ask_warning(
+            answer = logging.warn(
                 "Warning: One of the selected wig files looks like a Himar1 dataset. This method is designed to work on Tn5 wig files. Proceeding will fill in missing data with zeroes. Click OK to continue."
             )
             if answer == wx.ID_CANCEL:
@@ -518,17 +519,3 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         intersect = self.intersect_size(run_interv, gene_interv)
         return float(intersect) / (gene_interv[1] - gene_interv[0])
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
-
-    G = Tn5GapsMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

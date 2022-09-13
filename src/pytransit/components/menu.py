@@ -18,6 +18,7 @@ documentation_url = "http://saclab.tamu.edu/essentiality/transit/transit.html"
 def create_menu(frame):
     # must imported inside the function to avoid circular import
     import pytransit.components.parameter_panel as parameter_panel
+    import pytransit.tools.logging as logging
     from pytransit.methods.analysis   import methods as analysis_methods
     from pytransit.methods.export     import methods as export_methods
     from pytransit.methods.convert    import methods as convert_methods
@@ -95,7 +96,8 @@ def create_menu(frame):
                     default_dir = os.getcwd()
 
                     if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
                     else:
 
                         output_path = frame.SaveFile(default_dir, default_file)
@@ -157,7 +159,8 @@ def create_menu(frame):
 
                     ORGANISM = transit_tools.fetch_name(annotation_path)
                     if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
 
                     elif output_path:
                         if frame.verbose:
@@ -221,7 +224,8 @@ def create_menu(frame):
                     default_dir = os.getcwd()
 
                     if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
                     else:
 
                         output_path = frame.SaveFile(default_dir, default_file)
@@ -347,7 +351,8 @@ def create_menu(frame):
                         plt.ylabel(selected_samples[1].id)
                         plt.show()
                     else:
-                        transit_tools.show_error_dialog("Please make sure only two samples are selected")
+                        # NOTE: was a popup
+                        logging.error("Please make sure only two samples are selected")
             frame.Bind(wx.EVT_MENU, when_scatter_plot_clicked, id=scatter_menu_item.GetId() )
 
         # 
@@ -371,10 +376,12 @@ def create_menu(frame):
                         view_window = trash.TrashFrame(frame, wig_ids, annotation_path, gene=gene)
                         view_window.Show()
                     elif not wig_ids:
-                        transit_tools.show_error_dialog("Error: No samples selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No samples selected.")
                         return
                     else:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
                         return
 
             frame.Bind(wx.EVT_MENU, when_track_view_clicked, id=track_view_option.GetId())
@@ -613,7 +620,8 @@ def annotation_gff3_to_pt(event):
         default_dir = os.getcwd()
 
         if not annotation_path:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
+            # NOTE: was a popup
+            logging.error("Error: No annotation file selected.")
         else:
             output_path = frame.SaveFile(default_dir, default_file)
             if not output_path:

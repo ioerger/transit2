@@ -713,22 +713,3 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             % (sys.argv[0])
         )
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
-
-    print("ARGS:", args)
-    print("KWARGS:", kwargs)
-
-    G = TTNFitnessMethod.from_args(sys.argv[1:])
-
-    print(G)
-    G.console_message("Printing the member variables:")
-
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

@@ -261,22 +261,3 @@ class MeanCountsMethod(base.SingleConditionMethod):
             """python %s export mean_counts <comma-separated .wig files>|<combined_wig> <annotation .prot_table> <output file> [-c]\n note: append -c if inputing a combined_wig file\n"""
             % (sys.argv[0])
         )
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
-
-    print("ARGS:", args)
-    print("KWARGS:", kwargs)
-
-    G = Example.from_args(sys.argv[1:])
-
-    print(G)
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()
