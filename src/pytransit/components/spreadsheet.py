@@ -1,5 +1,7 @@
 from pytransit.universal_data import universal
 
+SpreadSheet = None
+TransitTable = None
 if universal.interface == "gui":
     import wx.grid
 
