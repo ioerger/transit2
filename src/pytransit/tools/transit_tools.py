@@ -81,9 +81,10 @@ except Exception as e:
     rpackages   = None
 
 import pytransit
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
 import pytransit.basics.csv as csv
+from pytransit.tools import logging
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.basics.named_list import named_list
 from pytransit.tools.console_tools import clean_args
@@ -184,65 +185,49 @@ def dirname(filepath):
 
 def validate_annotation(annotation):
     if not annotation or not os.path.exists(annotation):
-        import pytransit.tools.logging as logging
+        # NOTE: returned false
         logging.error("Error: No or Invalid annotation file selected!")
-        return False
     return True
 
 def validate_control_datasets(ctrldata):
     if len(ctrldata) == 0:
-        import pytransit.tools.logging as logging
+        # NOTE: returned false
         logging.error("Error: No control datasets selected!")
-        return False
     return True
 
 def validate_both_datasets(ctrldata, expdata):
-    import pytransit.tools.logging as logging
-    
     if len(ctrldata) == 0 and len(expdata) == 0:
+        # NOTE: returned false
         logging.error("Error: No datasets selected!")
-        return False
     elif len(ctrldata) == 0:
+        # NOTE: returned false
         logging.error("Error: No control datasets selected!")
-        return False
     elif len(expdata) == 0:
+        # NOTE: returned false
         logging.error("Error: No experimental datasets selected!")
-        return False
     else:
         return True
 
-def validate_transposons_used(datasets, transposons, justWarn=True):
+def validate_transposons_used(datasets, transposons, just_warn=True):
     # Check if transposon type is okay.
     unknown = tnseq_tools.get_unknown_file_types(datasets, transposons)
-    impor 
     if unknown:
-        if justWarn:
-            import pytransit.tools.logging as logging
-            answer = logging.warn(
-                "Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: %s"
-                % (",".join(unknown))
-            )
-            if answer == wx.ID_CANCEL:
-                return False
-            else:
-                return True
+        if just_warn:
+            # NOTE: asked user a question
+            logging.warn(f"Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: {','.join(unknown)}")
+            return True
         else:
-            import pytransit.tools.logging as logging
-            logging.error(
-                "Error: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: %s."
-                % (",".join(unknown))
-            )
-            return False
-
+            # NOTE: returned false
+            logging.error(f"Error: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: {','.join(unknown)}.")
     return True
 
 def validate_wig_format(wig_list, wxobj=None):
     # Check if the .wig files include zeros or not
     status = 0
     genome = ""
-    includesZeros = tnseq_tools.check_wig_includes_zeros(wig_list)
+    includes_zeros = tnseq_tools.check_wig_includes_zeros(wig_list)
 
-    if sum(includesZeros) < len(includesZeros):
+    if sum(includes_zeros) < len(includes_zeros):
         # If console mode, just print(a warning)
         if not wxobj or not HAS_WX:
             warnings.warn(
@@ -277,9 +262,6 @@ def validate_wig_format(wig_list, wxobj=None):
             status = 3
             genome = ""
     return (status, genome)
-
-def validate_filetypes(datasets, transposons, justWarn=True):
-    validate_transposons_used(datasets, transposons, justWarn)
 
 def get_pos_hash(path):
     """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.
@@ -402,7 +384,7 @@ def get_validated_data(wig_list, wxobj=None):
 
     :Example:
 
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> (data, position) = tnseq_tools.get_validated_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -556,14 +538,14 @@ def filter_wigs_by_conditions(
     if len(excluded_conditions) > 0 and len(included_conditions) > 0:
         raise Exception(f'''Both excluded and included conditions have len > 0''')
     elif len(excluded_conditions) > 0:
-        transit_tools.log("conditions excluded: {0}".format(excluded_conditions))
+        logging.log("conditions excluded: {0}".format(excluded_conditions))
         for i, c in enumerate(conditions):
             if (c != unknown_cond_flag) and (c not in excluded_conditions):
                 d_filtered.append(data[i])
                 cond_filtered.append(conditions[i])
                 filtered_indexes.append(i)
     elif len(included_conditions) > 0:
-        transit_tools.log("conditions included: {0}".format(included_conditions))
+        logging.log("conditions included: {0}".format(included_conditions))
         for i, c in enumerate(conditions):
             if (c != unknown_cond_flag) and (c in included_conditions):
                 d_filtered.append(data[i])

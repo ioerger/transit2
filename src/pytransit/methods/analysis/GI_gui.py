@@ -199,7 +199,7 @@ class Analysis:
         
     def Run(self):
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting Genetic Interaction analysis")
+            logging.log("Starting Genetic Interaction analysis")
             start_time = time.time()
 
             self.inputs.n_terminus = 0
@@ -213,14 +213,14 @@ class Analysis:
             # get data
             # 
 
-            transit_tools.log("Getting Data")
+            logging.log("Getting Data")
             sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
-            transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
+            logging.log(f"Normalizing using: {self.inputs.normalization}")
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
                 
             # # Do LOESS correction if specified
             # if self.LOESS:
-            #   transit_tools.log("Performing LOESS Correction")
+            #   logging.log("Performing LOESS Correction")
             #   for j in range(K):
             #     data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -230,7 +230,7 @@ class Analysis:
             # 
             # note: self.inputs.condA1 = self.value_getters.condA1()
 
-            transit_tools.log("processing data")
+            logging.log("processing data")
             # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
             # could also pull this info from universal.session_data.samples?
             from pytransit.components.samples_area import sample_table
@@ -265,14 +265,14 @@ class Analysis:
             # 
             # note: first comment line is filetype, last comment line is column headers
 
-            transit_tools.log(f"Adding File: {self.inputs.output_path}")
+            logging.log(f"Adding File: {self.inputs.output_path}")
             results_area.add(self.inputs.output_path)
 
             # will open and close file, or print to console
             self.print_GI(results,adjusted_label,condA1,condA2,condB1,condB2,sample_table) 
 
-            transit_tools.log("Finished Genetic Interaction analysis")
-            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+            logging.log("Finished Genetic Interaction analysis")
+            logging.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     # is self.annotation_path already set?
 
@@ -487,7 +487,7 @@ class Analysis:
             percentage = (100.0 * (count + 1) / N)
             progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 
-            transit_tools.log(
+            logging.log(
                 "analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1))
             )
             count += 1
@@ -644,10 +644,10 @@ class Analysis:
             )
 
         if self.inputs.output_path != None: self.output.close() # otherwise, it is sys.stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)                         
         #self.finish()
-        transit_tools.log("Finished Genetic Interactions Method")
+        logging.log("Finished Genetic Interactions Method")
 
     @staticmethod
     def classify_interaction(delta_logFC, logFC_KO, logFC_WT):

@@ -166,7 +166,7 @@ class PathwayMethod(base.AnalysisMethod):
         )
 
     def Run(self):
-        transit_tools.log("Starting Pathway Enrichment Method")
+        logging.log("Starting Pathway Enrichment Method")
         start_time = time.time()
 
         # self.output in base class should be open by now
@@ -513,10 +513,10 @@ class PathwayMethod(base.AnalysisMethod):
             vals.append(" ".join(intersection))
             self.write("\t".join([str(x) for x in vals]))
 
-        transit_tools.log("Adding File: %s" % (self.outputFile))
+        logging.log("Adding File: %s" % (self.outputFile))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Pathway Enrichment Method")
+        logging.log("Finished Pathway Enrichment Method")
 
     ########## Ontologizer ###############
 
@@ -704,10 +704,10 @@ class PathwayMethod(base.AnalysisMethod):
             ]
             self.write("\t".join([str(x) for x in vals]))
 
-        transit_tools.log("Adding File: %s" % (self.outputFile))
+        logging.log("Adding File: %s" % (self.outputFile))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Pathway Enrichment Method")
+        logging.log("Finished Pathway Enrichment Method")
 
 
 ####################################################

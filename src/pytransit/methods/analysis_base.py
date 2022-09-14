@@ -5,7 +5,7 @@ import datetime
 
 import numpy
 
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import logging, transit_tools
 from pytransit.tools.transit_tools import wx, pub, WX_VERSION
 from pytransit.components.icon import InfoIcon
 
@@ -396,18 +396,16 @@ class MultiConditionMethod(AnalysisMethod):
         d_filtered, cond_filtered, filtered_indexes = [], [], []
 
         if len(excluded_conditions) > 0 and len(included_conditions) > 0:
-            import pytransit.tools.logging as logging
             logging.error("Both excluded and included conditions have len > 0")
-            sys.exit(0)
         elif len(excluded_conditions) > 0:
-            transit_tools.log("conditions excluded: {0}".format(excluded_conditions))
+            logging.log("conditions excluded: {0}".format(excluded_conditions))
             for i, c in enumerate(conditions):
                 if (c != self.unknown_cond_flag) and (c not in excluded_conditions):
                     d_filtered.append(data[i])
                     cond_filtered.append(conditions[i])
                     filtered_indexes.append(i)
         elif len(included_conditions) > 0:
-            transit_tools.log("conditions included: {0}".format(included_conditions))
+            logging.log("conditions included: {0}".format(included_conditions))
             for i, c in enumerate(conditions):
                 if (c != self.unknown_cond_flag) and (c in included_conditions):
                     d_filtered.append(data[i])

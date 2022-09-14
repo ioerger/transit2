@@ -1,5 +1,5 @@
 import sys, random, numpy
-import pytransit.tools.tnseq_tools
+from pytransit.tools import tnseq_tools
 from statsmodels.stats.multitest import fdrcorrection
 
 

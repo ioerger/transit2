@@ -13,10 +13,10 @@ import datetime
 
 from pytransit.methods import export_base as base
 import pytransit
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
 
 
 ############# Description ##################
@@ -174,11 +174,11 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Gene Mean Counts Export")
+        logging.log("Starting Gene Mean Counts Export")
         start_time = time.time()
 
         # Get orf data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         if self.combined_wig:
             (position, fulldata, datasets) = tnseq_tools.read_combined_wig(
                 self.ctrldata[0]
@@ -193,7 +193,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         hash = transit_tools.get_pos_hash(self.annotation_path)
         rv2info = transit_tools.get_gene_info(self.annotation_path)
 
-        transit_tools.log("Normalizing")
+        logging.log("Normalizing")
         self.output.write("#Summarized to Mean Gene Counts with TRANSIT.\n")
         if self.normalization != "nonorm":
             self.output.write("#Reads normalized using '%s'\n" % self.normalization)
@@ -251,9 +251,9 @@ class MeanCountsMethod(base.SingleConditionMethod):
             progress_update(text, percentage)
         self.output.close()
 
-        transit_tools.log("")  # Printing empty line to flush stdout
+        logging.log("")  # Printing empty line to flush stdout
         self.finish()
-        transit_tools.log("Finished Export")
+        logging.log("Finished Export")
 
     #
 

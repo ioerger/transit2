@@ -13,10 +13,7 @@ import scipy.stats
 import datetime
 
 from pytransit.methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
 
 
 ############# Description ##################
@@ -179,18 +176,18 @@ class Method(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Example Method")
+        logging.log("Starting Example Method")
         start_time = time.time()
 
         # Get orf data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
         (K, N) = data.shape
 
         if self.normalization and self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -268,11 +265,11 @@ class Method(base.SingleConditionMethod):
             self.output.write(line)
         self.output.close()
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Example Method")
+        logging.log("Finished Example Method")
 
     
 

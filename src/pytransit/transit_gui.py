@@ -52,15 +52,8 @@ from pytransit.components.annotation_area        import create_annotation_area
 from pytransit.basics.lazy_dict                  import LazyDict
 from pytransit.universal_data                    import SessionData, universal
 
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit
-import pytransit.methods.analysis
-import pytransit.methods.export
-import pytransit.methods.convert
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
 import pytransit.components.parameter_panel as parameter_panel
 import pytransit.components.trash as trash
 import pytransit.components.file_display as file_display
@@ -149,17 +142,7 @@ class TnSeekFrame(wx.Frame):
             
             self.inner_frame = frame
 
-
         self.Centre(wx.BOTH)
-        
-        # Timer
-        self.timer = wx.Timer(self)
-        def clear_status(event):
-            self.status_bar.SetStatusText("")
-            self.timer.Stop()
-        self.Bind(wx.EVT_TIMER, clear_status, self.timer)
-
-        
         self.SetIcon(images.transit_icon.GetIcon())
 
         self.workdir = os.getcwd()
@@ -211,7 +194,7 @@ class TnSeekFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             if self.verbose:
-                transit_tools.log(
+                logging.log(
                     "You chose the following output filename: %s" % path
                 )
         dlg.Destroy()
@@ -234,7 +217,7 @@ class TnSeekFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             if self.verbose:
-                transit_tools.log("You chose the following file: %s" % path)
+                logging.log("You chose the following file: %s" % path)
         dlg.Destroy()
         return path
 
@@ -249,7 +232,7 @@ class TnSeekFrame(wx.Frame):
         )
 
         if dlg.ShowModal() == wx.ID_OK:
-            transit_tools.log(
+            logging.log(
                 "Selected the '%s' normalization method" % dlg.GetStringSelection()
             )
 

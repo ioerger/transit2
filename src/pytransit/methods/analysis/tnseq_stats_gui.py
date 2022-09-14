@@ -113,7 +113,7 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            ###logging.log("included_conditions", Analysis.inputs.included_conditions)
 
             # 
             # save result files
@@ -146,7 +146,7 @@ class Analysis:
         
     def Run(self):
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting tnseq_stats analysis")
+            logging.log("Starting tnseq_stats analysis")
             start_time = time.time()
 
             # if you want to see which samples were selected...
@@ -157,18 +157,18 @@ class Analysis:
             # 
             # get data
             # 
-            transit_tools.log("Getting Data")
+            logging.log("Getting Data")
             if True:
                 sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
                 
-                transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
+                logging.log(f"Normalizing using: {self.inputs.normalization}")
                 data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
                 
             # 
             # process data
             # 
 
-            transit_tools.log("processing data")
+            logging.log("processing data")
             results = self.calc_tnseq_stats(data,filenames_in_comb_wig)
 
             # 
@@ -176,7 +176,7 @@ class Analysis:
             # 
             # note: first comment line is filetype, last comment line is column headers
 
-            transit_tools.log(f"Adding File: {self.inputs.output_path}")
+            logging.log(f"Adding File: {self.inputs.output_path}")
             results_area.add(self.inputs.output_path)
 
             file = sys.stdout # print to console if not output file defined
@@ -190,8 +190,8 @@ class Analysis:
               file.write("\t".join([str(x) for x in vals]) + "\n")
 
             if self.inputs.output_path != None: file.close()
-            transit_tools.log("Finished TnseqStats")
-            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+            logging.log("Finished TnseqStats")
+            logging.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     def pickands_tail_index(self, vals):
         srt = sorted(vals, reverse=True)

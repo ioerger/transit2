@@ -4,7 +4,7 @@ import sys
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
 import traceback
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import logging, transit_tools
 from pytransit.components.menu import selected_export_menu_item
 from pytransit.components.icon import InfoIcon
 

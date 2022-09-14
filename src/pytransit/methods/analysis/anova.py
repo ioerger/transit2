@@ -9,16 +9,11 @@ import collections
 import heapq
 
 import numpy
-from pytransit.basics.lazy_dict import LazyDict
 
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
-import pytransit.tools.console_tools as console_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.basics.lazy_dict import LazyDict
 import pytransit.basics.csv as csv
+import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.universal_data import universal
@@ -165,7 +160,7 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            logging.log("included_conditions", Analysis.inputs.included_conditions)
             # 
             # save result files
             # 
@@ -360,20 +355,20 @@ class Analysis:
 
     def Run(self):
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting Anova analysis")
+            logging.log("Starting Anova analysis")
             start_time = time.time()
             
             # 
             # get data
             # 
-            transit_tools.log("Getting Data")
+            logging.log("Getting Data")
             if True:
                 sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
                 
-                transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
+                logging.log(f"Normalizing using: {self.inputs.normalization}")
                 data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
                 
-                if self.inputs.winz: transit_tools.log("Winsorizing insertion counts")
+                if self.inputs.winz: logging.log("Winsorizing insertion counts")
                 conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
                 conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
                 conditions_list = transit_tools.select_conditions(
@@ -401,21 +396,21 @@ class Analysis:
                     conditions=condition_names,
                 ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
                 
-                transit_tools.log("reading genes")
+                logging.log("reading genes")
                 genes = tnseq_tools.read_genes(self.inputs.annotation_path)
             
             # 
             # process data
             # 
             if True:
-                transit_tools.log("processing data")
+                logging.log("processing data")
                 TASiteindexMap = {ta: i for i, ta in enumerate(sites)}
                 rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
                     genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
                 )
                 means_by_rv = self.means_by_rv(data, rv_site_indexes_map, genes, conditions)
 
-                transit_tools.log("Running Anova")
+                logging.log("Running Anova")
                 msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
                     data, genes, means_by_rv, rv_site_indexes_map, conditions
                 )
@@ -424,7 +419,7 @@ class Analysis:
             # write output
             # 
             if True:
-                transit_tools.log(f"Adding File: {self.inputs.output_path}")
+                logging.log(f"Adding File: {self.inputs.output_path}")
                 
                 # 
                 # generate rows
@@ -481,8 +476,8 @@ class Analysis:
                         ),
                     ),
                 )
-                transit_tools.log("Finished Anova analysis")
-                transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")
+                logging.log("Finished Anova analysis")
+                logging.log(f"Time: {time.time() - start_time:0.1f}s\n")
             results_area.add(self.inputs.output_path)
 
 @transit_tools.ResultsFile

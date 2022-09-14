@@ -1,13 +1,14 @@
 from pytransit.universal_data import universal
 
-if universal.interface == 'gui':
-    from pytransit.tools.gui_tools import set_status
-else:
-    def set_status(*args, **kwargs): pass
-
 def log(message, *args, **kwargs):
     import inspect
     import os
+    if universal.interface == 'gui':
+        from pytransit.tools.gui_tools import set_status
+    else:
+        def set_status(*args, **kwargs): pass
+        
+    
     message = f"{message} "+ " ".join([ f"{each}" for each in args])
     
     # get some context as to who is creating the message
@@ -26,10 +27,14 @@ def log(message, *args, **kwargs):
     
     print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
     if universal.interface == 'gui':
-        import pytransit.tools.gui_tools as gui_tools
-        gui_tools.set_status(message)
+        set_status(message)
 
 def warn(*args, **kwargs):
+    if universal.interface == 'gui':
+        from pytransit.tools.gui_tools import set_status
+    else:
+        def set_status(*args, **kwargs): pass
+        
     import warnings
     string_output = _print_to_string(*args, **kwargs)
     warnings.warn(string_output)
@@ -38,13 +43,21 @@ def warn(*args, **kwargs):
 
 def error(*args, **kwargs):
     import traceback
-    if universal.interface != 'gui':
-        try:
-            # this looks dumb but its needed to get the traceback
-            raise TransitError(*args, **kwargs)
-        except Exception as error:
-            traceback.print_exc()
-            print(method.usage_string)
+    if universal.interface == 'gui':
+        from pytransit.tools.gui_tools import set_status
+    else:
+        def set_status(*args, **kwargs): pass
+    
+    error_message = _print_to_string(*args, **kwargs)
+    last_line = string_output.strip().split("\n")[-1]
+    try:
+        # this looks dumb but 'raise' is needed to get the traceback
+        raise TransitError(error_message)
+    except Exception as error:
+        traceback.print_exc()
+        if universal.interface == 'gui':
+            set_status(last_line)
+        else:
             exit(1)
 
 class TransitError(Exception):
