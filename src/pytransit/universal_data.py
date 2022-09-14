@@ -4,7 +4,7 @@ from os import getcwd
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
-from pytransit.basics.misc import flatten_once, no_duplicates
+from pytransit.basics.misc import flatten_once, no_duplicates, singleton
 
 # TODO:
     # should probably split this into a universal and a gui_tools.global
@@ -17,8 +17,17 @@ from pytransit.basics.misc import flatten_once, no_duplicates
     # tools and methods ideally would use this interface instead of accessing individual GUI components
     # that way, the GUI can change as much as needed, so long as it maintains the universal data interface
 
+universal = LazyDict(
+    interface=None, # "gui" or "console"
+    frame=None,
+    debugging_enabled=True,
+    session_data=None,
+    busy_running_method=False,
+)
+
+@singleton
 class SessionData(LazyDict):
-    annotation_path = f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table" # FIXME: default value is for debugging only
+    annotation_path = "" if not universal.debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
     combined_wigs = []
     
     @property
@@ -38,9 +47,4 @@ class SessionData(LazyDict):
             # currently (Aug 2022) CLI doesn't use or designate a form of selected samples
             return self.samples
 
-universal = LazyDict(
-    frame=None,
-    interface=None, # "gui" or "console"
-    session_data=SessionData(),
-    busy_running_method=False,
-)
+universal.session_data = SessionData

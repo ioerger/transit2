@@ -152,7 +152,7 @@ if True:
         # return a value-getter
         wxobj.SetSelection(wxobj.FindString(default_option))
         return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
-        
+    
     def define_text_box(
             panel,
             label_text="",
