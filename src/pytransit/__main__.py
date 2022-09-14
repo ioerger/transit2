@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import pytransit.tools.console_tools as console_tools
+from pytransit.tools import console_tools
 from pytransit.universal_data import universal
 
 def main(*args, **kwargs):

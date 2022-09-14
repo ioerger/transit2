@@ -9,9 +9,10 @@ import numpy
 
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import HAS_R
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import logging
 
 ############# GUI ELEMENTS ##################
 
@@ -94,12 +95,6 @@ class ZinbMethod(base.MultiConditionMethod):
                     self.prot_table[rv] = descr
 
     @classmethod
-    def transit_error(self, msg):
-        print(
-            "error: %s" % msg
-        )  # for some reason, transit_error() in base class or transit_tools doesn't work right; needs @classmethod
-
-    @classmethod
     def from_args(self, args, kwargs):
         from pytransit.tools.transit_tools import DEBUG
         if not HAS_R:
@@ -148,7 +143,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
         # check for unrecognized flags
         flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --condition --covars --interactions --gene --ref --prot_table -winz".split()
-        import pytransit.tools.console_tools as console_tools
+        from pytransit.tools import console_tools
         console_tools.handle_unrecognized_flags(
             flags,
             kwargs,
@@ -198,12 +193,10 @@ class ZinbMethod(base.MultiConditionMethod):
                 for covarsByFile in covariatesMap
             ]
         except KeyError:
-            # self.transit_error("Error: Covariates not found for file {0}".format(f))
-            self.transit_error("Error: Covariates not found for sample:")
             for f in filenamesInCombWig:
                 if f not in covariatesMap[0]:
                     print(f)
-            sys.exit(0)
+            logging.error("Error: Covariates not found for sample:")
 
     def wigs_to_interactions(self, interactionsMap, filenamesInCombWig):
         """
@@ -217,12 +210,10 @@ class ZinbMethod(base.MultiConditionMethod):
                 for covarsByFile in interactionsMap
             ]
         except KeyError:
-            # self.transit_error("Error: Interaction var not found for file {0}".format(f))
-            self.transit_error("Error: Interaction var not found for sample")
             for f in filenamesInCombWig:
                 if f not in interactionsMap[0]:
                     print(f)
-            sys.exit(0)
+            logging.error("Error: Interaction var not found for sample")
 
     def stats_for_gene(self, siteIndexes, groupWigIndexMap, data):
         """
@@ -483,11 +474,11 @@ class ZinbMethod(base.MultiConditionMethod):
         
         pvals, Rvs, status = [], [], []
         r_zinb_signif = self.def_r_zinb_signif()
-        transit_tools.log("Running analysis...")
+        logging.log("Running analysis...")
         if self.winz:
-            transit_tools.log("Winsorizing insertion count data")
+            logging.log("Winsorizing insertion count data")
 
-        transit_tools.log("Condition: %s" % self.condition)
+        logging.log("Condition: %s" % self.condition)
 
         comp1a = "1+cond"
         comp1b = "1+cond"
@@ -530,12 +521,11 @@ class ZinbMethod(base.MultiConditionMethod):
                             Rv = g["rv"]
                             break
                 if not Rv:
-                    self.transit_error("Cannot find gene: {0}".format(GENE))
-                    sys.exit(0)
+                    logging.error("Cannot find gene: {0}".format(GENE))
 
             if DEBUG:
-                transit_tools.log("======================================================================")
-                transit_tools.log(gene["rv"] + " " + gene["gene"])
+                logging.log("======================================================================")
+                logging.log(gene["rv"] + " " + gene["gene"])
 
             if len(rv_site_indexes_map[Rv]) <= 1:
                 status.append("TA sites <= 1, not analyzed")
@@ -608,13 +598,13 @@ class ZinbMethod(base.MultiConditionMethod):
                     status.append(msg)
                     pvals.append(float(pval))
                 if DEBUG or GENE:
-                    transit_tools.log(
+                    logging.log(
                         "Pval for Gene {0}: {1}, status: {2}".format(
                             Rv, pvals[-1], status[-1]
                         )
                     )
                 if GENE:
-                    transit_tools.log("Ran for single gene. Exiting...")
+                    logging.log("Ran for single gene. Exiting...")
                     sys.exit(0)
             Rvs.append(Rv)
             # Update progress
@@ -673,23 +663,22 @@ class ZinbMethod(base.MultiConditionMethod):
 
     def Run(self):
         from pytransit.tools.transit_tools import EOL, SEPARATOR, rpackages
-        transit_tools.log("Starting ZINB analysis")
+        logging.log("Starting ZINB analysis")
         start_time = time.time()
         packnames = ("MASS", "pscl")
         r_packages_needed = [x for x in packnames if not rpackages.isinstalled(x)]
         if len(r_packages_needed) > 0:
-            self.transit_error(
+            logging.error(
                 "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
                 % ({"0": '"{0}"'.format('", "'.join(r_packages_needed))})
             )
-            sys.exit(1)
 
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (sites, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
             self.combined_wig
         )
 
-        transit_tools.log("Normalizing using: %s" % self.normalization)
+        logging.log("Normalizing using: %s" % self.normalization)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
 
         condition_name = self.condition
@@ -788,7 +777,7 @@ class ZinbMethod(base.MultiConditionMethod):
         )
         LogZPercByRep, NZMeanByRep = self.global_stats_for_rep(data)
 
-        transit_tools.log("Running ZINB")
+        logging.log("Running ZINB")
         pvals, qvals, run_status = self.run_zinb(
             data,
             genes,
@@ -842,7 +831,7 @@ class ZinbMethod(base.MultiConditionMethod):
             x.replace(SEPARATOR, "_") for x in orderedStatGroupNames
         ]
 
-        transit_tools.log("Adding File: %s" % (self.output))
+        logging.log("Adding File: %s" % (self.output))
         file = open(self.output, "w")
         if len(headersStatGroupNames) == 2:
             lfcNames = ["LFC"]
@@ -903,8 +892,8 @@ class ZinbMethod(base.MultiConditionMethod):
                 vals.append(self.prot_table.get(Rv, "?"))
             file.write("\t".join(vals) + EOL)
         file.close()
-        transit_tools.log("Finished Zinb analysis")
-        transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+        logging.log("Finished Zinb analysis")
+        logging.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     usage_string = """python3 %s zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
 

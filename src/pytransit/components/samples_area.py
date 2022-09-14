@@ -5,9 +5,7 @@ from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import singleton, no_duplicates, flatten_once
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
@@ -154,7 +152,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # load the data from the files
     # 
     for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
-        transit_tools.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
+        logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
         with gui_tools.nice_error_log:
             universal.session_data.combined_wigs.append(
                 tnseq_tools.CombinedWig(
@@ -163,7 +161,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 )
             )
     
-    transit_tools.log(f"Done")
+    logging.log(f"Done")
 
         
     # 

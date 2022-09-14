@@ -1,8 +1,7 @@
 from collections import defaultdict
 from functools import partial
 
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit.components.qc_display as qc_display
 from pytransit.universal_data import SessionData, universal
 import pytransit
@@ -53,7 +52,7 @@ def create_menu(frame):
                 # 
                 def when_export_clicked(selected_name, event=None):
                     with gui_tools.nice_error_log:
-                        if frame.verbose: transit_tools.log(f"Selected Export Method: {selected_name}")
+                        if frame.verbose: logging.log(f"Selected Export Method: {selected_name}")
                         gui_tools.run_method_by_label(method_options=export_methods, method_label=selected_name)
                 
                 for name in export_methods:
@@ -95,14 +94,15 @@ def create_menu(frame):
                     default_dir = os.getcwd()
 
                     if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
                     else:
 
                         output_path = frame.SaveFile(default_dir, default_file)
                         if not output_path:
                             return
                         if frame.verbose:
-                            transit_tools.log(
+                            logging.log(
                                 "Converting annotation file from prot_table format to PTT format"
                             )
                         from pytransit.tools.transit_tools import gather_sample_data_for
@@ -132,7 +132,7 @@ def create_menu(frame):
                                 output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
                         output.close()
                         if frame.verbose:
-                            transit_tools.log("Finished conversion")
+                            logging.log("Finished conversion")
 
             frame.Bind(wx.EVT_MENU, when_annotation_pt_to_ptt_clicked, id=annotation_convert_pt_to_ptt_menu.GetId(),  )
             
@@ -157,11 +157,12 @@ def create_menu(frame):
 
                     ORGANISM = transit_tools.fetch_name(annotation_path)
                     if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
 
                     elif output_path:
                         if frame.verbose:
-                            transit_tools.log(
+                            logging.log(
                                 "Converting annotation file from prot_table format to GFF3 format"
                             )
                         year = time.localtime().tm_year
@@ -197,7 +198,7 @@ def create_menu(frame):
 
                         output.close()
                         if frame.verbose:
-                            transit_tools.log("Finished conversion")
+                            logging.log("Finished conversion")
                             
             frame.Bind(wx.EVT_MENU, when_annotation_pt_to_gff3_clicked, id=annotation_convert_pt_to_gff3_menu.GetId(), )
 
@@ -221,14 +222,15 @@ def create_menu(frame):
                     default_dir = os.getcwd()
 
                     if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
                     else:
 
                         output_path = frame.SaveFile(default_dir, default_file)
                         if not output_path:
                             return
                         if frame.verbose:
-                            transit_tools.log(
+                            logging.log(
                                 "Converting annotation file from PTT format to prot_table format"
                             )
 
@@ -269,7 +271,7 @@ def create_menu(frame):
                                 )
                         output.close()
                         if frame.verbose:
-                            transit_tools.log("Finished conversion")
+                            logging.log("Finished conversion")
 
             frame.Bind(wx.EVT_MENU, when_annotation_ptt_to_pt_clicked , id=annotation_convert_ptt_to_pt.GetId(),       )
             
@@ -279,7 +281,7 @@ def create_menu(frame):
             # 
             def when_convert_clicked(selected_name, event=None):
                 with gui_tools.nice_error_log:
-                    if frame.verbose: transit_tools.log(f"Selected Convert Method: {selected_name}")
+                    if frame.verbose: logging.log(f"Selected Convert Method: {selected_name}")
                     gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
 
             for name in convert_methods:
@@ -303,7 +305,7 @@ def create_menu(frame):
             exit_option = wx.MenuItem( file_menu, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL )
             file_menu.Append(exit_option)
             def when_exit_clicked(event):
-                if frame.verbose: transit_tools.log("Exiting Transit")
+                if frame.verbose: logging.log("Exiting Transit")
                 frame.Close()
             frame.Bind(wx.EVT_MENU, when_exit_clicked, id=exit_option.GetId())
         
@@ -332,10 +334,10 @@ def create_menu(frame):
                     import numpy
                     import matplotlib
                     import matplotlib.pyplot as plt
-                    import pytransit.tools.stat_tools as stat_tools
+                    from pytransit.tools import stat_tools
                     selected_samples = universal.session_data.selected_samples
                     if len(selected_samples) == 2:
-                        if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
+                        if frame.verbose: logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
                         from pytransit.tools.transit_tools import gather_sample_data_for
                         data, position = gather_sample_data_for(selected_samples=True)
                         x = data[0, :]
@@ -347,7 +349,8 @@ def create_menu(frame):
                         plt.ylabel(selected_samples[1].id)
                         plt.show()
                     else:
-                        transit_tools.show_error_dialog("Please make sure only two samples are selected")
+                        # NOTE: was a popup
+                        logging.error("Please make sure only two samples are selected")
             frame.Bind(wx.EVT_MENU, when_scatter_plot_clicked, id=scatter_menu_item.GetId() )
 
         # 
@@ -364,17 +367,19 @@ def create_menu(frame):
 
                     if wig_ids and annotation_path:
                         if frame.verbose:
-                            transit_tools.log(
+                            logging.log(
                                 "Visualizing counts for: %s"
                                 % ", ".join(wig_ids)
                             )
                         view_window = trash.TrashFrame(frame, wig_ids, annotation_path, gene=gene)
                         view_window.Show()
                     elif not wig_ids:
-                        transit_tools.show_error_dialog("Error: No samples selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No samples selected.")
                         return
                     else:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
+                        # NOTE: was a popup
+                        logging.error("Error: No annotation file selected.")
                         return
 
             frame.Bind(wx.EVT_MENU, when_track_view_clicked, id=track_view_option.GetId())
@@ -393,7 +398,7 @@ def create_menu(frame):
                     if number_of_files <= 0:
                         raise Exception(f'''No Datasets selected, unable to run''')
                     else:
-                        transit_tools.log(f"Displaying results: {wig_ids}")
+                        logging.log(f"Displaying results: {wig_ids}")
                         try:
                             qc_window = qc_display.QualityControlFrame(frame, wig_ids)
                             qc_window.Show()
@@ -438,7 +443,7 @@ def create_menu(frame):
                         try:
                             the_method.gui.define_panel(frame)
                         except Exception as error:
-                            transit_tools.log(f"Tried to define panel for {the_full_name} but it failed: {error}")
+                            logging.log(f"Tried to define panel for {the_full_name} but it failed: {error}")
                         return method_select_func(the_full_name, event)
                     return load_method_wrapper
                 
@@ -594,14 +599,14 @@ def method_select_func(selected_name, event):
                 analysis_methods[name].gui.panel.Show()
             except Exception as error:
                 pass
-            frame.status_bar.SetStatusText("[%s]" % analysis_methods[name].short_name)
+            gui_tools.set_status(f"[{analysis_methods[name].short_name}]")
 
         parameter_panel.show_progress_section()
         panel.method_choice = selected_name
 
     frame.Layout()
     if frame.verbose:
-        transit_tools.log("Selected Method: %s" % (selected_name))
+        logging.log("Selected Method: %s" % (selected_name))
 
 
 # UNUSED 
@@ -613,13 +618,14 @@ def annotation_gff3_to_pt(event):
         default_dir = os.getcwd()
 
         if not annotation_path:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
+            # NOTE: was a popup
+            logging.error("Error: No annotation file selected.")
         else:
             output_path = frame.SaveFile(default_dir, default_file)
             if not output_path:
                 return
             if frame.verbose:
-                transit_tools.log(
+                logging.log(
                     "Converting annotation file from GFF3 format to prot_table format"
                 )
 
@@ -671,4 +677,4 @@ def annotation_gff3_to_pt(event):
                     )
             output.close()
             if frame.verbose:
-                transit_tools.log("Finished conversion")
+                logging.log("Finished conversion")

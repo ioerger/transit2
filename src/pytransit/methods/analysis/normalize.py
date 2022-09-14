@@ -132,7 +132,7 @@ class NormalizeMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Normalization")
+        logging.log("Starting Normalization")
         start_time = time.time()
 
         infile = self.infile
@@ -174,7 +174,7 @@ class NormalizeMethod(base.SingleConditionMethod):
         file.close()
 
         self.finish()
-        transit_tools.log("Finished Normalization")
+        logging.log("Finished Normalization")
 
 if __name__ == "__main__":
 

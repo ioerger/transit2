@@ -18,13 +18,13 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 import pytransit
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.console_tools as console_tools
+from pytransit.tools import gui_tools
+from pytransit.tools import console_tools
 import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
 from pytransit.universal_data import universal
@@ -32,6 +32,7 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button
+from pytransit.tools import logging
 command_name = sys.argv[0]
 
 class Analysis:
@@ -332,10 +333,10 @@ class Analysis:
                     print("Error: cannot do histograms")
                     self.inputs.do_histogram = False
 
-            transit_tools.log("Starting resampling Method")
+            logging.log("Starting resampling Method")
             start_time = time.time()
             if self.inputs.winz:
-                transit_tools.log("Winsorizing insertion counts")
+                logging.log("Winsorizing insertion counts")
 
             histPath = ""
             if self.inputs.do_histogram:
@@ -347,10 +348,10 @@ class Analysis:
                     os.makedirs(histPath)
 
             # Get orf data
-            transit_tools.log("Getting Data")
+            logging.log("Getting Data")
             if self.inputs.diff_strains:
-                transit_tools.log("Multiple annotation files found")
-                transit_tools.log(
+                logging.log("Multiple annotation files found")
+                logging.log(
                     "Mapping ctrl data to {0}, exp data to {1}".format(
                         self.inputs.annotation_path, self.inputs.annotation_path_exp
                     )
@@ -398,14 +399,12 @@ class Analysis:
             (K_exp, N_exp) = data_exp.shape
 
             if not self.inputs.diff_strains and (N_ctrl != N_exp):
-                self.transit_error("Error: Ctrl and Exp wig files don't have the same number of sites.")
-                self.transit_error("Make sure all .wig files come from the same strain.")
-                return
+                logging.error("Error: Ctrl and Exp wig files don't have the same number of sites. Make sure all .wig files come from the same strain.")
 
-            transit_tools.log("Preprocessing Ctrl data...")
+            logging.log("Preprocessing Ctrl data...")
             data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
 
-            transit_tools.log("Preprocessing Exp data...")
+            logging.log("Preprocessing Exp data...")
             data_exp = self.preprocess_data(position_exp, data_exp)
             
             G_ctrl = tnseq_tools.Genes(
@@ -443,7 +442,7 @@ class Analysis:
                     if not lib_diff:
                         doLibraryResampling = True
                     else:
-                        transit_tools.transit_error(
+                        logging.error(
                             "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
                             % (self.inputs.ctrl_lib_str, self.inputs.exp_lib_str)
                         )
@@ -568,13 +567,13 @@ class Analysis:
                 )
                 results_area.add(self.inputs.output_path)
                 
-            transit_tools.log(f"Finished running {Analysis.short_name}")
+            logging.log(f"Finished running {Analysis.short_name}")
 
     def preprocess_data(self, position, data):
         (K, N) = data.shape
 
         if self.inputs.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
+            logging.log("Normalizing using: %s" % self.inputs.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data,
                 self.inputs.normalization,
@@ -583,7 +582,7 @@ class Analysis:
             )
 
         if self.inputs.LOESS:
-            transit_tools.log("Performing LOESS Correction")
+            logging.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -604,8 +603,7 @@ class Analysis:
         """
         d_filtered, cond_filtered = [], []
         if len(included_conditions) != 2:
-            self.transit_error("Only 2 conditions expected", included_conditions)
-            sys.exit(0)
+            logging.error("Only 2 conditions expected", included_conditions)
         
         for i, c in enumerate(conditions):
             if c in included_conditions:
@@ -637,25 +635,17 @@ class Analysis:
                 if self.inputs.diff_strains:
                     continue
                 else:
-                    self.transit_error(
-                        "Error: Gene in ctrl data not present in exp data"
+                    logging.error(
+                        "Error: Gene in ctrl data not present in exp data. Make sure all .wig files come from the same strain."
                     )
-                    self.transit_error(
-                        "Make sure all .wig files come from the same strain."
-                    )
-                    return ([], [])
 
             gene_exp = G_exp[gene.orf]
             count += 1
             
             if not self.inputs.diff_strains and gene.n != gene_exp.n:
-                self.transit_error(
-                    "Error: No. of TA sites in Exp and Ctrl data are different"
+                logging.error(
+                    "Error: No. of TA sites in Exp and Ctrl data are different. Make sure all .wig files come from the same strain."
                 )
-                self.transit_error(
-                    "Make sure all .wig files come from the same strain."
-                )
-                return ([], [])
 
             if (gene.k == 0 and gene_exp.k == 0) or gene.n == 0 or gene_exp.n == 0:
                 (
@@ -774,8 +764,8 @@ class Analysis:
             from pytransit.components.parameter_panel import panel, progress_update
             progress_update(text, percentage)
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Performing Benjamini-Hochberg Correction")
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
@@ -828,21 +818,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def display_histogram(self, displayFrame, event):
-        pass
-        # gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
-        # filepath = os.path.join(
-        #     ntpath.dirname(displayFrame.path),
-        #     transit_tools.fetch_name(displayFrame.path),
-        # )
-        # filename = os.path.join(filepath, gene + ".png")
-        # if os.path.exists(filename):
-        #     imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
-        #     imgWindow.Show()
-        # else:
-        #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-        #     print("Error Displaying File. Histogram image does not exist.")
-
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         if not HAS_R:
             raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')

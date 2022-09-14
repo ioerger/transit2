@@ -137,7 +137,7 @@ class NormMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Normalization")
+        logging.log("Starting Normalization")
         start_time = time.time()
         outputPath = self.output.name
         # Normalize Data
@@ -149,7 +149,7 @@ class NormMethod(base.SingleConditionMethod):
         )
 
         self.finish()
-        transit_tools.log("Finished Normalization")
+        logging.log("Finished Normalization")
 
     usage_string = """
 python3 %s norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]

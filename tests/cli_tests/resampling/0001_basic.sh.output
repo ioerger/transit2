@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 160, in run_main
+    main(*args, **kwargs)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 117, in main
+    run(
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 99, in run
+    setup_object.Run()
+TypeError: Run() missing 1 required positional argument: 'self'

@@ -132,7 +132,7 @@ class TestMethods(TransitTestCase):
     def test_anova(self):
         args = [combined_wig, samples_metadata, small_annotation, output]
         method_object = AnovaMethod.from_args(*console_tools.clean_args(args))
-        method_object.Run
+        method_object.Run()
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()

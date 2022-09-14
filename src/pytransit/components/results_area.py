@@ -5,8 +5,8 @@ from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe, working_directory, read_result
 
-import pytransit.tools.gui_tools as gui_tools
 import pytransit.components.file_display as file_display
+from pytransit.tools import logging, gui_tools
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
@@ -19,7 +19,6 @@ results = LazyDict(
     file_action_choice_element=None,
 )
 def create_results_area(frame):
-    
     results_sizer = wx.BoxSizer(wx.VERTICAL)
     
     # 
@@ -143,19 +142,19 @@ def change_file_action_choices(new_choices):
     
 
 def add(path):
-    with gui_tools.nice_error_log:
-        # if not a recognized file type
-        values_for_result_table = dict(
-            name=basename(path),
-            type="Unknown",
-            path=path,
-        )
-        # if recognized
-        result_object = read_result(path)
-        if result_object:
-            values_for_result_table = result_object.values_for_result_table
-        
-        if universal.interface == "gui" and HAS_WX:
+    if universal.interface == "gui":
+        with gui_tools.nice_error_log:
+            # if not a recognized file type
+            values_for_result_table = dict(
+                name=basename(path),
+                type="Unknown",
+                path=path,
+            )
+            # if recognized
+            result_object = read_result(path)
+            if result_object:
+                values_for_result_table = result_object.values_for_result_table
+            
             print(f'''result_object = {result_object}''')
             print(f'''values_for_result_table = {values_for_result_table}''')
             results.table.add(values_for_result_table)
@@ -179,7 +178,7 @@ def file_action_func(event):
         dataset_type = results.table.GetItem(next, 1).GetText()
 
         if frame.verbose:
-            transit_tools.log(
+            logging.log(
                 "Performing the '%s' action on dataset '%s'"
                 % (plot_name, dataset_name)
             )
@@ -193,7 +192,8 @@ def file_action_func(event):
 
         results.file_action_choice_element.SetSelection(0)
     else:
-        transit_tools.show_error_dialog("Please select a results file to plot!")
+        # NOTE: was a popup
+        logging.error("Please select a results file to plot!")
 
 def graph_gene_counts(dataset_name, dataset_type, dataset_path):
     with gui_tools.nice_error_log:
@@ -222,7 +222,8 @@ def graph_gene_counts(dataset_name, dataset_type, dataset_path):
             plt.grid(True)
             plt.show()
         else:
-            transit_tools.show_error_dialog("Need to select a 'Resampling' results file for this type of plot.")
+            # NOTE: was a popup
+            logging.error("Need to select a 'Resampling' results file for this type of plot.")
 
 def graph_ranked_zbar(dataset_name, dataset_type, dataset_path):
     try:

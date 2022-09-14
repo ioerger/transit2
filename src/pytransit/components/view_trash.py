@@ -226,12 +226,8 @@ class MainFrame(wx.Frame):
         self.Layout()
 
         self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
-        # self.status_bar.SetStatusText("Track View!")
 
         self.SetIcon(images.transit_icon.GetIcon())
-
-        self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.clearStatus, self.timer)
 
         self.Centre(wx.BOTH)
 
@@ -257,9 +253,6 @@ class MainFrame(wx.Frame):
         pass
 
     # Virtual event handlers, overide them in your derived class
-    def clearStatus(self, event):
-        event.Skip()
-
     def updateFunc(self, event):
         event.Skip()
 

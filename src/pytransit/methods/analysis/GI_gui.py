@@ -20,15 +20,9 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.methods import analysis_base as base
-import pytransit
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.console_tools as console_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 import pytransit.basics.csv as csv
+import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
@@ -167,43 +161,39 @@ class Analysis:
 
     @classmethod
     def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
+        # 
+        # get wig files
+        # 
+        wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+        Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
+        Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
 
-            # 
-            # get wig files
-            # 
-            wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
-            Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-            Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+        # 
+        # get annotation
+        # 
+        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        transit_tools.validate_annotation(Analysis.inputs.annotation)
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-            # 
-            # get annotation
-            # 
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="GI_test.dat",
+            output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+        )
+        if not Analysis.inputs.output_path:
+            return None
 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            #if not transit_tools.validate_annotation(Analysis.inputs.annotation): return None 
-
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="GI_test.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
-            )
-            if not Analysis.inputs.output_path:
-                return None
-
-            return Analysis.instance
+        return Analysis.instance
 
     @classmethod
     def from_args(cls, args, kwargs):
@@ -262,87 +252,85 @@ class Analysis:
         return Analysis.instance
         
     def Run(self):
-        with gui_tools.nice_error_log:
-            transit_tools.log("Starting Genetic Interaction analysis")
-            start_time = time.time()
+        logging.log("Starting Genetic Interaction analysis")
+        start_time = time.time()
 
-            ##########################
-            # get data
+        ##########################
+        # get data
 
-            transit_tools.log("Getting Data")
-            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
-            transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
-            data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
-                
-            # # Do LOESS correction if specified
-            # if self.LOESS:
-            #   transit_tools.log("Performing LOESS Correction")
-            #   for j in range(K):
-            #     data[j] = stat_tools.loess_correction(position, data[j])
+        logging.log("Getting Data")
+        sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+        logging.log(f"Normalizing using: {self.inputs.normalization}")
+        data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+            
+        # # Do LOESS correction if specified
+        # if self.LOESS:
+        #   logging.log("Performing LOESS Correction")
+        #   for j in range(K):
+        #     data[j] = stat_tools.loess_correction(position, data[j])
 
-            # is it better to read the metadata directly, rather than pulling from samples_table, to accommodate console mode?
-            metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-            #for sample in metadata.rows:
-            #  print("%s\t%s" % (sample["Id"],sample["Condition"]))
+        # is it better to read the metadata directly, rather than pulling from samples_table, to accommodate console mode?
+        metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+        #for sample in metadata.rows:
+        #  print("%s\t%s" % (sample["Id"],sample["Condition"]))
 
 
-            ##########################
-            # process data
-            # 
-            # note: self.inputs.condA1 = self.value_getters.condA1()
+        ##########################
+        # process data
+        # 
+        # note: self.inputs.condA1 = self.value_getters.condA1()
+        logging.log("processing data")
+        # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
 
-            transit_tools.log("processing data")
+        indexes = {}
+        #from pytransit.components.samples_area import sample_table
+        #for i,row in enumerate(sample_table.rows): # defined in components/generic/table.py
+        for i,row in enumerate(metadata.rows): 
+            cond = row["Condition"] # "condition" for samples_table
+            if cond not in indexes: indexes[cond] = []
+            indexes[cond].append(i)
+        condA1 = self.inputs.condA1
+        condA2 = self.inputs.condA2
+        condB1 = self.inputs.condB1
+        condB2 = self.inputs.condB2
 
-            # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
+        if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0)
+        if condA2 not in indexes or len(indexes[condA2])==0: print("error: no samples found for condition %s" % condA2); sys.exit(0)
+        if condB1 not in indexes or len(indexes[condB1])==0: print("error: no samples found for condition %s" % condB1); sys.exit(0)
+        if condB2 not in indexes or len(indexes[condB2])==0: print("error: no samples found for condition %s" % condB2); sys.exit(0)
 
-            indexes = {}
-            #from pytransit.components.samples_area import sample_table
-            #for i,row in enumerate(sample_table.rows): # defined in components/generic/table.py
-            for i,row in enumerate(metadata.rows): 
-              cond = row["Condition"] # "condition" for samples_table
-              if cond not in indexes: indexes[cond] = []
-              indexes[cond].append(i)
-            condA1 = self.inputs.condA1
-            condA2 = self.inputs.condA2
-            condB1 = self.inputs.condB1
-            condB2 = self.inputs.condB2
+        print("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
+        print("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
+        print("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
+        print("condB2=%s, indexes=%s" % (condB2,','.join([str(x) for x in indexes[condB2]])))
 
-            if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0)
-            if condA2 not in indexes or len(indexes[condA2])==0: print("error: no samples found for condition %s" % condA2); sys.exit(0)
-            if condB1 not in indexes or len(indexes[condB1])==0: print("error: no samples found for condition %s" % condB1); sys.exit(0)
-            if condB2 not in indexes or len(indexes[condB2])==0: print("error: no samples found for condition %s" % condB2); sys.exit(0)
+        dataA1 = data[indexes[condA1]] # select datasets (rows)
+        dataA2 = data[indexes[condA2]]
+        dataB1 = data[indexes[condB1]]
+        dataB2 = data[indexes[condB2]]
 
-            print("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
-            print("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
-            print("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
-            print("condB2=%s, indexes=%s" % (condB2,','.join([str(x) for x in indexes[condB2]])))
+        # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
+        (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
 
-            dataA1 = data[indexes[condA1]] # select datasets (rows)
-            dataA2 = data[indexes[condA2]]
-            dataB1 = data[indexes[condB1]]
-            dataB2 = data[indexes[condB2]]
+        ######################
+        # write output
+        # 
+        # note: first comment line is filetype, last comment line is column headers
 
-            # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
-            (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
+        logging.log(f"Adding File: {self.inputs.output_path}")
+        results_area.add(self.inputs.output_path)
 
-            ######################
-            # write output
-            # 
-            # note: first comment line is filetype, last comment line is column headers
+        # will open and close file, or print to console
+        self.print_GI_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
 
-            transit_tools.log(f"Adding File: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
-
-            # will open and close file, or print to console
-            self.print_GI_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
-
-            transit_tools.log("Finished Genetic Interaction analysis")
-            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+        logging.log("Finished Genetic Interaction analysis")
+        logging.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     # is self.annotation_path already set?
 
     def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
-
+        from pytransit.tools import stat_tools
+        
         # Get Gene objects for each condition
         G_A1 = tnseq_tools.Genes(
             [],
@@ -552,7 +540,7 @@ class Analysis:
             percentage = (100.0 * (count + 1) / N)
             progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 
-            transit_tools.log(
+            logging.log(
                 "analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1))
             )
             count += 1
@@ -709,11 +697,9 @@ class Analysis:
             )
 
         if self.inputs.output_path != None: self.output.close() # otherwise, it is sys.stdout
-        if universal.interface=="gui":
-          transit_tools.log("Adding File: %s" % (self.output.name))
-          results_area.add(self.output.name)                         
-        #self.finish()
-        transit_tools.log("Finished Genetic Interactions Method")
+        logging.log("Adding File: %s" % (self.output.name))
+        results_area.add(self.output.name)                         
+        logging.log("Finished Genetic Interactions Method")
 
     @staticmethod
     def classify_interaction(delta_logFC, logFC_KO, logFC_WT):

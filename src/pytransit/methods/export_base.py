@@ -4,7 +4,7 @@ import sys
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
 import traceback
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import logging, transit_tools
 from pytransit.components.menu import selected_export_menu_item
 from pytransit.components.icon import InfoIcon
 
@@ -63,27 +63,6 @@ class ExportMethod:
     def finish(self):
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
-
-    def console_message(self, text):
-        sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    def console_message_inplace(self, text):
-        sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
-        sys.stdout.flush()
-
-    def transit_message_inplace(self, text):
-        self.console_message_inplace(text)
-
-    def transit_error(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.show_error_dialog(text)
-
-    def transit_warning(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.ShowWarning(text)
-
 
 class SingleConditionMethod(ExportMethod):
     """

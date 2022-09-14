@@ -26,10 +26,7 @@ import scipy.stats
 import datetime
 
 from pytransit.methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import logging, transit_tools, tnseq_tools, norm_tools
 from pytransit.components.parameter_panel import panel
 
 # method_name = "binomial"
@@ -359,23 +356,23 @@ class BinomialMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Binomial Method")
+        logging.log("Starting Binomial Method")
         start_time = time.time()
 
         
 
         # Get orf data
-        # transit_tools.log("Getting Data")
+        # logging.log("Getting Data")
         # G = tnseq_tools.Genes(self.ctrldata, self.annotation_path, ignore_codon=self.ignore_codon, n_terminus=self.n_terminus, c_terminus=self.c_terminus)
 
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
         (K, N) = data.shape
 
         if self.normalization and self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -393,7 +390,7 @@ class BinomialMethod(base.SingleConditionMethod):
         )
 
         # Parameters
-        transit_tools.log("Setting Parameters")
+        logging.log("Setting Parameters")
         w1 = 0.15
         w0 = 1.0 - w1
         mu_c = 0
@@ -423,7 +420,7 @@ class BinomialMethod(base.SingleConditionMethod):
         W1[0] = w1
 
         #
-        transit_tools.log("Setting Initial Values")
+        logging.log("Setting Initial Values")
         K = numpy.array([sum([1 for x in gene.reads.flatten() if x > 0]) for gene in G])
         N = numpy.array([len(gene.reads.flatten()) for gene in G])
 
@@ -639,6 +636,7 @@ class BinomialMethod(base.SingleConditionMethod):
         z_bar = numpy.apply_along_axis(numpy.mean, 1, Z[:, self.burnin :])
         theta_bar = numpy.apply_along_axis(numpy.mean, 1, theta[:, self.burnin :])
         # (ess_threshold, noness_threshold) = stat_tools.fdr_post_prob(z_bar)
+        from pytransit.tools import stat_tools
         (ess_threshold, noness_threshold) = stat_tools.bayesian_essentiality_thresholds(z_bar)
 
         self.output.write("#Binomial\n")
@@ -724,11 +722,11 @@ class BinomialMethod(base.SingleConditionMethod):
             self.output.write("%s\n" % row)
         self.output.close()
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Binomial Method")
+        logging.log("Finished Binomial Method")
 
     usage_string = """python3 %s binomial <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
 
@@ -755,17 +753,3 @@ class BinomialMethod(base.SingleConditionMethod):
 
             """ % sys.argv[0]
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    G = BinomialMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

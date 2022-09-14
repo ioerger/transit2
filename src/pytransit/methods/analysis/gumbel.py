@@ -14,10 +14,10 @@ import datetime
 import warnings
 
 from pytransit.methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import transit_tools
 from pytransit.tools import tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
 
 
 ############# GUI ELEMENTS ##################
@@ -408,7 +408,7 @@ class GumbelMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Gumbel Method")
+        logging.log("Starting Gumbel Method")
 
         # Set Default parameter values
         w1 = 0.15
@@ -427,14 +427,14 @@ class GumbelMethod(base.SingleConditionMethod):
         
 
         # Get orf data
-        transit_tools.log("Reading Annotation")
+        logging.log("Reading Annotation")
 
         # Validate data has empty sites
         # (status, genome) = transit_tools.validate_wig_format(self.ctrldata, wxobj=self.wxobj)
         # if status <2: tn_used = "himar1"
         # else: tn_used = "tn5"
 
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata, wxobj=self.wxobj
         )
@@ -447,7 +447,7 @@ class GumbelMethod(base.SingleConditionMethod):
         sat = (nsites - nzeros) / float(nsites)
 
         if self.normalization and self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, self.ctrldata, self.annotation_path
             )
@@ -474,7 +474,7 @@ class GumbelMethod(base.SingleConditionMethod):
         S = G.local_gap_span()[ii_good]
         T = G.local_gene_span()[ii_good]
 
-        transit_tools.log("Doing Regression")
+        logging.log("Doing Regression")
         mu_s, temp, sigma_s = stat_tools.regress(
             R, S
         )  # Linear regression to estimate mu_s, sigma_s for span data
@@ -485,7 +485,7 @@ class GumbelMethod(base.SingleConditionMethod):
         N_GENES = len(G)
         N_GOOD = sum(ii_good)
 
-        transit_tools.log("Setting Initial Class")
+        logging.log("Setting Initial Class")
         Z_sample = numpy.zeros((N_GOOD, self.samples))
         Z = [self.classify(g.n, g.r, 0.5) for g in G if self.good_orf(g)]
         Z_sample[:, 0] = Z
@@ -542,10 +542,10 @@ class GumbelMethod(base.SingleConditionMethod):
                     i += 1
 
             except ValueError as e:
-                transit_tools.log("Error: %s" % e)
-                transit_tools.log("This is likely to have been caused by poor data (e.g. too sparse)." )
-                transit_tools.log("If the density of the dataset is too low, the Gumbel method will not work.")
-                transit_tools.log("Quitting.")
+                logging.log("Error: %s" % e)
+                logging.log("This is likely to have been caused by poor data (e.g. too sparse)." )
+                logging.log("If the density of the dataset is too low, the Gumbel method will not work.")
+                logging.log("Quitting.")
                 return
 
             #            print(i,phi_new,w1,G[idxG].name,N[idxN],R[idxN],Z[idxN])
@@ -637,11 +637,11 @@ class GumbelMethod(base.SingleConditionMethod):
         for line in data:
             self.output.write(line)
         self.output.close()
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Gumbel Method")
+        logging.log("Finished Gumbel Method")
 
     def good_orf(self, gene):
         return gene.n >= 3 and gene.t >= 150
@@ -723,18 +723,3 @@ class GumbelMethod(base.SingleConditionMethod):
             tot += 1.0 / (1.0 + math.exp(Kn * (MEAN_DOMAIN_SPAN - i)))
         self.cache_nn[n] = tot
         return f / tot
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    G = GumbelMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

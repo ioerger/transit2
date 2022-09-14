@@ -162,7 +162,7 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            ###logging.log("included_conditions", Analysis.inputs.included_conditions)
 
             # 
             # get filename for results
@@ -207,14 +207,14 @@ class Analysis:
         
     def Run(self):
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting tnseq_stats analysis")
+            logging.log("Starting tnseq_stats analysis")
             self.start_time = time.time()
 
             #######################
             # get data
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
-              transit_tools.log("Getting Data from %s" % self.inputs.combined_wig)
+              logging.log("Getting Data from %s" % self.inputs.combined_wig)
               position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
 
               metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
@@ -225,13 +225,13 @@ class Analysis:
                 indexes[cond].append(i)
               cond = Analysis.inputs.condition
               ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
-              transit_tools.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
+              logging.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
               data = data[indexes[cond]] # project array down to samples selected by condition
 
               # now, select the columns in data corresponding to samples that are replicates of desired condition...
 
             elif self.inputs.wig_files!=None:
-              transit_tools.log("Getting Data")
+              logging.log("Getting Data")
               (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
 
             else: print("error: must provide either combined_wig or list of wig files"); sys.exit(0) ##### use transit.error()?
@@ -240,7 +240,7 @@ class Analysis:
 
             # normalize the counts
             if self.inputs.normalization and self.inputs.normalization != "nonorm":
-              transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
+              logging.log("Normalizing using: %s" % self.inputs.normalization)
               (data, factors) = norm_tools.normalize_data( data, self.inputs.normalization, self.inputs.wig_files, self.inputs.annotation_path )
                 
             # read-in genes from annotation
@@ -257,7 +257,7 @@ class Analysis:
             )
             N = len(G)
     
-            transit_tools.log("Getting Genome")
+            logging.log("Getting Genome")
             genome = ""
             n = 0
             with open(self.inputs.genome_path) as file:
@@ -272,7 +272,7 @@ class Analysis:
             ###########################
             # process data
 
-            transit_tools.log("processing data")
+            logging.log("processing data")
 
             TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls = self.calc_ttnfitness(genome,G,self.inputs.gumbel_results_path)
 
@@ -284,12 +284,12 @@ class Analysis:
             self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path)
 
             if universal.interface=="gui" and self.inputs.genes_output_path!=None:
-              transit_tools.log(f"Adding File: {self.inputs.genes_output_path}")
+              logging.log(f"Adding File: {self.inputs.genes_output_path}")
               results_area.add(self.inputs.output_path)
-              transit_tools.log(f"Adding File: {self.inputs.sites_output_path}")
+              logging.log(f"Adding File: {self.inputs.sites_output_path}")
               results_area.add(self.inputs.site_output_path)
-            transit_tools.log("Finished TnseqStats")
-            transit_tools.log("Time: %0.1fs\n" % (time.time() - self.start_time))
+            logging.log("Finished TnseqStats")
+            logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
 
     # returns: TA_sites_df , Models_df , gene_obj_dict
 
@@ -414,7 +414,7 @@ class Analysis:
 
         ####################################################
 
-        transit_tools.log("Making Fitness Estimations")
+        logging.log("Making Fitness Estimations")
         # Read in Gumbel estimations
         skip_count = 0
         gumbel_file = open(self.gumbelestimations, "r")
@@ -436,7 +436,7 @@ class Analysis:
         phi = 1.0 - saturation
         significant_n = math.log10(0.05) / math.log10(phi)
 
-        transit_tools.log("\t + Filtering ES/ESB Genes")
+        logging.log("\t + Filtering ES/ESB Genes")
         # function to extract gumbel calls to filter out ES and ESB
         gumbel_bernoulli_gene_calls = {}
         for g in TA_sites_df["Orf"].unique():
@@ -461,7 +461,7 @@ class Analysis:
             if (value == "E") or (value == "EB")
         ]
 
-        transit_tools.log("\t + Filtering Short Genes. Labeling as Uncertain")
+        logging.log("\t + Filtering Short Genes. Labeling as Uncertain")
         # function to call short genes (1 TA site) with no insertions as Uncertain
         uncertain_genes = []
         for g in TA_sites_df["Orf"].unique():
@@ -483,7 +483,7 @@ class Analysis:
         filtered_ttn_data = filtered_ttn_data.reset_index(drop=True)
         ##########################################################################################
         # STLM Predictions
-        # transit_tools.log("\t + Making TTN based predictions using loaded STLM")
+        # logging.log("\t + Making TTN based predictions using loaded STLM")
         # X = filtered_ttn_data.drop(["Orf","Name", "Coord","State","Insertion Count","Local Average","Actual LFC","Upseq TTN","Downseq TTN"],axis=1)
         # X = sm.add_constant(X)
         # model_LFC_predictions = self.STLM_reg.predict(X)
@@ -511,7 +511,7 @@ class Analysis:
 
         Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
 
-        transit_tools.log("\t + Fitting M1")
+        logging.log("\t + Fitting M1")
         X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
         X1 = sm.add_constant(X1)
         results1 = sm.OLS(Y, X1).fit()
@@ -520,14 +520,14 @@ class Analysis:
             10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
         )
 
-        # transit_tools.log("\t + Fitting new mod TTN-Fitness")
+        # logging.log("\t + Fitting new mod TTN-Fitness")
         # X2 = pandas.concat([gene_one_hot_encoded,stlm_predicted_log_counts],axis=1)
         # X2 = sm.add_constant(X2)
         # results2 = sm.OLS(Y,X2).fit()
         # filtered_ttn_data["mod ttn Pred log Count"] = results2.predict(X2)
         # filtered_ttn_data["mod ttn Predicted Count"] = numpy.power(10, (filtered_ttn_data["mod ttn Pred log Count"]-0.5))
 
-        transit_tools.log("\t + Assessing Models")
+        logging.log("\t + Assessing Models")
         # create Models Summary df
         Models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
         Models_df["M1 Pval"] = results1.pvalues[1:-256]
@@ -562,7 +562,7 @@ class Analysis:
         return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
     def write_ttnfitness_results(self,TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,genes_output_path,sites_output_path):
-        transit_tools.log("Writing To Output Files")
+        logging.log("Writing To Output Files")
         # Write Models Information to CSV
         # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj Pval
 
@@ -757,11 +757,11 @@ class Analysis:
         output2.write(vals)
         output2.close()
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         #self.finish()
-        transit_tools.log("Finished TTNFitness Method")
+        logging.log("Finished TTNFitness Method")
 
 
 @transit_tools.ResultsFile
