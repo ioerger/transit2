@@ -5,8 +5,7 @@ from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import logging, gui_tools, transit_tools
 import pytransit.components.images as images
 import pytransit
 
@@ -288,7 +287,7 @@ def progress_update(text, percent):
     sys.stdout.flush()
     
     if HAS_WX:
-        import pytransit.tools.gui_tools as gui_tools
+        from pytransit.tools import gui_tools
         # update progress bar
         panel.progress_percent = percent
         thousands = round(panel.progress_percent*10)

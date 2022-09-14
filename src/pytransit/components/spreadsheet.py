@@ -5,7 +5,7 @@ TransitTable = None
 if universal.interface == "gui":
     import wx.grid
 
-    import pytransit.tools.gui_tools as gui_tools
+    from pytransit.tools import logging, gui_tools
     from pytransit.tools.transit_tools import wx
     from pytransit.universal_data import universal
 

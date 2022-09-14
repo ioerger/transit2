@@ -5,7 +5,7 @@ import datetime
 
 import numpy
 
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import logging, transit_tools
 from pytransit.tools.transit_tools import wx, pub, WX_VERSION
 from pytransit.components.icon import InfoIcon
 
@@ -21,29 +21,6 @@ class TransitFile:
         self.identifier = identifier
         self.colnames   = colnames
 
-    def console_message(self, text):
-        
-        sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    def console_message_inplace(self, text):
-        
-        sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
-        sys.stdout.flush()
-
-    def transit_message_inplace(self, text):
-        
-        self.console_message_inplace(text)
-
-    def transit_error(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.show_error_dialog(text)
-
-    def transit_warning(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.ShowWarning(text)
-
     def get_header(self, path):
         return "Generic Transit File Type."
 
@@ -52,11 +29,6 @@ class TransitFile:
         return menus
 
     def display_in_track_view(self, displayFrame, event):
-
-        # print("Self:", self)
-        # print("Frame:", displayFrame)
-        # print("Event:", event)
-        # print("Frame parent:", displayFrame.parent)
         try:
             gene = displayFrame.grid.GetCellValue(displayFrame.row, 0)
             displayFrame.parent.allViewFunc(displayFrame, gene)
@@ -229,30 +201,6 @@ class AnalysisMethod:
         
         if self.wxobj:
             wx.CallAfter(pub.sendMessage, "finish", msg=self.short_name.lower())
-
-    def console_message(self, text):
-        
-        sys.stdout.write("[%s] %s\n" % (self.short_name, text))
-
-    def console_message_inplace(self, text):
-        
-        sys.stdout.write("[%s] %s   \r" % (self.short_name, text))
-        sys.stdout.flush()
-
-    def transit_message_inplace(self, text):
-        
-        self.console_message_inplace(text)
-
-    def transit_error(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.show_error_dialog(text)
-
-    def transit_warning(self, text):
-        transit_tools.log(text)
-        if self.wxobj:
-            transit_tools.ShowWarning(text)
-
 
 class SingleConditionMethod(AnalysisMethod):
     """
@@ -448,17 +396,16 @@ class MultiConditionMethod(AnalysisMethod):
         d_filtered, cond_filtered, filtered_indexes = [], [], []
 
         if len(excluded_conditions) > 0 and len(included_conditions) > 0:
-            self.transit_error("Both excluded and included conditions have len > 0")
-            sys.exit(0)
+            logging.error("Both excluded and included conditions have len > 0")
         elif len(excluded_conditions) > 0:
-            transit_tools.log("conditions excluded: {0}".format(excluded_conditions))
+            logging.log("conditions excluded: {0}".format(excluded_conditions))
             for i, c in enumerate(conditions):
                 if (c != self.unknown_cond_flag) and (c not in excluded_conditions):
                     d_filtered.append(data[i])
                     cond_filtered.append(conditions[i])
                     filtered_indexes.append(i)
         elif len(included_conditions) > 0:
-            transit_tools.log("conditions included: {0}".format(included_conditions))
+            logging.log("conditions included: {0}".format(included_conditions))
             for i, c in enumerate(conditions):
                 if (c != self.unknown_cond_flag) and (c in included_conditions):
                     d_filtered.append(data[i])

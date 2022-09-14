@@ -530,7 +530,7 @@ class ResamplingMethod(base.DualConditionMethod):
         (K, N) = data.shape
 
         if self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data,
                 self.normalization,
@@ -539,7 +539,7 @@ class ResamplingMethod(base.DualConditionMethod):
             )
 
         if self.LOESS:
-            transit_tools.log("Performing LOESS Correction")
+            logging.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -581,10 +581,10 @@ class ResamplingMethod(base.DualConditionMethod):
             print("Error: cannot do histograms")
             self.doHistogram = False
 
-        transit_tools.log("Starting resampling Method")
+        logging.log("Starting resampling Method")
         start_time = time.time()
         if self.winz:
-            transit_tools.log("Winsorizing insertion counts")
+            logging.log("Winsorizing insertion counts")
 
         hist_path = ""
         if self.doHistogram:
@@ -596,10 +596,10 @@ class ResamplingMethod(base.DualConditionMethod):
                 os.makedirs(hist_path)
 
         # Get orf data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         if self.diffStrains:
-            transit_tools.log("Multiple annotation files found")
-            transit_tools.log(
+            logging.log("Multiple annotation files found")
+            logging.log(
                 "Mapping ctrl data to {0}, exp data to {1}".format(
                     self.annotation_path, self.annotation_path_exp
                 )
@@ -649,10 +649,10 @@ class ResamplingMethod(base.DualConditionMethod):
             return
         # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)
 
-        transit_tools.log("Preprocessing Ctrl data...")
+        logging.log("Preprocessing Ctrl data...")
         data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
 
-        transit_tools.log("Preprocessing Exp data...")
+        logging.log("Preprocessing Exp data...")
         data_exp = self.preprocess_data(position_exp, data_exp)
 
         G_ctrl = tnseq_tools.Genes(
@@ -701,7 +701,7 @@ class ResamplingMethod(base.DualConditionMethod):
         self.write_output(data, qval, start_time)
 
         self.finish()
-        transit_tools.log("Finished resampling Method")
+        logging.log("Finished resampling Method")
 
     def write_output(self, data, qval, start_time):
 
@@ -840,7 +840,7 @@ class ResamplingMethod(base.DualConditionMethod):
                 )
         self.output.close()
 
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
 
     def winsorize_resampling(self, counts):
@@ -1011,8 +1011,8 @@ class ResamplingMethod(base.DualConditionMethod):
             progress_update(text, percent)
 
         #
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Performing Benjamini-Hochberg Correction")
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 

@@ -32,9 +32,7 @@ import ntpath
 import traceback
 from PIL import Image, ImageDraw, ImageFont
 
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
+from pytransit.tools import logging, transit_tools, tnseq_tools, norm_tools
 
 track_prefix = "[TrackView]"
 
@@ -141,22 +139,12 @@ class TrashFrame(view_trash.MainFrame):
         self.Fit()
         self.datasetChoice.SetSelection(len(self.labels) - 1)
 
-    def track_message(self, text, time=3000):
-        transit_tools.log(text, track_prefix)
-        self.status_bar.SetStatusText(text)
-        if time > 0:
-            self.timer.Start(time)
-
     def updateFunc(self, event):
         try:
             self.DrawCanvas()
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             traceback.print_exc()
-
-    def clearStatus(self, event):
-        self.status_bar.SetStatusText("")
-        self.timer.Stop()
 
     def leftFunc(self, event):
         start = int(self.startText.GetValue())
@@ -217,10 +205,10 @@ class TrashFrame(view_trash.MainFrame):
             if dataset_ii == (len(self.labels) - 1):
                 maxVal = int(self.maxText.GetValue())
                 self.scale = [maxVal for _ in self.scale]
-                self.track_message("All Datasets scaled to %s" % (maxVal))
+                logging.log("All Datasets scaled to %s" % (maxVal))
             else:
                 self.scale[dataset_ii] = int(self.maxText.GetValue())
-                self.track_message(
+                logging.log(
                     "Dataset '%s' scaled to %s"
                     % (self.datasetChoice.GetString(dataset_ii), self.scale[dataset_ii])
                 )
@@ -231,12 +219,12 @@ class TrashFrame(view_trash.MainFrame):
             self.maxText.Enable(False)
             self.datasetChoice.Enable(False)
             self.globalScale = True
-            self.track_message("Scaling read-counts to local (Window) Maximum.")
+            logging.log("Scaling read-counts to local (Window) Maximum.")
         else:
             self.maxText.Enable(True)
             self.datasetChoice.Enable(True)
             self.globalScale = False
-            self.track_message("Scaling read-counts tracks individually.")
+            logging.log("Scaling read-counts tracks individually.")
         self.updateFunc(event)
 
     def datasetSelectFunc(self, event):
@@ -257,7 +245,7 @@ class TrashFrame(view_trash.MainFrame):
         output_path = self.SaveFile(DIR=".", FILE="reads_canvas.png")
         if output_path:
             finished_image.SaveFile(output_path, wx.BITMAP_TYPE_PNG)
-            self.track_message("Image saved to the following path: %s" % output_path)
+            logging.log("Image saved to the following path: %s" % output_path)
 
     def addFeatureFunc(self, event):
         wc = u"Known Annotation Formats (*.prot_table,*.gff3,*.gff)|*.prot_table;*.gff3;*.gff;|\nProt Table (*.prot_table)|*.prot_table;|\nGFF3 (*.gff,*.gff3)|*.gff;*.gff3;|\nAll files (*.*)|*.*"
@@ -274,9 +262,9 @@ class TrashFrame(view_trash.MainFrame):
                 self.updateFunc(self.parent)
                 self.Fit()
             else:
-                self.track_message("No feature added")
+                logging.log("No feature added")
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             traceback.print_exc()
 
     def checkHMMFeature(self, path):
@@ -284,7 +272,7 @@ class TrashFrame(view_trash.MainFrame):
             if open(path).readline().startswith("#HMM - Sites"):
                 return True
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             return False
         return False
 
@@ -339,7 +327,7 @@ class TrashFrame(view_trash.MainFrame):
         )
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-            self.track_message("You added the following file: %s" % path)
+            logging.log("You added the following file: %s" % path)
         dlg.Destroy()
         return path
 
@@ -358,9 +346,9 @@ class TrashFrame(view_trash.MainFrame):
             combined_match += [gene_match_orf_w_c]
 
         if combined_match:
-            self.track_message("Genes matching query: %s" % ", ".join(combined_match))
+            logging.log("Genes matching query: %s" % ", ".join(combined_match))
         else:
-            self.track_message("No genes matching query!")
+            logging.log("No genes matching query!")
 
         if len(genes_match_name) == 1:  # Check if query is a name
             orf_match = genes_match_name[0]
@@ -387,7 +375,7 @@ class TrashFrame(view_trash.MainFrame):
             self.DrawCanvas()
 
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             traceback.print_exc()
 
     def DrawCanvas(self):
@@ -408,7 +396,7 @@ class TrashFrame(view_trash.MainFrame):
                 end=self.end,
             )
             if not self.wasNorm:
-                self.track_message("Normalization factors: %s" % self.factors.flatten())
+                logging.log("Normalization factors: %s" % self.factors.flatten())
             self.wasNorm = True
         else:
             image_pil = draw_trash.draw_canvas(

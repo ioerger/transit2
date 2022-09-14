@@ -19,15 +19,10 @@ from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.tools.tnseq_tools import Wig
 import pytransit
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.console_tools as console_tools
 import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
@@ -324,16 +319,16 @@ class Analysis:
 
     def Run(self):
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting resampling Method")
+            logging.log("Starting resampling Method")
             start_time = time.time()
             if self.inputs.winz:
-                transit_tools.log("Winsorizing insertion counts")
+                logging.log("Winsorizing insertion counts")
 
             # Get orf data
-            transit_tools.log("Getting Data")
+            logging.log("Getting Data")
             if self.inputs.diff_strains:
-                transit_tools.log("Multiple annotation files found")
-                transit_tools.log(
+                logging.log("Multiple annotation files found")
+                logging.log(
                     "Mapping ctrl data to {0}, exp data to {1}".format(
                         self.inputs.annotation_path, self.inputs.annotation_path_exp
                     )
@@ -385,10 +380,10 @@ class Analysis:
                 self.transit_error("Make sure all .wig files come from the same strain.")
                 return
 
-            transit_tools.log("Preprocessing Ctrl data...")
+            logging.log("Preprocessing Ctrl data...")
             data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
 
-            transit_tools.log("Preprocessing Exp data...")
+            logging.log("Preprocessing Exp data...")
             data_exp = self.preprocess_data(position_exp, data_exp)
             
             G_ctrl = tnseq_tools.Genes(
@@ -550,13 +545,13 @@ class Analysis:
                 )
                 results_area.add(self.inputs.output_path)
                 
-            transit_tools.log(f"Finished running {Analysis.short_name}")
+            logging.log(f"Finished running {Analysis.short_name}")
 
     def preprocess_data(self, position, data):
         (K, N) = data.shape
 
         if self.inputs.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
+            logging.log("Normalizing using: %s" % self.inputs.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data,
                 self.inputs.normalization,
@@ -565,7 +560,7 @@ class Analysis:
             )
 
         if self.inputs.LOESS:
-            transit_tools.log("Performing LOESS Correction")
+            logging.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -735,8 +730,8 @@ class Analysis:
             from pytransit.components.parameter_panel import panel, progress_update
             progress_update(text, percentage)
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Performing Benjamini-Hochberg Correction")
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 

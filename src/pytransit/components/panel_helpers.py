@@ -1,7 +1,6 @@
-import pytransit.tools.transit_tools as transit_tools
 from pytransit.tools.transit_tools import wx, pub
 from pytransit.universal_data import universal
-import pytransit.tools.gui_tools as gui_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 default_label_size = (-1, -1)
 default_widget_size = (100, -1)
@@ -231,7 +230,9 @@ if True:
             import numpy
             import matplotlib
             import matplotlib.pyplot as plt
-            import pytransit.tools.stat_tools as stat_tools
+            from pytransit.tools import stat_tools
+            from pytransit.universal_data import universal
+            from pytransit.tools.tnseq_tools import Wig
             
             # 
             # determine selection method
@@ -242,9 +243,9 @@ if True:
             if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
                 use_selected = True
                 if not universal.session_data.selected_samples:
-                    transit_tools.show_error_dialog("Need to select at least one control or experimental dataset.")
-                    return
-            # 
+                    # NOTE: was a popup
+                    logging.error("Need to select at least one control or experimental dataset.")
+            #
             # get read_counts and positions
             # 
             read_counts_per_wig, position_per_line = transit_tools.gather_sample_data_for(conditions=conditions, wig_ids=wig_ids, selected_samples=use_selected)

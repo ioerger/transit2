@@ -17,6 +17,7 @@ import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
 
 # method_name = "hmm"
 
@@ -231,7 +232,7 @@ class HMMMethod(base.SingleConditionMethod):
 
     def Run(self):
         # Get data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.inputs.ctrldata, wxobj=self.wxobj
         )
@@ -239,7 +240,7 @@ class HMMMethod(base.SingleConditionMethod):
 
         # Normalize data
         if self.inputs.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
+            logging.log("Normalizing using: %s" % self.inputs.normalization)
             wig_list = [] # FIXME: normalize_data() needs to be rewritten to not need a wig_list
             (data, factors) = norm_tools.normalize_data(
                 data, self.inputs.normalization, annotationPath=self.inputs.annotation_path
@@ -247,7 +248,7 @@ class HMMMethod(base.SingleConditionMethod):
 
         # Do loess
         if self.inputs.loess:
-            transit_tools.log("Performing loess Correction")
+            logging.log("Performing loess Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -255,7 +256,7 @@ class HMMMethod(base.SingleConditionMethod):
         rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
 
         if len(self.inputs.ctrldata) > 1:
-            transit_tools.log("Combining Replicates as '%s'" % self.inputs.replicates)
+            logging.log("Combining Replicates as '%s'" % self.inputs.replicates)
         O = (
             tnseq_tools.combine_replicates(data, method=self.inputs.replicates) + 1
         )  # Adding 1 to because of shifted geometric in scipy
@@ -406,13 +407,13 @@ class HMMMethod(base.SingleConditionMethod):
 
         self.output.close()
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Finished HMM - Sites Method")
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Finished HMM - Sites Method")
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
 
         # Gene Files
-        transit_tools.log("Creating HMM Genes Level Output")
+        logging.log("Creating HMM Genes Level Output")
         genes_path = (
             ".".join(self.output.name.split(".")[:-1])
             + "_genes."
@@ -423,10 +424,10 @@ class HMMMethod(base.SingleConditionMethod):
         tempObs[0, :] = O - 1
         self.post_process_genes(tempObs, position, states, genes_path)
 
-        transit_tools.log("Adding File: %s" % (genes_path))
+        logging.log("Adding File: %s" % (genes_path))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished HMM Method")
+        logging.log("Finished HMM Method")
 
     
 

@@ -37,10 +37,6 @@ def handle_traceback(traceback_obj):
     if frame and hasattr(frame, "status_bar") and hasattr(frame.status_bar, "SetStatusText"):
         frame.status_bar.SetStatusText("Error: "+str(error.args))
 
-def show_message(MSG=""):
-    
-    wx.MessageBox(MSG, "Info", wx.OK | wx.ICON_INFORMATION)
-
 def set_status(message):
     frame = universal.frame
     if frame and universal.interface == "gui" and hasattr(frame, "status_bar"):

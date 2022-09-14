@@ -18,21 +18,16 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.tools.tnseq_tools import Wig
-import pytransit
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
-import pytransit.basics.csv as csv
-import pytransit.components.samples_area as samples_area
-import pytransit.components.results_area as results_area
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button, create_choice_input
+import pytransit.basics.csv as csv
+import pytransit.components.file_display as file_display
+import pytransit.components.samples_area as samples_area
+import pytransit.components.results_area as results_area
 command_name = sys.argv[0]
 
 # Checklist
@@ -238,7 +233,7 @@ class Analysis:
         with gui_tools.nice_error_log:
             self.max_iterations = len(Analysis.inputs.ctrl_positions) * 4 + 1 # FIXME: I'm not sure this is right -- Jeff
             self.count = 1
-            transit_tools.log("Starting HMM Method")
+            logging.log("Starting HMM Method")
             start_time = time.time()
             
             data, position = Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions
@@ -246,14 +241,15 @@ class Analysis:
 
             # Normalize data
             if self.inputs.normalization != "nonorm":
-                transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
+                logging.log("Normalizing using: %s" % self.inputs.normalization)
                 (data, factors) = norm_tools.normalize_data(
                     data, self.inputs.normalization, annotationPath=self.inputs.annotation_path,
                 )
 
             # Do loess
             if self.inputs.loess:
-                transit_tools.log("Performing loess Correction")
+                logging.log("Performing loess Correction")
+                from pytransit.tools import stat_tools
                 for j in range(K):
                     data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -261,7 +257,7 @@ class Analysis:
             rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
 
             if len(self.inputs.ctrl_read_counts) > 1:
-                transit_tools.log("Combining Replicates as '%s'" % self.inputs.replicates)
+                logging.log("Combining Replicates as '%s'" % self.inputs.replicates)
             O = tnseq_tools.combine_replicates(data, method=self.inputs.replicates) + 1
             # Adding 1 to because of shifted geometric in scipy
 
@@ -412,13 +408,13 @@ class Analysis:
 
             self.output.close()
 
-            transit_tools.log("")  # Printing empty line to flush stdout
-            transit_tools.log("Finished HMM - Sites Method")
-            transit_tools.log("Adding File: %s" % (self.output.name))
+            logging.log("")  # Printing empty line to flush stdout
+            logging.log("Finished HMM - Sites Method")
+            logging.log("Adding File: %s" % (self.output.name))
             results_area.add(self.output.name)
 
             # Gene Files
-            transit_tools.log("Creating HMM Genes Level Output")
+            logging.log("Creating HMM Genes Level Output")
             genes_path = (
                 ".".join(self.output.name.split(".")[:-1])
                 + "_genes."
@@ -429,9 +425,9 @@ class Analysis:
             tempObs[0, :] = O - 1
             self.post_process_genes(tempObs, position, states, genes_path)
 
-            transit_tools.log("Adding File: %s" % (genes_path))
+            logging.log("Adding File: %s" % (genes_path))
             results_area.add(self.output.name)
-            transit_tools.log("Finished HMM Method")
+            logging.log("Finished HMM Method")
 
     def forward_procedure(self, A, B, PI, O):
         T = len(O)

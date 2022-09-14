@@ -12,6 +12,7 @@ from pytransit.basics.lazy_dict import LazyDict, stringify
 import pytransit.basics.csv as csv
 from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import line_count_of, flatten_once, no_duplicates, indent
+from pytransit.tools import logging
 
 try:
     from pytransit.tools import norm_tools
@@ -271,7 +272,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
             Filename :: String
         """
         import ez_yaml
-        import pytransit.tools.transit_tools as transit_tools
+        from pytransit.tools import transit_tools
         
         sites, counts_by_wig, files, extra_data = [], [], [], {}
         contained_yaml_data = False
@@ -314,7 +315,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
             for index, line in enumerate(lines):
                 if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
                     percent_done = round(index/number_of_lines * 100, ndigits=2)
-                    transit_tools.log(f"\rreading lines: {percent_done}%          ", end="")
+                    logging.log(f"\rreading lines: {percent_done}%          ", end="")
                 
                 # lines to skip
                 if line.startswith("#") or len(line) == 0:
@@ -334,7 +335,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                 sites.append(position)
                 for index, count in enumerate(wig_counts):
                     counts_by_wig[index].append(count)
-            transit_tools.log(f"\rreading lines: 100%          ")
+            logging.log(f"\rreading lines: 100%          ")
         
         return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
 
@@ -635,7 +636,7 @@ class Gene:
 
     :Example:
 
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> G = tnseq_tools.Gene("Rv0001", "dnaA", "DNA Replication A", [[0,0,0,0,1,3,0,1]],  [1,21,32,37,45,58,66,130], strand="+" )
         >>> print(G)
         Rv0001  (dnaA)  k=3 n=8 r=4 theta=0.37500
@@ -813,7 +814,7 @@ class Genes:
 
     :Example:
 
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/genomes/H37Rv.prot_table", norm="TTR")
         >>> print(G)
         Genes Object (N=3990)
