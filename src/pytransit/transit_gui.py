@@ -60,7 +60,7 @@ import pytransit.components.file_display as file_display
 import pytransit.components.qc_display as qc_display
 import pytransit.components.images as images
 
-class TnSeekFrame(wx.Frame):
+class TnSeqFrame(wx.Frame):
     instructions_text = """
         1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
         2. Add the desired Control and Experimental datasets.
@@ -172,7 +172,7 @@ class TnSeekFrame(wx.Frame):
         self,
         DIR=None,
         FILE="",
-        WC=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+        WC=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
     ):
         """
         Create and show the Save FileDialog

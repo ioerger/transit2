@@ -96,8 +96,8 @@ class IGVMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -127,7 +127,7 @@ class IGVMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             LOESS,
@@ -141,7 +141,7 @@ class IGVMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
 
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         outpath = args[2]
         output_file = open(outpath, "w")
 
@@ -153,7 +153,7 @@ class IGVMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             LOESS,

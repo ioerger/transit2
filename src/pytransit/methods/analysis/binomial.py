@@ -255,8 +255,8 @@ class BinomialMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -289,7 +289,7 @@ class BinomialMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             samples=samples,
             burnin=burnin,
@@ -306,7 +306,7 @@ class BinomialMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
 
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         outpath = args[2]
         output_file = open(outpath, "w")
 
@@ -332,7 +332,7 @@ class BinomialMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             samples=samples,
             burnin=burnin,

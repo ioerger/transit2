@@ -92,14 +92,6 @@ class Analysis:
         Analysis.inputs.combined_wig = combined_wig.main_path
         
         # 
-        # get annotation
-        # 
-        ###Analysis.inputs.annotation_path = universal.session_data.annotation # not needed for tnseq_stats
-        # FIXME: enable this once I get a valid annotation file example
-        # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
-        #     return None
-        
-        # 
         # setup custom inputs
         # 
         for each_key, each_getter in Analysis.instance.value_getters.items():
@@ -107,14 +99,13 @@ class Analysis:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-        ###logging.log("included_conditions", Analysis.inputs.included_conditions)
 
         # 
         # save result files
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name="tnseq_stats.dat",
-            output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:
             return None

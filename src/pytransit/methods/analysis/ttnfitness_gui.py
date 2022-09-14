@@ -171,12 +171,12 @@ class Analysis:
 
 #            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
 #                default_file_name="ttnfitness_genes.dat",
-#                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+#                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
 #            )
 #
 #            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
 #                default_file_name="ttnfitness_sites.dat",
-#                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+#                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
 #            )
 
             Analysis.inputs.genes_output_path = "%s.genes.dat" % (Analysis.inputs.output_basename)

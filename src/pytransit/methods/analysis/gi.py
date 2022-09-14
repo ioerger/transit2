@@ -636,8 +636,8 @@ class GIMethod(base.QuadConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -712,7 +712,7 @@ class GIMethod(base.QuadConditionMethod):
             ctrldataB,
             expdataA,
             expdataB,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -743,7 +743,7 @@ class GIMethod(base.QuadConditionMethod):
         ctrldataB = args[2].split(",")
         expdataB = args[3].split(",")
 
-        annotationPath = args[4]
+        annotation_path = args[4]
         output_path = args[5]
         output_file = open(output_path, "w")
 
@@ -764,7 +764,7 @@ class GIMethod(base.QuadConditionMethod):
             ctrldataB,
             expdataA,
             expdataB,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,

@@ -188,7 +188,7 @@ class Analysis:
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name="GI_test.dat",
-            output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:
             return None

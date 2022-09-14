@@ -98,8 +98,8 @@ class MeanCountsMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -133,7 +133,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         return self(
             combined_wig,
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             LOESS,
@@ -150,7 +150,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
         combined_wig = kwargs.get("c", False)
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         outpath = args[2]
         output_file = open(outpath, "w")
 
@@ -163,7 +163,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         return self(
             combined_wig,
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             LOESS,

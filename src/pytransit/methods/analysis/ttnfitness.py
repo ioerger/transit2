@@ -131,8 +131,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -162,7 +162,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             genomePath,
             output_file,
             replicates,
@@ -179,7 +179,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         import statsmodels.api as sm
 
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         genomePath = args[2]
         gumbelestimations = args[3]
 
@@ -203,7 +203,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             genomePath,
             gumbelestimations,
             # STLM_reg,

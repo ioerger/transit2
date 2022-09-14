@@ -127,7 +127,32 @@ if True:
         )
         return (label, choice_box, sizer)
 
-
+    def create_choice_input(panel, sizer, label, options, default_option=None, tooltip_text=""):
+        # 
+        # setup arguments
+        # 
+        if len(options) == 0:
+            options.append("")
+        if default_option is None:
+            default_option = options[0]
+        # 
+        # create box
+        # 
+        (
+            label,
+            wxobj,
+            inner_sizer,
+        ) = define_choice_box(
+            panel,
+            label,
+            options,
+            tooltip_text,
+        )
+        sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        # return a value-getter
+        wxobj.SetSelection(wxobj.FindString(default_option))
+        return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
+        
     def define_text_box(
             panel,
             label_text="",
@@ -197,23 +222,34 @@ if True:
 # 
 # 
 if True:
-    def create_preview_loess_button(panel, sizer):
+    def create_preview_loess_button(panel, sizer, conditions_getter=None, wig_ids_getter=None):
+        conditions_getter = conditions_getter or (lambda *args, **kwargs: None)
+        wig_ids_getter    = wig_ids_getter    or (lambda *args, **kwargs: None)
         @create_button(panel, sizer, label="Preview LOESS fit")
         def when_loess_preview_clicked(event):
             import numpy
             import matplotlib
             import matplotlib.pyplot as plt
             from pytransit.tools import stat_tools
-            
-            if not universal.session_data.selected_samples:
-                # NOTE: was a popup
-                logging.error("Need to select at least one control or experimental dataset.")
-            
             from pytransit.universal_data import universal
             from pytransit.tools.tnseq_tools import Wig
-            wig_objects = universal.session_data.selected_samples
-            data_per_path, position_per_line = Wig.selected_as_gathered_data(wig_objects)
-            number_of_wigs, number_of_lines = data_per_path.shape # => number_of_lines = len(position_per_line)
+            
+            # 
+            # determine selection method
+            # 
+            conditions = conditions_getter()
+            wig_ids    = wig_ids_getter()
+            use_selected = False
+            if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
+                use_selected = True
+                if not universal.session_data.selected_samples:
+                    # NOTE: was a popup
+                    logging.error("Need to select at least one control or experimental dataset.")
+            #
+            # get read_counts and positions
+            # 
+            read_counts_per_wig, position_per_line = transit_tools.gather_sample_data_for(conditions=conditions, wig_ids=wig_ids, selected_samples=use_selected)
+            number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
             window = 100
             for each_path_index in range(number_of_wigs):
 
@@ -222,7 +258,7 @@ if True:
                 y_w = numpy.zeros(number_of_windows)
                 for window_index in range(number_of_windows):
                     x_w[window_index] = window * window_index
-                    y_w[window_index] = sum(data_per_path[each_path_index][window * window_index : window * (window_index + 1)])
+                    y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
 
                 y_smooth = stat_tools.loess(x_w, y_w, h=10000)
                 plt.plot(x_w, y_w, "g+")

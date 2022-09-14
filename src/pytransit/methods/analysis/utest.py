@@ -247,8 +247,8 @@ class UTestMethod(base.DualConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -289,7 +289,7 @@ class UTestMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             includeZeros,
@@ -306,7 +306,7 @@ class UTestMethod(base.DualConditionMethod):
 
         ctrldata = args[0].split(",")
         expdata = args[1].split(",")
-        annotationPath = args[2]
+        annotation_path = args[2]
         output_path = args[3]
         output_file = open(output_path, "w")
 
@@ -322,7 +322,7 @@ class UTestMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             includeZeros,
