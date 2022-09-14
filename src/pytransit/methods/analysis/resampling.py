@@ -75,6 +75,7 @@ class Analysis:
         diff_strains=False,
         annotation_path_exp="",
         combined_wig_params=None,
+        do_histogram=False,
     )
     
     usage_string = f"""
@@ -153,6 +154,7 @@ class Analysis:
             self.value_getters.genome_positional_bias = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
             create_preview_loess_button(self.panel, main_sizer)
             self.value_getters.adaptive                = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
+            self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
             create_run_button(self.panel, main_sizer)
@@ -187,7 +189,6 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            
             # 
             # save result files
             # 
@@ -319,10 +320,25 @@ class Analysis:
 
     def Run(self):
         with gui_tools.nice_error_log:
+            if self.inputs.do_histogram:
+                try: import matplotlib.pyplot as plt
+                except:
+                    print("Error: cannot do histograms")
+                    self.inputs.do_histogram = False
+
             logging.log("Starting resampling Method")
             start_time = time.time()
             if self.inputs.winz:
                 logging.log("Winsorizing insertion counts")
+
+            hist_path = ""
+            if self.inputs.do_histogram:
+                hist_path = os.path.join(
+                    os.path.dirname(self.inputs.output_path),
+                    transit_tools.fetch_name(self.inputs.output_path) + "_histograms",
+                )
+                if not os.path.isdir(hist_path):
+                    os.makedirs(hist_path)
 
             # Get orf data
             logging.log("Getting Data")
@@ -527,6 +543,7 @@ class Analysis:
                         parameters=dict(
                             samples=self.inputs.samples,
                             norm=self.inputs.normalization,
+                            histograms=self.inputs.do_histogram,
                             adaptive=self.inputs.adaptive,
                             excludeZeros=not self.inputs.include_zeros,
                             pseudocounts=self.inputs.pseudocount,
@@ -662,7 +679,6 @@ class Analysis:
                     data1 = self.winsorize_resampling(data1)
                     data2 = self.winsorize_resampling(data2)
                 
-                print(f'''self.inputs.adaptive = {self.inputs.adaptive}''')
                 if do_library_resampling:
                     (
                         test_obs,
