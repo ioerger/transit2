@@ -314,12 +314,12 @@ def get_gene_info(path):
     else:
         return tnseq_tools.get_gene_info_pt(path)
 
-def convert_to_combined_wig(dataset_list, annotationPath, outputPath, normchoice="nonorm"):
+def convert_to_combined_wig(dataset_list, annotation_path, outputPath, normchoice="nonorm"):
     """Normalizes the input datasets and outputs the result in CombinedWig format.
     
     Arguments:
         dataset_list (list): List of paths to datasets in .wig format
-        annotationPath (str): Path to annotation in .prot_table or GFF3 format.
+        annotation_path (str): Path to annotation in .prot_table or GFF3 format.
         outputPath (str): Desired output path.
         normchoice (str): Choice for normalization method.
             
@@ -327,12 +327,12 @@ def convert_to_combined_wig(dataset_list, annotationPath, outputPath, normchoice
 
     (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
     (fulldata, factors) = norm_tools.normalize_data(
-        fulldata, normchoice, dataset_list, annotationPath
+        fulldata, normchoice, dataset_list, annotation_path
     )
     position = position.astype(int)
 
-    hash = get_pos_hash(annotationPath)
-    rv2info = get_gene_info(annotationPath)
+    hash = get_pos_hash(annotation_path)
+    rv2info = get_gene_info(annotation_path)
 
     output = open(outputPath, "w")
     output.write("#Converted to CombinedWig with TRANSIT.\n")

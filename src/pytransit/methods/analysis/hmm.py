@@ -321,8 +321,8 @@ class HMMMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -360,7 +360,7 @@ class HMMMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             replicates,
             normalization,
@@ -375,7 +375,7 @@ class HMMMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
 
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         outpath = args[2]
         output_file = open(outpath, "w")
 
@@ -388,7 +388,7 @@ class HMMMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             replicates,
             normalization,
@@ -591,9 +591,9 @@ class HMMMethod(base.SingleConditionMethod):
             + self.output.name.split(".")[-1]
         )
 
-        tempObs = numpy.zeros((1, len(O)))
-        tempObs[0, :] = O - 1
-        self.post_process_genes(tempObs, position, states, genes_path)
+        temp_obs = numpy.zeros((1, len(O)))
+        temp_obs[0, :] = O - 1
+        self.post_process_genes(temp_obs, position, states, genes_path)
 
         logging.log("Adding File: %s" % (genes_path))
         results_area.add(self.output.name)

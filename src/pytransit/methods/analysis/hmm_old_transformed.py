@@ -243,7 +243,7 @@ class HMMMethod(base.SingleConditionMethod):
             logging.log("Normalizing using: %s" % self.inputs.normalization)
             wig_list = [] # FIXME: normalize_data() needs to be rewritten to not need a wig_list
             (data, factors) = norm_tools.normalize_data(
-                data, self.inputs.normalization, annotationPath=self.inputs.annotation_path
+                data, self.inputs.normalization, annotation_path=self.inputs.annotation_path
             )
 
         # Do loess
@@ -420,27 +420,11 @@ class HMMMethod(base.SingleConditionMethod):
             + self.output.name.split(".")[-1]
         )
 
-        tempObs = numpy.zeros((1, len(O)))
-        tempObs[0, :] = O - 1
-        self.post_process_genes(tempObs, position, states, genes_path)
+        temp_obs = numpy.zeros((1, len(O)))
+        temp_obs[0, :] = O - 1
+        self.post_process_genes(temp_obs, position, states, genes_path)
 
         logging.log("Adding File: %s" % (genes_path))
         results_area.add(self.output.name)
         self.finish()
         logging.log("Finished HMM Method")
-
-    
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    G = HMMMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

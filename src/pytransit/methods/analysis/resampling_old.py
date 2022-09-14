@@ -344,18 +344,18 @@ class ResamplingMethod(base.DualConditionMethod):
         """ """
         # Get Annotation file
         annot_paths = wxobj.annotation.split(",")
-        annotationPath = annot_paths[0]
+        annotation_path = annot_paths[0]
         diffStrains = False
-        annotationPathExp = ""
+        annotation_pathExp = ""
         if len(annot_paths) == 2:
-            annotationPathExp = annot_paths[1]
+            annotation_pathExp = annot_paths[1]
             diffStrains = True
 
-        if not transit_tools.validate_annotation(annotationPath):
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
-        if annotationPathExp and not transit_tools.validate_annotation(
-            annotationPathExp
+        if annotation_pathExp and not transit_tools.validate_annotation(
+            annotation_pathExp
         ):
             return None
 
@@ -405,7 +405,7 @@ class ResamplingMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -423,7 +423,7 @@ class ResamplingMethod(base.DualConditionMethod):
             wxobj,
             Z=False,
             diffStrains=diffStrains,
-            annotation_path_exp=annotationPathExp,
+            annotation_path_exp=annotation_pathExp,
         )
 
     @classmethod
@@ -431,9 +431,9 @@ class ResamplingMethod(base.DualConditionMethod):
 
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
-        isCombinedWig = True if kwargs.get("c", False) else False
+        is_combined_wig = True if kwargs.get("c", False) else False
         combinedWigParams = None
-        if isCombinedWig:
+        if is_combined_wig:
             if len(args) != 5:
                 print("Error: Incorrect number of args. See usage")
                 print(self.usage_string)
@@ -457,13 +457,13 @@ class ResamplingMethod(base.DualConditionMethod):
             expdata = args[1].split(",")
             annot_paths = args[2].split(",")
             output_path = args[3]
-        annotationPath = annot_paths[0]
+        annotation_path = annot_paths[0]
         diffStrains = False
-        annotationPathExp = ""
+        annotation_pathExp = ""
         if len(annot_paths) == 2:
-            annotationPathExp = annot_paths[1]
+            annotation_pathExp = annot_paths[1]
             diffStrains = True
-        if diffStrains and isCombinedWig:
+        if diffStrains and is_combined_wig:
             print("Error: Cannot have combined wig and different annotation files.")
             sys.exit(0)
         winz = True if "winz" in kwargs else False
@@ -476,7 +476,7 @@ class ResamplingMethod(base.DualConditionMethod):
         )
         for arg in rawargs:
             if arg[0] == "-" and arg not in flags:
-                self.transit_error("flag unrecognized: %s" % arg)
+                logging.error("flag unrecognized: %s" % arg)
                 print(ZinbMethod.usage_string)
                 sys.exit(0)
 
@@ -504,7 +504,7 @@ class ResamplingMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -522,7 +522,7 @@ class ResamplingMethod(base.DualConditionMethod):
             winz=winz,
             Z=Z,
             diffStrains=diffStrains,
-            annotation_path_exp=annotationPathExp,
+            annotation_path_exp=annotation_pathExp,
             combinedWigParams=combinedWigParams,
         )
 
@@ -545,13 +545,13 @@ class ResamplingMethod(base.DualConditionMethod):
 
         return data
 
-    def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
+    def wigs_to_conditions(self, conditions_by_file, filenames_in_comb_wig):
         """
             Returns list of conditions corresponding to given wigfiles.
             ({FileName: Condition}, [FileName]) -> [Condition]
             Condition :: [String]
         """
-        return [conditionsByFile.get(f, None) for f in filenamesInCombWig]
+        return [conditions_by_file.get(f, None) for f in filenames_in_comb_wig]
 
     def filter_wigs_by_conditions(self, data, conditions, included_conditions):
         """
@@ -560,7 +560,7 @@ class ResamplingMethod(base.DualConditionMethod):
         """
         d_filtered, cond_filtered = [], []
         if len(included_conditions) != 2:
-            self.transit_error("Only 2 conditions expected", included_conditions)
+            logging.error("Only 2 conditions expected", included_conditions)
             sys.exit(0)
         for i, c in enumerate(conditions):
             if c.lower() in included_conditions:
@@ -606,13 +606,13 @@ class ResamplingMethod(base.DualConditionMethod):
             )
 
         if self.combinedWigParams:
-            (position, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
+            (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
                 self.combinedWigParams["combined_wig"]
             )
-            conditionsByFile, _, _, _ = tnseq_tools.read_samples_metadata(
+            conditions_by_file, _, _, _ = tnseq_tools.read_samples_metadata(
                 self.combinedWigParams["samples_metadata"]
             )
-            conditions = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
+            conditions = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
             data, conditions = self.filter_wigs_by_conditions(
                 data, conditions, self.combinedWigParams["conditions"]
             )
@@ -642,10 +642,10 @@ class ResamplingMethod(base.DualConditionMethod):
         (K_exp, N_exp) = data_exp.shape
 
         if not self.diffStrains and (N_ctrl != N_exp):
-            self.transit_error(
+            logging.error(
                 "Error: Ctrl and Exp wig files don't have the same number of sites."
             )
-            self.transit_error("Make sure all .wig files come from the same strain.")
+            logging.error("Make sure all .wig files come from the same strain.")
             return
         # (data, position) = transit_tools.get_validated_data(self.ctrldata+self.expdata, wxobj=self.wxobj)
 
@@ -690,7 +690,7 @@ class ResamplingMethod(base.DualConditionMethod):
                 if not lib_diff:
                     do_library_resampling = True
                 else:
-                    transit_tools.transit_error(
+                    logging.error(
                         "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
                         % (self.ctrl_lib_str, self.exp_lib_str)
                     )
@@ -874,10 +874,10 @@ class ResamplingMethod(base.DualConditionMethod):
                 if self.diffStrains:
                     continue
                 else:
-                    self.transit_error(
+                    logging.error(
                         "Error: Gene in ctrl data not present in exp data"
                     )
-                    self.transit_error(
+                    logging.error(
                         "Make sure all .wig files come from the same strain."
                     )
                     return ([], [])
@@ -886,10 +886,10 @@ class ResamplingMethod(base.DualConditionMethod):
             count += 1
 
             if not self.diffStrains and gene.n != gene_exp.n:
-                self.transit_error(
+                logging.error(
                     "Error: No. of TA sites in Exp and Ctrl data are different"
                 )
-                self.transit_error(
+                logging.error(
                     "Make sure all .wig files come from the same strain."
                 )
                 return ([], [])
@@ -936,8 +936,8 @@ class ResamplingMethod(base.DualConditionMethod):
                         data1,
                         data2,
                         S=self.samples,
-                        testFunc=stat_tools.f_mean_diff_dict,
-                        permFunc=stat_tools.f_shuffle_dict_libraries,
+                        test_func=stat_tools.f_mean_diff_dict,
+                        perm_func=stat_tools.f_shuffle_dict_libraries,
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
@@ -957,8 +957,8 @@ class ResamplingMethod(base.DualConditionMethod):
                         data1,
                         data2,
                         S=self.samples,
-                        testFunc=stat_tools.f_mean_diff_flat,
-                        permFunc=stat_tools.f_shuffle_flat,
+                        test_func=stat_tools.f_mean_diff_flat,
+                        perm_func=stat_tools.f_shuffle_flat,
                         adaptive=self.adaptive,
                         lib_str1=self.ctrl_lib_str,
                         lib_str2=self.exp_lib_str,
@@ -1051,20 +1051,3 @@ class ResamplingMethod(base.DualConditionMethod):
             sys.argv[0],
             sys.argv[0],
         )
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = ResamplingMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

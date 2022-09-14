@@ -243,7 +243,7 @@ class Analysis:
             if self.inputs.normalization != "nonorm":
                 logging.log("Normalizing using: %s" % self.inputs.normalization)
                 (data, factors) = norm_tools.normalize_data(
-                    data, self.inputs.normalization, annotationPath=self.inputs.annotation_path,
+                    data, self.inputs.normalization, annotation_path=self.inputs.annotation_path,
                 )
 
             # Do loess
@@ -421,9 +421,9 @@ class Analysis:
                 + self.output.name.split(".")[-1]
             )
 
-            tempObs = numpy.zeros((1, len(O)))
-            tempObs[0, :] = O - 1
-            self.post_process_genes(tempObs, position, states, genes_path)
+            temp_obs = numpy.zeros((1, len(O)))
+            temp_obs[0, :] = O - 1
+            self.post_process_genes(temp_obs, position, states, genes_path)
 
             logging.log("Adding File: %s" % (genes_path))
             results_area.add(self.output.name)

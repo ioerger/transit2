@@ -229,9 +229,9 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs):
-        isCombinedWig = True if kwargs.get("c", False) else False
+        is_combined_wig = True if kwargs.get("c", False) else False
         combined_wig_params = None
-        if isCombinedWig:
+        if is_combined_wig:
             if len(args) != 5:
                 print("Error: Incorrect number of args. See usage")
                 print(cls.usage_string)
@@ -257,11 +257,11 @@ class Analysis:
             output_path = args[3]
         annotation_path = annot_paths[0]
         diff_strains = False
-        annotation_pathExp = ""
+        annotation_path_exp = ""
         if len(annot_paths) == 2:
-            annotation_pathExp = annot_paths[1]
+            annotation_path_exp = annot_paths[1]
             diff_strains = True
-        if diff_strains and isCombinedWig:
+        if diff_strains and is_combined_wig:
             print("Error: Cannot have combined wig and different annotation files.")
             sys.exit(0)
         winz = True if "winz" in kwargs else False
@@ -277,8 +277,9 @@ class Analysis:
         samples = int(kwargs.get("s", 10000))
         adaptive = kwargs.get("a", False)
         replicates = kwargs.get("r", "Sum")
-        excludeZeros = kwargs.get("ez", False)
-        include_zeros = not excludeZeros
+        do_histogram = kwargs.get("h", False)
+        exclude_zeros = kwargs.get("ez", False)
+        include_zeros = not exclude_zeros
         pseudocount = float(
             kwargs.get("PC", 1.0)
         )  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
@@ -315,6 +316,7 @@ class Analysis:
             annotation_path=annotation_path,
             annotation_path_exp=annotation_path,
             combined_wig_params=combined_wig_params,
+            do_histogram=do_histogram,
         ))
         return Analysis.instance
 
@@ -331,15 +333,6 @@ class Analysis:
             if self.inputs.winz:
                 logging.log("Winsorizing insertion counts")
 
-            hist_path = ""
-            if self.inputs.do_histogram:
-                hist_path = os.path.join(
-                    os.path.dirname(self.inputs.output_path),
-                    transit_tools.fetch_name(self.inputs.output_path) + "_histograms",
-                )
-                if not os.path.isdir(hist_path):
-                    os.makedirs(hist_path)
-
             # Get orf data
             logging.log("Getting Data")
             if self.inputs.diff_strains:
@@ -353,13 +346,13 @@ class Analysis:
             # Combine 
             # 
             if self.inputs.combined_wig_params:
-                (position, data, filenamesInCombWig) = tnseq_tools.read_combined_wig(
+                (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
                     self.inputs.combined_wig_params["combined_wig"]
                 )
-                conditionsByFile, _, _, _ = tnseq_tools.read_samples_metadata(
+                conditions_by_file, _, _, _ = tnseq_tools.read_samples_metadata(
                     self.inputs.combined_wig_params["samples_metadata"]
                 )
-                condition_names = self.wigs_to_conditions(conditionsByFile, filenamesInCombWig)
+                condition_names = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
                 datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
                     data, condition_names, self.inputs.combined_wig_params["conditions"],
                 )
@@ -392,9 +385,8 @@ class Analysis:
             (K_exp, N_exp) = data_exp.shape
 
             if not self.inputs.diff_strains and (N_ctrl != N_exp):
-                self.transit_error("Error: Ctrl and Exp wig files don't have the same number of sites.")
-                self.transit_error("Make sure all .wig files come from the same strain.")
-                return
+                # NOTE: returned ([], [])
+                logging.error("Error: Ctrl and Exp wig files don't have the same number of sites. Make sure all .wig files come from the same strain.")
 
             logging.log("Preprocessing Ctrl data...")
             data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
@@ -437,12 +429,11 @@ class Analysis:
                     if not lib_diff:
                         do_library_resampling = True
                     else:
-                        transit_tools.transit_error(
+                        # NOTE: kept going (set self.inputs.ctrl_lib_str = "", self.inputs.exp_lib_str = "")
+                        logging.error(
                             "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
                             % (self.inputs.ctrl_lib_str, self.inputs.exp_lib_str)
                         )
-                        self.inputs.ctrl_lib_str = ""
-                        self.inputs.exp_lib_str = ""
             
             (data, qval) = self.run_resampling(G_ctrl, G_exp, do_library_resampling)
             # 
@@ -545,7 +536,7 @@ class Analysis:
                             norm=self.inputs.normalization,
                             histograms=self.inputs.do_histogram,
                             adaptive=self.inputs.adaptive,
-                            excludeZeros=not self.inputs.include_zeros,
+                            exclude_zeros=not self.inputs.include_zeros,
                             pseudocounts=self.inputs.pseudocount,
                             LOESS=self.inputs.LOESS,
                             trim_Nterm=self.inputs.n_terminus,
@@ -578,18 +569,19 @@ class Analysis:
 
         if self.inputs.LOESS:
             logging.log("Performing LOESS Correction")
+            from pytransit.tools import stat_tools
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
         return data
 
-    def wigs_to_conditions(self, conditionsByFile, filenamesInCombWig):
+    def wigs_to_conditions(self, conditions_by_file, filenames_in_comb_wig):
         """
             Returns list of conditions corresponding to given wigfiles.
             ({FileName: Condition}, [FileName]) -> [Condition]
             Condition :: [String]
         """
-        return [conditionsByFile.get(f, None) for f in filenamesInCombWig]
+        return [conditions_by_file.get(f, None) for f in filenames_in_comb_wig]
 
     def filter_wigs_by_conditions(self, data, conditions, included_conditions):
         """
@@ -598,8 +590,7 @@ class Analysis:
         """
         d_filtered, cond_filtered = [], []
         if len(included_conditions) != 2:
-            self.transit_error("Only 2 conditions expected", included_conditions)
-            sys.exit(0)
+            logging.error("Only 2 conditions expected, but got:", included_conditions)
         
         for i, c in enumerate(conditions):
             if c in included_conditions:
@@ -622,48 +613,46 @@ class Analysis:
     def run_resampling(
         self, G_ctrl, G_exp=None, do_library_resampling=False
     ):
+        from pytransit.tools import stat_tools
+        
         data = []
         N = len(G_ctrl)
         count = 0
+        
+        if self.inputs.do_histogram:
+            import matplotlib.pyplot as plt
+            hist_path = os.path.join(
+                os.path.dirname(self.inputs.output_path),
+                transit_tools.fetch_name(self.inputs.output_path) + "_histograms",
+            )
+            os.makedirs(hist_path, exist_ok=True)
         
         for gene in G_ctrl:
             if gene.orf not in G_exp:
                 if self.inputs.diff_strains:
                     continue
                 else:
-                    self.transit_error(
-                        "Error: Gene in ctrl data not present in exp data"
-                    )
-                    self.transit_error(
-                        "Make sure all .wig files come from the same strain."
-                    )
-                    return ([], [])
+                    # NOTE: returned ([], [])
+                    logging.error("Error: Gene in ctrl data not present in exp data. Make sure all .wig files come from the same strain.")
 
             gene_exp = G_exp[gene.orf]
             count += 1
             
             if not self.inputs.diff_strains and gene.n != gene_exp.n:
-                self.transit_error(
-                    "Error: No. of TA sites in Exp and Ctrl data are different"
-                )
-                self.transit_error(
-                    "Make sure all .wig files come from the same strain."
-                )
-                return ([], [])
+                # NOTE: returned ([], [])
+                logging.error("Error: No. of TA sites in Exp and Ctrl data are different. Make sure all .wig files come from the same strain.")
 
             if (gene.k == 0 and gene_exp.k == 0) or gene.n == 0 or gene_exp.n == 0:
-                (
-                    test_obs,
-                    mean1,
-                    mean2,
-                    log2FC,
-                    pval_ltail,
-                    pval_utail,
-                    pval_2tail,
-                    testlist,
-                    data1,
-                    data2,
-                ) = (0, 0, 0, 0, 1.00, 1.00, 1.00, [], [0], [0])
+                test_obs   = 0
+                mean1      = 0
+                mean2      = 0
+                log2FC     = 0
+                pval_ltail = 1.00
+                pval_utail = 1.00
+                pval_2tail = 1.00
+                testlist   = []
+                data1      = [0]
+                data2      = [0]
             else:
                 if not self.inputs.include_zeros:
                     ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
@@ -693,8 +682,8 @@ class Analysis:
                         data1,
                         data2,
                         S=self.inputs.samples,
-                        testFunc=stat_tools.f_mean_diff_dict,
-                        permFunc=stat_tools.f_shuffle_dict_libraries,
+                        test_func=stat_tools.f_mean_diff_dict,
+                        perm_func=stat_tools.f_shuffle_dict_libraries,
                         adaptive=self.inputs.adaptive,
                         lib_str1=self.inputs.ctrl_lib_str,
                         lib_str2=self.inputs.exp_lib_str,
@@ -714,13 +703,31 @@ class Analysis:
                         data1,
                         data2,
                         S=self.inputs.samples,
-                        testFunc=stat_tools.f_mean_diff_flat,
-                        permFunc=stat_tools.f_shuffle_flat,
+                        test_func=stat_tools.f_mean_diff_flat,
+                        perm_func=stat_tools.f_shuffle_flat,
                         adaptive=self.inputs.adaptive,
                         lib_str1=self.inputs.ctrl_lib_str,
                         lib_str2=self.inputs.exp_lib_str,
                         pseudocount=self.inputs.pseudocount,
                     )
+                
+                # 
+                # write historgram if needed
+                # 
+                if self.inputs.do_histogram:
+                    # TODO: this should probably be done at the bottom of .Run() instead of inside .run_resampling()
+                    import matplotlib.pyplot as plt
+                    
+                    testlist = testlist or [0,0]
+                    n, bins, patches = plt.hist(testlist, density=1, facecolor="c", alpha=0.75, bins=100)
+                    plt.xlabel("Delta Mean")
+                    plt.ylabel("Probability")
+                    plt.title("%s - Histogram of Delta Mean" % gene.orf)
+                    plt.axvline(test_obs, color="r", linestyle="dashed", linewidth=3)
+                    plt.grid(True)
+                    gene_path = os.path.join(hist_path, gene.orf + ".png")
+                    plt.savefig(gene_path)
+                    plt.clf()
 
             sum1 = numpy.sum(data1)
             sum2 = numpy.sum(data2)
