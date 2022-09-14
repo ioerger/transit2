@@ -172,7 +172,7 @@ class TnSeqFrame(wx.Frame):
         self,
         DIR=None,
         FILE="",
-        WC=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+        WC=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
     ):
         """
         Create and show the Save FileDialog

@@ -194,7 +194,7 @@ class Analysis:
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
                 default_file_name="output.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
             )
             if not Analysis.inputs.output_path:
                 return None
@@ -539,8 +539,8 @@ class Analysis:
                             exclude_zeros=not self.inputs.include_zeros,
                             pseudocounts=self.inputs.pseudocount,
                             LOESS=self.inputs.LOESS,
-                            trim_Nterm=self.inputs.n_terminus,
-                            trim_Cterm=self.inputs.c_terminus,
+                            n_terminus=self.inputs.n_terminus,
+                            c_terminus=self.inputs.c_terminus,
                         ),
                         control_data=(",".join(self.inputs.ctrldata)),
                         experimental_data=(",".join(self.inputs.expdata)),
