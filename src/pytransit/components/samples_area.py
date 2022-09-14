@@ -130,9 +130,9 @@ def create_sample_area(frame):
             )
     
     # 
-    # FIXME: FOR DEBUGGING ONLY
+    # preload files if in debugging mode
     # 
-    if True:
+    if universal.debugging_enabled:
         from os import remove, getcwd
         load_combined_wigs_and_metadatas(
             [f"{getcwd()}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
