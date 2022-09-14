@@ -21,8 +21,10 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
+import pytransit.basics.misc as misc
 command_name = sys.argv[0]
 
+@misc.singleton
 class Analysis:
     identifier  = "Anova"
     short_name  = "anova"
@@ -80,12 +82,9 @@ class Analysis:
     panel = None
     
     def __init__(self, *args, **kwargs):
-        Analysis.instance = self
+        self.instance = self.method = self.gui = self # for compatibility with older code/methods
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
         self.transposons_text = transit_tools.get_transposons_text(self.transposons)
-        self.filetypes        = [File]
-        self.method           = Analysis # backwards compat
-        self.gui              = self     # backwards compat
     
     def __str__(self):
         return f"""
@@ -94,11 +93,10 @@ class Analysis:
                 Long Name:   {self.long_name}
                 Short Desc:  {self.short_desc}
                 Long Desc:   {self.long_desc}
-                GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
     
-    def __repr__(self):
-        return f"{self.inputs}"
+    def __repr__(self): return f"{self.inputs}"
+    def __call__(self): return self
 
     def define_panel(self, _):
         self.panel = make_panel()
@@ -134,8 +132,8 @@ class Analysis:
         self.panel.Layout()
         main_sizer.Fit(self.panel)
 
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         with gui_tools.nice_error_log:
             # 
             # get wig files
@@ -173,10 +171,10 @@ class Analysis:
 
             return Analysis.instance
 
-    @classmethod
-    def from_args(cls, args, kwargs):
-        console_tools.handle_help_flag(kwargs, cls.usage_string)
-        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
+    @staticmethod
+    def from_args(args, kwargs):
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
         combined_wig      = args[0]
         annotation_path   = args[2]
@@ -481,7 +479,7 @@ class Analysis:
             results_area.add(self.inputs.output_path)
 
 @transit_tools.ResultsFile
-class File(Analysis):
+class File:
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
@@ -593,6 +591,6 @@ class File(Analysis):
             # add it as a result
             results_area.add(output_path)
             gui_tools.show_image(output_path)
-    
+
+Analysis.filetypes = [ File ]
 Method = GUI = Analysis
-Analysis() # make sure there's one instance

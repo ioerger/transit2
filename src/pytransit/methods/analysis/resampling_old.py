@@ -732,7 +732,7 @@ class ResamplingMethod(base.DualConditionMethod):
         else:
             self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
         self.output.write(
-            "#Parameters: samples=%s, norm=%s, histograms=%s, adaptive=%s, excludeZeros=%s, pseudocounts=%s, LOESS=%s, trim_Nterm=%s, trim_Cterm=%s\n"
+            "#Parameters: samples=%s, norm=%s, histograms=%s, adaptive=%s, excludeZeros=%s, pseudocounts=%s, LOESS=%s, n_terminus=%s, c_terminus=%s\n"
             % (
                 self.samples,
                 self.normalization,
