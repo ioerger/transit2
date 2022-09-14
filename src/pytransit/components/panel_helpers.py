@@ -127,7 +127,32 @@ if True:
         )
         return (label, choice_box, sizer)
 
-
+    def create_choice_input(panel, sizer, label, options, default_option=None, tooltip_text=""):
+        # 
+        # setup arguments
+        # 
+        if len(options) == 0:
+            options.append("")
+        if default_option is None:
+            default_option = options[0]
+        # 
+        # create box
+        # 
+        (
+            label,
+            wxobj,
+            inner_sizer,
+        ) = define_choice_box(
+            panel,
+            label,
+            options,
+            tooltip_text,
+        )
+        sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        # return a value-getter
+        wxobj.SetSelection(wxobj.FindString(default_option))
+        return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
+    
     def define_text_box(
             panel,
             label_text="",

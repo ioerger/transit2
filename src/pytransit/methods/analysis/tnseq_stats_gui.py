@@ -28,7 +28,7 @@ import pytransit.components.results_area as results_area
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "#tnseq_stats_gui"
+    identifier  = "tnseq_stats_gui"
     short_name  = "tnseq_stats_gui"
     long_name   = "tnseq_stats_gui"
     short_desc  = "Analyze statistics of TnSeq datasets"
@@ -120,7 +120,7 @@ class Analysis:
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
                 default_file_name="tnseq_stats.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
             )
             if not Analysis.inputs.output_path:
                 return None
@@ -182,7 +182,7 @@ class Analysis:
             file = sys.stdout # print to console if not output file defined
             if self.inputs.output_path != None:
                file = open(self.inputs.output_path, "w")
-            file.write("%s\n" % self.identifier)
+            file.write("%s\n#" % self.identifier)
             file.write("#normalization: %s\n" % self.inputs.normalization)
             file.write("#dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\tpickands_tail_index\n")
 
@@ -239,14 +239,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith("#"):
-                    if line.startswith(Analysis.identifier):
-                        return True
-                else:
-                    return False
-        return False
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None

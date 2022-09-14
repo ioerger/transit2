@@ -40,7 +40,7 @@ from pytransit.components.panel_helpers import *
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "#GI_gui"
+    identifier  = "GI_gui"
     short_name  = "GI_gui"
     long_name   = "GI_gui"
     short_desc  = "Genetic Interaction analysis"
@@ -170,7 +170,7 @@ class Analysis:
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
                 default_file_name="GI_test.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
             )
             if not Analysis.inputs.output_path:
                 return None
@@ -565,7 +565,7 @@ class Analysis:
         self.output = sys.stdout # print to console if not output file defined
         if self.inputs.output_path != None:
             self.output = open(self.inputs.output_path, "w")
-        self.output.write("%s\n" % self.identifier)
+        self.output.write("%s\n#" % self.identifier)
 
         if True: # was 'if self.wxobj:', try universal.interface=="gui" or "console" ###?
             members = sorted(
@@ -665,14 +665,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith("#"):
-                    if line.startswith(Analysis.identifier):
-                        return True
-                else:
-                    return False
-        return False
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
