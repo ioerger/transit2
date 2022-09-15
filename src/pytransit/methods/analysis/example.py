@@ -120,7 +120,7 @@ class Analysis:
         universal.session_data.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in universal.session_data.combined_wigs ]
         universal.session_data.combined_wigs[0].samples # list of Wig objects
         universal.session_data.combined_wigs[0].samples[0].id # id from the metadata file
-        universal.session_data.combined_wigs[0].samples[0].fingerprint # the "#File" if part of comwig
+        universal.session_data.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
         universal.session_data.combined_wigs[0].samples[0].condition_names # a list of strings
         universal.session_data.combined_wigs[0].samples[0].positions # list of ints
         universal.session_data.combined_wigs[0].samples[0].insertion_counts # list of numbers
