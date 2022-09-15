@@ -294,7 +294,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                         contained_yaml_data = True
                         continue
                     if yaml_mode_is_on and line.startswith("# "):
-                        yaml_string += f"\n{line[-1:]}"
+                        yaml_string += f"\n{line[1:]}"
                         continue
                     else:
                         yaml_mode_is_on = False
@@ -2082,3 +2082,54 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 siteindexes.append(TASiteindexMap[co])
         rv_site_indexes_map[gene["rv"]] = siteindexes
     return rv_site_indexes_map
+
+def extract_yaml_data(comment_lines):
+    import ez_yaml
+    
+    extra_data = {}
+    contained_yaml_data = False
+    yaml_mode_is_on = False
+    yaml_string = "extra_data:\n"
+    # 
+    # handle header/comments
+    # 
+    for line in comment_lines:
+        if line.startswith("#"):
+            if line.startswith("#yaml:"):
+                yaml_mode_is_on = True
+                contained_yaml_data = True
+                continue
+            if yaml_mode_is_on and line.startswith("# "):
+                yaml_string += f"\n{line[1:]}"
+                continue
+            else:
+                yaml_mode_is_on = False
+                # add to the extra_data dict when its done
+                if len(yaml_string) > 0:
+                    an_object = ez_yaml.to_object(string=yaml_string)
+                    extra_data.update(an_object["extra_data"] or {})
+    return extra_data
+
+def read_results_file(path):
+    from pytransit.basics import csv
+    # 
+    # get column names
+    # 
+    comments, headers, rows = csv.read(path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+    if len(comments) == 0:
+        raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while trying to load file "{path}"''')
+    column_names = comments[-1].split("\t")
+    
+    extra_data = extract_yaml_data([ "#"+each for each in comments])
+    
+    # 
+    # get rows
+    #
+    rows_of_dicts = []
+    for each_row in rows:
+        rows_of_dicts.append({
+            each_column_name: each_cell
+                for each_column_name, each_cell in zip(column_names, each_row)
+        })
+    
+    return column_names, rows_of_dicts, extra_data

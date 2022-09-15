@@ -2,7 +2,7 @@ import os
 
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
-from pytransit.basics.misc import singleton, no_duplicates, flatten_once
+from pytransit.basics.misc import singleton, no_duplicates, flatten_once, human_readable_data
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
@@ -142,10 +142,7 @@ def create_sample_area(frame):
                         # 
                         heading = ""
                         if len(selected_wigs) == 1:
-                            import ez_yaml
-                            import json
-                            ez_yaml.yaml.version = None
-                            heading = ez_yaml.to_string(json.loads(json.dumps(selected_wigs[0].extra_data)))
+                            heading = human_readable_data(selected_wigs[0].extra_data)
                         
                         # 
                         # row data

@@ -467,6 +467,7 @@ class Analysis:
                     ],
                     extra_info=dict(
                         parameters=dict(
+                            conditions_list=conditions_list,
                             normalization=self.inputs.normalization,
                             trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
                             pseudocounts=self.inputs.pseudocount,

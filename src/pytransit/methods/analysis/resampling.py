@@ -20,7 +20,7 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.tools.tnseq_tools import Wig
 import pytransit
 import pytransit.components.file_display as file_display
-import pytransit.basics.csv as csv
+from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.universal_data import universal
@@ -776,29 +776,19 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows, sort_by=[ "Adj. p-value", "p-value" ]).Show(),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Analysis.identifier,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[ "Adj. p-value", "p-value" ]
+                ).Show(),
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
-        
+        self.column_names, self.rows, self.extra_data = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
     
     def __str__(self):
         return f"""
@@ -807,63 +797,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        if not HAS_R:
-            raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
-        headers = None
-        data, hits = [], []
-        number_of_conditions = -1
-
-        with open(infile) as file:
-            for line in file:
-                w = line.rstrip().split("\t")
-                if line[0] == "#" or (
-                    "pval" in line and "padj" in line
-                ):  # check for 'pval' for backwards compatibility
-                    headers = w
-                    continue  # keep last comment line as headers
-                # assume first non-comment line is header
-                if number_of_conditions == -1:
-                    # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
-                    number_of_conditions = int((len(w) - 6) / 2)
-                    headers = headers[3 : 3 + number_of_conditions]
-                    headers = [x.replace("Mean_", "") for x in headers]
-                else:
-                    means = [
-                        float(x) for x in w[3 : 3 + number_of_conditions]
-                    ]  # take just the columns of means
-                    lfcs = [
-                        float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                    ]  # take just the columns of LFCs
-                    each_qval = float(w[-2])
-                    data.append((w, means, lfcs, each_qval))
-        
-        data.sort(key=lambda x: x[-1])
-        hits, LFCs = [], []
-        for k, (w, means, lfcs, each_qval) in enumerate(data):
-            if (topk == -1 and each_qval < qval) or (
-                topk != -1 and k < topk
-            ):
-                mm = round(numpy.mean(means), 1)
-                if mm < low_mean_filter:
-                    print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-                else:
-                    hits.append(w)
-                    LFCs.append(lfcs)
-
-        print("heatmap based on %s genes" % len(hits))
-        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
-        hash = {}
-        headers = [h.replace("Mean_", "") for h in headers]
-        for i, col in enumerate(headers):
-            hash[col] = FloatVector([x[i] for x in LFCs])
-        df = DataFrame(hash)
-        transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
-        
-        # add it as a result
-        results_area.add(output_path)
-        gui_tools.show_image(output_path)
-
     def graph_volcano_plot(self):
         # questions:
             # are the selected rows correct ("log2FC", "Adj. p-value")?
@@ -923,42 +856,5 @@ class File(Analysis):
             plt.title("Adjusted threshold (red line): P-value=%1.8f" % threshold)
             plt.show()
 
-class ResamplingFile(base.TransitFile):
-    def __init__(self):
-        base.TransitFile.__init__(self, "#Resampling", columns)
-
-    def get_header(self, path):
-        DE = 0
-        poslogfc = 0
-        neglogfc = 0
-        with open(path) as file:
-            for line in file:
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                if float(tmp[-1]) < 0.05:
-                    DE += 1
-                    if float(tmp[-3]) > 0:
-                        poslogfc += 1
-                    else:
-                        neglogfc += 1
-
-        text = """Results:
-    Conditionally - Essentials: %s
-        Less Essential in Experimental datasets: %s
-        More Essential in Experimental datasets: %s
-            """ % (
-            DE,
-            poslogfc,
-            neglogfc,
-        )
-        return text
-
-    def get_menus(self):
-        menus = []
-        menus.append(("Display in Track View", self.display_in_track_view))
-        return menus
-
-    
 Method = GUI = Analysis
 Analysis() # make sure there's one instance
