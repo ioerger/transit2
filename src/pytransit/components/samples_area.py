@@ -58,7 +58,7 @@ def create_sample_area(frame):
                 # callback
                 # 
                 @gui_tools.bind_to(combined_wig_file_picker, wx.EVT_BUTTON)
-                def load_combined_wig_file_func(event): # BOOKMARK: cwig_callback
+                def load_combined_wig_file_func(event):
                     with gui_tools.nice_error_log:
                         if not universal.get("busy_running_method", False): # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
                             file_dialog = wx.FileDialog(
@@ -171,11 +171,21 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
         for each_sample in universal.session_data.samples:
             # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
             sample_table.add(dict(
+                # add hidden link to object
+                __wig_obj=each_sample,
                 # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
                 id=each_sample.id,
-                condition=each_sample.extra_data.get("condition", "[None]"),
-                path=each_sample.path,
-                __wig_obj=each_sample,
+                conditions=(",".join(each_sample.condition_names) or "[None]"),
+                count=each_sample.extra_data.count,
+                sum=round(each_sample.extra_data.sum),
+                non_zero_mean=round(each_sample.extra_data.non_zero_mean),
+                # # uncomment to add additional summary data
+                # non_zero_median=each_sample.extra_data.non_zero_median,
+                # density=each_sample.extra_data.density,
+                # mean=each_sample.extra_data.mean,
+                # max=each_sample.extra_data.max,
+                # skew=each_sample.extra_data.skew,
+                # kurtosis=each_sample.extra_data.kurtosis,
             ))
         
         for each_condition in universal.session_data.conditions:

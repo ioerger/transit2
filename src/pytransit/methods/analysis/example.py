@@ -118,14 +118,23 @@ class Analysis:
         universal.session_data.combined_wigs # list of CombinedWig objects
         universal.session_data.combined_wigs[0].main_path
         universal.session_data.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in universal.session_data.combined_wigs ]
-        universal.session_data.combined_wigs[0].samples = list of Wig objects
+        universal.session_data.combined_wigs[0].samples # list of Wig objects
         universal.session_data.combined_wigs[0].samples[0].id # id from the metadata file
         universal.session_data.combined_wigs[0].samples[0].fingerprint # the "#File" if part of comwig
+        universal.session_data.combined_wigs[0].samples[0].condition_names # a list of strings
         universal.session_data.combined_wigs[0].samples[0].positions # list of ints
         universal.session_data.combined_wigs[0].samples[0].insertion_counts # list of numbers
         universal.session_data.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
         universal.session_data.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
-        universal.session_data.combined_wigs[0].samples[0]
+        universal.session_data.combined_wigs[0].samples[0].extra_data.count
+        universal.session_data.combined_wigs[0].samples[0].extra_data.sum
+        universal.session_data.combined_wigs[0].samples[0].extra_data.non_zero_mean
+        universal.session_data.combined_wigs[0].samples[0].extra_data.non_zero_median
+        universal.session_data.combined_wigs[0].samples[0].extra_data.density
+        universal.session_data.combined_wigs[0].samples[0].extra_data.mean
+        universal.session_data.combined_wigs[0].samples[0].extra_data.max
+        universal.session_data.combined_wigs[0].samples[0].extra_data.skew
+        universal.session_data.combined_wigs[0].samples[0].extra_data.kurtosis
         universal.session_data.combined_wigs[0].metadata # CombinedWigMetadata object
         universal.session_data.combined_wigs[0].metadata.path
         universal.session_data.combined_wigs[0].metadata.headers
