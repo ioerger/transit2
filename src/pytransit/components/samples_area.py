@@ -7,6 +7,7 @@ from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
 
+from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
 from pytransit.components.generic.button import Button
@@ -50,7 +51,7 @@ def create_sample_area(frame):
                     1,
                     gui_tools.bit_map,
                     "Load Combined Wig and Metadata",
-                    size=wx.Size(250, -1),
+                    size=wx.Size(-1, -1),
                 )
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
                 
@@ -94,7 +95,8 @@ def create_sample_area(frame):
                             
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
-                inner_sample_sizer.Add(combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                # inner_sample_sizer.Add(combined_wig_file_picker, proportion=2, flag=wx.ALIGN_LEFT, border=5)
+                inner_sample_sizer.Add(combined_wig_file_picker)
                 
             outer_sample_sizer.add(
                 inner_sample_sizer,
@@ -106,6 +108,68 @@ def create_sample_area(frame):
         # sample_table
         # 
         with Table() as sample_table:
+            show_table_button = None
+            @sample_table.events.on_select
+            def _(event):
+                nonlocal show_table_button
+                with gui_tools.nice_error_log:
+                    row = sample_table.rows[event.GetIndex()]
+                    selected_wig = row.get("__wig_obj", None)
+                    # hide an old button if it exists
+                    if show_table_button != None:
+                        show_table_button.Hide()
+                    
+                    show_table_button = GenBitmapTextButton(
+                        frame,
+                        1,
+                        gui_tools.bit_map,
+                        "Show Table",
+                        size=wx.Size(250, -1),
+                    )
+                    show_table_button.SetBackgroundColour(gui_tools.color.light_blue)
+                    
+                    # 
+                    # callback
+                    # 
+                    @gui_tools.bind_to(show_table_button, wx.EVT_BUTTON)
+                    def click_show_table(event):
+                        selected_wigs = [ each["__wig_obj"] for each in sample_table.selected_rows ]
+                        if len(selected_wigs) < 0:
+                            selected_wigs = sample_table.rows
+                        
+                        # 
+                        # heading (only if single wig)
+                        # 
+                        heading = ""
+                        if len(selected_wigs) == 1:
+                            import ez_yaml
+                            import json
+                            ez_yaml.yaml.version = None
+                            heading = ez_yaml.to_string(json.loads(json.dumps(selected_wigs[0].extra_data)))
+                        
+                        # 
+                        # row data
+                        # 
+                        column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
+                        positions = selected_wigs[0].positions
+                        rows = []
+                        for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
+                            rows.append({
+                                column_name: cell_value
+                                    for column_name, cell_value in zip(column_names, row_data)
+                            })
+                        
+                        SpreadSheet(
+                            title="Read Counts",
+                            heading=heading,
+                            column_names=column_names,
+                            rows=rows,
+                            sort_by=[]
+                        ).Show()
+                    
+                    inner_sample_sizer.Add(show_table_button)
+                    inner_sample_sizer.Layout()
+            
             outer_sample_sizer.add(
                 sample_table.wx_object,
                 proportion=1, # 29 does something strange
