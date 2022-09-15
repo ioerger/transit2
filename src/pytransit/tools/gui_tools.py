@@ -154,8 +154,8 @@ class NiceErrorLog(object):
         if error is not None:
             print(''.join(traceback.format_tb(traceback_obj)))
             frame = universal.frame
-            if frame:
-                pass#frame.status_bar.SetStatusText("Error: "+str(error.args))
+            if frame and hasattr(frame, "status_bar"):
+                frame.status_bar.SetStatusText("Error: "+str(error.args))
 
 nice_error_log = NiceErrorLog()
 
