@@ -32,7 +32,7 @@ command_name = sys.argv[0]
 
 class Analysis:
     identifier  = "Resampling"
-    short_name = "resampling - new"
+    short_name = "resampling"
     long_name = "Resampling (Permutation test)"
     short_desc = "Resampling test of conditional essentiality between two conditions"
     long_desc = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
@@ -807,63 +807,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        if not HAS_R:
-            raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
-        headers = None
-        data, hits = [], []
-        number_of_conditions = -1
-
-        with open(infile) as file:
-            for line in file:
-                w = line.rstrip().split("\t")
-                if line[0] == "#" or (
-                    "pval" in line and "padj" in line
-                ):  # check for 'pval' for backwards compatibility
-                    headers = w
-                    continue  # keep last comment line as headers
-                # assume first non-comment line is header
-                if number_of_conditions == -1:
-                    # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
-                    number_of_conditions = int((len(w) - 6) / 2)
-                    headers = headers[3 : 3 + number_of_conditions]
-                    headers = [x.replace("Mean_", "") for x in headers]
-                else:
-                    means = [
-                        float(x) for x in w[3 : 3 + number_of_conditions]
-                    ]  # take just the columns of means
-                    lfcs = [
-                        float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                    ]  # take just the columns of LFCs
-                    each_qval = float(w[-2])
-                    data.append((w, means, lfcs, each_qval))
-        
-        data.sort(key=lambda x: x[-1])
-        hits, LFCs = [], []
-        for k, (w, means, lfcs, each_qval) in enumerate(data):
-            if (topk == -1 and each_qval < qval) or (
-                topk != -1 and k < topk
-            ):
-                mm = round(numpy.mean(means), 1)
-                if mm < low_mean_filter:
-                    print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-                else:
-                    hits.append(w)
-                    LFCs.append(lfcs)
-
-        print("heatmap based on %s genes" % len(hits))
-        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
-        hash = {}
-        headers = [h.replace("Mean_", "") for h in headers]
-        for i, col in enumerate(headers):
-            hash[col] = FloatVector([x[i] for x in LFCs])
-        df = DataFrame(hash)
-        transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
-        
-        # add it as a result
-        results_area.add(output_path)
-        gui_tools.show_image(output_path)
-
     def graph_volcano_plot(self):
         # questions:
             # are the selected rows correct ("log2FC", "Adj. p-value")?
