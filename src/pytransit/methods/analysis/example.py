@@ -1,296 +1,286 @@
-from pytransit.components.parameter_panel import panel, progress_update
-import pytransit.components.results_area as results_area
 import sys
-
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
-
 import os
 import time
+import ntpath
 import math
 import random
-import numpy
-import scipy.stats
 import datetime
+import collections
+import heapq
 
-from pytransit.methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+import numpy
 
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.basics.lazy_dict import LazyDict
+import pytransit.basics.csv as csv
+import pytransit.basics.misc as misc
+from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.universal_data import universal
+from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
+from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.components.panel_helpers import create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
+command_name = sys.argv[0]
 
-############# Description ##################
+name = "Example" # HANDLE_THIS
 
-short_name = "example"
-long_name = "Example"
-short_desc = "Example method that calculates mean read-counts per gene."
-long_desc = "A method made to serve as an example to implementing other methods."
-transposons = ["himar1", "tn5"]
-columns = ["Orf", "Name", "Desc", "k", "n", "mean", "nzmean"]
-
-############# Analysis Method ##############
-
-
-class Analysis(base.TransitAnalysis):
-    def __init__(self):
-        base.TransitAnalysis.__init__(
-            self,
-            short_name,
-            long_name,
-            short_desc,
-            long_desc,
-            transposons,
-            Method,
-            GUI,
-            [File],
-        )
-
-
-################## FILE ###################
-
-
-class File(base.TransitFile):
-    def __init__(self):
-        base.TransitFile.__init__(self, "#Example", columns)
-
-    def get_header(self, path):
-        text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
-        return text
-
-
-################# GUI ##################
-
-
-class GUI(base.AnalysisGUI):
-    def __init__(self):
-        base.AnalysisGUI.__init__(self)
-
-
-########## METHOD #######################
-
-
-class Method(base.SingleConditionMethod):
-    usage_string = """python3 %s example <comma-separated .wig files> <annotation .prot_table> <output file>""" % (sys.argv[0])
-
-    def __init__(
-        self,
-        ctrldata,
-        annotation_path,
-        output_file,
-        replicates="Sum",
-        normalization=None,
-        LOESS=False,
-        ignore_codon=True,
+@misc.singleton
+class Analysis:
+    identifier  = name
+    short_name  = name.lower()
+    long_name   = name.upper()
+    short_desc  = f"Perform {name} analysis"
+    long_desc   = f"""Perform {name} analysis"""
+    transposons = [ "himar1", "tn5" ]
+    
+    inputs = LazyDict(
+        output_path=None,
+        normalization="TTR",
         n_terminus=0.0,
         c_terminus=0.0,
-        wxobj=None,
-    ):
-
-        base.SingleConditionMethod.__init__(
-            self,
-            short_name,
-            long_name,
-            short_desc,
-            long_desc,
-            ctrldata,
-            annotation_path,
-            output_file,
-            replicates=replicates,
-            normalization=normalization,
-            LOESS=LOESS,
-            n_terminus=n_terminus,
-            c_terminus=c_terminus,
-            wxobj=wxobj,
-        )
-
-    @classmethod
-    def from_gui(self, wxobj):
-        """ """
-
-        # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
-            return None
-
-        # Get selected files
-        ctrldata = wxobj.ctrlSelected()
-        if not transit_tools.validate_control_datasets(ctrldata):
-            return None
-
-        # Validate transposon types
-        if not transit_tools.validate_transposons_used(ctrldata, transposons):
-            return None
-
-        # Read the parameters from the wxPython widgets
-        ignore_codon = True
-        n_terminus = float(wxobj.globalNTerminusText.GetValue())
-        c_terminus = float(wxobj.globalCTerminusText.GetValue())
-        replicates = "Sum"
-        normalization = None
-        LOESS = False
-
-        # Get output path
-        defaultFileName = "example_output.dat"
-        defaultDir = os.getcwd()
-        output_path = wxobj.SaveFile(defaultDir, defaultFileName)
-        if not output_path:
-            return None
-        output_file = open(output_path, "w")
-
-        return self(
-            ctrldata,
-            annotationPath,
-            output_file,
-            replicates,
-            normalization,
-            LOESS,
-            ignore_codon,
-            n_terminus,
-            c_terminus,
-            wxobj,
-        )
-
-    @classmethod
-    def from_args(self, args, kwargs):
-
-        ctrldata = args[0].split(",")
-        annotationPath = args[1]
-        outpath = args[2]
-        output_file = open(outpath, "w")
-
-        replicates = "Sum"
-        normalization = None
-        LOESS = False
-        ignore_codon = True
-        n_terminus = 0.0
-        c_terminus = 0.0
-
-        return self(
-            ctrldata,
-            annotationPath,
-            output_file,
-            replicates,
-            normalization,
-            LOESS,
-            ignore_codon,
-            n_terminus,
-            c_terminus,
-        )
-
-    def Run(self):
-
-        transit_tools.log("Starting Example Method")
-        start_time = time.time()
-
-        # Get orf data
-        transit_tools.log("Getting Data")
-        (data, position) = transit_tools.get_validated_data(
-            self.ctrldata, wxobj=self.wxobj
-        )
-        (K, N) = data.shape
-
-        if self.normalization and self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
-            (data, factors) = norm_tools.normalize_data(
-                data, self.normalization, self.ctrldata, self.annotation_path
-            )
-
-        G = tnseq_tools.Genes(
-            self.ctrldata,
-            self.annotation_path,
-            minread=1,
-            reps=self.replicates,
-            ignore_codon=self.ignore_codon,
-            n_terminus=self.n_terminus,
-            c_terminus=self.c_terminus,
-            data=data,
-            position=position,
-        )
-
-        data = []
-        N = len(G)
-        count = 0
-        
-        for gene in G:
-            count += 1
-            if gene.n == 0:
-                mean = 0.0
-            else:
-                mean = numpy.mean(gene.reads)
-
-            if gene.k == 0:
-                nzmean = 0.0
-            else:
-                nzmean = numpy.sum(gene.reads) / float(gene.k)
-
-            data.append(
-                "%s\t%s\t%s\t%s\t%s\t%1.2f\t%1.2f\n"
-                % (gene.orf, gene.name, gene.desc, gene.k, gene.n, mean, nzmean)
-            )
-
-            # Update Progress
-            percent = (100.0 * count / N)
-            text = "Running Example Method... %5.1f%%" % percent
-            progress_update(text, percent)
-
-        self.output.write("#Example\n")
-        if self.wxobj:
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write(
-                "#GUI with: ctrldata=%s, annotation=%s, output=%s\n"
-                % (
-                    ",".join(self.ctrldata).encode("utf-8"),
-                    self.annotation_path.encode("utf-8"),
-                    self.output.name.encode("utf-8"),
-                )
-            )
-        else:
-            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-
-        self.output.write("#Data: %s\n" % (",".join(self.ctrldata).encode("utf-8")))
-        self.output.write(
-            "#Annotation path: %s\n" % self.annotation_path.encode("utf-8")
-        )
-        self.output.write("#Time: %s\n" % (time.time() - start_time))
-        self.output.write("#%s\n" % "\t".join(columns))
-
-        data.sort()
-        for line in data:
-            self.output.write(line)
-        self.output.close()
-
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)
-        self.finish()
-        transit_tools.log("Finished Example Method")
-
+        # HANDLE_THIS
+    )
     
+    valid_cli_flags = [
+        "-n",  # normalization
+        "-iN", # n_terminus
+        "-iC", # c_terminus
+        # HANDLE_THIS
+    ]
+    usage_string = f"""
+        # HANDLE_THIS
+        Usage: python3 transit.py {short_name} [Optional Arguments]
+        Optional Arguments:
+            -n <string>         :=  Normalization method. Default: -n TTR
+            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+    """.replace("\n        ", "\n")
+    
+    
+    wxobj = None
+    panel = None
+    
+    def __init__(self, *args, **kwargs):
+        self.instance = self.method = self.gui = self # for compatibility with older code/methods
+        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
+        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
+    
+    def __str__(self):
+        return f"""
+            Analysis Method:
+                Short Name:  {self.short_name}
+                Long Name:   {self.long_name}
+                Short Desc:  {self.short_desc}
+                Long Desc:   {self.long_desc}
+        """.replace('\n            ','\n').strip()
+    
+    def __repr__(self): return f"{self.inputs}"
+    def __call__(self): return self
+    
+    def define_panel(self, _):
+        self.panel = panel_helpers.make_panel()
+        self.value_getters = LazyDict()
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        if True:
+            # HANDLE_THIS
+            # panel_helpers.create_file_input(self.panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            # panel_helpers.create_choice_input(self.panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
+            # panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            # panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
+            # @panel_helpers.create_button(self.panel, main_sizer, label="")
+            # def when_button_clicked(event):
+            #     print("do stuff")
+            
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+            
+            panel_helpers.create_run_button(self.panel, main_sizer)
+            
+        parameter_panel.set_panel(self.panel)
+        self.panel.SetSizer(main_sizer)
+        self.panel.Layout()
+        main_sizer.Fit(self.panel)
 
+    @staticmethod
+    def from_gui(frame):
+        # 
+        # global data
+        # 
+        # HANDLE_THIS
+        universal.interface # "gui" or "console"
+        universal.frame # self.wxobj equivalent
+        universal.busy_running_method # Boolean, is true when any .Run() is started but not finished
+        universal.session_data # I would like to flatten this (remove the .session_data namespace) but its low priority
+        universal.session_data.annotation_path # string, may need to become a list of strings
+        universal.session_data.conditions # list of Condition objects
+        universal.session_data.conditions[0].name # string
+        universal.session_data.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
+        universal.session_data.combined_wigs # list of CombinedWig objects
+        universal.session_data.combined_wigs[0].main_path
+        universal.session_data.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in universal.session_data.combined_wigs ]
+        universal.session_data.combined_wigs[0].samples = list of Wig objects
+        universal.session_data.combined_wigs[0].samples[0].id # id from the metadata file
+        universal.session_data.combined_wigs[0].samples[0].fingerprint # the "#File" if part of comwig
+        universal.session_data.combined_wigs[0].samples[0].positions # list of ints
+        universal.session_data.combined_wigs[0].samples[0].insertion_counts # list of numbers
+        universal.session_data.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
+        universal.session_data.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
+        universal.session_data.combined_wigs[0].samples[0]
+        universal.session_data.combined_wigs[0].metadata # CombinedWigMetadata object
+        universal.session_data.combined_wigs[0].metadata.path
+        universal.session_data.combined_wigs[0].metadata.headers
+        universal.session_data.combined_wigs[0].metadata.rows
+        universal.session_data.combined_wigs[0].metadata.conditions
+        universal.session_data.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
+        universal.session_data.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        universal.session_data.combined_wigs[0].metadata.id_for(wig_fingerprint)
+        universal.session_data.combined_wigs[0].metadata.fingerprints_for(condition_name)
+        universal.session_data.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        
+        # 
+        # get annotation
+        # 
+        # HANDLE_THIS
+        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        transit_tools.validate_annotation(Analysis.inputs.annotation)
+        
+        # 
+        # call all GUI getters, puts results into respective Analysis.inputs key-value
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        logging.log("included_conditions", Analysis.inputs.included_conditions)
+        
+        # 
+        # ask for output path(s)
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Analysis.short_name}_output.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        # if user didn't select an output path
+        if not Analysis.inputs.output_path:
+            return None
 
-if __name__ == "__main__":
+        return Analysis.instance
 
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
+    @staticmethod
+    def from_args(args, kwargs):
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
-    print("ARGS:", args)
-    print("KWARGS:", kwargs)
+        # save the data
+        Analysis.inputs.update(dict(
+            output_path=args[0],
+            normalization=kwargs.get("n", Analysis.inputs.normalization),
+            n_terminus=float(kwargs.get("iN", Analysis.inputs.n_terminus)),
+            c_terminus=float(kwargs.get("iC", Analysis.inputs.c_terminus)),
+            # HANDLE_THIS
+        ))
+        
+        return Analysis.instance
+        
+    def Run(self):
+        from pytransit.tools import stat_tools
+        logging.log(f"Starting {Analysis.identifier} analysis")
+        start_time = time.time()
+        
+        # 
+        # process data
+        # 
+        if True:
+            rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
+        
+        # 
+        # write output
+        # 
+        if True:
+            logging.log(f"Adding File: {self.inputs.output_path}")
+            # 
+            # write to file
+            # 
+            transit_tools.write_result(
+                path=self.inputs.output_path, # path=None means write to STDOUT
+                file_kind=Analysis.identifier,
+                rows=rows,
+                column_names=[
+                    # HANDLE_THIS
+                ],
+                extra_info=dict(
+                    stats=dict(summary_info), # HANDLE_THIS
+                    parameters=self.inputs,
+                ),
+            )
+            logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")
+        results_area.add(self.inputs.output_path)
 
-    G = Example.from_args(sys.argv[1:])
+@transit_tools.ResultsFile
+class ResultFileType1:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Analysis.identifier,
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Analysis.identifier,
+                    heading="",
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[
+                        # HANDLE_THIS
+                    ],
+                ).Show(),
+            })
+        )
+        
+        # 
+        # get column names
+        # 
+        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+        if len(comments) == 0:
+            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
+        self.column_names = comments[-1].split("\t")
+        
+        # 
+        # get rows
+        #
+        self.rows = []
+        for each_row in rows:
+            self.rows.append({
+                each_column_name: each_cell
+                    for each_column_name, each_cell in zip(self.column_names, each_row)
+            })
+        
+        # 
+        # get summary stats
+        #
+        self.values_for_result_table.update({
+            # HANDLE_THIS (additional summary_info for results table)
+            # examples:
+                # f"Gene Count": len(self.rows),
+                # f"Padj<{Analysis.significance_threshold}": len([
+                #     1 for each in self.rows
+                #         if each.get("Padj", 0) < Analysis.significance_threshold 
+                # ]),
+        })
+    
+    def __str__(self):
+        return f"""
+            File for {Analysis.short_name}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
 
-    print(G)
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()
+Analysis.filetypes = [ ResultFileType1, ] # HANDLE_THIS
+Method = GUI = Analysis # for compatibility with older code/methods

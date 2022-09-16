@@ -114,10 +114,10 @@ class NormalizeMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
         from pytransit.tools.console_tools import InvalidArgumentException
         
-        isCombinedWig = "c" in kwargs
-        if (not isCombinedWig and len(args) < 2) or (isCombinedWig and len(args) < 1):
+        is_combined_wig = "c" in kwargs
+        if (not is_combined_wig and len(args) < 2) or (is_combined_wig and len(args) < 1):
             raise InvalidArgumentException("Must provide all necessary arguments")
-        if isCombinedWig:
+        if is_combined_wig:
             self.infile = kwargs.get("c")  # only 1 input wig file
             self.outfile = args[0]  # if no arg give, could print to screen
         else:
@@ -126,13 +126,13 @@ class NormalizeMethod(base.SingleConditionMethod):
         self.normalization = kwargs.get(
             "n", "TTR"
         )  # check if it is a legal method name
-        self.combined_wig = isCombinedWig
+        self.combined_wig = is_combined_wig
 
         return self(self.infile, self.outfile, self.normalization)
 
     def Run(self):
 
-        transit_tools.log("Starting Normalization")
+        logging.log("Starting Normalization")
         start_time = time.time()
 
         infile = self.infile
@@ -174,7 +174,7 @@ class NormalizeMethod(base.SingleConditionMethod):
         file.close()
 
         self.finish()
-        transit_tools.log("Finished Normalization")
+        logging.log("Finished Normalization")
 
 if __name__ == "__main__":
 

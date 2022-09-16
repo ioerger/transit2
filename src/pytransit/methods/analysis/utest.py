@@ -15,10 +15,10 @@ import datetime
 
 from pytransit.methods import analysis_base as base
 import pytransit
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
 
 
 ############# GUI ELEMENTS ##################
@@ -247,8 +247,8 @@ class UTestMethod(base.DualConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -289,7 +289,7 @@ class UTestMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             includeZeros,
@@ -306,7 +306,7 @@ class UTestMethod(base.DualConditionMethod):
 
         ctrldata = args[0].split(",")
         expdata = args[1].split(",")
-        annotationPath = args[2]
+        annotation_path = args[2]
         output_path = args[3]
         output_file = open(output_path, "w")
 
@@ -322,7 +322,7 @@ class UTestMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             includeZeros,
@@ -335,13 +335,13 @@ class UTestMethod(base.DualConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Mann-Whitney U-test Method")
+        logging.log("Starting Mann-Whitney U-test Method")
         start_time = time.time()
 
         Kctrl = len(self.ctrldata)
         Kexp = len(self.expdata)
         # Get orf data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata + self.expdata, wxobj=self.wxobj
         )
@@ -349,7 +349,7 @@ class UTestMethod(base.DualConditionMethod):
         (K, N) = data.shape
 
         if self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data,
                 self.normalization,
@@ -358,7 +358,7 @@ class UTestMethod(base.DualConditionMethod):
             )
 
         if self.LOESS:
-            transit_tools.log("Performing LOESS Correction")
+            logging.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -445,8 +445,8 @@ class UTestMethod(base.DualConditionMethod):
             progress_update(text, percent)
 
         #
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Performing Benjamini-Hochberg Correction")
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
@@ -503,10 +503,10 @@ class UTestMethod(base.DualConditionMethod):
             )
         self.output.close()
 
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Mann-Whitney U-test Method")
+        logging.log("Finished Mann-Whitney U-test Method")
 
     usage_string = """python3 %s utest <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
 
@@ -518,19 +518,3 @@ class UTestMethod(base.DualConditionMethod):
         -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
         """ % sys.argv[0]
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = UTestMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

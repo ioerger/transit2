@@ -16,19 +16,14 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
 from pytransit.components.spreadsheet import SpreadSheet
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.console_tools as console_tools
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
 
 command_name = sys.argv[0]
 
 class Analysis:
-    identifier  = "#tnseq_stats_gui"
+    identifier  = "tnseq_stats_gui"
     short_name  = "tnseq_stats_gui"
     long_name   = "tnseq_stats_gui"
     short_desc  = "Analyze statistics of TnSeq datasets"
@@ -90,42 +85,32 @@ class Analysis:
 
     @classmethod
     def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
-            # 
-            # get wig files
-            # 
-            combined_wig = universal.session_data.combined_wigs[0]
-            Analysis.inputs.combined_wig = combined_wig.main_path
-            
-            # 
-            # get annotation
-            # 
-            ###Analysis.inputs.annotation_path = universal.session_data.annotation # not needed for tnseq_stats
-            # FIXME: enable this once I get a valid annotation file example
-            # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
-            #     return None
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+        # 
+        # get wig files
+        # 
+        combined_wig = universal.session_data.combined_wigs[0]
+        Analysis.inputs.combined_wig = combined_wig.main_path
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="tnseq_stats.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
-            )
-            if not Analysis.inputs.output_path:
-                return None
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="tnseq_stats.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        if not Analysis.inputs.output_path:
+            return None
 
-            return Analysis.instance
+        return Analysis.instance
 
     @classmethod
     def from_args(cls, args, kwargs):
@@ -152,52 +137,50 @@ class Analysis:
         return Analysis.instance
         
     def Run(self):
-        with gui_tools.nice_error_log:
-            transit_tools.log("Starting tnseq_stats analysis")
-            start_time = time.time()
+        logging.log("Starting tnseq_stats analysis")
+        start_time = time.time()
 
-            # if you want to see which samples were selected...
-            #from pytransit.components.samples_area import sample_table
-            #datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
-            #for x in datasets_selected: print(str(x))
+        # if you want to see which samples were selected...
+        #from pytransit.components.samples_area import sample_table
+        #datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
+        #for x in datasets_selected: print(str(x))
 
-            # 
-            # get data
-            # 
-            transit_tools.log("Getting Data from %s" % self.inputs.combined_wig)
-            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
-                
-            transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
-            data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
-                
-            # 
-            # process data
-            # 
+        # 
+        # get data
+        # 
+        logging.log(f"Getting Data from {self.inputs.combined_wig}")
+        sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+        logging.log(f"Normalizing using: {self.inputs.normalization}")
+        data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+            
+        # 
+        # process data
+        # 
+        logging.log("processing data")
+        results = self.calc_tnseq_stats(data,filenames_in_comb_wig)
 
-            transit_tools.log("processing data")
-            results = self.calc_tnseq_stats(data,filenames_in_comb_wig)
-
-            # 
-            # write output
-            # 
+        # 
+        # write output
+        # 
+        if True:
             # note: first comment line is filetype, last comment line is column headers
-
             file = sys.stdout # print to console if not output file defined
             if self.inputs.output_path != None:
-               file = open(self.inputs.output_path, "w")
-            file.write("%s\n" % self.identifier)
+                file = open(self.inputs.output_path, "w")
+            file.write("%s\n#" % self.identifier)
             file.write("#normalization: %s\n" % self.inputs.normalization)
             file.write("#dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\tpickands_tail_index\n")
 
             for vals in results:
-              file.write("\t".join([str(x) for x in vals]) + "\n")
+                file.write("\t".join([str(x) for x in vals]) + "\n")
 
-            if self.inputs.output_path != None: file.close()
-            if universal.interface=="gui" and self.inputs.output_path!=None:
-              transit_tools.log(f"Adding File: {self.inputs.output_path}")
-              results_area.add(self.inputs.output_path)
-            transit_tools.log("Finished TnseqStats")
-            transit_tools.log("Time: %0.1fs\n" % (time.time() - start_time))
+            if self.inputs.output_path != None:
+                file.close()
+                logging.log(f"Adding File: {self.inputs.output_path}")
+                results_area.add(self.inputs.output_path)
+        
+        logging.log("Finished TnseqStats")
+        logging.log("Time: %0.1fs\n" % (time.time() - start_time))
 
     def pickands_tail_index(self, vals):
         srt = sorted(vals, reverse=True)
@@ -245,14 +228,7 @@ class Analysis:
 class File(Analysis):
     @staticmethod
     def can_load(path):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith("#"):
-                    if line.startswith(Analysis.identifier):
-                        return True
-                else:
-                    return False
-        return False
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None

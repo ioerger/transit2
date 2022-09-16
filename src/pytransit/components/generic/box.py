@@ -2,35 +2,36 @@ from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-import pytransit.tools.gui_tools as gui_tools
+from pytransit.tools import logging, gui_tools
 
-options_for = LazyDict(
-    orientation = LazyDict(
-        vertical=wx.VERTICAL,
-        horizontal=wx.HORIZONTAL,
-    ),
-    sides = LazyDict(
-        top = wx.TOP,
-        bottom = wx.BOTTOM,
-        left = wx.LEFT,
-        right = wx.RIGHT,
-        all = wx.ALL,
-    ),
-    expand = LazyDict({
-        True: wx.EXPAND,
-        "shaped": wx.SHAPED,
-    }),
-    vertical_alignment = LazyDict(
-        top=wx.ALIGN_TOP,
-        bottom=wx.ALIGN_BOTTOM,
-        center=wx.ALIGN_CENTER_VERTICAL,
-    ),
-    horizontal_alignment = LazyDict(
-        left=wx.ALIGN_LEFT,
-        right=wx.ALIGN_RIGHT,
-        center=wx.ALIGN_CENTER_HORIZONTAL,
-    ),
-)
+if HAS_WX:
+    options_for = LazyDict(
+        orientation = LazyDict(
+            vertical=wx.VERTICAL,
+            horizontal=wx.HORIZONTAL,
+        ),
+        sides = LazyDict(
+            top = wx.TOP,
+            bottom = wx.BOTTOM,
+            left = wx.LEFT,
+            right = wx.RIGHT,
+            all = wx.ALL,
+        ),
+        expand = LazyDict({
+            True: wx.EXPAND,
+            "shaped": wx.SHAPED,
+        }),
+        vertical_alignment = LazyDict(
+            top=wx.ALIGN_TOP,
+            bottom=wx.ALIGN_BOTTOM,
+            center=wx.ALIGN_CENTER_VERTICAL,
+        ),
+        horizontal_alignment = LazyDict(
+            left=wx.ALIGN_LEFT,
+            right=wx.ALIGN_RIGHT,
+            center=wx.ALIGN_CENTER_HORIZONTAL,
+        ),
+    )
 
 class Box:
     """

@@ -112,7 +112,7 @@ class NormMethod(base.SingleConditionMethod):
             raise InvalidArgumentException("Must provide all necessary arguments")
 
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         outpath = args[2]
         output_file = open(outpath, "w")
 
@@ -125,7 +125,7 @@ class NormMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             replicates,
             normalization,
@@ -137,7 +137,7 @@ class NormMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Normalization")
+        logging.log("Starting Normalization")
         start_time = time.time()
         outputPath = self.output.name
         # Normalize Data
@@ -149,7 +149,7 @@ class NormMethod(base.SingleConditionMethod):
         )
 
         self.finish()
-        transit_tools.log("Finished Normalization")
+        logging.log("Finished Normalization")
 
     usage_string = """
 python3 %s norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]

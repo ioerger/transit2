@@ -12,6 +12,7 @@ from pytransit.basics.lazy_dict import LazyDict, stringify
 import pytransit.basics.csv as csv
 from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import line_count_of, flatten_once, no_duplicates, indent
+from pytransit.tools import logging
 
 try:
     from pytransit.tools import norm_tools
@@ -271,7 +272,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
             Filename :: String
         """
         import ez_yaml
-        import pytransit.tools.transit_tools as transit_tools
+        from pytransit.tools import transit_tools
         
         sites, counts_by_wig, files, extra_data = [], [], [], {}
         contained_yaml_data = False
@@ -314,7 +315,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
             for index, line in enumerate(lines):
                 if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
                     percent_done = round(index/number_of_lines * 100, ndigits=2)
-                    transit_tools.log(f"\rreading lines: {percent_done}%          ", end="")
+                    logging.log(f"\rreading lines: {percent_done}%          ", end="")
                 
                 # lines to skip
                 if line.startswith("#") or len(line) == 0:
@@ -334,11 +335,13 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                 sites.append(position)
                 for index, count in enumerate(wig_counts):
                     counts_by_wig[index].append(count)
-            transit_tools.log(f"\rreading lines: 100%          ")
+            logging.log(f"\rreading lines: 100%          ")
         
         return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
 
+from pytransit.basics.named_list import named_list
 class CombinedWig:
+    PositionsAndReads = named_list(["read_counts", "positions"])
     def __init__(self, *, main_path, metadata_path, comments=None, extra_data=None):
         self.main_path     = main_path
         self.metadata_path = metadata_path
@@ -525,9 +528,13 @@ class CombinedWig:
 
         .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.tools.norm_tools.normalize_data`
         """
+        # if its already been processed, just return it
+        if isinstance(list_of_paths, CombinedWig.PositionsAndReads):
+            return list_of_paths
+            
         # If empty just quickly return empty lists
         if not list_of_paths:
-            return (numpy.zeros((1, 0)), numpy.zeros(0))
+            return CombinedWig.PositionsAndReads((numpy.zeros((1, 0)), numpy.zeros(0)))
 
         # Check size of all wig file matches
         size_list = []
@@ -579,7 +586,7 @@ class CombinedWig:
                     position_per_line[line_index] = each_position
                     line_index += 1
         
-        return data_per_path, position_per_line
+        return CombinedWig.PositionsAndReads((data_per_path, position_per_line))
     
 # backwards compatibility
 read_samples_metadata = CombinedWigMetadata.read_condition_data
@@ -629,7 +636,7 @@ class Gene:
 
     :Example:
 
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> G = tnseq_tools.Gene("Rv0001", "dnaA", "DNA Replication A", [[0,0,0,0,1,3,0,1]],  [1,21,32,37,45,58,66,130], strand="+" )
         >>> print(G)
         Rv0001  (dnaA)  k=3 n=8 r=4 theta=0.37500
@@ -686,8 +693,6 @@ class Gene:
         self.s = self.get_gap_span()
         self.t = self.get_gene_span()
 
-    #
-
     def __getitem__(self, i):
         """Return read-counts at position i.
 
@@ -698,8 +703,6 @@ class Gene:
             list: Reads at position i.
         """
         return self.reads[:, i]
-
-    #
 
     def __str__(self):
         """Return a string representation of the object.
@@ -716,8 +719,6 @@ class Gene:
             self.theta(),
         )
 
-    #
-
     def __eq__(self, other):
         """Compares against other gene object.
 
@@ -726,8 +727,6 @@ class Gene:
         """
         return self.orf == other.orf
 
-    #
-
     def __lt__(self, other):
         """Compares against other gene object.
 
@@ -735,8 +734,6 @@ class Gene:
             bool: True if the gene object id is less than the other.
         """
         return self.orf < other.orf
-
-    #
 
     def get_gap_span(self):
         """Returns the span of the max_run of the gene (i.e. number of nucleotides).
@@ -756,8 +753,6 @@ class Gene:
         else:
             return 0
 
-    #
-
     def get_gene_span(self):
         """Returns the number of nucleotides spanned by the gene.
 
@@ -767,8 +762,6 @@ class Gene:
         if len(self.position) > 0:
             return self.position[-1] - self.position[0] + 2
         return 0
-
-    #
 
     def theta(self):
         """Return the insertion density ("theta") for the gene.
@@ -781,8 +774,6 @@ class Gene:
         else:
             return 0.0
 
-    #
-
     def phi(self):
         """Return the non-insertion density ("phi") for the gene.
 
@@ -790,8 +781,6 @@ class Gene:
             float: Non-insertion density  (i.e. 1 - theta)
         """
         return 1.0 - self.theta()
-
-    #
 
     def total_reads(self):
         """Return the total reads for the gene.
@@ -825,7 +814,7 @@ class Genes:
 
     :Example:
 
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/genomes/H37Rv.prot_table", norm="TTR")
         >>> print(G)
         Genes Object (N=3990)
@@ -854,8 +843,6 @@ class Genes:
         .. seealso:: :class:`Gene`
         """
 
-    #
-
     def __getitem__(self, i):
         """Defines __getitem__ method so that it works as dictionary and list.
 
@@ -870,8 +857,6 @@ class Genes:
         if isinstance(i, str):
             return self.genes[self.orf2index[i]]
 
-    #
-
     def __contains__(self, item):
         """Defines __contains__ to check if gene exists in the list.
 
@@ -883,8 +868,6 @@ class Genes:
         """
         return item in self.orf2index
 
-    #
-
     def __len__(self):
         """Defines __len__ returning number of genes.
 
@@ -892,8 +875,6 @@ class Genes:
             int: Number of genes in the list.
         """
         return len(self.genes)
-
-    #
 
     def __str__(self):
         """Defines __str__ to print(a generic str with the size of the list.)
@@ -915,8 +896,6 @@ class Genes:
             c_terminus=self.c_terminus,
             include_nc=self.include_nc,
         )}"""
-
-    #
 
     def __init__(
         self,
@@ -1080,8 +1059,6 @@ class Genes:
                 self.orf2index[gene] = count
                 count += 1
 
-    #
-
     def local_insertions(self):
         """Returns numpy array with the number of insertions, 'k', for each gene.
 
@@ -1093,8 +1070,6 @@ class Genes:
         for i in range(G):
             K[i] = self.genes[i].k
         return K
-
-    #
 
     def local_sites(self):
         """Returns numpy array with total number of TA sites, 'n', for each gene.
@@ -1108,8 +1083,6 @@ class Genes:
             N[i] = self.genes[i].n
         return N
 
-    #
-
     def local_runs(self):
         """Returns numpy array with maximum run of non-insertions, 'r', for each gene.
 
@@ -1121,8 +1094,6 @@ class Genes:
         for i in range(G):
             R[i] = self.genes[i].r
         return R
-
-    #
 
     def local_gap_span(self):
         """Returns numpy array with the span of nucleotides of the largest gap,
@@ -1137,8 +1108,6 @@ class Genes:
             S[i] = self.genes[i].s
         return S
 
-    #
-
     def local_gene_span(self):
         """Returns numpy array with the span of nucleotides of the gene,
         't', for each gene.
@@ -1152,8 +1121,6 @@ class Genes:
             T[i] = self.genes[i].t
         return T
 
-    #
-
     def local_reads(self):
         """Returns numpy array of lists containing the read counts for each gene.
 
@@ -1165,8 +1132,6 @@ class Genes:
         for i in range(G):
             all_reads.extend(self.genes[i].reads)
         return numpy.array(all_reads)
-
-    #
 
     def local_thetas(self):
         """Returns numpy array of insertion frequencies, 'theta', for each gene.
@@ -1180,8 +1145,6 @@ class Genes:
             theta[i] = self.genes[i].theta()
         return theta
 
-    #
-
     def local_phis(self):
         """Returns numpy array of non-insertion frequency, 'phi', for each gene.
 
@@ -1189,8 +1152,6 @@ class Genes:
             narray: Numpy array with the complement of density for all genes.
         """
         return 1.0 - self.theta()
-
-    #
 
     def global_insertion(self):
         """Returns total number of insertions, i.e. sum of 'k' over all genes.
@@ -1204,8 +1165,6 @@ class Genes:
             total += self.genes[i].k
         return total
 
-    #
-
     def global_sites(self):
         """Returns total number of sites, i.e. sum of 'n' over all genes.
 
@@ -1218,8 +1177,6 @@ class Genes:
             total += self.genes[i].n
         return total
 
-    #
-
     def global_run(self):
         """Returns the run assuming all genes were concatenated together.
 
@@ -1227,8 +1184,6 @@ class Genes:
             int: Max run across all genes.
         """
         return max_run(self.tosses())
-
-    #
 
     def global_reads(self):
         """Returns the reads among the library.
@@ -1238,8 +1193,6 @@ class Genes:
         """
         return self.data
 
-    #
-
     def global_theta(self):
         """Returns global insertion frequency, of the library.
 
@@ -1248,8 +1201,6 @@ class Genes:
         """
         return float(self.global_insertion()) / self.global_sites()
 
-    #
-
     def global_phi(self):
         """Returns global non-insertion frequency, of the library.
 
@@ -1257,8 +1208,6 @@ class Genes:
             float: Complement of global theta i.e. 1.0-theta
         """
         return 1.0 - self.global_theta()
-
-    #
 
     def total_reads(self):
         """Returns total reads among the library.
@@ -1270,8 +1219,6 @@ class Genes:
         for g in self.genes:
             reads_total += g.total_reads()
         return reads_total
-
-    #
 
     def tosses(self):
         """Returns list of bernoulli trials, 'tosses', representing insertions in the gene.

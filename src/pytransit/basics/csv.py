@@ -140,8 +140,9 @@ def read(path, *, seperator=",", first_row_is_column_names=False, column_names=N
     
     return comments, file_column_names, rows
 
-def write(path, *, rows, column_names=[], seperator=",", eol="\n", comment_symbol=None, comments=[]):
+def write(path=None, *, rows=tuple(), column_names=tuple(), seperator=",", eol="\n", comment_symbol=None, comments=tuple()):
     import json
+    import sys
     assert comment_symbol or len(comments) == 0, "Comments were provided,"
     def contains_comment_symbol(string):
         if not comment_symbol:
@@ -168,7 +169,12 @@ def write(path, *, rows, column_names=[], seperator=",", eol="\n", comment_symbo
         for each in comments:
             yield from f"{each}".replace("\r", "").split("\n")
     
-    with open(path, 'w+') as the_file:
+    the_file = sys.stdout if not path else open(path, 'w+')
+    def close_file():
+        if the_file != sys.stdout and the_file != sys.stderr:
+            try: the_file.close()
+            except: pass
+    try:
         # 
         # comments
         # 
@@ -200,3 +206,9 @@ def write(path, *, rows, column_names=[], seperator=",", eol="\n", comment_symbo
             the_file.write(
                 seperator.join(row_string_escaped)+eol
             )
+    except Exception as error:
+        # make sure to close the file
+        close_file()
+        raise error
+    
+    close_file()

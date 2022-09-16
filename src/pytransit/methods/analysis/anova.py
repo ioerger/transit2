@@ -9,16 +9,11 @@ import collections
 import heapq
 
 import numpy
-from pytransit.basics.lazy_dict import LazyDict
 
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
-import pytransit.tools.console_tools as console_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.basics.lazy_dict import LazyDict
 import pytransit.basics.csv as csv
+import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.universal_data import universal
@@ -26,8 +21,10 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
+import pytransit.basics.misc as misc
 command_name = sys.argv[0]
 
+@misc.singleton
 class Analysis:
     identifier  = "Anova"
     short_name  = "anova"
@@ -85,12 +82,9 @@ class Analysis:
     panel = None
     
     def __init__(self, *args, **kwargs):
-        Analysis.instance = self
+        self.instance = self.method = self.gui = self # for compatibility with older code/methods
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
         self.transposons_text = transit_tools.get_transposons_text(self.transposons)
-        self.filetypes        = [File]
-        self.method           = Analysis # backwards compat
-        self.gui              = self     # backwards compat
     
     def __str__(self):
         return f"""
@@ -99,11 +93,10 @@ class Analysis:
                 Long Name:   {self.long_name}
                 Short Desc:  {self.short_desc}
                 Long Desc:   {self.long_desc}
-                GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
     
-    def __repr__(self):
-        return f"{self.inputs}"
+    def __repr__(self): return f"{self.inputs}"
+    def __call__(self): return self
 
     def define_panel(self, _):
         self.panel = make_panel()
@@ -139,8 +132,8 @@ class Analysis:
         self.panel.Layout()
         main_sizer.Fit(self.panel)
 
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         with gui_tools.nice_error_log:
             # 
             # get wig files
@@ -165,23 +158,23 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
+            logging.log("included_conditions", Analysis.inputs.included_conditions)
             # 
             # save result files
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
                 default_file_name="test1_output.dat",
-                output_extensions=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
             )
             if not Analysis.inputs.output_path:
                 return None
 
             return Analysis.instance
 
-    @classmethod
-    def from_args(cls, args, kwargs):
-        console_tools.handle_help_flag(kwargs, cls.usage_string)
-        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
+    @staticmethod
+    def from_args(args, kwargs):
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
         combined_wig      = args[0]
         annotation_path   = args[2]
@@ -360,20 +353,20 @@ class Analysis:
 
     def Run(self):
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting Anova analysis")
+            logging.log("Starting Anova analysis")
             start_time = time.time()
             
             # 
             # get data
             # 
-            transit_tools.log("Getting Data")
+            logging.log("Getting Data")
             if True:
                 sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
                 
-                transit_tools.log(f"Normalizing using: {self.inputs.normalization}")
+                logging.log(f"Normalizing using: {self.inputs.normalization}")
                 data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
                 
-                if self.inputs.winz: transit_tools.log("Winsorizing insertion counts")
+                if self.inputs.winz: logging.log("Winsorizing insertion counts")
                 conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
                 conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
                 conditions_list = transit_tools.select_conditions(
@@ -401,21 +394,21 @@ class Analysis:
                     conditions=condition_names,
                 ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
                 
-                transit_tools.log("reading genes")
+                logging.log("reading genes")
                 genes = tnseq_tools.read_genes(self.inputs.annotation_path)
             
             # 
             # process data
             # 
             if True:
-                transit_tools.log("processing data")
+                logging.log("processing data")
                 TASiteindexMap = {ta: i for i, ta in enumerate(sites)}
                 rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
                     genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
                 )
                 means_by_rv = self.means_by_rv(data, rv_site_indexes_map, genes, conditions)
 
-                transit_tools.log("Running Anova")
+                logging.log("Running Anova")
                 msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
                     data, genes, means_by_rv, rv_site_indexes_map, conditions
                 )
@@ -424,7 +417,7 @@ class Analysis:
             # write output
             # 
             if True:
-                transit_tools.log(f"Adding File: {self.inputs.output_path}")
+                logging.log(f"Adding File: {self.inputs.output_path}")
                 
                 # 
                 # generate rows
@@ -481,12 +474,12 @@ class Analysis:
                         ),
                     ),
                 )
-                transit_tools.log("Finished Anova analysis")
-                transit_tools.log(f"Time: {time.time() - start_time:0.1f}s\n")
+                logging.log("Finished Anova analysis")
+                logging.log(f"Time: {time.time() - start_time:0.1f}s\n")
             results_area.add(self.inputs.output_path)
 
 @transit_tools.ResultsFile
-class File(Analysis):
+class File:
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
@@ -541,21 +534,6 @@ class File(Analysis):
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def display_histogram(self, display_frame, event):
-        pass
-        # gene = display_frame.grid.GetCellValue(display_frame.row, 0)
-        # filepath = os.path.join(
-        #     ntpath.dirname(display_frame.path),
-        #     transit_tools.fetch_name(display_frame.path),
-        # )
-        # filename = os.path.join(filepath, gene + ".png")
-        # if os.path.exists(filename):
-        #     imgWindow = pytransit.components.file_display.ImgFrame(None, filename)
-        #     imgWindow.Show()
-        # else:
-        #     transit_tools.show_error_dialog("Error Displaying File. Histogram image not found. Make sure results were obtained with the histogram option turned on.")
-        #     print("Error Displaying File. Histogram image does not exist.")
-
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         with gui_tools.nice_error_log:
             if not HAS_R:
@@ -613,6 +591,6 @@ class File(Analysis):
             # add it as a result
             results_area.add(output_path)
             gui_tools.show_image(output_path)
-    
+
+Analysis.filetypes = [ File ]
 Method = GUI = Analysis
-Analysis() # make sure there's one instance

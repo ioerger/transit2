@@ -61,13 +61,13 @@ class GffProtMethod(base.ConvertMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get output path
         defaultFileName = "{0}.prot_table".format(
-            os.path.splitext(os.path.basename(annotationPath))[0]
+            os.path.splitext(os.path.basename(annotation_path))[0]
         )
         defaultDir = os.getcwd()
         output_path = wxobj.SaveFile(defaultDir, defaultFileName)
@@ -75,7 +75,7 @@ class GffProtMethod(base.ConvertMethod):
             return None
         output_file = open(output_path, "w")
 
-        return self(annotationPath, output_file, wxobj)
+        return self(annotation_path, output_file, wxobj)
 
     @classmethod
     def from_args(self, args, kwargs):
@@ -84,11 +84,11 @@ class GffProtMethod(base.ConvertMethod):
             print(self.usage_string)
             sys.exit(1)
 
-        annotationPath = args[0]
+        annotation_path = args[0]
         outpath = args[1]
         output_file = open(outpath, "w")
 
-        return self(annotationPath, output_file)
+        return self(annotation_path, output_file)
 
     def get_description(self, line, parent):
         cols = line.split("\t")
@@ -110,7 +110,7 @@ class GffProtMethod(base.ConvertMethod):
         writer = csv.writer(output_file, delimiter="\t")
         lines = gff_file.readlines()
         gff_file.close()
-        transit_tools.log(
+        logging.log(
             "Converting annotation file from GFF3 format to prot_table format"
         )
 
@@ -144,7 +144,7 @@ class GffProtMethod(base.ConvertMethod):
                 vals = [desc, start, end, strand, size, "-", "-", gene, Rv, "-"]
                 writer.writerow(vals)
         output_file.close()
-        transit_tools.log("Finished conversion")
+        logging.log("Finished conversion")
 
     usage_string = (
             """python %s convert gff_to_prot_table <annotation in gff format> <output file>"""

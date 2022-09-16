@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import pytransit.tools.console_tools as console_tools
+from pytransit.tools import console_tools
 from pytransit.universal_data import universal
 
 def main(*args, **kwargs):
@@ -62,7 +62,7 @@ def main(*args, **kwargs):
             app = wx.App(False)
 
             # create an object of CalcFrame
-            frame = transit_gui.TnSeekFrame(None, DEBUG)
+            frame = transit_gui.TnSeqFrame(None, DEBUG)
             # show the frame
             frame.Show(True)
             frame.Maximize(True)

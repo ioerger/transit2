@@ -14,10 +14,11 @@ import scipy.stats
 import datetime
 
 from pytransit.methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
+from pytransit.tools import logging
 
 # method_name = "example"
 
@@ -215,8 +216,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -227,7 +228,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         # Validate transposon types
         types = tnseq_tools.get_file_types(ctrldata)
         if "himar1" in types:
-            answer = transit_tools.show_ask_warning(
+            answer = logging.warn(
                 "Warning: One of the selected wig files looks like a Himar1 dataset. This method is designed to work on Tn5 wig files. Proceeding will fill in missing data with zeroes. Click OK to continue."
             )
             if answer == wx.ID_CANCEL:
@@ -260,7 +261,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             replicates,
             normalization,
@@ -276,7 +277,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
 
         ctrldata = args[0].split(",")
-        annotationPath = args[1]
+        annotation_path = args[1]
         outpath = args[2]
         output_file = open(outpath, "w")
 
@@ -290,7 +291,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
 
         return self(
             ctrldata,
-            annotationPath,
+            annotation_path,
             output_file,
             replicates,
             normalization,
@@ -302,10 +303,10 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         )
 
     def Run(self):
-        transit_tools.log("Starting Tn5 gaps method")
+        logging.log("Starting Tn5 gaps method")
         start_time = time.time()
 
-        transit_tools.log("Loading data (May take a while)")
+        logging.log("Loading data (May take a while)")
 
         # Combine all wigs
         (data, position) = transit_tools.get_validated_data(
@@ -337,12 +338,12 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         exp_cutoff = exprunmax + 2 * stddevrun
 
         # Get the runs
-        transit_tools.log("Identifying non-insertion runs in genome")
+        logging.log("Identifying non-insertion runs in genome")
         run_arr = tnseq_tools.runs_w_info(counts)
         pos_hash = transit_tools.get_pos_hash(self.annotation_path)
 
         # Finally, calculate the results
-        transit_tools.log("Running Tn5 gaps method")
+        logging.log("Running Tn5 gaps method")
         results_per_gene = {}
         for gene in genes_obj.genes:
             results_per_gene[gene.orf] = [
@@ -481,11 +482,11 @@ class Tn5GapsMethod(base.SingleConditionMethod):
             )
         self.output.close()
 
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Tn5Gaps Method")
+        logging.log("Finished Tn5Gaps Method")
 
     usage_string = """python3 %s tn5gaps <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
@@ -518,17 +519,3 @@ class Tn5GapsMethod(base.SingleConditionMethod):
         intersect = self.intersect_size(run_interv, gene_interv)
         return float(intersect) / (gene_interv[1] - gene_interv[0])
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv[1:])
-
-    G = Tn5GapsMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

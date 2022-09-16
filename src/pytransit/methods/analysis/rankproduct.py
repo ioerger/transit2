@@ -15,10 +15,10 @@ import datetime
 
 
 from pytransit.methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
 
 
 ############# GUI ELEMENTS ##################
@@ -222,8 +222,8 @@ class RankProductMethod(base.DualConditionMethod):
         """ """
 
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -261,7 +261,7 @@ class RankProductMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -280,7 +280,7 @@ class RankProductMethod(base.DualConditionMethod):
 
         ctrldata = args[0].split(",")
         expdata = args[1].split(",")
-        annotationPath = args[2]
+        annotation_path = args[2]
         output_path = args[3]
         output_file = open(output_path, "w")
 
@@ -298,7 +298,7 @@ class RankProductMethod(base.DualConditionMethod):
         return self(
             ctrldata,
             expdata,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -313,18 +313,18 @@ class RankProductMethod(base.DualConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting rankproduct Method")
+        logging.log("Starting rankproduct Method")
         start_time = time.time()
 
         Kctrl = len(self.ctrldata)
         Kexp = len(self.expdata)
         # Get orf data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(
             self.ctrldata + self.expdata, wxobj=self.wxobj
         )
         if self.normalization != "none":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
 
             (data, factors) = norm_tools.normalize_data(
                 data,
@@ -422,8 +422,8 @@ class RankProductMethod(base.DualConditionMethod):
             progress_update(text, percentage)
 
         #
-        transit_tools.log("")  # Printing empty line to flush stdout
-        transit_tools.log("Performing Benjamini-Hochberg Correction")
+        logging.log("")  # Printing empty line to flush stdout
+        logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         q_bh = stat_tools.bh_fdr_correction([row[-1] for row in data])
 
@@ -488,24 +488,8 @@ class RankProductMethod(base.DualConditionMethod):
             )
         self.output.close()
 
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished rankproduct Method")
+        logging.log("Finished rankproduct Method")
 
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = RankProductMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

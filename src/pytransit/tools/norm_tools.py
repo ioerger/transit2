@@ -17,7 +17,7 @@ class NZMeanNorm(NormMethod):
     name = "nzmean"
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotation_path=""):
         """Returns the normalization factors for the data, using the NZMean method.
 
         Arguments:
@@ -29,7 +29,7 @@ class NZMeanNorm(NormMethod):
 
         :Example:
             >>> import pytransit._tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -58,7 +58,7 @@ class TotReadsNorm(NormMethod):
     name = "totreads"
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotation_path=""):
         """Returns the normalization factors for the data, using the total reads
         method.
 
@@ -70,8 +70,8 @@ class TotReadsNorm(NormMethod):
             numpy array: Array with the normalization factors for the totreads method.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -112,8 +112,8 @@ class TTRNorm(NormMethod):
             float: Density of the given dataset.
 
         :Example:
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
-            >>> import pytransit.tools.norm_tools as norm_tools
+            >>> from pytransit.tools import tnseq_tools
+            >>> from pytransit.tools import norm_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -141,8 +141,8 @@ class TTRNorm(NormMethod):
             float: (Trimmed) Mean of the given dataset.
 
         :Example:
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
-            >>> import pytransit.tools.norm_tools as norm_tools
+            >>> from pytransit.tools import tnseq_tools
+            >>> from pytransit.tools import norm_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -159,7 +159,7 @@ class TTRNorm(NormMethod):
     def normalize(
         data,
         wig_list=[],
-        annotationPath="",
+        annotation_path="",
         thetaEst=empirical_theta,
         muEst=trimmed_empirical_mu,
         target=100.0,
@@ -179,8 +179,8 @@ class TTRNorm(NormMethod):
             numpy array: Array with the normalization factors for the TTR method.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -220,19 +220,19 @@ class EmpHistNorm(NormMethod):
         return negLL
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotation_path=""):
         """Returns the normalized data, using the empirical hist method.
 
         Arguments:
             wig_list (list): List of paths to wig formatted datasets.
-            annotationPath (str): Path to annotation in .prot_table or GFF3 format.
+            annotation_path (str): Path to annotation in .prot_table or GFF3 format.
 
         Returns:
             numpy array: Array with the normalization factors for the emphist method.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -246,7 +246,7 @@ class EmpHistNorm(NormMethod):
         """
         from pytransit.tools import tnseq_tools
 
-        G = tnseq_tools.Genes(wig_list, annotationPath)
+        G = tnseq_tools.Genes(wig_list, annotation_path)
         K = len(wig_list)
         temp = []
         for j in range(K):
@@ -294,7 +294,7 @@ class AdaptiveBGCNorm(NormMethod):
 
     @staticmethod
     def normalize(
-        data, wig_list=[], annotationPath="", doTotReads=True, bgsamples=200000
+        data, wig_list=[], annotation_path="", doTotReads=True, bgsamples=200000
     ):
         """Returns the normalized data using the aBGC method.
 
@@ -309,8 +309,8 @@ class AdaptiveBGCNorm(NormMethod):
             numpy array: Array with the normalized data.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -395,7 +395,7 @@ class ZeroInflatedNBNorm(NormMethod):
     name = "zinfb"
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotation_path=""):
         """Returns the normalization factors for the data using the zero-inflated
         negative binomial method.
 
@@ -408,8 +408,8 @@ class ZeroInflatedNBNorm(NormMethod):
             numpy array: Array with the normalization factors for the zinfnb method.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -447,7 +447,7 @@ class QuantileNorm(NormMethod):
     name = "quantile"
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotation_path=""):
         """Performs Quantile Normalization as described by Bolstad et al. 2003
 
         Arguments:
@@ -458,8 +458,8 @@ class QuantileNorm(NormMethod):
             numpy array: Array with the data normalized by the quantile normalization method.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -511,7 +511,7 @@ class BetaGeomNorm(NormMethod):
             return x
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath="", doTTR=True, bgsamples=200000):
+    def normalize(data, wig_list=[], annotation_path="", doTTR=True, bgsamples=200000):
         """Returns normalized data according to the BGC method.
 
         Arguments:
@@ -524,8 +524,8 @@ class BetaGeomNorm(NormMethod):
             numpy array: Array with the data normalized using the betageom method.
 
         :Example:
-            >>> import pytransit.tools.norm_tools as norm_tools
-            >>> import pytransit.tools.tnseq_tools as tnseq_tools
+            >>> from pytransit.tools import norm_tools
+            >>> from pytransit.tools import tnseq_tools
             >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -584,7 +584,7 @@ class NoNorm(NormMethod):
     name = "nonorm"
 
     @staticmethod
-    def normalize(data, wig_list=[], annotationPath=""):
+    def normalize(data, wig_list=[], annotation_path=""):
         return (data, numpy.ones(1))
 
 
@@ -601,7 +601,7 @@ methods["emphist"] = EmpHistNorm
 
 
 #########################
-def normalize_data(data, method="nonorm", wig_list=[], annotationPath=""):
+def normalize_data(data, method="nonorm", wig_list=[], annotation_path=""):
     """Normalizes the numpy array by the given normalization method.
 
     Arguments:
@@ -609,15 +609,15 @@ def normalize_data(data, method="nonorm", wig_list=[], annotationPath=""):
             for K datasets.
         method (str): Name of the desired normalization method.
         wig_list (list): List of paths for the desired wig-formatted datasets.
-        annotationPath (str): Path to the prot_table annotation file.
+        annotation_path (str): Path to the prot_table annotation file.
 
     Returns:
         numpy array: Array with the normalized data.
         list: List containing the normalization factors. Empty if not used.
 
     :Example:
-        >>> import pytransit.tools.norm_tools as norm_tools
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import norm_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -630,19 +630,19 @@ def normalize_data(data, method="nonorm", wig_list=[], annotationPath=""):
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
 
-    .. note:: Some normalization methods require the wig_list and annotationPath arguments.
+    .. note:: Some normalization methods require the wig_list and annotation_path arguments.
 
     """
     factors = []
     if method in methods:
-        return methods[method].normalize(data, wig_list, annotationPath)
+        return methods[method].normalize(data, wig_list, annotation_path)
     else:
         warnstr = (
             "Normalization method '%s' is unknown. Read-counts were not normalized."
             % (method)
         )
         warnings.warn(warnstr)
-    return methods["nonorm"].normalize(data, wig_list, annotationPath)
+    return methods["nonorm"].normalize(data, wig_list, annotation_path)
 
 
 def empirical_theta(X):
@@ -658,8 +658,8 @@ def empirical_theta(X):
         float: Density of the given dataset.
 
     :Example:
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
-        >>> import pytransit.tools.norm_tools as norm_tools
+        >>> from pytransit.tools import tnseq_tools
+        >>> from pytransit.tools import norm_tools
         >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -688,8 +688,8 @@ def trimmed_empirical_mu(X, t=0.05):
         float: (Trimmed) Mean of the given dataset.
 
     :Example:
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
-        >>> import pytransit.tools.norm_tools as norm_tools
+        >>> from pytransit.tools import tnseq_tools
+        >>> from pytransit.tools import norm_tools
         >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -731,8 +731,8 @@ def zinfnb_factors(data):
         numpy array: Array with the normalization factors for the zinfnb method.
 
     :Example:
-        >>> import pytransit.tools.norm_tools as norm_tools
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import norm_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
@@ -788,8 +788,8 @@ def norm_to_target(data, target):
         numpy array: Array with the factors necessary to normalize mean to target.
 
     :Example:
-        >>> import pytransit.tools.norm_tools as norm_tools
-        >>> import pytransit.tools.tnseq_tools as tnseq_tools
+        >>> from pytransit.tools import norm_tools
+        >>> from pytransit.tools import tnseq_tools
         >>> (data, position) = tnseq_tools.CombinedWig.gather_wig_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],

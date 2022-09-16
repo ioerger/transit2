@@ -5,9 +5,7 @@ from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import singleton, no_duplicates, flatten_once
 from pytransit.universal_data import universal
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
@@ -51,7 +49,7 @@ def create_sample_area(frame):
                     frame,
                     1,
                     gui_tools.bit_map,
-                    "Add Files",
+                    "Load Combined Wig and Metadata",
                     size=wx.Size(250, -1),
                 )
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
@@ -132,9 +130,9 @@ def create_sample_area(frame):
             )
     
     # 
-    # FIXME: FOR DEBUGGING ONLY
+    # preload files if in debugging mode
     # 
-    if False:
+    if universal.debugging_enabled:
         from os import remove, getcwd
         load_combined_wigs_and_metadatas(
             [f"{getcwd()}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
@@ -154,7 +152,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # load the data from the files
     # 
     for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
-        transit_tools.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
+        logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
         with gui_tools.nice_error_log:
             universal.session_data.combined_wigs.append(
                 tnseq_tools.CombinedWig(
@@ -163,7 +161,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 )
             )
     
-    transit_tools.log(f"Done")
+    logging.log(f"Done")
 
         
     # 
@@ -171,6 +169,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # 
     if True:
         for each_sample in universal.session_data.samples:
+            # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
             sample_table.add(dict(
                 # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
                 id=each_sample.id,

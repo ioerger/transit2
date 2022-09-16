@@ -15,10 +15,10 @@ import datetime
 
 from pytransit.methods import analysis_base as base
 import pytransit
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools
+from pytransit.tools import tnseq_tools
+from pytransit.tools import norm_tools
+from pytransit.tools import stat_tools
 
 
 ############# GUI ELEMENTS ##################
@@ -436,7 +436,7 @@ if HAS_WX:
                         self.loadCtrlFile(fullpath)
                 dlg.Destroy()
             except Exception as e:
-                transit_tools.log("Error: %s" % e)
+                logging.log("Error: %s" % e)
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(exc_type, fname, exc_tb.tb_lineno)
@@ -473,7 +473,7 @@ if HAS_WX:
                         self.loadExpFile(fullpath)
                 dlg.Destroy()
             except Exception as e:
-                transit_tools.log("Error: %s" % e)
+                logging.log("Error: %s" % e)
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(exc_type, fname, exc_tb.tb_lineno)
@@ -532,7 +532,7 @@ if HAS_WX:
             next = self.listCtrl.GetNextSelected(-1)
             while next != -1:
                 if self.verbose:
-                    transit_tools.log(
+                    logging.log(
                         "Removing control item (%d): %s"
                         % (next, self.listCtrl.GetItem(next, 0).GetText())
                     )
@@ -546,7 +546,7 @@ if HAS_WX:
             next = self.list_exp.GetNextSelected(-1)
             while next != -1:
                 if self.verbose:
-                    transit_tools.log(
+                    logging.log(
                         "Removing experimental item (%d): %s"
                         % (next, self.list_exp.GetItem(next, 0).GetText())
                     )
@@ -636,8 +636,8 @@ class GIMethod(base.QuadConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotationPath = wxobj.annotation
-        if not transit_tools.validate_annotation(annotationPath):
+        annotation_path = wxobj.annotation
+        if not transit_tools.validate_annotation(annotation_path):
             return None
 
         # Get selected files
@@ -712,7 +712,7 @@ class GIMethod(base.QuadConditionMethod):
             ctrldataB,
             expdataA,
             expdataB,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -743,7 +743,7 @@ class GIMethod(base.QuadConditionMethod):
         ctrldataB = args[2].split(",")
         expdataB = args[3].split(",")
 
-        annotationPath = args[4]
+        annotation_path = args[4]
         output_path = args[5]
         output_file = open(output_path, "w")
 
@@ -764,7 +764,7 @@ class GIMethod(base.QuadConditionMethod):
             ctrldataB,
             expdataA,
             expdataB,
-            annotationPath,
+            annotation_path,
             output_file,
             normalization,
             samples,
@@ -780,7 +780,7 @@ class GIMethod(base.QuadConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Genetic Interactions Method")
+        logging.log("Starting Genetic Interactions Method")
         start_time = time.time()
         self.output.write("#GI\n")
 
@@ -793,19 +793,19 @@ class GIMethod(base.QuadConditionMethod):
         Nb2 = len(self.expdataB)
 
         # Get data
-        transit_tools.log("Getting Data")
+        logging.log("Getting Data")
         (data, position) = transit_tools.get_validated_data(wiglist, wxobj=self.wxobj)
 
         # Normalize data if specified
         if self.normalization != "nonorm":
-            transit_tools.log("Normalizing using: %s" % self.normalization)
+            logging.log("Normalizing using: %s" % self.normalization)
             (data, factors) = norm_tools.normalize_data(
                 data, self.normalization, wiglist, self.annotation_path
             )
 
         # Do LOESS correction if specified
         if self.LOESS:
-            transit_tools.log("Performing LOESS Correction")
+            logging.log("Performing LOESS Correction")
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -1018,7 +1018,7 @@ class GIMethod(base.QuadConditionMethod):
             percent = (100.0 * (count + 1) / N)
             text = "Running GI Method... %2.0f%%" % percent
             progress_update(text, percent)
-            transit_tools.log("analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1)))
+            logging.log("analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1)))
             count += 1
 
         # for HDI, maybe I should sort on abs(mean_delta_logFC); however, need to sort by prob to calculate BFDR
@@ -1158,10 +1158,10 @@ class GIMethod(base.QuadConditionMethod):
                 % new_row
             )
 
-        transit_tools.log("Adding File: %s" % (self.output.name))
+        logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)
         self.finish()
-        transit_tools.log("Finished Genetic Interactions Method")
+        logging.log("Finished Genetic Interactions Method")
 
     @staticmethod
     def classify_interaction(delta_logFC, logFC_KO, logFC_WT):
@@ -1174,20 +1174,3 @@ class GIMethod(base.QuadConditionMethod):
         else:
             return "N/A"
 
-
-
-if __name__ == "__main__":
-
-    (args, kwargs) = transit_tools.clean_args(sys.argv)
-
-    # TODO: Figure out issue with inputs (transit requires initial method name, running as script does not !!!!)
-
-    G = GIMethod.from_args(sys.argv[1:])
-
-    G.console_message("Printing the member variables:")
-    G.print_members()
-
-    print("")
-    print("Running:")
-
-    G.Run()

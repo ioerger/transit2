@@ -9,10 +9,7 @@ import numpy
 
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
-
+from pytransit.tools import logging, tnseq_tools
 
 ############# Description ##################
 
@@ -127,7 +124,7 @@ class CorrplotMethod(base.SingleConditionMethod):
 
     def Run(self):
 
-        transit_tools.log("Starting Corrplot")
+        logging.log("Starting Corrplot")
         start_time = time.time()
 
         # assume first non-comment line is header; samples are
@@ -192,7 +189,7 @@ class CorrplotMethod(base.SingleConditionMethod):
         )  # pass headers to put cols in order, since df comes from dict
 
         self.finish()
-        transit_tools.log("Finished Corrplot")
+        logging.log("Finished Corrplot")
 
     def make_corrplotFunc(self):
         r(

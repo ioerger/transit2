@@ -459,8 +459,8 @@ def resampling(
     data1,
     data2,
     S=10000,
-    testFunc=f_mean_diff_flat,
-    permFunc=f_shuffle_flat,
+    test_func=f_mean_diff_flat,
+    perm_func=f_shuffle_flat,
     adaptive=False,
     lib_str1="",
     lib_str2="",
@@ -476,10 +476,10 @@ def resampling(
         data1: List or numpy array with the first set of observations.
         data2: List or numpy array with the second set of observations.
         S: Number of permutation tests (or samples) to obtain.
-        testFunc: Function defining the desired test statistic. Should accept
+        test_func: Function defining the desired test statistic. Should accept
                 two lists as arguments. Default is difference in means between
                 the observations.
-        permFunc: Function defining the way to permute the data. Should accept
+        perm_func: Function defining the way to permute the data. Should accept
                 one argument, the combined set of data. Default is random
                 shuffle.
         adaptive: Cuts-off resampling early depending on significance.
@@ -560,10 +560,10 @@ def resampling(
         assert len(data2.flatten())//len(lib_str2) == nTAs, "Datasets do not have matching sites; check input data and library strings."
         # Get data
         perm = get_lib_data_dict(data1, lib_str1, data2, lib_str2, nTAs)
-        test_obs = testFunc(perm)
+        test_obs = test_func(perm)
     else:
         try:
-            test_obs = testFunc(data1, data2)
+            test_obs = test_func(data1, data2)
         except Exception as e:
             print("")
             print("!" * 100)
@@ -587,11 +587,11 @@ def resampling(
     s_performed = 0
     for s in range(S):
         if len(perm) > 0:
-            perm = permFunc(perm)
+            perm = perm_func(perm)
             if not lib_str1:
-                test_sample = testFunc(perm[:n1], perm[n1:])
+                test_sample = test_func(perm[:n1], perm[n1:])
             else:
-                test_sample = testFunc(perm)
+                test_sample = test_func(perm)
         else:
             test_sample = 0
 
@@ -821,8 +821,8 @@ if __name__ == "__main__":
             data1,
             data2,
             S=10000,
-            testFunc=f_mean_diff_dict,
-            permFunc=f_shuffle_dict_libraries,
+            test_func=f_mean_diff_dict,
+            perm_func=f_shuffle_dict_libraries,
             adaptive=False,
             lib_str1=ctrl_lib_str,
             lib_str2=exp_lib_str,
@@ -841,8 +841,8 @@ if __name__ == "__main__":
             data1,
             data2,
             S=10000,
-            testFunc=f_mean_diff_flat,
-            permFunc=f_shuffle_flat,
+            test_func=f_mean_diff_flat,
+            perm_func=f_shuffle_flat,
             adaptive=False,
             lib_str1=ctrl_lib_str,
             lib_str2=exp_lib_str,
