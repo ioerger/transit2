@@ -29,6 +29,7 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import *
+from pytransit.tools.logging import *
 
 command_name = sys.argv[0]
 
@@ -56,9 +57,9 @@ class Analysis:
           rope=None,
           signif=None,
           replicates=None,
-          includeZeros=None,
+          includeZeros=None, # no longer relevant
 
-          LOESS=None,
+          LOESS=None, # not relevant for GI
           ignore_codon=None,
           n_terminus=None,
           c_terminus=None,
@@ -66,10 +67,33 @@ class Analysis:
     
     valid_cli_flags = [
         "-n", # normalization flag
-        "-o", # output filename (optional)
+        "-s", # number of samples
+        "-iN", # trimming TA sites at gene termini
+        "-iC", 
+        "-signif", # method to determine genes with significant interaction
+        "--rope", # Region Of Probable Equivalence around 0
     ]
-    # see gi.py for original usage string and list of flags...
-    usage_string = f"""usage: python3 %s GI <combined_wig> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [-n <norm>]"""
+
+    usage_string = f"""usage: python3 %s GI <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
+      GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
+      It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
+      Provide replicates in each group as a comma-separated list of wig files.
+      HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
+      Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
+      Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+        By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+        Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+
+      Optional Arguments:
+      -n <string>     :=  Normalization method. Default: -n TTR
+      -s <integer>    :=  Number of samples. Default: -s 10000
+      -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+      -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+      --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
+      -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
+      -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
+      -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
+      -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05"""
     
     wxobj = None
     panel = None
@@ -139,19 +163,18 @@ class Analysis:
         # only need Norm selection and Run button        
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters.condA1 = create_condition_choice(self.panel,main_sizer,"Condition A1:")
-        self.value_getters.condB1 = create_condition_choice(self.panel,main_sizer,"Condition B1:")
-        self.value_getters.condA2 = create_condition_choice(self.panel,main_sizer,"Condition A2:")
-        self.value_getters.condB2 = create_condition_choice(self.panel,main_sizer,"Condition B2:")
+        self.value_getters.condA1 = create_condition_choice(self.panel,main_sizer,"Condition A1:",tooltip="indicate condition representing 'strain A' in 'condition 1'")
+        self.value_getters.condB1 = create_condition_choice(self.panel,main_sizer,"Condition B1:",tooltip="indicate condition representing 'strain B' in 'condition 1'")
+        self.value_getters.condA2 = create_condition_choice(self.panel,main_sizer,"Condition A2:",tooltip="indicate condition representing 'strain A' in 'condition 2'")
+        self.value_getters.condB2 = create_condition_choice(self.panel,main_sizer,"Condition B2:",tooltip="indicate condition representing 'strain B' in 'condition 2'")
         self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
         self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
         self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"number of random trials in Monte Carlo simulation; affects precision of P-values")
+        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"Number of random trials in Monte Carlo simulation; affects precision of P-values")
         self.value_getters.rope = self.create_float_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
-        self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # +tooltip_text?
-        self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text?
-        #self.value_getters.signif = define_choice_box(self.panel,label_text="Significance method:",options=["HDI","prob","BFDR","FWER"]) # default is HDI
-        self.value_getters.signif = self.create_signif_choice_box(self.panel,main_sizer)
+        #self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # not relevant
+        #self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text? no longer relevant
+        self.value_getters.signif = self.create_signif_choice_box(self.panel,main_sizer) # default is HDI
         create_run_button(self.panel, main_sizer)
 
         parameter_panel.set_panel(self.panel)
@@ -200,7 +223,7 @@ class Analysis:
         console_tools.handle_help_flag(kwargs, cls.usage_string)
         console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
-        # if len(args)<7: usage...; exit
+        if len(args)<8: error(cls.usage_string)
 
         combined_wig = args[0]
         metadata_path = args[1]
@@ -216,10 +239,10 @@ class Analysis:
         samples = int(kwargs.get("s", 10000))
         rope = float(kwargs.get("-rope", 0.5))  # fixed! changed int to float
         signif = kwargs.get("signif", "HDI")
-        replicates = kwargs.get("r", "Sum")
-        includeZeros = kwargs.get("iz", False)
+        replicates = kwargs.get("r", "Sum") # would mean be a better default?
+        #includeZeros = kwargs.get("iz", False)
 
-        LOESS = kwargs.get("l", False)
+        #LOESS = kwargs.get("l", False)
         ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))
         c_terminus = float(kwargs.get("iC", 0.00))
@@ -241,9 +264,9 @@ class Analysis:
           rope=rope,
           signif=signif,
           replicates=replicates,
-          includeZeros=includeZeros,
+          #includeZeros=includeZeros, # not relevant
 
-          LOESS=LOESS,
+          #LOESS=LOESS, # not relevant
           ignore_codon=ignore_codon,
           n_terminus=n_terminus,
           c_terminus=c_terminus
@@ -294,15 +317,15 @@ class Analysis:
         condB1 = self.inputs.condB1
         condB2 = self.inputs.condB2
 
-        if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0)
+        if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0) # should replace with transit_error()
         if condA2 not in indexes or len(indexes[condA2])==0: print("error: no samples found for condition %s" % condA2); sys.exit(0)
         if condB1 not in indexes or len(indexes[condB1])==0: print("error: no samples found for condition %s" % condB1); sys.exit(0)
         if condB2 not in indexes or len(indexes[condB2])==0: print("error: no samples found for condition %s" % condB2); sys.exit(0)
 
-        print("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
-        print("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
-        print("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
-        print("condB2=%s, indexes=%s" % (condB2,','.join([str(x) for x in indexes[condB2]])))
+        log("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
+        log("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
+        log("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
+        log("condB2=%s, indexes=%s" % (condB2,','.join([str(x) for x in indexes[condB2]])))
 
         dataA1 = data[indexes[condA1]] # select datasets (rows)
         dataA2 = data[indexes[condA2]]

@@ -297,7 +297,7 @@ if True:
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
-    def create_condition_choice(panel, sizer, name):
+    def create_condition_choice(panel, sizer, name,tooltip="choose condition"):
         (
             label,
             ref_condition_wxobj,
@@ -306,7 +306,7 @@ if True:
             panel,
             name,
             [x.name for x in universal.session_data.conditions],
-            "choose condition",
+            tooltip,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
