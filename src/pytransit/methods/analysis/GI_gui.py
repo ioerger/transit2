@@ -139,10 +139,10 @@ class Analysis:
         # only need Norm selection and Run button        
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
-        self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
-        self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
-        self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
+        self.value_getters.condA1 = create_condition_choice(self.panel,main_sizer,"Condition A1:")
+        self.value_getters.condB1 = create_condition_choice(self.panel,main_sizer,"Condition B1:")
+        self.value_getters.condA2 = create_condition_choice(self.panel,main_sizer,"Condition A2:")
+        self.value_getters.condB2 = create_condition_choice(self.panel,main_sizer,"Condition B2:")
         self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
         self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
         self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
@@ -172,7 +172,7 @@ class Analysis:
         # get annotation
         # 
         Analysis.inputs.annotation_path = universal.session_data.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation)
+        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
         # setup custom inputs

@@ -167,7 +167,7 @@ class Analysis:
             file = sys.stdout # print to console if not output file defined
             if self.inputs.output_path != None:
                 file = open(self.inputs.output_path, "w")
-            file.write("%s\n#" % self.identifier)
+            file.write("#%s\n" % self.identifier)
             file.write("#normalization: %s\n" % self.inputs.normalization)
             file.write("#dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\tpickands_tail_index\n")
 
