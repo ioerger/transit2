@@ -29,7 +29,6 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import *
-from pytransit.tools.logging import *
 
 command_name = sys.argv[0]
 
@@ -223,7 +222,7 @@ class Analysis:
         console_tools.handle_help_flag(kwargs, cls.usage_string)
         console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
-        if len(args)<8: error(cls.usage_string)
+        if len(args)<8: logging.error(cls.usage_string)
 
         combined_wig = args[0]
         metadata_path = args[1]
@@ -306,26 +305,24 @@ class Analysis:
         # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
 
         indexes = {}
-        #from pytransit.components.samples_area import sample_table
-        #for i,row in enumerate(sample_table.rows): # defined in components/generic/table.py
         for i,row in enumerate(metadata.rows): 
             cond = row["Condition"] # "condition" for samples_table
             if cond not in indexes: indexes[cond] = []
-            indexes[cond].append(i)
+            indexes[cond].append(i) 
         condA1 = self.inputs.condA1
         condA2 = self.inputs.condA2
         condB1 = self.inputs.condB1
         condB2 = self.inputs.condB2
 
-        if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0) # should replace with transit_error()
-        if condA2 not in indexes or len(indexes[condA2])==0: print("error: no samples found for condition %s" % condA2); sys.exit(0)
-        if condB1 not in indexes or len(indexes[condB1])==0: print("error: no samples found for condition %s" % condB1); sys.exit(0)
-        if condB2 not in indexes or len(indexes[condB2])==0: print("error: no samples found for condition %s" % condB2); sys.exit(0)
+        if condA1 not in indexes or len(indexes[condA1])==0: logging.error("no samples found for condition %s" % condA1)
+        if condA2 not in indexes or len(indexes[condA2])==0: logging.error("no samples found for condition %s" % condA2)
+        if condB1 not in indexes or len(indexes[condB1])==0: logging.error("no samples found for condition %s" % condB1)
+        if condB2 not in indexes or len(indexes[condB2])==0: logging.error("no samples found for condition %s" % condB2)
 
-        log("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
-        log("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
-        log("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
-        log("condB2=%s, indexes=%s" % (condB2,','.join([str(x) for x in indexes[condB2]])))
+        logging.log("condA1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA1])))
+        logging.log("condA2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA2])))
+        logging.log("condB1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB1])))
+        logging.log("condB2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB2])))
 
         dataA1 = data[indexes[condA1]] # select datasets (rows)
         dataA2 = data[indexes[condA2]]
@@ -346,10 +343,13 @@ class Analysis:
         # will open and close file, or print to console
         self.print_GI_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
 
-        logging.log("Finished Genetic Interaction analysis")
+        aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
+        allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
+        suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
+        logging.log("Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s" % (aggra,allev,suppr))
         logging.log("Time: %0.1fs\n" % (time.time() - start_time))
+        logging.log("Finished Genetic Interaction analysis")
 
-    # is self.annotation_path already set?
 
     def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
         from pytransit.tools import stat_tools
@@ -641,57 +641,55 @@ class Analysis:
         self.output = sys.stdout # print to console if not output file defined
         if self.inputs.output_path != None:
             self.output = open(self.inputs.output_path, "w")
-        self.output.write("%s\n#" % self.identifier)
+        self.output.write("#%s\n" % self.identifier)
 
-        if True: # was 'if self.wxobj:', try universal.interface=="gui" or "console" ###?
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            #memberstr = ""
-            #for m in members:
-            #    memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write( 
-                "#parameters: norm=%s, samples=%s, includeZeros=%s, output=%s\n"
-                % (
-                    self.inputs.normalization,
-                    self.inputs.samples,
-                    self.inputs.includeZeros,
-                    self.output.name.encode("utf-8"), ###? add more params
-                )
-            )
-        # originally, we wrote CLI args from console into output file, if console mode:
-        #    self.output.write("#Console: python3 %s\n" % " ".join(sys.argv)) ###? I should print command
+        if universal.interface=="console":
+          self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
 
         now = str(datetime.datetime.now())
         now = now[: now.rfind(".")]
         self.output.write("#Date: " + now + "\n")
         # self.output.write("#Runtime: %s s\n" % (time.time() - start_time))
 
+        self.output.write("#Parameters:\n")
+        self.output.write("# normalization of counts=%s\n" % (self.inputs.normalization))
+        self.output.write("# num samples for Monte Carlo=%s\n" % (self.inputs.samples))
+        self.output.write("# trimming of TA sites: Nterm=%s%%, Cterm=%s%%\n" % (self.inputs.n_terminus,self.inputs.c_terminus))
+        self.output.write("# ROPE=%s (region of probable equivalence around 0)\n" % (self.inputs.rope))
+        self.output.write("# method for determining significance=%s\n" % (self.inputs.signif))
+        self.output.write("# annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
+        self.output.write("# output path: %s\n" % (self.inputs.output_path))
+
         condA1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA1]
         condA2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA2]
         condB1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB1]
         condB2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB2]
 
-        self.output.write("#Strain A, Condition 1): %s: %s\n" % (condA1,','.join(condA1samples)))
-        self.output.write("#Strain A, Condition 2): %s: %s\n" % (condA2,','.join(condA2samples)))
-        self.output.write("#Strain B, Condition 1): %s: %s\n" % (condB1,','.join(condB1samples)))
-        self.output.write("#Strain B, Condition 2): %s: %s\n" % (condB2,','.join(condB2samples)))
-        self.output.write("#Annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
-        self.output.write("#ROPE=%s, method for significance=%s\n" % (self.inputs.rope, self.inputs.signif))
+        self.output.write("#Samples in 4 conditions:\n")
+        self.output.write("# A1 (Strain A, Condition 1): %s: %s\n" % (condA1,','.join([str(x) for x in condA1samples])))
+        self.output.write("# A2 (Strain A, Condition 2): %s: %s\n" % (condA2,','.join([str(x) for x in condA2samples])))
+        self.output.write("# B1 (Strain B, Condition 1): %s: %s\n" % (condB1,','.join([str(x) for x in condB1samples])))
+        self.output.write("# B2 (Strain B, Condition 2): %s: %s\n" % (condB2,','.join([str(x) for x in condB2samples])))
         if self.inputs.signif == "HDI":
             self.output.write("#Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE\n")
         elif self.inputs.signif in "prob BDFR FWER":
             self.output.write("#Significant interactions are those whose %s-adjusted probability of the delta-logFC falling within ROPE is < 0.05.\n" % (adjusted_label))
 
+        aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
+        allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
+        suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
+        self.output.write("#Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s\n" % (aggra,allev,suppr))
+
         # Write column names (redundant with self.columns)
         self.output.write(
-            "#ORF\tName\tNumber of TA Sites\tMean count (Strain A Condition 1)\tMean count (Strain A Condition 2)\tMean count (Strain B Condition 1)\tMean count (Strain B Condition 2)\tMean logFC (Strain A)\tMean logFC (Strain B) \tMean delta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
+            "#ORF\tgene\tannotation\tTA sites\tA1 mean count\tA2 mean count\tB1 mean count\tB2 mean count\tlogFC (Strain A)\tlogFC (Strain B) \tdelta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
             % adjusted_label
         )
+    
+        annot = {}
+        for line in open(self.inputs.annotation_path):
+          w = line.rstrip().split('\t')
+          annot[w[8]] = w[0]
 
         # Write gene results
         for i, new_row in enumerate(results):
@@ -711,11 +709,15 @@ class Analysis:
                 not_HDI_overlap_bit,
                 probROPE,
                 adjusted_prob,
-                type_of_interaction
+                type_of_interaction,
             ) = new_row
 
+            orf = new_row[0]
+            descr = annot[orf]
+            new_row = tuple(list(new_row[:2])+[descr]+list(new_row[2:]))
+
             self.output.write(
-                "%s\t%s\t%d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%s\t%1.8f\t%1.8f\t%s\n"
+                "%s\t%s\t%s\t%d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%s\t%1.8f\t%1.8f\t%s\n"
                 % new_row
             )
 
