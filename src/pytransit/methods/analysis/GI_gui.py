@@ -55,11 +55,7 @@ class Analysis:
           samples=None,
           rope=None,
           signif=None,
-          replicates=None,
-          includeZeros=None, # no longer relevant
 
-          LOESS=None, # not relevant for GI
-          ignore_codon=None,
           n_terminus=None,
           c_terminus=None,
     )
@@ -169,7 +165,7 @@ class Analysis:
         self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
         self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
         self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"Number of random trials in Monte Carlo simulation; affects precision of P-values")
+        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"Number of random trials in Monte Carlo simulation; affects precision of P-values; if you want to make GI run faster, try setting samples to 1000")
         self.value_getters.rope = self.create_float_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
         #self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # not relevant
         #self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text? no longer relevant
@@ -238,11 +234,7 @@ class Analysis:
         samples = int(kwargs.get("s", 10000))
         rope = float(kwargs.get("-rope", 0.5))  # fixed! changed int to float
         signif = kwargs.get("signif", "HDI")
-        replicates = kwargs.get("r", "Sum") # would mean be a better default?
-        #includeZeros = kwargs.get("iz", False)
 
-        #LOESS = kwargs.get("l", False)
-        ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))
         c_terminus = float(kwargs.get("iC", 0.00))
 
@@ -262,11 +254,7 @@ class Analysis:
           samples=samples,
           rope=rope,
           signif=signif,
-          replicates=replicates,
-          #includeZeros=includeZeros, # not relevant
 
-          #LOESS=LOESS, # not relevant
-          ignore_codon=ignore_codon,
           n_terminus=n_terminus,
           c_terminus=c_terminus
         ))
