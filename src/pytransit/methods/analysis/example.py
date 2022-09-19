@@ -151,7 +151,7 @@ class Analysis:
         # 
         # HANDLE_THIS
         Analysis.inputs.annotation_path = universal.session_data.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation)
+        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
         # call all GUI getters, puts results into respective Analysis.inputs key-value

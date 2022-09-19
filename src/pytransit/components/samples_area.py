@@ -237,12 +237,12 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
                 id=each_sample.id,
                 conditions=(",".join(each_sample.condition_names) or "[None]"),
-                count=each_sample.extra_data.count,
-                sum=round(each_sample.extra_data.sum),
+                density=round(each_sample.extra_data.density, 4),
+                total_insertions=round(each_sample.extra_data.sum),
                 non_zero_mean=round(each_sample.extra_data.non_zero_mean),
                 # # uncomment to add additional summary data
                 # non_zero_median=each_sample.extra_data.non_zero_median,
-                # density=each_sample.extra_data.density,
+                # count=each_sample.extra_data.count,
                 # mean=each_sample.extra_data.mean,
                 # max=each_sample.extra_data.max,
                 # skew=each_sample.extra_data.skew,

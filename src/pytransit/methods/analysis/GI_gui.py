@@ -153,8 +153,7 @@ class Analysis:
             # 
 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            #if not transit_tools.validate_annotation(Analysis.inputs.annotation): return None 
-
+            transit_tools.validate_annotation(Analysis.inputs.annotation_path)
             
             # 
             # setup custom inputs

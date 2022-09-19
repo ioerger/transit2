@@ -98,14 +98,6 @@ class Analysis:
             Analysis.inputs.combined_wig = combined_wig.main_path
             
             # 
-            # get annotation
-            # 
-            ###Analysis.inputs.annotation_path = universal.session_data.annotation # not needed for tnseq_stats
-            # FIXME: enable this once I get a valid annotation file example
-            # if not transit_tools.validate_annotation(Analysis.inputs.annotation):
-            #     return None
-            
-            # 
             # setup custom inputs
             # 
             for each_key, each_getter in Analysis.instance.value_getters.items():
