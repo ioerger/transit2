@@ -500,25 +500,22 @@ class Analysis:
             ],
             axis=1,
         )
-        # stlm_predicted_log_counts = numpy.log10(filtered_ttn_data["STLM Predicted Counts"]+0.5)
+   
+        old_Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
+        Y = old_Y - numpy.mean(old_Y) #centering Y values so we can disregard constant
 
-        Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
+
 
         logging.log("\t + Fitting M1")
         X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
-        X1 = sm.add_constant(X1)
+        #X1 = sm.add_constant(X1)
         results1 = sm.OLS(Y, X1).fit()
-        filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1)
+        print(results1.summary())
+        filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1) 
+        filtered_ttn_data["M1 Pred log Count"] = filtered_ttn_data["M1 Pred log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
         filtered_ttn_data["M1 Predicted Count"] = numpy.power(
             10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
         )
-
-        # logging.log("\t + Fitting new mod TTN-Fitness")
-        # X2 = pandas.concat([gene_one_hot_encoded,stlm_predicted_log_counts],axis=1)
-        # X2 = sm.add_constant(X2)
-        # results2 = sm.OLS(Y,X2).fit()
-        # filtered_ttn_data["mod ttn Pred log Count"] = results2.predict(X2)
-        # filtered_ttn_data["mod ttn Predicted Count"] = numpy.power(10, (filtered_ttn_data["mod ttn Pred log Count"]-0.5))
 
         logging.log("\t + Assessing Models")
         # create Models Summary df
