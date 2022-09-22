@@ -113,30 +113,25 @@ class Analysis:
         return lambda *args: float(get_text())
 
     def define_panel(self, _):
-        self.panel = make_panel()
+        from pytransit.components.panel_helpers import Panel
+        with Panel() as (self.panel, main_sizer):
 
-        # only need Norm selection and Run button        
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
-        self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
-        self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
-        self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
-        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
-        self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
-        self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-        self.value_getters.samples = self.create_input_field(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
-        self.value_getters.rope = self.create_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
-        # to do:
-        # checkbox [off] for 'correct for genome position bias' (view LOESS fit)
-        # checkbox [on] for 'include sites with all zeros'
-        # dropdown based on new CL flag for 'significance method': -signif <HDI,prob,BFDR,FWER>
-        create_run_button(self.panel, main_sizer)
-
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
+            # only need Norm selection and Run button        
+            self.value_getters = LazyDict()
+            self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
+            self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
+            self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
+            self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
+            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
+            self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.samples = self.create_input_field(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
+            self.value_getters.rope = self.create_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+            # to do:
+            # checkbox [off] for 'correct for genome position bias' (view LOESS fit)
+            # checkbox [on] for 'include sites with all zeros'
+            # dropdown based on new CL flag for 'significance method': -signif <HDI,prob,BFDR,FWER>
+            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
     @classmethod
     def from_gui(cls, frame):

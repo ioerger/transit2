@@ -20,7 +20,7 @@ from pytransit.basics.misc import flatten_once, no_duplicates, singleton
 universal = LazyDict(
     interface=None, # "gui" or "console"
     frame=None,
-    debugging_enabled=True,
+    debugging_enabled=False,
     session_data=None,
     busy_running_method=False,
 )

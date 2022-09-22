@@ -49,7 +49,7 @@ def error(*args, **kwargs):
         def set_status(*args, **kwargs): pass
     
     error_message = _print_to_string(*args, **kwargs)
-    last_line = string_output.strip().split("\n")[-1]
+    last_line = error_message.strip().split("\n")[-1]
     try:
         # this looks dumb but 'raise' is needed to get the traceback
         raise TransitError(error_message)

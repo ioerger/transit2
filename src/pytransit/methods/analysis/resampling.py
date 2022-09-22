@@ -24,15 +24,14 @@ from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
-from pytransit.components.parameter_panel import panel, progress_update
+from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button
 command_name = sys.argv[0]
 
 class Analysis:
     identifier  = "Resampling"
-    short_name = "resampling - new"
+    short_name = "resampling"
     long_name = "Resampling (Permutation test)"
     short_desc = "Resampling test of conditional essentiality between two conditions"
     long_desc = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
@@ -134,14 +133,9 @@ class Analysis:
         return f"{self.inputs}"
 
     def define_panel(self, _):
-        self.panel = make_panel()
-        
-        # 
-        # parameter inputs
-        # 
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        if True:
+        from pytransit.components.panel_helpers import Panel
+        with Panel() as (self.panel, main_sizer):
+            self.value_getters = LazyDict()
             sample_getter          = create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
             
             self.value_getters.ctrldata               = create_control_condition_input(self.panel, main_sizer)
@@ -157,13 +151,8 @@ class Analysis:
             self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
-            create_run_button(self.panel, main_sizer)
+            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
         
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
-
     @classmethod
     def from_gui(cls, frame):
         with gui_tools.nice_error_log:
@@ -178,8 +167,7 @@ class Analysis:
             # get annotation
             # 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
-                return None
+            transit_tools.validate_annotation(Analysis.inputs.annotation_path)
             
             # 
             # setup custom inputs
@@ -193,7 +181,7 @@ class Analysis:
             # save result files
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="output.dat",
+                default_file_name="resampling_output.dat",
                 output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
             )
             if not Analysis.inputs.output_path:
@@ -750,8 +738,7 @@ class Analysis:
             # Update progress
             percentage = (100.0 * count / N)
             text = "Running Resampling Method... %5.1f%%" % percentage
-            from pytransit.components.parameter_panel import panel, progress_update
-            progress_update(text, percentage)
+            parameter_panel.progress_update(text, percentage)
 
         logging.log("")  # Printing empty line to flush stdout
         logging.log("Performing Benjamini-Hochberg Correction")

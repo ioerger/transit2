@@ -77,29 +77,25 @@ class Analysis:
     def __call__(self): return self
     
     def define_panel(self, _):
-        self.panel = panel_helpers.make_panel()
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        if True:
-            # HANDLE_THIS
-            # panel_helpers.create_file_input(self.panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(self.panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(self.panel, main_sizer, label="")
-            # def when_button_clicked(event):
-            #     print("do stuff")
+        from pytransit.components.panel_helpers import Panel
+        with Panel() as (self.panel, main_sizer):
+            self.value_getters = LazyDict()
+            if True:
+                # HANDLE_THIS
+                # panel_helpers.create_file_input(self.panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+                # panel_helpers.create_choice_input(self.panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
+                # panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+                # panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
+                # @panel_helpers.create_button(self.panel, main_sizer, label="")
+                # def when_button_clicked(event):
+                #     print("do stuff")
+                
+                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+                self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+                
+                create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
             
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
-            
-            panel_helpers.create_run_button(self.panel, main_sizer)
-            
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
 
     @staticmethod
     def from_gui(frame):

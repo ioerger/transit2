@@ -11,14 +11,35 @@ default_widget_size = (100, -1)
 # 
 # 
 if True:
-    def make_panel():
-        return wx.Panel(
-            universal.frame,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
+    def make_panel(): pass
+    class Panel:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def __enter__(self):
+            self.wx_panel = wx.Panel(
+                universal.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                wx.DefaultSize,
+                wx.TAB_TRAVERSAL,
+            )
+            self.main_sizer = wx.BoxSizer(wx.VERTICAL)
+            return (self.wx_panel, self.main_sizer)
+        
+        def __exit__(self, _, error, traceback):
+            if error is not None:
+                print(''.join(traceback.format_tb(traceback_obj)))
+                frame = universal.frame
+                if frame and hasattr(frame, "status_bar"):
+                    frame.status_bar.SetStatusText("Error: "+str(error.args))
+            else:
+                from pytransit.components import parameter_panel
+                parameter_panel.set_panel(self.wx_panel)
+                self.wx_panel.SetSizer(self.main_sizer)
+                self.wx_panel.Layout()
+                self.main_sizer.Fit(self.wx_panel)
+                universal.frame.Layout()
     
     def create_button(panel, sizer, *, label):
         run_button = wx.Button(
@@ -227,47 +248,51 @@ if True:
         wig_ids_getter    = wig_ids_getter    or (lambda *args, **kwargs: None)
         @create_button(panel, sizer, label="Preview LOESS fit")
         def when_loess_preview_clicked(event):
-            import numpy
-            import matplotlib
-            import matplotlib.pyplot as plt
-            from pytransit.tools import stat_tools
-            from pytransit.universal_data import universal
-            from pytransit.tools.tnseq_tools import Wig
-            
-            # 
-            # determine selection method
-            # 
-            conditions = conditions_getter()
-            wig_ids    = wig_ids_getter()
-            use_selected = False
-            if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
-                use_selected = True
-                if not universal.session_data.selected_samples:
-                    # NOTE: was a popup
-                    logging.error("Need to select at least one control or experimental dataset.")
-            #
-            # get read_counts and positions
-            # 
-            read_counts_per_wig, position_per_line = transit_tools.gather_sample_data_for(conditions=conditions, wig_ids=wig_ids, selected_samples=use_selected)
-            number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-            window = 100
-            for each_path_index in range(number_of_wigs):
-
-                number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                x_w = numpy.zeros(number_of_windows)
-                y_w = numpy.zeros(number_of_windows)
-                for window_index in range(number_of_windows):
-                    x_w[window_index] = window * window_index
-                    y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-
-                y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                plt.plot(x_w, y_w, "g+")
-                plt.plot(x_w, y_smooth, "b-")
-                plt.xlabel("Genomic Position (TA sites)")
-                plt.ylabel("Reads per 100 insertion sites")
+            with gui_tools.nice_error_log:
+                import numpy
+                import matplotlib
+                import matplotlib.pyplot as plt
+                from pytransit.tools import stat_tools
+                from pytransit.universal_data import universal
+                from pytransit.tools.tnseq_tools import Wig
                 
-                plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-                plt.show()
+                # 
+                # determine selection method
+                # 
+                conditions = conditions_getter()
+                wig_ids    = wig_ids_getter()
+                use_selected = False
+                if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
+                    use_selected = True
+                    if not universal.session_data.selected_samples:
+                        # NOTE: was a popup
+                        logging.error("Need to select at least one control or experimental dataset.")
+                
+                wig_objects = universal.session_data.samples
+                
+                #
+                # get read_counts and positions
+                # 
+                read_counts_per_wig, position_per_line = transit_tools.gather_sample_data_for(conditions=conditions, wig_ids=wig_ids, selected_samples=use_selected)
+                number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
+                window = 100
+                for each_path_index in range(number_of_wigs):
+
+                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
+                    x_w = numpy.zeros(number_of_windows)
+                    y_w = numpy.zeros(number_of_windows)
+                    for window_index in range(number_of_windows):
+                        x_w[window_index] = window * window_index
+                        y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
+                    
+                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                    plt.plot(x_w, y_w, "g+")
+                    plt.plot(x_w, y_smooth, "b-")
+                    plt.xlabel("Genomic Position (TA sites)")
+                    plt.ylabel("Reads per 100 insertion sites")
+                    
+                    plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
+                    plt.show()
     
     def create_normalization_input(panel, sizer, default="TTR"):
         (
@@ -442,7 +467,7 @@ if True:
             tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
         )
     
-    def create_run_button(panel, sizer):
+    def create_run_button(panel, sizer, from_gui_function):
         run_button = wx.Button(
             panel,
             wx.ID_ANY,
@@ -467,7 +492,7 @@ if True:
                 
             import threading
             with gui_tools.nice_error_log:
-                method_instance = universal.selected_method.method.from_gui(universal.frame)
+                method_instance = from_gui_function(universal.frame)
                 if method_instance:
                     thread = threading.Thread(target=run_wrapper())
                     thread.setDaemon(True)

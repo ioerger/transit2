@@ -113,7 +113,7 @@ def ask_for_output_file_path(
 class color(NamedTuple):
     black          =  rgba(0, 0, 0)
     white          =  rgba(255, 255, 255)
-    light_gray     =  rgba(199, 203, 205)
+    light_gray     =  rgba(225, 225, 225)
     gray           =  rgba(84, 110, 122)
     rust           =  rgba(193, 126, 112)
     orange         =  rgba(247, 140, 108)
