@@ -11,8 +11,7 @@ default_widget_size = (100, -1)
 # 
 # 
 if True:
-    def make_panel(): pass
-    class Panel:
+    class NewPanel:
         def __init__(self, *args, **kwargs):
             pass
         
@@ -237,6 +236,16 @@ if True:
         sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: wxobj.GetValue()
 
+    def create_float_getter(panel, sizer, label_text, default_value, tooltip_text=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label_text,
+            default_value=default_value,
+            tooltip_text=tooltip_text,
+        )
+        return lambda *args: float(get_text())        
+
 # 
 # 
 # specific
@@ -328,6 +337,20 @@ if True:
             "Ref Condition:",
             [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
             "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+        )
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+    
+    def create_condition_choice(panel, sizer, name):
+        (
+            label,
+            ref_condition_wxobj,
+            ref_condition_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            name,
+            [ "[None]" ] + [x.name for x in universal.session_data.conditions],
+            "choose condition",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())

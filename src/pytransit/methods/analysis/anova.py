@@ -20,7 +20,6 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
 import pytransit.basics.misc as misc
 command_name = sys.argv[0]
 
@@ -99,8 +98,8 @@ class Analysis:
     def __call__(self): return self
 
     def define_panel(self, _):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
             # 
             # parameter inputs
             # 
@@ -113,18 +112,18 @@ class Analysis:
             # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
             self.value_getters = LazyDict()
             if True:
-                self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
-                self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
-                self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
-                self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
-                self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
-                self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
-                self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
-                self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
-                self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
+                self.value_getters.included_conditions    = panel_helpers.create_include_condition_list_input(self.panel, main_sizer)
+                self.value_getters.excluded_conditions    = panel_helpers.create_exclude_condition_list_input(self.panel, main_sizer)
+                self.value_getters.reference_condition    = panel_helpers.create_reference_condition_input(self.panel, main_sizer)
+                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+                self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+                self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(self.panel, main_sizer)
+                self.value_getters.alpha                  = panel_helpers.create_alpha_input(self.panel, main_sizer)
+                self.value_getters.winz                   = panel_helpers.create_winsorize_input(self.panel, main_sizer)
                 self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
                 
-                create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+                panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):

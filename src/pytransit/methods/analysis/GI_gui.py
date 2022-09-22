@@ -34,8 +34,6 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-#nfrom pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input, define_choice_box
-from pytransit.components.panel_helpers import *
 
 command_name = sys.argv[0]
 
@@ -88,50 +86,26 @@ class Analysis:
     def __repr__(self):
         return f"{self.inputs}"
 
-    def create_condition_choice(self, panel, sizer, name):
-        (
-            label,
-            ref_condition_wxobj,
-            ref_condition_choice_sizer,
-        ) = define_choice_box(
-            panel,
-            name,
-            [ "[None]" ] + [x.name for x in universal.session_data.conditions],
-            "choose condition",
-        )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
-    
-    def create_input_field(self, panel, sizer, label, value,tooltip=None):
-        get_text = create_text_box_getter(
-            panel,
-            sizer,
-            label_text=label,
-            default_value=value,
-            tooltip_text=tooltip,
-        )
-        return lambda *args: float(get_text())
-
     def define_panel(self, _):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
 
             # only need Norm selection and Run button        
             self.value_getters = LazyDict()
-            self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
-            self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
-            self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
-            self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
-            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
-            self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.samples = self.create_input_field(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
-            self.value_getters.rope = self.create_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+            self.value_getters.condA1 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition A1:")
+            self.value_getters.condB1 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition B1:")
+            self.value_getters.condA2 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition A2:")
+            self.value_getters.condB2 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition B2:")
+            self.value_getters.normalization = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR is default
+            self.value_getters.n_terminus = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.samples = panel_helpers.create_float_getter(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
+            self.value_getters.rope = panel_helpers.create_float_getter(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
             # to do:
             # checkbox [off] for 'correct for genome position bias' (view LOESS fit)
             # checkbox [on] for 'include sites with all zeros'
             # dropdown based on new CL flag for 'significance method': -signif <HDI,prob,BFDR,FWER>
-            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
     @classmethod
     def from_gui(cls, frame):

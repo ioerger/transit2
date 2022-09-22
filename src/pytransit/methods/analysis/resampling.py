@@ -26,7 +26,6 @@ from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm
 from pytransit.universal_data import universal
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button
 command_name = sys.argv[0]
 
 class Analysis:
@@ -133,87 +132,86 @@ class Analysis:
         return f"{self.inputs}"
 
     def define_panel(self, _):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
-            sample_getter          = create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
+            sample_getter          = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
             
-            self.value_getters.ctrldata               = create_control_condition_input(self.panel, main_sizer)
-            self.value_getters.expdata                = create_experimental_condition_input(self.panel, main_sizer)
+            self.value_getters.ctrldata               = panel_helpers.create_control_condition_input(self.panel, main_sizer)
+            self.value_getters.expdata                = panel_helpers.create_experimental_condition_input(self.panel, main_sizer)
             self.value_getters.samples                = lambda *args: int(sample_getter(*args))
-            self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
-            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
-            self.value_getters.genome_positional_bias = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            create_preview_loess_button(self.panel, main_sizer)
-            self.value_getters.adaptive                = create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
-            self.value_getters.do_histogram            = create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.include_zeros           = create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(self.panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            panel_helpers.create_preview_loess_button(self.panel, main_sizer)
+            self.value_getters.adaptive                = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
+            self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
+            self.value_getters.include_zeros           = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
-            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
         
     @classmethod
     def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
-            # 
-            # get wig files
-            # 
-            combined_wig = universal.session_data.combined_wigs[0]
-            Analysis.inputs.combined_wig = combined_wig.main_path
-            Analysis.inputs.metadata     = combined_wig.metadata.path
-            
-            # 
-            # get annotation
-            # 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            transit_tools.validate_annotation(Analysis.inputs.annotation_path)
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="resampling_output.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-            )
-            if not Analysis.inputs.output_path:
-                return None
-            
-            # 
-            # extract universal data
-            # 
-            cwig_path     = universal.session_data.combined_wigs[0].main_path
-            metadata_path = universal.session_data.combined_wigs[0].metadata.path
-            
-            from pytransit.components.samples_area import sample_table
-            Analysis.inputs.combined_wig_params = dict(
-                combined_wig=cwig_path,
-                samples_metadata=metadata_path,
-                conditions=[
-                    Analysis.inputs.ctrldata,
-                    Analysis.inputs.expdata,
-                ],
-            )
-            assert Analysis.inputs.ctrldata != "[None]", "Control group can't be None"
-            assert Analysis.inputs.expdata != "[None]", "Experimental group can't be None"
-            
-            # backwards compatibility
-            Analysis.inputs.ctrldata = [Analysis.inputs.combined_wig_params["conditions"][0]]
-            Analysis.inputs.expdata = [Analysis.inputs.combined_wig_params["conditions"][1]]
+        # 
+        # get wig files
+        # 
+        combined_wig = universal.session_data.combined_wigs[0]
+        Analysis.inputs.combined_wig = combined_wig.main_path
+        Analysis.inputs.metadata     = combined_wig.metadata.path
+        
+        # 
+        # get annotation
+        # 
+        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="resampling_output.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        if not Analysis.inputs.output_path:
+            return None
+        
+        # 
+        # extract universal data
+        # 
+        cwig_path     = universal.session_data.combined_wigs[0].main_path
+        metadata_path = universal.session_data.combined_wigs[0].metadata.path
+        
+        from pytransit.components.samples_area import sample_table
+        Analysis.inputs.combined_wig_params = dict(
+            combined_wig=cwig_path,
+            samples_metadata=metadata_path,
+            conditions=[
+                Analysis.inputs.ctrldata,
+                Analysis.inputs.expdata,
+            ],
+        )
+        assert Analysis.inputs.ctrldata != "[None]", "Control group can't be None"
+        assert Analysis.inputs.expdata != "[None]", "Experimental group can't be None"
+        
+        # backwards compatibility
+        Analysis.inputs.ctrldata = [Analysis.inputs.combined_wig_params["conditions"][0]]
+        Analysis.inputs.expdata = [Analysis.inputs.combined_wig_params["conditions"][1]]
 
-            Analysis.inputs.update(dict(
-                annotation_path_exp=Analysis.inputs.annotation_path_exp if Analysis.inputs.diff_strains else Analysis.inputs.annotation_path
-            ))
-            
-            return Analysis.instance
+        Analysis.inputs.update(dict(
+            annotation_path_exp=Analysis.inputs.annotation_path_exp if Analysis.inputs.diff_strains else Analysis.inputs.annotation_path
+        ))
+        
+        return Analysis.instance
 
     @classmethod
     def from_args(cls, args, kwargs):
@@ -309,239 +307,238 @@ class Analysis:
         return Analysis.instance
 
     def Run(self):
-        with gui_tools.nice_error_log:
-            if self.inputs.do_histogram:
-                try: import matplotlib.pyplot as plt
-                except:
-                    print("Error: cannot do histograms")
-                    self.inputs.do_histogram = False
+        if self.inputs.do_histogram:
+            try: import matplotlib.pyplot as plt
+            except:
+                print("Error: cannot do histograms")
+                self.inputs.do_histogram = False
 
-            logging.log("Starting resampling Method")
-            start_time = time.time()
-            if self.inputs.winz:
-                logging.log("Winsorizing insertion counts")
+        logging.log("Starting resampling Method")
+        start_time = time.time()
+        if self.inputs.winz:
+            logging.log("Winsorizing insertion counts")
 
-            # Get orf data
-            logging.log("Getting Data")
-            if self.inputs.diff_strains:
-                logging.log("Multiple annotation files found")
-                logging.log(
-                    "Mapping ctrl data to {0}, exp data to {1}".format(
-                        self.inputs.annotation_path, self.inputs.annotation_path_exp
-                    )
+        # Get orf data
+        logging.log("Getting Data")
+        if self.inputs.diff_strains:
+            logging.log("Multiple annotation files found")
+            logging.log(
+                "Mapping ctrl data to {0}, exp data to {1}".format(
+                    self.inputs.annotation_path, self.inputs.annotation_path_exp
                 )
-            # 
-            # Combine 
-            # 
-            if self.inputs.combined_wig_params:
-                (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
-                    self.inputs.combined_wig_params["combined_wig"]
-                )
-                conditions_by_file, _, _, _ = tnseq_tools.read_samples_metadata(
-                    self.inputs.combined_wig_params["samples_metadata"]
-                )
-                condition_names = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
-                datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
-                    data, condition_names, self.inputs.combined_wig_params["conditions"],
-                )
-                control_condition = self.inputs.combined_wig_params["conditions"][0]
-                experimental_condition = self.inputs.combined_wig_params["conditions"][1]
-                data_ctrl = numpy.array(
-                    [
-                        each_dataset
-                            for i, each_dataset in enumerate(datasets)
-                                if conditions_per_dataset[i] == control_condition
-                    ]
-                )
-                data_exp = numpy.array(
-                    [
-                        each_dataset
-                            for i, each_dataset in enumerate(datasets)
-                                if conditions_per_dataset[i] == experimental_condition
-                    ]
-                )
-                position_ctrl, position_exp = position, position
+            )
+        # 
+        # Combine 
+        # 
+        if self.inputs.combined_wig_params:
+            (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+                self.inputs.combined_wig_params["combined_wig"]
+            )
+            conditions_by_file, _, _, _ = tnseq_tools.read_samples_metadata(
+                self.inputs.combined_wig_params["samples_metadata"]
+            )
+            condition_names = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
+            datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
+                data, condition_names, self.inputs.combined_wig_params["conditions"],
+            )
+            control_condition = self.inputs.combined_wig_params["conditions"][0]
+            experimental_condition = self.inputs.combined_wig_params["conditions"][1]
+            data_ctrl = numpy.array(
+                [
+                    each_dataset
+                        for i, each_dataset in enumerate(datasets)
+                            if conditions_per_dataset[i] == control_condition
+                ]
+            )
+            data_exp = numpy.array(
+                [
+                    each_dataset
+                        for i, each_dataset in enumerate(datasets)
+                            if conditions_per_dataset[i] == experimental_condition
+                ]
+            )
+            position_ctrl, position_exp = position, position
+        else:
+            output = transit_tools.get_validated_data(
+                self.inputs.ctrldata, wxobj=self.wxobj
+            )
+            (data_ctrl, position_ctrl, *_) = output
+            (data_exp, position_exp) = transit_tools.get_validated_data(
+                self.inputs.expdata, wxobj=self.wxobj
+            )
+        (K_ctrl, N_ctrl) = data_ctrl.shape
+        (K_exp, N_exp) = data_exp.shape
+
+        if not self.inputs.diff_strains and (N_ctrl != N_exp):
+            # NOTE: returned ([], [])
+            logging.error("Error: Ctrl and Exp wig files don't have the same number of sites. Make sure all .wig files come from the same strain.")
+
+        logging.log("Preprocessing Ctrl data...")
+        data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
+
+        logging.log("Preprocessing Exp data...")
+        data_exp = self.preprocess_data(position_exp, data_exp)
+        
+        G_ctrl = tnseq_tools.Genes(
+            self.inputs.ctrldata,
+            self.inputs.annotation_path,
+            ignore_codon=self.inputs.ignore_codon,
+            n_terminus=self.inputs.n_terminus,
+            c_terminus=self.inputs.c_terminus,
+            data=data_ctrl,
+            position=position_ctrl,
+        )
+        G_exp = tnseq_tools.Genes(
+            self.inputs.expdata,
+            self.inputs.annotation_path_exp or self.inputs.annotation_path,
+            ignore_codon=self.inputs.ignore_codon,
+            n_terminus=self.inputs.n_terminus,
+            c_terminus=self.inputs.c_terminus,
+            data=data_exp,
+            position=position_exp,
+        )
+
+        do_library_resampling = False
+        # If library string not empty
+        if self.inputs.ctrl_lib_str or self.inputs.exp_lib_str:
+            letters_ctrl = set(self.inputs.ctrl_lib_str)
+            letters_exp = set(self.inputs.exp_lib_str)
+
+            # Check if using exactly 1 letters; i.e. no different libraries
+            if len(letters_ctrl) == 1 and letters_exp == 1:
+                pass
+            # If using more than one letter, then check no differences in set
             else:
-                output = transit_tools.get_validated_data(
-                    self.inputs.ctrldata, wxobj=self.wxobj
-                )
-                (data_ctrl, position_ctrl, *_) = output
-                (data_exp, position_exp) = transit_tools.get_validated_data(
-                    self.inputs.expdata, wxobj=self.wxobj
-                )
-            (K_ctrl, N_ctrl) = data_ctrl.shape
-            (K_exp, N_exp) = data_exp.shape
-
-            if not self.inputs.diff_strains and (N_ctrl != N_exp):
-                # NOTE: returned ([], [])
-                logging.error("Error: Ctrl and Exp wig files don't have the same number of sites. Make sure all .wig files come from the same strain.")
-
-            logging.log("Preprocessing Ctrl data...")
-            data_ctrl = self.preprocess_data(position_ctrl, data_ctrl)
-
-            logging.log("Preprocessing Exp data...")
-            data_exp = self.preprocess_data(position_exp, data_exp)
-            
-            G_ctrl = tnseq_tools.Genes(
-                self.inputs.ctrldata,
-                self.inputs.annotation_path,
-                ignore_codon=self.inputs.ignore_codon,
-                n_terminus=self.inputs.n_terminus,
-                c_terminus=self.inputs.c_terminus,
-                data=data_ctrl,
-                position=position_ctrl,
-            )
-            G_exp = tnseq_tools.Genes(
-                self.inputs.expdata,
-                self.inputs.annotation_path_exp or self.inputs.annotation_path,
-                ignore_codon=self.inputs.ignore_codon,
-                n_terminus=self.inputs.n_terminus,
-                c_terminus=self.inputs.c_terminus,
-                data=data_exp,
-                position=position_exp,
-            )
-
-            do_library_resampling = False
-            # If library string not empty
-            if self.inputs.ctrl_lib_str or self.inputs.exp_lib_str:
-                letters_ctrl = set(self.inputs.ctrl_lib_str)
-                letters_exp = set(self.inputs.exp_lib_str)
-
-                # Check if using exactly 1 letters; i.e. no different libraries
-                if len(letters_ctrl) == 1 and letters_exp == 1:
-                    pass
-                # If using more than one letter, then check no differences in set
+                lib_diff = letters_ctrl ^ letters_exp
+                # Check that their differences
+                if not lib_diff:
+                    do_library_resampling = True
                 else:
-                    lib_diff = letters_ctrl ^ letters_exp
-                    # Check that their differences
-                    if not lib_diff:
-                        do_library_resampling = True
-                    else:
-                        # NOTE: kept going (set self.inputs.ctrl_lib_str = "", self.inputs.exp_lib_str = "")
-                        logging.error(
-                            "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
-                            % (self.inputs.ctrl_lib_str, self.inputs.exp_lib_str)
-                        )
+                    # NOTE: kept going (set self.inputs.ctrl_lib_str = "", self.inputs.exp_lib_str = "")
+                    logging.error(
+                        "Error: Library Strings (Ctrl = %s, Exp = %s) do not use the same letters. Make sure every letter / library is represented in both Control and Experimental Conditions. Proceeding with resampling assuming all datasets belong to the same library."
+                        % (self.inputs.ctrl_lib_str, self.inputs.exp_lib_str)
+                    )
+        
+        (data, qval) = self.run_resampling(G_ctrl, G_exp, do_library_resampling)
+        # 
+        # write output
+        # 
+        if True:
+            # 
+            # generate rows
+            # 
+            rows = []
+            for row_index, row in enumerate(data):
+                (
+                    orf,
+                    name,
+                    desc,
+                    n,
+                    mean1,
+                    mean2,
+                    sum1,
+                    sum2,
+                    test_obs,
+                    log2FC,
+                    pval_2tail,
+                ) = row
+                if self.inputs.Z == True:
+                    p = pval_2tail / 2  # convert from 2-sided back to 1-sided
+                    if p == 0:
+                        p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
+                    if p == 1:
+                        p = 1 - 1e-5
+                    z = scipy.stats.norm.ppf(p)
+                    if log2FC > 0:
+                        z *= -1
+                    rows.append(
+                        (
+                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f"
+                            % (
+                                orf,
+                                name,
+                                desc,
+                                n,
+                                mean1,
+                                mean2,
+                                log2FC,
+                                sum1,
+                                sum2,
+                                test_obs,
+                                pval_2tail,
+                                z,
+                                qval[row_index],
+                            )
+                        ).split('\t')
+                    )
+                else:
+                    rows.append(
+                        (
+                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
+                            % (
+                                orf,
+                                name,
+                                desc,
+                                n,
+                                mean1,
+                                mean2,
+                                log2FC,
+                                sum1,
+                                sum2,
+                                test_obs,
+                                pval_2tail,
+                                qval[row_index],
+                            )
+                        ).split('\t')
+                    )
             
-            (data, qval) = self.run_resampling(G_ctrl, G_exp, do_library_resampling)
             # 
-            # write output
+            # write to file
             # 
-            if True:
-                # 
-                # generate rows
-                # 
-                rows = []
-                for row_index, row in enumerate(data):
-                    (
-                        orf,
-                        name,
-                        desc,
-                        n,
-                        mean1,
-                        mean2,
-                        sum1,
-                        sum2,
-                        test_obs,
-                        log2FC,
-                        pval_2tail,
-                    ) = row
-                    if self.inputs.Z == True:
-                        p = pval_2tail / 2  # convert from 2-sided back to 1-sided
-                        if p == 0:
-                            p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
-                        if p == 1:
-                            p = 1 - 1e-5
-                        z = scipy.stats.norm.ppf(p)
-                        if log2FC > 0:
-                            z *= -1
-                        rows.append(
-                            (
-                                "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f"
-                                % (
-                                    orf,
-                                    name,
-                                    desc,
-                                    n,
-                                    mean1,
-                                    mean2,
-                                    log2FC,
-                                    sum1,
-                                    sum2,
-                                    test_obs,
-                                    pval_2tail,
-                                    z,
-                                    qval[row_index],
-                                )
-                            ).split('\t')
-                        )
-                    else:
-                        rows.append(
-                            (
-                                "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
-                                % (
-                                    orf,
-                                    name,
-                                    desc,
-                                    n,
-                                    mean1,
-                                    mean2,
-                                    log2FC,
-                                    sum1,
-                                    sum2,
-                                    test_obs,
-                                    pval_2tail,
-                                    qval[row_index],
-                                )
-                            ).split('\t')
-                        )
-                
-                # 
-                # write to file
-                # 
-                transit_tools.write_result(
-                    path=self.inputs.output_path,
-                    file_kind=Analysis.identifier,
-                    rows=rows,
-                    column_names=Analysis.columns if not self.inputs.Z else [
-                        "Orf",
-                        "Name",
-                        "Desc",
-                        "Sites",
-                        "Mean Ctrl",
-                        "Mean Exp",
-                        "log2FC",
-                        "Sum Ctrl",
-                        "Sum Exp",
-                        "Delta Mean",
-                        "p-value",
-                        "Z-score",
-                        "Adj. p-value",
-                    ],
-                    extra_info=dict(
-                        parameters=dict(
-                            samples=self.inputs.samples,
-                            norm=self.inputs.normalization,
-                            histograms=self.inputs.do_histogram,
-                            adaptive=self.inputs.adaptive,
-                            exclude_zeros=not self.inputs.include_zeros,
-                            pseudocounts=self.inputs.pseudocount,
-                            LOESS=self.inputs.LOESS,
-                            n_terminus=self.inputs.n_terminus,
-                            c_terminus=self.inputs.c_terminus,
-                        ),
-                        control_data=(",".join(self.inputs.ctrldata)),
-                        experimental_data=(",".join(self.inputs.expdata)),
-                        annotation_path=self.inputs.annotation_path,
-                        **({} if not self.inputs.diff_strains else dict(
-                            annotation_path_exp=self.inputs.annotation_path_exp,
-                        )),
-                        time=(time.time() - start_time),
+            transit_tools.write_result(
+                path=self.inputs.output_path,
+                file_kind=Analysis.identifier,
+                rows=rows,
+                column_names=Analysis.columns if not self.inputs.Z else [
+                    "Orf",
+                    "Name",
+                    "Desc",
+                    "Sites",
+                    "Mean Ctrl",
+                    "Mean Exp",
+                    "log2FC",
+                    "Sum Ctrl",
+                    "Sum Exp",
+                    "Delta Mean",
+                    "p-value",
+                    "Z-score",
+                    "Adj. p-value",
+                ],
+                extra_info=dict(
+                    parameters=dict(
+                        samples=self.inputs.samples,
+                        norm=self.inputs.normalization,
+                        histograms=self.inputs.do_histogram,
+                        adaptive=self.inputs.adaptive,
+                        exclude_zeros=not self.inputs.include_zeros,
+                        pseudocounts=self.inputs.pseudocount,
+                        LOESS=self.inputs.LOESS,
+                        n_terminus=self.inputs.n_terminus,
+                        c_terminus=self.inputs.c_terminus,
                     ),
-                )
-                results_area.add(self.inputs.output_path)
-                
-            logging.log(f"Finished running {Analysis.short_name}")
+                    control_data=(",".join(self.inputs.ctrldata)),
+                    experimental_data=(",".join(self.inputs.expdata)),
+                    annotation_path=self.inputs.annotation_path,
+                    **({} if not self.inputs.diff_strains else dict(
+                        annotation_path_exp=self.inputs.annotation_path_exp,
+                    )),
+                    time=(time.time() - start_time),
+                ),
+            )
+            results_area.add(self.inputs.output_path)
+            
+        logging.log(f"Finished running {Analysis.short_name}")
 
     def preprocess_data(self, position, data):
         (K, N) = data.shape

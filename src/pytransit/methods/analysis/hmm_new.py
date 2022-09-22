@@ -23,7 +23,6 @@ from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button, create_choice_input
 import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
 import pytransit.components.samples_area as samples_area
@@ -125,24 +124,23 @@ class Analysis:
         return f"{self.inputs}"
 
     def define_panel(self, _):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
             # 
             # parameter inputs
             # 
             self.value_getters = LazyDict()
-            main_sizer = wx.BoxSizer(wx.VERTICAL)
             if True:
-                self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
-                self.value_getters.replicates             = create_choice_input(self.panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-                self.value_getters.selected_wig_id        = create_choice_input(self.panel, main_sizer, label="Wig data:", options=[ each["id"] for each in samples_area.sample_table.rows ])
-                self.value_getters.condition              = create_control_condition_input(self.panel, main_sizer)
-                self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
-                self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
-                self.value_getters.loess                  = create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-                create_preview_loess_button(self.panel, main_sizer, wig_ids_getter=lambda *args,**kwargs: [ self.value_getters.selected_wig_id() ])
+                self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+                self.value_getters.replicates             = panel_helpers.create_choice_input(self.panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
+                self.value_getters.selected_wig_id        = panel_helpers.create_choice_input(self.panel, main_sizer, label="Wig data:", options=[ each["id"] for each in samples_area.sample_table.rows ])
+                self.value_getters.condition              = panel_helpers.create_control_condition_input(self.panel, main_sizer)
+                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+                self.value_getters.loess                  = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+                panel_helpers.create_preview_loess_button(self.panel, main_sizer, wig_ids_getter=lambda *args,**kwargs: [ self.value_getters.selected_wig_id() ])
                 
-                create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+                panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
         
     @classmethod
     def from_gui(cls, frame):

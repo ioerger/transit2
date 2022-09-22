@@ -14,7 +14,6 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input
 from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.tools.gui_tools as gui_tools
 import pytransit.tools.console_tools as console_tools
@@ -74,44 +73,43 @@ class Analysis:
         return f"{self.inputs}"
 
     def define_panel(self, _):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as  (self.panel, main_sizer):
             # only need Norm selection and Run button        
             self.value_getters = LazyDict(
-                normalization=create_normalization_input(self.panel, main_sizer,default="nonorm")
+                normalization=panel_helpers.create_normalization_input(self.panel, main_sizer,default="nonorm")
             )
-            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
     @classmethod
     def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
-            # 
-            # get wig files
-            # 
-            combined_wig = universal.session_data.combined_wigs[0]
-            Analysis.inputs.combined_wig = combined_wig.main_path
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###logging.log("included_conditions", Analysis.inputs.included_conditions)
+        # 
+        # get wig files
+        # 
+        combined_wig = universal.session_data.combined_wigs[0]
+        Analysis.inputs.combined_wig = combined_wig.main_path
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        ###logging.log("included_conditions", Analysis.inputs.included_conditions)
 
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="tnseq_stats.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-            )
-            if not Analysis.inputs.output_path:
-                return None
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="tnseq_stats.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        if not Analysis.inputs.output_path:
+            return None
 
-            return Analysis.instance
+        return Analysis.instance
 
     @classmethod
     def from_args(cls, args, kwargs):
@@ -191,34 +189,34 @@ class Analysis:
 
     # data=numpy array of (normalized) insertion counts at TA sites for multiple samples; sample_names=.wig filenames
     def calc_tnseq_stats(self,data,sample_names): 
-      results = []
-      for i in range(data.shape[0]):
-          (
-              density,
-              meanrd,
-              nzmeanrd,
-              nzmedianrd,
-              maxrd,
-              totalrd,
-              skew,
-              kurtosis,
-          ) = tnseq_tools.get_data_stats(data[i, :])
-          nzmedianrd = int(nzmedianrd) if numpy.isnan(nzmedianrd) == False else 0
-          pti = self.pickands_tail_index(data[i, :])
-          vals = [
-              sample_names[i],
-              "%0.3f" % density,
-              "%0.1f" % meanrd,
-              "%0.1f" % nzmeanrd,
-              "%d" % nzmedianrd,
-              maxrd,
-              int(totalrd),
-              "%0.1f" % skew,
-              "%0.1f" % kurtosis,
-              "%0.3f" % pti
-          ]
-          results.append(vals)
-      return results
+        results = []
+        for i in range(data.shape[0]):
+            (
+                density,
+                meanrd,
+                nzmeanrd,
+                nzmedianrd,
+                maxrd,
+                totalrd,
+                skew,
+                kurtosis,
+            ) = tnseq_tools.get_data_stats(data[i, :])
+            nzmedianrd = int(nzmedianrd) if numpy.isnan(nzmedianrd) == False else 0
+            pti = self.pickands_tail_index(data[i, :])
+            vals = [
+                sample_names[i],
+                "%0.3f" % density,
+                "%0.1f" % meanrd,
+                "%0.1f" % nzmeanrd,
+                "%d" % nzmedianrd,
+                maxrd,
+                int(totalrd),
+                "%0.1f" % skew,
+                "%0.1f" % kurtosis,
+                "%0.3f" % pti
+            ]
+            results.append(vals)
+        return results
 
 
 @transit_tools.ResultsFile
