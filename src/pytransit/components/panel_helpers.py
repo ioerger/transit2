@@ -11,14 +11,35 @@ default_widget_size = (100, -1)
 # 
 # 
 if True:
-    def make_panel():
-        return wx.Panel(
-            universal.frame,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            wx.TAB_TRAVERSAL,
-        )
+    def make_panel(): pass
+    class Panel:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def __enter__(self):
+            self.wx_panel = wx.Panel(
+                universal.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                wx.DefaultSize,
+                wx.TAB_TRAVERSAL,
+            )
+            self.main_sizer = wx.BoxSizer(wx.VERTICAL)
+            return (self.wx_panel, self.main_sizer)
+        
+        def __exit__(self, _, error, traceback):
+            if error is not None:
+                print(''.join(traceback.format_tb(traceback_obj)))
+                frame = universal.frame
+                if frame and hasattr(frame, "status_bar"):
+                    frame.status_bar.SetStatusText("Error: "+str(error.args))
+            else:
+                from pytransit.components import parameter_panel
+                parameter_panel.set_panel(self.wx_panel)
+                self.wx_panel.SetSizer(self.main_sizer)
+                self.wx_panel.Layout()
+                self.main_sizer.Fit(self.wx_panel)
+                universal.frame.Layout()
     
     def create_button(panel, sizer, *, label):
         run_button = wx.Button(
@@ -446,7 +467,7 @@ if True:
             tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
         )
     
-    def create_run_button(panel, sizer):
+    def create_run_button(panel, sizer, from_gui_function):
         run_button = wx.Button(
             panel,
             wx.ID_ANY,
@@ -471,7 +492,7 @@ if True:
                 
             import threading
             with gui_tools.nice_error_log:
-                method_instance = universal.selected_method.method.from_gui(universal.frame)
+                method_instance = from_gui_function(universal.frame)
                 if method_instance:
                     thread = threading.Thread(target=run_wrapper())
                     thread.setDaemon(True)

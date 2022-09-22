@@ -99,39 +99,33 @@ class Analysis:
     def __call__(self): return self
 
     def define_panel(self, _):
-        self.panel = make_panel()
-
-        # 
-        # parameter inputs
-        # 
-        # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-        # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-        # --ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
-        # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-        # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-        # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-        # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        if True:
-            self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
-            self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
-            self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
-            self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
-            self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
-            self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
-            self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
-            self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
+        from pytransit.components.panel_helpers import Panel
+        with Panel() as (self.panel, main_sizer):
+            # 
+            # parameter inputs
+            # 
+            # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            # --ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
+            # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
+            # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            self.value_getters = LazyDict()
+            if True:
+                self.value_getters.included_conditions    = create_include_condition_list_input(self.panel, main_sizer)
+                self.value_getters.excluded_conditions    = create_exclude_condition_list_input(self.panel, main_sizer)
+                self.value_getters.reference_condition    = create_reference_condition_input(self.panel, main_sizer)
+                self.value_getters.n_terminus             = create_n_terminus_input(self.panel, main_sizer)
+                self.value_getters.c_terminus             = create_c_terminus_input(self.panel, main_sizer)
+                self.value_getters.normalization          = create_normalization_input(self.panel, main_sizer)
+                self.value_getters.pseudocount            = create_pseudocount_input(self.panel, main_sizer)
+                self.value_getters.alpha                  = create_alpha_input(self.panel, main_sizer)
+                self.value_getters.winz                   = create_winsorize_input(self.panel, main_sizer)
+                self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
+                
+                create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
             
-            create_run_button(self.panel, main_sizer)
-            
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
-
     @staticmethod
     def from_gui(frame):
         with gui_tools.nice_error_log:
