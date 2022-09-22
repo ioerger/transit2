@@ -2,7 +2,7 @@ from pytransit.tools.transit_tools import wx, pub
 from pytransit.universal_data import universal
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
-default_label_size = (-1, -1)
+default_label_size = (200, -1)
 default_widget_size = (100, -1)
 
 # 
@@ -128,7 +128,7 @@ if True:
         from pytransit.methods.analysis_base import InfoIcon
         
         if not label_size:
-            label_size = (100, -1)
+            label_size = default_label_size
         if not widget_size:
             widget_size = (100, -1)
 
@@ -146,6 +146,23 @@ if True:
             gui_tools.default_padding,
         )
         return (label, choice_box, sizer)
+    
+    def create_label(
+        panel,
+        sizer,
+        text="",
+        size=None,
+    ):
+        if not label_size:
+            label_size = default_label_size
+        inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
+        label.Wrap(-1)
+        choice_box = wx.Choice(panel, wx.ID_ANY, wx.DefaultPosition, widget_size, options, 0 )
+        choice_box.SetSelection(0)
+        inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+        
+        sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
 
     def create_choice_input(panel, sizer, label, options, default_option=None, tooltip_text=""):
         # 
@@ -408,7 +425,7 @@ if True:
             "Control Condition:",
             [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
             "which condition(s) to use as the control group",
-            label_size=(150, 20),
+            label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -423,7 +440,7 @@ if True:
             "Experimental Condition:",
             [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
             "which condition(s) to use as the experimental group",
-            label_size=(160, 20),
+            label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
