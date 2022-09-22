@@ -167,8 +167,7 @@ class Analysis:
             # get annotation
             # 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
-                return None
+            transit_tools.validate_annotation(Analysis.inputs.annotation_path)
             
             # 
             # setup custom inputs
@@ -182,7 +181,7 @@ class Analysis:
             # save result files
             # 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="output.dat",
+                default_file_name="resampling_output.dat",
                 output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
             )
             if not Analysis.inputs.output_path:
