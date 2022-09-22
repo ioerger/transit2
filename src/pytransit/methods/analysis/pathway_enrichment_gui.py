@@ -129,20 +129,21 @@ class Analysis:
             allowed_extensions='All files (*.*)|*.*',
             ) 
 
-        Analysis.inputs.associations_file=gui_tools.ask_for_file(
-            message = "Select an Associations File",
-            allowed_extensions='All files (*.*)|*.*',
-            ) 
-        Analysis.inputs.pathways_file=gui_tools.ask_for_file(
-            message = "Select a Pathways File",
-            allowed_extensions='All files (*.*)|*.*',
-            ) 
-
-
         self.panel = panel_helpers.make_panel()
-
         self.value_getters = LazyDict()
         main_sizer = wx.BoxSizer(wx.VERTICAL)
+
+
+        self.value_getters.associations_file = panel_helpers.create_file_input(self.panel,main_sizer, \
+          button_label="Associations file",default_file_name="sanger_assocations.txt",allowed_extensions="All files (*.*)|*.*", \
+          popup_title="Choose Associations file", \
+          tooltip_text="Must exist to run Pathway enrichment.")
+
+        
+        self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel,main_sizer, \
+          button_label="Pathways file",default_file_name="sanger_pathways.txt",allowed_extensions="All files (*.*)|*.*", \
+          popup_title="Choose Pathways file", \
+          tooltip_text="Must exist to run Pathway enrichment.")
 
         self.value_getters.method = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Method", default_value="FET", tooltip_text="method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
         self.value_getters.pval_col = self.create_int_field(self.panel,main_sizer, value=-2, label="Pval Col", tooltip="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
