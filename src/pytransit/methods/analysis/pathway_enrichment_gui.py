@@ -13,6 +13,7 @@ import numpy
 import wx.grid
 from pytransit.tools import logging, gui_tools
 from pytransit.tools.transit_tools import wx
+from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.parameter_panel import panel,progress_update
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
@@ -35,6 +36,7 @@ class Analysis:
     long_name   = name.upper()
     short_desc  = f"Perform {name} analysis"
     long_desc   = f"""Perform {name} analysis"""
+    rows = []
 
     inputs = LazyDict(
         resampling_file = None,
@@ -177,7 +179,7 @@ class Analysis:
 
     @staticmethod
     def from_args(args, kwargs):
-        if len(args)!=4: print(Analysis.usage_string); sys.exit(0) # use transit_error()?
+        if len(args)!=4: logging.log(Analysis.usage_string); sys.exit(0) # use transit_error()?
 
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
@@ -227,32 +229,42 @@ class Analysis:
         # 
         # write output
         # 
-        # if True:
-        #     logging.log(f"Adding File: {self.inputs.output_path}")
-        #     # 
-        #     # write to file
-        #     # 
-        #     transit_tools.write_result(
-        #         path=self.inputs.output_path, # path=None means write to STDOUT
-        #         file_kind=Analysis.identifier,
-        #         rows=rows,
-        #         column_names=[
-        #             # HANDLE_THIS
-        #         ],
-        #         extra_info=dict(
-        #             stats=dict(summary_info), # HANDLE_THIS
-        #             parameters=self.inputs,
-        #         ),
-        #     )
-        #     logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")
-        # results_area.add(self.inputs.output_path)
+            if True:
+                logging.log(f"Adding File: {self.inputs.output_path}")
+                # 
+                # write to file
+                # 
+                header = "pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
+                transit_tools.write_result(
+                    path=self.inputs.output_path, # path=None means write to STDOUT
+                    file_kind=Analysis.identifier,
+                    rows=self.rows,
+                    column_names=header.split(),
+                    extra_info=dict(
+                        parameters=dict(
+                            resampling_file = self.inputs.resampling_file,
+                            associations_file = self.inputs.associations_file,
+                            pathways_file = self.inputs.pathways_file,
+                            output_path=self.inputs.output_path,
+                            method = self.inputs.method,
+                            pval_col = self.inputs.pval_col,
+                            qval_col = self.inputs.qval_col,
+                            ranking = self.inputs.ranking,
+                            LFC_col = self.inputs.LFC_col,
+                            enrichment_exponent = self.inputs.enrichment_exponent,
+                            num_permutations = self.inputs.num_permutations,
+                            pseudocount = self.inputs.pseudocount,
+                        ),
+                    ),
+                )
+                logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")
+            results_area.add(self.inputs.output_path)
         
     # def write(self, msg):
     #     self.output.write(msg + "\n")
 
     def read_resampling_file(self, filename):
-        print("Resampling File",filename)
-        logging.log("Reading in Resampling File")
+        logging.log("Reading in Resampling File", filename)
         genes, hits, headers = [], [], []
         with open(filename) as file:
             for line in file:
@@ -340,7 +352,7 @@ class Analysis:
     def GSEA(self):
         from statsmodels.stats import multitest
         data, hits, headers = self.read_resampling_file(
-            self.inputs.resamplingFile
+            self.inputs.resampling_file
         )  # hits are not used in GSEA()
         orfs_in_resampling_file = [w[0] for w in data]
         headers = headers[-1].rstrip().split("\t")  # last line prefixed by '#'
@@ -349,7 +361,7 @@ class Analysis:
         )  # bidirectional map; includes term->genelist and gene->termlist
         # filter: project associations (of orfs to pathways) onto only those orfs appearing in the resampling file
 
-        ontology = self.read_pathways(self.inputs.pathwaysFile)
+        ontology = self.read_pathways(self.inputs.pathways_file)
         genenames = {}
         for gene in data:
             genenames[gene[0]] = gene[1]
@@ -358,9 +370,9 @@ class Analysis:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        print("# method=GSEA, Nperm=%d, p=%d" % (self.Nperm, self.p))
-        print("# ranking genes by %s" % self.ranking)
-        print("# total genes: %s, mean rank: %s" % (len(data), n2))
+        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.Nperm, self.p))
+        # self.rows("# ranking genes by %s" % self.ranking)
+        # self.rowst("# total genes: %s, mean rank: %s" % (len(data), n2))
 
         # rank by SLPV=sign(LFC)*log10(pval)
         # note: genes with lowest p-val AND negative LFC have highest scores (like positive correlation)
@@ -368,13 +380,13 @@ class Analysis:
         pairs = []  # pair are: rv and score (SLPV)
         for w in data:
             orf = w[0]
-            if self.ranking == "SLPV":
+            if self.inputs.ranking == "SLPV":
                 # Pval_col = headers.index("p-value")
                 Pval = float(w[self.Pval_col])
                 LFC = float(w[self.LFC_col])
                 SLPV = (-1 if LFC < 0 else 1) * math.log(Pval + 0.000001, 10)
                 pairs.append((orf, SLPV))
-            elif self.ranking == "LFC":
+            elif self.inputs.ranking == "LFC":
                 # LFC_col = headers.index("log2FC")
                 LFC = float(w[self.LFC_col])
                 pairs.append((orf, LFC))
@@ -444,32 +456,32 @@ class Analysis:
                 else:
                     down += 1
 
-        print(
-            "# significant pathways enriched for conditionally ESSENTIAL genes: %s (qval<0.05, mean_rank<%s) (includes genes that are MORE required in condition B than A)"
-            % (up, n2)
-        )
+        # self.rows.append(
+        #     "# significant pathways enriched for conditionally ESSENTIAL genes: %s (qval<0.05, mean_rank<%s) (includes genes that are MORE required in condition B than A)"
+        #     % (up, n2)
+        # )
         for term, mr, es, pval, qval in results:
             if qval < 0.05 and mr < n2:
-                print(
+                self.rows.append(
                     "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
                 )
-        print(
-            "# significant pathways enriched for conditionally NON-ESSENTIAL genes: %s (qval<0.05, mean_rank>%s) (includes genes that are LESS required in condition B than A)"
-            % (down, n2)
-        )
-        for term, mr, es, pval, qval in results:
-            if qval < 0.05 and mr > n2:
-                print(
-                    "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
-                )
-        print("# pathways sorted by mean_rank")
+        # self.rows.append(
+        #     "# significant pathways enriched for conditionally NON-ESSENTIAL genes: %s (qval<0.05, mean_rank>%s) (includes genes that are LESS required in condition B than A)"
+        #     % (down, n2)
+        # )
+        # for term, mr, es, pval, qval in results:
+        #     if qval < 0.05 and mr > n2:
+        #         self.rows.append(
+        #             "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
+        #         )
+        # # self.rows.append("# pathways sorted by mean_rank")
 
-        self.inputs.output.write(
-            "\t".join(
-                "#pathway description num_genes mean_rank GSEA_score pval qval genes".split()
-            )
-            + "\n"
-        )
+        # self.inputs.output.write(
+        #     "\t".join(
+        #         "#pathway description num_genes mean_rank GSEA_score pval qval genes".split()
+        #     )
+        #     + "\n"
+        # )
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
             rvinfo = [(x, genenames.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
@@ -481,8 +493,9 @@ class Analysis:
                 + ["%0.6f" % x for x in [es, pval, qval]]
                 + [rvs]
             )
-            self.inputs.outputs.write("\t".join([str(x) for x in vals]) + "\n")
-        self.inputs.outputs.close()
+            #self.inputs.outputs.write("\t".join([str(x) for x in vals]) + "\n")
+            self.rows.append(vals)
+        #self.inputs.outputs.close()
 
     # ########## Fisher Exact Test ###############
 
@@ -513,12 +526,12 @@ class Analysis:
             orf = gene[0]
             if orf in associations:
                 genes_with_associations += 1
-        print("# method=FET, PC=%s" % self.inputs.pseudocount)
-        print(
-            "# genes with associations=%s out of %s total"
-            % (genes_with_associations, len(genes))
-        )
-        print("# significant genes (qval<0.05): %s" % (len(hits)))
+        # self.rows.append("# method=FET, PC=%s" % self.inputs.pseudocount)
+        # self.rows.append(
+        #     "# genes with associations=%s out of %s total"
+        #     % (genes_with_associations, len(genes))
+        # )
+        # self.rows.append("# significant genes (qval<0.05): %s" % (len(hits)))
 
         terms = list(pathways.keys())
         terms.sort()
@@ -527,14 +540,14 @@ class Analysis:
         for term, cnt in zip(terms, term_counts):
             if cnt > 1:
                 goodterms.append(term)
-        print(
-            "# %s out of %s pathways have >=1 gene; max has %s"
-            % (
-                len(goodterms),
-                len(terms),
-                term_counts[term_counts.index(max(term_counts))],
-            )
-        )
+        # self.rows.append(
+        #     "# %s out of %s pathways have >=1 gene; max has %s"
+        #     % (
+        #         len(goodterms),
+        #         len(terms),
+        #         term_counts[term_counts.index(max(term_counts))],
+        #     )
+        # )
 
         results = []
         for term in goodterms:
@@ -562,8 +575,9 @@ class Analysis:
         for gene in genes:
             genenames[gene[0]] = gene[1]
 
-        header = "#pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
-        print("\t".join(header.split()))
+        #header = "#pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
+        #print("\t".join(header.split()))
+        #self.rows.append(header.split())
 
         results.sort(key=lambda x: x[-2])  # pvals
         for res in results:
@@ -573,11 +587,11 @@ class Analysis:
             intersection = list(filter(lambda x: x in associations[term], hits))
             intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
             vals.append(" ".join(intersection))
-            print("\t".join([str(x) for x in vals]))
+            #print("\t".join([str(x) for x in vals]))
+            self.rows.append(vals)
 
-        logging.log("Adding File: %s" % (self.inputs.output_path))
-        results_area.add(self.inputs.output.name)
-        self.finish()
+        #results_area.add(self.inputs.output.name)
+        #self.finish()
         logging.log("Finished Pathway Enrichment Method")
 
     # ########## Ontologizer ###############
@@ -694,7 +708,7 @@ class Analysis:
         ranks = {}
         for i, (rv, pval) in enumerate(pvals):
             ranks[rv] = i + 1
-        print("# number of resampling hits (qval<0.05): %s" % len(studyset))
+        #self.rows.append("# number of resampling hits (qval<0.05): %s" % len(studyset))
 
         counts = []
         n, a = len(allorfs), len(studyset)
@@ -731,18 +745,18 @@ class Analysis:
         counts = [x + [y] for x, y in zip(counts, qvals)]
         counts.sort(key=lambda x: x[-1])
 
-        print(
-            "# number of GO terms that are significantly enriched (qval<0.05): %s"
-            % len(list(filter(lambda x: x[-1] < 0.05, counts)))
-        )
+        # self.rows.append(
+        #     "# number of GO terms that are significantly enriched (qval<0.05): %s"
+        #     % len(list(filter(lambda x: x[-1] < 0.05, counts)))
+        # )
 
         # 1-sided pvals, only report enriched terms, not depleted
 
-        print(
-            "\t".join(
-                "GO_term description total_orfs orfs_in_GO orfs_in_parents hits_in_parents hits GO_in_hits num_parent_nodes enrichment pval qval genes_in_intersection_of_hits_and_GO_term".split()
-            )
-        )  # assume self.inputs.outputFile has already been opened
+        # self.rows.append(
+        #     "\t".join(
+        #         "GO_term description total_orfs orfs_in_GO orfs_in_parents hits_in_parents hits GO_in_hits num_parent_nodes enrichment pval qval genes_in_intersection_of_hits_and_GO_term".split()
+        #     )
+        # )  # assume self.inputs.outputFile has already been opened
         for (go, n, m, p, q, a, b, npar, enrich, pval, qval) in counts:
             hits = filter(lambda x: x in go2rvs[go], studyset)
             hits = [(x, genes[x][1], ranks[x]) for x in hits]
@@ -764,11 +778,12 @@ class Analysis:
                 round(qval, 6),
                 hits,
             ]
-            print("\t".join([str(x) for x in vals]))
+            #print("\t".join([str(x) for x in vals]))
+            self.rows.append(vals)
 
-        logging.log("Adding File: %s" % (self.outputFile))
-        results_area.add(self.output.name)
-        self.finish()
+        logging.log("Adding File: %s" % (self.inputs.output_path))
+        #results_area.add(self.output.name)
+        #self.finish()
         logging.log("Finished Pathway Enrichment Method")
     
 
