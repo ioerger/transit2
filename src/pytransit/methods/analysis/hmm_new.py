@@ -48,30 +48,6 @@ class Analysis:
     long_desc = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
 
     transposons = ["himar1"]
-    columns_sites = [
-        "Location",
-        "Read Count",
-        "Probability - ES",
-        "Probability - GD",
-        "Probability - NE",
-        "Probability - GA",
-        "State",
-        "Gene",
-    ]
-    columns_genes = [
-        "Orf",
-        "Name",
-        "Description",
-        "Total Sites",
-        "Num. ES",
-        "Num. GD",
-        "Num. NE",
-        "Num. GA",
-        "Avg. Insertions",
-        "Avg. Reads",
-        "State Call",
-    ]
-    
     inputs = LazyDict(
         data_sources=[],
         ctrl_read_counts=None,
@@ -86,6 +62,14 @@ class Analysis:
         n_terminus=0.0,
         c_terminus=0.0,
     )
+    
+    valid_cli_flags = [
+        "-r",
+        "-n",
+        "-l",
+        "-iN",
+        "-iC",
+    ]
     
     usage_string = f"""python3 {sys.argv[0]} hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
 
@@ -129,12 +113,10 @@ class Analysis:
             if True:
                 self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
                 self.value_getters.replicates             = panel_helpers.create_choice_input(self.panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-                self.value_getters.selected_wig_id        = panel_helpers.create_choice_input(self.panel, main_sizer, label="Wig data:", options=[ each["id"] for each in samples_area.sample_table.rows ])
-                self.value_getters.condition              = panel_helpers.create_control_condition_input(self.panel, main_sizer)
+                self.value_getters.condition              = panel_helpers.create_condition_input(self.panel, main_sizer)
                 self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
                 self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
                 self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-                panel_helpers.create_preview_loess_button(self.panel, main_sizer, wig_ids_getter=lambda *args,**kwargs: [ self.value_getters.selected_wig_id() ])
                 
                 panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
         
@@ -164,6 +146,12 @@ class Analysis:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        
+        # 
+        # validate
+        # 
+        assert Analysis.inputs.condition != "[None]", "Please select a condition"
+        
         # 
         # save result files
         # 
@@ -184,8 +172,9 @@ class Analysis:
         return Analysis.instance
 
     @staticmethod
-    def from_args(rawargs):
-        (args, kwargs) = transit_tools.clean_args(rawargs)
+    def from_args(args, kwargs):
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
         ctrldata        = args[0].split(",")
         annotation_path = args[1]
@@ -216,170 +205,178 @@ class Analysis:
         return Analysis.instance
 
     def Run(self):
-        # 
-        # Calculations
-        # 
-        if True:
-            self.max_iterations = len(Analysis.inputs.ctrl_positions) * 4 + 1 # FIXME: I'm not sure this is right -- Jeff
-            self.count = 1
-            logging.log("Starting HMM Method")
-            start_time = time.time()
-            
-            data, position = Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions
-            (K, N) = data.shape
+        with gui_tools.nice_error_log:
+            # 
+            # Calculations
+            # 
+            if True:
+                self.max_iterations = len(Analysis.inputs.ctrl_positions) * 4 + 1 # FIXME: I'm not sure this is right -- Jeff
+                self.count = 1
+                logging.log("Starting HMM Method")
+                start_time = time.time()
+                
+                data, position = Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions
+                (K, N) = data.shape
 
-            # Normalize data
-            if self.inputs.normalization != "nonorm":
-                logging.log("Normalizing using: %s" % self.inputs.normalization)
-                (data, factors) = norm_tools.normalize_data(
-                    data, self.inputs.normalization, annotation_path=self.inputs.annotation_path,
+                # Normalize data
+                if self.inputs.normalization != "nonorm":
+                    logging.log("Normalizing using: %s" % self.inputs.normalization)
+                    (data, factors) = norm_tools.normalize_data(
+                        data, self.inputs.normalization, annotation_path=self.inputs.annotation_path,
+                    )
+
+                # Do loess_correction
+                if self.inputs.loess_correction:
+                    logging.log("Performing loess_correction Correction")
+                    from pytransit.tools import stat_tools
+                    for j in range(K):
+                        data[j] = stat_tools.loess_correction(position, data[j])
+
+                hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
+                rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
+
+                if len(self.inputs.ctrl_read_counts) > 1:
+                    logging.log("Combining Replicates as '%s'" % self.inputs.replicates)
+                O = tnseq_tools.combine_replicates(data, method=self.inputs.replicates) + 1
+                # Adding 1 to because of shifted geometric in scipy
+
+                # Parameters
+                n_states = 4
+                label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
+
+                reads = O - 1
+                reads_nz = sorted(reads[reads != 0])
+                size = len(reads_nz)
+                mean_r = numpy.average(reads_nz[: int(0.95 * size)])
+                mu = numpy.array([1 / 0.99, 0.01 * mean_r + 2, mean_r, mean_r * 5.0])
+                # mu = numpy.array([1/0.99, 0.1 * mean_r + 2,  mean_r, mean_r*5.0])
+                L = 1.0 / mu
+                B = []  # Emission Probability Distributions
+                for i in range(n_states):
+                    B.append(scipy.stats.geom(L[i]).pmf)
+
+                pins = self.calculate_pins(O - 1)
+                pins_obs = sum([1 for rd in O if rd >= 2]) / float(len(O))
+                pnon = 1.0 - pins
+                pnon_obs = 1.0 - pins_obs
+
+                for r in range(100):
+                    if pnon ** r < 0.01:
+                        break
+
+                A = numpy.zeros((n_states, n_states))
+                a = math.log1p(-B[int(n_states / 2)](1) ** r)
+                b = r * math.log(B[int(n_states / 2)](1)) + math.log(
+                    1.0 / 3
+                )  # change to n_states-1?
+                for i in range(n_states):
+                    A[i] = [b] * n_states
+                    A[i][i] = a
+
+                PI = numpy.zeros(n_states)  # Initial state distribution
+                PI[0] = 0.7
+                PI[1:] = 0.3 / (n_states - 1)
+
+                
+
+                ###############
+                ### VITERBI ###
+                (Q_opt, delta, Q) = self.viterbi(A, B, PI, O)
+                ###############
+
+                ##################
+                ### ALPHA PASS ###
+                (log_prob_obs, alpha, C) = self.forward_procedure(numpy.exp(A), B, PI, O)
+                ##################
+
+                #################
+                ### BETA PASS ###
+                beta = self.backward_procedure(numpy.exp(A), B, PI, O, C)
+                logging.log("Finished backward_procedure")
+                #################
+
+                T = len(O)
+                total = 0
+                state2count = dict.fromkeys(range(n_states), 0)
+                for t in range(T):
+                    state = Q_opt[t]
+                    state2count[state] += 1
+                    total += 1
+                
+                rows = []
+                states = [int(Q_opt[t]) for t in range(T)]
+                last_orf = ""
+                for t in range(T):
+                    percentage = (t/T)*100
+                    progress_update(f"Generating lines: {percentage:f3.2}%", percentage)
+                    s_lab = label.get(states[t], "Unknown State")
+                    gamma_t = (alpha[:, t] * beta[:, t]) / numpy.sum(alpha[:, t] * beta[:, t])
+                    genes_at_site = hash.get(position[t], [""])
+                    genestr = ""
+                    if not (len(genes_at_site) == 1 and not genes_at_site[0]):
+                        genestr = ",".join(
+                            ["%s_(%s)" % (g, rv2info.get(g, "-")[0]) for g in genes_at_site]
+                        )
+                    
+                    rows.append((
+                        int(position[t]),
+                        int(O[t]) - 1,
+                        *gamma_t, # TODO: previously these numbers were formatted in a specific way
+                        s_lab,
+                        genestr,
+                    ))
+            # 
+            # Write output
+            # 
+            if True:
+                self.inputs.ctrl_read_counts = self.inputs.ctrl_read_counts.tolist()
+                self.inputs.ctrl_positions   = self.inputs.ctrl_positions.tolist()
+                extra_info = dict(
+                        gui_or_cli=universal.interface,
+                        cli_args=sys.argv,
+                        stats=dict(
+                            mean=float(numpy.average(reads_nz)),
+                            median=float(numpy.median(reads_nz)),
+                            pins_observed=float(pins_obs),
+                            pins_estimated=float(pins),
+                            run_length=int(r),
+                            state_means=                    "   ".join(["%s: %8.4f"   % (label[i], mu[i]  ) for i in range(n_states)]),
+                            self_transition_probabilities=  "   ".join(["%s: %2.4e"   % (label[i], A[i][i]) for i in range(n_states)]),
+                            state_emmision_parameters_theta="   ".join(["%s: %1.4f"   % (label[i], L[i]   ) for i in range(n_states)]),
+                            state_distributions=            "   ".join(["%s: %2.2f%%" % (label[i], state2count[i] * 100.0 / total) for i in range(n_states) ]),
+                        ),
+                        parameters=self.inputs,
+                    )
+                transit_tools.write_result(
+                    path=self.inputs.output_path, # path=None means write to STDOUT
+                    file_kind=SitesFile.identifier,
+                    rows=rows,
+                    column_names=SitesFile.column_names,
+                    extra_info=extra_info,
+                )
+                logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
+                results_area.add(self.inputs.output_path)
+            # 
+            # Gene Files
+            # 
+            if True:
+                logging.log("Creating HMM Genes Level Output")
+                genes_path = (
+                    ".".join(self.inputs.output_path.split(".")[:-1])
+                    + "_genes."
+                    + self.inputs.output_path.split(".")[-1]
                 )
 
-            # Do loess_correction
-            if self.inputs.loess_correction:
-                logging.log("Performing loess_correction Correction")
-                from pytransit.tools import stat_tools
-                for j in range(K):
-                    data[j] = stat_tools.loess_correction(position, data[j])
+                temp_obs = numpy.zeros((1, len(O)))
+                temp_obs[0, :] = O - 1
+                self.post_process_genes(temp_obs, position, states, genes_path)
 
-            hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
-            rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
-
-            if len(self.inputs.ctrl_read_counts) > 1:
-                logging.log("Combining Replicates as '%s'" % self.inputs.replicates)
-            O = tnseq_tools.combine_replicates(data, method=self.inputs.replicates) + 1
-            # Adding 1 to because of shifted geometric in scipy
-
-            # Parameters
-            n_states = 4
-            label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
-
-            reads = O - 1
-            reads_nz = sorted(reads[reads != 0])
-            size = len(reads_nz)
-            mean_r = numpy.average(reads_nz[: int(0.95 * size)])
-            mu = numpy.array([1 / 0.99, 0.01 * mean_r + 2, mean_r, mean_r * 5.0])
-            # mu = numpy.array([1/0.99, 0.1 * mean_r + 2,  mean_r, mean_r*5.0])
-            L = 1.0 / mu
-            B = []  # Emission Probability Distributions
-            for i in range(n_states):
-                B.append(scipy.stats.geom(L[i]).pmf)
-
-            pins = self.calculate_pins(O - 1)
-            pins_obs = sum([1 for rd in O if rd >= 2]) / float(len(O))
-            pnon = 1.0 - pins
-            pnon_obs = 1.0 - pins_obs
-
-            for r in range(100):
-                if pnon ** r < 0.01:
-                    break
-
-            A = numpy.zeros((n_states, n_states))
-            a = math.log1p(-B[int(n_states / 2)](1) ** r)
-            b = r * math.log(B[int(n_states / 2)](1)) + math.log(
-                1.0 / 3
-            )  # change to n_states-1?
-            for i in range(n_states):
-                A[i] = [b] * n_states
-                A[i][i] = a
-
-            PI = numpy.zeros(n_states)  # Initial state distribution
-            PI[0] = 0.7
-            PI[1:] = 0.3 / (n_states - 1)
-
-            
-
-            ###############
-            ### VITERBI ###
-            (Q_opt, delta, Q) = self.viterbi(A, B, PI, O)
-            ###############
-
-            ##################
-            ### ALPHA PASS ###
-            (log_Prob_Obs, alpha, C) = self.forward_procedure(numpy.exp(A), B, PI, O)
-            ##################
-
-            #################
-            ### BETA PASS ###
-            beta = self.backward_procedure(numpy.exp(A), B, PI, O, C)
-            #################
-
-            T = len(O)
-            total = 0
-            state2count = dict.fromkeys(range(n_states), 0)
-            for t in range(T):
-                state = Q_opt[t]
-                state2count[state] += 1
-                total += 1
-            
-            rows = []
-            states = [int(Q_opt[t]) for t in range(T)]
-            last_orf = ""
-            for t in range(T):
-                s_lab = label.get(states[t], "Unknown State")
-                gamma_t = (alpha[:, t] * beta[:, t]) / numpy.sum(alpha[:, t] * beta[:, t])
-                genes_at_site = hash.get(position[t], [""])
-                genestr = ""
-                if not (len(genes_at_site) == 1 and not genes_at_site[0]):
-                    genestr = ",".join(
-                        ["%s_(%s)" % (g, rv2info.get(g, "-")[0]) for g in genes_at_site]
-                    )
-                
-                rows.append((
-                    int(position[t]),
-                    int(O[t]) - 1,
-                    *gamma_t, # TODO: previously these numbers were formatted in a specific way
-                    s_lab,
-                    genestr,
-                ))
-        # 
-        # Write output
-        # 
-        if True:
-            transit_tools.write_result(
-                path=self.inputs.output_path, # path=None means write to STDOUT
-                file_kind=SitesFile.identifier,
-                rows=rows,
-                column_names=SitesFile.column_names,
-                extra_info=dict(
-                    gui_or_cli=universal.interface,
-                    cli_args=sys.argv,
-                    stats=dict(
-                        mean=numpy.average(reads_nz),
-                        median=numpy.median(reads_nz),
-                        pins_observed=pins_obs,
-                        pins_estimated=pins,
-                        run_length=r,
-                        state_means=                    "   ".join(["%s: %8.4f"   % (label[i], mu[i]  ) for i in range(n_states)]),
-                        self_transition_probabilities=  "   ".join(["%s: %2.4e"   % (label[i], A[i][i]) for i in range(n_states)]),
-                        state_emmision_parameters_theta="   ".join(["%s: %1.4f"   % (label[i], L[i]   ) for i in range(n_states)]),
-                        state_distributions=            "   ".join(["%s: %2.2f%%" % (label[i], state2count[i] * 100.0 / total) for i in range(n_states) ]),
-                    ),
-                    parameters=self.inputs,
-                ),
-            )
-            logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
-        # 
-        # Gene Files
-        # 
-        if True:
-            logging.log("Creating HMM Genes Level Output")
-            genes_path = (
-                ".".join(self.inputs.output_path.split(".")[:-1])
-                + "_genes."
-                + self.inputs.output_path.split(".")[-1]
-            )
-
-            temp_obs = numpy.zeros((1, len(O)))
-            temp_obs[0, :] = O - 1
-            self.post_process_genes(temp_obs, position, states, genes_path)
-
-            logging.log("Adding File: %s" % (genes_path))
-            results_area.add(genes_path)
-            logging.log("Finished HMM Method")
+                logging.log("Adding File: %s" % (genes_path))
+                results_area.add(genes_path)
+                logging.log("Finished HMM Method")
 
     def forward_procedure(self, A, B, PI, O):
+        logging.log("Starting HMM forward_procedure")
         T = len(O)
         N = len(B)
         alpha = numpy.zeros((N, T))
@@ -404,17 +401,21 @@ class Analysis:
                 alpha[:, t] = 0.0000000000001
 
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM Method... %1.1f%%" % percentage
+            text = "Running HMM forward_procedure... %1.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
             # print(t, O[:,t], alpha[:,t])
-
-        log_Prob_Obs = -(numpy.sum(numpy.log(C)))
-        return (log_Prob_Obs, alpha, C)
+        
+        percentage = 100
+        text = "Running HMM forward_procedure... %1.1f%%" % percentage
+        progress_update(text, percentage)
+        
+        log_prob_obs = -(numpy.sum(numpy.log(C)))
+        return (log_prob_obs, alpha, C)
 
     def backward_procedure(self, A, B, PI, O, C=numpy.array([])):
-
+        logging.log("Starting HMM backward_procedure")
         N = len(B)
         T = len(O)
         beta = numpy.zeros((N, T))
@@ -437,7 +438,7 @@ class Analysis:
                 beta[:, t] = beta[:, t] * C[t]
             
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM Method... %1.1f%%" % percentage
+            text = "Running HMM backward_procedure ... %1.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -445,6 +446,7 @@ class Analysis:
         return beta
 
     def viterbi(self, A, B, PI, O):
+        logging.log("Starting HMM viterbi")
         N = len(B)
         T = len(O)
         delta = numpy.zeros((N, T))
@@ -463,7 +465,7 @@ class Analysis:
             Q[:, t] = nus.argmax(1)
             
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM Method... %5.1f%%" % percentage
+            text = "Running HMM viterbi... %5.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -473,20 +475,21 @@ class Analysis:
             Q_opt.insert(0, Q[Q_opt[0], t + 1])
 
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM Method... %5.1f%%" % percentage
+            text = "Running HMM viterbi... %5.1f%%" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
 
         numpy.seterr(divide="warn")
         percentage = (100.0 * self.count / self.max_iterations)
-        text = "Running HMM Method... %5.1f%%" % percentage
+        text = "Running HMM viterbi... %5.1f%%" % percentage
         if self.count % 1000 == 0:
             progress_update(text, percentage)
 
         return (Q_opt, delta, Q)
 
     def calculate_pins(self, reads):
+        logging.log("Calculating pins")
         non_ess_reads = []
         temp = []
         for rd in reads:
@@ -502,6 +505,7 @@ class Analysis:
         return sum([1 for rd in non_ess_reads if rd >= 1]) / float(len(non_ess_reads))
 
     def post_process_genes(self, data, position, states, output_path):
+        logging.log("starting next step")
         with open(output_path, "w") as output:
             pos2state = dict([(position[t], states[t]) for t in range(len(states))])
             theta = numpy.mean(data > 0)
@@ -582,7 +586,7 @@ class Analysis:
 
 @transit_tools.ResultsFile
 class SitesFile:
-    identifier = "HMM - Sites"
+    identifier = "HMM_Sites"
     column_names = [
         "Location",
         "Read Count",
@@ -629,7 +633,20 @@ class SitesFile:
 
 @transit_tools.ResultsFile
 class GeneFile:
-    identifier = "HMM - Genes"
+    identifier = "HMM_Genes"
+    column_names = [
+        "Orf",
+        "Name",
+        "Description",
+        "Total Sites",
+        "Num. ES",
+        "Num. GD",
+        "Num. NE",
+        "Num. GA",
+        "Avg. Insertions",
+        "Avg. Reads",
+        "State Call",
+    ]
     
     @classmethod
     def can_load(cls, path):
@@ -661,9 +678,6 @@ class GeneFile:
         # 
         comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
         self.comments = "\n".join(comments)
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load {self.identifier} file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
         
         # 
         # get rows

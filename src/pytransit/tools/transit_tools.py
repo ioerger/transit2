@@ -497,6 +497,15 @@ if True:
         
         extra_info = extra_info or {}
         
+        yaml_string = ""
+        try:
+            yaml_string = ez_yaml.to_string(extra_info)
+        except Exception as error:
+            try:
+                yaml_string = ez_yaml.to_string(json.loads(json.dumps(extra_info)))
+            except Exception as error:
+                raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
+        
         # 
         # write to file
         # 
@@ -508,7 +517,7 @@ if True:
                 file_kind, # identifier always comes first
                 f"yaml:",
                 f"    Console Command: python3 {' '.join(sys.argv)}",
-                indent(ez_yaml.to_string(extra_info), by="    "),
+                indent(yaml_string, by="    "),
                 "\t".join(column_names) # column names always last
             ],
             rows=rows,

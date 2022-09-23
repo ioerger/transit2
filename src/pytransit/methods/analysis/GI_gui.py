@@ -92,10 +92,10 @@ class Analysis:
 
             # only need Norm selection and Run button        
             self.value_getters = LazyDict()
-            self.value_getters.condA1 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition A1:")
-            self.value_getters.condB1 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition B1:")
-            self.value_getters.condA2 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition A2:")
-            self.value_getters.condB2 = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition B2:")
+            self.value_getters.condA1 = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition A1:")
+            self.value_getters.condB1 = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition B1:")
+            self.value_getters.condA2 = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition A2:")
+            self.value_getters.condB2 = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition B2:")
             self.value_getters.normalization = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR is default
             self.value_getters.n_terminus = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus = panel_helpers.create_c_terminus_input(self.panel, main_sizer)

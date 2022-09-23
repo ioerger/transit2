@@ -358,7 +358,7 @@ if True:
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
-    def create_condition_choice(panel, sizer, name):
+    def create_condition_input(panel, sizer, name="Condition"):
         (
             label,
             ref_condition_wxobj,
