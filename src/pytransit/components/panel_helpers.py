@@ -340,7 +340,7 @@ if True:
         ) = define_choice_box(
             panel,
             "Ref Condition:",
-            [ each.name for each in universal.session_data.conditions ],
+            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
             "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
