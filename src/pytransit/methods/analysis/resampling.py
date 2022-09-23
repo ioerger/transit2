@@ -13,6 +13,8 @@ import scipy
 import scipy.stats
 import heapq
 import math
+from pytransit.methods.analysis.pathway_enrichment_gui import Analysis as PathwayEnrichment
+
 from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.methods import analysis_base as base
@@ -765,6 +767,7 @@ class File(Analysis):
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows, sort_by=[ "Adj. p-value", "p-value" ]).Show(),
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         

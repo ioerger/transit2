@@ -177,6 +177,7 @@ class Analysis:
         self.panel.Layout()
         main_sizer.Fit(self.panel)
 
+
     @classmethod
     def from_gui(cls, frame):
         # 
