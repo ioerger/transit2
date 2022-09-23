@@ -20,13 +20,13 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.tools.tnseq_tools import Wig
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
-from pytransit.components.parameter_panel import panel, progress_update
+from pytransit.components.parameter_panel import progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
 import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
+import pytransit.basics.misc as misc
 command_name = sys.argv[0]
 
 # Checklist
@@ -40,11 +40,10 @@ command_name = sys.argv[0]
     # DONE: add all supporting methods
     # TODO: define file types 
     
-
+@misc.singleton
 class Analysis:
-    identifier  = "Hmm"
-    short_name = "hmm - new"
-    long_name = "HMM - new"
+    short_name = "hmm"
+    long_name = "HMM"
     short_desc = "Analysis of genomic regions using a Hidden Markov Model"
     long_desc = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
 
@@ -79,10 +78,10 @@ class Analysis:
         ctrl_positions=None,
         
         annotation_path=None,
-        output_file=None,
+        output_path=None,
         replicates="Mean",
         normalization=None,
-        loess=False,
+        loess_correction=False,
         ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
@@ -103,12 +102,9 @@ class Analysis:
     panel = None
     
     def __init__(self, *args, **kwargs):
-        Analysis.instance = self
+        self.instance = self.method = self.gui = self # for compatibility with older code/methods
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
         self.transposons_text = transit_tools.get_transposons_text(self.transposons)
-        self.filetypes        = [File]
-        self.method           = Analysis # backwards compat
-        self.gui              = self     # backwards compat
     
     def __str__(self):
         return f"""
@@ -120,8 +116,8 @@ class Analysis:
                 GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
     
-    def __repr__(self):
-        return f"{self.inputs}"
+    def __repr__(self): return f"{self.inputs}"
+    def __call__(self): return self
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -137,85 +133,82 @@ class Analysis:
                 self.value_getters.condition              = panel_helpers.create_control_condition_input(self.panel, main_sizer)
                 self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
                 self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-                self.value_getters.loess                  = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+                self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
                 panel_helpers.create_preview_loess_button(self.panel, main_sizer, wig_ids_getter=lambda *args,**kwargs: [ self.value_getters.selected_wig_id() ])
                 
                 panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
         
-    @classmethod
-    def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
-            # 
-            # get wig files
-            # 
-            combined_wig = universal.session_data.combined_wigs[0]
-            Analysis.inputs.combined_wig = combined_wig.main_path
-            Analysis.inputs.metadata     = combined_wig.metadata.path
-            
-            # 
-            # get annotation
-            # 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
-                return None
-            
-            # TODO: validate transposons
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="hmm_output.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-            )
-            if not Analysis.inputs.output_path:
-                return None
-            
-            Analysis.inputs.output_file = open(Analysis.inputs.output_path, "w")
-            Analysis.inputs.data_sources = [ universal.session_data.combined_wigs[0].main_path ]
-            
-            # 
-            # extract universal data
-            # 
-            Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions = transit_tools.gather_sample_data_for(conditions=[ Analysis.instance.value_getters.condition() ])
-            
-            return Analysis.instance
+    @staticmethod
+    def from_gui(frame):
+        # 
+        # get wig files
+        # 
+        combined_wig = universal.session_data.combined_wigs[0]
+        Analysis.inputs.combined_wig = combined_wig.main_path
+        Analysis.inputs.metadata     = combined_wig.metadata.path
+        
+        # 
+        # get annotation
+        # 
+        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
+            return None
+        
+        # TODO: validate transposons
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="hmm_output.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        if not Analysis.inputs.output_path:
+            return None
+        
+        Analysis.inputs.data_sources = [ universal.session_data.combined_wigs[0].main_path ]
+        
+        # 
+        # extract universal data
+        # 
+        Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions = transit_tools.gather_sample_data_for(conditions=[ Analysis.instance.value_getters.condition() ])
+        
+        return Analysis.instance
 
-    @classmethod
-    def from_args(cls, rawargs):
+    @staticmethod
+    def from_args(rawargs):
         (args, kwargs) = transit_tools.clean_args(rawargs)
 
-        ctrldata = args[0].split(",")
-        Analysis.inputs.annotation_path = args[1]
-        outpath = args[2]
-        output_file = open(outpath, "w")
-
-        replicates = kwargs.get("r", "Mean")
-        normalization = kwargs.get("n", "TTR")
-        loess = kwargs.get("l", False)
-        ignore_codon = True
-        n_terminus = float(kwargs.get("iN", 0.0))
-        c_terminus = float(kwargs.get("iC", 0.0))
+        ctrldata        = args[0].split(",")
+        annotation_path = args[1]
+        output_path     = args[2]
+        
+        replicates    = kwargs.get("r", Analysis.inputs.replicates)
+        normalization = kwargs.get("n", Analysis.inputs.normalization)
+        loess_correction         = kwargs.get("l", Analysis.inputs.loess_correction)
+        ignore_codon  = True # TODO: not sure why this is hardcoded --Jeff
+        n_terminus    = float(kwargs.get("iN", Analysis.inputs.n_terminus))
+        c_terminus    = float(kwargs.get("iC", Analysis.inputs.c_terminus))
         
         (ctrl_read_counts, ctrl_positions) = transit_tools.get_validated_data(ctrldata)
 
-        cls.inputs.update(dict(
+        Analysis.inputs.update(dict(
             data_sources=ctrldata,
             ctrl_read_counts=ctrl_read_counts,
             ctrl_positions=ctrl_positions,
-            annotation_path=Analysis.inputs.annotation_path,
-            output_file=output_file,
+            annotation_path=annotation_path,
+            output_path=output_path,
             replicates=replicates,
             normalization=normalization,
-            loess=loess,
+            loess_correction=loess_correction,
             ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
@@ -223,7 +216,10 @@ class Analysis:
         return Analysis.instance
 
     def Run(self):
-        with gui_tools.nice_error_log:
+        # 
+        # Calculations
+        # 
+        if True:
             self.max_iterations = len(Analysis.inputs.ctrl_positions) * 4 + 1 # FIXME: I'm not sure this is right -- Jeff
             self.count = 1
             logging.log("Starting HMM Method")
@@ -239,9 +235,9 @@ class Analysis:
                     data, self.inputs.normalization, annotation_path=self.inputs.annotation_path,
                 )
 
-            # Do loess
-            if self.inputs.loess:
-                logging.log("Performing loess Correction")
+            # Do loess_correction
+            if self.inputs.loess_correction:
+                logging.log("Performing loess_correction Correction")
                 from pytransit.tools import stat_tools
                 for j in range(K):
                     data[j] = stat_tools.loess_correction(position, data[j])
@@ -255,7 +251,7 @@ class Analysis:
             # Adding 1 to because of shifted geometric in scipy
 
             # Parameters
-            Nstates = 4
+            n_states = 4
             label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
 
             reads = O - 1
@@ -266,7 +262,7 @@ class Analysis:
             # mu = numpy.array([1/0.99, 0.1 * mean_r + 2,  mean_r, mean_r*5.0])
             L = 1.0 / mu
             B = []  # Emission Probability Distributions
-            for i in range(Nstates):
+            for i in range(n_states):
                 B.append(scipy.stats.geom(L[i]).pmf)
 
             pins = self.calculate_pins(O - 1)
@@ -278,18 +274,18 @@ class Analysis:
                 if pnon ** r < 0.01:
                     break
 
-            A = numpy.zeros((Nstates, Nstates))
-            a = math.log1p(-B[int(Nstates / 2)](1) ** r)
-            b = r * math.log(B[int(Nstates / 2)](1)) + math.log(
+            A = numpy.zeros((n_states, n_states))
+            a = math.log1p(-B[int(n_states / 2)](1) ** r)
+            b = r * math.log(B[int(n_states / 2)](1)) + math.log(
                 1.0 / 3
-            )  # change to Nstates-1?
-            for i in range(Nstates):
-                A[i] = [b] * Nstates
+            )  # change to n_states-1?
+            for i in range(n_states):
+                A[i] = [b] * n_states
                 A[i][i] = a
 
-            PI = numpy.zeros(Nstates)  # Initial state distribution
+            PI = numpy.zeros(n_states)  # Initial state distribution
             PI[0] = 0.7
-            PI[1:] = 0.3 / (Nstates - 1)
+            PI[1:] = 0.3 / (n_states - 1)
 
             
 
@@ -310,72 +306,13 @@ class Analysis:
 
             T = len(O)
             total = 0
-            state2count = dict.fromkeys(range(Nstates), 0)
+            state2count = dict.fromkeys(range(n_states), 0)
             for t in range(T):
                 state = Q_opt[t]
                 state2count[state] += 1
                 total += 1
-
-            self.output = self.inputs.output_file
-            self.output.write("#HMM - Sites\n")
-            self.output.write("# Tn-HMM\n")
-
-            if self.wxobj:
-                members = sorted(
-                    [
-                        attr
-                        for attr in dir(self)
-                        if not callable(getattr(self, attr)) and not attr.startswith("__")
-                    ]
-                )
-                memberstr = ""
-                for m in members:
-                    memberstr += "%s = %s, " % (m, getattr(self, m))
-                self.output.write(
-                    "#GUI with: data_sources=%s, annotation=%s, output=%s\n"
-                    % (
-                        ",".join(self.inputs.data_sources).encode("utf-8"),
-                        self.inputs.annotation_path.encode("utf-8"),
-                        self.output.name.encode("utf-8"),
-                    )
-                )
-            else:
-                self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-
-            self.output.write("# \n")
-            self.output.write("# Mean:\t%2.2f\n" % (numpy.average(reads_nz)))
-            self.output.write("# Median:\t%2.2f\n" % numpy.median(reads_nz))
-            self.output.write("# Normalization:\t%s\n" % self.inputs.normalization)
-            self.output.write("# loess Correction:\t%s\n" % str(self.inputs.loess))
-            self.output.write("# pins (obs):\t%f\n" % pins_obs)
-            self.output.write("# pins (est):\t%f\n" % pins)
-            self.output.write("# Run length (r):\t%d\n" % r)
-            self.output.write("# State means:\n")
-            self.output.write(
-                "#    %s\n"
-                % "   ".join(["%s: %8.4f" % (label[i], mu[i]) for i in range(Nstates)])
-            )
-            self.output.write("# Self-Transition Prob:\n")
-            self.output.write(
-                "#    %s\n"
-                % "   ".join(["%s: %2.4e" % (label[i], A[i][i]) for i in range(Nstates)])
-            )
-            self.output.write("# State Emission Parameters (theta):\n")
-            self.output.write(
-                "#    %s\n"
-                % "   ".join(["%s: %1.4f" % (label[i], L[i]) for i in range(Nstates)])
-            )
-            self.output.write("# State Distributions:")
-            self.output.write(
-                "#    %s\n"
-                % "   ".join(
-                    [
-                        "%s: %2.2f%%" % (label[i], state2count[i] * 100.0 / total)
-                        for i in range(Nstates)
-                    ]
-                )
-            )
-
+            
+            rows = []
             states = [int(Q_opt[t]) for t in range(T)]
             last_orf = ""
             for t in range(T):
@@ -387,31 +324,51 @@ class Analysis:
                     genestr = ",".join(
                         ["%s_(%s)" % (g, rv2info.get(g, "-")[0]) for g in genes_at_site]
                     )
-
-                self.output.write(
-                    "%s\t%s\t%s\t%s\t%s\n"
-                    % (
-                        int(position[t]),
-                        int(O[t]) - 1,
-                        "\t".join(["%-9.2e" % g for g in gamma_t]),
-                        s_lab,
-                        genestr,
-                    )
-                )
-
-            self.output.close()
-
-            logging.log("")  # Printing empty line to flush stdout
-            logging.log("Finished HMM - Sites Method")
-            logging.log("Adding File: %s" % (self.output.name))
-            results_area.add(self.output.name)
-
-            # Gene Files
+                
+                rows.append((
+                    int(position[t]),
+                    int(O[t]) - 1,
+                    *gamma_t, # TODO: previously these numbers were formatted in a specific way
+                    s_lab,
+                    genestr,
+                ))
+        # 
+        # Write output
+        # 
+        if True:
+            transit_tools.write_result(
+                path=self.inputs.output_path, # path=None means write to STDOUT
+                file_kind=SitesFile.identifier,
+                rows=rows,
+                column_names=SitesFile.column_names,
+                extra_info=dict(
+                    gui_or_cli=universal.interface,
+                    cli_args=sys.argv,
+                    stats=dict(
+                        mean=numpy.average(reads_nz),
+                        median=numpy.median(reads_nz),
+                        pins_observed=pins_obs,
+                        pins_estimated=pins,
+                        run_length=r,
+                        state_means=                    "   ".join(["%s: %8.4f"   % (label[i], mu[i]  ) for i in range(n_states)]),
+                        self_transition_probabilities=  "   ".join(["%s: %2.4e"   % (label[i], A[i][i]) for i in range(n_states)]),
+                        state_emmision_parameters_theta="   ".join(["%s: %1.4f"   % (label[i], L[i]   ) for i in range(n_states)]),
+                        state_distributions=            "   ".join(["%s: %2.2f%%" % (label[i], state2count[i] * 100.0 / total) for i in range(n_states) ]),
+                    ),
+                    parameters=self.inputs,
+                ),
+            )
+            logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
+            results_area.add(self.inputs.output_path)
+        # 
+        # Gene Files
+        # 
+        if True:
             logging.log("Creating HMM Genes Level Output")
             genes_path = (
-                ".".join(self.output.name.split(".")[:-1])
+                ".".join(self.inputs.output_path.split(".")[:-1])
                 + "_genes."
-                + self.output.name.split(".")[-1]
+                + self.inputs.output_path.split(".")[-1]
             )
 
             temp_obs = numpy.zeros((1, len(O)))
@@ -419,7 +376,7 @@ class Analysis:
             self.post_process_genes(temp_obs, position, states, genes_path)
 
             logging.log("Adding File: %s" % (genes_path))
-            results_area.add(self.output.name)
+            results_area.add(genes_path)
             logging.log("Finished HMM Method")
 
     def forward_procedure(self, A, B, PI, O):
@@ -559,11 +516,10 @@ class Analysis:
             )
 
             num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
-            output.write("#HMM - Genes\n")
+            output.write(f"#{GeneFile.identifier}\n")
 
             lines, counts = [], {}
             for gene in G:
-
                 reads_nz = [c for c in gene.reads.flatten() if c > 0]
                 avg_read_nz = 0
                 if len(reads_nz) > 0:
@@ -618,24 +574,29 @@ class Analysis:
                 counts[S] += 1
 
             output.write("#command line: python3 %s\n" % (" ".join(sys.argv)))
-            output.write(
-                "#summary of gene calls: ES=%s, GD=%s, NE=%s, GA=%s, N/A=%s\n"
-                % tuple([counts.get(x, 0) for x in "ES GD NE GA N/A".split()])
-            )
-            output.write(
-                "#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)\n"
-            )
-            output.write(
-                "#ORF\tgene\tannotation\tTAs\tES sites\tGD sites\tNE sites\tGA sites\tsaturation\tmean\tcall\n"
-            )
+            output.write("#summary of gene calls: ES=%s, GD=%s, NE=%s, GA=%s, N/A=%s\n"% tuple([counts.get(x, 0) for x in "ES GD NE GA N/A".split()]))
+            output.write("#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)\n")
+            output.write("#ORF\tgene\tannotation\tTAs\tES sites\tGD sites\tNE sites\tGA sites\tsaturation\tmean\tcall\n" )
             for line in lines:
                 output.write(line)
 
 @transit_tools.ResultsFile
-class File(Analysis):
-    @staticmethod
-    def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+class SitesFile:
+    identifier = "HMM - Sites"
+    column_names = [
+        "Location",
+        "Read Count",
+        "Probability - ES",
+        "Probability - GD",
+        "Probability - NE",
+        "Probability - GA",
+        "State",
+        "Gene",
+    ]
+    
+    @classmethod
+    def can_load(cls, path):
+        return transit_tools.file_starts_with(path, '#'+cls.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
@@ -646,8 +607,52 @@ class File(Analysis):
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows, sort_by=[ "Adj. p-value", "p-value" ]).Show(),
-                # "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Analysis.identifier,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[ "Adj. p-value", "p-value" ]
+                ).Show(),
+            })
+        )
+        
+        self.column_names, self.rows, self.extra_data = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+    
+    def __str__(self):
+        return f"""
+            File for {Analysis.short_name}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
+
+@transit_tools.ResultsFile
+class GeneFile:
+    identifier = "HMM - Genes"
+    
+    @classmethod
+    def can_load(cls, path):
+        return transit_tools.file_starts_with(path, '#'+cls.identifier)
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Analysis.identifier,
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Analysis.identifier,
+                    heading=self.comments,
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[
+                        # HANDLE_THIS
+                    ],
+                ).Show(),
             })
         )
         
@@ -655,8 +660,9 @@ class File(Analysis):
         # get column names
         # 
         comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+        self.comments = "\n".join(comments)
         if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
+            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load {self.identifier} file "{self.path}"''')
         self.column_names = comments[-1].split("\t")
         
         # 
@@ -664,150 +670,30 @@ class File(Analysis):
         #
         self.rows = []
         for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
+            self.rows.append({
+                each_column_name: each_cell
+                    for each_column_name, each_cell in zip(self.column_names, each_row)
+            })
         
+        # 
+        # get summary stats
+        #
+        self.values_for_result_table.update({
+            # HANDLE_THIS (additional summary_info for results table)
+            # examples:
+                # f"Gene Count": len(self.rows),
+                # f"Padj<{Analysis.significance_threshold}": len([
+                #     1 for each in self.rows
+                #         if each.get("Padj", 0) < Analysis.significance_threshold 
+                # ]),
+        })
     
     def __str__(self):
         return f"""
-            File for {self.short_name}
+            File for {Analysis.short_name}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
-    
-    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        if not HAS_R:
-            raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
-        headers = None
-        data, hits = [], []
-        number_of_conditions = -1
 
-        with open(infile) as file:
-            for line in file:
-                w = line.rstrip().split("\t")
-                if line[0] == "#" or (
-                    "pval" in line and "padj" in line
-                ):  # check for 'pval' for backwards compatibility
-                    headers = w
-                    continue  # keep last comment line as headers
-                # assume first non-comment line is header
-                if number_of_conditions == -1:
-                    # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, LFCs) X number_of_conditions conditions)
-                    number_of_conditions = int((len(w) - 6) / 2)
-                    headers = headers[3 : 3 + number_of_conditions]
-                    headers = [x.replace("Mean_", "") for x in headers]
-                else:
-                    means = [
-                        float(x) for x in w[3 : 3 + number_of_conditions]
-                    ]  # take just the columns of means
-                    lfcs = [
-                        float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                    ]  # take just the columns of LFCs
-                    each_qval = float(w[-2])
-                    data.append((w, means, lfcs, each_qval))
-        
-        data.sort(key=lambda x: x[-1])
-        hits, LFCs = [], []
-        for k, (w, means, lfcs, each_qval) in enumerate(data):
-            if (topk == -1 and each_qval < qval) or (
-                topk != -1 and k < topk
-            ):
-                mm = round(numpy.mean(means), 1)
-                if mm < low_mean_filter:
-                    print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-                else:
-                    hits.append(w)
-                    LFCs.append(lfcs)
-
-        print("heatmap based on %s genes" % len(hits))
-        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
-        hash = {}
-        headers = [h.replace("Mean_", "") for h in headers]
-        for i, col in enumerate(headers):
-            hash[col] = FloatVector([x[i] for x in LFCs])
-        df = DataFrame(hash)
-        transit_tools.r_heatmap_func(df, StrVector(genenames), output_path)
-        
-        # add it as a result
-        results_area.add(output_path)
-        gui_tools.show_image(output_path)
-
-    def graph_volcano_plot(dataset_name, dataset_type, dataset_path):
-        try:
-            X = []
-            Y = []
-            header = []
-            qval_list = []
-            bad = []
-            col_logFC = -6
-            col_pval = -2
-            col_qval = -1
-            ii = 0
-            with open(dataset_path) as file:
-                for line in file:
-                    if line.startswith("#"):
-                        tmp = line.split("\t")
-                        temp_col_logfc = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if "logfc" in x.lower()
-                            or "log-fc" in x.lower()
-                            or "log2fc" in x.lower()
-                        ]
-                        temp_col_pval = [
-                            i
-                            for (i, x) in enumerate(tmp)
-                            if ("pval" in x.lower() or "p-val" in x.lower())
-                            and "adj" not in x.lower()
-                        ]
-                        if temp_col_logfc:
-                            col_logFC = temp_col_logfc[-1]
-                        if temp_col_pval:
-                            col_pval = temp_col_pval[-1]
-                        continue
-
-                    tmp = line.strip().split("\t")
-                    try:
-                        log10qval = -math.log(float(tmp[col_pval].strip()), 10)
-                    except ValueError as e:
-                        bad.append(ii)
-                        log10qval = 0
-
-                    log2FC = float(tmp[col_logFC])
-
-                    qval_list.append( (float(tmp[col_qval]), float(tmp[col_pval].strip())) )
-                    X.append(log2FC)
-                    Y.append(log10qval)
-                    ii += 1
-            count = 0
-            threshold = 0.00001
-            backup_thresh = 0.00001
-            qval_list.sort()
-            for (q, p) in qval_list:
-                backup_thresh = p
-                if q > 0.05:
-                    break
-                threshold = p
-                count += 1
-
-            if threshold == 0:
-                threshold = backup_thresh
-            for ii in bad:
-                Y[ii] = max(Y)
-            plt.plot(X, Y, "bo")
-            plt.axhline(
-                -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3
-            )
-            plt.xlabel("Log Fold Change (base 2)")
-            plt.ylabel("-Log p-value (base 10)")
-            plt.suptitle("Resampling - Volcano plot")
-            plt.title("Adjusted threshold (red line): %1.8f" % threshold)
-            plt.show()
-
-        except Exception as e:
-            print("Error occurred creating plot:", str(e))
 
 Method = GUI = Analysis
-Analysis() # make sure there's one instance
