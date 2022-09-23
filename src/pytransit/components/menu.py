@@ -6,13 +6,9 @@ import pytransit.components.qc_display as qc_display
 from pytransit.universal_data import SessionData, universal
 import pytransit
 
-method_wrap_width = 250
 selected_export_menu_item = None
 convert_menu_item = None
 documentation_url = "http://saclab.tamu.edu/essentiality/transit/transit.html"
-
-# sets:
-    # universal.selected_method
 
 def create_menu(frame):
     # must imported inside the function to avoid circular import
@@ -25,6 +21,7 @@ def create_menu(frame):
     global selected_export_menu_item
     global convert_menu_item
     menu_bar = wx.MenuBar(0)
+    frame = universal.frame
     
     # 
     # File Menu
@@ -428,32 +425,17 @@ def create_menu(frame):
             method_names = sorted(analysis_methods.keys())
             for name in method_names:
                 method = analysis_methods[name]
-                
-                def create_callback():
-                    # these vars need to be defined here because of how python scopes variables
-                    the_method = analysis_methods[name]
-                    the_full_name = analysis_methods[name].full_name
-                    def load_method_wrapper(event):
-                        universal.selected_method = the_method
-                        # hide all the other panel stuff
-                        for each_method_name in method_names:
-                            each_method = analysis_methods[each_method_name]
-                            if each_method.gui.panel:
-                                each_method.gui.panel.Hide()
-                        with gui_tools.nice_error_log:
-                            the_method.gui.define_panel(frame)
-                        return method_select_func(the_full_name, event)
-                    return load_method_wrapper
-                
-                menu_callback = create_callback()
-                
-                # 
-                # himar1 and tn5 menu children
-                # 
-                for method_name, parent_menu in [ ["himar1", himar1_menu], ["tn5", tn5_menu] ]:
-                    temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, method.full_name, wx.EmptyString, wx.ITEM_NORMAL)
-                    frame.Bind(wx.EVT_MENU, menu_callback, temp_menu_item)
-                    parent_menu.Append(temp_menu_item)
+                if hasattr(method, "define_panel"):
+                    menu_callback = method.define_panel
+                    
+                    # 
+                    # himar1 and tn5 menu children
+                    # 
+                    for transposon_name, parent_menu in [ ["himar1", himar1_menu], ["tn5", tn5_menu] ]:
+                        if transposon_name in method.transposons:
+                            temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, method.full_name, wx.EmptyString, wx.ITEM_NORMAL)
+                            frame.Bind(wx.EVT_MENU, menu_callback, temp_menu_item)
+                            parent_menu.Append(temp_menu_item)
             
             analysis_menu.AppendSubMenu(himar1_menu, "&Himar1 Methods")
             analysis_menu.AppendSubMenu(tn5_menu, "&Tn5 Methods")
@@ -543,68 +525,6 @@ def create_menu(frame):
             menu_bar.Append(help_menu, "&Help")
     
     frame.SetMenuBar(menu_bar)
-
-
-def method_select_func(selected_name, event):
-    import pytransit.components.parameter_panel as parameter_panel
-    from pytransit.components.parameter_panel import panel
-    
-    global method_wrap_width
-    
-    frame = universal.frame
-    parameter_panel.hide_all_options()
-    
-    # If empty is selected
-    if selected_name == "[Choose Method]":
-        panel.method_info_text.SetLabel("Instructions")
-        panel.method_instructions.Show()
-        panel.method_instructions.SetLabel(frame.instructions_text)
-        panel.method_instructions.Wrap(method_wrap_width)
-        panel.method_short_text.Hide()
-        panel.method_long_text.Hide()
-        panel.method_tn_text.Hide()
-        panel.method_desc_text.Hide()
-
-        panel.method_choice = ""
-    else:
-        panel.method_sizer_text.Show()
-        
-        from pytransit.methods.analysis import methods as analysis_methods
-        
-        matched_name = None
-        # Get selected Method and hide Others
-        for name in analysis_methods:
-            try: analysis_methods[name].gui.panel.Hide()
-            except Exception as error: pass
-            
-            if analysis_methods[name].full_name == selected_name:
-                matched_name = name
-        
-        if matched_name in analysis_methods:
-            name = matched_name
-            panel.method_info_text.SetLabel("%s" % analysis_methods[name].long_name)
-
-            # FIXME: re-enable this when positioning is fixed
-            # panel.method_tn_text.Show()
-            # panel.method_tn_text.SetLabel(analysis_methods[name].transposons_text)
-            # panel.method_tn_text.Wrap(method_wrap_width)
-
-            # panel.method_desc_text.Show()
-            # panel.method_desc_text.SetLabel(analysis_methods[name].long_desc)
-            # panel.method_desc_text.Wrap(method_wrap_width)
-            panel.method_instructions.SetLabel(" ")
-            try:
-                analysis_methods[name].gui.panel.Show()
-            except Exception as error:
-                pass
-            gui_tools.set_status(f"[{analysis_methods[name].short_name}]")
-
-        parameter_panel.show_progress_section()
-        panel.method_choice = selected_name
-
-    frame.Layout()
-    if frame.verbose:
-        logging.log("Selected Method: %s" % (selected_name))
 
 
 # UNUSED 

@@ -69,19 +69,13 @@ class Analysis:
         return f"{self.inputs}"
 
     def define_panel(self, _):
-        from pytransit.tools.transit_tools import wx
-        self.panel = make_panel()
-
-        # only need Norm selection and Run button        
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer,default="nonorm")
-        create_run_button(self.panel, main_sizer)
-
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
+        from pytransit.components.panel_helpers import Panel
+        with Panel() as (self.panel, main_sizer):
+            # only need Norm selection and Run button        
+            self.value_getters = LazyDict(
+                normalization=create_normalization_input(self.panel, main_sizer,default="nonorm")
+            )
+            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
     @classmethod
     def from_gui(cls, frame):

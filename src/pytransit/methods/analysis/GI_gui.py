@@ -134,30 +134,25 @@ class Analysis:
         return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())
     
     def define_panel(self, _):
-        self.panel = make_panel()
+        from pytransit.components.panel_helpers import Panel
+        with Panel() as (self.panel, main_sizer):
 
-        # only need Norm selection and Run button        
-        self.value_getters = LazyDict()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
-        self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
-        self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
-        self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
-        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
-        self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
-        self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"number of random trials in Monte Carlo simulation; affects precision of P-values")
-        self.value_getters.rope = self.create_float_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
-        self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # +tooltip_text?
-        self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text?
-        #self.value_getters.signif = define_choice_box(self.panel,label_text="Significance method:",options=["HDI","prob","BFDR","FWER"]) # default is HDI
-        self.value_getters.signif = self.create_signif_choice_box(self.panel,main_sizer)
-        create_run_button(self.panel, main_sizer)
-
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
+            # only need Norm selection and Run button        
+            self.value_getters = LazyDict()
+            self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
+            self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
+            self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
+            self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
+            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
+            self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"number of random trials in Monte Carlo simulation; affects precision of P-values")
+            self.value_getters.rope = self.create_float_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+            self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # +tooltip_text?
+            self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text?
+            #self.value_getters.signif = define_choice_box(self.panel,label_text="Significance method:",options=["HDI","prob","BFDR","FWER"]) # default is HDI
+            self.value_getters.signif = self.create_signif_choice_box(self.panel,main_sizer)
+            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
     @classmethod
     def from_gui(cls, frame):

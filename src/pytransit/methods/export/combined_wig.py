@@ -7,6 +7,7 @@ from pytransit.methods import export_base as base
 from pytransit.tools import transit_tools
 from pytransit.tools import tnseq_tools
 from pytransit.tools import norm_tools
+from pytransit.basics import misc
 
 
 ############# Description ##################
@@ -129,7 +130,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
 
         if len(args) != 3:  # wigs prot_table output
-            print("Error: Incorrect number of args. See usage")
+            print("Error: Incorrect number of args")
             print(self.usage_string)
             sys.exit(0)
 
@@ -237,12 +238,10 @@ class CombinedWigMethod(base.SingleConditionMethod):
         self.finish()
         logging.log("Finished Export")
 
-    #
-
-    usage_string = (
-            """python %s export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]\ndefault normalization_method=TTR"""
-            % (sys.argv[0])
-        )
-
+    usage_string = f"""
+        python {sys.argv[0]} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
+        
+            default normalization_method=TTR
+    """.replace("\n    ","\n")
 
 combined_wig = Export()
