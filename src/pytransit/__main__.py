@@ -38,7 +38,7 @@ def main(*args, **kwargs):
         if not args and ("h" in kwargs or "-help" in kwargs):
             print_help()
             sys.exit(0)
-    
+
     # 
     # GUI Mode
     # 

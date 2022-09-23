@@ -142,19 +142,19 @@ def change_file_action_choices(new_choices):
     
 
 def add(path):
-    with gui_tools.nice_error_log:
-        # if not a recognized file type
-        values_for_result_table = dict(
-            name=basename(path),
-            type="Unknown",
-            path=path,
-        )
-        # if recognized
-        result_object = read_result(path)
-        if result_object:
-            values_for_result_table = result_object.values_for_result_table
-        
-        if universal.interface == "gui" and HAS_WX:
+    if universal.interface == "gui":
+        with gui_tools.nice_error_log:
+            # if not a recognized file type
+            values_for_result_table = dict(
+                name=basename(path),
+                type="Unknown",
+                path=path,
+            )
+            # if recognized
+            result_object = read_result(path)
+            if result_object:
+                values_for_result_table = result_object.values_for_result_table
+            
             print(f'''result_object = {result_object}''')
             print(f'''values_for_result_table = {values_for_result_table}''')
             results.table.add(values_for_result_table)

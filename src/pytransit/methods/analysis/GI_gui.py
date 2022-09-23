@@ -20,21 +20,14 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.methods import analysis_base as base
-import pytransit
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.components.file_display as file_display
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.console_tools as console_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 import pytransit.basics.csv as csv
+import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-#nfrom pytransit.components.panel_helpers import make_panel, create_run_button, create_button, create_normalization_input, define_choice_box
 from pytransit.components.panel_helpers import *
 
 command_name = sys.argv[0]
@@ -48,21 +41,54 @@ class Analysis:
     transposons = [ "himar1" ]
     
     inputs = LazyDict(
-        conditionA1=None,
-        conditionB1=None,
-        conditionA2=None,
-        conditionB2=None,
-        combined_wig=None,
-        normalization=None,
-        output_path=None,
+          combined_wig=None,
+          metadata_path=None,
+          condA1=None,
+          condA2=None,
+          condB1=None,
+          condB2=None,
+
+          annotation_path=None,
+          output_path=None,
+
+          normalization=None,
+          samples=None,
+          rope=None,
+          signif=None,
+
+          n_terminus=None,
+          c_terminus=None,
     )
     
     valid_cli_flags = [
         "-n", # normalization flag
-        "-o", # output filename (optional)
+        "-s", # number of samples
+        "-iN", # trimming TA sites at gene termini
+        "-iC", 
+        "-signif", # method to determine genes with significant interaction
+        "--rope", # Region Of Probable Equivalence around 0
     ]
-    # see gi.py for original usage string and list of flags...
-    usage_string = f"""usage: python3 %s GI <combined_wig> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [-n <norm>]"""
+
+    usage_string = f"""usage: python3 %s GI <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
+      GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
+      It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
+      Provide replicates in each group as a comma-separated list of wig files.
+      HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
+      Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
+      Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+        By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+        Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+
+      Optional Arguments:
+      -n <string>     :=  Normalization method. Default: -n TTR
+      -s <integer>    :=  Number of samples. Default: -s 10000
+      -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+      -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+      --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
+      -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
+      -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
+      -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
+      -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05"""
     
     wxobj = None
     panel = None
@@ -88,21 +114,8 @@ class Analysis:
     def __repr__(self):
         return f"{self.inputs}"
 
-    def create_condition_choice(self, panel, sizer, name):
-        (
-            label,
-            ref_condition_wxobj,
-            ref_condition_choice_sizer,
-        ) = define_choice_box(
-            panel,
-            name,
-            [ "[None]" ] + [x.name for x in universal.session_data.conditions],
-            "choose condition",
-        )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
-    
-    def create_input_field(self, panel, sizer, label, value,tooltip=None):
+    # this is awkward: merge these two functions? specify output type? catch invalid input errors?
+    def create_int_input_field(self, panel, sizer, label, value,tooltip=None):
         get_text = create_text_box_getter(
             panel,
             sizer,
@@ -110,169 +123,225 @@ class Analysis:
             default_value=value,
             tooltip_text=tooltip,
         )
-        return lambda *args: float(get_text())
+        return lambda *args: int(get_text())
 
+    def create_float_input_field(self, panel, sizer, label, value,tooltip=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label,
+            default_value=value,
+            tooltip_text=tooltip,
+        )
+        return lambda *args: float(get_text()) # what if can't parse as float? validate input
+
+    def create_signif_choice_box(self, panel, sizer):
+        (
+            signif_label,
+            signif_wxobj,
+            signif_sizer,
+        ) = define_choice_box(
+            panel,
+            "Significance method: ",
+            ["HDI","prob","BFDR","FWER"],
+            "tooltip",  # fill in explanation...
+        )
+        sizer.Add(signif_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        # return a value-getter
+        default = "HDI"
+        signif_wxobj.SetSelection(signif_wxobj.FindString(default))
+        return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())
+    
     def define_panel(self, _):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        self.panel = make_panel()
 
-            # only need Norm selection and Run button        
-            self.value_getters = LazyDict()
-            self.value_getters.condA1 = self.create_condition_choice(self.panel,main_sizer,"Condition A1:")
-            self.value_getters.condB1 = self.create_condition_choice(self.panel,main_sizer,"Condition B1:")
-            self.value_getters.condA2 = self.create_condition_choice(self.panel,main_sizer,"Condition A2:")
-            self.value_getters.condB2 = self.create_condition_choice(self.panel,main_sizer,"Condition B2:")
-            self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
-            self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.samples = self.create_input_field(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
-            self.value_getters.rope = self.create_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
-            # to do:
-            # checkbox [off] for 'correct for genome position bias' (view LOESS fit)
-            # checkbox [on] for 'include sites with all zeros'
-            # dropdown based on new CL flag for 'significance method': -signif <HDI,prob,BFDR,FWER>
-            create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+        # only need Norm selection and Run button        
+        self.value_getters = LazyDict()
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.value_getters.condA1 = create_condition_choice(self.panel,main_sizer,"Condition A1:",tooltip="indicate condition representing 'strain A' in 'condition 1'")
+        self.value_getters.condB1 = create_condition_choice(self.panel,main_sizer,"Condition B1:",tooltip="indicate condition representing 'strain B' in 'condition 1'")
+        self.value_getters.condA2 = create_condition_choice(self.panel,main_sizer,"Condition A2:",tooltip="indicate condition representing 'strain A' in 'condition 2'")
+        self.value_getters.condB2 = create_condition_choice(self.panel,main_sizer,"Condition B2:",tooltip="indicate condition representing 'strain B' in 'condition 2'")
+        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR is default
+        self.value_getters.n_terminus = create_n_terminus_input(self.panel, main_sizer)
+        self.value_getters.c_terminus = create_c_terminus_input(self.panel, main_sizer)
+        self.value_getters.samples = self.create_int_input_field(self.panel, main_sizer,"Number of samples",10000,"Number of random trials in Monte Carlo simulation; affects precision of P-values; if you want to make GI run faster, try setting samples to 1000")
+        self.value_getters.rope = self.create_float_input_field(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+        #self.value_getters.LOESS = create_check_box_getter(self.panel,main_sizer,label_text="Correct for genome positional bias (LOESS)?") # not relevant
+        #self.value_getters.includeZeros = create_check_box_getter(self.panel,main_sizer,default_value=True,label_text="Include sites with counts of zero in all samples?") # +tooltip_text? no longer relevant
+        self.value_getters.signif = self.create_signif_choice_box(self.panel,main_sizer) # default is HDI
+        create_run_button(self.panel, main_sizer)
+
+        parameter_panel.set_panel(self.panel)
+        self.panel.SetSizer(main_sizer)
+        self.panel.Layout()
+        main_sizer.Fit(self.panel)
 
     @classmethod
     def from_gui(cls, frame):
-        with gui_tools.nice_error_log:
+        # 
+        # get wig files
+        # 
+        wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+        Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
+        Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
 
-            # 
-            # get wig files
-            # 
-            wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
-            Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-            
-            # 
-            # get annotation
-            # 
+        # 
+        # get annotation
+        # 
+        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        
+        # 
+        # setup custom inputs
+        # 
+        for each_key, each_getter in Analysis.instance.value_getters.items():
+            try:
+                Analysis.inputs[each_key] = each_getter()
+            except Exception as error:
+                raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
-            #if not transit_tools.validate_annotation(Analysis.inputs.annotation): return None 
+        # 
+        # save result files
+        # 
+        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name="GI_test.dat",
+            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        )
+        if not Analysis.inputs.output_path:
+            return None
 
-            
-            # 
-            # setup custom inputs
-            # 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
-                try:
-                    Analysis.inputs[each_key] = each_getter()
-                except Exception as error:
-                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-
-            # 
-            # save result files
-            # 
-            Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="GI_test.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-            )
-            if not Analysis.inputs.output_path:
-                return None
-
-            return Analysis.instance
+        return Analysis.instance
 
     @classmethod
     def from_args(cls, args, kwargs):
         console_tools.handle_help_flag(kwargs, cls.usage_string)
         console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
-        normalization = kwargs.get("n", "nonorm") 
-        output_path = kwargs.get("o", None)
+        if len(args)<8: logging.error(cls.usage_string)
+
+        combined_wig = args[0]
+        metadata_path = args[1]
+        condA1 = args[2]
+        condA2 = args[3]
+        condB1 = args[4]
+        condB2 = args[5]
+
+        annotation_path = args[6]
+        output_path = args[7]
+
+        normalization = kwargs.get("n", "TTR")
+        samples = int(kwargs.get("s", 10000))
+        rope = float(kwargs.get("-rope", 0.5))  # fixed! changed int to float
+        signif = kwargs.get("signif", "HDI")
+
+        n_terminus = float(kwargs.get("iN", 0.00))
+        c_terminus = float(kwargs.get("iC", 0.00))
 
         # save all the data
         Analysis.inputs.update(dict(
-            combined_wig=combined_wig, ###? what if user gives a list of wig files instead of a combined_wig?
-            annotation=annotation_path,
-            normalization=normalization,
-            output_path=output_path,
-            n_terminus=0,
-            c_terminus=0,
+          combined_wig=combined_wig,
+          metadata_path=metadata_path,
+          condA1=condA1,
+          condA2=condA2,
+          condB1=condB1,
+          condB2=condB2,
+
+          annotation_path=annotation_path,
+          output_path=output_path,
+
+          normalization=normalization,
+          samples=samples,
+          rope=rope,
+          signif=signif,
+
+          n_terminus=n_terminus,
+          c_terminus=c_terminus
         ))
         
         return Analysis.instance
         
     def Run(self):
-        with gui_tools.nice_error_log:
-            logging.log("Starting Genetic Interaction analysis")
-            start_time = time.time()
+        logging.log("Starting Genetic Interaction analysis")
+        start_time = time.time()
 
-            self.inputs.n_terminus = 0
-            self.inputs.c_terminus = 0
-            self.inputs.samples = 100
-            self.inputs.includeZeros = False
-            self.inputs.rope=0.5
-            self.inputs.signif="HDI"
+        ##########################
+        # get data
 
-            # 
-            # get data
-            # 
+        logging.log("Getting Data")
+        sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+        logging.log(f"Normalizing using: {self.inputs.normalization}")
+        data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+            
+        # # Do LOESS correction if specified
+        # if self.LOESS:
+        #   logging.log("Performing LOESS Correction")
+        #   for j in range(K):
+        #     data[j] = stat_tools.loess_correction(position, data[j])
 
-            logging.log("Getting Data")
-            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
-            logging.log(f"Normalizing using: {self.inputs.normalization}")
-            data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
-                
-            # # Do LOESS correction if specified
-            # if self.LOESS:
-            #   logging.log("Performing LOESS Correction")
-            #   for j in range(K):
-            #     data[j] = stat_tools.loess_correction(position, data[j])
+        # is it better to read the metadata directly, rather than pulling from samples_table, to accommodate console mode?
+        metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+        #for sample in metadata.rows:
+        #  print("%s\t%s" % (sample["Id"],sample["Condition"]))
 
 
-            # 
-            # process data
-            # 
-            # note: self.inputs.condA1 = self.value_getters.condA1()
+        ##########################
+        # process data
+        # 
+        # note: self.inputs.condA1 = self.value_getters.condA1()
+        logging.log("processing data")
+        # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
 
-            logging.log("processing data")
-            # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
-            # could also pull this info from universal.session_data.samples?
-            from pytransit.components.samples_area import sample_table
-            indexes = {}
-            for i,row in enumerate(sample_table.rows): # defined in components/generic/table.py
-              cond = row["condition"]
-              if cond not in indexes: indexes[cond] = []
-              indexes[cond].append(i)
-            condA1 = self.inputs.condA1
-            condA2 = self.inputs.condA2
-            condB1 = self.inputs.condB1
-            condB2 = self.inputs.condB2
-            if condA1 not in indexes or len(indexes[condA1])==0: print("error: no samples found for condition %s" % condA1); sys.exit(0)
-            if condA2 not in indexes or len(indexes[condA2])==0: print("error: no samples found for condition %s" % condA2); sys.exit(0)
-            if condB1 not in indexes or len(indexes[condB1])==0: print("error: no samples found for condition %s" % condB1); sys.exit(0)
-            if condB2 not in indexes or len(indexes[condB2])==0: print("error: no samples found for condition %s" % condB2); sys.exit(0)
-            print("condA1=%s, indexes=%s" % (condA1,','.join([str(x) for x in indexes[condA1]])))
-            print("condA2=%s, indexes=%s" % (condA2,','.join([str(x) for x in indexes[condA2]])))
-            print("condB1=%s, indexes=%s" % (condB1,','.join([str(x) for x in indexes[condB1]])))
-            print("condB2=%s, indexes=%s" % (condB2,','.join([str(x) for x in indexes[condB2]])))
+        indexes = {}
+        for i,row in enumerate(metadata.rows): 
+            cond = row["Condition"] # "condition" for samples_table
+            if cond not in indexes: indexes[cond] = []
+            indexes[cond].append(i) 
+        condA1 = self.inputs.condA1
+        condA2 = self.inputs.condA2
+        condB1 = self.inputs.condB1
+        condB2 = self.inputs.condB2
 
-            dataA1 = data[indexes[condA1]] # select datasets (rows)
-            dataA2 = data[indexes[condA2]]
-            dataB1 = data[indexes[condB1]]
-            dataB2 = data[indexes[condB2]]
+        if condA1 not in indexes or len(indexes[condA1])==0: logging.error("no samples found for condition %s" % condA1)
+        if condA2 not in indexes or len(indexes[condA2])==0: logging.error("no samples found for condition %s" % condA2)
+        if condB1 not in indexes or len(indexes[condB1])==0: logging.error("no samples found for condition %s" % condB1)
+        if condB2 not in indexes or len(indexes[condB2])==0: logging.error("no samples found for condition %s" % condB2)
 
-            # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
-            (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
+        logging.log("condA1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA1])))
+        logging.log("condA2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA2])))
+        logging.log("condB1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB1])))
+        logging.log("condB2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB2])))
 
-            # 
-            # write output
-            # 
-            # note: first comment line is filetype, last comment line is column headers
+        dataA1 = data[indexes[condA1]] # select datasets (rows)
+        dataA2 = data[indexes[condA2]]
+        dataB1 = data[indexes[condB1]]
+        dataB2 = data[indexes[condB2]]
 
-            logging.log(f"Adding File: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
+        # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
+        (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
 
-            # will open and close file, or print to console
-            self.print_GI(results,adjusted_label,condA1,condA2,condB1,condB2,sample_table) 
+        ######################
+        # write output
+        # 
+        # note: first comment line is filetype, last comment line is column headers
 
-            logging.log("Finished Genetic Interaction analysis")
-            logging.log("Time: %0.1fs\n" % (time.time() - start_time))
+        logging.log(f"Adding File: {self.inputs.output_path}")
+        results_area.add(self.inputs.output_path)
 
-    # is self.annotation_path already set?
+        # will open and close file, or print to console
+        self.print_GI_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
+
+        aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
+        allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
+        suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
+        logging.log("Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s" % (aggra,allev,suppr))
+        logging.log("Time: %0.1fs\n" % (time.time() - start_time))
+        logging.log("Finished Genetic Interaction analysis")
+
 
     def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
-
+        from pytransit.tools import stat_tools
+        
         # Get Gene objects for each condition
         G_A1 = tnseq_tools.Genes(
             [],
@@ -555,62 +624,60 @@ class Analysis:
 
         return extended_results,adjusted_label # results: one row for each gene
 
-    def print_GI(self,results,adjusted_label,condA1,condA2,condB1,condB2,sample_table): 
+    def print_GI_results(self,results,adjusted_label,condA1,condA2,condB1,condB2,metadata): 
 
         self.output = sys.stdout # print to console if not output file defined
         if self.inputs.output_path != None:
             self.output = open(self.inputs.output_path, "w")
-        self.output.write("%s\n#" % self.identifier)
+        self.output.write("#%s\n" % self.identifier)
 
-        if True: # was 'if self.wxobj:', try universal.interface=="gui" or "console" ###?
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            #memberstr = ""
-            #for m in members:
-            #    memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write( 
-                "#parameters: norm=%s, samples=%s, includeZeros=%s, output=%s\n"
-                % (
-                    self.inputs.normalization,
-                    self.inputs.samples,
-                    self.inputs.includeZeros,
-                    self.output.name.encode("utf-8"), ###? add more params
-                )
-            )
-        # originally, we wrote CLI args from console into output file, if console mode:
-        #    self.output.write("#Console: python3 %s\n" % " ".join(sys.argv)) ###? I should print command
+        if universal.interface=="console":
+          self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
 
         now = str(datetime.datetime.now())
         now = now[: now.rfind(".")]
         self.output.write("#Date: " + now + "\n")
         # self.output.write("#Runtime: %s s\n" % (time.time() - start_time))
 
-        condA1samples = [x["name"] for x in sample_table.rows if x["condition"]==condA1]
-        condA2samples = [x["name"] for x in sample_table.rows if x["condition"]==condA2]
-        condB1samples = [x["name"] for x in sample_table.rows if x["condition"]==condB1]
-        condB2samples = [x["name"] for x in sample_table.rows if x["condition"]==condB2]
+        self.output.write("#Parameters:\n")
+        self.output.write("# normalization of counts=%s\n" % (self.inputs.normalization))
+        self.output.write("# num samples for Monte Carlo=%s\n" % (self.inputs.samples))
+        self.output.write("# trimming of TA sites: Nterm=%s%%, Cterm=%s%%\n" % (self.inputs.n_terminus,self.inputs.c_terminus))
+        self.output.write("# ROPE=%s (region of probable equivalence around 0)\n" % (self.inputs.rope))
+        self.output.write("# method for determining significance=%s\n" % (self.inputs.signif))
+        self.output.write("# annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
+        self.output.write("# output path: %s\n" % (self.inputs.output_path))
 
-        self.output.write("#Strain A, Condition 1): %s: %s\n" % (condA1,','.join(condA1samples)))
-        self.output.write("#Strain A, Condition 2): %s: %s\n" % (condA2,','.join(condA2samples)))
-        self.output.write("#Strain B, Condition 1): %s: %s\n" % (condB1,','.join(condB1samples)))
-        self.output.write("#Strain B, Condition 2): %s: %s\n" % (condB2,','.join(condB2samples)))
-        self.output.write("#Annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
-        self.output.write("#ROPE=%s, method for significance=%s\n" % (self.inputs.rope, self.inputs.signif))
+        condA1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA1]
+        condA2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA2]
+        condB1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB1]
+        condB2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB2]
+
+        self.output.write("#Samples in 4 conditions:\n")
+        self.output.write("# A1 (Strain A, Condition 1): %s: %s\n" % (condA1,','.join([str(x) for x in condA1samples])))
+        self.output.write("# A2 (Strain A, Condition 2): %s: %s\n" % (condA2,','.join([str(x) for x in condA2samples])))
+        self.output.write("# B1 (Strain B, Condition 1): %s: %s\n" % (condB1,','.join([str(x) for x in condB1samples])))
+        self.output.write("# B2 (Strain B, Condition 2): %s: %s\n" % (condB2,','.join([str(x) for x in condB2samples])))
         if self.inputs.signif == "HDI":
             self.output.write("#Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE\n")
         elif self.inputs.signif in "prob BDFR FWER":
             self.output.write("#Significant interactions are those whose %s-adjusted probability of the delta-logFC falling within ROPE is < 0.05.\n" % (adjusted_label))
 
+        aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
+        allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
+        suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
+        self.output.write("#Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s\n" % (aggra,allev,suppr))
+
         # Write column names (redundant with self.columns)
         self.output.write(
-            "#ORF\tName\tNumber of TA Sites\tMean count (Strain A Condition 1)\tMean count (Strain A Condition 2)\tMean count (Strain B Condition 1)\tMean count (Strain B Condition 2)\tMean logFC (Strain A)\tMean logFC (Strain B) \tMean delta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
+            "#ORF\tgene\tannotation\tTA sites\tA1 mean count\tA2 mean count\tB1 mean count\tB2 mean count\tlogFC (Strain A)\tlogFC (Strain B) \tdelta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
             % adjusted_label
         )
+    
+        annot = {}
+        for line in open(self.inputs.annotation_path):
+          w = line.rstrip().split('\t')
+          annot[w[8]] = w[0]
 
         # Write gene results
         for i, new_row in enumerate(results):
@@ -630,18 +697,21 @@ class Analysis:
                 not_HDI_overlap_bit,
                 probROPE,
                 adjusted_prob,
-                type_of_interaction
+                type_of_interaction,
             ) = new_row
 
+            orf = new_row[0]
+            descr = annot[orf]
+            new_row = tuple(list(new_row[:2])+[descr]+list(new_row[2:]))
+
             self.output.write(
-                "%s\t%s\t%d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%s\t%1.8f\t%1.8f\t%s\n"
+                "%s\t%s\t%s\t%d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%s\t%1.8f\t%1.8f\t%s\n"
                 % new_row
             )
 
         if self.inputs.output_path != None: self.output.close() # otherwise, it is sys.stdout
         logging.log("Adding File: %s" % (self.output.name))
         results_area.add(self.output.name)                         
-        #self.finish()
         logging.log("Finished Genetic Interactions Method")
 
     @staticmethod

@@ -318,6 +318,20 @@ if True:
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
+    def create_condition_choice(panel, sizer, name,tooltip="choose condition"):
+        (
+            label,
+            ref_condition_wxobj,
+            ref_condition_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            name,
+            [x.name for x in universal.session_data.conditions],
+            tooltip,
+        )
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+    
     def create_reference_condition_input(panel, sizer):
         (
             label,
@@ -326,7 +340,7 @@ if True:
         ) = define_choice_box(
             panel,
             "Ref Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            [ each.name for each in universal.session_data.conditions ],
             "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
