@@ -28,17 +28,6 @@ import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
 import pytransit.basics.misc as misc
 command_name = sys.argv[0]
-
-# Checklist
-    # DONE: basic data
-    # DONE: create new inputs
-    # DONE: translate the old define_panel
-    # DONE: translate the old from_gui except for ctrl files (replace them with ctrl_read_counts and ctrl_positions)
-    # DONE: change variable names to use new inputs
-    # DONE: change from_args to set ctrl_read_counts, ctrl_positions
-    # DONE: change Run() to use ctrl_read_counts, ctrl_positions
-    # DONE: add all supporting methods
-    # TODO: define file types 
     
 @misc.singleton
 class Analysis:
@@ -48,6 +37,7 @@ class Analysis:
     long_desc = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
 
     transposons = ["himar1"]
+    categories = ["ES", "NE", "GD", "GA"]
     inputs = LazyDict(
         data_sources=[],
         ctrl_read_counts=None,
@@ -58,7 +48,6 @@ class Analysis:
         replicates="Mean",
         normalization=None,
         loess_correction=False,
-        ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
     )
@@ -136,8 +125,6 @@ class Analysis:
         if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
             return None
         
-        # TODO: validate transposons
-        
         # 
         # setup custom inputs
         # 
@@ -183,7 +170,6 @@ class Analysis:
         replicates    = kwargs.get("r", Analysis.inputs.replicates)
         normalization = kwargs.get("n", Analysis.inputs.normalization)
         loess_correction         = kwargs.get("l", Analysis.inputs.loess_correction)
-        ignore_codon  = True # TODO: not sure why this is hardcoded --Jeff
         n_terminus    = float(kwargs.get("iN", Analysis.inputs.n_terminus))
         c_terminus    = float(kwargs.get("iC", Analysis.inputs.c_terminus))
         
@@ -198,7 +184,6 @@ class Analysis:
             replicates=replicates,
             normalization=normalization,
             loess_correction=loess_correction,
-            ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
         ))
@@ -210,7 +195,7 @@ class Analysis:
             # Calculations
             # 
             if True:
-                self.max_iterations = len(Analysis.inputs.ctrl_positions) * 4 + 1 # FIXME: I'm not sure this is right -- Jeff
+                self.max_iterations = len(Analysis.inputs.ctrl_positions) * len(categories) + 1
                 self.count = 1
                 logging.log("Starting HMM Method")
                 start_time = time.time()
@@ -308,7 +293,7 @@ class Analysis:
                 last_orf = ""
                 for t in range(T):
                     percentage = (t/T)*100
-                    progress_update(f"Generating lines: {percentage:f3.2}%", percentage)
+                    progress_update(f"Generating lines: {percentage:3.2f}%", percentage)
                     s_lab = label.get(states[t], "Unknown State")
                     gamma_t = (alpha[:, t] * beta[:, t]) / numpy.sum(alpha[:, t] * beta[:, t])
                     genes_at_site = hash.get(position[t], [""])
@@ -321,7 +306,7 @@ class Analysis:
                     rows.append((
                         int(position[t]),
                         int(O[t]) - 1,
-                        *gamma_t, # TODO: previously these numbers were formatted in a specific way
+                        *gamma_t,
                         s_lab,
                         genestr,
                     ))
@@ -329,9 +314,12 @@ class Analysis:
             # Write output
             # 
             if True:
-                self.inputs.ctrl_read_counts = self.inputs.ctrl_read_counts.tolist()
-                self.inputs.ctrl_positions   = self.inputs.ctrl_positions.tolist()
-                extra_info = dict(
+                transit_tools.write_result(
+                    path=self.inputs.output_path, # path=None means write to STDOUT
+                    file_kind=SitesFile.identifier,
+                    rows=rows,
+                    column_names=SitesFile.column_names,
+                    extra_info=dict(
                         gui_or_cli=universal.interface,
                         cli_args=sys.argv,
                         stats=dict(
@@ -345,14 +333,16 @@ class Analysis:
                             state_emmision_parameters_theta="   ".join(["%s: %1.4f"   % (label[i], L[i]   ) for i in range(n_states)]),
                             state_distributions=            "   ".join(["%s: %2.2f%%" % (label[i], state2count[i] * 100.0 / total) for i in range(n_states) ]),
                         ),
-                        parameters=self.inputs,
-                    )
-                transit_tools.write_result(
-                    path=self.inputs.output_path, # path=None means write to STDOUT
-                    file_kind=SitesFile.identifier,
-                    rows=rows,
-                    column_names=SitesFile.column_names,
-                    extra_info=extra_info,
+                        parameters=dict(
+                            replicates=self.inputs.replicates,
+                            normalization=self.inputs.normalization,
+                            loess_correction=self.inputs.loess_correction,
+                            n_terminus=self.inputs.n_terminus,
+                            c_terminus=self.inputs.c_terminus,
+                            annotation_path=self.inputs.annotation_path,
+                            output_path=self.inputs.output_path,
+                        ),
+                    ),
                 )
                 logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
                 results_area.add(self.inputs.output_path)
@@ -405,7 +395,6 @@ class Analysis:
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
-            # print(t, O[:,t], alpha[:,t])
         
         percentage = 100
         text = "Running HMM forward_procedure... %1.1f%%" % percentage
@@ -607,12 +596,12 @@ class SitesFile:
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=self.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Analysis.identifier,
+                    title=self.identifier,
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -657,12 +646,12 @@ class GeneFile:
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=self.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Analysis.identifier,
+                    title=self.identifier,
                     heading=self.comments,
                     column_names=self.column_names,
                     rows=self.rows,
