@@ -238,46 +238,16 @@ class ResultFileType1:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
                     title=Analysis.identifier,
-                    heading="",
+                    heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[
-                        # HANDLE_THIS
-                    ],
+                    sort_by=[ "Adj. p-value", "p-value" ]
                 ).Show(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            self.rows.append({
-                each_column_name: each_cell
-                    for each_column_name, each_cell in zip(self.column_names, each_row)
-            })
-        
-        # 
-        # get summary stats
-        #
-        self.values_for_result_table.update({
-            # HANDLE_THIS (additional summary_info for results table)
-            # examples:
-                # f"Gene Count": len(self.rows),
-                # f"Padj<{Analysis.significance_threshold}": len([
-                #     1 for each in self.rows
-                #         if each.get("Padj", 0) < Analysis.significance_threshold 
-                # ]),
-        })
+        self.column_names, self.rows, self.extra_data = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
     
     def __str__(self):
         return f"""
