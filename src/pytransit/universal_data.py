@@ -1,5 +1,5 @@
 from random import random
-from os import getcwd
+from os import getcwd, path
 
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
@@ -23,6 +23,7 @@ universal = LazyDict(
     debugging_enabled=False,
     session_data=None,
     busy_running_method=False,
+    root_folder = path.join(__file__,"../../../")
 )
 
 @singleton

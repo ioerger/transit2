@@ -44,7 +44,8 @@ class Analysis:
         associations_file = None,
         pathways_file = None,
         output_path= None,
-     
+
+        organism_pathway = None,
     )
     
     valid_cli_flags = [
@@ -92,7 +93,8 @@ class Analysis:
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
 
-    #####################  need to pull out in other function #########################
+    #####################  need to pull out into panel helpers #########################
+
 
     def create_input_field(self, panel, sizer, label, value,tooltip=None):
         get_text = panel_helpers.create_text_box_getter(
@@ -103,7 +105,7 @@ class Analysis:
             tooltip_text=tooltip,
         )
         return lambda *args: get_text()
-    def create_int_field(self, panel, sizer, label, value,tooltip=None):
+    def create_int_field(self, panel, sizer, label, value,tooltip=None): #move into
         get_text = panel_helpers.create_text_box_getter(
             panel,
             sizer,
@@ -112,6 +114,8 @@ class Analysis:
             tooltip_text=tooltip,
         )
         return lambda *args: int(get_text())
+
+
 
     def call_from_results_panel(self, results_file):
         self.inputs.resampling_file = results_file
@@ -130,18 +134,24 @@ class Analysis:
                 ) 
 
  
-            self.value_getters.associations_file = panel_helpers.create_file_input(self.panel,main_sizer, \
-            button_label="Associations file",default_file_name="sanger_assocations.txt",allowed_extensions="All files (*.*)|*.*", \
-            popup_title="Choose Associations file", \
-            tooltip_text="Must exist to run Pathway enrichment.")
 
-            
-            self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel,main_sizer, \
-            button_label="Pathways file",default_file_name="sanger_pathways.txt",allowed_extensions="All files (*.*)|*.*", \
-            popup_title="Choose Pathways file", \
-            tooltip_text="Must exist to run Pathway enrichment.")
+            self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
+                label = "Organism-Pathway",
+                options= ["H37Rv-KEGG", "H37Rv-Sanger"],
+                tooltip_text = "Pick the Organism whose pathways you would like to use. Once an organism is picked, the corresponding associations and pathways with be autoselected \
+                    If other is chosen, you must select your own associations and pathways")
 
-            self.value_getters.method = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Method", default_value="FET", tooltip_text="method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
+
+            # self.value_getters.pathways_type = panel_helpers.create_choice_input(self.panel, main_sizer,
+            #     label = "Type of Pathway",
+            #     options= ["Sanger", "KEGG","GO" ,"Other"],
+            #     tooltip_text = "Type of Pathway you would like to use")
+
+    
+            self.value_getters.method = panel_helpers.create_choice_input(self.panel, main_sizer,
+                label = "Method",
+                options= ["FET", "GSEA", "GO"],
+                tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
             self.value_getters.pval_col = self.create_int_field(self.panel,main_sizer, value=-2, label="Pval Col", tooltip="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
             self.value_getters.qval_col = self.create_int_field(self.panel,main_sizer, value=-1, label="Qval Col", tooltip="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
             self.value_getters.ranking = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="ranking", default_value="SPLV", tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
@@ -150,12 +160,30 @@ class Analysis:
             self.value_getters.num_permutations = self.create_input_field(self.panel,main_sizer, label="Number of Permutations",value=10000,tooltip="number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount = self.create_int_field(self.panel,main_sizer, label="Pseudocount",value=2,tooltip="pseudo-counts to use in calculating p-value based on hypergeometric distribution")
 
-                
+            
+           
             panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function = self.from_gui)
 
 
     @classmethod
-    def from_gui(cls,frame):            
+    def from_gui(cls,frame): 
+
+        
+        if Analysis.inputs.organism =="H37Rv":
+            if Analysis.inputs.pathway_type == "Sanger":
+                Analysis.inputs.associations_file = universal.root_folder+"pytransit/data/H37Rv_sanger_roles.dat"
+                Analysis.inputs.pathways_file = universal.root_folder+"pytransit/data/sanger_roles.dat"
+            #if Analysis.inputs.pathway_typpe == "COGG":
+
+        # elif Analysis.inputs.organism =="smegmatis":
+        #     if Analysis.inputs.pathway_type = "COGG":
+        #            Analysis.inputs.associations_file = "FIND THIS"
+        #         Analysis.inputs.pathways_file = universal.root_folder+"pytransit/data/smeg_COGG_roles.dat" 
+        else: # ask for files
+            Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
+            Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
+        
+        
 
         for each_key, each_getter in Analysis.value_getters.items():
             try:
@@ -200,6 +228,7 @@ class Analysis:
             logging.log(f"Starting {Analysis.identifier} analysis")
             start_time = time.time()
 
+            
             
                 #checking validation of inputs
             if self.inputs.method == "FET":
