@@ -44,7 +44,6 @@ class Analysis:
         associations_file = None,
         pathways_file = None,
         output_path= None,
-
         organism_pathway = None,
     )
     
@@ -137,7 +136,7 @@ class Analysis:
 
             self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "Organism-Pathway",
-                options= ["H37Rv-KEGG", "H37Rv-Sanger"],
+                options= ["H37Rv-COG", "H37Rv-Sanger","H37Rv-GO", "Smeg-COG", "Smeg-GO", "Other"],
                 tooltip_text = "Pick the Organism whose pathways you would like to use. Once an organism is picked, the corresponding associations and pathways with be autoselected \
                     If other is chosen, you must select your own associations and pathways")
 
@@ -150,7 +149,7 @@ class Analysis:
     
             self.value_getters.method = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "Method",
-                options= ["FET", "GSEA", "GO"],
+                options= ["FET", "GSEA", "ONT"],
                 tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
             self.value_getters.pval_col = self.create_int_field(self.panel,main_sizer, value=-2, label="Pval Col", tooltip="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
             self.value_getters.qval_col = self.create_int_field(self.panel,main_sizer, value=-1, label="Qval Col", tooltip="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
@@ -166,30 +165,34 @@ class Analysis:
 
 
     @classmethod
-    def from_gui(cls,frame): 
-
-        
-        if Analysis.inputs.organism =="H37Rv":
-            if Analysis.inputs.pathway_type == "Sanger":
-                Analysis.inputs.associations_file = universal.root_folder+"pytransit/data/H37Rv_sanger_roles.dat"
-                Analysis.inputs.pathways_file = universal.root_folder+"pytransit/data/sanger_roles.dat"
-            #if Analysis.inputs.pathway_typpe == "COGG":
-
-        # elif Analysis.inputs.organism =="smegmatis":
-        #     if Analysis.inputs.pathway_type = "COGG":
-        #            Analysis.inputs.associations_file = "FIND THIS"
-        #         Analysis.inputs.pathways_file = universal.root_folder+"pytransit/data/smeg_COGG_roles.dat" 
-        else: # ask for files
-            Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
-            Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
-        
-        
+    def from_gui(cls,frame):       
 
         for each_key, each_getter in Analysis.value_getters.items():
             try:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+
+
+        if Analysis.inputs.organism_pathway =="H37Rv-Sanger":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
+        elif Analysis.inputs.organism_pathway =="H37Rv-GO":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+        elif Analysis.inputs.organism_pathway =="H37Rv-COG":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
+        elif Analysis.inputs.organism_pathway =="Smeg-GO":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+        elif Analysis.inputs.organism_pathway =="Smeg-COG":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
+        else: # ask for files
+            Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
+            Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
+        
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Analysis.short_name}_output.dat",
@@ -228,7 +231,8 @@ class Analysis:
             logging.log(f"Starting {Analysis.identifier} analysis")
             start_time = time.time()
 
-            
+            logging.log(Analysis.inputs.associations_file)
+            logging.log(Analysis.inputs.pathways_file)
             
                 #checking validation of inputs
             if self.inputs.method == "FET":
