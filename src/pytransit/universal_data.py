@@ -23,7 +23,7 @@ universal = LazyDict(
     debugging_enabled=False,
     session_data=None,
     busy_running_method=False,
-    root_folder = path.join(__file__,"../../../")
+    root_folder = path.join(path.dirname(__file__),"../../")
 )
 
 @singleton
