@@ -516,7 +516,7 @@ class File:
     
     def __str__(self):
         return f"""
-            File for {self.short_name}
+            File for {Analysis.short_name}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

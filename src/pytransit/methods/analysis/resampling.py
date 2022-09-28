@@ -29,6 +29,7 @@ from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 command_name = sys.argv[0]
 
+@misc.singleton
 class Analysis:
     identifier  = "Resampling"
     short_name = "resampling"
@@ -113,7 +114,6 @@ class Analysis:
     
     def __init__(self, *args, **kwargs):
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-        self.filetypes        = [File]
     
     def __str__(self):
         return f"""
@@ -124,8 +124,8 @@ class Analysis:
                 Long Desc:   {self.long_desc}
         """.replace('\n            ','\n').strip()
     
-    def __repr__(self):
-        return f"{self.inputs}"
+    def __repr__(self): return f"{self.inputs}"
+    def __call__(self): return self
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -742,7 +742,7 @@ class Analysis:
 
 
 @transit_tools.ResultsFile
-class File(Analysis):
+class ResultFileType1:
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
@@ -773,7 +773,7 @@ class File(Analysis):
     
     def __str__(self):
         return f"""
-            File for {self.short_name}
+            File for {Analysis.short_name}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -837,5 +837,5 @@ class File(Analysis):
             plt.title("Adjusted threshold (red line): P-value=%1.8f" % threshold)
             plt.show()
 
-Method = GUI = Analysis
-Analysis() # make sure there's one instance
+Analysis.filetypes = [ ResultFileType1, ]
+Method = GUI = Analysis # for compatibility with older code/methods
