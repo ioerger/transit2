@@ -44,7 +44,7 @@ class Analysis:
         associations_file = None,
         pathways_file = None,
         output_path= None,
-     
+        organism_pathway = None,
     )
     
     valid_cli_flags = [
@@ -90,12 +90,9 @@ class Analysis:
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
 
-    #####################  need to pull out in other function #########################
-
     def call_from_results_panel(self, results_file):
         self.inputs.resampling_file = results_file
         self.define_panel()
-
 
     def define_panel(self,_=None):
         from pytransit.components.panel_helpers import Panel
@@ -108,21 +105,24 @@ class Analysis:
                     allowed_extensions='All files (*.*)|*.*',
                 ) 
 
- 
-            self.value_getters.associations_file = panel_helpers.create_file_input(self.panel, main_sizer,
-                button_label="Associations file",
-                default_file_name="sanger_assocations.txt",
-                allowed_extensions="All files (*.*)|*.*",
-                popup_title="Choose Associations file",
-                tooltip_text="Must exist to run Pathway enrichment.",
+            self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
+                label = "Organism-Pathway",
+                options= ["H37Rv-COG", "H37Rv-Sanger","H37Rv-GO", "Smeg-COG", "Smeg-GO", "Other"],
+                tooltip_text= "Pick the Organism whose pathways you would like to use. Once an organism is picked, the corresponding associations and pathways with be autoselected. If other is chosen, you must select your own associations and pathways"
             )
-            
-            self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel, main_sizer,
-                button_label="Pathways file",
-                default_file_name="sanger_pathways.txt",
-                allowed_extensions="All files (*.*)|*.*",
-                popup_title="Choose Pathways file",
-                tooltip_text="Must exist to run Pathway enrichment."
+
+
+            # self.value_getters.pathways_type = panel_helpers.create_choice_input(self.panel, main_sizer,
+            #     label = "Type of Pathway",
+            #     options= ["Sanger", "KEGG","GO" ,"Other"],
+            #     tooltip_text = "Type of Pathway you would like to use",
+            # )
+
+    
+            self.value_getters.method = panel_helpers.create_choice_input(self.panel, main_sizer,
+                label = "Method",
+                options= ["FET", "GSEA", "ONT"],
+                tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
             self.value_getters.method              = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Method",                 default_value="FET",  tooltip_text="method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
@@ -138,13 +138,34 @@ class Analysis:
 
 
     @classmethod
-    def from_gui(cls,frame):            
+    def from_gui(cls,frame):       
 
         for each_key, each_getter in Analysis.value_getters.items():
             try:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+
+
+        if Analysis.inputs.organism_pathway =="H37Rv-Sanger":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
+        elif Analysis.inputs.organism_pathway =="H37Rv-GO":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+        elif Analysis.inputs.organism_pathway =="H37Rv-COG":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
+        elif Analysis.inputs.organism_pathway =="Smeg-GO":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+        elif Analysis.inputs.organism_pathway =="Smeg-COG":
+            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
+            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
+        else: # ask for files
+            Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
+            Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
+        
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Analysis.short_name}_output.dat",
@@ -183,6 +204,8 @@ class Analysis:
             logging.log(f"Starting {Analysis.identifier} analysis")
             start_time = time.time()
 
+            logging.log(Analysis.inputs.associations_file)
+            logging.log(Analysis.inputs.pathways_file)
             
                 #checking validation of inputs
             if self.inputs.method == "FET":

@@ -1,5 +1,5 @@
 from random import random
-from os import getcwd
+from os import getcwd, path
 
 import pytransit.basics.csv as csv
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
@@ -23,6 +23,7 @@ class universal:
     frame = None
     debugging_enabled = False
     busy_running_method = False
+    root_folder = path.join(path.dirname(__file__),"../../")
 
     annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
     combined_wigs = []
