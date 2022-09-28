@@ -21,7 +21,7 @@ from pytransit.basics.misc import flatten_once, no_duplicates, singleton
 class universal:
     interface = None # "gui" or "console",  __main__.py decides which
     frame = None
-    debugging_enabled = False
+    debugging_enabled = True
     busy_running_method = False
     root_folder = path.join(path.dirname(__file__),"../../")
 
