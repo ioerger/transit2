@@ -239,13 +239,31 @@ class ResultFileType1:
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[ "Adj. p-value", "p-value" ]
+                    sort_by=[
+                        # HANDLE_THIS
+                    ],
                 ).Show(),
             })
         )
         
+        # 
+        # get column names
+        # 
         self.column_names, self.rows, self.extra_data = tnseq_tools.read_results_file(self.path)
         self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        
+        # 
+        # get summary stats
+        #
+        self.values_for_result_table.update({
+            # HANDLE_THIS (additional summary_info for results table)
+            # examples:
+                # f"Gene Count": len(self.rows),
+                # f"Padj<{Analysis.significance_threshold}": len([
+                #     1 for each in self.rows
+                #         if each.get("Padj", 0) < Analysis.significance_threshold 
+                # ]),
+        })
     
     def __str__(self):
         return f"""
