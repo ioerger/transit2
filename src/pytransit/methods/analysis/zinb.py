@@ -104,7 +104,6 @@ class Analysis:
         universal.interface # "gui" or "console"
         universal.frame # self.wxobj equivalent
         universal.busy_running_method # Boolean, is true when any .Run() is started but not finished
-        universal # I would like to flatten this (remove the .session_data namespace) but its low priority
         universal.annotation_path # string, may need to become a list of strings
         universal.conditions # list of Condition objects
         universal.conditions[0].name # string
