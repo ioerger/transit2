@@ -367,7 +367,7 @@ if True:
                 wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
 
                 if wig_ids and annotation_path:
-                    if universal.frame.verbose:
+                    if universal.debugging_enabled:
                         logging.log(
                             "Visualizing counts for: %s"
                             % ", ".join(wig_ids)
@@ -387,3 +387,99 @@ if True:
         inner_sample_sizer.Layout()
 
     sample_button_creators.append(create_show_track_view_button)
+    
+    # 
+    # Scatter Plot
+    # 
+    show_scatter_plot_button = None
+    def create_show_scatter_plot_button(sample_table, inner_sample_sizer):
+        import pytransit.components.qc_display as qc_display
+        global show_scatter_plot_button
+        # hide an old button if it exists
+        if show_scatter_plot_button != None:
+            show_scatter_plot_button.Hide()
+        
+        show_scatter_plot_button = GenBitmapTextButton(
+            universal.frame,
+            2,
+            gui_tools.bit_map,
+            "Scatter Plot",
+            size=wx.Size(100, -1),
+        )
+        show_scatter_plot_button.SetBackgroundColour(gui_tools.color.light_blue)
+        
+        # 
+        # callback
+        # 
+        @gui_tools.bind_to(show_scatter_plot_button, wx.EVT_BUTTON)
+        def click_show_scatter_plot(event):
+            with gui_tools.nice_error_log:
+                import numpy
+                import matplotlib
+                import matplotlib.pyplot as plt
+                from pytransit.tools import stat_tools
+                selected_samples = universal.selected_samples
+                if len(selected_samples) == 2:
+                    logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
+                    from pytransit.tools.transit_tools import gather_sample_data_for
+                    data, position = gather_sample_data_for(selected_samples=True)
+                    x = data[0, :]
+                    y = data[1, :]
+
+                    plt.plot(x, y, "bo")
+                    plt.title("Scatter plot - Reads at TA sites")
+                    plt.xlabel(selected_samples[0].id)
+                    plt.ylabel(selected_samples[1].id)
+                    plt.show()
+                else:
+                    # NOTE: was a popup
+                    logging.error(f"Select 2 samples (not {len(selected_samples)})")
+        
+        inner_sample_sizer.Add(show_scatter_plot_button)
+        inner_sample_sizer.Layout()
+
+    sample_button_creators.append(create_show_scatter_plot_button)
+    
+    # 
+    # Quality Control
+    # 
+    show_quality_control_button = None
+    def create_show_quality_control_button(sample_table, inner_sample_sizer):
+        import pytransit.components.qc_display as qc_display
+        global show_quality_control_button
+        # hide an old button if it exists
+        if show_quality_control_button != None:
+            show_quality_control_button.Hide()
+        
+        show_quality_control_button = GenBitmapTextButton(
+            universal.frame,
+            2,
+            gui_tools.bit_map,
+            "Quality Control",
+            size=wx.Size(100, -1),
+        )
+        show_quality_control_button.SetBackgroundColour(gui_tools.color.light_blue)
+        
+        # 
+        # callback
+        # 
+        @gui_tools.bind_to(show_quality_control_button, wx.EVT_BUTTON)
+        def click_show_quality_control(event):
+            with gui_tools.nice_error_log:
+                wig_ids = [ each_sample.id for each_sample in universal.selected_samples ] 
+                number_of_files = len(wig_ids)
+
+                if number_of_files <= 0:
+                    raise Exception(f'''No Datasets selected, unable to run''')
+                else:
+                    logging.log(f"Displaying results: {wig_ids}")
+                    try:
+                        qc_window = qc_display.QualityControlFrame(universal.frame, wig_ids)
+                        qc_window.Show()
+                    except Exception as error:
+                        raise Exception(f"Error occured displaying file: {error}")
+        
+        inner_sample_sizer.Add(show_quality_control_button)
+        inner_sample_sizer.Layout()
+
+    sample_button_creators.append(create_show_scatter_plot_button)
