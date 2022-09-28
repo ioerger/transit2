@@ -155,7 +155,6 @@ class Analysis:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-        logging.log("included_conditions", Analysis.inputs.included_conditions)
         
         # 
         # ask for output path(s)

@@ -99,7 +99,7 @@ def main(*args, **kwargs):
                 sys.exit(1)
             
             if setup_object:
-                setup_object.Run()
+                method.Run()
                 sys.exit(0)
         
         def check_if_missing(kind, selected_name, methods):

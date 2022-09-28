@@ -27,6 +27,7 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 
 command_name = sys.argv[0]
@@ -141,33 +142,11 @@ class Analysis:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###transit_tools.log("included_conditions", Analysis.inputs.included_conditions)
-
-            # 
-            # get filename for results
-            #Analysis.inputs.output_path = "%s.dat" % (Analysis.inputs.output_basename)
 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
                 default_file_name="output.dat",
                 output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
             )
-            # if not Analysis.inputs.output_path:
-            #     return None
-
-            # 
-            # extract universal data
-            # 
-            # cwig_path     = universal.combined_wigs[0].main_path
-            # metadata_path = universal.combined_wigs[0].metadata.path
-            
-            # Analysis.inputs.combined_wig_params = dict(
-            #     combined_wig=cwig_path,
-            #     samples_metadata=metadata_path,
-            # )
-            
-            # Analysis.inputs.update(dict(
-            #     annotation_path_exp=Analysis.inputs.annotation_path_exp
-            # ))
 
             #if not Analysis.inputs.output_path: return None ### why?
             return Analysis
@@ -205,16 +184,15 @@ class Analysis:
       return Analysis
         
     def Run(self):
- 
         with gui_tools.nice_error_log:
-            transit_tools.log("Starting gumbel analysis")
+            logging.log("Starting gumbel analysis")
             self.start_time = time.time()
 
             #######################
             # get data
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
-              transit_tools.log("Getting Data from %s" % self.inputs.combined_wig)
+              logging.log("Getting Data from %s" % self.inputs.combined_wig)
               position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
 
               metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
@@ -225,13 +203,13 @@ class Analysis:
                 indexes[cond].append(i)
               cond = Analysis.inputs.condition
               ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
-              transit_tools.log("selected samples for gumbel (cond=%s): %s" % (cond,','.join(ids)))
+              logging.log("selected samples for gumbel (cond=%s): %s" % (cond,','.join(ids)))
               data = data[indexes[cond]] # project array down to samples selected by condition
 
               # now, select the columns in data corresponding to samples that are replicates of desired condition...
 
             elif self.inputs.wig_files!=None:
-              transit_tools.log("Getting Data")
+              logging.log("Getting Data")
               (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
 
             else: print("error: must provide either combined_wig or list of wig files"); sys.exit(0) ##### use transit.error()?
@@ -246,7 +224,7 @@ class Analysis:
 
             # normalize the counts
             if self.inputs.normalization and self.inputs.normalization != "nonorm":
-                transit_tools.log("Normalizing using: %s" % self.inputs.normalization)
+                logging.log("Normalizing using: %s" % self.inputs.normalization)
                 (data, factors) = norm_tools.normalize_data( data, self.inputs.normalization, self.inputs.wig_files, self.inputs.annotation_path )
                 
                 # read-in genes from annotation
@@ -268,7 +246,7 @@ class Analysis:
             ###########################
             # process data
 
-            transit_tools.log("processing data")
+            logging.log("processing data")
             Z_sample, phi_sample, count, acctot= self.calc_gumbel(G)
 
             ###########################
@@ -276,10 +254,10 @@ class Analysis:
 
             self.write_gumbel_results(G, Z_sample, phi_sample, count, acctot)
             results_area.add(self.inputs.output_path)
-            transit_tools.log(f"Finished running {Analysis.short_name}")       
+            logging.log(f"Finished running {Analysis.short_name}")       
 
     def calc_gumbel(self,G):
-        transit_tools.log("Starting Gumbel Method")
+        logging.log("Starting Gumbel Method")
 
         # Set Default parameter values
         w1 = 0.15
@@ -298,7 +276,7 @@ class Analysis:
 
 
         # Get orf data
-        transit_tools.log("Reading Annotation")
+        logging.log("Reading Annotation")
         ii_good = numpy.array([self.good_orf(g) for g in G])  # Gets index of the genes that can be analyzed
 
         K = G.local_insertions()[ii_good]
@@ -308,14 +286,14 @@ class Analysis:
         T = G.local_gene_span()[ii_good]
 
         ####################################################
-        transit_tools.log("Doing Regression")
+        logging.log("Doing Regression")
         mu_s, temp, sigma_s = stat_tools.regress(R, S)  # Linear regression to estimate mu_s, sigma_s for span data
         mu_r, temp, sigma_r = stat_tools.regress(S, R)  # Linear regression to estimate mu_r, sigma_r for run data
 
         N_GENES = len(G)
         N_GOOD = sum(ii_good)
 
-        transit_tools.log("Setting Initial Class")
+        logging.log("Setting Initial Class")
         Z_sample = numpy.zeros((N_GOOD, self.samples))
         Z = [self.classify(g.n, g.r, 0.5) for g in G if self.good_orf(g)]
         Z_sample[:, 0] = Z
@@ -372,10 +350,10 @@ class Analysis:
                     i += 1
 
             except ValueError as e:
-                transit_tools.log("Error: %s" % e)
-                transit_tools.log("This is likely to have been caused by poor data (e.g. too sparse)." )
-                transit_tools.log("If the density of the dataset is too low, the Gumbel method will not work.")
-                transit_tools.log("Quitting.")
+                logging.log("Error: %s" % e)
+                logging.log("This is likely to have been caused by poor data (e.g. too sparse)." )
+                logging.log("If the density of the dataset is too low, the Gumbel method will not work.")
+                logging.log("Quitting.")
                 return
 
             #            print(i,phi_new,w1,G[idxG].name,N[idxN],R[idxN],Z[idxN])

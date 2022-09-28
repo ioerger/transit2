@@ -111,20 +111,20 @@ class Analysis:
             Analysis.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
             Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path 
-
             Analysis.inputs.annotation_path = universal.annotation_path
 
+            # 
+            # call all GUI getters, puts results into respective Analysis.inputs key-value
+            # 
             for each_key, each_getter in Analysis.value_getters.items():
                 try:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-            ###logging.log("included_conditions", Analysis.inputs.included_conditions)
+            
             Analysis.inputs.genes_output_path = "%s.genes.dat" % (Analysis.inputs.output_basename)
             Analysis.inputs.sites_output_path = "%s.sites.dat" % (Analysis.inputs.output_basename)
 
-
-            #if not Analysis.inputs.output_path: return None ### why?
             return Analysis
 
     @classmethod
