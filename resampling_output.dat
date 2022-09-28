@@ -13,7 +13,7 @@
 #       c_terminus: 0.0
 #    control_data: Cholesterol
 #    experimental_data: Glycerol
-#    annotation_path: /Users/jeffhykin/repos/transit/src/pytransit/genomes/H37Rv_dev.prot_table
+#    annotation_path: ./src/pytransit/genomes/H37Rv_dev.prot_table
 #    time: 2.3570520877838135
 #    
 #Orf	Name	Desc	Sites	Mean Ctrl	Mean Exp	log2FC	Sum Ctrl	Sum Exp	Delta Mean	p-value	Adj. p-value

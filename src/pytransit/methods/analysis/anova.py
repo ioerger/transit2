@@ -365,7 +365,7 @@ class Analysis:
             condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
             # validate
             if self.inputs.refs and len(set(self.inputs.refs) - set(condition_names)) > 0:
-                logging.error(f"One of the reference conditions {self.inputs.refs} is not one of the available conditions: {condition_names}")
+                logging.error(f"One of the reference conditions {self.inputs.refs} is not one of the available conditions: {misc.no_duplicates(condition_names)}")
 
             (
                 data,
