@@ -569,5 +569,4 @@ class ResultFileType1:
         """.replace('\n            ','\n').strip()
     
     
-Analysis.filetypes = [ ResultFileType1, ]
 Method = GUI = Analysis # for compatibility with older code/methods

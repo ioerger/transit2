@@ -807,6 +807,4 @@ class SitesFile:
         """.replace('\n            ','\n').strip()
 
 
-    
-Analysis.filetypes = [ GenesFile, SitesFile, ]
 Method = GUI = Analysis # for compatibility with older code/methods

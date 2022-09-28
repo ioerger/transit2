@@ -30,7 +30,7 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    name = "PathwayEnrichment" # HANDLE_THIS
+    name = "PathwayEnrichment"
     identifier  = name
     short_name  = name.lower()
     long_name   = name.upper()
@@ -851,5 +851,4 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
-Analysis.filetypes = [ ResultFileType1, ] # HANDLE_THIS
 Method = GUI = Analysis # for compatibility with older code/methods

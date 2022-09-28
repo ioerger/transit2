@@ -837,5 +837,4 @@ class ResultFileType1:
             plt.title("Adjusted threshold (red line): P-value=%1.8f" % threshold)
             plt.show()
 
-Analysis.filetypes = [ ResultFileType1, ]
 Method = GUI = Analysis # for compatibility with older code/methods

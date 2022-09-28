@@ -270,5 +270,4 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
-Analysis.filetypes = [ ResultFileType1, ] # HANDLE_THIS
 Method = GUI = Analysis # for compatibility with older code/methods
