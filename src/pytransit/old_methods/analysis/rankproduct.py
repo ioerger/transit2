@@ -87,7 +87,7 @@ class RankProductGUI(base.AnalysisGUI):
         rankproductLabel = wx.StaticText(
             rankproductPanel,
             wx.ID_ANY,
-            u"rankproduct Options",
+            "rankproduct Options",
             wx.DefaultPosition,
             (160, -1),
             0,
@@ -108,8 +108,8 @@ class RankProductGUI(base.AnalysisGUI):
             sampleSizer,
         ) = self.defineTextBox(
             rankproductPanel,
-            u"Samples:",
-            u"10000",
+            "Samples:",
+            "10000",
             "Number of samples to take when estimating the theoretical rankproduct distribution. Larger samples give more accurate estimates at the cost of computation time.",
         )
         mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
@@ -117,13 +117,13 @@ class RankProductGUI(base.AnalysisGUI):
         # NORMALIZATION
         # Norm
         rankproductNormChoiceChoices = [
-            u"TTR",
-            u"nzmean",
-            u"totreads",
-            u"zinfnb",
-            u"quantile",
-            u"betageom",
-            u"nonorm",
+            "TTR",
+            "nzmean",
+            "totreads",
+            "zinfnb",
+            "quantile",
+            "betageom",
+            "nonorm",
         ]
         (
             rankproductNormLabel,
@@ -131,7 +131,7 @@ class RankProductGUI(base.AnalysisGUI):
             normSizer,
         ) = self.defineChoiceBox(
             rankproductPanel,
-            u"Normalization:",
+            "Normalization:",
             rankproductNormChoiceChoices,
             "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
@@ -142,7 +142,7 @@ class RankProductGUI(base.AnalysisGUI):
         rankproductButton = wx.Button(
             rankproductPanel,
             wx.ID_ANY,
-            u"Run rankproduct",
+            "Run rankproduct",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
@@ -222,7 +222,8 @@ class RankProductMethod(base.DualConditionMethod):
         """ """
 
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

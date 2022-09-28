@@ -20,7 +20,7 @@ from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 command_name = sys.argv[0]
 
-name = "Example" # HANDLE_THIS
+name = "Zinb"
 
 @misc.singleton
 class Analysis:
@@ -79,6 +79,7 @@ class Analysis:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
+            # HANDLE_THIS
             # panel_helpers.create_float_getter(self.panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_int_getter(self.panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_file_input(self.panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')

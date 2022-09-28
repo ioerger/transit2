@@ -254,22 +254,22 @@ if True:
         sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: wxobj.GetValue()
 
-    def create_float_getter(panel, sizer, label_text, default_value, tooltip_text=None):
+    def create_float_getter(panel, sizer, *, label_text, default_value, tooltip_text=None):
         get_text = create_text_box_getter(
             panel,
             sizer,
             label_text=label_text,
-            default_value=default_value,
+            default_value=str(float(default_value)),
             tooltip_text=tooltip_text,
         )
         return lambda *args: float(get_text())        
     
-    def create_int_getter(panel, sizer, label_text, default_value, tooltip_text=None):
+    def create_int_getter(panel, sizer, *, label_text, default_value, tooltip_text=None):
         get_text = create_text_box_getter(
             panel,
             sizer,
             label_text=label_text,
-            default_value=default_value,
+            default_value=str(int(default_value)),
             tooltip_text=tooltip_text,
         )
         return lambda *args: int(get_text())        

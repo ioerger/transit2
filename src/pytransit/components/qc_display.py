@@ -24,40 +24,10 @@ import numpy
 import scipy.stats
 import matplotlib.pyplot as plt
 
-# matplotlib.use('WXAgg')
-
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
-
-
-def WxBitmapToPilImage(myBitmap):
-    return WxImageToPilImage(WxBitmapToWxImage(myBitmap))
-
-
-def WxBitmapToWxImage(myBitmap):
-    return wx.ImageFromBitmap(myBitmap)
-
-
-def PilImageToWxBitmap(myPilImage):
-    return WxImageToWxBitmap(PilImageToWxImage(myPilImage))
-
-
-def PilImageToWxImage(myPilImage):
-    myWxImage = wx.EmptyImage(myPilImage.size[0], myPilImage.size[1])
-    myWxImage.SetData(myPilImage.convert("RGB").tobytes())
-    return myWxImage
-
-
-def WxImageToWxBitmap(myWxImage):
-    return myWxImage.ConvertToBitmap()
-
-
-###########################################################################
-## Class QualityControlFrame
-###########################################################################
-
 
 class QualityControlFrame(wx.Frame):
     def __init__(self, parent, wig_ids):
@@ -161,7 +131,6 @@ class QualityControlFrame(wx.Frame):
  Selecting a normalization method from the drop down will normalize the data and refresh the figures and table.
  This may take a long time depending on the normalization method chosen."""
 
-            # self.noticeLabel = wx.StaticText( self.statsScrolledWindow, wx.ID_ANY, u"*Note: Plot 1 and 2 truncate the top 1% of reads for readability.", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTRE)
             self.noticeLabel = wx.StaticText(
                 self.statsScrolledWindow,
                 wx.ID_ANY,
@@ -173,7 +142,7 @@ class QualityControlFrame(wx.Frame):
 
             normChoices = sorted(
                 norm_tools.methods.keys()
-            )  # [ u"nonorm", "TTR", "betageom"]
+            )  # [ "nonorm", "TTR", "betageom"]
             self.normChoice = wx.Choice(
                 self.statsScrolledWindow,
                 wx.ID_ANY,
@@ -182,15 +151,12 @@ class QualityControlFrame(wx.Frame):
                 normChoices,
                 0,
             )
-            # self.normChoice.SetSelection( 0 )
             self.normChoice.SetStringSelection("nonorm")
-            # noteSizer = wx.BoxSizer( wx.VERTICAL )
-            # noteSizer.Add(self.noticeLabel, wx.ALL|wx.EXPAND, 5 )
 
             self.normLabel = wx.StaticText(
                 self.statsScrolledWindow,
                 wx.ID_ANY,
-                u"Normalization:",
+                "Normalization:",
                 wx.DefaultPosition,
                 wx.DefaultSize,
                 wx.ALIGN_CENTRE,
@@ -210,7 +176,6 @@ class QualityControlFrame(wx.Frame):
             normSizer.Add(self.normChoice, 0, wx.ALL, 5)
 
             statsSizer.Add(self.noticeLabel, 0, wx.EXPAND, 5)
-            # statsSizer.Add( self.normChoice, 0, wx.ALL, 5 )
             statsSizer.Add(normSizer, 0, wx.ALL, 5)
             statsSizer.Add(self.statsListCtrl, 1, wx.ALL | wx.EXPAND, 5)
 
@@ -362,7 +327,7 @@ class QualityControlFrame(wx.Frame):
                 fig.savefig(buf, format="png")
                 buf.seek(0)
                 hist_pil_img = Image.open(buf)
-                hist_wx_img = PilImageToWxImage(hist_pil_img)
+                hist_wx_img = gui_tools.pil_image_to_wx_image(hist_pil_img)
                 hist_wx_bitmap = wx.BitmapFromImage(hist_wx_img)
 
                 # Plot 2
@@ -388,7 +353,7 @@ class QualityControlFrame(wx.Frame):
                 fig.savefig(buf, format="png")
                 buf.seek(0)
                 qq_pil_img = Image.open(buf)
-                qq_wx_img = PilImageToWxImage(qq_pil_img)
+                qq_wx_img = gui_tools.pil_image_to_wx_image(qq_pil_img)
                 qq_wx_bitmap = wx.BitmapFromImage(qq_wx_img)
 
                 # Plot 3
@@ -404,7 +369,7 @@ class QualityControlFrame(wx.Frame):
                 fig.savefig(buf, format="png")
                 buf.seek(0)
                 sorted_pil_img = Image.open(buf)
-                sorted_wx_img = PilImageToWxImage(sorted_pil_img)
+                sorted_wx_img = gui_tools.pil_image_to_wx_image(sorted_pil_img)
                 sorted_wx_bitmap = wx.BitmapFromImage(sorted_wx_img)
 
                 self.plots_list.append(

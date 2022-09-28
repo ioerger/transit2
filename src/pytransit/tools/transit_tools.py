@@ -241,7 +241,7 @@ def validate_wig_format(wig_list, wxobj=None):
         if result == dlg.ID_HIMAR1 and wxobj:
             status = 1
             # Get genome
-            wc = u"Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
+            wc = "Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
             gen_dlg = wx.FileDialog(
                 wxobj,
                 message="Save file as ...",

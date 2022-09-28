@@ -124,7 +124,7 @@ class GIGUI(base.AnalysisGUI):
         giSizer = wx.BoxSizer(wx.VERTICAL)
 
         giLabel = wx.StaticText(
-            giPanel, wx.ID_ANY, u"GI Options", wx.DefaultPosition, (100, -1), 0
+            giPanel, wx.ID_ANY, "GI Options", wx.DefaultPosition, (100, -1), 0
         )
         giLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         giSizer.Add(giLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
@@ -140,8 +140,8 @@ class GIGUI(base.AnalysisGUI):
         # Samples
         (giSampleLabel, self.wxobj.giSampleText, sampleSizer) = self.defineTextBox(
             giPanel,
-            u"Samples:",
-            u"10000",
+            "Samples:",
+            "10000",
             "Number of samples to take when estimating the distributions of means. More samples give more accurate estimates at the cost of computation time.",
         )
         mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
@@ -149,25 +149,25 @@ class GIGUI(base.AnalysisGUI):
         # ROPE
         (giROPELabel, self.wxobj.giROPEText, ROPESizer) = self.defineTextBox(
             giPanel,
-            u"ROPE:",
-            u"0.5",
+            "ROPE:",
+            "0.5",
             "Region of Practical Equivalence. Area around 0 (i.e. 0.0 +/- ROPE) that defines changes in enrichment (delta-log2FC) that are NOT of interest. Can be thought of as the area representing a null-hypothesis.",
         )
         mainSizer1.Add(ROPESizer, 1, wx.EXPAND, 5)
 
         # Norm
         giNormChoiceChoices = [
-            u"TTR",
-            u"nzmean",
-            u"totreads",
-            u"zinfnb",
-            u"quantile",
-            u"betageom",
-            u"nonorm",
+            "TTR",
+            "nzmean",
+            "totreads",
+            "zinfnb",
+            "quantile",
+            "betageom",
+            "nonorm",
         ]
         (giNormLabel, self.wxobj.giNormChoice, normSizer) = self.defineChoiceBox(
             giPanel,
-            u"Normalization:",
+            "Normalization:",
             giNormChoiceChoices,
             "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
@@ -189,7 +189,7 @@ class GIGUI(base.AnalysisGUI):
         self.wxobj.giLoessPrev = wx.Button(
             giPanel,
             wx.ID_ANY,
-            u"Preview LOESS fit",
+            "Preview LOESS fit",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
@@ -207,7 +207,7 @@ class GIGUI(base.AnalysisGUI):
         giSizer.Add(zeroSizer, 0, wx.EXPAND, 5)
 
         giButton = wx.Button(
-            giPanel, wx.ID_ANY, u"Run GI", wx.DefaultPosition, wx.DefaultSize, 0
+            giPanel, wx.ID_ANY, "Run GI", wx.DefaultPosition, wx.DefaultSize, 0
         )
         giSizer.Add(giButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
@@ -259,26 +259,26 @@ if HAS_WX:
 
             # CONTROL
             ctrlSizerB = wx.StaticBoxSizer(
-                wx.StaticBox(self, wx.ID_ANY, u"Control Samples - Condition B"),
+                wx.StaticBox(self, wx.ID_ANY, "Control Samples - Condition B"),
                 wx.VERTICAL,
             )
 
             bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
 
             self.ctrlRemoveButton = wx.Button(
-                self, wx.ID_ANY, u"Remove", wx.DefaultPosition, (96, -1), 0
+                self, wx.ID_ANY, "Remove", wx.DefaultPosition, (96, -1), 0
             )
             bSizer2.Add(self.ctrlRemoveButton, 0, wx.ALL, 5)
 
             self.ctrlViewButton = wx.Button(
-                self, wx.ID_ANY, u"Track View", wx.DefaultPosition, wx.DefaultSize, 0
+                self, wx.ID_ANY, "Track View", wx.DefaultPosition, wx.DefaultSize, 0
             )
             self.ctrlViewButton.Hide()
 
             bSizer2.Add(self.ctrlViewButton, 0, wx.ALL, 5)
 
             self.ctrlScatterButton = wx.Button(
-                self, wx.ID_ANY, u"Scatter", wx.DefaultPosition, wx.DefaultSize, 0
+                self, wx.ID_ANY, "Scatter", wx.DefaultPosition, wx.DefaultSize, 0
             )
             self.ctrlScatterButton.Hide()
 
@@ -305,26 +305,26 @@ if HAS_WX:
             # EXPERIMENTAL
 
             expSizerB = wx.StaticBoxSizer(
-                wx.StaticBox(self, wx.ID_ANY, u"Experimental Samples - Condition B"),
+                wx.StaticBox(self, wx.ID_ANY, "Experimental Samples - Condition B"),
                 wx.VERTICAL,
             )
 
             bSizer3 = wx.BoxSizer(wx.HORIZONTAL)
 
             self.expRemoveButton = wx.Button(
-                self, wx.ID_ANY, u"Remove", wx.DefaultPosition, (96, -1), 0
+                self, wx.ID_ANY, "Remove", wx.DefaultPosition, (96, -1), 0
             )
             bSizer3.Add(self.expRemoveButton, 0, wx.ALL, 5)
 
             self.experimentTrackViewButton = wx.Button(
-                self, wx.ID_ANY, u"Track View", wx.DefaultPosition, wx.DefaultSize, 0
+                self, wx.ID_ANY, "Track View", wx.DefaultPosition, wx.DefaultSize, 0
             )
             self.experimentTrackViewButton.Hide()
 
             bSizer3.Add(self.experimentTrackViewButton, 0, wx.ALL, 5)
 
             self.experimentScatterButton = wx.Button(
-                self, wx.ID_ANY, u"Scatter", wx.DefaultPosition, wx.DefaultSize, 0
+                self, wx.ID_ANY, "Scatter", wx.DefaultPosition, wx.DefaultSize, 0
             )
             self.experimentScatterButton.Hide()
 
@@ -425,7 +425,7 @@ if HAS_WX:
                     message="Choose a file",
                     defaultDir=self.wxobj.workdir,
                     defaultFile="",
-                    wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                    wildcard="Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                     style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                 )
                 if dlg.ShowModal() == wx.ID_OK:
@@ -462,7 +462,7 @@ if HAS_WX:
                     message="Choose a file",
                     defaultDir=self.wxobj.workdir,
                     defaultFile="",
-                    wildcard=u"Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
+                    wildcard="Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                     style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                 )
                 if dlg.ShowModal() == wx.ID_OK:
@@ -636,7 +636,8 @@ class GIMethod(base.QuadConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

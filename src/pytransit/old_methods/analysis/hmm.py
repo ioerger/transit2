@@ -180,39 +180,39 @@ class HMMGUI(base.AnalysisGUI):
         hmmSection = wx.BoxSizer(wx.VERTICAL)
 
         hmmLabel = wx.StaticText(
-            hmmPanel, wx.ID_ANY, u"HMM Options", wx.DefaultPosition, (110, -1), 0
+            hmmPanel, wx.ID_ANY, "HMM Options", wx.DefaultPosition, (110, -1), 0
         )
         hmmLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         hmmSection.Add(hmmLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
         hmmSizer1 = wx.BoxSizer(wx.VERTICAL)
 
-        # (, , Sizer) = self.defineChoiceBox(hmmPanel, u"", hmmNormChoiceChoices, "")
+        # (, , Sizer) = self.defineChoiceBox(hmmPanel, "", hmmNormChoiceChoices, "")
         # hmmSizer1.Add(Sizer, 1, wx.EXPAND, 5 )
 
         # NORMALIZATION
         hmmNormChoiceChoices = [
-            u"TTR",
-            u"nzmean",
-            u"totreads",
-            u"zinfnb",
-            u"quantile",
-            u"betageom",
-            u"nonorm",
+            "TTR",
+            "nzmean",
+            "totreads",
+            "zinfnb",
+            "quantile",
+            "betageom",
+            "nonorm",
         ]
         (hmmNormLabel, self.wxobj.hmmNormChoice, normSizer) = self.defineChoiceBox(
             hmmPanel,
-            u"Normalization:",
+            "Normalization:",
             hmmNormChoiceChoices,
             "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods.",
         )
         hmmSizer1.Add(normSizer, 1, wx.EXPAND, 5)
 
         # REPLICATE
-        hmmRepChoiceChoices = [u"Sum", u"Mean"]
+        hmmRepChoiceChoices = ["Sum", "Mean"]
         (hmmRepLabel, self.wxobj.hmmRepChoice, repSizer) = self.defineChoiceBox(
             hmmPanel,
-            u"Replicates:",
+            "Replicates:",
             hmmRepChoiceChoices,
             "Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'",
         )
@@ -232,7 +232,7 @@ class HMMGUI(base.AnalysisGUI):
         self.wxobj.hmmLoessPrev = wx.Button(
             hmmPanel,
             wx.ID_ANY,
-            u"Preview LOESS fit",
+            "Preview LOESS fit",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
@@ -242,7 +242,7 @@ class HMMGUI(base.AnalysisGUI):
         hmmSection.Add(hmmSizer1, 1, wx.EXPAND, 5)
 
         hmmButton = wx.Button(
-            hmmPanel, wx.ID_ANY, u"Run HMM", wx.DefaultPosition, wx.DefaultSize, 0
+            hmmPanel, wx.ID_ANY, "Run HMM", wx.DefaultPosition, wx.DefaultSize, 0
         )
         hmmSection.Add(hmmButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
@@ -321,7 +321,8 @@ class HMMMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

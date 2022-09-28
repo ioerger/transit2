@@ -203,3 +203,30 @@ def run_method_by_label(*, method_options, method_label):
                     thread = threading.Thread(target=method_object.Run())
                     thread.setDaemon(True)
                     thread.start()
+
+# 
+# Image Converters
+# 
+if True:
+    def wx_bitmap_to_wx_image(my_bitmap):
+        return wx.ImageFromBitmap(my_bitmap)
+
+    def wx_bitmap_to_pil_image(my_bitmap):
+        return wx_image_to_pil_image(wx_bitmap_to_wx_image(my_bitmap))
+
+    def pil_image_to_wx_bitmap(my_pil_image):
+        return wx_image_to_wx_bitmap(pil_image_to_wx_image(my_pil_image))
+
+    def pil_image_to_wx_image(my_pil_image):
+        my_wx_image = wx.EmptyImage(my_pil_image.size[0], my_pil_image.size[1])
+        try:
+            my_wx_image.SetData(my_pil_image.convert("RGB").tostring())
+        except:
+            my_wx_image.SetData(my_pil_image.convert("RGB").tobytes())
+        return my_wx_image
+
+    def wx_image_to_wx_bitmap(my_wx_image):
+        return my_wx_image.ConvertToBitmap()
+    
+    def wx_image_to_pil_image(wx_image):
+        raise Exception(f'''This function (wx_image_to_pil_image) was never implemented''')

@@ -113,7 +113,7 @@ class GriffinGUI(base.AnalysisGUI):
         griffinLabel = wx.StaticText(
             griffinPanel,
             wx.ID_ANY,
-            u"griffin Options",
+            "griffin Options",
             wx.DefaultPosition,
             (120, -1),
             0,
@@ -128,7 +128,7 @@ class GriffinGUI(base.AnalysisGUI):
         griffinButton = wx.Button(
             griffinPanel,
             wx.ID_ANY,
-            u"Run griffin",
+            "Run griffin",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
@@ -198,7 +198,8 @@ class GriffinMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

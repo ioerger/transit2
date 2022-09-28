@@ -114,7 +114,7 @@ class Tn5GapsGUI(base.AnalysisGUI):
         tn5GapsLabel = wx.StaticText(
             tn5GapsPanel,
             wx.ID_ANY,
-            u"Tn5 Gaps Options",
+            "Tn5 Gaps Options",
             wx.DefaultPosition,
             (150, -1),
             0,
@@ -125,24 +125,24 @@ class Tn5GapsGUI(base.AnalysisGUI):
         mainSizer1 = wx.BoxSizer(wx.VERTICAL)
 
         # Min Read
-        tn5GapsReadChoiceChoices = [u"1", u"2", u"3", u"4", u"5"]
+        tn5GapsReadChoiceChoices = ["1", "2", "3", "4", "5"]
         (
             tn5GapsReadLabel,
             self.wxobj.tn5GapsReadChoice,
             readSizer,
         ) = self.defineChoiceBox(
             tn5GapsPanel,
-            u"Minimum Read:",
+            "Minimum Read:",
             tn5GapsReadChoiceChoices,
             "This is the minimum number of reads to consider a 'true' insertion. Value of 1 will consider all insertions. Larger values allow the method to ignore spurious insertions which might interrupt a run of non-insertions. Noisy datasets or those with many replicates can beneffit from increasing this.",
         )
         mainSizer1.Add(readSizer, 1, wx.EXPAND, 5)
 
         # Replicates
-        tn5GapsRepChoiceChoices = [u"Sum", u"Mean"]
+        tn5GapsRepChoiceChoices = ["Sum", "Mean"]
         (tn5GapsRepLabel, self.wxobj.tn5GapsRepChoice, repSizer) = self.defineChoiceBox(
             tn5GapsPanel,
-            u"Replicates:",
+            "Replicates:",
             tn5GapsRepChoiceChoices,
             "Determines how to handle replicates, and their read-counts. When using many replicates, summing read-counts may make spurious counts appear to be significantly large and interrupt a run of non-insertions.",
         )
@@ -153,7 +153,7 @@ class Tn5GapsGUI(base.AnalysisGUI):
         tn5GapsButton = wx.Button(
             tn5GapsPanel,
             wx.ID_ANY,
-            u"Run Tn5Gaps",
+            "Run Tn5Gaps",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
@@ -216,7 +216,8 @@ class Tn5GapsMethod(base.SingleConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

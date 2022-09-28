@@ -145,7 +145,6 @@ class TnSeqFrame(wx.Frame):
         self.SetIcon(images.transit_icon.GetIcon())
 
         self.workdir = os.getcwd()
-        self.annotation = ""
         self.transposons = ["himar1", "tn5"]
         self.verbose = True
         
@@ -171,7 +170,7 @@ class TnSeqFrame(wx.Frame):
         self,
         DIR=None,
         FILE="",
-        WC=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        WC='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
     ):
         """
         Create and show the Save FileDialog

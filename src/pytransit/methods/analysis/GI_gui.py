@@ -126,8 +126,8 @@ class Analysis:
             self.value_getters.normalization = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR is default
             self.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.samples       = panel_helpers.create_int_getter(self.panel, main_sizer,"Number of samples",10000,"random trials in Monte Carlo simulation")
-            self.value_getters.rope          = panel_helpers.create_float_getter(self.panel, main_sizer,"ROPE",0.5,"Region of probable equivalence around 0")
+            self.value_getters.samples       = panel_helpers.create_int_getter(  self.panel, main_sizer, label_text="Number of samples",default_value=10000, tooltip_text="random trials in Monte Carlo simulation")
+            self.value_getters.rope          = panel_helpers.create_float_getter(self.panel, main_sizer, label_text="ROPE"             ,default_value=0.5,   tooltip_text="Region of probable equivalence around 0")
             self.value_getters.signif        = panel_helpers.create_significance_choice_box(self.panel,main_sizer) # default is HDI
             panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 

@@ -121,7 +121,7 @@ class BinomialGUI(base.AnalysisGUI):
         binomialLabel = wx.StaticText(
             binomialPanel,
             wx.ID_ANY,
-            u"Binomial Options",
+            "Binomial Options",
             wx.DefaultPosition,
             (130, -1),
             0,
@@ -136,12 +136,12 @@ class BinomialGUI(base.AnalysisGUI):
 
         # Samples
         binomialSampleLabel = wx.StaticText(
-            binomialPanel, wx.ID_ANY, u"Samples", wx.DefaultPosition, wx.DefaultSize, 0
+            binomialPanel, wx.ID_ANY, "Samples", wx.DefaultPosition, wx.DefaultSize, 0
         )
         binomialSampleLabel.Wrap(-1)
         binomialLabelSizer.Add(binomialSampleLabel, 1, wx.ALL, 5)
         self.wxobj.binomialSampleText = wx.TextCtrl(
-            binomialPanel, wx.ID_ANY, u"10000", wx.DefaultPosition, wx.DefaultSize, 0
+            binomialPanel, wx.ID_ANY, "10000", wx.DefaultPosition, wx.DefaultSize, 0
         )
         binomialControlSizer.Add(
             self.wxobj.binomialSampleText, 0, wx.ALL | wx.EXPAND, 5
@@ -149,12 +149,12 @@ class BinomialGUI(base.AnalysisGUI):
 
         # Burnin
         binomialBurnLabel = wx.StaticText(
-            binomialPanel, wx.ID_ANY, u"Burn-in", wx.DefaultPosition, wx.DefaultSize, 0
+            binomialPanel, wx.ID_ANY, "Burn-in", wx.DefaultPosition, wx.DefaultSize, 0
         )
         binomialBurnLabel.Wrap(-1)
         binomialLabelSizer.Add(binomialBurnLabel, 1, wx.ALL, 5)
         self.wxobj.binomialBurnText = wx.TextCtrl(
-            binomialPanel, wx.ID_ANY, u"500", wx.DefaultPosition, wx.DefaultSize, 0
+            binomialPanel, wx.ID_ANY, "500", wx.DefaultPosition, wx.DefaultSize, 0
         )
         binomialControlSizer.Add(self.wxobj.binomialBurnText, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -167,7 +167,7 @@ class BinomialGUI(base.AnalysisGUI):
         binomialButton = wx.Button(
             binomialPanel,
             wx.ID_ANY,
-            u"Run binomial",
+            "Run binomial",
             wx.DefaultPosition,
             wx.DefaultSize,
             0,
@@ -255,7 +255,8 @@ class BinomialMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

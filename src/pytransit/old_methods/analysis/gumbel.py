@@ -107,7 +107,7 @@ class GumbelGUI(base.AnalysisGUI):
         gumbelSection = wx.BoxSizer(wx.VERTICAL)
 
         gumbelLabel = wx.StaticText(
-            gumbelPanel, wx.ID_ANY, u"Gumbel Options", wx.DefaultPosition, (130, 20)
+            gumbelPanel, wx.ID_ANY, "Gumbel Options", wx.DefaultPosition, (130, 20)
         )
 
         gumbelLabel.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
@@ -122,8 +122,8 @@ class GumbelGUI(base.AnalysisGUI):
             sampleSizer,
         ) = self.defineTextBox(
             gumbelPanel,
-            u"Samples:",
-            u"10000",
+            "Samples:",
+            "10000",
             "These are the number of samples to take when estimating the parameters. More samples give more accurate estimates of the parameters at the cost of computation time.",
         )
         mainSizer1.Add(sampleSizer, 1, wx.EXPAND, 5)
@@ -135,8 +135,8 @@ class GumbelGUI(base.AnalysisGUI):
             burninSizer,
         ) = self.defineTextBox(
             gumbelPanel,
-            u"Burn-In:",
-            u"500",
+            "Burn-In:",
+            "500",
             "These are the number of samples to take before  beginning to estimate the parameters. Allows the MCMC sampler to 'converge' to the true parameter space. More samples give more accurate estimates of the parameters at the cost of computation time.",
         )
         mainSizer1.Add(burninSizer, 1, wx.EXPAND, 5)
@@ -144,31 +144,31 @@ class GumbelGUI(base.AnalysisGUI):
         # Trim
         (gumbelTrimLabel, self.wxobj.gumbelTrimText, trimSizer) = self.defineTextBox(
             gumbelPanel,
-            u"Trim:",
-            u"1",
+            "Trim:",
+            "1",
             "The MCMC sample will keep every i-th sample. A value of '1' will take all samples. Larger values will reduces autocorrelation at the cost of a substantial cost in computation time.",
         )
         mainSizer1.Add(trimSizer, 1, wx.EXPAND, 5)
 
         # Min Read
-        gumbelReadChoiceChoices = [u"1", u"2", u"3", u"4", u"5"]
+        gumbelReadChoiceChoices = ["1", "2", "3", "4", "5"]
         (
             gumbelReadLabel,
             self.wxobj.gumbelReadChoice,
             readSizer,
         ) = self.defineChoiceBox(
             gumbelPanel,
-            u"Minimum Read:",
+            "Minimum Read:",
             gumbelReadChoiceChoices,
             "This is the minimum number of reads to consider a 'true' insertion. Value of 1 will consider all insertions. Larger values allow the method to ignore spurious insertions which might interrupt a run of non-insertions. Noisy datasets or those with many replicates can beneffit from increasing this.",
         )
         mainSizer1.Add(readSizer, 1, wx.EXPAND, 5)
 
         # Replicates
-        gumbelRepChoiceChoices = [u"Sum", u"Mean"]
+        gumbelRepChoiceChoices = ["Sum", "Mean"]
         (gumbelRepLabel, self.wxobj.gumbelRepChoice, repSizer) = self.defineChoiceBox(
             gumbelPanel,
-            u"Replicates:",
+            "Replicates:",
             gumbelRepChoiceChoices,
             "Determines how to handle replicates, and their read-counts. When using many replicates, summing read-counts may make spurious counts appear to be significantly large and interrupt a run of non-insertions.",
         )
@@ -177,7 +177,7 @@ class GumbelGUI(base.AnalysisGUI):
         gumbelSection.Add(mainSizer1, 1, wx.EXPAND, 5)
 
         gumbelButton = wx.Button(
-            gumbelPanel, wx.ID_ANY, u"Run Gumbel", wx.DefaultPosition, wx.DefaultSize, 0
+            gumbelPanel, wx.ID_ANY, "Run Gumbel", wx.DefaultPosition, wx.DefaultSize, 0
         )
         gumbelSection.Add(gumbelButton, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
@@ -259,7 +259,8 @@ class GumbelMethod(base.SingleConditionMethod):
         """ """
 
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.session_data.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 
