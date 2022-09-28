@@ -44,6 +44,16 @@ class Analysis:
     transposons = ["himar1"]
     columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
     
+    valid_cli_flags = [
+        "-s",
+        "-b",
+        "-m",
+        "-t",
+        "-r",
+        "-iN",
+        "-iC",
+    ]
+    
     inputs = LazyDict(
         combined_wig = None,
         metadata = None,
@@ -117,8 +127,8 @@ class Analysis:
         
             panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
     
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         with gui_tools.nice_error_log:
             # 
             # get wig files
@@ -151,37 +161,29 @@ class Analysis:
             #if not Analysis.inputs.output_path: return None ### why?
             return Analysis
 
-    @classmethod
-    def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
-
-      if len(args)!=3: print(cls.usage_string); sys.exit(0) # use transit_error()?
-
-      # check for unrecognized flags
-      console_tools.handle_unrecognized_flags(
-            "-s -b -m -t -r -iN -iC".split(),
-            kwargs,
-            cls.usage_string,
-      )
-
-      Analysis.inputs.update(dict(
-        combined_wig = None,
-        metadata = None,
-        wig_files = args[0].split(','),
-        annotation_path = args[1],
-        output_path = args[2],
-        normalization = kwargs.get("n", "TTR"),
-        samples = int(kwargs.get("s", 10000)),
-        burnin = int(kwargs.get("b", 500)),
-        read_count = int(kwargs.get("r", 1)),
-        trim = int(kwargs.get("t", 1)),
-        replicates = kwargs.get("r", "Sum"),
-        iN = float(kwargs.get("iN", 0.00)), 
-        iC=float(kwargs.get("iC", 0.00)),
-      ))
-
-       
+    @staticmethod
+    def from_args(args, kwargs):
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        if len(args) != 3: logging.error(Analysis.usage_string)
         
-      return Analysis
+
+        Analysis.inputs.update(dict(
+            combined_wig=None,
+            metadata=None,
+            wig_files=args[0].split(','),
+            annotation_path=args[1],
+            output_path=args[2],
+            normalization=kwargs.get("n", "TTR"),
+            samples=int(kwargs.get("s", 10000)),
+            burnin=int(kwargs.get("b", 500)),
+            read_count=int(kwargs.get("r", 1)),
+            trim=int(kwargs.get("t", 1)),
+            replicates=kwargs.get("r", "Sum"),
+            iN=float(kwargs.get("iN", 0.00)), 
+            iC=float(kwargs.get("iC", 0.00)),
+        ))
+
+        return Analysis
         
     def Run(self):
         with gui_tools.nice_error_log:

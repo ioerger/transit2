@@ -129,21 +129,20 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
+        if len(args) != 6: logging.error(cls.usage_string)
 
-      if len(args)!=6: print(cls.usage_string); sys.exit(0) # use transit_error()?
-
-      Analysis.inputs.update(dict(
-        combined_wig = None,
-        metadata = None,
-        wig_files = args[0].split(','),
-        annotation_path = args[1],
-        genome_path = args[2],
-        gumbel_results_path = args[3],
-        genes_output_path = args[4],
-        sites_output_path = args[5],
-      ))
-        
-      return Analysis
+        Analysis.inputs.update(dict(
+            combined_wig = None,
+            metadata = None,
+            wig_files = args[0].split(','),
+            annotation_path = args[1],
+            genome_path = args[2],
+            gumbel_results_path = args[3],
+            genes_output_path = args[4],
+            sites_output_path = args[5],
+        ))
+            
+        return Analysis
         
     def Run(self):
         with gui_tools.nice_error_log:
