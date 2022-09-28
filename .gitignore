@@ -2,7 +2,7 @@
 # Custom
 # 
 .env
-src/pytransit/doc/
+src/pytransit/doc/*
 
 # 
 # standard

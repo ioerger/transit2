@@ -110,7 +110,7 @@ class TrashFrame(view_trash.MainFrame):
         self.labels = wig_ids + ["All"]
         
         from pytransit.tools.transit_tools import gather_sample_data_for
-        self.data, self.position = gather_sample_data_for(selected_samples=True)
+        self.fulldata, self.position = gather_sample_data_for(selected_samples=True)
 
         # Save normalized data
         (self.fulldata_norm, self.factors) = norm_tools.normalize_data(

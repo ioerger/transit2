@@ -131,6 +131,7 @@ class Analysis:
             self.value_getters.signif        = panel_helpers.create_significance_choice_box(self.panel,main_sizer) # default is HDI
             panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
+
     @classmethod
     def from_gui(cls, frame):
         # 
