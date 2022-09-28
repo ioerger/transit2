@@ -206,122 +206,184 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 name=each_condition.name,
             ))
 
-show_table_button = None
-def create_show_table_button(sample_table, inner_sample_sizer):
-    global show_table_button
-    with gui_tools.nice_error_log:
-        # hide an old button if it exists
-        if show_table_button != None:
-            show_table_button.Hide()
+
+# 
+# Buttons
+# 
+if True:
+    # 
+    # Show Table
+    # 
+    show_table_button = None
+    def create_show_table_button(sample_table, inner_sample_sizer):
+        global show_table_button
+        with gui_tools.nice_error_log:
+            # hide an old button if it exists
+            if show_table_button != None:
+                show_table_button.Hide()
+            
+            show_table_button = GenBitmapTextButton(
+                universal.frame,
+                1,
+                gui_tools.bit_map,
+                "Show Table",
+                size=wx.Size(150, -1),
+            )
+            show_table_button.SetBackgroundColour(gui_tools.color.light_blue)
+            
+            # 
+            # callback
+            # 
+            @gui_tools.bind_to(show_table_button, wx.EVT_BUTTON)
+            def click_show_table(event):
+                selected_wigs = universal.selected_samples or universal.samples
+                
+                # 
+                # heading (only if single wig)
+                # 
+                heading = ""
+                if len(selected_wigs) == 1:
+                    heading = human_readable_data(selected_wigs[0].extra_data)
+                
+                # 
+                # row data
+                # 
+                column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
+                positions = selected_wigs[0].positions
+                rows = []
+                for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
+                    rows.append({
+                        column_name: cell_value
+                            for column_name, cell_value in zip(column_names, row_data)
+                    })
+                
+                SpreadSheet(
+                    title="Read Counts",
+                    heading=heading,
+                    column_names=column_names,
+                    rows=rows,
+                    sort_by=[]
+                ).Show()
         
-        show_table_button = GenBitmapTextButton(
+        inner_sample_sizer.Add(show_table_button)
+        inner_sample_sizer.Layout()
+
+    sample_button_creators.append(create_show_table_button)
+    
+    # 
+    # LOESS
+    # 
+    show_loess_button = None
+    def create_show_loess_button(sample_table, inner_sample_sizer):
+        global show_loess_button
+        # hide an old button if it exists
+        if show_loess_button != None:
+            show_loess_button.Hide()
+        
+        show_loess_button = GenBitmapTextButton(
             universal.frame,
-            1,
+            2,
             gui_tools.bit_map,
-            "Show Table",
-            size=wx.Size(150, -1),
+            "LOESS",
+            size=wx.Size(100, -1),
         )
-        show_table_button.SetBackgroundColour(gui_tools.color.light_blue)
+        show_loess_button.SetBackgroundColour(gui_tools.color.light_blue)
         
         # 
         # callback
         # 
-        @gui_tools.bind_to(show_table_button, wx.EVT_BUTTON)
-        def click_show_table(event):
-            selected_wigs = universal.selected_samples or universal.samples
-            
-            # 
-            # heading (only if single wig)
-            # 
-            heading = ""
-            if len(selected_wigs) == 1:
-                heading = human_readable_data(selected_wigs[0].extra_data)
-            
-            # 
-            # row data
-            # 
-            column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
-            positions = selected_wigs[0].positions
-            rows = []
-            for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
-                rows.append({
-                    column_name: cell_value
-                        for column_name, cell_value in zip(column_names, row_data)
-                })
-            
-            SpreadSheet(
-                title="Read Counts",
-                heading=heading,
-                column_names=column_names,
-                rows=rows,
-                sort_by=[]
-            ).Show()
-    
-    inner_sample_sizer.Add(show_table_button)
-    inner_sample_sizer.Layout()
+        @gui_tools.bind_to(show_loess_button, wx.EVT_BUTTON)
+        def click_show_loess(event):
+            with gui_tools.nice_error_log:
+                import numpy
+                import matplotlib
+                import matplotlib.pyplot as plt
+                from pytransit.tools import stat_tools
+                from pytransit.universal_data import universal
+                from pytransit.tools.tnseq_tools import Wig
+                
+                
+                # 
+                # get selection
+                # 
+                wig_objects = universal.selected_samples  or  universal.samples
+                
+                #
+                # get read_counts and positions
+                # 
+                read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
+                number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
+                window = 100
+                for each_path_index in range(number_of_wigs):
 
-sample_button_creators.append(create_show_table_button)
+                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
+                    x_w = numpy.zeros(number_of_windows)
+                    y_w = numpy.zeros(number_of_windows)
+                    for window_index in range(number_of_windows):
+                        x_w[window_index] = window * window_index
+                        y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
+                    
+                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                    plt.plot(x_w, y_w, "g+")
+                    plt.plot(x_w, y_smooth, "b-")
+                    plt.xlabel("Genomic Position (TA sites)")
+                    plt.ylabel("Reads per 100 insertion sites")
+                    
+                    plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
+                    plt.show()
+        
+        inner_sample_sizer.Add(show_loess_button)
+        inner_sample_sizer.Layout()
 
-show_loess_button = None
-def create_show_loess_button(sample_table, inner_sample_sizer):
-    global show_loess_button
-    # hide an old button if it exists
-    if show_loess_button != None:
-        show_loess_button.Hide()
-    
-    show_loess_button = GenBitmapTextButton(
-        universal.frame,
-        2,
-        gui_tools.bit_map,
-        "LOESS",
-        size=wx.Size(100, -1),
-    )
-    show_loess_button.SetBackgroundColour(gui_tools.color.light_blue)
+    sample_button_creators.append(create_show_loess_button)
     
     # 
-    # callback
+    # Track View
     # 
-    @gui_tools.bind_to(show_loess_button, wx.EVT_BUTTON)
-    def click_show_loess(event):
-        with gui_tools.nice_error_log:
-            import numpy
-            import matplotlib
-            import matplotlib.pyplot as plt
-            from pytransit.tools import stat_tools
-            from pytransit.universal_data import universal
-            from pytransit.tools.tnseq_tools import Wig
-            
-            
-            # 
-            # get selection
-            # 
-            wig_objects = universal.selected_samples  or  universal.samples
-            
-            #
-            # get read_counts and positions
-            # 
-            read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
-            number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-            window = 100
-            for each_path_index in range(number_of_wigs):
+    show_track_view_button = None
+    def create_show_track_view_button(sample_table, inner_sample_sizer):
+        global show_track_view_button
+        # hide an old button if it exists
+        if show_track_view_button != None:
+            show_track_view_button.Hide()
+        
+        show_track_view_button = GenBitmapTextButton(
+            universal.frame,
+            2,
+            gui_tools.bit_map,
+            "Track View",
+            size=wx.Size(100, -1),
+        )
+        show_track_view_button.SetBackgroundColour(gui_tools.color.light_blue)
+        
+        # 
+        # callback
+        # 
+        @gui_tools.bind_to(show_track_view_button, wx.EVT_BUTTON)
+        def click_show_track_view(event):
+            with gui_tools.nice_error_log:
+                import pytransit.components.trash as trash
+                annotation_path = universal.annotation_path
+                wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
 
-                number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                x_w = numpy.zeros(number_of_windows)
-                y_w = numpy.zeros(number_of_windows)
-                for window_index in range(number_of_windows):
-                    x_w[window_index] = window * window_index
-                    y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-                
-                y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                plt.plot(x_w, y_w, "g+")
-                plt.plot(x_w, y_smooth, "b-")
-                plt.xlabel("Genomic Position (TA sites)")
-                plt.ylabel("Reads per 100 insertion sites")
-                
-                plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-                plt.show()
-    
-    inner_sample_sizer.Add(show_loess_button)
-    inner_sample_sizer.Layout()
+                if wig_ids and annotation_path:
+                    if universal.frame.verbose:
+                        logging.log(
+                            "Visualizing counts for: %s"
+                            % ", ".join(wig_ids)
+                        )
+                    view_window = trash.TrashFrame(universal.frame, wig_ids, annotation_path, gene="")
+                    view_window.Show()
+                elif not wig_ids:
+                    # NOTE: was a popup
+                    logging.error("Error: No samples selected.")
+                    return
+                else:
+                    # NOTE: was a popup
+                    logging.error("Error: No annotation file selected.")
+                    return
+        
+        inner_sample_sizer.Add(show_track_view_button)
+        inner_sample_sizer.Layout()
 
-sample_button_creators.append(create_show_loess_button)
+    sample_button_creators.append(create_show_track_view_button)
