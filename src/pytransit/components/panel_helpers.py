@@ -26,8 +26,9 @@ if True:
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
             return (self.wx_panel, self.main_sizer)
         
-        def __exit__(self, _, error, traceback):
+        def __exit__(self, _, error, traceback_obj):
             if error is not None:
+                import traceback
                 print(''.join(traceback.format_tb(traceback_obj)))
                 frame = universal.frame
                 if frame and hasattr(frame, "status_bar"):
@@ -71,7 +72,7 @@ if True:
             # tooltip
             # 
             if tooltip_text:
-                from pytransit.methods.analysis_base import InfoIcon
+                from pytransit.components.icon import InfoIcon
                 row_sizer.Add(
                     InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
                     0,
@@ -126,7 +127,7 @@ if True:
         label_size=None,
         widget_size=None,
     ):
-        from pytransit.methods.analysis_base import InfoIcon
+        from pytransit.components.icon import InfoIcon
         
         if not label_size:
             label_size = default_label_size
@@ -199,7 +200,7 @@ if True:
             label_size=None,
             widget_size=None,
         ):
-            from pytransit.methods.analysis_base import InfoIcon
+            from pytransit.components.icon import InfoIcon
             if not label_size:
                 label_size = default_label_size
             if not widget_size:
@@ -219,7 +220,7 @@ if True:
             return label, text_box, sizer
             
     def create_check_box_getter(panel, sizer, label_text="", default_value=False, tooltip_text="", widget_size=None):
-        from pytransit.methods.analysis_base import InfoIcon
+        from pytransit.components.icon import InfoIcon
         if not widget_size:
             widget_size = (-1, -1)
         
