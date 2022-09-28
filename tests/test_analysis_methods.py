@@ -20,7 +20,7 @@ from pytransit.tools.transit_tools import HAS_R
 
 # Single condition methods
 from pytransit.methods.analysis.anova      import Analysis as AnovaMethod
-from pytransit.methods.analysis.gumbel_gui import Analysis as GumbelMethod
+from pytransit.methods.analysis.gumbel import Analysis as GumbelMethod
 from pytransit.methods.analysis.hmm        import Analysis as HMMMethod
 from pytransit.methods.analysis.zinb       import Analysis as ZinbMethod
 
@@ -29,7 +29,7 @@ from pytransit.methods.analysis.resampling  import Analysis as ResamplingMethod
 # from pytransit.methods.analysis.utest       import UTestMethod # TODO: check if utest is needed
 
 # Genetic Interactions
-from pytransit.methods.analysis.GI_gui import Analysis as GIMethod
+from pytransit.methods.analysis.gi import Analysis as GIMethod
 
 class TestMethods(TransitTestCase):
     def test_gumbel(self):

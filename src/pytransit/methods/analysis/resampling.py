@@ -13,7 +13,7 @@ import scipy
 import scipy.stats
 import heapq
 import math
-from pytransit.methods.analysis.pathway_enrichment_gui import Analysis as PathwayEnrichment
+from pytransit.methods.analysis.pathway_enrichment import Analysis as PathwayEnrichment
 
 from pytransit.basics.lazy_dict import LazyDict
 

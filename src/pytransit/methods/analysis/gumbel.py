@@ -35,8 +35,8 @@ command_name = sys.argv[0]
 @misc.singleton
 class Analysis:
     identifier  = "Gumbel"
-    short_name  = "gumbel_gui"
-    long_name   = "gumbel_gui"
+    short_name  = "gumbel"
+    long_name   = "gumbel"
     short_desc = "Bayesian analysis of essentiality based on long gaps."
     long_desc = """Bayesian methods of analyzing longest runs of non-insertions in a row. Estimates the parameters using the MCMC sampling, and estimates posterior probabilities of essentiality. 
 
@@ -82,7 +82,7 @@ class Analysis:
     # -n for normalization?
     ]
 
-    usage_string = """python3 %s gumbel_gui <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    usage_string = """python3 %s gumbel <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
         Optional Arguments:
         -s <integer>    :=  Number of samples. Default: -s 10000

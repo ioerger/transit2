@@ -35,8 +35,8 @@ command_name = sys.argv[0]
 @misc.singleton
 class Analysis:
     identifier  = "TTNFitness"
-    short_name  = "ttnfitness_gui"
-    long_name   = "ttnfitness_gui"
+    short_name  = "ttnfitness"
+    long_name   = "ttnfitness"
     short_desc  = "Analyze fitness effect of (non-essential) genes"
     long_desc   = """Analyze fitness effect of (non-essential) genes using a predictive model that corrects for the bias in Himar1 insertion probabilities based on nucleotides around each TA site"""
     transposons = [ "himar1" ] # definitely Himar1 only
@@ -55,7 +55,7 @@ class Analysis:
     )
     
 
-    usage_string = f"""usage: python3 %s ttnfitness_gui <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
+    usage_string = f"""usage: python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
     
     wxobj = None
     panel = None

@@ -23,9 +23,9 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    identifier  = "tnseq_stats_gui"
-    short_name  = "tnseq_stats_gui"
-    long_name   = "tnseq_stats_gui"
+    identifier  = "tnseq_stats"
+    short_name  = "tnseq_stats"
+    long_name   = "tnseq_stats"
     short_desc  = "Analyze statistics of TnSeq datasets"
     long_desc   = """Analyze statistics of TnSeq datasets in combined_wig file"""
     transposons = [ "himar1" ]

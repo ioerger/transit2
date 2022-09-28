@@ -30,9 +30,9 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    identifier  = "GI_gui"
-    short_name  = "GI_gui"
-    long_name   = "GI_gui"
+    identifier  = "GI"
+    short_name  = "gi"
+    long_name   = "Genetic Interaction"
     short_desc  = "Genetic Interaction analysis"
     long_desc   = """Genetic Interaction analysis"""
     transposons = [ "himar1" ]
