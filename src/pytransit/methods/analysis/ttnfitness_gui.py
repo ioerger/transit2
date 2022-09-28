@@ -55,7 +55,6 @@ class Analysis:
     
 
     usage_string = f"""usage: python3 %s ttnfitness_gui <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
-    #usage_string = f"""usage: python3 %s ttnfitness <combined_wig> <sample_metadata> <condition> <gumbel_output_file> <genome .fna> <annotation .prot_table> <gumbel output file> <genes_output_file> <sites_output_file>""" # add '-c' to indicate combined_wig?
     
     wxobj = None
     panel = None
@@ -76,51 +75,44 @@ class Analysis:
     def __repr__(self):
         return f"{self.inputs}"
 
-    def create_input_field(self, panel, sizer, label, value,tooltip=None):
-        get_text = create_text_box_getter(
-            panel,
-            sizer,
-            label_text=label,
-            default_value=value,
-            tooltip_text=tooltip,
-        )
-        return lambda *args: get_text()
-
     def define_panel(self, _):
-        from pytransit.tools.transit_tools import wx
-        self.panel = make_panel()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters = LazyDict()
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            self.value_getters = LazyDict()
 
-        self.value_getters.condition = create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
-        self.value_getters.gumbel_results_path = create_file_input(self.panel,main_sizer, \
-          button_label="Gumbel results file",default_file_name="glycerol_gumbel.out",allowed_extensions="All files (*.*)|*.*", \
-          popup_title="Choose Gumbel results file", \
-          tooltip_text="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes.")
-        self.value_getters.genome_path = create_file_input(self.panel,main_sizer, \
-          popup_title="Choose genome sequence file", \
-          button_label="Load genome sequence file",default_file_name="H37Rv.fna",allowed_extensions="Fasta files (*.fa;*.fna;*.fasta))|*.fa;*.fna;*.fasta", \
-          tooltip_text="Genome sequence file (.fna) must match annotation file (.prot_table)")
-        self.value_getters.output_basename = self.create_input_field(self.panel,main_sizer, \
-          label="Basename for output files",value="ttnfitness.test",tooltip="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files.")
-        self.value_getters.normalization = create_normalization_input(self.panel, main_sizer) # TTR 
-
-        create_run_button(self.panel, main_sizer)
-
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
-
+            self.value_getters.condition = panel_helpers.create_condition_choice(self.panel, main_sizer, label_text="Condition to analyze:")
+            self.value_getters.gumbel_results_path = panel_helpers.create_file_input(self.panel, main_sizer,
+                button_label="Gumbel results file",
+                default_file_name="glycerol_gumbel.out",
+                allowed_extensions="All files (*.*)|*.*", 
+                popup_title="Choose Gumbel results file", 
+                tooltip_text="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes."
+            )
+            self.value_getters.genome_path = panel_helpers.create_file_input(self.panel, main_sizer,
+                popup_title="Choose genome sequence file",
+                button_label="Load genome sequence file",
+                default_file_name="H37Rv.fna",
+                allowed_extensions="Fasta files (*.fa;*.fna;*.fasta))|*.fa;*.fna;*.fasta",
+                tooltip_text="Genome sequence file (.fna) must match annotation file (.prot_table)",
+            )
+            self.value_getters.output_basename = panel_helpers.create_text_box_getter(self.panel, main_sizer,
+                label_text="Basename for output files",
+                default_value="ttnfitness.test",
+                tooltip_text="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files."
+            )
+            self.value_getters.normalization = panel_helpers.create_normalization_input(self.panel, main_sizer, default=self.inputs.normalization) # TTR 
+            
+            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+    
     @classmethod
     def from_gui(cls, frame):
         with gui_tools.nice_error_log:
-            combined_wig = universal.session_data.combined_wigs[0]
+            combined_wig = universal.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path 
+            Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path 
 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
+            Analysis.inputs.annotation_path = universal.annotation_path
 
             for each_key, each_getter in Analysis.value_getters.items():
                 try:
@@ -149,7 +141,6 @@ class Analysis:
         gumbel_results_path = args[3],
         genes_output_path = args[4],
         sites_output_path = args[5],
-        #normalization = "TTR",
       ))
         
       return Analysis

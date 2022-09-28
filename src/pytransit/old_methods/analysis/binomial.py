@@ -25,7 +25,7 @@ import numpy
 import scipy.stats
 import datetime
 
-from pytransit.methods import analysis_base as base
+from pytransit.old_methods import analysis_base as base
 from pytransit.tools import logging, transit_tools, tnseq_tools, norm_tools
 from pytransit.components.parameter_panel import panel
 
@@ -256,7 +256,7 @@ class BinomialMethod(base.SingleConditionMethod):
 
         # Get Annotation file
         from pytransit.universal_data import universal
-        annotation_path = universal.session_data.annotation_path
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

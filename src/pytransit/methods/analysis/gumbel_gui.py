@@ -27,7 +27,6 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
 import pytransit.basics.csv as csv
 import pytransit.components.results_area as results_area
-from pytransit.components.panel_helpers import make_panel, create_run_button, create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button, create_text_box_getter, create_button, create_check_box_getter, create_control_condition_input, create_experimental_condition_input, create_preview_loess_button
 
 
 command_name = sys.argv[0]
@@ -107,11 +106,11 @@ class Analysis:
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
             
-            self.value_getters.condition       = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
+            self.value_getters.condition       = panel_helpers.create_condition_choice(self.panel,main_sizer, label_text="Condition to analyze:")
             self.value_getters.normalization   = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR 
             self.value_getters.samples         = panel_helpers.create_int_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
-            self.value_getters.burnin          = panel_helpers.create_text_box_getter(self.panel,main_sizer, label="Burnin",value=500,tooltip="Burnin")
-            self.value_getters.trim            = panel_helpers.create_text_box_getter(self.panel,main_sizer, label="trim",value=1,tooltip="trim")
+            self.value_getters.burnin          = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
+            self.value_getters.trim            = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="trim", default_value=1, tooltip_text="trim")
             self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
         
@@ -123,17 +122,17 @@ class Analysis:
             # 
             # get wig files
             # 
-            combined_wig = universal.session_data.combined_wigs[0]
+            combined_wig = universal.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path 
+            Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path 
 
 
             
             # 
             # get annotation
             # 
-            Analysis.inputs.annotation_path = universal.session_data.annotation_path
+            Analysis.inputs.annotation_path = universal.annotation_path
             transit_tools.validate_annotation(Analysis.inputs.annotation_path)
 
 
@@ -158,8 +157,8 @@ class Analysis:
             # 
             # extract universal data
             # 
-            # cwig_path     = universal.session_data.combined_wigs[0].main_path
-            # metadata_path = universal.session_data.combined_wigs[0].metadata.path
+            # cwig_path     = universal.combined_wigs[0].main_path
+            # metadata_path = universal.combined_wigs[0].metadata.path
             
             # Analysis.inputs.combined_wig_params = dict(
             #     combined_wig=cwig_path,

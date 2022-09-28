@@ -17,9 +17,7 @@ import math
 import statsmodels.stats.multitest
 from pytransit.basics.lazy_dict import LazyDict
 
-from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.methods import analysis_base as base
 from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
@@ -114,10 +112,10 @@ class Analysis:
 
             # only need Norm selection and Run button        
             self.value_getters = LazyDict()
-            self.value_getters.condA1        = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition A1:", tooltip="indicate condition representing 'strain A' in 'condition 1'")
-            self.value_getters.condB1        = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition B1:", tooltip="indicate condition representing 'strain B' in 'condition 1'")
-            self.value_getters.condA2        = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition A2:", tooltip="indicate condition representing 'strain A' in 'condition 2'")
-            self.value_getters.condB2        = panel_helpers.create_condition_input(self.panel,main_sizer,"Condition B2:", tooltip="indicate condition representing 'strain B' in 'condition 2'")
+            self.value_getters.condA1        = panel_helpers.create_condition_input(self.panel,main_sizer, label_text="Condition A1:", tooltip_text="indicate condition representing 'strain A' in 'condition 1'")
+            self.value_getters.condB1        = panel_helpers.create_condition_input(self.panel,main_sizer, label_text="Condition B1:", tooltip_text="indicate condition representing 'strain B' in 'condition 1'")
+            self.value_getters.condA2        = panel_helpers.create_condition_input(self.panel,main_sizer, label_text="Condition A2:", tooltip_text="indicate condition representing 'strain A' in 'condition 2'")
+            self.value_getters.condB2        = panel_helpers.create_condition_input(self.panel,main_sizer, label_text="Condition B2:", tooltip_text="indicate condition representing 'strain B' in 'condition 2'")
             self.value_getters.normalization = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR is default
             self.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
             self.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
@@ -132,14 +130,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        wig_group = universal.session_data.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+        wig_group = universal.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
         Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-        Analysis.inputs.metadata_path = universal.session_data.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+        Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
 
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        Analysis.inputs.annotation_path = universal.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
@@ -165,10 +163,11 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs):
+        print(f'''args = {args}''')
         console_tools.handle_help_flag(kwargs, cls.usage_string)
         console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 
-        if len(args)<8: logging.error(cls.usage_string)
+        if len(args) < 8: logging.error(f"Only {len(args)} of the +8 arguments were given to GI, please see the usage string below\n", cls.usage_string)
 
         combined_wig = args[0]
         metadata_path = args[1]

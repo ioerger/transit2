@@ -17,7 +17,6 @@ from pytransit.methods.analysis.pathway_enrichment_gui import Analysis as Pathwa
 
 from pytransit.basics.lazy_dict import LazyDict
 
-from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.tools.tnseq_tools import Wig
 import pytransit
@@ -154,14 +153,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        combined_wig = universal.session_data.combined_wigs[0]
+        combined_wig = universal.combined_wigs[0]
         Analysis.inputs.combined_wig = combined_wig.main_path
         Analysis.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        Analysis.inputs.annotation_path = universal.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
@@ -185,8 +184,8 @@ class Analysis:
         # 
         # extract universal data
         # 
-        cwig_path     = universal.session_data.combined_wigs[0].main_path
-        metadata_path = universal.session_data.combined_wigs[0].metadata.path
+        cwig_path     = universal.combined_wigs[0].main_path
+        metadata_path = universal.combined_wigs[0].metadata.path
         
         from pytransit.components.samples_area import sample_table
         Analysis.inputs.combined_wig_params = dict(

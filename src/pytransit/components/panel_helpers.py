@@ -248,7 +248,7 @@ if True:
         ) = define_text_box(
             panel,
             label_text=label_text,
-            default_value=default_value,
+            default_value=str(default_value),
             tooltip_text=tooltip_text,
         )
         sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -301,11 +301,11 @@ if True:
                 use_selected = False
                 if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
                     use_selected = True
-                    if not universal.session_data.selected_samples:
+                    if not universal.selected_samples:
                         # NOTE: was a popup
                         logging.error("Need to select at least one control or experimental dataset.")
                 
-                wig_objects = universal.session_data.samples
+                wig_objects = universal.samples
                 
                 #
                 # get read_counts and positions
@@ -355,16 +355,16 @@ if True:
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
-    def create_condition_choice(panel, sizer, name,tooltip="choose condition"):
+    def create_condition_choice(panel, sizer, *, label_text, tooltip_text="choose condition"):
         (
             label,
             ref_condition_wxobj,
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            label_text=name,
-            options=[x.name for x in universal.session_data.conditions],
-            tooltip_text=tooltip,
+            label_text=label_text,
+            options=[x.name for x in universal.conditions],
+            tooltip_text=tooltip_text,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -377,22 +377,22 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Ref Condition:",
-            options=[ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
             tooltip_text="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
-    def create_condition_input(panel, sizer, name="Condition"):
+    def create_condition_input(panel, sizer, label_text="Condition", tooltip_text="choose condition"):
         (
             label,
             ref_condition_wxobj,
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            label_text=name,
-            options=[ "[None]" ] + [x.name for x in universal.session_data.conditions],
-            tooltip_text="choose condition",
+            label_text=label_text,
+            options=[ "[None]" ] + [x.name for x in universal.conditions],
+            tooltip_text=tooltip_text,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -414,7 +414,7 @@ if True:
             as_list = wxobj.GetValue().split(",")
             without_empty_strings = [ each for each in as_list if len(each) > 0 ]
             if len(without_empty_strings) == 0:
-                return [ each.name for each in universal.session_data.conditions ]
+                return [ each.name for each in universal.conditions ]
             else:
                 return without_empty_strings
         
@@ -448,7 +448,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Control Condition:",
-            options=[ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
             tooltip_text="which condition(s) to use as the control group",
             label_size=(200, 20),
         )
@@ -463,7 +463,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Experimental Condition:",
-            options=[ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
             tooltip_text="which condition(s) to use as the experimental group",
             label_size=(200, 20),
         )

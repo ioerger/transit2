@@ -15,13 +15,10 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.console_tools as console_tools
 
-from pytransit.methods.analysis.gumbel import GumbelMethod
-from pytransit.methods.analysis.binomial import BinomialMethod
-from pytransit.methods.analysis.griffin import GriffinMethod
-from pytransit.methods.analysis.hmm import HMMMethod
+from pytransit.methods.analysis.gumbel_gui import Analysis as GumbelMethod
+from pytransit.methods.analysis.hmm        import Analysis as HMMMethod
 
 from pytransit.methods.analysis.resampling import Analysis as ResamplingMethod
-from pytransit.methods.analysis.rankproduct import RankProductMethod
 
 
 # RAW STATISTICS:

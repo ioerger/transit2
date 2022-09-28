@@ -10,7 +10,7 @@ import datetime
 
 import numpy
 
-from pytransit.methods import analysis_base as base
+from pytransit.old_methods import analysis_base as base
 from pytransit.tools import transit_tools
 from pytransit.tools import tnseq_tools
 from pytransit.tools import norm_tools
@@ -132,7 +132,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         # Get Annotation file
         from pytransit.universal_data import universal
-        annotation_path = universal.session_data.annotation_path
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

@@ -99,7 +99,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
         # Get Annotation file
         from pytransit.universal_data import universal
-        annotation_path = universal.session_data.annotation_path
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

@@ -682,10 +682,10 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     from pytransit.universal_data import universal
     from pytransit.tools.tnseq_tools import Wig
     
-    wig_objects = universal.session_data.samples
+    wig_objects = universal.samples
     # default to all samples unless selected_samples is true
     if selected_samples:
-        wig_objects = universal.session_data.selected_samples
+        wig_objects = universal.selected_samples
     
     # filter by conditions if needed
     if conditions:

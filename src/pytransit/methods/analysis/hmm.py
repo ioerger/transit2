@@ -15,7 +15,6 @@ import heapq
 import math
 from pytransit.basics.lazy_dict import LazyDict
 
-from pytransit.methods import analysis_base as base
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.tools.tnseq_tools import Wig
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
@@ -111,14 +110,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        combined_wig = universal.session_data.combined_wigs[0]
+        combined_wig = universal.combined_wigs[0]
         Analysis.inputs.combined_wig = combined_wig.main_path
         Analysis.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        Analysis.inputs.annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
             return None
         
@@ -146,7 +145,7 @@ class Analysis:
         if not Analysis.inputs.output_path:
             return None
         
-        Analysis.inputs.data_sources = [ universal.session_data.combined_wigs[0].main_path ]
+        Analysis.inputs.data_sources = [ universal.combined_wigs[0].main_path ]
         
         # 
         # extract universal data

@@ -128,14 +128,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        combined_wig = universal.session_data.combined_wigs[0]
+        combined_wig = universal.combined_wigs[0]
         Analysis.inputs.combined_wig = combined_wig.main_path
         Analysis.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        Analysis.inputs.annotation_path = universal.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 

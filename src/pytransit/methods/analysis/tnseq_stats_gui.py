@@ -76,7 +76,7 @@ class Analysis:
         # 
         # get wig files
         # 
-        combined_wig = universal.session_data.combined_wigs[0]
+        combined_wig = universal.combined_wigs[0]
         Analysis.inputs.combined_wig = combined_wig.main_path
         
         # 

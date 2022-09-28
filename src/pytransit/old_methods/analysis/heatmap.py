@@ -7,7 +7,7 @@ import datetime
 
 import numpy
 
-from pytransit.methods import analysis_base as base
+from pytransit.old_methods import analysis_base as base
 from pytransit.tools.transit_tools import HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
 import pytransit.tools.transit_tools as transit_tools
 import pytransit.tools.tnseq_tools as tnseq_tools

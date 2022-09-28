@@ -92,25 +92,6 @@ class Analysis:
 
     #####################  need to pull out in other function #########################
 
-    def create_input_field(self, panel, sizer, label, value,tooltip=None):
-        get_text = panel_helpers.create_text_box_getter(
-            panel,
-            sizer,
-            label_text=label,
-            default_value=value,
-            tooltip_text=tooltip,
-        )
-        return lambda *args: get_text()
-    def create_int_field(self, panel, sizer, label, value,tooltip=None):
-        get_text = panel_helpers.create_text_box_getter(
-            panel,
-            sizer,
-            label_text=label,
-            default_value=value,
-            tooltip_text=tooltip,
-        )
-        return lambda *args: int(get_text())
-
     def call_from_results_panel(self, results_file):
         self.inputs.resampling_file = results_file
         self.define_panel()
@@ -121,34 +102,38 @@ class Analysis:
         with Panel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
 
-            if Analysis.inputs.resampling_file==None:
-                Analysis.inputs.resampling_file=gui_tools.ask_for_file(
-                message = "Select a File for PathWay Analysis",
-                allowed_extensions='All files (*.*)|*.*',
+            if Analysis.inputs.resampling_file == None:
+                Analysis.inputs.resampling_file = gui_tools.ask_for_file(
+                    message = "Select a File for PathWay Analysis",
+                    allowed_extensions='All files (*.*)|*.*',
                 ) 
 
  
-            self.value_getters.associations_file = panel_helpers.create_file_input(self.panel,main_sizer, \
-            button_label="Associations file",default_file_name="sanger_assocations.txt",allowed_extensions="All files (*.*)|*.*", \
-            popup_title="Choose Associations file", \
-            tooltip_text="Must exist to run Pathway enrichment.")
-
+            self.value_getters.associations_file = panel_helpers.create_file_input(self.panel, main_sizer,
+                button_label="Associations file",
+                default_file_name="sanger_assocations.txt",
+                allowed_extensions="All files (*.*)|*.*",
+                popup_title="Choose Associations file",
+                tooltip_text="Must exist to run Pathway enrichment.",
+            )
             
-            self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel,main_sizer, \
-            button_label="Pathways file",default_file_name="sanger_pathways.txt",allowed_extensions="All files (*.*)|*.*", \
-            popup_title="Choose Pathways file", \
-            tooltip_text="Must exist to run Pathway enrichment.")
+            self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel, main_sizer,
+                button_label="Pathways file",
+                default_file_name="sanger_pathways.txt",
+                allowed_extensions="All files (*.*)|*.*",
+                popup_title="Choose Pathways file",
+                tooltip_text="Must exist to run Pathway enrichment."
+            )
 
-            self.value_getters.method = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Method", default_value="FET", tooltip_text="method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
-            self.value_getters.pval_col = self.create_int_field(self.panel,main_sizer, value=-2, label="Pval Col", tooltip="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
-            self.value_getters.qval_col = self.create_int_field(self.panel,main_sizer, value=-1, label="Qval Col", tooltip="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
-            self.value_getters.ranking = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="ranking", default_value="SPLV", tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
-            self.value_getters.LFC_col = self.create_input_field(self.panel,main_sizer, value=6, label="LFC col", tooltip="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
-            self.value_getters.enrichment_exponent =  self.create_input_field(self.panel,main_sizer, label="Enrichment Exponent",value=1,tooltip="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
-            self.value_getters.num_permutations = self.create_input_field(self.panel,main_sizer, label="Number of Permutations",value=10000,tooltip="number of permutations to simulate for null distribution to determine p-value")
-            self.value_getters.pseudocount = self.create_int_field(self.panel,main_sizer, label="Pseudocount",value=2,tooltip="pseudo-counts to use in calculating p-value based on hypergeometric distribution")
-
-                
+            self.value_getters.method              = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Method",                 default_value="FET",  tooltip_text="method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
+            self.value_getters.pval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Pval Col",               default_value=-2,     tooltip_text="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
+            self.value_getters.qval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Qval Col",               default_value=-1,     tooltip_text="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
+            self.value_getters.ranking             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="ranking",                default_value="SPLV", tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
+            self.value_getters.LFC_col             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="LFC col",                default_value=6,      tooltip_text="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
+            self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
+            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(self.panel, main_sizer, default_value=2)
+            
             panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function = self.from_gui)
 
 

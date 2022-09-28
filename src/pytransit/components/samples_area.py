@@ -215,7 +215,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
         logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
         with gui_tools.nice_error_log:
-            universal.session_data.combined_wigs.append(
+            universal.combined_wigs.append(
                 tnseq_tools.CombinedWig(
                     main_path=each_cwig_path,
                     metadata_path=each_metadata_path,
@@ -229,7 +229,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # add graphical entries for each condition
     # 
     if True:
-        for each_sample in universal.session_data.samples:
+        for each_sample in universal.samples:
             # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
             sample_table.add(dict(
                 # add hidden link to object
@@ -249,7 +249,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 # kurtosis=each_sample.extra_data.kurtosis,
             ))
         
-        for each_condition in universal.session_data.conditions:
+        for each_condition in universal.conditions:
             conditions_table.add(dict(
                 name=each_condition.name,
             ))

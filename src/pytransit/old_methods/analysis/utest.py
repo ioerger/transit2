@@ -13,7 +13,7 @@ import numpy
 import scipy.stats
 import datetime
 
-from pytransit.methods import analysis_base as base
+from pytransit.old_methods import analysis_base as base
 import pytransit
 from pytransit.tools import transit_tools
 from pytransit.tools import tnseq_tools
@@ -248,7 +248,7 @@ class UTestMethod(base.DualConditionMethod):
         """ """
         # Get Annotation file
         from pytransit.universal_data import universal
-        annotation_path = universal.session_data.annotation_path
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

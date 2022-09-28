@@ -17,17 +17,14 @@ from pytransit.basics.misc import flatten_once, no_duplicates, singleton
     # tools and methods ideally would use this interface instead of accessing individual GUI components
     # that way, the GUI can change as much as needed, so long as it maintains the universal data interface
 
-universal = LazyDict(
-    interface=None, # "gui" or "console"
-    frame=None,
-    debugging_enabled=False,
-    session_data=None,
-    busy_running_method=False,
-)
-
 @singleton
-class SessionData(LazyDict):
-    annotation_path = "" if not universal.debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
+class universal:
+    interface = None # "gui" or "console",  __main__.py decides which
+    frame = None
+    debugging_enabled = False
+    busy_running_method = False
+
+    annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
     combined_wigs = []
     
     @property
@@ -40,11 +37,5 @@ class SessionData(LazyDict):
     
     @property
     def selected_samples(self):
-        if universal.interface == "gui":
-            from pytransit.components.samples_area import get_selected_samples
-            return get_selected_samples()
-        else:
-            # currently (Aug 2022) CLI doesn't use or designate a form of selected samples
-            return self.samples
-
-universal.session_data = SessionData
+        from pytransit.components.samples_area import get_selected_samples
+        return get_selected_samples()

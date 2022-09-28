@@ -104,47 +104,47 @@ class Analysis:
         universal.interface # "gui" or "console"
         universal.frame # self.wxobj equivalent
         universal.busy_running_method # Boolean, is true when any .Run() is started but not finished
-        universal.session_data # I would like to flatten this (remove the .session_data namespace) but its low priority
-        universal.session_data.annotation_path # string, may need to become a list of strings
-        universal.session_data.conditions # list of Condition objects
-        universal.session_data.conditions[0].name # string
-        universal.session_data.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
-        universal.session_data.combined_wigs # list of CombinedWig objects
-        universal.session_data.combined_wigs[0].main_path
-        universal.session_data.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in universal.session_data.combined_wigs ]
-        universal.session_data.combined_wigs[0].samples # list of Wig objects
-        universal.session_data.combined_wigs[0].samples[0].id # id from the metadata file
-        universal.session_data.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
-        universal.session_data.combined_wigs[0].samples[0].condition_names # a list of strings
-        universal.session_data.combined_wigs[0].samples[0].positions # list of ints
-        universal.session_data.combined_wigs[0].samples[0].insertion_counts # list of numbers
-        universal.session_data.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
-        universal.session_data.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
-        universal.session_data.combined_wigs[0].samples[0].extra_data.count
-        universal.session_data.combined_wigs[0].samples[0].extra_data.sum
-        universal.session_data.combined_wigs[0].samples[0].extra_data.non_zero_mean
-        universal.session_data.combined_wigs[0].samples[0].extra_data.non_zero_median
-        universal.session_data.combined_wigs[0].samples[0].extra_data.density
-        universal.session_data.combined_wigs[0].samples[0].extra_data.mean
-        universal.session_data.combined_wigs[0].samples[0].extra_data.max
-        universal.session_data.combined_wigs[0].samples[0].extra_data.skew
-        universal.session_data.combined_wigs[0].samples[0].extra_data.kurtosis
-        universal.session_data.combined_wigs[0].metadata # CombinedWigMetadata object
-        universal.session_data.combined_wigs[0].metadata.path
-        universal.session_data.combined_wigs[0].metadata.headers
-        universal.session_data.combined_wigs[0].metadata.rows
-        universal.session_data.combined_wigs[0].metadata.conditions
-        universal.session_data.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-        universal.session_data.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
-        universal.session_data.combined_wigs[0].metadata.id_for(wig_fingerprint)
-        universal.session_data.combined_wigs[0].metadata.fingerprints_for(condition_name)
-        universal.session_data.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        universal # I would like to flatten this (remove the .session_data namespace) but its low priority
+        universal.annotation_path # string, may need to become a list of strings
+        universal.conditions # list of Condition objects
+        universal.conditions[0].name # string
+        universal.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
+        universal.combined_wigs # list of CombinedWig objects
+        universal.combined_wigs[0].main_path
+        universal.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in universal.combined_wigs ]
+        universal.combined_wigs[0].samples # list of Wig objects
+        universal.combined_wigs[0].samples[0].id # id from the metadata file
+        universal.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
+        universal.combined_wigs[0].samples[0].condition_names # a list of strings
+        universal.combined_wigs[0].samples[0].positions # list of ints
+        universal.combined_wigs[0].samples[0].insertion_counts # list of numbers
+        universal.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
+        universal.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
+        universal.combined_wigs[0].samples[0].extra_data.count
+        universal.combined_wigs[0].samples[0].extra_data.sum
+        universal.combined_wigs[0].samples[0].extra_data.non_zero_mean
+        universal.combined_wigs[0].samples[0].extra_data.non_zero_median
+        universal.combined_wigs[0].samples[0].extra_data.density
+        universal.combined_wigs[0].samples[0].extra_data.mean
+        universal.combined_wigs[0].samples[0].extra_data.max
+        universal.combined_wigs[0].samples[0].extra_data.skew
+        universal.combined_wigs[0].samples[0].extra_data.kurtosis
+        universal.combined_wigs[0].metadata # CombinedWigMetadata object
+        universal.combined_wigs[0].metadata.path
+        universal.combined_wigs[0].metadata.headers
+        universal.combined_wigs[0].metadata.rows
+        universal.combined_wigs[0].metadata.conditions
+        universal.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
+        universal.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        universal.combined_wigs[0].metadata.id_for(wig_fingerprint)
+        universal.combined_wigs[0].metadata.fingerprints_for(condition_name)
+        universal.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
         
         # 
         # get annotation
         # 
         # HANDLE_THIS
-        Analysis.inputs.annotation_path = universal.session_data.annotation_path
+        Analysis.inputs.annotation_path = universal.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
@@ -195,7 +195,8 @@ class Analysis:
         # process data
         # 
         if True:
-            rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
+            # rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
+            pass
         
         # 
         # write output
