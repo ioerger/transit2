@@ -154,7 +154,7 @@ class Analysis:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="output.dat",
+                default_file_name="gumbel_output.dat",
                 output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
             )
 
@@ -538,7 +538,7 @@ class ResultFileType1:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Analysis.identifier,heading=self.comments,column_names=self.column_names,rows=self.rows).Show(),
             })
         )
         
@@ -548,6 +548,7 @@ class ResultFileType1:
         comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
+        self.comments = "\n".join(comments)
         self.column_names = comments[-1].split("\t")
         
         # 
