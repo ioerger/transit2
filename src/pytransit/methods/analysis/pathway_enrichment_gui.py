@@ -153,10 +153,13 @@ class Analysis:
                 tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
             self.value_getters.pval_col = self.create_int_field(self.panel,main_sizer, value=-2, label="Pval Col", tooltip="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
             self.value_getters.qval_col = self.create_int_field(self.panel,main_sizer, value=-1, label="Qval Col", tooltip="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
-            self.value_getters.ranking = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="ranking", default_value="SPLV", tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
+            self.value_getters.ranking = panel_helpers.create_choice_input(self.panel, main_sizer,
+                label = "Ranking",
+                options= ["SPLV", "LFC"],
+                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
             self.value_getters.LFC_col = self.create_input_field(self.panel,main_sizer, value=6, label="LFC col", tooltip="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
-            self.value_getters.enrichment_exponent =  self.create_input_field(self.panel,main_sizer, label="Enrichment Exponent",value=1,tooltip="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
-            self.value_getters.num_permutations = self.create_input_field(self.panel,main_sizer, label="Number of Permutations",value=10000,tooltip="number of permutations to simulate for null distribution to determine p-value")
+            self.value_getters.enrichment_exponent =  self.create_int_field(self.panel,main_sizer, label="Enrichment Exponent",value=1,tooltip="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.num_permutations = self.create_int_field(self.panel,main_sizer, label="Number of Permutations",value=10000,tooltip="number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount = self.create_int_field(self.panel,main_sizer, label="Pseudocount",value=2,tooltip="pseudo-counts to use in calculating p-value based on hypergeometric distribution")
 
             
@@ -429,7 +432,7 @@ class Analysis:
             orfs2score[orf] = score
             orfs2rank[orf] = i
 
-        Nperm = self.Nperm
+        Nperm = self.inputs.num_permutations
         results, Total = [], len(terms)
         for i, term in enumerate(terms):
             sys.stdout.flush()
@@ -439,14 +442,14 @@ class Analysis:
                 continue  # skip pathways with less than 2 genes
             mr = self.mean_rank(orfs, orfs2rank)
             es = self.enrichment_score(
-                orfs, orfs2rank, orfs2score, p=self.p
+                orfs, orfs2rank, orfs2score, p=self.inputs.enrichment_exponent
             )  # always positive, even if negative deviation, since I take abs
             higher = 0
             for n in range(Nperm):
                 perm = random.sample(
                     allgenes, num_genes_in_pathway
                 )  # compare to enrichment score for random sets of genes of same size
-                e2 = self.enrichment_score(perm, orfs2rank, orfs2score, p=self.p)
+                e2 = self.enrichment_score(perm, orfs2rank, orfs2score, p=self.inputs.enrichment_exponent)
                 if e2 > es:
                     higher += 1
                 if n > 100 and higher > 10:
@@ -485,11 +488,11 @@ class Analysis:
         #     "# significant pathways enriched for conditionally ESSENTIAL genes: %s (qval<0.05, mean_rank<%s) (includes genes that are MORE required in condition B than A)"
         #     % (up, n2)
         # )
-        for term, mr, es, pval, qval in results:
-            if qval < 0.05 and mr < n2:
-                self.rows.append(
-                    "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
-                )
+        # for term, mr, es, pval, qval in results:
+        #     if qval < 0.05 and mr < n2:
+        #         self.rows.append(
+        #             "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
+        #         )
         # self.rows.append(
         #     "# significant pathways enriched for conditionally NON-ESSENTIAL genes: %s (qval<0.05, mean_rank>%s) (includes genes that are LESS required in condition B than A)"
         #     % (down, n2)
@@ -613,7 +616,7 @@ class Analysis:
             intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
             vals.append(" ".join(intersection))
             #print("\t".join([str(x) for x in vals]))
-            self.rows.append(vals)
+            self.rows.append([str(x) for x in vals])
 
         #results_area.add(self.inputs.output.name)
         #self.finish()
@@ -632,7 +635,7 @@ class Analysis:
         from statsmodels.stats import multitest
         
         def warning(s):
-            sys.stderr.write("%s\n" % s)  # use self.warning? prepend method name?
+            logging.log("%s\n" % s)  # use self.warning? prepend method name?
 
         # returns True if ch is a descendant of GO (as GO terms, like "GO:0006810")
 
