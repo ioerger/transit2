@@ -119,6 +119,7 @@ if True:
     
     def define_choice_box(
         panel,
+        *,
         label_text="",
         options=[""],
         tooltip_text="",
@@ -181,9 +182,9 @@ if True:
             inner_sizer,
         ) = define_choice_box(
             panel,
-            label,
-            options,
-            tooltip_text,
+            label_text=label,
+            options=options,
+            tooltip_text=tooltip_text,
         )
         sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
@@ -262,6 +263,16 @@ if True:
             tooltip_text=tooltip_text,
         )
         return lambda *args: float(get_text())        
+    
+    def create_int_getter(panel, sizer, label_text, default_value, tooltip_text=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label_text,
+            default_value=default_value,
+            tooltip_text=tooltip_text,
+        )
+        return lambda *args: int(get_text())        
 
 # 
 # 
@@ -327,8 +338,8 @@ if True:
             normalization_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Normalization: ",
-            [
+            label_text="Normalization: ",
+            options=[
                 "TTR",
                 "nzmean",
                 "totreads",
@@ -337,12 +348,26 @@ if True:
                 "betageom",
                 "nonorm",
             ],
-            "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+            tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
+    
+    def create_condition_choice(panel, sizer, name,tooltip="choose condition"):
+        (
+            label,
+            ref_condition_wxobj,
+            ref_condition_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text=name,
+            options=[x.name for x in universal.session_data.conditions],
+            tooltip_text=tooltip,
+        )
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_reference_condition_input(panel, sizer):
         (
@@ -351,9 +376,9 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Ref Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
-            "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+            label_text="Ref Condition:",
+            options=[ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            tooltip_text="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -365,9 +390,9 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            name,
-            [ "[None]" ] + [x.name for x in universal.session_data.conditions],
-            "choose condition",
+            label_text=name,
+            options=[ "[None]" ] + [x.name for x in universal.session_data.conditions],
+            tooltip_text="choose condition",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -422,9 +447,9 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Control Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
-            "which condition(s) to use as the control group",
+            label_text="Control Condition:",
+            options=[ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            tooltip_text="which condition(s) to use as the control group",
             label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -437,9 +462,9 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Experimental Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
-            "which condition(s) to use as the experimental group",
+            label_text="Experimental Condition:",
+            options=[ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
+            tooltip_text="which condition(s) to use as the experimental group",
             label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -537,3 +562,19 @@ if True:
                     thread = threading.Thread(target=run_wrapper())
                     thread.setDaemon(True)
                     thread.start()
+                    
+    def create_significance_choice_box(panel, sizer, default="HDI"):
+        (
+            signif_label,
+            signif_wxobj,
+            signif_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text="Significance method: ",
+            options=["HDI","prob","BFDR","FWER"],
+            tooltip_text="tooltip",  # FIXME: fill in explanation...
+        )
+        sizer.Add(signif_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        # return a value-getter
+        signif_wxobj.SetSelection(signif_wxobj.FindString(default))
+        return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())

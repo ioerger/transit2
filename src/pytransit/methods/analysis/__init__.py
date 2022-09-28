@@ -14,6 +14,6 @@ from .rankproduct        import Analysis; methods["rankproduct"       ] = Analys
 from .resampling         import Analysis; methods["resampling"        ] = Analysis()
 from .tn5gaps            import Analysis; methods["tn5gaps"           ] = Analysis()
 from .tnseq_stats_gui    import Analysis; methods["tnseq_stats_gui"   ] = Analysis()
-from .ttnfitness         import Analysis; methods["ttnfitness"        ] = Analysis()
+from .ttnfitness_gui     import Analysis; methods["ttnfitness_gui"    ] = Analysis()
 from .utest              import Analysis; methods["utest"             ] = Analysis()
 from .zinb               import Analysis; methods["zinb"              ] = Analysis()

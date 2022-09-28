@@ -38,7 +38,7 @@ def main(*args, **kwargs):
         if not args and ("h" in kwargs or "-help" in kwargs):
             print_help()
             sys.exit(0)
-    
+
     # 
     # GUI Mode
     # 
@@ -124,7 +124,7 @@ def main(*args, **kwargs):
         # 
         if method_name.lower() == "export":
             export_method_name = ""
-            if len(args) > 1:
+            if len(args) >= 1:
                 export_method_name, *args = args
             check_if_missing(kind="export", selected_name=export_method_name, methods=export_methods)
             run(
@@ -136,7 +136,7 @@ def main(*args, **kwargs):
         # 
         elif method_name.lower() == "convert":
             convert_method_name = ""
-            if len(args) > 1:
+            if len(args) >= 1:
                 convert_method_name = args[1]
             
             check_if_missing(kind="convert", selected_name=convert_method_name, methods=convert_methods)
