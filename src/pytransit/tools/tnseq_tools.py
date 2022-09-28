@@ -2116,6 +2116,7 @@ def read_results_file(path):
     # get column names
     # 
     comments, headers, rows = csv.read(path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+    comments_string = "\n".join([ "#"+each for each in comments])
     if len(comments) == 0:
         raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while trying to load file "{path}"''')
     column_names = comments[-1].split("\t")
@@ -2132,4 +2133,4 @@ def read_results_file(path):
                 for each_column_name, each_cell in zip(column_names, each_row)
         })
     
-    return column_names, rows_of_dicts, extra_data
+    return column_names, rows_of_dicts, extra_data, comments_string

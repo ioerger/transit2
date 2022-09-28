@@ -768,7 +768,7 @@ class File(Analysis):
             })
         )
         
-        self.column_names, self.rows, self.extra_data = tnseq_tools.read_results_file(self.path)
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         self.values_for_result_table.update(self.extra_data.get("parameters", {}))
     
     def __str__(self):
