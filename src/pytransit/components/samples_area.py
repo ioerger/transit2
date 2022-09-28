@@ -271,73 +271,6 @@ if True:
     sample_button_creators.append(create_show_table_button)
     
     # 
-    # LOESS
-    # 
-    show_loess_button = None
-    def create_show_loess_button(sample_table, inner_sample_sizer):
-        global show_loess_button
-        # hide an old button if it exists
-        if show_loess_button != None:
-            show_loess_button.Hide()
-        
-        show_loess_button = GenBitmapTextButton(
-            universal.frame,
-            2,
-            gui_tools.bit_map,
-            "LOESS",
-            size=wx.Size(100, -1),
-        )
-        show_loess_button.SetBackgroundColour(gui_tools.color.light_blue)
-        
-        # 
-        # callback
-        # 
-        @gui_tools.bind_to(show_loess_button, wx.EVT_BUTTON)
-        def click_show_loess(event):
-            with gui_tools.nice_error_log:
-                import numpy
-                import matplotlib
-                import matplotlib.pyplot as plt
-                from pytransit.tools import stat_tools
-                from pytransit.universal_data import universal
-                from pytransit.tools.tnseq_tools import Wig
-                
-                
-                # 
-                # get selection
-                # 
-                wig_objects = universal.selected_samples  or  universal.samples
-                
-                #
-                # get read_counts and positions
-                # 
-                read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
-                number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-                window = 100
-                for each_path_index in range(number_of_wigs):
-
-                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                    x_w = numpy.zeros(number_of_windows)
-                    y_w = numpy.zeros(number_of_windows)
-                    for window_index in range(number_of_windows):
-                        x_w[window_index] = window * window_index
-                        y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-                    
-                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                    plt.plot(x_w, y_w, "g+")
-                    plt.plot(x_w, y_smooth, "b-")
-                    plt.xlabel("Genomic Position (TA sites)")
-                    plt.ylabel("Reads per 100 insertion sites")
-                    
-                    plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-                    plt.show()
-        
-        inner_sample_sizer.Add(show_loess_button)
-        inner_sample_sizer.Layout()
-
-    sample_button_creators.append(create_show_loess_button)
-    
-    # 
     # Track View
     # 
     show_track_view_button = None
@@ -404,7 +337,7 @@ if True:
             2,
             gui_tools.bit_map,
             "Scatter Plot",
-            size=wx.Size(100, -1),
+            size=wx.Size(120, -1),
         )
         show_scatter_plot_button.SetBackgroundColour(gui_tools.color.light_blue)
         
@@ -483,3 +416,70 @@ if True:
         inner_sample_sizer.Layout()
 
     sample_button_creators.append(create_show_scatter_plot_button)
+    
+    # 
+    # LOESS
+    # 
+    show_loess_button = None
+    def create_show_loess_button(sample_table, inner_sample_sizer):
+        global show_loess_button
+        # hide an old button if it exists
+        if show_loess_button != None:
+            show_loess_button.Hide()
+        
+        show_loess_button = GenBitmapTextButton(
+            universal.frame,
+            2,
+            gui_tools.bit_map,
+            "LOESS",
+            size=wx.Size(100, -1),
+        )
+        show_loess_button.SetBackgroundColour(gui_tools.color.light_blue)
+        
+        # 
+        # callback
+        # 
+        @gui_tools.bind_to(show_loess_button, wx.EVT_BUTTON)
+        def click_show_loess(event):
+            with gui_tools.nice_error_log:
+                import numpy
+                import matplotlib
+                import matplotlib.pyplot as plt
+                from pytransit.tools import stat_tools
+                from pytransit.universal_data import universal
+                from pytransit.tools.tnseq_tools import Wig
+                
+                
+                # 
+                # get selection
+                # 
+                wig_objects = universal.selected_samples  or  universal.samples
+                
+                #
+                # get read_counts and positions
+                # 
+                read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
+                number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
+                window = 100
+                for each_path_index in range(number_of_wigs):
+
+                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
+                    x_w = numpy.zeros(number_of_windows)
+                    y_w = numpy.zeros(number_of_windows)
+                    for window_index in range(number_of_windows):
+                        x_w[window_index] = window * window_index
+                        y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
+                    
+                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                    plt.plot(x_w, y_w, "g+")
+                    plt.plot(x_w, y_smooth, "b-")
+                    plt.xlabel("Genomic Position (TA sites)")
+                    plt.ylabel("Reads per 100 insertion sites")
+                    
+                    plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
+                    plt.show()
+        
+        inner_sample_sizer.Add(show_loess_button)
+        inner_sample_sizer.Layout()
+
+    sample_button_creators.append(create_show_loess_button)
