@@ -198,9 +198,14 @@ def run_method_by_label(*, method_options, method_label):
         for name in method_options:
             method_option = method_options[name]
             if method_option.label == method_label:
-                method_object = method_option.method.from_gui(frame)
+                if hasattr(method_option, "method"): # TODO: remove this once the convert/export methods have been updated and no longer have .method (probably in a few weeks - Oct 13st) --Jeff
+                    method_option = method_option.method
+                method_object = method_option.from_gui(frame)
+                def wrapper():
+                    with nice_error_log:
+                        method_object.Run()
                 if method_object:
-                    thread = threading.Thread(target=method_object.Run())
+                    thread = threading.Thread(target=wrapper())
                     thread.setDaemon(True)
                     thread.start()
 

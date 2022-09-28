@@ -61,12 +61,8 @@ class Analysis:
     panel = None
     
     def __init__(self, *args, **kwargs):
-        Analysis.instance = self
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
         self.filetypes        = [GenesFile, SitesFile]
-        self.method           = Analysis # backwards compat
-        self.gui              = self     # backwards compat
     
     def __str__(self):
         return f"""
@@ -75,7 +71,6 @@ class Analysis:
                 Long Name:   {self.long_name}
                 Short Desc:  {self.short_desc}
                 Long Desc:   {self.long_desc}
-                GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
     
     def __repr__(self):
@@ -127,7 +122,7 @@ class Analysis:
 
             Analysis.inputs.annotation_path = universal.session_data.annotation_path
 
-            for each_key, each_getter in Analysis.instance.value_getters.items():
+            for each_key, each_getter in Analysis.value_getters.items():
                 try:
                     Analysis.inputs[each_key] = each_getter()
                 except Exception as error:
@@ -138,7 +133,7 @@ class Analysis:
 
 
             #if not Analysis.inputs.output_path: return None ### why?
-            return Analysis.instance
+            return Analysis
 
     @classmethod
     def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
@@ -157,7 +152,7 @@ class Analysis:
         #normalization = "TTR",
       ))
         
-      return Analysis.instance
+      return Analysis
         
     def Run(self):
         with gui_tools.nice_error_log:

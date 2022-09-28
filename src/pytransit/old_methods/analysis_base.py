@@ -559,7 +559,6 @@ class TransitAnalysis:
         self.method      = method_class
         self.gui         = gui_class()
         self.filetypes   = filetypes
-        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
 
     def __str__(self):
         return f"""

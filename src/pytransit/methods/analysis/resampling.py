@@ -113,12 +113,8 @@ class Analysis:
     panel = None
     
     def __init__(self, *args, **kwargs):
-        Analysis.instance = self
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
         self.filetypes        = [File]
-        self.method           = Analysis # backwards compat
-        self.gui              = self     # backwards compat
     
     def __str__(self):
         return f"""
@@ -127,7 +123,6 @@ class Analysis:
                 Long Name:   {self.long_name}
                 Short Desc:  {self.short_desc}
                 Long Desc:   {self.long_desc}
-                GUI:         {self.gui}
         """.replace('\n            ','\n').strip()
     
     def __repr__(self):
@@ -172,7 +167,7 @@ class Analysis:
         # 
         # setup custom inputs
         # 
-        for each_key, each_getter in Analysis.instance.value_getters.items():
+        for each_key, each_getter in Analysis.value_getters.items():
             try:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
@@ -213,7 +208,7 @@ class Analysis:
             annotation_path_exp=Analysis.inputs.annotation_path_exp if Analysis.inputs.diff_strains else Analysis.inputs.annotation_path
         ))
         
-        return Analysis.instance
+        return Analysis
 
     @classmethod
     def from_args(cls, args, kwargs):
@@ -306,7 +301,7 @@ class Analysis:
             combined_wig_params=combined_wig_params,
             do_histogram=do_histogram,
         ))
-        return Analysis.instance
+        return Analysis
 
     def Run(self):
         if self.inputs.do_histogram:

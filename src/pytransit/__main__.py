@@ -80,6 +80,9 @@ def main(*args, **kwargs):
         from pytransit.methods.convert  import methods as convert_methods
         
         def run(method, args):
+            if hasattr(method, "method"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+                method = method.method
+                
             setup_object = None
             try:
                 setup_object = method.from_args(args, kwargs)
@@ -115,7 +118,7 @@ def main(*args, **kwargs):
         # 
         if method_name in analysis_methods:
             run(
-                method=analysis_methods[method_name].method,
+                method=analysis_methods[method_name],
                 args=args,
             )
         
@@ -128,7 +131,7 @@ def main(*args, **kwargs):
                 export_method_name, *args = args
             check_if_missing(kind="export", selected_name=export_method_name, methods=export_methods)
             run(
-                method=export_methods[export_method_name].method,
+                method=export_methods[export_method_name],
                 args=args[1:],  # skip the first argument for some reason
             )
         # 
@@ -141,7 +144,7 @@ def main(*args, **kwargs):
             
             check_if_missing(kind="convert", selected_name=convert_method_name, methods=convert_methods)
             run(
-                method=export_methods[export_method_name].method,
+                method=export_methods[export_method_name],
                 args=args,
             )
         # 

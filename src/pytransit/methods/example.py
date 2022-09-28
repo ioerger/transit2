@@ -59,9 +59,7 @@ class Analysis:
     panel = None
     
     def __init__(self, *args, **kwargs):
-        self.instance = self.method = self.gui = self # for compatibility with older code/methods
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-        self.transposons_text = transit_tools.get_transposons_text(self.transposons)
     
     def __str__(self):
         return f"""
@@ -151,7 +149,7 @@ class Analysis:
         # 
         # call all GUI getters, puts results into respective Analysis.inputs key-value
         # 
-        for each_key, each_getter in Analysis.instance.value_getters.items():
+        for each_key, each_getter in Analysis.value_getters.items():
             try:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
@@ -169,7 +167,7 @@ class Analysis:
         if not Analysis.inputs.output_path:
             return None
 
-        return Analysis.instance
+        return Analysis
 
     @staticmethod
     def from_args(args, kwargs):
@@ -185,7 +183,7 @@ class Analysis:
             # HANDLE_THIS
         ))
         
-        return Analysis.instance
+        return Analysis
         
     def Run(self):
         from pytransit.tools import stat_tools

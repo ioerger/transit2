@@ -54,8 +54,12 @@ def create_menu(frame):
                 
                 for name in export_methods:
                     method = export_methods[name]
-                    method.gui.define_menu_item(frame, method.label)
-                    temp_menu_item = method.gui.menuitem
+                    method_gui = method
+                    if hasattr(method_gui, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+                        method_gui = method_gui.gui
+                        
+                    method_gui.define_menu_item(frame, method.label)
+                    temp_menu_item = method_gui.menuitem
                     selected_export_menu_item.Append(temp_menu_item)
                     
                     frame.Bind(
@@ -281,14 +285,18 @@ def create_menu(frame):
                     if frame.verbose: logging.log(f"Selected Convert Method: {selected_name}")
                     gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
 
-            for name in convert_methods:
-                convert_methods[name].gui.define_menu_item(frame, convert_methods[name].label)
-                temp_menu_item = convert_methods[name].gui.menuitem
+            for method in convert_methods.values():
+                method_gui = method
+                if hasattr(method_gui, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+                    method_gui = method_gui.gui
+                    
+                method_gui.define_menu_item(frame, method.label)
+                temp_menu_item = method_gui.menuitem
                 convert_menu_item.Append(temp_menu_item)
 
                 frame.Bind(
                     wx.EVT_MENU,
-                    partial(when_convert_clicked, convert_methods[name].label),
+                    partial(when_convert_clicked, method.label),
                     temp_menu_item,
                 )
             

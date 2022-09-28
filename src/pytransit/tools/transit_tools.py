@@ -407,21 +407,6 @@ def get_validated_data(wig_list, wxobj=None):
     else:
         return tnseq_tools.CombinedWig.gather_wig_data([])
 
-def get_transposons_text(transposons):
-    if len(transposons) == 0:
-        return "Tn attribute missing!"
-    elif len(transposons) == 1:
-        return "Intended for %s only" % transposons[0]
-    elif len(transposons) == 2:
-        return "Intended for %s or %s" % tuple(transposons)
-    else:
-        return (
-            "Intended for "
-            + ", ".join(transposons[:-1])
-            + ", and "
-            + transposons[-1]
-        )
-
 def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
 if HAS_R:

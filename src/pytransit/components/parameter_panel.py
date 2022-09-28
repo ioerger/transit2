@@ -239,10 +239,13 @@ def hide_all_options():
     
     panel.progress_label.Hide()
     panel.progress.Hide()
-    for name in methods:
-        try: methods[name].gui.panel.Hide()
+    for method in methods.values():
+        if hasattr(method, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+            method = method.gui
+        
+        try: method.panel.Hide()
         except Exception as error: pass
-        try: methods[name].gui.Hide()
+        try: method.Hide()
         except Exception as error: pass
     
     panel.method_info_text.Hide()

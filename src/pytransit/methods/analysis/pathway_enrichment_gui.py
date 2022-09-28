@@ -76,9 +76,7 @@ class Analysis:
     wxobj = None
     panel = None
     def __init__(self, *args, **kwargs):
-        self.instance = self.method = self.gui = self # for compatibility with older code/methods
         self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-   
     
     def __str__(self):
         return f"""
@@ -167,7 +165,7 @@ class Analysis:
             default_file_name=f"{Analysis.short_name}_output.dat",
             output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )   
-        return Analysis.instance
+        return Analysis
 
     @staticmethod
     def from_args(args, kwargs):
@@ -192,7 +190,7 @@ class Analysis:
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
-        return Analysis.instance
+        return Analysis
         
     def Run(self):
         with gui_tools.nice_error_log:
