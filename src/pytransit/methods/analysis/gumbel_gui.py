@@ -107,39 +107,21 @@ class Analysis:
     def __repr__(self):
         return f"{self.inputs}"
 
-    def create_input_field(self, panel, sizer, label, value,tooltip=None):
-        get_text = create_text_box_getter(
-            panel,
-            sizer,
-            label_text=label,
-            default_value=value,
-            tooltip_text=tooltip,
-        )
-        return lambda *args: get_text()
-
     def define_panel(self, _):
-        from pytransit.tools.transit_tools import wx
-        self.panel = make_panel()
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.value_getters = LazyDict()
-        sample_getter                = create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            self.value_getters = LazyDict()
+            
+            self.value_getters.condition       = panel_helpers.create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
+            self.value_getters.normalization   = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR 
+            self.value_getters.samples         = panel_helpers.create_int_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
+            self.value_getters.burnin          = panel_helpers.create_text_box_getter(self.panel,main_sizer, label="Burnin",value=500,tooltip="Burnin")
+            self.value_getters.trim            = panel_helpers.create_text_box_getter(self.panel,main_sizer, label="trim",value=1,tooltip="trim")
+            self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
+            self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
         
-        self.value_getters.condition       = create_condition_choice(self.panel,main_sizer,"Condition to analyze:")
-        self.value_getters.normalization   = create_normalization_input(self.panel, main_sizer) # TTR 
-        self.value_getters.samples         = lambda *args: int(sample_getter(*args))
-        self.value_getters.burnin          = self.create_input_field(self.panel,main_sizer, label="Burnin",value=500,tooltip="Burnin")
-        self.value_getters.trim            = self.create_input_field(self.panel,main_sizer, label="trim",value=1,tooltip="trim")
-        self.value_getters.n_terminus      = create_n_terminus_input(self.panel, main_sizer)
-        self.value_getters.c_terminus      = create_c_terminus_input(self.panel, main_sizer)
-
-
-        create_run_button(self.panel, main_sizer)
-
-        parameter_panel.set_panel(self.panel)
-        self.panel.SetSizer(main_sizer)
-        self.panel.Layout()
-        main_sizer.Fit(self.panel)
-
+            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+    
     @classmethod
     def from_gui(cls, frame):
         with gui_tools.nice_error_log:
