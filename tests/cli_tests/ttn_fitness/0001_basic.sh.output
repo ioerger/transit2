@@ -1,0 +1,18 @@
+[ttnfitness_gui:Run()] Starting tnseq_stats analysis 
+[ttnfitness_gui:Run()] Getting Data 
+[ttnfitness_gui:Run()] Normalizing using: TTR 
+[ttnfitness_gui:Run()] Getting Genome 
+[ttnfitness_gui:Run()] processing data 
+[ttnfitness_gui:calc_ttnfitness()] Making Fitness Estimations 
+[ttnfitness_gui:calc_ttnfitness()] 	 + Filtering ES/ESB Genes 
+[ttnfitness_gui:calc_ttnfitness()] 	 + Filtering Short Genes. Labeling as Uncertain 
+[ttnfitness_gui:calc_ttnfitness()] 	 + Fitting M1 
+[ttnfitness_gui:calc_ttnfitness()] 	 + Assessing Models 
+[ttnfitness_gui:write_ttnfitness_results()] Writing To Output Files 
+[ttnfitness_gui:write_ttnfitness_results()] Writing File: ./tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes.out 
+[ttnfitness_gui:write_ttnfitness_results()] Writing File: ./tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites.out 
+[ttnfitness_gui:write_ttnfitness_results()]  
+[ttnfitness_gui:write_ttnfitness_results()] Finished TTNFitness Method 
+[ttnfitness_gui:Run()] Finished TnseqStats 
+[ttnfitness_gui:Run()] Time: 508.8s
+ 
