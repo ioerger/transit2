@@ -191,7 +191,7 @@ class Analysis:
             # Calculations
             # 
             if True:
-                self.max_iterations = len(Analysis.inputs.ctrl_positions) * len(categories) + 1
+                self.max_iterations = len(Analysis.inputs.ctrl_positions) * len(Analysis.categories) + 1
                 self.count = 1
                 logging.log("Starting HMM Method")
                 start_time = time.time()
