@@ -617,7 +617,7 @@ class Analysis:
 
         # Write column names (redundant with self.columns)
         self.output.write(
-            "#ORF\tgene\tannotation\tTA sites\tA1 mean count\tA2 mean count\tB1 mean count\tB2 mean count\tlogFC (Strain A)\tlogFC (Strain B) \tdelta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adjusted Probability\tType of Interaction\n"
+            "#ORF\tgene\tannotation\tTA sites\tA1 mean count\tA2 mean count\tB1 mean count\tB2 mean count\tlogFC (Strain A)\tlogFC (Strain B) \tdelta logFC\tLower Bound delta logFC\tUpper Bound delta logFC\tIs HDI outside ROPE?\tProb. of delta-logFC being within ROPE\t%s-Adj P Value\tType of Interaction\n"
             % adjusted_label
         )
     

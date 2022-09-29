@@ -100,10 +100,7 @@ class Analysis:
             self.value_getters = LazyDict()
 
             if Analysis.inputs.resampling_file == None:
-                Analysis.inputs.resampling_file = gui_tools.ask_for_file(
-                    message = "Select a File for PathWay Analysis",
-                    allowed_extensions='All files (*.*)|*.*',
-                ) 
+                Analysis.inputs.resampling_file = gui_tools.ask_for_file(message = "Select a File for PathWay Analysis",allowed_extensions='All files (*.*)|*.*',) 
 
             self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "Organism-Pathway",
@@ -125,10 +122,13 @@ class Analysis:
                 tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
-            self.value_getters.method              = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Method",                 default_value="FET",  tooltip_text="method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)")
             self.value_getters.pval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Pval Col",               default_value=-2,     tooltip_text="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
             self.value_getters.qval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Qval Col",               default_value=-1,     tooltip_text="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
-            self.value_getters.ranking             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="ranking",                default_value="SPLV", tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
+            self.value_getters.ranking = panel_helpers.create_choice_input(self.panel, main_sizer,
+                label = "ranking",
+                options= ["SPLV", "LFC"],
+                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
+                
             self.value_getters.LFC_col             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="LFC col",                default_value=6,      tooltip_text="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
             self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
@@ -242,7 +242,7 @@ class Analysis:
                     "Number Adjusted by PC", 
                     "Enrichement" , 
                     "P Value", 
-                    "Adjusted P Value", 
+                    "Adj P Value", 
                     "Description", 
                     "Genes"]
                 transit_tools.write_result(
@@ -286,7 +286,8 @@ class Analysis:
                 qval = float(w[self.inputs.qval_col])
                 if qval < 0.05:
                     hits.append(w[0])
-        return genes, hits, headers
+        standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
+        return genes, hits, standardized_headers
         # assume these are listed as pairs (tab-sep)
         # return bidirectional hash (genes->[terms], terms->[genes]; each can be one-to-many, hence lists)
         # filter could be a subset of genes we want to focus on (throw out the rest)
@@ -414,7 +415,7 @@ class Analysis:
             orfs2score[orf] = score
             orfs2rank[orf] = i
 
-        Nperm = self.Nperm
+        Nperm = self.inputs.Nperm
         results, Total = [], len(terms)
         for i, term in enumerate(terms):
             sys.stdout.flush()
@@ -523,85 +524,89 @@ class Analysis:
         genes, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
         )  # use self.Qval_col to determine hits
-        associations = self.read_associations(self.inputs.associations_file)
-        pathways = self.read_pathways(self.inputs.pathways_file)
+        if len(hits) > 1:
 
-        # how many genes are there, and how many have associations?
-        # how many genes in associations are not listed in resampling file?
-        # do all associations have a definition in pathways?
-        # how many pathways have >1 gene? (out of total?) what is max?
+            associations = self.read_associations(self.inputs.associations_file)
+            pathways = self.read_pathways(self.inputs.pathways_file)
 
-        genes_with_associations = 0
-        for gene in genes:
-            orf = gene[0]
-            if orf in associations:
-                genes_with_associations += 1
-        # self.rows.append("# method=FET, PC=%s" % self.inputs.pseudocount)
-        # self.rows.append(
-        #     "# genes with associations=%s out of %s total"
-        #     % (genes_with_associations, len(genes))
-        # )
-        # self.rows.append("# significant genes (qval<0.05): %s" % (len(hits)))
+            # how many genes are there, and how many have associations?
+            # how many genes in associations are not listed in resampling file?
+            # do all associations have a definition in pathways?
+            # how many pathways have >1 gene? (out of total?) what is max?
 
-        terms = list(pathways.keys())
-        terms.sort()
-        term_counts = [len(associations.get(term, [])) for term in terms]
-        goodterms = []
-        for term, cnt in zip(terms, term_counts):
-            if cnt > 1:
-                goodterms.append(term)
-        # self.rows.append(
-        #     "# %s out of %s pathways have >=1 gene; max has %s"
-        #     % (
-        #         len(goodterms),
-        #         len(terms),
-        #         term_counts[term_counts.index(max(term_counts))],
-        #     )
-        # )
+            genes_with_associations = 0
+            for gene in genes:
+                orf = gene[0]
+                if orf in associations:
+                    genes_with_associations += 1
+            # self.rows.append("# method=FET, PC=%s" % self.inputs.pseudocount)
+            # self.rows.append(
+            #     "# genes with associations=%s out of %s total"
+            #     % (genes_with_associations, len(genes))
+            # )
+            # self.rows.append("# significant genes (qval<0.05): %s" % (len(hits)))
 
-        results = []
-        for term in goodterms:
-            n = len(associations[term])  # number of pathway members overall
-            M = len(genes)  # total genes
-            N = len(hits)  # number of resampling hits
-            intersection = list(filter(lambda x: x in associations[term], hits))
-            k = len(intersection)
-            # add pseudo-counts
-            pseudocount = self.inputs.pseudocount
-            k_pseudocount = int(k + pseudocount)
-            n_pseudocount = n + int(
-                M * pseudocount / float(N)
-            )  # add same proportion to overall, round it
-            expected = round((N * n / float(M)), 2)
-            enrichment = round((k + pseudocount) / (expected + pseudocount), 3)
-            pval = scipy.stats.hypergeom.sf(k_pseudocount, M, n_pseudocount, N)
-            results.append([term, M, n, N, k, expected, k_pseudocount, n_pseudocount, enrichment, pval])
+            terms = list(pathways.keys())
+            terms.sort()
+            term_counts = [len(associations.get(term, [])) for term in terms]
+            goodterms = []
+            for term, cnt in zip(terms, term_counts):
+                if cnt > 1:
+                    goodterms.append(term)
+            # self.rows.append(
+            #     "# %s out of %s pathways have >=1 gene; max has %s"
+            #     % (
+            #         len(goodterms),
+            #         len(terms),
+            #         term_counts[term_counts.index(max(term_counts))],
+            #     )
+            # )
 
-        pvals = [x[-1] for x in results]
-        rej, qvals = multitest.fdrcorrection(pvals)
-        results = [x + [y] for x, y in zip(results, qvals)]
+            results = []
+            for term in goodterms:
+                n = len(associations[term])  # number of pathway members overall
+                M = len(genes)  # total genes
+                N = len(hits)  # number of resampling hits
+                intersection = list(filter(lambda x: x in associations[term], hits))
+                k = len(intersection)
+                # add pseudo-counts
+                pseudocount = self.inputs.pseudocount
+                k_pseudocount = int(k + pseudocount)
+                n_pseudocount = n + int(
+                    M * pseudocount / float(N)
+                )  # add same proportion to overall, round it
+                expected = round((N * n / float(M)), 2)
+                enrichment = round((k + pseudocount) / (expected + pseudocount), 3)
+                pval = scipy.stats.hypergeom.sf(k_pseudocount, M, n_pseudocount, N)
+                results.append([term, M, n, N, k, expected, k_pseudocount, n_pseudocount, enrichment, pval])
 
-        genenames = {}
-        for gene in genes:
-            genenames[gene[0]] = gene[1]
+            pvals = [x[-1] for x in results]
+            rej, qvals = multitest.fdrcorrection(pvals)
+            results = [x + [y] for x, y in zip(results, qvals)]
 
-        #header = "#pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
-        #print("\t".join(header.split()))
-        #self.rows.append(header.split())
+            genenames = {}
+            for gene in genes:
+                genenames[gene[0]] = gene[1]
 
-        results.sort(key=lambda x: x[-2])  # pvals
-        for res in results:
-            vals = res
-            term = res[0]
-            vals.append(pathways[term])
-            intersection = list(filter(lambda x: x in associations[term], hits))
-            intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
-            vals.append(" ".join(intersection))
-            #print("\t".join([str(x) for x in vals]))
-            self.rows.append(vals)
+            #header = "#pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
+            #print("\t".join(header.split()))
+            #self.rows.append(header.split())
 
-        #results_area.add(self.inputs.output.name)
-        #self.finish()
+            results.sort(key=lambda x: x[-2])  # pvals
+            for res in results:
+                vals = res
+                term = res[0]
+                vals.append(pathways[term])
+                intersection = list(filter(lambda x: x in associations[term], hits))
+                intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
+                vals.append(" ".join(intersection))
+                #print("\t".join([str(x) for x in vals]))
+                self.rows.append(vals)
+
+            #results_area.add(self.inputs.output.name)
+            #self.finish()
+        else:
+            logging.log("The file you passed in has no hits to run Pathway Enrichment")
         logging.log("Finished Pathway Enrichment Method")
 
     # ########## Ontologizer ###############
@@ -819,7 +824,7 @@ class ResultFileType1:
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[
-                        "qval"
+                        "Adj P Value"
                     ],
                 ).Show(),
             })

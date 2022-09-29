@@ -36,10 +36,10 @@ columns = [
     "Sites",
     "Mean Ctrl",
     "Mean Exp",
-    "log2FC",
-    "U-Statistic",
-    "p-value",
-    "Adj. p-value",
+    "Log 2 FC",
+    "U Statistic",
+    "P Value",
+    "Adj P Value",
 ]
 
 
@@ -424,7 +424,7 @@ class UTestMethod(base.DualConditionMethod):
                 except:
                     log2FC = 0.0
 
-            # ["Orf","Name","Desc","Sites","Mean Ctrl","Mean Exp","log2FC", "U-Statistic","p-value","Adj. p-value"]
+            # ["Orf","Name","Desc","Sites","Mean Ctrl","Mean Exp","log2FC", "U-Statistic","P Value","Adj P value"]
 
             data.append(
                 [

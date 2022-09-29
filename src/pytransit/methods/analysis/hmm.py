@@ -601,7 +601,7 @@ class SitesFile:
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[ "Adj. p-value", "p-value" ]
+                    sort_by=[ "Adj P Value", "P Value" ]
                 ).Show(),
             })
         )

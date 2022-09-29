@@ -45,12 +45,12 @@ class Analysis:
         "Sites",
         "Mean Ctrl",
         "Mean Exp",
-        "Log 2 Fold Change",
+        "Log 2 FC",
         "Sum Ctrl",
         "Sum Exp",
         "Delta Mean",
         "P Value",
-        "Adjusted P Value",
+        "Adj P Value",
     ]
     
     inputs = LazyDict(
@@ -499,17 +499,17 @@ class Analysis:
                 column_names=Analysis.columns if not self.inputs.Z else [
                     "Orf",
                     "Name",
-                    "Desc",
+                    "Description",
                     "Sites",
                     "Mean Ctrl",
                     "Mean Exp",
-                    "log2FC",
+                    "Log 2 FC",
                     "Sum Ctrl",
                     "Sum Exp",
                     "Delta Mean",
-                    "p-value",
-                    "Z-score",
-                    "Adj. p-value",
+                    "P Value",
+                    "Z Score",
+                    "Adj P Value",
                 ],
                 extra_info=dict(
                     parameters=dict(
@@ -761,7 +761,7 @@ class ResultFileType1:
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[ "Adj. p-value", "p-value" ]
+                    sort_by=[ "Adusted P Value", "P Value" ]
                 ).Show(),
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
                 "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
@@ -780,7 +780,7 @@ class ResultFileType1:
     
     def graph_volcano_plot(self):
         # questions:
-            # are the selected rows correct ("log2FC", "Adj. p-value")?
+            # are the selected rows correct ("log2FC", "Adj P Value")?
             # what is the q_value supposed to be?
             # why are some log2 and the other axis log10?
         with gui_tools.nice_error_log:
@@ -788,9 +788,9 @@ class ResultFileType1:
             except:
                 print("Error: cannot do plots, no matplotlib")
                 
-            log2_fc_values = [ each_row["log2FC"]  for each_row in self.rows ]
-            p_values       = [ each_row["p-value"] for each_row in self.rows ]
-            q_values       = [ each_row["Adj. p-value"] for each_row in self.rows ]
+            log2_fc_values = [ each_row["Log 2 FC"]  for each_row in self.rows ]
+            p_values       = [ each_row["P Value"] for each_row in self.rows ]
+            q_values       = [ each_row["Adj P Value"] for each_row in self.rows ]
             log10_p_values = []
             for each_p_value in p_values:
                 try:
@@ -832,9 +832,9 @@ class ResultFileType1:
             plt.plot(log2_fc_values, log10_p_values, "bo")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")
-            plt.ylabel("-Log p-value (base 10)")
+            plt.ylabel("-Log P Value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
-            plt.title("Adjusted threshold (red line): P-value=%1.8f" % threshold)
+            plt.title("Adjusted Threshold (red line): P Value=%1.8f" % threshold)
             plt.show()
 
 Method = GUI = Analysis # for compatibility with older code/methods

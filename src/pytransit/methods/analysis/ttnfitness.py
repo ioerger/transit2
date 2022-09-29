@@ -459,25 +459,25 @@ class Analysis:
         logging.log("\t + Assessing Models")
         # create Models Summary df
         Models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
-        Models_df["M1 Pval"] = results1.pvalues[1:-256]
-        Models_df["M1 Adjusted Pval"] = statsmodels.stats.multitest.fdrcorrection(
+        Models_df["M1 P Value"] = results1.pvalues[1:-256]
+        Models_df["M1 Adj P Value"] = statsmodels.stats.multitest.fdrcorrection(
             results1.pvalues[1:-256], alpha=0.05
         )[1]
 
         # creating a mask for the adjusted pvals
         Models_df.loc[
-            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "GA"
         Models_df.loc[
-            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "GD"
         Models_df.loc[
-            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "NE"
-        Models_df.loc[(Models_df["M1 Adjusted Pval"] > 0.05), "Gene+TTN States"] = "NE"
+        Models_df.loc[(Models_df["M1 Adj P Value"] > 0.05), "Gene+TTN States"] = "NE"
 
         return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
@@ -522,7 +522,7 @@ class Analysis:
             # M1 info
             if "_" + g in Models_df.index:
                 M1_coef = Models_df.loc["_" + g, "M1 Coef"]
-                M1_adj_pval = Models_df.loc["_" + g, "M1 Adjusted Pval"]
+                M1_adj_pval = Models_df.loc["_" + g, "M1 Adj P Value"]
                 modified_M1 = math.exp(
                     M1_coef - statistics.median(Models_df["M1 Coef"].values.tolist())
                 )
@@ -755,7 +755,7 @@ class GenesFile:
             plt.axvline(0, color="k", linestyle="dashed", linewidth=2)
             plt.legend()
             plt.xlabel("Gene+TTN (M1) Coef")
-            plt.ylabel("-Log adjusted p-value (base 10)")
+            plt.ylabel("-Log Adj P Value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
             plt.title("Adjusted threshold (horizonal line): P-value=%1.8f\nVertical line set at Coef=0" % threshold)
             plt.show()
