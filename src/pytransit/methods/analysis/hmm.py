@@ -45,7 +45,7 @@ class Analysis:
         annotation_path=None,
         output_path=None,
         replicates="Mean",
-        normalization=None,
+        normalization="TTR",
         loess_correction=False,
         n_terminus=0.0,
         c_terminus=0.0,
@@ -158,7 +158,9 @@ class Analysis:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-
+        
+        assert len(args) >= 3, f"There needs to be at least 3 arguments. See help info below: \n{Analysis.usage_string}"
+        
         ctrldata        = args[0].split(",")
         annotation_path = args[1]
         output_path     = args[2]
