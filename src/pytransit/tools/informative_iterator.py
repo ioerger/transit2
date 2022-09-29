@@ -5,7 +5,7 @@ import time
 import sys
 import math
 
-from super_map import Map
+from pytransit.basics.lazy_dict import LazyDict as Map
 
 # nested indentation support
 try:
