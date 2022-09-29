@@ -95,8 +95,8 @@ class Analysis:
         self.define_panel()
 
     def define_panel(self,_=None):
-        from pytransit.components.panel_helpers import Panel
-        with Panel() as (self.panel, main_sizer):
+        from pytransit.components import panel_helpers 
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
 
             if Analysis.inputs.resampling_file == None:
@@ -232,12 +232,24 @@ class Analysis:
                 # 
                 # write to file
                 # 
-                header = "pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
+                header = ["Pathway",
+                    "Total Genes(M)", 
+                    "Genes In Path(n)",
+                    "Significant Genes(N)",
+                    "Significent Genes In Path(k)",
+                    "Expected", 
+                    "K+PC", 
+                    "Number Adjusted by PC", 
+                    "Enrichement" , 
+                    "P Value", 
+                    "Adjusted P Value", 
+                    "Description", 
+                    "Genes"]
                 transit_tools.write_result(
                     path=self.inputs.output_path, # path=None means write to STDOUT
                     file_kind=Analysis.identifier,
                     rows=self.rows,
-                    column_names=header.split(),
+                    column_names=header,
                     extra_info=dict(
                         parameters=dict(
                             resampling_file = self.inputs.resampling_file,

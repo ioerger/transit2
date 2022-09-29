@@ -41,16 +41,16 @@ class Analysis:
     columns = [
         "Orf",
         "Name",
-        "Desc",
+        "Description",
         "Sites",
         "Mean Ctrl",
         "Mean Exp",
-        "log2FC",
+        "Log 2 Fold Change",
         "Sum Ctrl",
         "Sum Exp",
         "Delta Mean",
-        "p-value",
-        "Adj. p-value",
+        "P Value",
+        "Adjusted P Value",
     ]
     
     inputs = LazyDict(

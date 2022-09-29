@@ -42,7 +42,15 @@ class Analysis:
 
     Reference: DeJesus et al. (2013; Bioinformatics)"""
     transposons = ["himar1"]
-    columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
+    columns = ["Orf", 
+        "Name", 
+        "Description", 
+        "Number of Insertions within ORF",
+        "Total Number of TA sites within ORF", 
+        "Length of Maximum Run Of Non-Insertions", 
+        "Nucleotide Span for Maximum Run of Non-Insertions", 
+        "Posterior Probability of Essentiality", 
+        "Essentiality Call"]
     
     inputs = LazyDict(
         combined_wig = None,

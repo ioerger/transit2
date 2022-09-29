@@ -560,7 +560,7 @@ class Analysis:
             ]
         output_df = pandas.DataFrame.from_dict(gene_dict, orient="index")
         output_df.columns = [
-            "ORF ID",
+            "Orf",
             "Name",
             "Description",
             "Total # TA Sites",
@@ -577,7 +577,7 @@ class Analysis:
         saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df) 
         TA_sites_df = TA_sites_df[
             [
-                "Coord",
+                "Coordinate",
                 "Orf",
                 "Name",
                 "Upstream TTN",
