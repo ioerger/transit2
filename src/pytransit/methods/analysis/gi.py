@@ -162,7 +162,6 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs):
-        print(f'''args = {args}''')
         console_tools.handle_help_flag(kwargs, cls.usage_string)
         console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
 

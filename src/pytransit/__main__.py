@@ -132,7 +132,7 @@ def main(*args, **kwargs):
             check_if_missing(kind="export", selected_name=export_method_name, methods=export_methods)
             run(
                 method=export_methods[export_method_name],
-                args=args[1:],  # skip the first argument for some reason
+                args=args,  # skip the first argument for some reason
             )
         # 
         # Convert
@@ -140,7 +140,7 @@ def main(*args, **kwargs):
         elif method_name.lower() == "convert":
             convert_method_name = ""
             if len(args) >= 1:
-                convert_method_name = args[1]
+                convert_method_name, *args = args
             
             check_if_missing(kind="convert", selected_name=convert_method_name, methods=convert_methods)
             run(
