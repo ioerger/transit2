@@ -67,9 +67,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"TRANSIT"
-copyright = u"2015, Michael A. DeJesus & Thomas R. Ioerger"
-author = u"Michael A. DeJesus & Thomas R. Ioerger"
+project = "TRANSIT"
+copyright = "2015, Michael A. DeJesus & Thomas R. Ioerger"
+author = "Michael A. DeJesus & Thomas R. Ioerger"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -157,7 +157,7 @@ html_theme = "sphinx_rtd_theme"
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
-# html_title = u'transit v'
+# html_title = 'transit v'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 # html_short_title = None
@@ -261,8 +261,8 @@ latex_documents = [
     (
         master_doc,
         "pytransit.tex",
-        u"transit Documentation",
-        u"Michael A. DeJesus",
+        "transit Documentation",
+        "Michael A. DeJesus",
         "manual",
     ),
 ]
@@ -292,7 +292,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "transit", u"transit Documentation", [author], 1)]
+man_pages = [(master_doc, "transit", "transit Documentation", [author], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -307,7 +307,7 @@ texinfo_documents = [
     (
         master_doc,
         "transit",
-        u"transit Documentation",
+        "transit Documentation",
         author,
         "transit",
         "One line description of project.",

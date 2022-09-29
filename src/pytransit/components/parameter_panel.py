@@ -51,7 +51,7 @@ def create_panel_area(_):
             version_label = wx.StaticText(
                 universal.frame,
                 wx.ID_ANY,
-                u"",
+                "",
                 wx.DefaultPosition,
                 (100, 25),
                 wx.ALIGN_CENTRE,
@@ -69,7 +69,7 @@ def create_panel_area(_):
         # methodInfoSizer
         # 
         if True:
-            panel.method_info_text = wx.StaticBox(universal.frame, wx.ID_ANY, u"Instructions")
+            panel.method_info_text = wx.StaticBox(universal.frame, wx.ID_ANY, "Instructions")
             panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
             panel.method_info_sizer = wx.StaticBoxSizer(panel.method_info_text, wx.VERTICAL)
             
@@ -78,7 +78,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_short_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_short_text.Wrap(250)
                 panel.method_short_text.Hide()
@@ -91,7 +91,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_long_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_long_text.Wrap(250)
                 panel.method_long_text.Hide()
@@ -105,7 +105,7 @@ def create_panel_area(_):
             if True:
 
                 panel.method_desc_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_desc_text.Wrap(250)
                 panel.method_desc_text.Hide()
@@ -118,7 +118,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_tn_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_tn_text.Wrap(250)
 
@@ -234,17 +234,18 @@ def set_panel(new_panel):
         panel.progress_label.Show()
         panel.progress.Show()
     
-panel.set_panel = set_panel
-
 def hide_all_options():
     from pytransit.methods.analysis import methods
     
     panel.progress_label.Hide()
     panel.progress.Hide()
-    for name in methods:
-        try: methods[name].gui.panel.Hide()
+    for method in methods.values():
+        if hasattr(method, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+            method = method.gui
+        
+        try: method.panel.Hide()
         except Exception as error: pass
-        try: methods[name].gui.Hide()
+        try: method.Hide()
         except Exception as error: pass
     
     panel.method_info_text.Hide()

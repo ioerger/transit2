@@ -1,270 +1,241 @@
+import sys
 import os
-import tarfile
 import time
+import ntpath
 import math
 import random
-import statistics
-import itertools
-import sys
 import datetime
-
+import itertools
+import statistics
+import heapq
+import collections
 import numpy
 
-from pytransit.methods import analysis_base as base
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-from pytransit.tools import stat_tools
+import pandas
+import statsmodels.stats.multitest
+import statsmodels.api as sm
+
+from pytransit.basics.lazy_dict import LazyDict
+
+from pytransit.universal_data import universal
+from pytransit.components.parameter_panel import panel as parameter_panel
+from pytransit.components.parameter_panel import progress_update
+from pytransit.components.panel_helpers import *
+from pytransit.components.spreadsheet import SpreadSheet
+import pytransit.tools.gui_tools as gui_tools
+import pytransit.tools.transit_tools as transit_tools
+import pytransit.tools.tnseq_tools as tnseq_tools
+import pytransit.tools.norm_tools as norm_tools
+import pytransit.tools.stat_tools as stat_tools
+from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 
-############# Description ##################
+command_name = sys.argv[0]
 
-short_name = "ttnfitness"
-long_name = "TTNFitness"
-short_desc = "TTNFitness method that calculates mean read-counts per gene."
-long_desc = "A method made to serve as an ttnfitness to implementing other methods."
-transposons = ["himar1", "tn5"]
-columns = ["Orf", "Name", "Desc", "k", "n", "mean", "nzmean"]
-# columns = ["ORF ID","Name","Description","Total # TA Sites","#Sites with insertions","Used in Models","Gene (M0) Coef","Gene (M0) Adj Pval","Gene+TTN (M1) Coef","Gene+TTN (M1) Adj Pval","M0 Fitness Estimation","M1 Fitness Estimation","Mean Insertion Count", "TTN-Fitness Assesment"]
-############# Analysis Method ##############
+@misc.singleton
+class Analysis:
+    identifier  = "TTNFitness"
+    short_name  = "ttnfitness"
+    long_name   = "ttnfitness"
+    short_desc  = "Analyze fitness effect of (non-essential) genes"
+    long_desc   = """Analyze fitness effect of (non-essential) genes using a predictive model that corrects for the bias in Himar1 insertion probabilities based on nucleotides around each TA site"""
+    transposons = [ "himar1" ] # definitely Himar1 only
+    
+    inputs = LazyDict(
+        combined_wig = None,
+        metadata = None,
+        condition = None, # all reps will be combined; later, allow user to select individual wigs files
+        wig_files = None,
+        annotation_path = None,
+        genome_path = None,
+        gumbel_results_path = None,
+        genes_output_path = None,
+        sites_output_path = None,
+        normalization = "TTR",
+    )
+    
 
+    usage_string = f"""usage: python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
+    
+    wxobj = None
+    panel = None
+    
+    def __init__(self, *args, **kwargs):
+        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
+    
+    def __str__(self):
+        return f"""
+            Analysis Method:
+                Short Name:  {self.short_name}
+                Long Name:   {self.long_name}
+                Short Desc:  {self.short_desc}
+                Long Desc:   {self.long_desc}
+        """.replace('\n            ','\n').strip()
+    
+    def __repr__(self): return f"{self.inputs}"
+    def __call__(self): return self
 
-class Analysis(base.TransitAnalysis):
-    def __init__(self):
-        base.TransitAnalysis.__init__(
-            self,
-            short_name,
-            long_name,
-            short_desc,
-            long_desc,
-            transposons,
-            TTNFitnessMethod,
-            TTNFitnessGUI,
-            [TTNFitnessFile],
-        )
+    def define_panel(self, _):
+        from pytransit.components import panel_helpers
+        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            self.value_getters = LazyDict()
 
-
-################## FILE ###################
-
-
-class TTNFitnessFile(base.TransitFile):
-    def __init__(self):
-        base.TransitFile.__init__(self, "#TTNFitness", columns)
-
-    def get_header(self, path):
-        text = """This is file contains mean counts for each gene. Nzmean is mean accross non-zero sites."""
-        return text
-
-
-################# GUI ##################
-
-
-class TTNFitnessGUI(base.AnalysisGUI):
-    def __init__(self):
-        base.AnalysisGUI.__init__(self)
-
-
-########## METHOD #######################
-
-
-class TTNFitnessMethod(base.SingleConditionMethod):
-    """
-    TTNFitness
-
-    """
-
-    def __init__(
-        self,
-        ctrldata,
-        annotation_path,
-        genome_path,
-        gumbelestimations,
-        # STLM_reg,
-        output1_file,
-        output2_file,
-        replicates="Sum",
-        normalization=None,
-        LOESS=False,
-        ignore_codon=True,
-        n_terminus=0.0,
-        c_terminus=0.0,
-        wxobj=None,
-    ):
-
-        base.SingleConditionMethod.__init__(
-            self,
-            short_name,
-            long_name,
-            short_desc,
-            long_desc,
-            ctrldata,
-            annotation_path,
-            output1_file,
-            replicates=replicates,
-            normalization=normalization,
-            LOESS=LOESS,
-            n_terminus=n_terminus,
-            c_terminus=c_terminus,
-            wxobj=wxobj,
-        )
-        self.genome_path = genome_path
-        self.gumbelestimations = gumbelestimations
-        self.output2_file = output2_file
-        # self.STLM_reg = STLM_reg
-
-    # Overloading function so it prints out the genome fna file as well!
-    def print_members(self):
-        
-        members = sorted(
-            [
-                attr
-                for attr in dir(self)
-                if not callable(getattr(self, attr)) and not attr.startswith("__")
-            ]
-        )
-        for m in members:
-            print("%s = %s" % (m, getattr(self, m)))
-
-    # SC neeed to fix so genome file included
-    @classmethod
-    def from_gui(self, wxobj):
-        """ """
-
-        # Get Annotation file
-        annotation_path = wxobj.annotation
-        if not transit_tools.validate_annotation(annotation_path):
-            return None
-
-        # Get selected files
-        ctrldata = wxobj.ctrlSelected()
-        if not transit_tools.validate_control_datasets(ctrldata):
-            return None
-
-        # Validate transposon types
-        if not transit_tools.validate_transposons_used(ctrldata, transposons):
-            return None
-
-        # Read the parameters from the wxPython widgets
-        ignore_codon = True
-        n_terminus = float(wxobj.globalNTerminusText.GetValue())
-        c_terminus = float(wxobj.globalCTerminusText.GetValue())
-        replicates = "Sum"
-        normalization = None
-        LOESS = False
-
-        # Get output path
-        defaultFileName = "ttnfitness_output.dat"
-        defaultDir = os.getcwd()
-        output_path = wxobj.SaveFile(defaultDir, defaultFileName)
-        if not output_path:
-            return None
-        output_file = open(output_path, "w")
-
-        return self(
-            ctrldata,
-            annotation_path,
-            genomePath,
-            output_file,
-            replicates,
-            normalization,
-            LOESS,
-            ignore_codon,
-            n_terminus,
-            c_terminus,
-            wxobj,
-        )
-
-    @classmethod
-    def from_args(self, args, kwargs):
-        import statsmodels.api as sm
-
-        ctrldata = args[0].split(",")
-        annotation_path = args[1]
-        genomePath = args[2]
-        gumbelestimations = args[3]
-
-        # STLM_pickle_path = args[4]
-        # with tarfile.open(STLM_pickle_path+".tar.gz", 'r') as t:
-        #    t.extractall(path=".")
-        # STLM_reg = sm.load(STLM_pickle_path)
-        # os.remove(STLM_pickle_path)
-
-        outpath1 = args[4]
-        output1_file = open(outpath1, "w")
-        outpath2 = args[5]
-        output2_file = open(outpath2, "w")
-
-        replicates = "Sum"
-        normalization = None
-        LOESS = False
-        ignore_codon = True
-        n_terminus = 0.0
-        c_terminus = 0.0
-
-        return self(
-            ctrldata,
-            annotation_path,
-            genomePath,
-            gumbelestimations,
-            # STLM_reg,
-            output1_file,
-            output2_file,
-            replicates,
-            normalization,
-            LOESS,
-            ignore_codon,
-            n_terminus,
-            c_terminus,
-        )
-
-    # read in the fna file as one continous string
-
-    def Run(self):
-        import pandas
-        import statsmodels.stats.multitest
-        import statsmodels.api as sm
-        
-        logging.log("Starting TTNFitness Method")
-        start_time = time.time()
-
-        # Get orf data
-        logging.log("Getting Data")
-        (data, position) = transit_tools.get_validated_data(
-            self.ctrldata, wxobj=self.wxobj
-        )
-        (K, N) = data.shape
-
-        if self.normalization and self.normalization != "nonorm":
-            logging.log("Normalizing using: %s" % self.normalization)
-            (data, factors) = norm_tools.normalize_data(
-                data, self.normalization, self.ctrldata, self.annotation_path
+            self.value_getters.condition = panel_helpers.create_condition_choice(self.panel, main_sizer, label_text="Condition to analyze:")
+            self.value_getters.gumbel_results_path = panel_helpers.create_file_input(self.panel, main_sizer,
+                button_label="Gumbel results file",
+                default_file_name="glycerol_gumbel.out",
+                allowed_extensions="All files (*.*)|*.*", 
+                popup_title="Choose Gumbel results file", 
+                tooltip_text="Must run Gumbel first to determine which genes are essential. Note: TTN-fitness estimates fitness of NON-essential genes."
             )
+            self.value_getters.genome_path = panel_helpers.create_file_input(self.panel, main_sizer,
+                popup_title="Choose genome sequence file",
+                button_label="Load genome sequence file",
+                default_file_name="H37Rv.fna",
+                allowed_extensions="Fasta files (*.fa;*.fna;*.fasta))|*.fa;*.fna;*.fasta",
+                tooltip_text="Genome sequence file (.fna) must match annotation file (.prot_table)",
+            )
+            self.value_getters.output_basename = panel_helpers.create_text_box_getter(self.panel, main_sizer,
+                label_text="Basename for output files",
+                default_value="ttnfitness.test",
+                tooltip_text="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files."
+            )
+            self.value_getters.normalization = panel_helpers.create_normalization_input(self.panel, main_sizer, default=self.inputs.normalization) # TTR 
+            
+            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+    
+    @classmethod
+    def from_gui(cls, frame):
+        with gui_tools.nice_error_log:
+            combined_wig = universal.combined_wigs[0]
+            Analysis.inputs.combined_wig = combined_wig.main_path
+            # assume all samples are in the same metadata file
+            Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path 
+            Analysis.inputs.annotation_path = universal.annotation_path
 
-        ### Genome Read -in
-        G = tnseq_tools.Genes(
-            self.ctrldata,
-            self.annotation_path,
-            minread=1,
-            reps=self.replicates,
-            ignore_codon=self.ignore_codon,
-            n_terminus=self.n_terminus,
-            c_terminus=self.c_terminus,
-            data=data,
-            position=position,
-        )
-        N = len(G)
+            # 
+            # call all GUI getters, puts results into respective Analysis.inputs key-value
+            # 
+            for each_key, each_getter in Analysis.value_getters.items():
+                try:
+                    Analysis.inputs[each_key] = each_getter()
+                except Exception as error:
+                    raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+            
+            Analysis.inputs.genes_output_path = "%s.genes.dat" % (Analysis.inputs.output_basename)
+            Analysis.inputs.sites_output_path = "%s.sites.dat" % (Analysis.inputs.output_basename)
 
-        logging.log("Getting Genome")
-        genome = ""
-        n = 0
-        with open(self.genome_path) as file:
-            for line in file:
-                if n == 0:
-                    n = 1  # skip first
-                else:
-                    genome += line[:-1]
-        logging.log("Processing wig files")
-        ############################################################
+            return Analysis
+
+    @classmethod
+    def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
+        if len(args) != 6: logging.error(cls.usage_string)
+
+        Analysis.inputs.update(dict(
+            combined_wig = None,
+            metadata = None,
+            wig_files = args[0].split(','),
+            annotation_path = args[1],
+            genome_path = args[2],
+            gumbel_results_path = args[3],
+            genes_output_path = args[4],
+            sites_output_path = args[5],
+        ))
+            
+        return Analysis
+        
+    def Run(self):
+        with gui_tools.nice_error_log:
+            logging.log("Starting tnseq_stats analysis")
+            self.start_time = time.time()
+
+            #######################
+            # get data
+
+            if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
+              logging.log("Getting Data from %s" % self.inputs.combined_wig)
+              position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+
+              metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+              indexes = {}
+              for i,row in enumerate(metadata.rows): 
+                cond = row["Condition"] 
+                if cond not in indexes: indexes[cond] = []
+                indexes[cond].append(i)
+              cond = Analysis.inputs.condition
+              ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
+              logging.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
+              data = data[indexes[cond]] # project array down to samples selected by condition
+
+              # now, select the columns in data corresponding to samples that are replicates of desired condition...
+
+            elif self.inputs.wig_files!=None:
+              logging.log("Getting Data")
+              (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
+
+            else: print("error: must provide either combined_wig or list of wig files"); sys.exit(0) ##### use transit.error()?
+                
+            (K, N) = data.shape 
+
+            # normalize the counts
+            if self.inputs.normalization and self.inputs.normalization != "nonorm":
+              logging.log("Normalizing using: %s" % self.inputs.normalization)
+              (data, factors) = norm_tools.normalize_data( data, self.inputs.normalization, self.inputs.wig_files, self.inputs.annotation_path )
+                
+            # read-in genes from annotation
+            G = tnseq_tools.Genes(
+                self.inputs.wig_files,
+                self.inputs.annotation_path,
+                data=data,
+                position=position,
+                #minread=1,  ### add these options?
+                #reps=self.replicates,
+                #ignore_codon=self.ignore_codon,
+                #n_terminus=self.n_terminus, 
+                #c_terminus=self.c_terminus,
+            )
+            N = len(G)
+    
+            logging.log("Getting Genome")
+            genome = ""
+            n = 0
+            with open(self.inputs.genome_path) as file:
+                for line in file:
+                    if n == 0:
+                        n = 1  # skip first
+                    else:
+                        genome += line[:-1]
+
+            # could also read-in gumbel_results_file as csv here
+
+            ###########################
+            # process data
+
+            logging.log("processing data")
+
+            TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls = self.calc_ttnfitness(genome,G,self.inputs.gumbel_results_path)
+
+            ###########################
+            # write output
+            # 
+            # note: first header line is filetype, last header line is column headers
+
+            self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path) 
+
+
+            if universal.interface=="gui" and self.inputs.genes_output_path!=None:
+              logging.log(f"Adding File: {self.inputs.genes_output_path}")
+              results_area.add(self.inputs.genes_output_path)
+              logging.log(f"Adding File: {self.inputs.sites_output_path}")
+              results_area.add(self.inputs.sites_output_path)
+            logging.log("Finished TnseqStats")
+            logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
+
+    # returns: TA_sites_df , Models_df , gene_obj_dict
+
+    def calc_ttnfitness(self,genome,G,gumbel_results_file):
+        self.gumbelestimations = gumbel_results_file
+
         # Creating the dataset
         orf = []
         name = []
@@ -401,9 +372,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             dtype=str,
         )
 
-        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(
-            TA_sites_df
-        )
+        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df)
         phi = 1.0 - saturation
         significant_n = math.log10(0.05) / math.log10(phi)
 
@@ -452,14 +421,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             ~filtered_ttn_data["Orf"].isin(uncertain_genes)
         ]  # filter out uncertain genes
         filtered_ttn_data = filtered_ttn_data.reset_index(drop=True)
-        ##########################################################################################
-        # STLM Predictions
-        # logging.log("\t + Making TTN based predictions using loaded STLM")
-        # X = filtered_ttn_data.drop(["Orf","Name", "Coord","State","Insertion Count","Local Average","Actual LFC","Upseq TTN","Downseq TTN"],axis=1)
-        # X = sm.add_constant(X)
-        # model_LFC_predictions = self.STLM_reg.predict(X)
-        # filtered_ttn_data["STLM Predicted LFC"]=model_LFC_predictions
-        # filtered_ttn_data["STLM Predicted Counts"] = filtered_ttn_data["Local Average"].mul(numpy.power(2,filtered_ttn_data["STLM Predicted LFC"]))
+
 
         ##########################################################################################
         # Linear Regression
@@ -478,25 +440,21 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             ],
             axis=1,
         )
-        # stlm_predicted_log_counts = numpy.log10(filtered_ttn_data["STLM Predicted Counts"]+0.5)
+   
+        old_Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
+        Y = old_Y - numpy.mean(old_Y) #centering Y values so we can disregard constant
 
-        Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
+
 
         logging.log("\t + Fitting M1")
         X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
-        X1 = sm.add_constant(X1)
+        #X1 = sm.add_constant(X1)
         results1 = sm.OLS(Y, X1).fit()
-        filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1)
+        filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1) 
+        filtered_ttn_data["M1 Pred log Count"] = filtered_ttn_data["M1 Pred log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
         filtered_ttn_data["M1 Predicted Count"] = numpy.power(
             10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
         )
-
-        # logging.log("\t + Fitting new mod TTN-Fitness")
-        # X2 = pandas.concat([gene_one_hot_encoded,stlm_predicted_log_counts],axis=1)
-        # X2 = sm.add_constant(X2)
-        # results2 = sm.OLS(Y,X2).fit()
-        # filtered_ttn_data["mod ttn Pred log Count"] = results2.predict(X2)
-        # filtered_ttn_data["mod ttn Predicted Count"] = numpy.power(10, (filtered_ttn_data["mod ttn Pred log Count"]-0.5))
 
         logging.log("\t + Assessing Models")
         # create Models Summary df
@@ -505,9 +463,6 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         Models_df["M1 Adjusted Pval"] = statsmodels.stats.multitest.fdrcorrection(
             results1.pvalues[1:-256], alpha=0.05
         )[1]
-        # Models_df["mod ttn Coef"] = results2.params[1:-1]
-        # Models_df["mod ttn Pval"] = results2.pvalues[1:-1]
-        # Models_df["mod ttn Adjusted Pval"] = statsmodels.stats.multitest.fdrcorrection(results2.pvalues[1:-1],alpha=0.05)[1]
 
         # creating a mask for the adjusted pvals
         Models_df.loc[
@@ -524,12 +479,10 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         ] = "NE"
         Models_df.loc[(Models_df["M1 Adjusted Pval"] > 0.05), "Gene+TTN States"] = "NE"
 
-        # mask using mod TTN fitness
-        # Models_df.loc[(Models_df["mod ttn Coef"]>0) & (Models_df["mod ttn Adjusted Pval"]<0.05),"mod ttn States"]="GA"
-        # Models_df.loc[(Models_df["mod ttn Coef"]<0) & (Models_df["mod ttn Adjusted Pval"]<0.05),"mod ttn States"]="GD"
-        # Models_df.loc[(Models_df["mod ttn Coef"]==0) & (Models_df["mod ttn Adjusted Pval"]<0.05),"mod ttn States"]="NE"
-        # Models_df.loc[(Models_df["mod ttn Adjusted Pval"]>0.05),"mod ttn States"]="NE"
-        #########################################################################################
+        return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
+
+    def write_ttnfitness_results(self,TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,genes_output_path,sites_output_path):
+        genes_out_rows, sites_out_rows = [],[]
         logging.log("Writing To Output Files")
         # Write Models Information to CSV
         # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj Pval
@@ -566,7 +519,6 @@ class TTNFitnessMethod(base.SingleConditionMethod):
                     ].iloc[
                         0
                     ]
-                # TA_sites_df[TA_sites_df["Coord"].isin(coords_orf)]['mod ttn Predicted Count'] = filtered_ttn_data[filtered_ttn_data["Coord"].isin(coords_orf)]["mod ttn Predicted Count"]
             # M1 info
             if "_" + g in Models_df.index:
                 M1_coef = Models_df.loc["_" + g, "M1 Coef"]
@@ -574,36 +526,25 @@ class TTNFitnessMethod(base.SingleConditionMethod):
                 modified_M1 = math.exp(
                     M1_coef - statistics.median(Models_df["M1 Coef"].values.tolist())
                 )
-                # mod_M1_coef = Models_df.loc["_"+g,"mod ttn Coef"]
-                # mod_M1_adj_pval = Models_df.loc["_"+g,"mod ttn Adjusted Pval"]
-                # mod_modified_M1 = math.exp(mod_M1_coef - statistics.median(Models_df["mod ttn Coef"].values.tolist()))
             else:
                 M1_coef = None
                 M1_adj_pval = None
                 modified_M1 = None
-                # mod_M1_coef = None
-                # mod_M1_adj_pval = None
-                # mod_modified_M1 = None
 
             # States
             gumbel_bernoulli_call = gumbel_bernoulli_gene_calls[g]
             if gumbel_bernoulli_call == "E":
                 gene_ttn_call = "ES"
-                # mod_gene_ttn_call = "ES"
             elif gumbel_bernoulli_call == "EB":
                 gene_ttn_call = "ESB"
-                # mod_gene_ttn_call = "ESB"
             else:
                 if "_" + g in Models_df.index:
                     gene_ttn_call = Models_df.loc["_" + g, "Gene+TTN States"]
-                    # mod_gene_ttn_call = Models_df.loc["_"+g,"mod ttn States"]
                 else:
                     gene_ttn_call = "U"  # these genes are in the uncertain genes list
-                    # mod_gene_ttn_call = "U"
             TA_sites_df.loc[
                 (TA_sites_df["Orf"] == g), "TTN-Fitness Assessment"
             ] = gene_ttn_call
-            # TA_sites_df.loc[(TA_sites_df["Orf"]==g), 'Mod TTN-Fitness Assessment'] = mod_gene_ttn_call
             gene_dict[g] = [
                 g,
                 orfName,
@@ -632,50 +573,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             "TTN-Fitness Assessment",
         ]
         assesment_cnt = output_df["TTN-Fitness Assessment"].value_counts()
-        # mod_assesment_cnt = output_df["Mod TTN-Fitness Assessment"].value_counts()
 
-        self.output.write("#TTNFitness\n")
-        if self.wxobj:
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write(
-                "#GUI with: ctrldata=%s, annotation=%s, output=%s\n"
-                % (
-                    ",".join(self.ctrldata).encode("utf-8"),
-                    self.annotation_path.encode("utf-8"),
-                    self.output.name.encode("utf-8"),
-                )
-            )
-        else:
-            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-
-        self.output.write("#Data: %s\n" % (",".join(self.ctrldata).encode("utf-8")))
-        self.output.write(
-            "#Annotation path: %s\n" % self.annotation_path.encode("utf-8")
-        )
-        self.output.write("#Time: %s\n" % (time.time() - start_time))
-        self.output.write("#Saturation of Dataset: %s\n" % (saturation))
-        self.output.write(
-            "#Assesment Counts: %s ES, %s ESB, %s GD, %s GA, %s NE, %s U \n"
-            % (
-                assesment_cnt["ES"],
-                assesment_cnt["ESB"],
-                assesment_cnt["GD"],
-                assesment_cnt["GA"],
-                assesment_cnt["NE"],
-                assesment_cnt["U"],
-            )
-        )
-        # self.output.write("#Mod Assesment Counts: %s ES, %s ESB, %s GD, %s GA, %s NE, %s U \n" % (mod_assesment_cnt["ES"],mod_assesment_cnt["ESB"],mod_assesment_cnt["GD"],mod_assesment_cnt["GA"],mod_assesment_cnt["NE"],mod_assesment_cnt["U"]))
-
+        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df) 
         TA_sites_df = TA_sites_df[
             [
                 "Coord",
@@ -690,26 +589,222 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             ]
         ]
 
-        output2_data = TA_sites_df.to_csv(header=True, sep="\t", index=False).split(
-            "\n"
-        )
-        vals = "\n".join(output2_data)
-        self.output2_file.write(vals)
-        self.output2_file.close()
+        genes_out_rows = output_df.values.tolist()
 
-        output_data = output_df.to_csv(header=True, sep="\t", index=False).split("\n")
-        vals = "\n".join(output_data)
-        self.output.write(vals)
-        self.output.close()
+        logging.log("Writing File: %s" % (self.inputs.genes_output_path))
+        transit_tools.write_result(
+            path=self.inputs.genes_output_path,
+            file_kind=Analysis.identifier+"Genes",
+            rows=genes_out_rows,
+            column_names=output_df.columns,
+            extra_info=dict(
+                parameters=dict(
+                    combined_wig = self.inputs.combined_wig,
+                    wig_files = self.inputs.wig_files,
+                    metadata = self.inputs.metadata,
+                    annotation_path=self.inputs.annotation_path,
+                    gumbel_results_file = self.inputs.gumbel_results_path,
+                    normalization = self.inputs.normalization,
+                ),
+                time=(time.time() - self.start_time),
+                saturation = saturation,
+
+                ES = str(assesment_cnt["ES"]) + " #essential based on Gumbel",
+                ESB = str(assesment_cnt["ESB"]) + " #essential based on Binomial",
+                GD = str(assesment_cnt["GD"]) +" #Growth Defect",
+                GA = str(assesment_cnt["GA"]) +" #Growth Advantage",
+                NE = str(assesment_cnt["NE"]) + " #non-essential",
+                U = str(assesment_cnt["U"]) + " #uncertain",
+                
+                
+            ),
+        )
+        # write sites data
+
+        sites_out_rows = TA_sites_df.values.tolist()
+
+        logging.log("Writing File: %s" % (self.inputs.sites_output_path))
+        transit_tools.write_result(
+            path=self.inputs.sites_output_path,
+            file_kind=Analysis.identifier+"Sites",
+            rows=sites_out_rows,
+            column_names=TA_sites_df.columns,
+            extra_info=dict(
+                parameters=dict(
+                    combined_wig = self.inputs.combined_wig,
+                    wig_files = self.inputs.wig_files,
+                    metadata = self.inputs.metadata,
+                    annotation_path=self.inputs.annotation_path,
+                    gumbel_results_file = self.inputs.gumbel_results_path,
+                    normalization = self.inputs.normalization,
+                ),
+                time=(time.time() - self.start_time),
+                saturation = saturation,
+
+                ES = str(assesment_cnt["ES"]) + " #essential based on Gumbel",
+                ESB = str(assesment_cnt["ESB"]) + " #essential based on Binomial",
+                GD = str(assesment_cnt["GD"]) +" #Growth Defect",
+                GA = str(assesment_cnt["GA"]) +" #Growth Advantage",
+                NE = str(assesment_cnt["NE"]) + " #non-essential",
+                U = str(assesment_cnt["U"]) + " #uncertain",        
+            ),
+        )
 
         logging.log("")  # Printing empty line to flush stdout
-        logging.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)
-        self.finish()
+        # logging.log("Adding File: %s" % (self.output.name))
+        # results_area.add(self.output.name)
+        #self.finish()
         logging.log("Finished TTNFitness Method")
 
-    usage_string = (
-            """python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel output file> <output1 file> <output2 file>"""
-            % (sys.argv[0])
-        )
 
+            
+
+@transit_tools.ResultsFile
+class GenesFile:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier+"Genes")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=transit_tools.basename(self.path),
+            type=Analysis.identifier+"Genes",
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(title="TTNFitness Summary",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
+            })
+        )
+        
+        # 
+        # get column names
+        # 
+        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+        if len(comments) == 0:
+            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
+        self.column_names = comments[-1].split("\t")
+        
+        # 
+        # get rows
+        #
+        self.rows = []
+        for each_row in rows:
+            row = {}
+            for each_column_name, each_cell in zip(self.column_names, each_row):
+               row[each_column_name] = each_cell
+            self.rows.append(row)
+        
+    
+    def __str__(self):
+        return f"""
+            File for {Analysis.short_name}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
+
+
+    def graph_volcano_plot(self):
+        with gui_tools.nice_error_log:
+            try: import matplotlib.pyplot as plt
+            except:
+                print("Error: cannot do plots, no matplotlib")
+
+            ttnfitness_genes_summary = pandas.read_csv(self.path, sep= "\t",comment='#')
+            ttnfitness_genes_summary.columns = [
+                "ORF ID",
+                "Name",
+                "Description",
+                "Total # TA Sites",
+                "#Sites with insertions",
+                "Gene Saturation",
+                "Gene+TTN (M1) Coef",
+                "Gene+TTN (M1) Adj Pval",
+                "Mean Insertion Count",
+                "Fitness Ratio",
+                "TTN-Fitness Assessment",
+            ]
+
+            color_dict = {
+                "ES":"r",
+                "ESB" : "b",
+                "NE" : "g",
+                "GA" : "m",
+                "GD" : "c",
+                "U": "y"
+            }
+            plt.figure()
+            for call in set(ttnfitness_genes_summary["TTN-Fitness Assessment"]):
+                sub_summary = ttnfitness_genes_summary[ttnfitness_genes_summary["TTN-Fitness Assessment"]==call]
+                coef_vals = sub_summary["Gene+TTN (M1) Coef"]
+                q_vals = sub_summary["Gene+TTN (M1) Adj Pval"]
+                log10_q_vals = []
+                for each_q_val in q_vals:
+                    try:
+                        log10_q_value = -math.log(float(each_q_val), 10)
+                    except ValueError as e:
+                        log10_q_value = None
+                    
+                    log10_q_vals.append(log10_q_value)
+                threshold = 0.05
+
+                plt.scatter(coef_vals, log10_q_vals, c = color_dict[call], marker=".", label=call)
+            plt.axhline( -math.log(threshold, 10), color="k", linestyle="dashed", linewidth=2)
+            plt.axvline(0, color="k", linestyle="dashed", linewidth=2)
+            plt.legend()
+            plt.xlabel("Gene+TTN (M1) Coef")
+            plt.ylabel("-Log adjusted p-value (base 10)")
+            plt.suptitle("Resampling - Volcano plot")
+            plt.title("Adjusted threshold (horizonal line): P-value=%1.8f\nVertical line set at Coef=0" % threshold)
+            plt.show()
+            
+
+@transit_tools.ResultsFile
+class SitesFile:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Analysis.identifier+"Sites")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=transit_tools.basename(self.path),
+            type=Analysis.identifier+"Sites",
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(title="TTNFitness Summary",heading="",column_names=self.column_names,rows=self.rows).Show(),
+            })
+        )
+        
+        # 
+        # get column names
+        # 
+        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+        if len(comments) == 0:
+            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
+        self.column_names = comments[-1].split("\t")
+        
+        # 
+        # get rows
+        #
+        self.rows = []
+        for each_row in rows:
+            row = {}
+            for each_column_name, each_cell in zip(self.column_names, each_row):
+               row[each_column_name] = each_cell
+            self.rows.append(row)
+        
+    
+    def __str__(self):
+        return f"""
+            File for {Analysis.short_name}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
+
+
+Method = GUI = Analysis # for compatibility with older code/methods

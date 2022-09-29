@@ -1,4 +1,4 @@
-#HMM - Genes
+#HMM_Genes
 #command line: python3 ./src/transit.py
 #summary of gene calls: ES=8, GD=5, NE=38, GA=0, N/A=0
 #key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)

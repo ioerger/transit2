@@ -84,6 +84,15 @@ if universal.interface == "gui":
         max_height = 800
         
         def __init__(self, title, heading, column_names, rows, sort_by=[]):
+            """
+            Arguments:
+                title: string
+                heading: string
+                column_names: list of strings
+                rows: list of dictionaries, keys=column names
+                sort_by: list of strings
+            """
+            
             wx.Frame.__init__(self, universal.frame, size=(-1,-1))
             self.parent = universal.frame
             self.col = 0
@@ -102,7 +111,7 @@ if universal.interface == "gui":
                 outer_box_sizer = wx.BoxSizer(wx.VERTICAL)
                 if True:
                     inner_box_sizer = wx.StaticBoxSizer(
-                        wx.StaticBox(self, wx.ID_ANY, u"Information"), wx.HORIZONTAL
+                        wx.StaticBox(self, wx.ID_ANY, "Information"), wx.HORIZONTAL
                     )
                     header_wxobj = wx.StaticText(self, wx.ID_ANY, self.heading, wx.DefaultPosition, wx.DefaultSize, 0)
                     header_wxobj.Wrap(-1)

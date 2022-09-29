@@ -15,13 +15,10 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.console_tools as console_tools
 
-from pytransit.methods.analysis.gumbel import GumbelMethod
-from pytransit.methods.analysis.binomial import BinomialMethod
-from pytransit.methods.analysis.griffin import GriffinMethod
-from pytransit.methods.analysis.hmm import HMMMethod
+from pytransit.methods.analysis.gumbel import Analysis as GumbelMethod
+from pytransit.methods.analysis.hmm        import Analysis as HMMMethod
 
 from pytransit.methods.analysis.resampling import Analysis as ResamplingMethod
-from pytransit.methods.analysis.rankproduct import RankProductMethod
 
 
 # RAW STATISTICS:
@@ -46,7 +43,7 @@ class TestNormMethods(TransitTestCase):
            self.assertEqual(numpy.mean(norm_data[k]), raw_means[k])
 
 
-    def test_TTR(self):
+    def test_ttr(self):
         N = len(all_data_list)
         data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)
         norm_data,factors = norm_tools.normalize_data(data, "TTR")
@@ -64,7 +61,7 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(qvals), 1)
 
 
-    def test_resampling_TTR(self):
+    def test_resampling_ttr(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "TTR"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()
@@ -74,7 +71,7 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(qvals), 1)
 
 
-    def test_resampling_NZMean(self):
+    def test_resampling_nz_mean(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "nzmean"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()
@@ -83,7 +80,7 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(pvals), 5)
         self.assertLessEqual(len(qvals), 1)
 
-    def test_resampling_TotReads(self):
+    def test_resampling_tot_reads(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "totreads"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()
@@ -92,7 +89,7 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(pvals), 5)
         self.assertLessEqual(len(qvals), 1)
 
-    def test_resampling_Quantile(self):
+    def test_resampling_quantile(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "quantile"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()
@@ -102,14 +99,14 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(pvals), 5)
         self.assertLessEqual(len(qvals), 1)
 
-    def test_resampling_ZINFNB(self):
+    def test_resampling_zinfnb(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "zinfnb"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()
         self.assertTrue(os.path.exists(output))
 
     """
-    def test_resampling_BGC(self):
+    def test_resampling_bgc(self):
         args = [ctrl_data_txt, exp_data_txt, annotation, output, "-s", "1000", "-n", "betageom"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()
@@ -120,7 +117,7 @@ class TestNormMethods(TransitTestCase):
 
 
     """
-    def test_resampling_aBGC(self):
+    def test_resampling_a_bgc(self):
         args = [ctrl_data_txt, exp_data_txt, annotation, output, "-s", "1000", "-n", "aBGC"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         G.Run()

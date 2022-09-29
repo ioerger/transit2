@@ -46,11 +46,6 @@ class CombinedWigGUI(base.ExportGUI):
 
 
 class CombinedWigMethod(base.SingleConditionMethod):
-    """
-    CombinedWig
-
-    """
-
     def __init__(
         self,
         ctrldata,
@@ -82,10 +77,9 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_gui(self, wxobj):
-        """ """
-
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

@@ -31,37 +31,37 @@ except ImportError:
 #   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
 
 class Wig:
-    def __init__(self, path, *, rows=None, fingerprint=None, id=None, column_index=None, extra_data=None):
+    def __init__(self, *, rows=None, id=None, fingerprint=None, condition_names=tuple(), column_index=None, extra_data=None):
         from random import random
         
-        self.path            = path
         self.rows            = rows or []
         self.comments        = []
         
         self.fingerprint     = fingerprint or self.path
         self.column_index    = column_index
-        self.id              = id or f"{basename((fingerprint if fingerprint else path))}_" + (f"{random()}".replace(".", ""))[0:4]
+        self.condition_names = condition_names
+        self.id              = id or f"{basename(fingerprint)}_" + (f"{random()}".replace(".", ""))[0:4]
         # TODO: use super_hash instead of random so the id's dont change with every run
         
+        self.positions        = [ each[0] for each in self.rows ]
+        self.insertion_counts = [ each[1] for each in self.rows ]
         
         self.extra_data = LazyDict(extra_data)
-        if self.extra_data.get("condition", None) is None:
-            self.extra_data["condition"] = basename(path)
+        density, mean_reads, non_zero_mean_reads, non_zero_median_reads, max_reads, sum_of_reads, skew, kurtosis = get_data_stats(numpy.array(self.insertion_counts))
+        self.extra_data.update(dict(
+            count=len(self.rows),
+            sum=sum_of_reads,
+            non_zero_mean=non_zero_mean_reads,
+            non_zero_median=non_zero_median_reads,
+            density=density,
+            mean=mean_reads,
+            max=max_reads,
+            skew=skew,
+            kurtosis=kurtosis,
+        ))
         
-    @property
-    def positions(self):
-        return [ each[0] for each in self.rows ]
-    
-    @property
-    def insertion_counts(self):
-        return [ each[1] for each in self.rows ]
-    
-    def load(self):
-        pass # TODO
-    
     def __repr__(self):
         return f"""Wig(
-            path={self.path},
             fingerprint={self.fingerprint},
             column_index={self.column_index},
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
@@ -69,7 +69,7 @@ class Wig:
         )""".replace("\n        ", "\n")
     
     def __hash__(self):
-        return hash((self.path, self.column_index))
+        return hash((self.fingerprint, self.column_index))
     
     def __eq__(self, other):
         return hash(other) == self.__hash__()
@@ -122,15 +122,17 @@ class CombinedWigMetadata:
         )
         self._cache_for_read = None
     
-    def condition_for(self, wig_fingerprint=None, id=None):
+    def condition_names_for(self, wig_fingerprint=None, id=None):
+        conditions = []
         if wig_fingerprint:
             for each_row in self.rows:
                 if each_row["Filename"] == wig_fingerprint:
-                    return each_row["Condition"]
-        if id:
+                    conditions.append(each_row["Condition"])
+        elif id:
             for each_row in self.rows:
                 if each_row["Id"] == id:
-                    return each_row["Condition"]
+                    conditions.append(each_row["Condition"])
+        return no_duplicates(conditions)
     
     def id_for(self, wig_fingerprint=None):
         for each_row in self.rows:
@@ -292,7 +294,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                         contained_yaml_data = True
                         continue
                     if yaml_mode_is_on and line.startswith("# "):
-                        yaml_string += f"\n{line[-1:]}"
+                        yaml_string += f"\n{line[1:]}"
                         continue
                     else:
                         yaml_mode_is_on = False
@@ -493,14 +495,13 @@ class CombinedWig:
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(
-                    path=self.main_path,
                     rows=list(zip(self.positions, read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
+                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
                     extra_data=LazyDict(
                         is_part_of_cwig=True,
-                        condition=self.metadata.condition_for(wig_fingerprint=wig_fingerprint),
                     ),
                 )
             )
@@ -2081,3 +2082,55 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 siteindexes.append(TASiteindexMap[co])
         rv_site_indexes_map[gene["rv"]] = siteindexes
     return rv_site_indexes_map
+
+def extract_yaml_data(comment_lines):
+    import ez_yaml
+    
+    extra_data = {}
+    contained_yaml_data = False
+    yaml_mode_is_on = False
+    yaml_string = "extra_data:\n"
+    # 
+    # handle header/comments
+    # 
+    for line in comment_lines:
+        if line.startswith("#"):
+            if line.startswith("#yaml:"):
+                yaml_mode_is_on = True
+                contained_yaml_data = True
+                continue
+            if yaml_mode_is_on and line.startswith("# "):
+                yaml_string += f"\n{line[1:]}"
+                continue
+            else:
+                yaml_mode_is_on = False
+                # add to the extra_data dict when its done
+                if len(yaml_string) > 0:
+                    an_object = ez_yaml.to_object(string=yaml_string)
+                    extra_data.update(an_object["extra_data"] or {})
+    return extra_data
+
+def read_results_file(path):
+    from pytransit.basics import csv
+    # 
+    # get column names
+    # 
+    comments, headers, rows = csv.read(path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+    comments_string = "\n".join([ "#"+each for each in comments])
+    if len(comments) == 0:
+        raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while trying to load file "{path}"''')
+    column_names = comments[-1].split("\t")
+    
+    extra_data = extract_yaml_data([ "#"+each for each in comments])
+    
+    # 
+    # get rows
+    #
+    rows_of_dicts = []
+    for each_row in rows:
+        rows_of_dicts.append({
+            each_column_name: each_cell
+                for each_column_name, each_cell in zip(column_names, each_row)
+        })
+    
+    return column_names, rows_of_dicts, extra_data, comments_string

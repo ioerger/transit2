@@ -3,7 +3,7 @@ from functools import partial
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit.components.qc_display as qc_display
-from pytransit.universal_data import SessionData, universal
+from pytransit.universal_data import universal
 import pytransit
 
 selected_export_menu_item = None
@@ -54,8 +54,12 @@ def create_menu(frame):
                 
                 for name in export_methods:
                     method = export_methods[name]
-                    method.gui.define_menu_item(frame, method.label)
-                    temp_menu_item = method.gui.menuitem
+                    method_gui = method
+                    if hasattr(method_gui, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+                        method_gui = method_gui.gui
+                        
+                    method_gui.define_menu_item(frame, method.label)
+                    temp_menu_item = method_gui.menuitem
                     selected_export_menu_item.Append(temp_menu_item)
                     
                     frame.Bind(
@@ -85,7 +89,7 @@ def create_menu(frame):
             convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
             def when_annotation_pt_to_ptt_clicked(event):
                 with gui_tools.nice_error_log:
-                    annotation_path = universal.session_data.annotation_path
+                    annotation_path = universal.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".ptt.table"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
@@ -146,7 +150,7 @@ def create_menu(frame):
             convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
             def when_annotation_pt_to_gff3_clicked(event):
                 with gui_tools.nice_error_log:
-                    annotation_path = universal.session_data.annotation_path
+                    annotation_path = universal.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".gff3"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
@@ -213,7 +217,7 @@ def create_menu(frame):
             def when_annotation_ptt_to_pt_clicked(event):
                 with gui_tools.nice_error_log:
                     
-                    annotation_path = universal.session_data.annotation_path
+                    annotation_path = universal.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
@@ -281,14 +285,18 @@ def create_menu(frame):
                     if frame.verbose: logging.log(f"Selected Convert Method: {selected_name}")
                     gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
 
-            for name in convert_methods:
-                convert_methods[name].gui.define_menu_item(frame, convert_methods[name].label)
-                temp_menu_item = convert_methods[name].gui.menuitem
+            for method in convert_methods.values():
+                method_gui = method
+                if hasattr(method_gui, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+                    method_gui = method_gui.gui
+                    
+                method_gui.define_menu_item(frame, method.label)
+                temp_menu_item = method_gui.menuitem
                 convert_menu_item.Append(temp_menu_item)
 
                 frame.Bind(
                     wx.EVT_MENU,
-                    partial(when_convert_clicked, convert_methods[name].label),
+                    partial(when_convert_clicked, method.label),
                     temp_menu_item,
                 )
             
@@ -332,7 +340,7 @@ def create_menu(frame):
                     import matplotlib
                     import matplotlib.pyplot as plt
                     from pytransit.tools import stat_tools
-                    selected_samples = universal.session_data.selected_samples
+                    selected_samples = universal.selected_samples
                     if len(selected_samples) == 2:
                         if frame.verbose: logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
                         from pytransit.tools.transit_tools import gather_sample_data_for
@@ -359,8 +367,8 @@ def create_menu(frame):
             def when_track_view_clicked(event, gene=""):
                 with gui_tools.nice_error_log:
                     import pytransit.components.trash as trash
-                    annotation_path = universal.session_data.annotation_path
-                    wig_ids = [ each_sample.id for each_sample in universal.session_data.selected_samples ]
+                    annotation_path = universal.annotation_path
+                    wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
 
                     if wig_ids and annotation_path:
                         if frame.verbose:
@@ -389,7 +397,7 @@ def create_menu(frame):
             view_menu_item.Append( quality_control_option )
             def when_quality_control_clicked(event):
                 with gui_tools.nice_error_log:
-                    wig_ids = [ each_sample.id for each_sample in universal.session_data.selected_samples ] 
+                    wig_ids = [ each_sample.id for each_sample in universal.selected_samples ] 
                     number_of_files = len(wig_ids)
 
                     if number_of_files <= 0:
@@ -530,7 +538,7 @@ def create_menu(frame):
 # UNUSED 
 def annotation_gff3_to_pt(event):
     with gui_tools.nice_error_log:
-        annotation_path = universal.session_data.annotation_path
+        annotation_path = universal.annotation_path
         default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
         # default_dir = os.path.dirname(os.path.realpath(__file__))
         default_dir = os.getcwd()

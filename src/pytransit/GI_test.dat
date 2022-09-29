@@ -1,4 +1,4 @@
-#GI_gui
+#gi
 #parameters: norm=TTR, samples=100, includeZeros=False, output=b'./src/pytransit/GI_test.dat'
 #Date: 2022-08-24 13:22:56
 #Strain A, Condition 1): Input: macrophages.comwig,macrophages.comwig,macrophages.comwig,macrophages.comwig

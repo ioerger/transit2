@@ -2,7 +2,7 @@ from pytransit.tools.transit_tools import wx, pub
 from pytransit.universal_data import universal
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
-default_label_size = (-1, -1)
+default_label_size = (200, -1)
 default_widget_size = (100, -1)
 
 # 
@@ -11,8 +11,7 @@ default_widget_size = (100, -1)
 # 
 # 
 if True:
-    def make_panel(): pass
-    class Panel:
+    class NewPanel:
         def __init__(self, *args, **kwargs):
             pass
         
@@ -27,8 +26,9 @@ if True:
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
             return (self.wx_panel, self.main_sizer)
         
-        def __exit__(self, _, error, traceback):
+        def __exit__(self, _, error, traceback_obj):
             if error is not None:
+                import traceback
                 print(''.join(traceback.format_tb(traceback_obj)))
                 frame = universal.frame
                 if frame and hasattr(frame, "status_bar"):
@@ -72,7 +72,7 @@ if True:
             # tooltip
             # 
             if tooltip_text:
-                from pytransit.methods.analysis_base import InfoIcon
+                from pytransit.components.icon import InfoIcon
                 row_sizer.Add(
                     InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
                     0,
@@ -180,16 +180,17 @@ if True:
    
     def define_choice_box(
         panel,
+        *,
         label_text="",
         options=[""],
         tooltip_text="",
         label_size=None,
         widget_size=None,
     ):
-        from pytransit.methods.analysis_base import InfoIcon
+        from pytransit.components.icon import InfoIcon
         
         if not label_size:
-            label_size = (100, -1)
+            label_size = default_label_size
         if not widget_size:
             widget_size = (100, -1)
 
@@ -207,6 +208,23 @@ if True:
             gui_tools.default_padding,
         )
         return (label, choice_box, sizer)
+    
+    def create_label(
+        panel,
+        sizer,
+        text="",
+        size=None,
+    ):
+        if not label_size:
+            label_size = default_label_size
+        inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
+        label.Wrap(-1)
+        choice_box = wx.Choice(panel, wx.ID_ANY, wx.DefaultPosition, widget_size, options, 0 )
+        choice_box.SetSelection(0)
+        inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+        
+        sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
 
     def create_choice_input(panel, sizer, label, options, default_option=None, tooltip_text=""):
         # 
@@ -225,9 +243,9 @@ if True:
             inner_sizer,
         ) = define_choice_box(
             panel,
-            label,
-            options,
-            tooltip_text,
+            label_text=label,
+            options=options,
+            tooltip_text=tooltip_text,
         )
         sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
@@ -242,7 +260,7 @@ if True:
             label_size=None,
             widget_size=None,
         ):
-            from pytransit.methods.analysis_base import InfoIcon
+            from pytransit.components.icon import InfoIcon
             if not label_size:
                 label_size = default_label_size
             if not widget_size:
@@ -262,7 +280,7 @@ if True:
             return label, text_box, sizer
             
     def create_check_box_getter(panel, sizer, label_text="", default_value=False, tooltip_text="", widget_size=None):
-        from pytransit.methods.analysis_base import InfoIcon
+        from pytransit.components.icon import InfoIcon
         if not widget_size:
             widget_size = (-1, -1)
         
@@ -291,11 +309,31 @@ if True:
         ) = define_text_box(
             panel,
             label_text=label_text,
-            default_value=default_value,
+            default_value=str(default_value),
             tooltip_text=tooltip_text,
         )
         sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: wxobj.GetValue()
+
+    def create_float_getter(panel, sizer, *, label_text, default_value, tooltip_text=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label_text,
+            default_value=str(float(default_value)),
+            tooltip_text=tooltip_text,
+        )
+        return lambda *args: float(get_text())        
+    
+    def create_int_getter(panel, sizer, *, label_text, default_value, tooltip_text=None):
+        get_text = create_text_box_getter(
+            panel,
+            sizer,
+            label_text=label_text,
+            default_value=str(int(default_value)),
+            tooltip_text=tooltip_text,
+        )
+        return lambda *args: int(get_text())        
 
 # 
 # 
@@ -324,11 +362,11 @@ if True:
                 use_selected = False
                 if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
                     use_selected = True
-                    if not universal.session_data.selected_samples:
+                    if not universal.selected_samples:
                         # NOTE: was a popup
                         logging.error("Need to select at least one control or experimental dataset.")
                 
-                wig_objects = universal.session_data.samples
+                wig_objects = universal.samples
                 
                 #
                 # get read_counts and positions
@@ -361,8 +399,8 @@ if True:
             normalization_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Normalization: ",
-            [
+            label_text="Normalization: ",
+            options=[
                 "TTR",
                 "nzmean",
                 "totreads",
@@ -371,23 +409,23 @@ if True:
                 "betageom",
                 "nonorm",
             ],
-            "Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+            tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
-    def create_condition_choice(panel, sizer, name,tooltip="choose condition"):
+    def create_condition_choice(panel, sizer, *, label_text, tooltip_text="choose condition"):
         (
             label,
             ref_condition_wxobj,
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            name,
-            [x.name for x in universal.session_data.conditions],
-            tooltip,
+            label_text=label_text,
+            options=[x.name for x in universal.conditions],
+            tooltip_text=tooltip_text,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -399,9 +437,23 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Ref Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
-            "which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+            label_text="Ref Condition:",
+            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
+            tooltip_text="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+        )
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+    
+    def create_condition_input(panel, sizer, label_text="Condition", tooltip_text="choose condition"):
+        (
+            label,
+            ref_condition_wxobj,
+            ref_condition_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text=label_text,
+            options=[ "[None]" ] + [x.name for x in universal.conditions],
+            tooltip_text=tooltip_text,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -423,7 +475,7 @@ if True:
             as_list = wxobj.GetValue().split(",")
             without_empty_strings = [ each for each in as_list if len(each) > 0 ]
             if len(without_empty_strings) == 0:
-                return [ each.name for each in universal.session_data.conditions ]
+                return [ each.name for each in universal.conditions ]
             else:
                 return without_empty_strings
         
@@ -456,10 +508,10 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Control Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
-            "which condition(s) to use as the control group",
-            label_size=(150, 20),
+            label_text="Control Condition:",
+            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
+            tooltip_text="which condition(s) to use as the control group",
+            label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -471,10 +523,10 @@ if True:
             ref_condition_choice_sizer,
         ) = define_choice_box(
             panel,
-            "Experimental Condition:",
-            [ "[None]" ] + [ each.name for each in universal.session_data.conditions ],
-            "which condition(s) to use as the experimental group",
-            label_size=(160, 20),
+            label_text="Experimental Condition:",
+            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
+            tooltip_text="which condition(s) to use as the experimental group",
+            label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -571,3 +623,19 @@ if True:
                     thread = threading.Thread(target=run_wrapper())
                     thread.setDaemon(True)
                     thread.start()
+                    
+    def create_significance_choice_box(panel, sizer, default="HDI"):
+        (
+            signif_label,
+            signif_wxobj,
+            signif_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text="Significance method: ",
+            options=["HDI","prob","BFDR","FWER"],
+            tooltip_text="tooltip",  # FIXME: fill in explanation...
+        )
+        sizer.Add(signif_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        # return a value-getter
+        signif_wxobj.SetSelection(signif_wxobj.FindString(default))
+        return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())
