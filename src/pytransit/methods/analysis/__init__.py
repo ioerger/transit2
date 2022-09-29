@@ -2,6 +2,7 @@ methods = {}
 from .anova              import Analysis; methods["anova"             ] = Analysis()
 from .binomial           import Analysis; methods["binomial"          ] = Analysis()
 from .corrplot           import Analysis; methods["corrplot"          ] = Analysis()
+from .corrplot_gui       import Analysis; methods["corrplot_gui"      ] = Analysis()
 from .GI_gui             import Analysis; methods["GI_gui"            ] = Analysis()
 from .griffin            import Analysis; methods["griffin"           ] = Analysis()
 from .gumbel             import Analysis; methods["gumbel"            ] = Analysis()
