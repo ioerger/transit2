@@ -35,7 +35,7 @@ if hasR:
     from rpy2.robjects import r, DataFrame, globalenv, IntVector, FloatVector, StrVector, packages as rpackages
 ##########################
 
-name = "corrplot" # HANDLE_THIS
+name = "corrplot_gui" # HANDLE_THIS
 
 @misc.singleton
 class Analysis:
@@ -64,7 +64,7 @@ class Analysis:
 
     #TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: python3 transit.py corrplot <gene_means> <output.png> [-anova|-zinb]""""
-    usage_string = """usage: python3 transit.py corrplot <combined_wig> <output.png> [-avg_by_genes <annotation_file>] [-avg_by_conditions <metadata_file>]"""
+    usage_string = """usage: python3 transit.py corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
     
     wxobj = None
     panel = None
@@ -100,12 +100,8 @@ class Analysis:
             # def when_button_clicked(event):
             #     print("do stuff")
 
-            self.value_getters.avg_by_genes = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="average counts by gene", default_value=False, tooltip_text="correlations of mean counts for each gene versus individual TA sites?", widget_size=None)
-
             self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
 
-            # add log_scale option?
-            
             #self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
             #self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
             #self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
@@ -158,7 +154,9 @@ class Analysis:
         # 
         # HANDLE_THIS
         Analysis.inputs.annotation_path = universal.session_data.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation)
+        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        Analysis.inputs.combined_wig = universal.session_data.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
+        Analysis.inputs.metadata = universal.session_data.combined_wigs[0].metadata.path
         
         # 
         # call all GUI getters, puts results into respective Analysis.inputs key-value
@@ -168,7 +166,7 @@ class Analysis:
                 Analysis.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-        logging.log("included_conditions", Analysis.inputs.included_conditions)
+        #logging.log("included_conditions", Analysis.inputs.included_conditions)
         
         # 
         # ask for output path(s)
@@ -189,22 +187,20 @@ class Analysis:
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         #console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
-        if len(args)!=2: logging.error(Analysis.usage_string)
+        if len(args)!=3: logging.error(Analysis.usage_string)
 
         combined_wig = args[0]
-        output_path = args[1] # png file
-        annotation = kwargs.get("avg_by_genes",None)
-        metadata = kwargs.get("avg_by_conditions",None)
-        avg_by_genes = (annotation!=None)
-        avg_by_conditions = (metadata!=None)
+        annotation_path = args[1]
+        output_path = args[2] # png file
+        metadata = kwargs.get("avg_by_conditions",None) # optional
+        avg_by_conditions = (metadata!=None) # boolean
 
         # save the data
         Analysis.inputs.update(dict(
             combined_wig = combined_wig,
+            annotation_path = annotation_path,
             output_path = output_path,
-            annotation = annotation,
             metadata = metadata,
-            avg_by_genes = avg_by_genes, # bool
             avg_by_conditions = avg_by_conditions, # bool
             normalization = "TTR", #TRI hard-coded for now
             #normalization=kwargs.get("n", Analysis.inputs.normalization), #TRI these might be useful for corrplot...
@@ -240,9 +236,9 @@ class Analysis:
       logging.log("data.shape="+str(data.shape)) #TRI could get rid of these eventually
 
       # calculate gene means #TRI I should put this in a separate function, which could be used by 'export gene_means'
-      #genes = tnseq_tools.get_gene_info(self.inputs.annotation)
+      #genes = tnseq_tools.get_gene_info(self.inputs.annotation_path)
       #data = compute_gene_means(data,genes)
-      genes = tnseq_tools.Genes(wig_list=[],data=data,annotation=self.inputs.annotation,position=sites) # normalization=nonorm?
+      genes = tnseq_tools.Genes(wig_list=[],data=data,annotation=self.inputs.annotation_path,position=sites) # normalization=nonorm?
       means = []
       for gene in genes:
         if gene.n>=1:
@@ -257,10 +253,10 @@ class Analysis:
         condlist = sorted(list(set(conditions))) # make unique
         condarr = numpy.array(conditions)
 
-        # make a reduced numpy array
+        # make a reduced numpy array by average over replicates of each condition
         countlists = []
         for cond in condlist:
-          countlists.append(numpy.mean(means[:,condarr==cond],axis=1)) # pick columns corresponding to condition; avg across rows (TA sites)
+          countlists.append(numpy.mean(means[:,condarr==cond],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
         means = numpy.array(countlists).transpose()
 
         labels = condlist
@@ -309,15 +305,7 @@ class ResultFileType1:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(
-                    title=Analysis.identifier,
-                    heading="",
-                    column_names=self.column_names,
-                    rows=self.rows,
-                    sort_by=[
-                        # HANDLE_THIS
-                    ],
-                ).Show(),
+                "Display Corrplot": lambda *args: gui_tools.show_image(self.path) 
             })
         )
         
