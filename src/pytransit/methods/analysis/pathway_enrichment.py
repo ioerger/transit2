@@ -45,27 +45,32 @@ class Analysis:
         pathways_file = None,
         output_path= None,
         organism_pathway = None,
+        pval_col = None,
+        qval_col = None,
     )
     
     valid_cli_flags = [
         "-M", 
-        "-Pval_col",
-        "-Qval_col",
+        #"-Pval_col",
+        #"-Qval_col",
         "-ranking",
-        "-LFC_col",
+        #"-LFC_col",
         "-p",
         "-Nperm",
         "-PC"
     ]
+
+    #-Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
+    #-Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
+    #-LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+
     usage_string = """python3 %s pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
 
         Optional parameters:
         -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
-        -Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
-        -Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
+
         for GSEA...
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
-        -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
         -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
         -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
         for FET...
@@ -122,14 +127,14 @@ class Analysis:
                 tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
-            self.value_getters.pval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Pval Col",               default_value=-2,     tooltip_text="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
-            self.value_getters.qval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Qval Col",               default_value=-1,     tooltip_text="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
+            #self.value_getters.pval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Pval Col",               default_value=-2,     tooltip_text="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
+            #self.value_getters.qval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Qval Col",               default_value=-1,     tooltip_text="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
             self.value_getters.ranking = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "ranking",
                 options= ["SPLV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
                 
-            self.value_getters.LFC_col             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="LFC col",                default_value=6,      tooltip_text="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
+            #self.value_getters.LFC_col             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="LFC col",                default_value=6,      tooltip_text="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
             self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(self.panel, main_sizer, default_value=2)
@@ -187,10 +192,10 @@ class Analysis:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            pval_col = int(kwargs.get("Pval_col", "-2")),
-            qval_col = int(kwargs.get("Qval_col", "-1")),
+            #pval_col = int(kwargs.get("Pval_col", "-2")),
+            #qval_col = int(kwargs.get("Qval_col", "-1")),
             ranking = kwargs.get("ranking", "SPLV"),
-            LFC_col = int(kwargs.get("LFC_col", "6")),
+            #LFC_col = int(kwargs.get("LFC_col", "6")),
             enrichment_exponent = kwargs.get("p", "1"),
             num_permutations = int(kwargs.get("Nperm", "10000")),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -275,18 +280,23 @@ class Analysis:
 
     def read_resampling_file(self, filename):
         logging.log("Reading in Resampling File", filename)
-        genes, hits, headers = [], [], []
+        genes, hits, standardized_headers= [], [], []
         with open(filename) as file:
             for line in file:
                 if line[0] == "#":
-                    headers.append(line)
+                    headers = line.split("\t")
+                    if len (headers)>2:
+                        standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
+                        Analysis.inputs.pval_col = standardized_headers.index("P Value")
+                        Analysis.inputs.qval_col = standardized_headers.index("Adj P Value")
+                        Analysis.inputs.LFC_col = standardized_headers.index("Log 2 FC")
                     continue
                 w = line.rstrip().split("\t")
                 genes.append(w)
                 qval = float(w[self.inputs.qval_col])
                 if qval < 0.05:
                     hits.append(w[0])
-        standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
+        
         return genes, hits, standardized_headers
         # assume these are listed as pairs (tab-sep)
         # return bidirectional hash (genes->[terms], terms->[genes]; each can be one-to-many, hence lists)
@@ -820,7 +830,7 @@ class ResultFileType1:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
                     title=Analysis.identifier,
-                    heading="",
+                    heading="",#misc.human_readable_data(self.extra_info),
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[

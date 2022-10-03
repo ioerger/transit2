@@ -761,7 +761,7 @@ class ResultFileType1:
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[ "Adusted P Value", "P Value" ]
+                    sort_by=[ "Adj P Value", "P Value" ]
                 ).Show(),
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
                 "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
