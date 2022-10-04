@@ -23,7 +23,7 @@ import pytransit
 import pytransit.components.file_display as file_display
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
 from pytransit.universal_data import universal
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -375,7 +375,7 @@ class Analysis:
         logging.log("Preprocessing Exp data...")
         data_exp = self.preprocess_data(position_exp, data_exp)
         
-        G_ctrl = tnseq_tools.Genes(
+        g_ctrl = tnseq_tools.Genes(
             self.inputs.ctrldata,
             self.inputs.annotation_path,
             ignore_codon=self.inputs.ignore_codon,
@@ -384,7 +384,7 @@ class Analysis:
             data=data_ctrl,
             position=position_ctrl,
         )
-        G_exp = tnseq_tools.Genes(
+        g_exp = tnseq_tools.Genes(
             self.inputs.expdata,
             self.inputs.annotation_path_exp or self.inputs.annotation_path,
             ignore_codon=self.inputs.ignore_codon,
@@ -416,7 +416,7 @@ class Analysis:
                         % (self.inputs.ctrl_lib_str, self.inputs.exp_lib_str)
                     )
         
-        (data, qval) = self.run_resampling(G_ctrl, G_exp, do_library_resampling)
+        (data, qval) = self.run_resampling(g_ctrl, g_exp, do_library_resampling)
         # 
         # write output
         # 
@@ -592,12 +592,12 @@ class Analysis:
         return numpy.array(c2)
 
     def run_resampling(
-        self, G_ctrl, G_exp=None, do_library_resampling=False
+        self, g_ctrl, g_exp=None, do_library_resampling=False
     ):
         from pytransit.tools import stat_tools
         
         data = []
-        N = len(G_ctrl)
+        control_group_size = len(g_ctrl)
         count = 0
         
         if self.inputs.do_histogram:
@@ -608,15 +608,15 @@ class Analysis:
             )
             os.makedirs(hist_path, exist_ok=True)
         
-        for gene in G_ctrl:
-            if gene.orf not in G_exp:
+        for progress, gene in informative_iterator.ProgressBar(g_ctrl):
+            if gene.orf not in g_exp:
                 if self.inputs.diff_strains:
                     continue
                 else:
                     # NOTE: returned ([], [])
                     logging.error("Error: Gene in ctrl data not present in exp data. Make sure all .wig files come from the same strain.")
 
-            gene_exp = G_exp[gene.orf]
+            gene_exp = g_exp[gene.orf]
             count += 1
             
             if not self.inputs.diff_strains and gene.n != gene_exp.n:
@@ -729,7 +729,7 @@ class Analysis:
             )
 
             # Update progress
-            percentage = (100.0 * count / N)
+            percentage = (100.0 * count / control_group_size)
             text = "Running Resampling Method... %5.1f%%" % percentage
             parameter_panel.progress_update(text, percentage)
 

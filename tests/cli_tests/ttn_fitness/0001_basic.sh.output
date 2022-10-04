@@ -9,10 +9,10 @@
 [ttnfitness:calc_ttnfitness()] 	 + Fitting M1 
 [ttnfitness:calc_ttnfitness()] 	 + Assessing Models 
 [ttnfitness:write_ttnfitness_results()] Writing To Output Files 
-[ttnfitness:write_ttnfitness_results()] Writing File: ./tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes.out 
-[ttnfitness:write_ttnfitness_results()] Writing File: ./tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites.out 
+[ttnfitness:write_ttnfitness_results()] Writing File: ./tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes 
+[ttnfitness:write_ttnfitness_results()] Writing File: ./tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites 
 [ttnfitness:write_ttnfitness_results()]  
 [ttnfitness:write_ttnfitness_results()] Finished TTNFitness Method 
 [ttnfitness:Run()] Finished TnseqStats 
-[ttnfitness:Run()] Time: 518.5s
+[ttnfitness:Run()] Time: 316.6s
  

@@ -10,7 +10,6 @@ import heapq
 
 import numpy
 
-import wx.grid
 from pytransit.tools import logging, gui_tools
 from pytransit.tools.transit_tools import wx
 from pytransit.components.spreadsheet import SpreadSheet

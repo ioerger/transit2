@@ -44,16 +44,6 @@ class Analysis:
     transposons = ["himar1"]
     columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
     
-    valid_cli_flags = [
-        "-s",
-        "-b",
-        "-m",
-        "-t",
-        "-r",
-        "-iN",
-        "-iC",
-    ]
-    
     inputs = LazyDict(
         combined_wig = None,
         metadata = None,
@@ -79,7 +69,13 @@ class Analysis:
     )
     
     valid_cli_flags = [
-    # -n for normalization?
+        "-s",
+        "-b",
+        "-m",
+        "-t",
+        "-r",
+        "-iN",
+        "-iC",
     ]
 
     usage_string = """python3 %s gumbel <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]

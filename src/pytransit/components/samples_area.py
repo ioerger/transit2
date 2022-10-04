@@ -62,7 +62,7 @@ def create_sample_area(frame):
                 @gui_tools.bind_to(combined_wig_file_picker, wx.EVT_BUTTON)
                 def load_combined_wig_file_func(event):
                     with gui_tools.nice_error_log:
-                        if not universal.get("busy_running_method", False): # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
+                        if not universal.busy_running_method: # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
                             file_dialog = wx.FileDialog(
                                 frame,
                                 message="Choose a cwig file",
@@ -415,7 +415,7 @@ if True:
         inner_sample_sizer.Add(show_quality_control_button)
         inner_sample_sizer.Layout()
 
-    sample_button_creators.append(create_show_scatter_plot_button)
+    sample_button_creators.append(show_quality_control_button)
     
     # 
     # LOESS
