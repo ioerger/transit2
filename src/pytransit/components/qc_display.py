@@ -12,10 +12,11 @@ try:
     import wx.xrc
 
     HAS_WX = True
+    wx_frame = wx.Frame
 except Exception as e:
     HAS_WX = False
-
-
+    wx_frame = object
+    
 import sys
 import os
 import io
@@ -24,12 +25,10 @@ import numpy
 import scipy.stats
 import matplotlib.pyplot as plt
 
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
 
-class QualityControlFrame(wx.Frame):
+class QualityControlFrame(wx_frame):
     def __init__(self, parent, wig_ids):
 
         try:
@@ -104,12 +103,6 @@ class QualityControlFrame(wx.Frame):
             plotsSizer.Add(self.plotsBitmap1, 0, wx.ALL, 5)
             plotsSizer.Add(self.plotsBitmap2, 0, wx.ALL, 5)
             plotsSizer.Add(self.plotsBitmap3, 0, wx.ALL, 5)
-
-            # self.plotsBitmap.SetMaxSize( wx.Size( 400,400 ) )
-            # self.plotsFigure = Figure()
-            # self.plotsAxes = self.plotsFigure.add_subplot(111)
-            # self.plotsCanvas = FigureCanvas(self, -1, self.plotsFigure)
-            # plotsSizer.Add( self.plotsCanvas, 0, wx.ALL, 5 )
 
             self.plotsScrolledWindow.SetSizer(plotsSizer)
             self.plotsScrolledWindow.Layout()
