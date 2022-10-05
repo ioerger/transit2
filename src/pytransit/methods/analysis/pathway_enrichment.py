@@ -103,15 +103,13 @@ class Analysis:
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
             """
-            if Analysis.inputs.resampling_file == None:
-                Analysis.inputs.resampling_file = gui_tools.ask_for_file(message = "Select a File for PathWay Analysis",allowed_extensions='All files (*.*)|*.*',) 
-            
             self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "Organism-Pathway",
                 options= ["H37Rv-COG", "H37Rv-Sanger","H37Rv-GO", "Smeg-COG", "Smeg-GO", "Other"],
                 tooltip_text= "Pick the Organism whose pathways you would like to use. Once an organism is picked, the corresponding associations and pathways with be autoselected. If other is chosen, you must select your own associations and pathways"
             )
             """
+            self.value_getters.defaults =  panel_helpers.create_default_pathway_button(self.panel, main_sizer, button_label="Select Default", tooltip_text="FIX ME", popup_title="")
             if Analysis.inputs.resampling_file == None:
                 self.value_getters.reampling_file = panel_helpers.create_file_input(self.panel, main_sizer, 
                     button_label="Select Input File", 
