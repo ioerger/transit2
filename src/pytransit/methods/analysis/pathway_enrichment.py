@@ -102,22 +102,32 @@ class Analysis:
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
-
+            """
             if Analysis.inputs.resampling_file == None:
                 Analysis.inputs.resampling_file = gui_tools.ask_for_file(message = "Select a File for PathWay Analysis",allowed_extensions='All files (*.*)|*.*',) 
-
+            
             self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "Organism-Pathway",
                 options= ["H37Rv-COG", "H37Rv-Sanger","H37Rv-GO", "Smeg-COG", "Smeg-GO", "Other"],
                 tooltip_text= "Pick the Organism whose pathways you would like to use. Once an organism is picked, the corresponding associations and pathways with be autoselected. If other is chosen, you must select your own associations and pathways"
             )
+            """
+            if Analysis.inputs.resampling_file == None:
+                self.value_getters.reampling_file = panel_helpers.create_file_input(self.panel, main_sizer, 
+                    button_label="Select Input File", 
+                    tooltip_text="FIX ME", popup_title="Select File with Hits",
+                    allowed_extensions='All files (*.*)|*.*')   
 
+            self.value_getters.associations_file = panel_helpers.create_file_input(self.panel, main_sizer, 
+                button_label="Select Associations_File", 
+                tooltip_text="FIX ME", popup_title="Select Associations File",
+                allowed_extensions='All files (*.*)|*.*')
 
-            # self.value_getters.pathways_type = panel_helpers.create_choice_input(self.panel, main_sizer,
-            #     label = "Type of Pathway",
-            #     options= ["Sanger", "KEGG","GO" ,"Other"],
-            #     tooltip_text = "Type of Pathway you would like to use",
-            # )
+            self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel, main_sizer, 
+                button_label="Select Pathways File", 
+                tooltip_text="FIX ME", popup_title="Select Pathways File",
+                allowed_extensions='All files (*.*)|*.*')
+
 
     
             self.value_getters.method = panel_helpers.create_choice_input(self.panel, main_sizer,
@@ -126,14 +136,11 @@ class Analysis:
                 tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
-            #self.value_getters.pval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Pval Col",               default_value=-2,     tooltip_text="indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting)")
-            #self.value_getters.qval_col            = panel_helpers.create_int_getter(       self.panel, main_sizer, label_text="Qval Col",               default_value=-1,     tooltip_text="indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff)")
             self.value_getters.ranking = panel_helpers.create_choice_input(self.panel, main_sizer,
                 label = "ranking",
                 options= ["SPLV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
                 
-            #self.value_getters.LFC_col             = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="LFC col",                default_value=6,      tooltip_text="indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC)")
             self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(self.panel, main_sizer, default_value=2)
@@ -150,7 +157,7 @@ class Analysis:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-
+        """
         if Analysis.inputs.organism_pathway =="H37Rv-Sanger":
             Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
             Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
@@ -167,9 +174,10 @@ class Analysis:
             Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
             Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
         else: # ask for files
-            Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
-            Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
         
+        Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
+        Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
+        """
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Analysis.short_name}_output.dat",
@@ -256,15 +264,15 @@ class Analysis:
                     column_names=header,
                     extra_info=dict(
                         parameters=dict(
-                            resampling_file = self.inputs.resampling_file,
-                            associations_file = self.inputs.associations_file,
-                            pathways_file = self.inputs.pathways_file,
-                            output_path=self.inputs.output_path,
+                            #resampling_file = self.inputs.resampling_file,
+                            #associations_file = self.inputs.associations_file,
+                            #pathways_file = self.inputs.pathways_file,
+                            #output_path=self.inputs.output_path,
                             method = self.inputs.method,
-                            pval_col = self.inputs.pval_col,
-                            qval_col = self.inputs.qval_col,
+                            #pval_col = self.inputs.pval_col,
+                            #qval_col = self.inputs.qval_col,
                             ranking = self.inputs.ranking,
-                            LFC_col = self.inputs.LFC_col,
+                            #LFC_col = self.inputs.LFC_col,
                             enrichment_exponent = self.inputs.enrichment_exponent,
                             num_permutations = self.inputs.num_permutations,
                             pseudocount = self.inputs.pseudocount,
@@ -829,7 +837,7 @@ class ResultFileType1:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
                     title=Analysis.identifier,
-                    heading="",#misc.human_readable_data(self.extra_info),
+                    heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[
@@ -842,25 +850,28 @@ class ResultFileType1:
         # 
         # get column names
         # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+    
+        # comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+        # if len(comments) == 0:
+        #     raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
+        # self.column_names = comments[-1].split("\t")
         
         # 
         # get rows
         #
-        self.rows = []
-        for each_row in rows:
-            self.rows.append({
-                each_column_name: each_cell
-                    for each_column_name, each_cell in zip(self.column_names, each_row)
-            })
+        # self.rows = []
+        # for each_row in rows:
+        #     self.rows.append({
+        #         each_column_name: each_cell
+        #             for each_column_name, each_cell in zip(self.column_names, each_row)
+        #     })
         
         # 
         # get summary stats
         #
-        self.values_for_result_table.update({
+        #self.values_for_result_table.update({
             # HANDLE_THIS (additional summary_info for results table)
             # examples:
                 # f"Gene Count": len(self.rows),
@@ -868,7 +879,7 @@ class ResultFileType1:
                 #     1 for each in self.rows
                 #         if each.get("Padj", 0) < Analysis.significance_threshold 
                 # ]),
-        })
+        #})
     
     def __str__(self):
         return f"""
