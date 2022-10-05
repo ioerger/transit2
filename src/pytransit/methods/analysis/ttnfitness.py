@@ -22,7 +22,7 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.tools import informative_iterator, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.tools import informative_iterator, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 
@@ -125,8 +125,7 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
-        if len(args) != 6: logging.error(cls.usage_string)
-
+        console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=6)
         Analysis.inputs.update(dict(
             combined_wig = None,
             metadata = None,
@@ -149,27 +148,28 @@ class Analysis:
             # get data
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
-              logging.log("Getting Data from %s" % self.inputs.combined_wig)
-              position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                logging.log("Getting Data from %s" % self.inputs.combined_wig)
+                position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
 
-              metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-              indexes = {}
-              for i,row in enumerate(metadata.rows): 
-                cond = row["Condition"] 
-                if cond not in indexes: indexes[cond] = []
-                indexes[cond].append(i)
-              cond = Analysis.inputs.condition
-              ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
-              logging.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
-              data = data[indexes[cond]] # project array down to samples selected by condition
+                metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+                indexes = {}
+                for i,row in enumerate(metadata.rows): 
+                    cond = row["Condition"] 
+                    if cond not in indexes: indexes[cond] = []
+                    indexes[cond].append(i)
+                cond = Analysis.inputs.condition
+                ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
+                logging.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
+                data = data[indexes[cond]] # project array down to samples selected by condition
 
-              # now, select the columns in data corresponding to samples that are replicates of desired condition...
+                # now, select the columns in data corresponding to samples that are replicates of desired condition...
 
             elif self.inputs.wig_files!=None:
-              logging.log("Getting Data")
-              (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
+                logging.log("Getting Data")
+                (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
 
-            else: print("error: must provide either combined_wig or list of wig files"); sys.exit(0) ##### use transit.error()?
+            else:
+                logging.error("error: must provide either combined_wig or list of wig files")
                 
             (K, N) = data.shape 
 
@@ -249,7 +249,6 @@ class Analysis:
             all_counts.extend(
                 numpy.mean(gene.reads, 0)
             )  # mean TA site counts across wig files
-            nTAs = len(gene.reads[0])
             for pos in gene.position:
                 pos -= 1  # 1-based to 0-based indexing of nucleotides
                 if pos - 4 < 0:

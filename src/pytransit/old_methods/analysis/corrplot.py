@@ -9,7 +9,7 @@ import numpy
 
 from pytransit.old_methods import analysis_base as base
 from pytransit.tools.transit_tools import HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
-from pytransit.tools import logging, tnseq_tools
+from pytransit.tools import logging, tnseq_tools, console_tools
 
 ############# Description ##################
 
@@ -106,13 +106,9 @@ class CorrplotMethod(base.SingleConditionMethod):
                 Error: R and rpy2 (~= 3.0) required to run corrplot.
                 After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"
             ''')
+        console_tools.handle_help_flag(kwargs, self.usage_string)
+        console_tools.enforce_number_of_args(args, self.usage_string, at_least=2)
         
-        if kwargs.get("-help", False):
-            print(self.usage_string)
-            sys.exit(0)
-        if len(args) < 2:
-            print(self.usage_string)
-            sys.exit(0)
         self.gene_means = args[0]
         self.outfile = args[1]
         self.filetype = "gene_means"
@@ -168,8 +164,7 @@ class CorrplotMethod(base.SingleConditionMethod):
                         data.append(w)
                         means.append(vals)
         else:
-            print("filetype not recognized: %s" % self.filetype)
-            sys.exit(-1)
+            logging.error("filetype not recognized: %s" % self.filetype)
         print("correlations based on %s genes" % len(means))
 
         genenames = ["%s/%s" % (w[0], w[1]) for w in data]

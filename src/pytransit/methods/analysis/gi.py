@@ -162,10 +162,10 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs):
-        console_tools.handle_help_flag(kwargs, cls.usage_string)
-        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, Analysis.usage_string)
 
-        if len(args) < 8: logging.error(f"Only {len(args)} of the +8 arguments were given to GI, please see the usage string below\n", cls.usage_string)
+        if len(args) < 8: logging.error(f"Only {len(args)} of the +8 arguments were given to GI, please see the usage string below\n", Analysis.usage_string)
 
         combined_wig = args[0]
         metadata_path = args[1]

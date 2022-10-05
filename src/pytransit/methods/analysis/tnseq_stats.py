@@ -32,7 +32,7 @@ class Analysis:
     
     inputs = LazyDict(
         combined_wig=None,
-        normalization=None,
+        normalization="nonorm",
         output_path=None,
     )
     
@@ -71,8 +71,8 @@ class Analysis:
             )
             panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
 
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         # 
         # get wig files
         # 
@@ -100,19 +100,18 @@ class Analysis:
 
         return Analysis
 
-    @classmethod
-    def from_args(cls, args, kwargs):
-        console_tools.handle_help_flag(kwargs, cls.usage_string)
-        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, cls.usage_string)
+    @staticmethod
+    def from_args(args, kwargs):
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
         wigs = args # should be args[0]?
-        combined_wig = kwargs.get("c", None)
-        normalization = kwargs.get("n", "nonorm") 
-        output_path = kwargs.get("o", None)
+        combined_wig  = kwargs.get("c", Analysis.inputs.combined_wig)
+        normalization = kwargs.get("n", Analysis.inputs.normalization) 
+        output_path   = kwargs.get("o", Analysis.inputs.output_path)
 
         if combined_wig == None and len(wigs) == 0:
-            print(cls.usage_string)
-            sys.exit(0)
+            logging.error(Analysis.usage_string)
 
         # save all the data
         Analysis.inputs.update(dict(

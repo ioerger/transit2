@@ -14,10 +14,7 @@ import datetime
 import warnings
 
 from pytransit.old_methods import analysis_base as base
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-from pytransit.tools import stat_tools
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, stat_tools, informative_iterator, logging
 
 
 ############# GUI ELEMENTS ##################
@@ -508,7 +505,7 @@ class GumbelMethod(base.SingleConditionMethod):
         i = 1
         count = 0
         while i < self.samples:
-
+            
             try:
                 # PHI
                 acc = 1.0
@@ -548,8 +545,6 @@ class GumbelMethod(base.SingleConditionMethod):
                 logging.log("If the density of the dataset is too low, the Gumbel method will not work.")
                 logging.log("Quitting.")
                 return
-
-            #            print(i,phi_new,w1,G[idxG].name,N[idxN],R[idxN],Z[idxN])
 
             phi_old = phi_new
             # Update progress

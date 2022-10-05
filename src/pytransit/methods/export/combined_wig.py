@@ -4,7 +4,7 @@ import os
 import time
 
 from pytransit.methods import export_base as base
-from pytransit.tools import transit_tools, tnseq_tools, norm_tools, logging
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, logging, console_tools
 from pytransit.basics import misc
 
 
@@ -120,11 +120,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-
-        if len(args) != 3:  # wigs prot_table output
-            print("Error: Incorrect number of args")
-            print(self.usage_string)
-            sys.exit(0)
+        console_tools.enforce_number_of_args(args, self.usage_string, exactly=3)
 
         ctrldata = args[0].split(",")
         annotation_path = args[1]

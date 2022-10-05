@@ -174,9 +174,8 @@ class Analysis:
 
     @staticmethod
     def from_args(args, kwargs):
-        if len(args)!=4: logging.log(Analysis.usage_string); sys.exit(0) # use transit_error()?
-
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=4)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
 
         # save the data

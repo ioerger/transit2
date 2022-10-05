@@ -27,7 +27,7 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.stat_tools as stat_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, informative_iterator
 
 
 command_name = sys.argv[0]
@@ -190,27 +190,28 @@ class Analysis:
             # get data
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
-              logging.log("Getting Data from %s" % self.inputs.combined_wig)
-              position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                logging.log("Getting Data from %s" % self.inputs.combined_wig)
+                position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
 
-              metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-              indexes = {}
-              for i,row in enumerate(metadata.rows): 
-                cond = row["Condition"] 
-                if cond not in indexes: indexes[cond] = []
-                indexes[cond].append(i)
-              cond = Analysis.inputs.condition
-              ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
-              logging.log("selected samples for gumbel (cond=%s): %s" % (cond,','.join(ids)))
-              data = data[indexes[cond]] # project array down to samples selected by condition
-
-              # now, select the columns in data corresponding to samples that are replicates of desired condition...
-
+                metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+                indexes = {}
+                for i,row in enumerate(metadata.rows): 
+                    cond = row["Condition"] 
+                    if cond not in indexes:
+                        indexes[cond] = []
+                    indexes[cond].append(i)
+                cond = Analysis.inputs.condition
+                ids  = [metadata.rows[i]["Id"] for i in indexes[cond]]
+                logging.log("selected samples for gumbel (cond=%s): %s" % (cond,','.join(ids)))
+                data = data[indexes[cond]] # project array down to samples selected by condition
+                # now, select the columns in data corresponding to samples that are replicates of desired condition...
+                
             elif self.inputs.wig_files!=None:
-              logging.log("Getting Data")
-              (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
-
-            else: print("error: must provide either combined_wig or list of wig files"); sys.exit(0) ##### use transit.error()?
+                logging.log("Getting Data")
+                (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
+                
+            else:
+                logging.error("error: must provide either combined_wig or list of wig files")
 
             (K, N) = data.shape
             merged = numpy.sum(data, axis=0)
@@ -272,7 +273,6 @@ class Analysis:
         self.burnin = 500
         self.trim=1
 
-
         # Get orf data
         logging.log("Reading Annotation")
         ii_good = numpy.array([self.good_orf(g) for g in G])  # Gets index of the genes that can be analyzed
@@ -312,8 +312,14 @@ class Analysis:
 
         i = 1
         count = 0
+        cli_progress_bar = iter(
+            informative_iterator.ProgressBar(
+                self.samples + self.burnin,
+                title="Running Gumbel ..."
+            )
+        )
         while i < self.samples:
-
+            progress, _ = next(cli_progress_bar)
             try:
                 # PHI
                 acc = 1.0
@@ -347,22 +353,22 @@ class Analysis:
                     Z_sample[:, i] = Z
                     i += 1
 
-            except ValueError as e:
-                logging.log("Error: %s" % e)
+            except ValueError as error:
+                logging.log("Error: %s" % error)
                 logging.log("This is likely to have been caused by poor data (e.g. too sparse)." )
                 logging.log("If the density of the dataset is too low, the Gumbel method will not work.")
                 logging.log("Quitting.")
                 return
 
-            #            print(i,phi_new,w1,G[idxG].name,N[idxN],R[idxN],Z[idxN])
-
             phi_old = phi_new
             # Update progress
             percentage = (100.0 * (count + 1) / (self.samples + self.burnin))
-            text = "Running Gumbel Method with Binomial Essentiality Calls... %5.1f%%" % percentage
-            progress_update(text, percentage)
+            if universal.interface != 'console':
+                text = "Running Gumbel... %5.1f%%" % percentage
+                progress_update(text, percentage)
 
-
+        print() # to clear out iterator that may not finish (because of while-loop instead of for-loop)
+        
         return (Z_sample, phi_sample, count, acctot)
 
     def write_gumbel_results(self, G, Z_sample, phi_sample, count, acctot):

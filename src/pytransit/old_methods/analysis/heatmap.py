@@ -9,10 +9,7 @@ import numpy
 
 from pytransit.old_methods import analysis_base as base
 from pytransit.tools.transit_tools import HAS_R, r, DataFrame, globalenv, IntVector, FloatVector, StrVector, rpackages
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+form pytransit.tools import transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools, logging
 
 
 ############# Description ##################
@@ -109,10 +106,7 @@ class HeatmapMethod(base.SingleConditionMethod):
                 Error: R and rpy2 (~= 3.0) required to run corrplot.
                 After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"
             ''')
-        
-        if len(args) < 3:
-            print(self.usage_string)
-            sys.exit(-1)
+        console_tools.enforce_number_of_args(args, self.usage_string, at_least=3)
 
         self.filetype = None
         if kwargs.get("anova", False):
@@ -120,8 +114,8 @@ class HeatmapMethod(base.SingleConditionMethod):
         elif kwargs.get("zinb", False):
             self.filetype = "zinb"
         else:
-            print(self.usage_string)
-            sys.exit(-1)
+            logging.error(f"requires --anova or --zinb argument, see usage string below.\n{self.usage_string}")
+        
         self.infile = args[0]
         self.outfile = args[1]
         self.qval = float(kwargs.get("qval", 0.05))
@@ -132,10 +126,8 @@ class HeatmapMethod(base.SingleConditionMethod):
         return self(self.infile, outfile=self.outfile)
 
     def Run(self):
-
         if self.filetype != "anova" and self.filetype != "zinb":
-            print("filetype not recognized: %s" % self.filetype)
-            sys.exit(-1)
+            logging.error("filetype not recognized: %s" % self.filetype)
 
         headers = None
         data, hits = [], []

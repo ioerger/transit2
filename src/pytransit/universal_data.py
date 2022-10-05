@@ -40,3 +40,7 @@ class universal:
     def selected_samples(self):
         from pytransit.components.samples_area import get_selected_samples
         return get_selected_samples()
+
+if universal.debugging_enabled:
+    import random
+    random.seed(0)

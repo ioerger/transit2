@@ -444,16 +444,25 @@ def f_shuffle_dict_libraries(*args, **kwargs):
     D = args[0]
     E = {}
     for L in D:
-        # print("L", L)
         n1 = len(D[L][0])
         combined = numpy.append(D[L][0], D[L][1])
-        # print("combined", combined)
         perm = numpy.random.permutation(combined)
-        # print("perm", perm)
-        # print("perm[:n1]", perm[:n1])
         E[L] = numpy.array([perm[:n1], perm[n1:]], dtype=object)
-        # print("D[L]", D[L])
     return E
+
+def site_restricted_permutation(data):
+    """
+    Arguments:
+        data: 
+            NOTE: DESTRUCTIVE; caller must make copy of input arg (data) if they want to preserve it
+            data is 2D array of counts (samples X TA sites) including all reps in all libs in both conditions (as rows)
+    """
+    if len(data) == 0:
+        return data
+    number_of_samples, number_of_ta_sites = data.shape[0], data.shape[1]
+    for index in range(number_of_ta_sites):
+        numpy.random.shuffle(data[:,index])
+    return data
 
 def resampling(
     data1,
@@ -465,6 +474,7 @@ def resampling(
     lib_str1="",
     lib_str2="",
     pseudocount=1,
+    site_restricted=False,
 ):
     """Does a permutation test on two sets of data.
 
@@ -484,6 +494,15 @@ def resampling(
                 shuffle.
         adaptive: Cuts-off resampling early depending on significance.
 
+    Data arrays: (data1 and data2)
+        Regular resampling used to take 1D arrays of counts pooled (flattened) over replicates.
+            Now 2D arrays are passed in and flatten them.
+            Uses F_shuffle_flat() and F_sum_diff_flat().
+        If using library strings, then inputs are 2D arrays of counts for each sample. 
+            Character in lib_str indicates which lib it is in.  Make a dict out of these to pass to perm_func.
+            Uses F_shuffle_dict_libraries() and F_sum_diff_dict_libraries().
+        If site_restricted, keep input arrays as 2D and pass to site_restricted_permutation() and F_sum_diff_flat().
+
     Returns:
         Tuple with described values
             - test_obs -- Test statistic of observation.
@@ -496,7 +515,7 @@ def resampling(
             - test_sample -- List of samples of the test statistic.
     
     :Example:
-        >>> import pytransit.tools.stat_tools as stat_tools
+        >>> from pytransit.tools import stat_tools
         >>> import numpy
         >>> X = numpy.random.random(100)
         >>> Y = numpy.random.random(100)
@@ -512,18 +531,22 @@ def resampling(
     # - Check library strings match in some way
     lib_diff = set(lib_str1) ^ set(lib_str2)
     if lib_diff:
-        # raise ValueError("At least one library string has a letter not used by the other:\ %s" % ", ".join(lib_diff))
-        raise ValueError(
-            "At least one library string has a letter not used by the other: "
-            + ", ".join(lib_diff)
-        )
+        raise ValueError("At least one library string has a letter not used by the other: " + ", ".join(lib_diff))
+
+    if lib_str1 and site_restricted:
+        raise Exception("Cannot do site_restricted resampling with library strings at same time")
 
     # - Check input has some data
     assert len(data1) > 0, "Data1 cannot be empty"
     assert len(data2) > 0, "Data2 cannot be empty"
-    
+
     if isinstance(data1,list): data1 = numpy.array(data1)
     if isinstance(data2,list): data2 = numpy.array(data2)
+
+    #TRI note - now I am switching resampling() so caller passes in NON-flattened arrays of counts
+    if not site_restricted and not lib_str1: 
+        data1 = data1.flatten()
+        data2 = data2.flatten()
 
     count_ltail = 0
     count_utail = 0
@@ -532,101 +555,91 @@ def resampling(
     test_list = []
 
     # Calculate basic statistics for the input data:
-    n1 = len(data1)
-    n2 = len(data2)
+    # flattened (pooled) if not lib_str, else multiple samples (rows) for each lib
+    number_of_samples1 = len(data1) # number of samples (i.e. rows) for site_restricted or lib_str, or pooled counts if flattened
+    number_of_samples2 = len(data2)
 
     mean1 = 0
-    if n1 > 0:
-        mean1 = numpy.mean(data1)
     mean2 = 0
-    if n2 > 0:
-        mean2 = numpy.mean(data2)
+    if number_of_samples1 > 0: mean1 = numpy.mean(data1) # over all counts pooled across reps and libs for cond1
+    if number_of_samples2 > 0: mean2 = numpy.mean(data2)
 
     if pseudocount > 0:
-        log2FC = math.log((mean2 + pseudocount) / (mean1 + pseudocount), 2)  # as of 3/5/20
+        log2FC = math.log((mean2+pseudocount)/(mean1+pseudocount),2) # as of 3/5/20
     else:
         # Only adjust log2FC if one of the means is zero
-        if mean1 > 0 and mean2 > 0:
-            log2FC = math.log((mean2) / (mean1), 2)
-        else:
-            log2FC = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
+        if mean1 > 0 and mean2 > 0: log2FC = math.log((mean2)/(mean1),2)
+        else: log2FC = math.log((mean2+1.0)/(mean1+1.0),2)
 
     # Get stats and info based on whether working with libraries or not:
-    nTAs = 0
+    number_of_ta_sites = 0
     if lib_str1:
         # note: returns a generator, not a list
         # Get number of TA sites implied
-        nTAs = len(data1.flatten())//len(lib_str1)
-        assert len(data2.flatten())//len(lib_str2) == nTAs, "Datasets do not have matching sites; check input data and library strings."
+        number_of_ta_sites = len(data1.flatten())//len(lib_str1)
+        assert len(data2.flatten())//len(lib_str2) == number_of_ta_sites, "Datasets do not have matching sites; check input data and library strings."
+
         # Get data
-        perm = get_lib_data_dict(data1, lib_str1, data2, lib_str2, nTAs)
-        test_obs = test_func(perm)
+        # for lib_str, perm is a dict mapping letters to pairs of numpy arrays (1 for each cond)
+        perm = get_lib_data_dict(data1.flatten(), lib_str1, data2.flatten(), lib_str2, number_of_ta_sites) 
+        test_obs = test_func(perm) 
     else:
         try:
-            test_obs = test_func(data1, data2)
-        except Exception as e:
-            print("")
-            print("!" * 100)
-            print("Error: Could not apply test function to input data!")
-            print("data1", data1)
-            print("data2", data2)
-            print("")
-            print("\t%s" % e)
-            print("!" * 100)
-            print("")
-            return None
+            # site_retricted use F_sum_diff_flat() as test_func too
+            test_obs = test_func(data1, data2) # first call, actual value from observed counts
+        except Exception as error:
+            from pytransit.tools import logging
+            logging.error(f"""
+                the resampling function could not apply test function to input data!
+                    data1: {data1}
+                    data2: {data2}
+                {error}
+            """)
 
-        perm = numpy.zeros(n1 + n2)
-        perm[:n1] = data1
-        perm[n1:] = data2
+        if site_restricted:
+            data = numpy.concatenate((data1,data2),axis=0) # keep it as a 2D array
+            perm = data.copy() # this array will get modified with each permutation
+        else: # pool all counts (across conditions) into 1 big array
+            perm = numpy.zeros(number_of_samples1+number_of_samples2)
+            perm[:number_of_samples1] = data1
+            perm[number_of_samples1:] = data2
 
     count_ltail = 0
     count_utail = 0
     count_2tail = 0
     test_list = []
     s_performed = 0
-    for s in range(S):
-        if len(perm) > 0:
-            perm = perm_func(perm)
+    for _ in range(S):
+        if mean1+mean2 > 0:
+            if site_restricted: perm = site_restricted_permutation(perm) #TRI - I could have passed this in as perm_func, but I don't want to require the caller to know this
+            else: perm = perm_func(perm) #TRI
             if not lib_str1:
-                test_sample = test_func(perm[:n1], perm[n1:])
-            else:
-                test_sample = test_func(perm)
+                test_sample = test_func(perm[:number_of_samples1], perm[number_of_samples1:])
+            else: # case for lib strings
+                test_sample = test_func(perm) # how do I know how many counts are in cond1 or cond2? perm is a dict over lib strings (and conds?)
         else:
             test_sample = 0
 
         test_list.append(test_sample)
-        if test_sample <= test_obs:
-            count_ltail += 1
-        if test_sample >= test_obs:
-            count_utail += 1
-        if abs(test_sample) >= abs(test_obs):
-            count_2tail += 1
+        if test_sample <= test_obs: count_ltail+=1
+        if test_sample >= test_obs: count_utail+=1
+        if abs(test_sample) >= abs(test_obs): count_2tail+=1
 
-        s_performed += 1
+        s_performed+=1
         if adaptive:
             if (
-                s_performed == round(S * 0.01)
-                or s_performed == round(S * 0.1)
-                or s_performed == round(S * 1)
+                s_performed == round(S*0.01) or
+                s_performed == round(S*0.1) or
+                s_performed == round(S*1)
             ):
-                if count_2tail >= round(S * 0.01 * 0.10):
+                if count_2tail >= round(S*0.01*0.10):
                     break
 
-    pval_ltail = count_ltail / float(s_performed)
-    pval_utail = count_utail / float(s_performed)
-    pval_2tail = count_2tail / float(s_performed)
+    pval_ltail = count_ltail/float(s_performed)
+    pval_utail = count_utail/float(s_performed)
+    pval_2tail = count_2tail/float(s_performed)
 
-    return (
-        test_obs,
-        mean1,
-        mean2,
-        log2FC,
-        pval_ltail,
-        pval_utail,
-        pval_2tail,
-        test_list,
-    )
+    return test_obs, mean1, mean2, log2FC, pval_ltail, pval_utail,  pval_2tail, test_list
 
 def cumulative_average(new_x, n, prev_avg):
     return ((new_x + (n * prev_avg)) / (n + 1.0), n + 1)
@@ -654,13 +667,13 @@ def text_histogram(X, nBins=20, resolution=200, obs=None):
     print("%-12f\t%s|%s" % (bin_list[-1], flag, "#" * int(resolution * density)))
 
 
-def parse_lib_index(nData, libstr, nTAs):
-    full_index = numpy.arange(nData)
+def parse_lib_index(n_data, libstr, number_of_ta_sites):
+    full_index = numpy.arange(n_data)
     lib_to_index = {}
     for k, L in enumerate(libstr):
         if L not in lib_to_index:
             lib_to_index[L] = []
-        lib_to_index[L] += list(full_index[k * nTAs : ((k + 1) * nTAs)])
+        lib_to_index[L] += list(full_index[k * number_of_ta_sites : ((k + 1) * number_of_ta_sites)])
     for L, index in lib_to_index.items():
         lib_to_index[L] = numpy.array(index)
     return lib_to_index
@@ -672,9 +685,14 @@ def combine_lib_dicts(L1, L2):
         DATA[K] = numpy.array([L1[K], L2[K]], dtype=object)
     return DATA
 
-def get_lib_data_dict(data1, ctrl_lib_str, data2, exp_lib_str, nTAs):
-    lib1_index_dict = parse_lib_index(len(data1), ctrl_lib_str, nTAs)
-    lib2_index_dict = parse_lib_index(len(data2), exp_lib_str, nTAs)
+def get_lib_data_dict(data1, ctrl_lib_str, data2, exp_lib_str, number_of_ta_sites):
+    """
+    Arguments:
+        data1:
+            it looks like data1 is supposed to be pre-flattened (see parse_lib_index())
+    """
+    lib1_index_dict = parse_lib_index(len(data1), ctrl_lib_str, number_of_ta_sites)
+    lib2_index_dict = parse_lib_index(len(data2), exp_lib_str, number_of_ta_sites)
 
     lib1_data_dict = dict(
         [(L, data1[lib1_index_dict[L]]) for L in sorted(lib1_index_dict)]

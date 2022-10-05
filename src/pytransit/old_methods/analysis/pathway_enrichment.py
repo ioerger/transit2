@@ -13,10 +13,7 @@ import numpy
 
 from pytransit.old_methods import analysis_base as base
 import pytransit.components.results_area as results_area
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools, logging
 
 ############# Description ##################
 
@@ -146,9 +143,7 @@ class PathwayMethod(base.AnalysisMethod):
         ranking = kwargs.get("ranking", "SLPV")  # for GSEA
 
         if method not in "FET GSEA ONT".split():
-            print("error: method %s not recognized" % method)
-            print(self.usage_string)
-            sys.exit(0)
+            logging.error(f"error: method {method} not recognized\n\n{self.usage_string}")
 
         return self(
             resamplingFile,

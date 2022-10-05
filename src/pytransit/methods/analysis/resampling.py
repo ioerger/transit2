@@ -53,6 +53,24 @@ class Analysis:
         "Adj. p-value",
     ]
     
+    valid_cli_flags = [
+        "-c",
+        "-s",
+        "-n",
+        "-h",
+        "-a",
+        "-ez",
+        "-PC",
+        "-l",
+        "-iN",
+        "-iC",
+        "--ctrl_lib",
+        "--exp_lib",
+        "-Z",
+        "-winz",
+        "-sr",
+    ]
+    
     inputs = LazyDict(
         ctrldata=None,
         expdata=None,
@@ -76,6 +94,7 @@ class Analysis:
         annotation_path_exp="",
         combined_wig_params=None,
         do_histogram=False,
+        site_restricted=False,
     )
     
     usage_string = f"""
@@ -106,6 +125,7 @@ class Analysis:
                             If non-empty, resampling will limit permutations to within-libraries.
         -winz           :=  winsorize insertion counts for each gene in each condition 
                             (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+        -sr             :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
     """.replace("\n        ", "\n")
     
     
@@ -141,6 +161,7 @@ class Analysis:
             self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(self.panel, main_sizer)
             self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
             self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            self.value_getters.site_restricted        = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
             panel_helpers.create_preview_loess_button(self.panel, main_sizer)
             self.value_getters.adaptive                = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
@@ -211,13 +232,13 @@ class Analysis:
 
     @classmethod
     def from_args(cls, args, kwargs):
+        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        
         is_combined_wig = True if kwargs.get("c", False) else False
         combined_wig_params = None
         if is_combined_wig:
-            if len(args) != 5:
-                print("Error: Incorrect number of args. See usage")
-                print(cls.usage_string)
-                sys.exit(0)
+            console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=5)
             combined_wig_params = {
                 "combined_wig": kwargs.get("c"),
                 "samples_metadata": args[0],
@@ -226,17 +247,15 @@ class Analysis:
             annot_paths = args[3].split(",")
             # to show contrasted conditions for combined_wigs in output header
             ctrldata = [combined_wig_params["conditions"][0]]
-            expdata = [combined_wig_params["conditions"][1]]
+            expdata  = [combined_wig_params["conditions"][1]]
             output_path = args[4]
         else:
-            if len(args) != 4:
-                print("Error: Incorrect number of args. See usage")
-                print(cls.usage_string)
-                sys.exit(0)
-            ctrldata = args[0].split(",")
-            expdata = args[1].split(",")
+            console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=4)
+            ctrldata    = args[0].split(",")
+            expdata     = args[1].split(",")
             annot_paths = args[2].split(",")
             output_path = args[3]
+        
         annotation_path = annot_paths[0]
         diff_strains = False
         annotation_path_exp = ""
@@ -244,28 +263,17 @@ class Analysis:
             annotation_path_exp = annot_paths[1]
             diff_strains = True
         if diff_strains and is_combined_wig:
-            print("Error: Cannot have combined wig and different annotation files.")
-            sys.exit(0)
-        winz = True if "winz" in kwargs else False
+            logging.error("Error: Cannot have combined wig and different annotation files.")
 
-        # check for unrecognized flags
-        console_tools.handle_unrecognized_flags(
-            "-c -s -n -h -a -ez -PC -l -iN -iC --ctrl_lib --exp_lib -Z -winz".split(),
-            kwargs,
-            Analysis.usage_string,
-        )
-
-        normalization = kwargs.get("n", "TTR")
-        samples = int(kwargs.get("s", 10000))
-        adaptive = kwargs.get("a", False)
-        replicates = kwargs.get("r", "Sum")
-        do_histogram = kwargs.get("h", False)
-        exclude_zeros = kwargs.get("ez", False)
-        include_zeros = not exclude_zeros
-        pseudocount = float(
-            kwargs.get("PC", 1.0)
-        )  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
-
+        winz          = True if "winz" in kwargs else False
+        normalization = kwargs.get("n", Analysis.inputs.normalization)
+        samples       = int(kwargs.get("s", Analysis.inputs.samples))
+        adaptive      = kwargs.get("a", Analysis.inputs.adaptive)
+        replicates    = kwargs.get("r", Analysis.inputs.replicates)
+        do_histogram  = kwargs.get("h", Analysis.inputs.do_histogram)
+        include_zeros = not kwargs.get("ez", not Analysis.inputs.include_zeros)
+        pseudocount   = float(kwargs.get("PC", Analysis.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
+        
         Z = True if "Z" in kwargs else False
 
         LOESS = kwargs.get("l", False)
@@ -313,6 +321,9 @@ class Analysis:
         start_time = time.time()
         if self.inputs.winz:
             logging.log("Winsorizing insertion counts")
+        
+        if self.inputs.ctrl_lib_str and self.inputs.site_restricted:
+            raise Exception("Cannot do site_restricted resampling with library strings at same time")
 
         # Get orf data
         logging.log("Getting Data")
@@ -522,6 +533,7 @@ class Analysis:
                         LOESS=self.inputs.LOESS,
                         n_terminus=self.inputs.n_terminus,
                         c_terminus=self.inputs.c_terminus,
+                        site_restricted=self.inputs.site_restricted,
                     ),
                     control_data=(",".join(self.inputs.ctrldata)),
                     experimental_data=(",".join(self.inputs.expdata)),
@@ -580,16 +592,29 @@ class Analysis:
 
         return (numpy.array(d_filtered), numpy.array(cond_filtered))
 
-    def winsorize_resampling(self, counts):
-        # input is insertion counts for gene as pre-flattened numpy array
-        counts = counts.tolist()
+    def winsorize_for_resampling(self, data):
+        """
+        Arguments:
+            data:
+                input is a 2D array of insertion counts for gene (not pre-flattened)
+        """
+        
+        original_shape = data.shape
+        assert len(original_shape)==2, "winsorize_resampling() expected 2D numpy array"
+        counts = data.flatten().tolist()
         if len(counts) < 3:
-            return counts
+            return data
+        
         s = sorted(counts, reverse=True)
         if s[1] == 0:
-            return counts  # don't do anything if there is only 1 non-zero value
-        c2 = [s[1] if x == s[0] else x for x in counts]
-        return numpy.array(c2)
+            return data # don't do anything if there is only 1 non-zero value
+        
+        c2 = [
+            (s[1] if x==s[0] else x)
+                for x in counts 
+        ]
+        
+        return numpy.array(c2).reshape(original_shape)
 
     def run_resampling(
         self, g_ctrl, g_exp=None, do_library_resampling=False
@@ -608,7 +633,7 @@ class Analysis:
             )
             os.makedirs(hist_path, exist_ok=True)
         
-        for progress, gene in informative_iterator.ProgressBar(g_ctrl):
+        for progress, gene in informative_iterator.ProgressBar(g_ctrl, title="Running Resampling "):
             if gene.orf not in g_exp:
                 if self.inputs.diff_strains:
                     continue
@@ -643,12 +668,16 @@ class Analysis:
                     ii_exp = numpy.ones(gene_exp.n) == 1
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
-                data1 = gene.reads[:, ii_ctrl].flatten()
-                data2 = gene_exp.reads[:, ii_exp].flatten()
+                data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
+                data2 = gene_exp.reads[:,ii_exp]###.flatten()
                 if self.inputs.winz:
-                    data1 = self.winsorize_resampling(data1)
-                    data2 = self.winsorize_resampling(data2)
+                    data1 = self.winsorize_for_resampling(data1)
+                    data2 = self.winsorize_for_resampling(data2)
                 
+                #data1 = gene.reads[:,ii_ctrl].flatten() + self.pseudocount # we used to have an option to add pseudocounts to each observation, like this
+                data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
+                data2 = gene_exp.reads[:,ii_exp]###.flatten()
+
                 if do_library_resampling:
                     (
                         test_obs,
@@ -669,6 +698,7 @@ class Analysis:
                         lib_str1=self.inputs.ctrl_lib_str,
                         lib_str2=self.inputs.exp_lib_str,
                         pseudocount=self.inputs.pseudocount,
+                        site_restricted=self.inputs.site_restricted,
                     )
                 else:
                     (
@@ -690,6 +720,7 @@ class Analysis:
                         lib_str1=self.inputs.ctrl_lib_str,
                         lib_str2=self.inputs.exp_lib_str,
                         pseudocount=self.inputs.pseudocount,
+                        site_restricted=self.inputs.site_restricted,
                     )
                 
                 # 
@@ -730,8 +761,9 @@ class Analysis:
 
             # Update progress
             percentage = (100.0 * count / control_group_size)
-            text = "Running Resampling Method... %5.1f%%" % percentage
-            parameter_panel.progress_update(text, percentage)
+            if universal.interface != 'console':
+                text = "Running Resampling Method... %5.1f%%" % percentage
+                parameter_panel.progress_update(text, percentage)
 
         logging.log("")  # Printing empty line to flush stdout
         logging.log("Performing Benjamini-Hochberg Correction")

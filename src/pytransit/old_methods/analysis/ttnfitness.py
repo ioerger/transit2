@@ -283,7 +283,6 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             all_counts.extend(
                 numpy.mean(gene.reads, 0)
             )  # mean TA site counts across wig files
-            nTAs = len(gene.reads[0])
             for pos in gene.position:
                 pos -= 1  # 1-based to 0-based indexing of nucleotides
                 if pos - 4 < 0:

@@ -73,9 +73,11 @@ class ProgressBar:
     inline = True
     disable_logging = False
     progress_bar_size = 35
-    seconds_per_print = 1
-    percent_per_print = 100
+    seconds_per_print = 0.1
+    percent_per_print = 2
     lookback_size = 100
+    time_format = "%H:%M:%S"
+    long_time_format = "%D %H:%M:%S"
     
     @classmethod
     def configure(this_class, **config):
@@ -364,7 +366,7 @@ class ProgressBar:
     
     def show_remaining_time(self):
         if self.secs_remaining == math.inf:
-            self.print(f'remaining: ________', end='')
+            self.print(f'remaining: _______', end='')
         elif self.progress_data.percent != 100:
             self.print(f'remaining: {self.to_time_string(self.secs_remaining)}sec', end='')
         
@@ -389,15 +391,15 @@ class ProgressBar:
     
     def show_end_time(self):
         if self.progress_data.percent != 100:
-            time_format = "%H:%M:%S"
+            time_format = self.time_format
             if self.secs_remaining > (86400/2): # more than half a day
-                time_format = "%D %H:%M:%S"
+                time_format = self.long_time_format
             
             try:
                 endtime = self.start_time + timedelta(seconds=self.total_eslaped_time + self.secs_remaining)
                 self.print(f'eta: {endtime.strftime(time_format)}',  end='')
             except:
-                self.print(f'eta: {"_"*len(time_format)}',  end='')
+                self.print(f'eta: {"_"*(len(time_format)-3)}',  end='')
     
     def show_done(self):
         if self.inline:
