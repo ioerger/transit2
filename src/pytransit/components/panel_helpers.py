@@ -94,36 +94,60 @@ if True:
                     0,
                 )
                 # whenever the button is clicked, popup
-                Organism_pathway = None
+                organism_pathway_text = None
+                organism_pathway = None
                 @gui_tools.bind_to(popup_button, wx.EVT_BUTTON)
                 def when_button_clicked(*args,**kwargs):
-                    win = wx.PopupWindow(panel,wx.FRAME_FLOAT_ON_PARENT)
+                    nonlocal organism_pathway
+                    win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
                     popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     win.SetSizer(popup_sizer)
-                    create_choice_input(win, popup_sizer,
-                        label = "Select Species",
-                        options= ["H37Rv", "Smeg"],
-                        tooltip_text = "FIX ME"
-                    )
-                    create_choice_input(win, popup_sizer,
-                        label = "Select Pathway Type",
-                        options= ["Sanger", "COGG", "GO", "KEGG"],
-                        tooltip_text = "FIX ME"
-                    )
+
+                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
+                    popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COGG", "GO", "KEGG"])
+                    popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+
+                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
+                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
+
                     win.Layout()
                     popup_sizer.Fit(win)
-                    win.Show(True)
+                    selected_path = win.ShowModal()
+
+                    if selected_path == wx.ID_OK:
+                        pathway_type_selected = pathway_type.GetValue()
+
+                        if pathway_type_selected== "COG":
+                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
+                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
+                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                        else:
+                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
+                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg","All 1500 the other COGG options"]) #FIX ME
+                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+
+                        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+                        popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
+
+                        win.Layout()
+                        popup_sizer.Fit(win)
+                        res = win.ShowModal()
+                        if res == wx.ID_OK:
+                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
+                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
+                        win.Destroy()
+                    
 
             row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-            
-            # 
-            # Text
-            # 
-            file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(file_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+
+            organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
+            row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
         
         sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return lambda *args, **kwargs: Organism_pathway
+        return lambda *args, **kwargs: organism_pathway
 
 
 

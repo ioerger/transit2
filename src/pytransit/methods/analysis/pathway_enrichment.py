@@ -102,14 +102,7 @@ class Analysis:
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
-            """
-            self.value_getters.organism_pathway = panel_helpers.create_choice_input(self.panel, main_sizer,
-                label = "Organism-Pathway",
-                options= ["H37Rv-COG", "H37Rv-Sanger","H37Rv-GO", "Smeg-COG", "Smeg-GO", "Other"],
-                tooltip_text= "Pick the Organism whose pathways you would like to use. Once an organism is picked, the corresponding associations and pathways with be autoselected. If other is chosen, you must select your own associations and pathways"
-            )
-            """
-            self.value_getters.defaults =  panel_helpers.create_default_pathway_button(self.panel, main_sizer, button_label="Select Default", tooltip_text="FIX ME", popup_title="")
+
             if Analysis.inputs.resampling_file == None:
                 self.value_getters.reampling_file = panel_helpers.create_file_input(self.panel, main_sizer, 
                     button_label="Select Input File", 
@@ -126,6 +119,10 @@ class Analysis:
                 tooltip_text="FIX ME", popup_title="Select Pathways File",
                 allowed_extensions='All files (*.*)|*.*')
 
+            self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(self.panel, main_sizer, 
+                button_label="Select Default Files", 
+                tooltip_text="FIX ME", 
+                popup_title="")
 
     
             self.value_getters.method = panel_helpers.create_choice_input(self.panel, main_sizer,
@@ -155,27 +152,29 @@ class Analysis:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-        """
-        if Analysis.inputs.organism_pathway =="H37Rv-Sanger":
-            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
-            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
-        elif Analysis.inputs.organism_pathway =="H37Rv-GO":
-            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
-            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
-        elif Analysis.inputs.organism_pathway =="H37Rv-COG":
-            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
-            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
-        elif Analysis.inputs.organism_pathway =="Smeg-GO":
-            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_GO_terms.txt"
-            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
-        elif Analysis.inputs.organism_pathway =="Smeg-COG":
-            Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
-            Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
-        else: # ask for files
-        
-        Analysis.inputs.associations_file=gui_tools.ask_for_file(message = "Select an Associations File", allowed_extensions='All files (*.*)|*.*',) 
-        Analysis.inputs.pathways_file=gui_tools.ask_for_file( message = "Select an PathwaysFile", allowed_extensions='All files (*.*)|*.*',)   
-        """
+        if Analysis.inputs.organism_pathway != None:
+            print(Analysis.inputs.organism_pathway)
+            #organism,pathway = Analysis.inputs.organism_pathway.split("-")
+            if Analysis.inputs.organism_pathway =="H37Rv-Sanger":
+                logging.log("Loading in H37Rv Associations for Sanger Pathways")
+                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
+                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
+            elif Analysis.inputs.organism_pathway =="H37Rv-GO":
+                logging.log("Loading in H37Rv Associations for GO Pathways")
+                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+            elif Analysis.inputs.organism_pathway =="H37Rv-COG":
+                logging.log("Loading in H37Rv Associations for COG Pathways")
+                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
+                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
+            elif Analysis.inputs.organism_pathway =="Smeg-GO":
+                logging.log("Loading in Smeg Associations for GO Pathways")
+                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+            elif Analysis.inputs.organism_pathway =="Smeg-COG":
+                logging.log("Loading in Smeg Associations for COG Pathways")
+                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
+                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"   
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Analysis.short_name}_output.dat",
