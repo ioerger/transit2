@@ -62,6 +62,13 @@ if True:
     
 
     def create_default_pathway_button(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
+        import csv
+        COG_orgs = []
+        with open(universal.root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
+            reader_obj = csv.reader(file_obj)
+            for row in reader_obj:
+                COG_orgs.append(row[1])
+
         """
             Example:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
@@ -105,7 +112,7 @@ if True:
 
                     pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
                     popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COGG", "GO", "KEGG"])
+                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG", "COG_20" ,"GO", "KEGG"])
                     popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
                     select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
@@ -118,15 +125,15 @@ if True:
                     if selected_path == wx.ID_OK:
                         pathway_type_selected = pathway_type.GetValue()
 
-                        if pathway_type_selected== "COG":
+                        if pathway_type_selected== "COG_20":
                             organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
                             popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
+                            organism = wx.ComboBox(win,choices = COG_orgs)
                             popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
                         else:
                             organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
                             popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg","All 1500 the other COGG options"]) #FIX ME
+                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
                             popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
                         ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))

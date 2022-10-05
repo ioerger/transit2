@@ -153,9 +153,12 @@ class Analysis:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
         if Analysis.inputs.organism_pathway != None:
-            print(Analysis.inputs.organism_pathway)
-            #organism,pathway = Analysis.inputs.organism_pathway.split("-")
-            if Analysis.inputs.organism_pathway =="H37Rv-Sanger":
+            organism,pathway = Analysis.inputs.organism_pathway.split("-")
+            if pathway == "COG_20":
+                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/COG_20_org_associations/"+organism+"_COG_20_roles.associations.txt"
+                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_20_roles.txt"
+
+            elif Analysis.inputs.organism_pathway =="H37Rv-Sanger":
                 logging.log("Loading in H37Rv Associations for Sanger Pathways")
                 Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
                 Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
