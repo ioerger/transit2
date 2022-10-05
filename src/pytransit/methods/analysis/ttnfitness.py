@@ -22,11 +22,7 @@ from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
 from pytransit.components.spreadsheet import SpreadSheet
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import informative_iterator, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 
@@ -379,7 +375,7 @@ class Analysis:
         logging.log("\t + Filtering ES/ESB Genes")
         # function to extract gumbel calls to filter out ES and ESB
         gumbel_bernoulli_gene_calls = {}
-        for g in TA_sites_df["Orf"].unique():
+        for _, g in informative_iterator.ProgressBar(TA_sites_df["Orf"].unique(), title="Filtering ES/ESB Genes"):
             if g == "igr":
                 gene_call = numpy.nan
             else:
@@ -404,7 +400,7 @@ class Analysis:
         logging.log("\t + Filtering Short Genes. Labeling as Uncertain")
         # function to call short genes (1 TA site) with no insertions as Uncertain
         uncertain_genes = []
-        for g in TA_sites_df["Orf"].unique():
+        for _, g in informative_iterator.ProgressBar(TA_sites_df["Orf"].unique(), title="Filtering Short Genes"):
             sub_data = TA_sites_df[TA_sites_df["Orf"] == g]
             len_of_gene = len(sub_data)
             num_insertions = len(sub_data[sub_data["Insertion Count"] > 0])
@@ -447,14 +443,15 @@ class Analysis:
 
 
         logging.log("\t + Fitting M1")
-        X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
-        #X1 = sm.add_constant(X1)
-        results1 = sm.OLS(Y, X1).fit()
-        filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1) 
-        filtered_ttn_data["M1 Pred log Count"] = filtered_ttn_data["M1 Pred log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
-        filtered_ttn_data["M1 Predicted Count"] = numpy.power(
-            10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
-        )
+        if True: # NOTE: the block of code in this if statement is what takes up the bulk of the processing time (can't give good ETA/progress cause of this)
+            X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
+            #X1 = sm.add_constant(X1)
+            results1 = sm.OLS(Y, X1).fit()
+            filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1) 
+            filtered_ttn_data["M1 Pred log Count"] = filtered_ttn_data["M1 Pred log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
+            filtered_ttn_data["M1 Predicted Count"] = numpy.power(
+                10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
+            )
 
         logging.log("\t + Assessing Models")
         # create Models Summary df
@@ -490,7 +487,7 @@ class Analysis:
         gene_dict = {}  # dictionary to map information per gene
         TA_sites_df["M1 Predicted Count"] = [None] * len(TA_sites_df)
         # TA_sites_df["mod ttn Predicted Count"] = [None]*len(TA_sites_df)
-        for g in TA_sites_df["Orf"].unique():
+        for progress, g in informative_iterator.ProgressBar(TA_sites_df["Orf"].unique(), title="Writing To Output"):
             # ORF Name
             orfName = gene_obj_dict[g].name
             # ORF Description

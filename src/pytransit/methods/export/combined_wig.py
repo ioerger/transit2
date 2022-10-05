@@ -4,9 +4,7 @@ import os
 import time
 
 from pytransit.methods import export_base as base
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, logging
 from pytransit.basics import misc
 
 
@@ -58,7 +56,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         c_terminus=0.0,
         wxobj=None,
     ):
-
+        CombinedWigMethod.self = self
         base.SingleConditionMethod.__init__(
             self,
             short_name,
@@ -150,7 +148,8 @@ class CombinedWigMethod(base.SingleConditionMethod):
             c_terminus,
         )
 
-    def Run(self):
+    def Run(self=None):
+        self = self or CombinedWigMethod.self # bit of a hack but this class structure needs to be redone into a singleton
 
         logging.log("Starting Combined Wig Export")
         start_time = time.time()

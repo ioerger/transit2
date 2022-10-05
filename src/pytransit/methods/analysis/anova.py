@@ -10,7 +10,7 @@ import heapq
 
 import numpy
 
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
 from pytransit.basics.lazy_dict import LazyDict
 import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
@@ -270,7 +270,7 @@ class Analysis:
         count = 0
 
         msrs, mses, f_stats, pvals, rvs, status = [],[],[],[],[],[]
-        for gene in genes:
+        for _, gene in informative_iterator.ProgressBar(genes):
             count += 1
             rv = gene["rv"]
             if len(rv_site_indexes_map[rv]) <= 1:

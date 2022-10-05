@@ -66,7 +66,7 @@ class ProgressBar:
         time.sleep(0.01)
     """
     
-    layout = [ 'title', 'bar', 'percent', 'spacer', 'fraction', 'spacer', 'start_time', 'spacer', 'end_time', 'spacer', 'remaining_time', 'spacer', ]
+    layout = [ 'title', 'bar', 'percent', 'spacer', 'fraction', 'spacer', 'remaining_time', 'spacer', 'end_time', 'spacer', 'duration', 'spacer', ]
     minimal_layout = [ 'title', 'bar', 'spacer', 'end_time', 'spacer', ]
     spacer = " | "
     minmal = False
@@ -372,7 +372,7 @@ class ProgressBar:
         self.print(f'{self.progress_data.percent:.2f}%'.rjust(6), end='')
     
     def show_duration(self):
-        self.print(self.to_time_string(self.total_eslaped_time), end='')
+        self.print("elapsed: "+self.to_time_string(self.total_eslaped_time)+"sec", end='')
     
     def show_fraction(self):
         total_str = f"{self.progress_data.total_iterations}"

@@ -800,10 +800,10 @@ def driver(vars):
     vars.num_replicons = total_num_records
 
     if vars.num_replicons != len(vars.replicon_ids):
-        if vars.num_replicons is 1:
+        if vars.num_replicons == 1:
             vars.replicon_ids = [""]
         # Autogenerate ids if 'auto' flag present
-        elif len(vars.replicon_ids) is 1 and vars.replicon_ids[0].strip() == "auto":
+        elif len(vars.replicon_ids) == 1 and vars.replicon_ids[0].strip() == "auto":
             message("Autogenerating replicon_ids...")
             vars.replicon_ids = [str(i) for i in range(1, vars.num_replicons + 1)]
         else:
