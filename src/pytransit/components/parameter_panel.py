@@ -234,10 +234,20 @@ def set_panel(new_panel):
         panel.progress_label.Show()
         panel.progress.Show()
 
-def set_instructions(method_name, method_specific_instructions):
+def set_instructions( method_short_text, method_long_text, method_descr, method_specific_instructions):
     with gui_tools.nice_error_log:
-        panel.method_info_text.SetLabel(method_name+" :")
-        panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        panel.method_long_text.SetLabel(method_long_text)
+        panel.method_long_text.Show()
+
+        panel.method_short_text.SetLabel("("+method_short_text+")")
+        panel.method_short_text.Show()
+
+        panel.method_desc_text.SetLabel(method_descr)
+        panel.method_desc_text.Wrap(-1)
+        panel.method_desc_text.Show()
+
+        panel.method_info_text.SetLabel("Instructions:")
+        panel.method_info_text.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         panel.method_info_text.Show()
 
         panel.method_instructions.SetLabel(method_specific_instructions)
@@ -262,10 +272,10 @@ def hide_all_options():
     
     #panel.method_info_text.Hide()
     #panel.method_instructions.Hide()
-    panel.method_short_text.Hide()
-    panel.method_long_text.Hide()
+    #panel.method_short_text.Hide()
+    #panel.method_long_text.Hide()
     panel.method_tn_text.Hide()
-    panel.method_desc_text.Hide()
+    #panel.method_desc_text.Hide()
     
         
     

@@ -18,7 +18,7 @@ import statsmodels.api as sm
 from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
+from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
 from pytransit.components.spreadsheet import SpreadSheet
@@ -78,6 +78,27 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at 
+                TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
+
+                Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) 
+                from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant 
+                has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. 
+                Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of 
+                the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
+
+                These insertion preferences are influenced by the nucleotide context of each TA site. The TTN-Fitness method uses a statistical model based on surrounding 
+                nucleotides to estimate the insertion bias of each site. Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio 
+                is 0 for ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
+                )
+
             self.value_getters = LazyDict()
 
             self.value_getters.condition = panel_helpers.create_condition_choice(self.panel, main_sizer, label_text="Condition to analyze:")

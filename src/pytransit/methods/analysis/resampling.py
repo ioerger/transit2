@@ -13,6 +13,7 @@ import scipy
 import scipy.stats
 import heapq
 import math
+from pytransit.components.parameter_panel import set_instructions
 from pytransit.methods.analysis.pathway_enrichment import Analysis as PathwayEnrichment
 
 from pytransit.basics.lazy_dict import LazyDict
@@ -130,6 +131,20 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
+                It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+
+                See Pathway Enrichment Analysis for post-processing the hits to determine if the hits are associated with a particular functional 
+                catogory of genes or known biological pathway.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
+                )
+
             self.value_getters = LazyDict()
             sample_getter          = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
             

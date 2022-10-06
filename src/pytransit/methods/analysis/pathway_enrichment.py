@@ -31,8 +31,8 @@ command_name = sys.argv[0]
 class Analysis:
     name = "PathwayEnrichment"
     identifier  = name
-    short_name  = name.lower()
-    long_name   = name.upper()
+    short_name  = "Pathway Enrichment"
+    long_name   =  "Pathway Enrichment Analysis"
     short_desc  = f"Perform {name} analysis"
     long_desc   = f"""Perform {name} analysis"""
     rows = []
@@ -102,8 +102,19 @@ class Analysis:
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             set_instructions(
-                method_name = self.long_desc,
-                method_specific_instructions="ADD ME HERE"
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally 
+                essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step 
+                to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test 
+                (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
+                test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
+                of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
+                enrichment.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
                 )
             self.value_getters = LazyDict()
 

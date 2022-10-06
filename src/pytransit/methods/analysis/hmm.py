@@ -19,7 +19,7 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.tools.tnseq_tools import Wig
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import progress_update
+from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
@@ -30,8 +30,8 @@ command_name = sys.argv[0]
     
 @misc.singleton
 class Analysis:
-    short_name = "hmm"
-    long_name = "HMM"
+    short_name = "HMM"
+    long_name = "Hidden Markov Model"
     short_desc = "Analysis of genomic regions using a Hidden Markov Model"
     long_desc = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
 
@@ -91,6 +91,17 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other 
+                methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or 
+                growth defect regions), in addition to the more common categories of essential and non-essential.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
+                )
             # 
             # parameter inputs
             # 
