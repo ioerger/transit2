@@ -17,12 +17,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import wx
-
-    HAS_WX = True
-except Exception as e:
-    HAS_WX = False
+try: import wx
+except: pass
 
 import pytransit.components.view_trash as view_trash
 import pytransit.components.draw_trash as draw_trash
@@ -32,42 +28,9 @@ import ntpath
 import traceback
 from PIL import Image, ImageDraw, ImageFont
 
-from pytransit.tools import logging, transit_tools, tnseq_tools, norm_tools
+from pytransit.tools import logging, transit_tools, tnseq_tools, norm_tools, gui_tools
 
 track_prefix = "[TrackView]"
-
-
-def WxBitmapToPilImage(myBitmap):
-    return WxImageToPilImage(WxBitmapToWxImage(myBitmap))
-
-
-def WxBitmapToWxImage(myBitmap):
-    return wx.ImageFromBitmap(myBitmap)
-
-
-# -----
-
-
-def PilImageToWxBitmap(myPilImage):
-    return WxImageToWxBitmap(PilImageToWxImage(myPilImage))
-
-
-def PilImageToWxImage(myPilImage):
-    myWxImage = wx.EmptyImage(myPilImage.size[0], myPilImage.size[1])
-    try:
-        myWxImage.SetData(myPilImage.convert("RGB").tostring())
-    except:
-        myWxImage.SetData(myPilImage.convert("RGB").tobytes())
-    return myWxImage
-
-
-def WxImageToWxBitmap(myWxImage):
-    return myWxImage.ConvertToBitmap()
-
-
-def fetch_name(filepath):
-    return os.path.splitext(ntpath.basename(filepath))[0]
-
 
 # inherit from the MainFrame created in wxFowmBuilder and create CalcFrame
 class TrashFrame(view_trash.MainFrame):
@@ -75,8 +38,8 @@ class TrashFrame(view_trash.MainFrame):
     def __init__(
         self,
         parent,
-        wig_ids=["H37Rv_Sassetti_glycerol.wig"],
-        annotation="H37Rv.prot_table",
+        wig_ids=["H37Rv_Sassetti_glycerol.wig"], # TODO: probably should remove these (I didnt add them) --Jeff
+        annotation="H37Rv.prot_table",           # TODO: probably should remove these (I didnt add them) --Jeff
         gene="",
         scale=None,
         feature_hashes=[],
@@ -89,9 +52,6 @@ class TrashFrame(view_trash.MainFrame):
         self.size = wx.Size(1500, 800)
         self.start = 1
         self.end = 10000
-
-        # self.orf2data = draw_trash.read_prot_table(annotation)
-        # self.hash = draw_trash.hash_prot_genes(annotation)
 
         self.orf2data = transit_tools.get_gene_info(annotation)
         self.hash = transit_tools.get_pos_hash(annotation)
@@ -110,7 +70,7 @@ class TrashFrame(view_trash.MainFrame):
         self.labels = wig_ids + ["All"]
         
         from pytransit.tools.transit_tools import gather_sample_data_for
-        self.data, self.position = gather_sample_data_for(selected_samples=True)
+        self.fulldata, self.position = gather_sample_data_for(selected_samples=True)
 
         # Save normalized data
         (self.fulldata_norm, self.factors) = norm_tools.normalize_data(
@@ -248,7 +208,7 @@ class TrashFrame(view_trash.MainFrame):
             logging.log("Image saved to the following path: %s" % output_path)
 
     def addFeatureFunc(self, event):
-        wc = u"Known Annotation Formats (*.prot_table,*.gff3,*.gff)|*.prot_table;*.gff3;*.gff;|\nProt Table (*.prot_table)|*.prot_table;|\nGFF3 (*.gff,*.gff3)|*.gff;*.gff3;|\nAll files (*.*)|*.*"
+        wc = "Known Annotation Formats (*.prot_table,*.gff3,*.gff)|*.prot_table;*.gff3;*.gff;|\nProt Table (*.prot_table)|*.prot_table;|\nGFF3 (*.gff,*.gff3)|*.gff;*.gff3;|\nAll files (*.*)|*.*"
         path = self.OpenFile(DIR=self.parent.workdir, FILE="", WC=wc)
         try:
             if path:
@@ -414,7 +374,7 @@ class TrashFrame(view_trash.MainFrame):
             )
             self.wasNorm = False
 
-        image_wxImg = PilImageToWxImage(image_pil)
+        image_wxImg = gui_tools.pil_image_to_wx_image(image_pil)
         self.m_bitmap1.SetBitmap(wx.BitmapFromImage(image_wxImg))
         self.Refresh()
         image_pil = ""

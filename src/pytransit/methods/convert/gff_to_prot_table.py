@@ -5,7 +5,7 @@ from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
 import csv
 import traceback
-import pytransit.tools.transit_tools as transit_tools
+from pytransit.tools import transit_tools, console_tools, logging
 from pytransit.methods import convert_base as base
 
 ############# Description ##################
@@ -61,7 +61,8 @@ class GffProtMethod(base.ConvertMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 
@@ -79,10 +80,7 @@ class GffProtMethod(base.ConvertMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-        if len(args) < 2:
-            print("Error: Please specify Input and Output paths")
-            print(self.usage_string)
-            sys.exit(1)
+        console_tools.enforce_number_of_args(args, self.usage_string, at_least=2)
 
         annotation_path = args[0]
         outpath = args[1]
@@ -110,9 +108,7 @@ class GffProtMethod(base.ConvertMethod):
         writer = csv.writer(output_file, delimiter="\t")
         lines = gff_file.readlines()
         gff_file.close()
-        logging.log(
-            "Converting annotation file from GFF3 format to prot_table format"
-        )
+        logging.log("Converting annotation file from GFF3 format to prot_table format")
 
         for i, line in enumerate(lines):
             line = line.strip()
@@ -120,9 +116,7 @@ class GffProtMethod(base.ConvertMethod):
                 continue
             cols = line.split("\t")
             if len(cols) < 9:
-                sys.stderr.write(
-                    ("Ignoring invalid row with entries: {0}\n".format(cols))
-                )
+                sys.stderr.write(("Ignoring invalid row with entries: {0}\n".format(cols)))
                 continue
             if (cols[2]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
                 if "locus_tag" not in line:

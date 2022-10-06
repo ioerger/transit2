@@ -113,7 +113,7 @@ def ask_for_output_file_path(
 class color(NamedTuple):
     black          =  rgba(0, 0, 0)
     white          =  rgba(255, 255, 255)
-    light_gray     =  rgba(199, 203, 205)
+    light_gray     =  rgba(225, 225, 225)
     gray           =  rgba(84, 110, 122)
     rust           =  rgba(193, 126, 112)
     orange         =  rgba(247, 140, 108)
@@ -153,9 +153,11 @@ class NiceErrorLog(object):
     def __exit__(self, _, error, traceback_obj):
         if error is not None:
             print(''.join(traceback.format_tb(traceback_obj)))
+            error_message = " ".join([ f"{each}" for each in error.args])
+            print(error_message)
             frame = universal.frame
             if frame and hasattr(frame, "status_bar"):
-                frame.status_bar.SetStatusText("Error: "+str(error.args))
+                frame.status_bar.SetStatusText("Error: "+error_message)
 
 nice_error_log = NiceErrorLog()
 
@@ -196,8 +198,40 @@ def run_method_by_label(*, method_options, method_label):
         for name in method_options:
             method_option = method_options[name]
             if method_option.label == method_label:
-                method_object = method_option.method.from_gui(frame)
+                if hasattr(method_option, "method"): # TODO: remove this once the convert/export methods have been updated and no longer have .method (probably in a few weeks - Oct 13st) --Jeff
+                    method_option = method_option.method
+                method_object = method_option.from_gui(frame)
+                def wrapper():
+                    with nice_error_log:
+                        method_object.Run()
                 if method_object:
-                    thread = threading.Thread(target=method_object.Run())
+                    thread = threading.Thread(target=wrapper())
                     thread.setDaemon(True)
                     thread.start()
+
+# 
+# Image Converters
+# 
+if True:
+    def wx_bitmap_to_wx_image(my_bitmap):
+        return wx.ImageFromBitmap(my_bitmap)
+
+    def wx_bitmap_to_pil_image(my_bitmap):
+        return wx_image_to_pil_image(wx_bitmap_to_wx_image(my_bitmap))
+
+    def pil_image_to_wx_bitmap(my_pil_image):
+        return wx_image_to_wx_bitmap(pil_image_to_wx_image(my_pil_image))
+
+    def pil_image_to_wx_image(my_pil_image):
+        my_wx_image = wx.EmptyImage(my_pil_image.size[0], my_pil_image.size[1])
+        try:
+            my_wx_image.SetData(my_pil_image.convert("RGB").tostring())
+        except:
+            my_wx_image.SetData(my_pil_image.convert("RGB").tobytes())
+        return my_wx_image
+
+    def wx_image_to_wx_bitmap(my_wx_image):
+        return my_wx_image.ConvertToBitmap()
+    
+    def wx_image_to_pil_image(wx_image):
+        raise Exception(f'''This function (wx_image_to_pil_image) was never implemented''')

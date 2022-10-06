@@ -4,9 +4,8 @@ import os
 import time
 
 from pytransit.methods import export_base as base
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, logging, console_tools
+from pytransit.basics import misc
 
 
 ############# Description ##################
@@ -45,11 +44,6 @@ class CombinedWigGUI(base.ExportGUI):
 
 
 class CombinedWigMethod(base.SingleConditionMethod):
-    """
-    CombinedWig
-
-    """
-
     def __init__(
         self,
         ctrldata,
@@ -62,7 +56,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         c_terminus=0.0,
         wxobj=None,
     ):
-
+        CombinedWigMethod.self = self
         base.SingleConditionMethod.__init__(
             self,
             short_name,
@@ -81,10 +75,9 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_gui(self, wxobj):
-        """ """
-
         # Get Annotation file
-        annotation_path = wxobj.annotation
+        from pytransit.universal_data import universal
+        annotation_path = universal.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 
@@ -127,11 +120,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-
-        if len(args) != 3:  # wigs prot_table output
-            print("Error: Incorrect number of args. See usage")
-            print(self.usage_string)
-            sys.exit(0)
+        console_tools.enforce_number_of_args(args, self.usage_string, exactly=3)
 
         ctrldata = args[0].split(",")
         annotation_path = args[1]
@@ -155,7 +144,8 @@ class CombinedWigMethod(base.SingleConditionMethod):
             c_terminus,
         )
 
-    def Run(self):
+    def Run(self=None):
+        self = self or CombinedWigMethod.self # bit of a hack but this class structure needs to be redone into a singleton
 
         logging.log("Starting Combined Wig Export")
         start_time = time.time()
@@ -237,12 +227,10 @@ class CombinedWigMethod(base.SingleConditionMethod):
         self.finish()
         logging.log("Finished Export")
 
-    #
-
-    usage_string = (
-            """python %s export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]\ndefault normalization_method=TTR"""
-            % (sys.argv[0])
-        )
-
+    usage_string = f"""
+        python {sys.argv[0]} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
+        
+            default normalization_method=TTR
+    """.replace("\n    ","\n")
 
 combined_wig = Export()

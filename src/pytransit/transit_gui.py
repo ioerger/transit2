@@ -50,7 +50,7 @@ from pytransit.components.results_area           import create_results_area
 from pytransit.components.samples_area           import create_sample_area
 from pytransit.components.annotation_area        import create_annotation_area
 from pytransit.basics.lazy_dict                  import LazyDict
-from pytransit.universal_data                    import SessionData, universal
+from pytransit.universal_data                    import universal
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit
@@ -145,7 +145,6 @@ class TnSeqFrame(wx.Frame):
         self.SetIcon(images.transit_icon.GetIcon())
 
         self.workdir = os.getcwd()
-        self.annotation = ""
         self.transposons = ["himar1", "tn5"]
         self.verbose = True
         
@@ -171,7 +170,7 @@ class TnSeqFrame(wx.Frame):
         self,
         DIR=None,
         FILE="",
-        WC=u'Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+        WC='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
     ):
         """
         Create and show the Save FileDialog

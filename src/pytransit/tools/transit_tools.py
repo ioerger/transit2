@@ -241,7 +241,7 @@ def validate_wig_format(wig_list, wxobj=None):
         if result == dlg.ID_HIMAR1 and wxobj:
             status = 1
             # Get genome
-            wc = u"Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
+            wc = "Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
             gen_dlg = wx.FileDialog(
                 wxobj,
                 message="Save file as ...",
@@ -407,21 +407,6 @@ def get_validated_data(wig_list, wxobj=None):
     else:
         return tnseq_tools.CombinedWig.gather_wig_data([])
 
-def get_transposons_text(transposons):
-    if len(transposons) == 0:
-        return "Tn attribute missing!"
-    elif len(transposons) == 1:
-        return "Intended for %s only" % transposons[0]
-    elif len(transposons) == 2:
-        return "Intended for %s or %s" % tuple(transposons)
-    else:
-        return (
-            "Intended for "
-            + ", ".join(transposons[:-1])
-            + ", and "
-            + transposons[-1]
-        )
-
 def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
 if HAS_R:
@@ -497,6 +482,15 @@ if True:
         
         extra_info = extra_info or {}
         
+        yaml_string = ""
+        try:
+            yaml_string = ez_yaml.to_string(extra_info)
+        except Exception as error:
+            try:
+                yaml_string = ez_yaml.to_string(json.loads(json.dumps(extra_info)))
+            except Exception as error:
+                raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
+        
         # 
         # write to file
         # 
@@ -508,7 +502,7 @@ if True:
                 file_kind, # identifier always comes first
                 f"yaml:",
                 f"    Console Command: python3 {' '.join(sys.argv)}",
-                indent(ez_yaml.to_string(extra_info), by="    "),
+                indent(yaml_string, by="    "),
                 "\t".join(column_names) # column names always last
             ],
             rows=rows,
@@ -688,15 +682,15 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     from pytransit.universal_data import universal
     from pytransit.tools.tnseq_tools import Wig
     
-    wig_objects = universal.session_data.samples
+    wig_objects = universal.samples
     # default to all samples unless selected_samples is true
     if selected_samples:
-        wig_objects = universal.session_data.selected_samples
+        wig_objects = universal.selected_samples
     
     # filter by conditions if needed
     if conditions:
         condition_names = [ (each if isinstance(each, str) else each.name) for each in conditions ]
-        wig_objects = [ each for each in wig_objects if each.extra_data.get("condition", None) in condition_names ]
+        wig_objects = [ each for each in wig_objects if set(each.condition_names) & set(condition_names) ]
     
     # filter by wig_ids if needed
     if wig_ids:

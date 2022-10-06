@@ -1,4 +1,4 @@
-#HMM - Genes
+#HMM_Genes
 #command line: python3 ./tests/test_analysis_methods.py
 #summary of gene calls: ES=0, GD=2, NE=4, GA=0, N/A=45
 #key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)

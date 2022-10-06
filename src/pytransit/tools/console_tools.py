@@ -70,7 +70,20 @@ def clean_args(rawargs):
 def handle_help_flag(kwargs, usage_string):
     if kwargs.get("-help", False) or kwargs.get("h", False):
         print(usage_string)
-        sys.exit(0)
+        exit(0)
+
+def enforce_number_of_args(args, usage_string, *, exactly, at_least=type(None)):
+    number_of_args = len(args)
+    if at_least != type(None):
+        if number_of_args < at_least:
+            print(f"Wrong number of arguments ({number_of_args} < {at_least}), see usage below\n")
+            print(usage_string)
+            exit(1)
+    else:
+        if number_of_args != exactly:
+            print(f"Wrong number of arguments ({number_of_args} != {exactly}), see usage below\n")
+            print(usage_string)
+            exit(1)
 
 def handle_unrecognized_flags(flags, kwargs, usage_string):
     for arg_name in kwargs.keys():

@@ -51,7 +51,7 @@ def create_panel_area(_):
             version_label = wx.StaticText(
                 universal.frame,
                 wx.ID_ANY,
-                u"",
+                "",
                 wx.DefaultPosition,
                 (100, 25),
                 wx.ALIGN_CENTRE,
@@ -69,7 +69,7 @@ def create_panel_area(_):
         # methodInfoSizer
         # 
         if True:
-            panel.method_info_text = wx.StaticBox(universal.frame, wx.ID_ANY, u"Instructions")
+            panel.method_info_text = wx.StaticBox(universal.frame, wx.ID_ANY, "Instructions")
             panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
             panel.method_info_sizer = wx.StaticBoxSizer(panel.method_info_text, wx.VERTICAL)
             
@@ -78,7 +78,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_short_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_short_text.Wrap(250)
                 panel.method_short_text.Hide()
@@ -91,7 +91,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_long_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_long_text.Wrap(250)
                 panel.method_long_text.Hide()
@@ -105,7 +105,7 @@ def create_panel_area(_):
             if True:
 
                 panel.method_desc_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_desc_text.Wrap(250)
                 panel.method_desc_text.Hide()
@@ -118,7 +118,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_tn_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0
+                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_tn_text.Wrap(250)
 
@@ -153,23 +153,7 @@ def create_panel_area(_):
         # Method Options
         # 
         if True:
-            panel.method_sizer_text = wx.StaticBox(universal.frame, wx.ID_ANY, u"Method Options")
-            panel.method_sizer_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-            panel.method_sizer = wx.StaticBoxSizer(panel.method_sizer_text, wx.VERTICAL)
-            
-            # 
-            # methodPanel1
-            # 
-            if True:
-                panel.method_panel = wx.Panel(
-                    universal.frame,
-                    wx.ID_ANY,
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    wx.TAB_TRAVERSAL,
-                )
-                panel.method_panel.SetMinSize(wx.Size(50, 1))
-                panel.method_sizer.Add(panel.method_panel, 0, wx.ALL | wx.EXPAND, 5)
+            panel.method_sizer = wx.BoxSizer(wx.VERTICAL)
             
         panel.sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
 
@@ -192,7 +176,7 @@ def create_panel_area(_):
             panel.progress_label = wx.StaticText(
                 panel.progress_panel,
                 wx.ID_ANY,
-                u"Progress",
+                "Progress",
                 wx.DefaultPosition,
                 wx.DefaultSize,
                 0,
@@ -211,17 +195,13 @@ def create_panel_area(_):
             )
             progress_sizer.Add(panel.progress, 0, wx.ALL | wx.EXPAND, 0)
 
-    # panel.progress_panel.BackgroundColour = (0, 0, 250)
     panel.progress_sizer = progress_sizer
     panel.progress_panel.SetSizer(progress_sizer)
     panel.progress_panel.SetMaxSize(wx.Size(200, 100))
     panel.progress_panel.Layout()
-    # progress_sizer.Fit( panel.progress_panel )
-
-    set_progress_range(1000)
-    
-    hide_progress_section()
-    panel.method_sizer_text.Hide()
+    panel.progress.SetRange(1000)
+    panel.progress_label.Hide()
+    panel.progress.Hide()
     
     return panel.sizer
 
@@ -249,18 +229,23 @@ def set_panel(new_panel):
         panel.progress_panel.Layout()
         panel.method_sizer.Fit(panel.progress_panel)
         panel.method_sizer.Fit(new_panel)
+        new_panel.SetBackgroundColour(gui_tools.color.light_gray)
         old_panel = new_panel
+        panel.progress_label.Show()
+        panel.progress.Show()
     
-panel.set_panel = set_panel
-
 def hide_all_options():
     from pytransit.methods.analysis import methods
     
-    hide_progress_section()
-    for name in methods:
-        try: methods[name].gui.panel.Hide()
+    panel.progress_label.Hide()
+    panel.progress.Hide()
+    for method in methods.values():
+        if hasattr(method, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
+            method = method.gui
+        
+        try: method.panel.Hide()
         except Exception as error: pass
-        try: methods[name].gui.Hide()
+        try: method.Hide()
         except Exception as error: pass
     
     panel.method_info_text.Hide()
@@ -269,15 +254,6 @@ def hide_all_options():
     panel.method_long_text.Hide()
     panel.method_tn_text.Hide()
     panel.method_desc_text.Hide()
-
-
-def hide_progress_section():
-    panel.progress_label.Hide()
-    panel.progress.Hide()
-
-def show_progress_section():
-    panel.progress_label.Show()
-    panel.progress.Show()
 
 def progress_update(text, percent):
     string = f" {text}   \r"
@@ -299,8 +275,3 @@ def progress_update(text, percent):
         gui_tools.set_status(string)
         
         wx.Yield() # to get the UI to update
-
-def set_progress_range(count):
-    with gui_tools.nice_error_log:
-        panel.progress.SetRange(count)
-        wx.Yield()

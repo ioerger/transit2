@@ -1,7 +1,7 @@
 # __all__ = []
 import sys
 
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, WX_VERSION
 
 import traceback
 from pytransit.tools import logging, transit_tools
@@ -203,7 +203,7 @@ class TransitExport:
         self.transposons = tn
         self.method      = method_class
         self.gui         = gui_class()
-        self.transposons_text = ""
+        
 
     def __str__(self):
         return f"""
