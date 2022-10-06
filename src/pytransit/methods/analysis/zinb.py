@@ -18,6 +18,7 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.universal_data import universal
 from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.interfaces import gui
 command_name = sys.argv[0]
 
 name = "Zinb"
@@ -28,6 +29,7 @@ class Analysis:
     short_name  = name.lower()
     long_name   = name.upper()
     short_desc  = f"Perform {name} analysis"
+    menu_name   = f"{short_name} - {short_desc}"
     long_desc   = f"""Perform {name} analysis"""
     transposons = [ "himar1", "tn5" ]
     
@@ -72,6 +74,14 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
+    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers

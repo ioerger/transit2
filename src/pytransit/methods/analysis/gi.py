@@ -25,11 +25,13 @@ import pytransit.components.results_area as results_area
 from pytransit.universal_data import universal
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
+    menu_name   = "Genetic Interaction"
     identifier  = "GI"
     short_name  = "gi"
     long_name   = "Genetic Interaction"
@@ -104,6 +106,14 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
+    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers

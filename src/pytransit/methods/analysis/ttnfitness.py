@@ -25,6 +25,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.tools import informative_iterator, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
+from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
@@ -34,6 +35,7 @@ class Analysis:
     short_name  = "ttnfitness"
     long_name   = "ttnfitness"
     short_desc  = "Analyze fitness effect of (non-essential) genes"
+    menu_name   = f"{short_name} - {short_desc}"
     long_desc   = """Analyze fitness effect of (non-essential) genes using a predictive model that corrects for the bias in Himar1 insertion probabilities based on nucleotides around each TA site"""
     transposons = [ "himar1" ] # definitely Himar1 only
     
@@ -70,7 +72,11 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
-
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):

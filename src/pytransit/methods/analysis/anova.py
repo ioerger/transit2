@@ -17,14 +17,15 @@ import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
-from pytransit.components.parameter_panel import panel, progress_update
+from pytransit.components.parameter_panel import progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-import pytransit.basics.misc as misc
+from pytransit.basics import misc
+from pytransit.interfaces import gui
 command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
+    menu_name = "Anova"
     identifier  = "Anova"
     short_name  = "anova"
     long_name   = "ANOVA"
@@ -78,7 +79,6 @@ class Analysis:
     
     
     wxobj = None
-    panel = None
     
     def __init__(self, *args, **kwargs):
         self.full_name = f"[{self.short_name}]  -  {self.short_desc}"
@@ -94,10 +94,18 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
+    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             # 
             # parameter inputs
             # 
@@ -110,18 +118,18 @@ class Analysis:
             # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
             self.value_getters = LazyDict()
             if True:
-                self.value_getters.included_conditions    = panel_helpers.create_include_condition_list_input(self.panel, main_sizer)
-                self.value_getters.excluded_conditions    = panel_helpers.create_exclude_condition_list_input(self.panel, main_sizer)
-                self.value_getters.reference_condition    = panel_helpers.create_reference_condition_input(self.panel, main_sizer)
-                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-                self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
-                self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(self.panel, main_sizer)
-                self.value_getters.alpha                  = panel_helpers.create_alpha_input(self.panel, main_sizer)
-                self.value_getters.winz                   = panel_helpers.create_winsorize_input(self.panel, main_sizer)
+                self.value_getters.included_conditions    = panel_helpers.create_include_condition_list_input(panel, main_sizer)
+                self.value_getters.excluded_conditions    = panel_helpers.create_exclude_condition_list_input(panel, main_sizer)
+                self.value_getters.reference_condition    = panel_helpers.create_reference_condition_input(panel, main_sizer)
+                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+                self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
+                self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
+                self.value_getters.alpha                  = panel_helpers.create_alpha_input(panel, main_sizer)
+                self.value_getters.winz                   = panel_helpers.create_winsorize_input(panel, main_sizer)
                 self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
                 
-                panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+                panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):
@@ -150,7 +158,7 @@ class Analysis:
         # save result files
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="test1_output.dat",
+            default_file_name="anova_output.dat",
             output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:
@@ -523,6 +531,10 @@ class File:
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
+    
+    @gui.add_menu("Testing", "howdy")
+    def _(event):
+        print("howdy!")
     
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         with gui_tools.nice_error_log:

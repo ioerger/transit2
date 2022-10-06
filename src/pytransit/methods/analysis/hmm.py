@@ -26,6 +26,8 @@ import pytransit.components.file_display as file_display
 import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
 import pytransit.basics.misc as misc
+from pytransit.interfaces import gui
+
 command_name = sys.argv[0]
     
 @misc.singleton
@@ -33,8 +35,9 @@ class Analysis:
     short_name = "hmm"
     long_name = "HMM"
     short_desc = "Analysis of genomic regions using a Hidden Markov Model"
+    menu_name   = f"{short_name} - {short_desc}"
     long_desc = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
-
+    
     transposons = ["himar1"]
     categories = ["ES", "NE", "GD", "GA"]
     inputs = LazyDict(
@@ -87,7 +90,11 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
-
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):

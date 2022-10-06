@@ -73,6 +73,14 @@ class Analysis:
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
     
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
+    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):

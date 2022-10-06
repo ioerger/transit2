@@ -28,7 +28,7 @@ import pytransit.tools.stat_tools as stat_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, informative_iterator
-
+from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
@@ -37,7 +37,8 @@ class Analysis:
     identifier  = "Gumbel"
     short_name  = "gumbel"
     long_name   = "gumbel"
-    short_desc = "Bayesian analysis of essentiality based on long gaps."
+    short_desc  = "Bayesian analysis of essentiality based on long gaps."
+    menu_name   = f"{short_name} - {short_desc}"
     long_desc = """Bayesian methods of analyzing longest runs of non-insertions in a row. Estimates the parameters using the MCMC sampling, and estimates posterior probabilities of essentiality. 
 
     Reference: DeJesus et al. (2013; Bioinformatics)"""
@@ -107,7 +108,11 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
-
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):

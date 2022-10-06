@@ -27,6 +27,7 @@ from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm
 from pytransit.universal_data import universal
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.interfaces import gui
 command_name = sys.argv[0]
 
 @misc.singleton
@@ -35,6 +36,7 @@ class Analysis:
     short_name = "resampling"
     long_name = "Resampling (Permutation test)"
     short_desc = "Resampling test of conditional essentiality between two conditions"
+    menu_name   = f"{short_name} - {short_desc}"
     long_desc = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
 
     transposons = ["himar1", "tn5"]
@@ -146,6 +148,14 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
+    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers

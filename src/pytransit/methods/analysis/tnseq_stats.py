@@ -18,6 +18,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
+from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
@@ -27,6 +28,7 @@ class Analysis:
     short_name  = "tnseq_stats"
     long_name   = "tnseq_stats"
     short_desc  = "Analyze statistics of TnSeq datasets"
+    menu_name   = f"{short_name} - {short_desc}"
     long_desc   = """Analyze statistics of TnSeq datasets in combined_wig file"""
     transposons = [ "himar1" ]
     
@@ -61,7 +63,11 @@ class Analysis:
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
-
+    
+    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    def on_menu_click(event):
+        Analysis.define_panel(event)
+    
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as  (self.panel, main_sizer):
