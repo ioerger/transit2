@@ -4,6 +4,7 @@ from functools import partial
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit.components.qc_display as qc_display
 from pytransit.universal_data import universal
+from pytransit.interfaces import gui
 import pytransit
 
 selected_export_menu_item = None
@@ -321,6 +322,38 @@ def create_menu(frame):
     # 
     if True:
         view_menu_item = wx.Menu()
+        
+        def recursive_create_sub_menu(remaining_hierarchy):
+            parent_menu = wx.Menu()
+            for each_name, each_sub_value in remaining_hierarchy.items():
+                # base-case option
+                if callable(each_sub_value):
+                    on_click_function = each_sub_value
+                    menu_item = wx.MenuItem(
+                        parent_menu,
+                        wx.ID_ANY,
+                        f"&{each_name}",
+                        wx.EmptyString,
+                        wx.ITEM_NORMAL,
+                    )
+                    parent_menu.Append(menu_item)
+                    frame.Bind(wx.EVT_MENU, on_click_function, id=menu_item.GetId())
+                # more heirarchy
+                elif isinstance(each_sub_value, dict):
+                    parent_menu.AppendSubMenu(
+                        recursive_create_sub_menu(each_sub_value),
+                        f"&{each_name}"
+                    )
+            
+            return parent_menu
+        
+        # top level menu items are an edgecase
+        for each_name, each_sub_value in gui.menu_heirarchy.items():
+            menu_bar.Append(
+                recursive_create_sub_menu(each_sub_value),
+                f"&{each_name}"
+            )
+            
         
         # 
         # Scatter Plot
