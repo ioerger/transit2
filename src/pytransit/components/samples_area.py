@@ -53,6 +53,7 @@ def create_sample_area(frame):
                     gui_tools.bit_map,
                     "Load Combined Wig and Metadata",
                     size=wx.Size(-1, -1),
+                    
                 )
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
                 
@@ -129,6 +130,7 @@ def create_sample_area(frame):
         outer_sample_sizer.add(
             Text("Conditions"),
             proportion=0,
+            
         )
         
         # 
@@ -140,6 +142,7 @@ def create_sample_area(frame):
                 proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
+                
             )
     
     # 

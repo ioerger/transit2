@@ -13,7 +13,7 @@ import numpy
 from pytransit.tools import logging, gui_tools
 from pytransit.tools.transit_tools import wx
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.parameter_panel import panel,progress_update
+from pytransit.components.parameter_panel import panel,progress_update, set_instructions
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.basics.lazy_dict import LazyDict
@@ -101,6 +101,10 @@ class Analysis:
     def define_panel(self,_=None):
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_name = self.long_desc,
+                method_specific_instructions="ADD ME HERE"
+                )
             self.value_getters = LazyDict()
 
             if Analysis.inputs.resampling_file == None:
@@ -132,7 +136,7 @@ class Analysis:
             )
 
             self.value_getters.ranking = panel_helpers.create_choice_input(self.panel, main_sizer,
-                label = "ranking",
+                label = "Ranking",
                 options= ["SPLV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
                 

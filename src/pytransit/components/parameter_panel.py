@@ -218,7 +218,7 @@ def set_panel(new_panel):
         try: panel.method_sizer.Detach(new_panel)
         except Exception as error: print(error)
         
-        panel.method_sizer.Add(new_panel, 0, wx.EXPAND, gui_tools.default_padding)
+        panel.method_sizer.Add(new_panel, 1, wx.ALL|wx.EXPAND, gui_tools.default_padding)
         new_panel.Show()
         panel.method_sizer.Add(
             panel.progress_panel,
@@ -233,7 +233,19 @@ def set_panel(new_panel):
         old_panel = new_panel
         panel.progress_label.Show()
         panel.progress.Show()
-    
+
+def set_instructions(method_name, method_specific_instructions):
+    with gui_tools.nice_error_log:
+        panel.method_info_text.SetLabel(method_name+" :")
+        panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        panel.method_info_text.Show()
+
+        panel.method_instructions.SetLabel(method_specific_instructions)
+        panel.method_instructions.Wrap(-1)
+        panel.method_instructions.Show()
+
+ 
+
 def hide_all_options():
     from pytransit.methods.analysis import methods
     
@@ -248,12 +260,15 @@ def hide_all_options():
         try: method.Hide()
         except Exception as error: pass
     
-    panel.method_info_text.Hide()
-    panel.method_instructions.Hide()
+    #panel.method_info_text.Hide()
+    #panel.method_instructions.Hide()
     panel.method_short_text.Hide()
     panel.method_long_text.Hide()
     panel.method_tn_text.Hide()
     panel.method_desc_text.Hide()
+    
+        
+    
 
 def progress_update(text, percent):
     string = f" {text}   \r"

@@ -21,6 +21,7 @@ if True:
                 wx.ID_ANY,
                 wx.DefaultPosition,
                 wx.DefaultSize,
+                #wx.Size(int(universal.frame.GetSize()[0]/2), wx.DefaultSize[1]),
                 wx.TAB_TRAVERSAL,
             )
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
