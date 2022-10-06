@@ -174,6 +174,10 @@ if HAS_WX:
 
 working_directory = os.getcwd()
 
+def require_r_to_be_installed():
+    if not HAS_R:
+        raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
+
 def fetch_name(filepath):
     return os.path.splitext(ntpath.basename(filepath))[0]
 
@@ -701,3 +705,65 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
         wig_objects = [ each for each in wig_objects if each.id in wig_fingerprints ]
     
     return Wig.selected_as_gathered_data(wig_objects)
+
+corrplot_r_function = None
+def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, metadata, output_path):
+    global corrplot_r_function
+    import numpy
+    # instantiate the corrplot_r_function if needed
+    if not corrplot_r_function:
+        require_r_to_be_installed()
+        r(""" # R function...
+            make_corrplot = function(means,headers,outfilename) { 
+                means = means[,headers] # put cols in correct order
+                suppressMessages(require(corrplot))
+                png(outfilename)
+                corrplot(cor(means))
+                dev.off()
+            }
+        """)
+        corrplot_r_function = globalenv["make_corrplot"]
+    
+    logging.log("Reading combined_wig file")
+    sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(combined_wig)
+
+    logging.log(f"Normalizing using: {normalization}")
+    data, factors = norm_tools.normalize_data(data, normalization)
+
+    labels = filenames_in_comb_wig
+    logging.log("data.shape="+str(data.shape)) #TRI could get rid of these eventually
+
+    # calculate gene means #TRI I should put this in a separate function, which could be used by 'export gene_means'
+    #genes = tnseq_tools.get_gene_info(annotation_path)
+    #data = compute_gene_means(data,genes)
+    genes = tnseq_tools.Genes(wig_list=[],data=data,annotation=annotation_path,position=sites) # normalization=nonorm?
+    means = []
+    for gene in genes:
+        if gene.n>=1:
+            means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
+    means = numpy.vstack(means)
+    logging.log("means.shape="+str(means.shape))
+
+    if avg_by_conditions:
+        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata)
+        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
+        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
+        conditon_list = sorted(list(set(conditions))) # make unique
+        conditions_array = numpy.array(conditions)
+
+        # make a reduced numpy array by average over replicates of each condition
+        count_lists = []
+        for each_condition in conditon_list:
+            count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
+        means = numpy.array(count_lists).transpose()
+
+        labels = conditon_list
+    
+    logging.log("means.shape="+str(means.shape))
+
+    hash,headers = {},labels
+    for i, col in enumerate(headers):
+        hash[col] = FloatVector([x[i] for x in means])
+    df = DataFrame(hash)  
+
+    corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict

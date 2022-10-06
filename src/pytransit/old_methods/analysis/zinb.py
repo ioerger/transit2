@@ -97,12 +97,6 @@ class ZinbMethod(base.MultiConditionMethod):
     @classmethod
     def from_args(self, args, kwargs):
         from pytransit.tools.transit_tools import DEBUG
-        if not HAS_R:
-            print("Error: R and rpy2 (~= 3.0) required to run ZINB analysis.")
-            print(
-                "After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\""
-            )
-            sys.exit(0)
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
             print(ZinbMethod.usage_string)
@@ -662,6 +656,7 @@ class ZinbMethod(base.MultiConditionMethod):
             return any_empty
 
     def Run(self):
+        transit_tools.require_r_to_be_installed()
         from pytransit.tools.transit_tools import EOL, SEPARATOR, rpackages
         logging.log("Starting ZINB analysis")
         start_time = time.time()

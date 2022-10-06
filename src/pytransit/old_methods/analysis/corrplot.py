@@ -101,11 +101,6 @@ class CorrplotMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-        if not HAS_R:
-            raise Exception(f'''
-                Error: R and rpy2 (~= 3.0) required to run corrplot.
-                After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"
-            ''')
         console_tools.handle_help_flag(kwargs, self.usage_string)
         console_tools.enforce_number_of_args(args, self.usage_string, at_least=2)
         
@@ -119,7 +114,7 @@ class CorrplotMethod(base.SingleConditionMethod):
         return self(self.gene_means, outfile=self.outfile)
 
     def Run(self):
-
+        transit_tools.require_r_to_be_installed()
         logging.log("Starting Corrplot")
         start_time = time.time()
 
@@ -178,15 +173,15 @@ class CorrplotMethod(base.SingleConditionMethod):
             hash[col] = FloatVector([x[i] for x in means])
         df = DataFrame(hash)  # can't figure out how to set rownames
 
-        corrplotFunc = self.make_corrplotFunc()
-        corrplotFunc(
+        corrplot_func = self.make_corrplot_func()
+        corrplot_func(
             df, StrVector(headers), StrVector(genenames), self.outfile
         )  # pass headers to put cols in order, since df comes from dict
 
         self.finish()
         logging.log("Finished Corrplot")
 
-    def make_corrplotFunc(self):
+    def make_corrplot_func(self):
         r(
             """ # R function...
 make_corrplot = function(means,headers,genenames,outfilename) { 

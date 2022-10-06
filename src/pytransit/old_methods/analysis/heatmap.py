@@ -101,11 +101,6 @@ class HeatmapMethod(base.SingleConditionMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-        if not HAS_R:
-            raise Exception(f'''
-                Error: R and rpy2 (~= 3.0) required to run corrplot.
-                After installing R, you can install rpy2 using the command \"pip install 'rpy2~=3.0'\"
-            ''')
         console_tools.enforce_number_of_args(args, self.usage_string, at_least=3)
 
         self.filetype = None
@@ -126,6 +121,7 @@ class HeatmapMethod(base.SingleConditionMethod):
         return self(self.infile, outfile=self.outfile)
 
     def Run(self):
+        transit_tools.require_r_to_be_installed()
         if self.filetype != "anova" and self.filetype != "zinb":
             logging.error("filetype not recognized: %s" % self.filetype)
 

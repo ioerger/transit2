@@ -526,8 +526,8 @@ class File:
     
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         with gui_tools.nice_error_log:
-            if not HAS_R:
-                raise Exception(f'''Error: R and rpy2 (~= 3.0) required to run Heatmap''')
+            transit_tools.require_r_to_be_installed()
+            
             headers = None
             data, hits = [], []
             number_of_conditions = -1

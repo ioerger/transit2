@@ -4,6 +4,7 @@ import traceback
 from pytransit.tools import console_tools
 from pytransit.universal_data import universal
 
+
 def main(*args, **kwargs):
     # 
     # Check python version

@@ -415,7 +415,7 @@ if True:
         inner_sample_sizer.Add(show_quality_control_button)
         inner_sample_sizer.Layout()
 
-    sample_button_creators.append(show_quality_control_button)
+    sample_button_creators.append(create_show_quality_control_button)
     
     # 
     # LOESS
