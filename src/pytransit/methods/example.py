@@ -24,12 +24,10 @@ name = "Example" # HANDLE_THIS
 
 @misc.singleton
 class Analysis:
+    description = f"""Perform {name} analysis"""
+    menu_name   = f"{name} - Perform {name} analysis"
+    cli_name    = name.lower()
     identifier  = name
-    short_name  = name.lower()
-    long_name   = name.upper()
-    short_desc  = f"Perform {name} analysis"
-    long_desc   = f"""Perform {name} analysis"""
-    transposons = [ "himar1", "tn5" ]
     
     inputs = LazyDict(
         output_path=None,
@@ -47,7 +45,7 @@ class Analysis:
     ]
     usage_string = f"""
         # HANDLE_THIS
-        Usage: python3 transit.py {short_name} [Optional Arguments]
+        Usage: python3 transit.py {cli_name} [Optional Arguments]
         Optional Arguments:
             -n <string>         :=  Normalization method. Default: -n TTR
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
@@ -55,51 +53,44 @@ class Analysis:
     """.replace("\n        ", "\n")
     
     
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
     def __str__(self):
         return f"""
             Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
+                Menu Name:   {self.menu_name}
+                Cli Name:    {self.cli_name}
+                Description: {self.description}
         """.replace('\n            ','\n').strip()
     
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
     
-    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
         Analysis.define_panel(event)
     
-    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    @gui.add_menu("Analysis", "tn5", menu_name)
     def on_menu_click(event):
         Analysis.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             self.value_getters = LazyDict()
-            # panel_helpers.create_float_getter(self.panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_int_getter(self.panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_file_input(self.panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(self.panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(self.panel, main_sizer, label="")
+            # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
+            # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
+            # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            # panel_helpers.create_choice_input(panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
+            # panel_helpers.create_text_box_getter(panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            # panel_helpers.create_check_box_getter(panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
+            # @panel_helpers.create_button(panel, main_sizer, label="")
             # def when_button_clicked(event):
             #     print("do stuff")
             
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
 
     @staticmethod

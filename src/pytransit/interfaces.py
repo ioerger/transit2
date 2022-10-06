@@ -11,15 +11,14 @@ debugging_enabled = True
 root_folder       = path.join(path.dirname(__file__),"../../")
 if debugging_enabled:
     seed(0)
-    
-# # new design
 
-# gui # instead of universal
+# 
+# design
+# 
+# @cli.add_command("resampling")
+# 
 # @gui.add_menu("Analysis")
 # @gui.add_sample_button("Name")
-
-# @cli.from_args("name")
-
 
 @singleton
 class gui:
@@ -73,5 +72,31 @@ class gui:
                     return function_being_wrapped(*args, **kwargs)
             # attach the function
             parent_menu[last_menu_name] = wrapped_with_helper
+            return function_being_wrapped
+        return decorator
+
+@singleton
+class cli:
+    command_heirarchy = LazyDict()
+    
+    def add_command(self, *args):
+        """
+        Example:
+            @add_command("resampling")
+            def on_run_command(args, kwargs):
+                print(f"someone ran 'python ./src/transit resampling' with these args: {args} ")
+        """
+        parent_command = cli.command_heirarchy
+        for each_name in args[:-1]:
+            if not isinstance(parent_command.get(each_name, None), dict):
+                parent_command[each_name] = LazyDict()
+            # make sure all the child menus exist
+            parent_command = parent_command[each_name]
+        
+        last_name = args[-1]
+        parent_command[last_name] = None
+        
+        def decorator(function_being_wrapped):
+            parent_command[last_name] = function_being_wrapped
             return function_being_wrapped
         return decorator

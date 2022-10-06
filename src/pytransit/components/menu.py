@@ -323,38 +323,6 @@ def create_menu(frame):
     if True:
         view_menu_item = wx.Menu()
         
-        def recursive_create_sub_menu(remaining_hierarchy):
-            parent_menu = wx.Menu()
-            for each_name, each_sub_value in remaining_hierarchy.items():
-                # base-case option
-                if callable(each_sub_value):
-                    on_click_function = each_sub_value
-                    menu_item = wx.MenuItem(
-                        parent_menu,
-                        wx.ID_ANY,
-                        f"&{each_name}",
-                        wx.EmptyString,
-                        wx.ITEM_NORMAL,
-                    )
-                    parent_menu.Append(menu_item)
-                    frame.Bind(wx.EVT_MENU, on_click_function, id=menu_item.GetId())
-                # more heirarchy
-                elif isinstance(each_sub_value, dict):
-                    parent_menu.AppendSubMenu(
-                        recursive_create_sub_menu(each_sub_value),
-                        f"&{each_name}"
-                    )
-            
-            return parent_menu
-        
-        # top level menu items are an edgecase
-        for each_name, each_sub_value in gui.menu_heirarchy.items():
-            menu_bar.Append(
-                recursive_create_sub_menu(each_sub_value),
-                f"&{each_name}"
-            )
-            
-        
         # 
         # Scatter Plot
         # 
@@ -448,41 +416,39 @@ def create_menu(frame):
         menu_bar.Append(view_menu_item, "&View")
     
     # 
-    # Analysis Menu
+    # Automated menu creation
     # 
     if True:
-        analysis_menu = wx.Menu()
-        
-        # 
-        # Himar1 & Tn5
-        # 
-        if True:
-            himar1_menu = wx.Menu()
-            tn5_menu = wx.Menu()
-
-            # 
-            # generate methods
-            # 
-            method_names = sorted(analysis_methods.keys())
-            for name in method_names:
-                method = analysis_methods[name]
-                if hasattr(method, "define_panel"):
-                    menu_callback = method.define_panel
-                    
-                    # 
-                    # himar1 and tn5 menu children
-                    # 
-                    for transposon_name, parent_menu in [ ["himar1", himar1_menu], ["tn5", tn5_menu] ]:
-                        if transposon_name in method.transposons:
-                            temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, method.full_name, wx.EmptyString, wx.ITEM_NORMAL)
-                            frame.Bind(wx.EVT_MENU, menu_callback, temp_menu_item)
-                            parent_menu.Append(temp_menu_item)
+        def recursive_create_sub_menu(remaining_hierarchy):
+            parent_menu = wx.Menu()
+            for each_name, each_sub_value in remaining_hierarchy.items():
+                # base-case option
+                if callable(each_sub_value):
+                    on_click_function = each_sub_value
+                    menu_item = wx.MenuItem(
+                        parent_menu,
+                        wx.ID_ANY,
+                        f"&{each_name}",
+                        wx.EmptyString,
+                        wx.ITEM_NORMAL,
+                    )
+                    parent_menu.Append(menu_item)
+                    frame.Bind(wx.EVT_MENU, on_click_function, id=menu_item.GetId())
+                # more heirarchy
+                elif isinstance(each_sub_value, dict):
+                    parent_menu.AppendSubMenu(
+                        recursive_create_sub_menu(each_sub_value),
+                        f"&{each_name}"
+                    )
             
-            analysis_menu.AppendSubMenu(himar1_menu, "&Himar1 Methods")
-            analysis_menu.AppendSubMenu(tn5_menu, "&Tn5 Methods")
+            return parent_menu
         
-        menu_bar.Append(analysis_menu, "&Analysis")
-
+        # top level menu items are an edgecase
+        for each_name, each_sub_value in gui.menu_heirarchy.items():
+            menu_bar.Append(
+                recursive_create_sub_menu(each_sub_value),
+                f"&{each_name}"
+            )
     # 
     # Help Menu
     # 

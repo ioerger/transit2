@@ -95,11 +95,11 @@ class Analysis:
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
     
-    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
         Analysis.define_panel(event)
     
-    @gui.add_menu("Analysis - New", "tn5", menu_name)
+    @gui.add_menu("Analysis", "tn5", menu_name)
     def on_menu_click(event):
         Analysis.define_panel(event)
 
@@ -531,10 +531,6 @@ class File:
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
-    
-    @gui.add_menu("Testing", "howdy")
-    def _(event):
-        print("howdy!")
     
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
         with gui_tools.nice_error_log:

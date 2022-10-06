@@ -73,7 +73,7 @@ class Analysis:
     def __repr__(self): return f"{self.inputs}"
     def __call__(self): return self
     
-    @gui.add_menu("Analysis - New", "himar1", menu_name)
+    @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
         Analysis.define_panel(event)
     
