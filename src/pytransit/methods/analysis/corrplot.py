@@ -21,7 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
 command_name = sys.argv[0]
 
-name = "corrplot_gui"
+name = "corrplot"
 
 @misc.singleton
 class Analysis:

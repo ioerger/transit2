@@ -1,6 +1,6 @@
 methods = {}
 from .anova              import Analysis; methods["anova"              ] = Analysis()
-from .corrplot_gui       import Analysis; methods["corrplot_gui"       ] = Analysis()
+from .corrplot           import Analysis; methods["corrplot"           ] = Analysis()
 from .gi                 import Analysis; methods["gi"                 ] = Analysis()
 from .gumbel             import Analysis; methods["gumbel"             ] = Analysis()
 from .hmm                import Analysis; methods["hmm"                ] = Analysis()
