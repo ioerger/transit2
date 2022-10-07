@@ -113,7 +113,13 @@ class Analysis:
                 of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
                 enrichment.""".replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIX ME
+                    1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select Input File button below
+                    2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
+                       Select your own using the Select Custom Associations and Select Custom Pathways Buttons
+                    3. Select Pathway Enrichement Method. 
+                        * Ontologizer is best suited for GO Terms
+                    4. [Optional] Adjust parameters
+                    5. Click Run
                 """.replace("\n            ","\n")
                 )
             self.value_getters = LazyDict()
@@ -125,17 +131,17 @@ class Analysis:
                     allowed_extensions='All files (*.*)|*.*')   
 
             self.value_getters.associations_file = panel_helpers.create_file_input(self.panel, main_sizer, 
-                button_label="Select Associations_File", 
+                button_label="Select Custom Associations File", 
                 tooltip_text="FIX ME", popup_title="Select Associations File",
                 allowed_extensions='All files (*.*)|*.*')
 
             self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel, main_sizer, 
-                button_label="Select Pathways File", 
+                button_label="Select Custom Pathways File", 
                 tooltip_text="FIX ME", popup_title="Select Pathways File",
                 allowed_extensions='All files (*.*)|*.*')
 
             self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(self.panel, main_sizer, 
-                button_label="Select Default Files", 
+                button_label="Select from Provided Files", 
                 tooltip_text="FIX ME", 
                 popup_title="")
 
