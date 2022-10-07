@@ -128,13 +128,14 @@ def change_file_action_choices(new_choices):
                 gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
-                wx.DefaultSize,
+                (120, -1),
                 list(new_choices.keys()),
                 0,
             )
             results.file_action_choice_element.SetSelection(0)
-            results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
+            results.header.Add(results.file_action_choice_element, proportion=0, flag=wx.EXPAND, border=gui_tools.default_padding)
             results.header.Layout()
+            gui.frame.Layout()
             
             @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
             def _(event):
