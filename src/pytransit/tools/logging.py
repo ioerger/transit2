@@ -37,28 +37,36 @@ def warn(*args, **kwargs):
         
     import warnings
     string_output = _print_to_string(*args, **kwargs)
-    warnings.warn(string_output)
+    warnings.warn("\n"+string_output, stacklevel=2)
     last_line = string_output.strip().split("\n")[-1]
     set_status(last_line)
 
-def error(*args, **kwargs):
+def error(*args, no_traceback=False, **kwargs):
     import traceback
     if gui.is_active:
         from pytransit.tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
     
-    error_message = _print_to_string(*args, **kwargs)
-    last_line = error_message.strip().split("\n")[-1]
-    try:
-        # this looks dumb but 'raise' is needed to get the traceback
-        raise TransitError(error_message)
-    except Exception as error:
-        traceback.print_exc()
-        if gui.is_active:
-            set_status(last_line)
-        else:
-            exit(1)
+    # this case is different from below because it uses stderr
+    if no_traceback and not gui.is_active:
+        import sys
+        print(*args, file=sys.stderr, **kwargs)
+        exit(1)
+    else:
+        error_message = _print_to_string(*args, **kwargs)
+        last_line = error_message.strip().split("\n")[-1]
+        try:
+            # this looks dumb but 'raise' is needed to get the traceback
+            raise TransitError(error_message)
+        except Exception as error:
+            if not no_traceback:
+                traceback.print_exc()
+            
+            if gui.is_active:
+                set_status(last_line)
+            else:
+                exit(1)
 
 class TransitError(Exception):
     pass
