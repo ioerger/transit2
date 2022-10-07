@@ -2,7 +2,7 @@ from pytransit.interfaces import gui, cli
 
 SpreadSheet = None
 TransitTable = None
-if universal.interface == "gui":
+if gui.is_active:
     import wx.grid
 
     from pytransit.tools import logging, gui_tools

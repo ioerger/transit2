@@ -39,7 +39,7 @@ def handle_traceback(traceback_obj):
 
 def set_status(message):
     frame = universal.frame
-    if frame and universal.interface == "gui" and hasattr(frame, "status_bar"):
+    if frame and gui.is_active and hasattr(frame, "status_bar"):
         frame.status_bar.SetStatusText(message)
         wx.Yield()
 

@@ -143,7 +143,7 @@ def change_file_action_choices(new_choices):
     
 
 def add(path):
-    if universal.interface == "gui":
+    if gui.is_active:
         with gui_tools.nice_error_log:
             # if not a recognized file type
             values_for_result_table = dict(
