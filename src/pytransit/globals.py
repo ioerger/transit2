@@ -9,8 +9,6 @@ from pytransit.basics.misc import flatten_once, no_duplicates, singleton
 
 debugging_enabled = True
 root_folder       = path.join(path.dirname(__file__),"../../")
-if debugging_enabled:
-    seed(0)
 
 # 
 # design
@@ -31,6 +29,12 @@ if debugging_enabled:
     # remove all the junk names (Method = GUI = Analysis, __repr__, __str__, transposons, etc)
     # flatten the methods folder
     # update the export/convert methods
+
+# tools to make
+    # popup tool for convert/export methods
+    # a self-caching 'add file' button (remembers what files have been added)
+    # a dynamically refreshing button area
+    # a multi-select system
 
 @singleton
 class gui:
@@ -89,7 +93,10 @@ class gui:
 
 @singleton
 class cli:
-    command_heirarchy = LazyDict()
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code"
+    }
     
     def add_command(self, *args):
         """
@@ -98,17 +105,11 @@ class cli:
             def on_run_command(args, kwargs):
                 print(f"someone ran 'python ./src/transit resampling' with these args: {args} ")
         """
-        parent_command = cli.command_heirarchy
-        for each_name in args[:-1]:
-            if not isinstance(parent_command.get(each_name, None), dict):
-                parent_command[each_name] = LazyDict()
-            # make sure all the child menus exist
-            parent_command = parent_command[each_name]
-        
-        last_name = args[-1]
-        parent_command[last_name] = None
-        
-        def decorator(function_being_wrapped):
-            parent_command[last_name] = function_being_wrapped
-            return function_being_wrapped
+        def decorator(on_run_command_function):
+            cli.subcommands[args] = on_run_command_function
+            return on_run_command_function
         return decorator
+
+
+if debugging_enabled:
+    seed(0)

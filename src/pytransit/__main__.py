@@ -1,10 +1,77 @@
+#!/usr/bin/env python3
+import os
 import sys
 import traceback
 
-from pytransit.tools import console_tools
+from pytransit.tools import console_tools, logging
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
+@cli.add_command("help")
+def help_command(args=[], kwargs={}):
+    from pytransit.basics import misc, command_line
+    # 
+    # create available subcommand string
+    # 
+    if True:
+        probably_used_transit_executable_directly = os.path.basename(sys.argv[0]) == "transit"
+        # I don't think there is a way to know for sure without writing a C-extension for python and checking the real argv[0]
+        if probably_used_transit_executable_directly:
+            subcommand_prefix      = command_line.color(
+                f" transit ",
+                foreground="bright_blue"
+            )
+        else:
+            subcommand_prefix      = command_line.color(
+                f" python {sys.argv[0]} ",
+                foreground="bright_blue"
+            )
+        
+        # convert to strings
+        subcommands_as_strings = [
+            " ".join(each_subcommand)
+                for each_subcommand in cli.subcommands.keys()
+        ]
+        # add color
+        subcommands_as_strings = [
+            command_line.color(each_subcommand_string+" ", foreground="bright_green")
+                for each_subcommand_string in subcommands_as_strings
+        ]
+        # add prefix
+        subcommands_as_strings = [
+            misc.indent(subcommand_prefix + each_subcommand_string)
+                for each_subcommand_string in subcommands_as_strings
+        ]
+        # combine
+        possible_commands = "\n".join(subcommands_as_strings)
+    
+    # 
+    # user directly asked for help
+    # 
+    if len(args) == 0:
+        logging.error(
+            f"""
+                The available subcommands are:\n{possible_commands}
+                
+                Run a subcommand with no arguments to get subcommand-specific usage/examples
+            """.replace("\n                ","\n"),
+            no_traceback=True,
+        )
+    # 
+    # user failed at something, and we are trying to help
+    # 
+    else:
+        length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
+        given_command = subcommand_prefix + command_line.color(" ".join(args[:length_of_longest_subcommand])+" ", foreground="bright_red")
+        logging.error(
+            f"""
+                I got this subcommand: {given_command}
+                
+                However it didn't overlap with any of the available subcommands:\n{possible_commands}
+            """.replace("\n                ","\n"),
+            no_traceback=True,
+        )
 
+# this wrapper exist to help with test cases. Might be good to change the test cases to elimate the need for it
 def main(*args, **kwargs):
     # 
     # Check python version
@@ -37,7 +104,7 @@ def main(*args, **kwargs):
         # help command
         # 
         if not args and ("h" in kwargs or "-help" in kwargs):
-            print_help()
+            help_command(args, kwargs)
             sys.exit(0)
 
     # 
@@ -48,7 +115,8 @@ def main(*args, **kwargs):
         if not console_tools.check_if_has_wx():
             print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
             print("")
-            print_help()
+            print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
+            help_command(args, kwargs)
         # WX is available
         else:
             import matplotlib
@@ -74,108 +142,31 @@ def main(*args, **kwargs):
     # 
     else:
         import matplotlib
+        matplotlib.use("Agg")
+        
         from pytransit.methods.analysis import methods as analysis_methods
         from pytransit.methods.export   import methods as export_methods
         from pytransit.methods.convert  import methods as convert_methods
         
-        def run(method, args):
-            if hasattr(method, "method"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
-                method = method.method
-                
-            setup_object = None
-            try:
-                setup_object = method.from_args(args, kwargs)
-            # dont show traceback for invalid argument errors
-            except console_tools.InvalidArgumentException as error:
-                print("Error: %s" % str(error))
-                print(method.usage_string)
-                sys.exit(1)
-            # show traceback and usage for all other kinds of errors
-            except Exception as error:
-                print("Error: %s" % str(error))
-                traceback.print_exc()
-                print(method.usage_string)
-                sys.exit(1)
-            
-            if setup_object:
-                method.Run()
-                sys.exit(0)
-        
-        def check_if_missing(kind, selected_name, methods):
-            if selected_name not in methods:
-                print(f"Error: Need to specify the {kind} method.")
-                print(f"Please use one of the known methods (or see documentation to add a new one):")
-                for each_export_method in methods:
-                    print(f"\t - {each_export_method}")
-                print(f"Usage: python {sys.argv[0]} {kind} <method>")
-                sys.exit(1)
-        
-        matplotlib.use("Agg")
-        method_name, *args = args
         # 
-        # Analysis
+        # try to match longest sequence of arguments with a subcommand
         # 
-        if method_name in analysis_methods:
-            run(
-                method=analysis_methods[method_name],
-                args=args,
-            )
+        length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
+        for each_length in reversed(range(1, length_of_longest_subcommand)):
+            subcommand, subcommand_args = args[0:each_length], args[each_length:]
+            if subcommand in cli.subcommands:
+                # if the subcommand exists, run it
+                cli.subcommands[subcommand](args, kwargs)
         
         # 
-        # Export
+        # runtime only gets here if no subcommands were matched
         # 
-        if method_name.lower() == "export":
-            export_method_name = ""
-            if len(args) >= 1:
-                export_method_name, *args = args
-            check_if_missing(kind="export", selected_name=export_method_name, methods=export_methods)
-            run(
-                method=export_methods[export_method_name],
-                args=args,  # skip the first argument for some reason
-            )
-        # 
-        # Convert
-        # 
-        elif method_name.lower() == "convert":
-            convert_method_name = ""
-            if len(args) >= 1:
-                convert_method_name, *args = args
-            
-            check_if_missing(kind="convert", selected_name=convert_method_name, methods=convert_methods)
-            run(
-                method=export_methods[export_method_name],
-                args=args,
-            )
-        # 
-        # Error
-        # 
-        else:
-            print(f"Error: The '{method_name}' method is unknown.")
-            print("Please use one of the known methods (or see documentation to add a new one):")
-            for each_method_name in analysis_methods:
-                print("\t - %s" % each_method_name)
-            print(f"Usage: python {sys.argv[0]} <method>")
+        help_command(args, kwargs)
 
 def run_main():
     from pytransit.tools.console_tools import clean_args
     (args, kwargs) = clean_args(sys.argv[1:])
     main(*args, **kwargs)
 
-def print_help():
-    from pytransit.methods.analysis import methods as analysis_methods
-    print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
-    print("Analysis methods: ")
-    for each_analysis_method in analysis_methods:
-        ## TODO :: Move normalize to separate subcommand?
-        if each_analysis_method == "normalize":
-            continue
-        print(f"    - {each_analysis_method}")
-    print("Other methods: ")
-    print("    - normalize")
-    print("    - convert")
-    print("    - export")
-    print(f"Usage: python {sys.argv[0]} <method>")
-    print(f"Example: python {sys.argv[0]} normalize --help")
-        
 if __name__ == "__main__":
-    main()
+    run_main()
