@@ -32,11 +32,11 @@ command_name = sys.argv[0]
     
 @misc.singleton
 class Analysis:
-    short_name = "hmm"
-    long_name = "HMM"
-    short_desc = "Analysis of genomic regions using a Hidden Markov Model"
-    menu_name   = f"{short_name} - {short_desc}"
-    long_desc = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
+    name = "HMM"
+    identifier  = name
+    cli_name    = name.lower()
+    menu_name   = f"{name} - Analysis of genomic regions using a Hidden Markov Model"
+    description = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
     
     transposons = ["himar1"]
     categories = ["ES", "NE", "GD", "GA"]
@@ -71,25 +71,6 @@ class Analysis:
             -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
             -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
-    
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -620,7 +601,7 @@ class SitesFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -698,7 +679,7 @@ class GeneFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

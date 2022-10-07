@@ -25,12 +25,9 @@ command_name = sys.argv[0]
 @misc.singleton
 class Analysis:
     identifier  = "tnseq_stats"
-    short_name  = "tnseq_stats"
-    long_name   = "tnseq_stats"
-    short_desc  = "Analyze statistics of TnSeq datasets"
-    menu_name   = f"{short_name} - {short_desc}"
-    long_desc   = """Analyze statistics of TnSeq datasets in combined_wig file"""
-    transposons = [ "himar1" ]
+    cli_name    = identifier.lower()
+    menu_name   = f"{identifier} - Analyze statistics of TnSeq datasets"
+    description = """Analyze statistics of TnSeq datasets in combined_wig file"""
     
     inputs = LazyDict(
         combined_wig=None,
@@ -44,25 +41,6 @@ class Analysis:
         "-c", # indicates whether input is list of wig files (comma- or space-separated?), or a combined_wig file
     ]
     usage_string = f"""usage: python3 %s tnseq_stats <file.wig>+ [-o <output_file>]\n       python %s tnseq_stats -c <combined_wig> [-o <output_file>]""" % (sys.argv[0],sys.argv[0])
-    
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -257,7 +235,7 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

@@ -22,17 +22,15 @@ from pytransit.components.panel_helpers import create_normalization_input, creat
 from pytransit.interfaces import gui
 command_name = sys.argv[0]
 
-name = "corrplot"
-
 @misc.singleton
 class Analysis:
-    menu_name  = name
+    name = "Corrplot"
     identifier  = name
-    short_name  = name
-    long_name   = name
-    short_desc  = f"Make corrplot"
-    long_desc   = f"""Make correlation plot"""
-    transposons = [ "himar1"]
+    cli_name    = name.lower()
+    menu_name   = f"{name} - Make correlation plot"
+    description = f"""Make correlation plot"""
+    
+    transposons = [ "himar1" ] # not sure if this is right -- Jeff
     
     inputs = LazyDict(
         output_path=None,
@@ -48,24 +46,6 @@ class Analysis:
     #TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: python3 transit.py corrplot <gene_means> <output.png> [-anova|-zinb]""""
     usage_string = """usage: python3 transit.py corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", menu_name)
     def on_menu_click(event):

@@ -33,13 +33,10 @@ command_name = sys.argv[0]
 @misc.singleton
 class Analysis:
     identifier  = "Resampling"
-    short_name = "resampling"
-    long_name = "Resampling (Permutation test)"
-    short_desc = "Resampling test of conditional essentiality between two conditions"
-    menu_name   = f"{short_name} - {short_desc}"
-    long_desc = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
-
-    transposons = ["himar1", "tn5"]
+    cli_name    = identifier.lower()
+    menu_name   = f"{identifier} - test of conditional essentiality between two conditions"
+    description = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
+    
     columns = [
         "Orf",
         "Name",
@@ -129,25 +126,6 @@ class Analysis:
                             (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
         -sr             :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
     """.replace("\n        ", "\n")
-    
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -556,7 +534,7 @@ class Analysis:
             )
             results_area.add(self.inputs.output_path)
             
-        logging.log(f"Finished running {Analysis.short_name}")
+        logging.log(f"Finished running {Analysis.identifier}")
 
     def preprocess_data(self, position, data):
         (K, N) = data.shape
@@ -815,7 +793,7 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

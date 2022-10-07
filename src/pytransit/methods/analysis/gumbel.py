@@ -34,14 +34,14 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    identifier  = "Gumbel"
-    short_name  = "gumbel"
-    long_name   = "gumbel"
-    short_desc  = "Bayesian analysis of essentiality based on long gaps."
-    menu_name   = f"{short_name} - {short_desc}"
-    long_desc = """Bayesian methods of analyzing longest runs of non-insertions in a row. Estimates the parameters using the MCMC sampling, and estimates posterior probabilities of essentiality. 
+    name = "Gumbel"
+    identifier  = name
+    cli_name    = name.lower()
+    menu_name   = f"{name} - Bayesian analysis of essentiality based on long gaps."
+    description = f"""Bayesian methods of analyzing longest runs of non-insertions in a row. Estimates the parameters using the MCMC sampling, and estimates posterior probabilities of essentiality. 
 
     Reference: DeJesus et al. (2013; Bioinformatics)"""
+    
     transposons = ["himar1"]
     columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
     
@@ -90,24 +90,6 @@ class Analysis:
         -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
         """ % sys.argv[0]
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -258,7 +240,7 @@ class Analysis:
 
             self.write_gumbel_results(G, Z_sample, phi_sample, count, acctot)
             results_area.add(self.inputs.output_path)
-            logging.log(f"Finished running {Analysis.short_name}")       
+            logging.log(f"Finished running {Analysis.identifier}")       
 
     def calc_gumbel(self,G):
         logging.log("Starting Gumbel Method")
@@ -571,7 +553,7 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

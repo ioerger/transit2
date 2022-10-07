@@ -31,12 +31,11 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    identifier  = "TTNFitness"
-    short_name  = "ttnfitness"
-    long_name   = "ttnfitness"
-    short_desc  = "Analyze fitness effect of (non-essential) genes"
-    menu_name   = f"{short_name} - {short_desc}"
-    long_desc   = """Analyze fitness effect of (non-essential) genes using a predictive model that corrects for the bias in Himar1 insertion probabilities based on nucleotides around each TA site"""
+    name = "TTN Fitness"
+    identifier  = name.replace(" ", "")
+    cli_name    = name.lower()
+    menu_name   = f"{name} - Analyze fitness effect of (non-essential) genes"
+    description = """Analyze fitness effect of (non-essential) genes using a predictive model that corrects for the bias in Himar1 insertion probabilities based on nucleotides around each TA site"""
     transposons = [ "himar1" ] # definitely Himar1 only
     
     inputs = LazyDict(
@@ -51,27 +50,8 @@ class Analysis:
         sites_output_path = None,
         normalization = "TTR",
     )
-    
 
     usage_string = f"""usage: python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -702,7 +682,7 @@ class GenesFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -803,7 +783,7 @@ class SitesFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

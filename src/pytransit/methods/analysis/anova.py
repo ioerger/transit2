@@ -25,14 +25,13 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    menu_name = "Anova"
-    identifier  = "Anova"
-    short_name  = "anova"
-    long_name   = "ANOVA"
-    short_desc  = "Perform Anova analysis"
-    long_desc   = """Perform Anova analysis"""
-    transposons = [ "himar1", "tn5" ]
+    name = "Anova"
+    identifier  = name
+    cli_name    = name.lower()
+    menu_name   = f"{name} - Perform Anova analysis"
+    description = """Perform Anova analysis"""
     
+    transposons = ["himar1", "tn5"]
     significance_threshold = 0.05
     
     inputs = LazyDict(
@@ -76,24 +75,6 @@ class Analysis:
             -alpha <N> := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
             -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
-    
-    
-    wxobj = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -527,7 +508,7 @@ class File:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

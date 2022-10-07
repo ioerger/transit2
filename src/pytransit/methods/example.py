@@ -20,14 +20,13 @@ from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 command_name = sys.argv[0]
 
-name = "Example" # HANDLE_THIS
-
 @misc.singleton
 class Analysis:
-    description = f"""Perform {name} analysis"""
-    menu_name   = f"{name} - Perform {name} analysis"
-    cli_name    = name.lower()
+    name = "Example" # HANDLE_THIS
     identifier  = name
+    cli_name    = name.lower()
+    menu_name   = f"{name} - Perform {name} analysis"
+    description = f"""Perform {name} analysis"""
     
     inputs = LazyDict(
         output_path=None,
@@ -51,18 +50,6 @@ class Analysis:
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
-    
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Menu Name:   {self.menu_name}
-                Cli Name:    {self.cli_name}
-                Description: {self.description}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -157,7 +144,7 @@ class Analysis:
         # ask for output path(s)
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.short_name}_output.dat",
+            default_file_name=f"{Analysis.identifier}_output.dat",
             output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
@@ -264,7 +251,7 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

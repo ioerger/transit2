@@ -32,13 +32,10 @@ command_name = sys.argv[0]
 class Analysis:
     name = "PathwayEnrichment"
     identifier  = name
-    short_name  = name.lower()
-    long_name   = name.upper()
-    short_desc  = f"Perform {name} analysis"
-    menu_name   = f"{short_name} - {short_desc}"
-    long_desc   = f"""Perform {name} analysis"""
+    cli_name    = name.lower()
+    menu_name   = f"{identifier} - Perform {name} analysis"
+    description = f"""Perform {name} analysis"""
     rows = []
-    transposons = [ "himar1" , "tn5"]
 
     inputs = LazyDict(
         resampling_file = None,
@@ -73,24 +70,6 @@ class Analysis:
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
         """ % sys.argv[0]
     
-    
-    wxobj = None
-    panel = None
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
-    
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
         Analysis.define_panel(event)
@@ -104,7 +83,7 @@ class Analysis:
         self.define_panel()
 
     def define_panel(self,_=None):
-        from pytransit.components.panel_helpers import Panel
+        from pytransit.components.parameter_panel import Panel
         with Panel() as (self.panel, main_sizer):
             self.value_getters = LazyDict()
 
@@ -177,7 +156,7 @@ class Analysis:
         
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.short_name}_output.dat",
+            default_file_name=f"{Analysis.identifier}_output.dat",
             output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )   
         return Analysis
@@ -854,7 +833,7 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()

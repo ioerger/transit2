@@ -31,12 +31,11 @@ command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
-    menu_name   = "Genetic Interaction"
+    name = "Genetic Interaction"
     identifier  = "GI"
-    short_name  = "gi"
-    long_name   = "Genetic Interaction"
-    short_desc  = "Genetic Interaction analysis"
-    long_desc   = """Genetic Interaction analysis"""
+    cli_name    = identifier.lower()
+    menu_name   = f"{identifier} - Genetic Interaction analysis"
+    description = """Genetic Interaction analysis"""
     transposons = [ "himar1" ]
     
     inputs = LazyDict(
@@ -88,24 +87,6 @@ class Analysis:
       -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
       -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
       -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05"""
-    
-    wxobj = None
-    panel = None
-    
-    def __init__(self, *args, **kwargs):
-        self.full_name        = f"[{self.short_name}]  -  {self.short_desc}"
-    
-    def __str__(self):
-        return f"""
-            Analysis Method:
-                Short Name:  {self.short_name}
-                Long Name:   {self.long_name}
-                Short Desc:  {self.short_desc}
-                Long Desc:   {self.long_desc}
-        """.replace('\n            ','\n').strip()
-    
-    def __repr__(self): return f"{self.inputs}"
-    def __call__(self): return self
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -723,7 +704,7 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.short_name}
+            File for {Analysis.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
