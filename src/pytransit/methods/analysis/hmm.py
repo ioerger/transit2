@@ -26,7 +26,6 @@ import pytransit.components.file_display as file_display
 import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
 import pytransit.basics.misc as misc
-from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
     

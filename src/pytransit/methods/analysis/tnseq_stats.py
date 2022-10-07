@@ -18,7 +18,6 @@ from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
-from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 

@@ -28,7 +28,6 @@ import pytransit.tools.stat_tools as stat_tools
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, informative_iterator
-from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
@@ -109,16 +108,17 @@ class Analysis:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.short_name,
-                method_long_text = self.long_name,
+                method_short_text=self.name,
+                method_long_text="",
                 method_descr="""
-                The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
-                at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
-                the probability of this using a Bayesian model.""".replace("\n            ","\n"),
+                    The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
+                    at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
+                    the probability of this using a Bayesian model.
+                """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIX ME
+                    FIXME
                 """.replace("\n            ","\n")
-                )
+            )
                 
             self.value_getters = LazyDict()
             

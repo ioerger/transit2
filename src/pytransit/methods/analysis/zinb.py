@@ -19,7 +19,6 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.interfaces import gui
 command_name = sys.argv[0]
 
 
@@ -67,23 +66,24 @@ class Analysis:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.short_name,
-                method_long_text = self.long_name,
+                method_short_text=self.name,
+                method_long_text="",
                 method_descr="""
-                The ZINB (Zero-Inflated Negative Binomial) method is used to determine which genes exhibit statistically significant variability across multiple conditions, 
-                in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others). Like ANOVA, the ZINB method takes 
-                a combined_wig file (which combines multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which 
-                experimental conditions).
+                    The ZINB (Zero-Inflated Negative Binomial) method is used to determine which genes exhibit statistically significant variability across multiple conditions, 
+                    in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others). Like ANOVA, the ZINB method takes 
+                    a combined_wig file (which combines multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which 
+                    experimental conditions).
 
-                ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes 
-                than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read 
-                counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
+                    ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes 
+                    than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read 
+                    counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
 
-                Note: ZINB analysis requires R (statistical analysis software) to be installed on your system, along with the ‘pscl’ R package. See Installation Instructions.""".replace("\n            ","\n"),
+                    Note: ZINB analysis requires R (statistical analysis software) to be installed on your system, along with the ‘pscl’ R package. See Installation Instructions.
+                """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIX ME
+                    FIXME
                 """.replace("\n            ","\n")
-                )
+            )
 
             self.value_getters = LazyDict()
             # HANDLE_THIS

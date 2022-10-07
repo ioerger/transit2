@@ -25,7 +25,6 @@ import pytransit.components.results_area as results_area
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
@@ -114,7 +113,7 @@ class Analysis:
                     Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
                 """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIX ME
+                    FIXME
                 """.replace("\n            ","\n")
             )
 

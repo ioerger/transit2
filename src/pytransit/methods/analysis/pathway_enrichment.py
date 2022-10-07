@@ -23,7 +23,6 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 from pytransit.tools.gui_tools import nice_error_log
-from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
@@ -103,7 +102,7 @@ class Analysis:
                     enrichment.
                 """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIX ME
+                    FIXME
                 """.replace("\n            ","\n")
             )
             self.value_getters = LazyDict()
@@ -111,22 +110,22 @@ class Analysis:
             if Analysis.inputs.resampling_file == None:
                 self.value_getters.reampling_file = panel_helpers.create_file_input(panel, main_sizer, 
                     button_label="Select Input File", 
-                    tooltip_text="FIX ME", popup_title="Select File with Hits",
+                    tooltip_text="FIXME", popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*')   
 
             self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Associations_File", 
-                tooltip_text="FIX ME", popup_title="Select Associations File",
+                tooltip_text="FIXME", popup_title="Select Associations File",
                 allowed_extensions='All files (*.*)|*.*')
 
             self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Pathways File", 
-                tooltip_text="FIX ME", popup_title="Select Pathways File",
+                tooltip_text="FIXME", popup_title="Select Pathways File",
                 allowed_extensions='All files (*.*)|*.*')
 
             self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select Default Files", 
-                tooltip_text="FIX ME", 
+                tooltip_text="FIXME", 
                 popup_title="")
 
     

@@ -3,7 +3,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 def log(message, *args, **kwargs):
     import inspect
     import os
-    if gui.interface == 'gui':
+    if gui.is_active:
         from pytransit.tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
@@ -26,11 +26,11 @@ def log(message, *args, **kwargs):
         file_name = file_name[0:len(file_name)-3]
     
     print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
-    if gui.interface == 'gui':
+    if gui.is_active:
         set_status(message)
 
 def warn(*args, **kwargs):
-    if gui.interface == 'gui':
+    if gui.is_active:
         from pytransit.tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
@@ -43,7 +43,7 @@ def warn(*args, **kwargs):
 
 def error(*args, **kwargs):
     import traceback
-    if gui.interface == 'gui':
+    if gui.is_active:
         from pytransit.tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
@@ -55,7 +55,7 @@ def error(*args, **kwargs):
         raise TransitError(error_message)
     except Exception as error:
         traceback.print_exc()
-        if gui.interface == 'gui':
+        if gui.is_active:
             set_status(last_line)
         else:
             exit(1)
