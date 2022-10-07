@@ -20,7 +20,7 @@ root_folder       = path.join(path.dirname(__file__),"../../")
 # @gui.add_results_button("Name")
 
 # TODO:
-    # remove 'universal' in favor of gui/cli
+    # rename "tools" to "specific_tools" and "basics" to "generic_tools"
     # change "Analysis" to "Method"
     # create abstraction for sample-area buttons
     # update __main__ so that it uses the cli singleton
