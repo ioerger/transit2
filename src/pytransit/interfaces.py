@@ -19,6 +19,17 @@ if debugging_enabled:
 # 
 # @gui.add_menu("Analysis")
 # @gui.add_sample_button("Name")
+# @gui.add_results_button("Name")
+
+# TODO:
+    # remove 'universal' in favor of gui/cli
+    # create abstraction for sample-area buttons
+    # update __main__ so that it uses the cli singleton
+    # update each Analysis method to use the @cli.add_command
+    # make the run button callback more explicit
+    # remove all the junk names (Method = GUI = Analysis, __repr__, __str__, transposons, etc)
+    # flatten the methods folder
+    # update the export/convert methods
 
 @singleton
 class gui:

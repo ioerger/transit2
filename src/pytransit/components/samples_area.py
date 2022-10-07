@@ -211,275 +211,186 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
 # Buttons
 # 
 if True:
+    # Helper function for the button below
+    def create_sample_area_button(name, size=(150, -1)):
+        show_thing_button = None
+        def decorator(function_being_wrapped):
+            def create_show_thing_button(sample_table, inner_sample_sizer):
+                nonlocal show_thing_button
+                with gui_tools.nice_error_log:
+                    # hide an old button if it exists
+                    if show_thing_button != None:
+                        show_thing_button.Hide()
+                    
+                    show_thing_button = GenBitmapTextButton(
+                        universal.frame,
+                        1,
+                        gui_tools.bit_map,
+                        name,
+                        size=wx.Size(*size),
+                    )
+                    show_thing_button.SetBackgroundColour(gui_tools.color.light_blue)
+                    
+                    # 
+                    # callback
+                    # 
+                    @gui_tools.bind_to(show_thing_button, wx.EVT_BUTTON)
+                    def click_show_thing(event):
+                        return function_being_wrapped(event)
+                
+                inner_sample_sizer.Add(show_thing_button)
+                inner_sample_sizer.Layout()
+            
+            sample_button_creators.append(create_show_thing_button)
+            return create_show_thing_button
+        return decorator
+    
     # 
     # Show Table
     # 
-    show_table_button = None
-    def create_show_table_button(sample_table, inner_sample_sizer):
-        global show_table_button
-        with gui_tools.nice_error_log:
-            # hide an old button if it exists
-            if show_table_button != None:
-                show_table_button.Hide()
-            
-            show_table_button = GenBitmapTextButton(
-                universal.frame,
-                1,
-                gui_tools.bit_map,
-                "Show Table",
-                size=wx.Size(150, -1),
-            )
-            show_table_button.SetBackgroundColour(gui_tools.color.light_blue)
-            
-            # 
-            # callback
-            # 
-            @gui_tools.bind_to(show_table_button, wx.EVT_BUTTON)
-            def click_show_table(event):
-                selected_wigs = universal.selected_samples or universal.samples
-                
-                # 
-                # heading (only if single wig)
-                # 
-                heading = ""
-                if len(selected_wigs) == 1:
-                    heading = human_readable_data(selected_wigs[0].extra_data)
-                
-                # 
-                # row data
-                # 
-                column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
-                positions = selected_wigs[0].positions
-                rows = []
-                for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
-                    rows.append({
-                        column_name: cell_value
-                            for column_name, cell_value in zip(column_names, row_data)
-                    })
-                
-                SpreadSheet(
-                    title="Read Counts",
-                    heading=heading,
-                    column_names=column_names,
-                    rows=rows,
-                    sort_by=[]
-                ).Show()
+    @create_sample_area_button(name="Show Table", size=(100, -1))
+    def click_show_table(event):
+        selected_wigs = universal.selected_samples or universal.samples
         
-        inner_sample_sizer.Add(show_table_button)
-        inner_sample_sizer.Layout()
-
-    sample_button_creators.append(create_show_table_button)
+        # 
+        # heading (only if single wig)
+        # 
+        heading = ""
+        if len(selected_wigs) == 1:
+            heading = human_readable_data(selected_wigs[0].extra_data)
+        
+        # 
+        # row data
+        # 
+        column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
+        positions = selected_wigs[0].positions
+        rows = []
+        for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
+            rows.append({
+                column_name: cell_value
+                    for column_name, cell_value in zip(column_names, row_data)
+            })
+        
+        SpreadSheet(
+            title="Read Counts",
+            heading=heading,
+            column_names=column_names,
+            rows=rows,
+            sort_by=[]
+        ).Show()
     
     # 
     # Track View
     # 
-    show_track_view_button = None
-    def create_show_track_view_button(sample_table, inner_sample_sizer):
-        global show_track_view_button
-        # hide an old button if it exists
-        if show_track_view_button != None:
-            show_track_view_button.Hide()
-        
-        show_track_view_button = GenBitmapTextButton(
-            universal.frame,
-            2,
-            gui_tools.bit_map,
-            "Track View",
-            size=wx.Size(100, -1),
-        )
-        show_track_view_button.SetBackgroundColour(gui_tools.color.light_blue)
-        
-        # 
-        # callback
-        # 
-        @gui_tools.bind_to(show_track_view_button, wx.EVT_BUTTON)
-        def click_show_track_view(event):
-            with gui_tools.nice_error_log:
-                import pytransit.components.trash as trash
-                annotation_path = universal.annotation_path
-                wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
+    @create_sample_area_button(name="Track View", size=(120, -1))
+    def click_show_track_view(event):
+        with gui_tools.nice_error_log:
+            import pytransit.components.trash as trash
+            annotation_path = universal.annotation_path
+            wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
 
-                if wig_ids and annotation_path:
-                    if universal.debugging_enabled:
-                        logging.log(
-                            "Visualizing counts for: %s"
-                            % ", ".join(wig_ids)
-                        )
-                    view_window = trash.TrashFrame(universal.frame, wig_ids, annotation_path, gene="")
-                    view_window.Show()
-                elif not wig_ids:
-                    # NOTE: was a popup
-                    logging.error("Error: No samples selected.")
-                    return
-                else:
-                    # NOTE: was a popup
-                    logging.error("Error: No annotation file selected.")
-                    return
-        
-        inner_sample_sizer.Add(show_track_view_button)
-        inner_sample_sizer.Layout()
-
-    sample_button_creators.append(create_show_track_view_button)
+            if wig_ids and annotation_path:
+                if universal.debugging_enabled:
+                    logging.log(
+                        "Visualizing counts for: %s"
+                        % ", ".join(wig_ids)
+                    )
+                view_window = trash.TrashFrame(universal.frame, wig_ids, annotation_path, gene="")
+                view_window.Show()
+            elif not wig_ids:
+                # NOTE: was a popup
+                logging.error("Error: No samples selected.")
+                return
+            else:
+                # NOTE: was a popup
+                logging.error("Error: No annotation file selected.")
+                return
     
     # 
     # Scatter Plot
     # 
-    show_scatter_plot_button = None
-    def create_show_scatter_plot_button(sample_table, inner_sample_sizer):
-        import pytransit.components.qc_display as qc_display
-        global show_scatter_plot_button
-        # hide an old button if it exists
-        if show_scatter_plot_button != None:
-            show_scatter_plot_button.Hide()
-        
-        show_scatter_plot_button = GenBitmapTextButton(
-            universal.frame,
-            2,
-            gui_tools.bit_map,
-            "Scatter Plot",
-            size=wx.Size(120, -1),
-        )
-        show_scatter_plot_button.SetBackgroundColour(gui_tools.color.light_blue)
-        
-        # 
-        # callback
-        # 
-        @gui_tools.bind_to(show_scatter_plot_button, wx.EVT_BUTTON)
-        def click_show_scatter_plot(event):
-            with gui_tools.nice_error_log:
-                import numpy
-                import matplotlib
-                import matplotlib.pyplot as plt
-                from pytransit.tools import stat_tools
-                selected_samples = universal.selected_samples
-                if len(selected_samples) == 2:
-                    logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
-                    from pytransit.tools.transit_tools import gather_sample_data_for
-                    data, position = gather_sample_data_for(selected_samples=True)
-                    x = data[0, :]
-                    y = data[1, :]
+    @create_sample_area_button(name="Scatter Plot", size=(120, -1))
+    def create_show_scatter_plot_button(event):
+        with gui_tools.nice_error_log:
+            import numpy
+            import matplotlib
+            import matplotlib.pyplot as plt
+            from pytransit.tools import stat_tools
+            selected_samples = universal.selected_samples
+            if len(selected_samples) == 2:
+                logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
+                from pytransit.tools.transit_tools import gather_sample_data_for
+                data, position = gather_sample_data_for(selected_samples=True)
+                x = data[0, :]
+                y = data[1, :]
 
-                    plt.plot(x, y, "bo")
-                    plt.title("Scatter plot - Reads at TA sites")
-                    plt.xlabel(selected_samples[0].id)
-                    plt.ylabel(selected_samples[1].id)
-                    plt.show()
-                else:
-                    # NOTE: was a popup
-                    logging.error(f"Select 2 samples (not {len(selected_samples)})")
-        
-        inner_sample_sizer.Add(show_scatter_plot_button)
-        inner_sample_sizer.Layout()
-
-    sample_button_creators.append(create_show_scatter_plot_button)
+                plt.plot(x, y, "bo")
+                plt.title("Scatter plot - Reads at TA sites")
+                plt.xlabel(selected_samples[0].id)
+                plt.ylabel(selected_samples[1].id)
+                plt.show()
+            else:
+                # NOTE: was a popup
+                logging.error(f"Select 2 samples (not {len(selected_samples)})")
     
     # 
     # Quality Control
     # 
-    show_quality_control_button = None
-    def create_show_quality_control_button(sample_table, inner_sample_sizer):
-        import pytransit.components.qc_display as qc_display
-        global show_quality_control_button
-        # hide an old button if it exists
-        if show_quality_control_button != None:
-            show_quality_control_button.Hide()
-        
-        show_quality_control_button = GenBitmapTextButton(
-            universal.frame,
-            2,
-            gui_tools.bit_map,
-            "Quality Control",
-            size=wx.Size(100, -1),
-        )
-        show_quality_control_button.SetBackgroundColour(gui_tools.color.light_blue)
-        
-        # 
-        # callback
-        # 
-        @gui_tools.bind_to(show_quality_control_button, wx.EVT_BUTTON)
-        def click_show_quality_control(event):
-            with gui_tools.nice_error_log:
-                wig_ids = [ each_sample.id for each_sample in universal.selected_samples ] 
-                number_of_files = len(wig_ids)
+    @create_sample_area_button(name="Quality Control", size=(130,-1))
+    def click_show_quality_control(event):
+        with gui_tools.nice_error_log:
+            wig_ids = [ each_sample.id for each_sample in universal.selected_samples ] 
+            number_of_files = len(wig_ids)
 
-                if number_of_files <= 0:
-                    raise Exception(f'''No Datasets selected, unable to run''')
-                else:
-                    logging.log(f"Displaying results: {wig_ids}")
-                    try:
-                        qc_window = qc_display.QualityControlFrame(universal.frame, wig_ids)
-                        qc_window.Show()
-                    except Exception as error:
-                        raise Exception(f"Error occured displaying file: {error}")
-        
-        inner_sample_sizer.Add(show_quality_control_button)
-        inner_sample_sizer.Layout()
-
-    sample_button_creators.append(create_show_quality_control_button)
+            if number_of_files <= 0:
+                raise Exception(f'''No Datasets selected, unable to run''')
+            else:
+                logging.log(f"Displaying results: {wig_ids}")
+                try:
+                    qc_window = qc_display.QualityControlFrame(universal.frame, wig_ids)
+                    qc_window.Show()
+                except Exception as error:
+                    raise Exception(f"Error occured displaying file: {error}")
     
     # 
     # LOESS
     # 
-    show_loess_button = None
-    def create_show_loess_button(sample_table, inner_sample_sizer):
-        global show_loess_button
-        # hide an old button if it exists
-        if show_loess_button != None:
-            show_loess_button.Hide()
-        
-        show_loess_button = GenBitmapTextButton(
-            universal.frame,
-            2,
-            gui_tools.bit_map,
-            "LOESS",
-            size=wx.Size(100, -1),
-        )
-        show_loess_button.SetBackgroundColour(gui_tools.color.light_blue)
-        
-        # 
-        # callback
-        # 
-        @gui_tools.bind_to(show_loess_button, wx.EVT_BUTTON)
-        def click_show_loess(event):
-            with gui_tools.nice_error_log:
-                import numpy
-                import matplotlib
-                import matplotlib.pyplot as plt
-                from pytransit.tools import stat_tools
-                from pytransit.universal_data import universal
-                from pytransit.tools.tnseq_tools import Wig
-                
-                
-                # 
-                # get selection
-                # 
-                wig_objects = universal.selected_samples  or  universal.samples
-                
-                #
-                # get read_counts and positions
-                # 
-                read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
-                number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-                window = 100
-                for each_path_index in range(number_of_wigs):
+    @create_sample_area_button(name="LOESS", size=(100,-1))
+    def click_show_loess(event):
+        with gui_tools.nice_error_log:
+            import numpy
+            import matplotlib
+            import matplotlib.pyplot as plt
+            from pytransit.tools import stat_tools
+            from pytransit.universal_data import universal
+            from pytransit.tools.tnseq_tools import Wig
+            
+            
+            # 
+            # get selection
+            # 
+            wig_objects = universal.selected_samples  or  universal.samples
+            
+            #
+            # get read_counts and positions
+            # 
+            read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
+            number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
+            window = 100
+            for each_path_index in range(number_of_wigs):
 
-                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                    x_w = numpy.zeros(number_of_windows)
-                    y_w = numpy.zeros(number_of_windows)
-                    for window_index in range(number_of_windows):
-                        x_w[window_index] = window * window_index
-                        y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-                    
-                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                    plt.plot(x_w, y_w, "g+")
-                    plt.plot(x_w, y_smooth, "b-")
-                    plt.xlabel("Genomic Position (TA sites)")
-                    plt.ylabel("Reads per 100 insertion sites")
-                    
-                    plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-                    plt.show()
-        
-        inner_sample_sizer.Add(show_loess_button)
-        inner_sample_sizer.Layout()
-
-    sample_button_creators.append(create_show_loess_button)
+                number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
+                x_w = numpy.zeros(number_of_windows)
+                y_w = numpy.zeros(number_of_windows)
+                for window_index in range(number_of_windows):
+                    x_w[window_index] = window * window_index
+                    y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
+                
+                y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                plt.plot(x_w, y_w, "g+")
+                plt.plot(x_w, y_smooth, "b-")
+                plt.xlabel("Genomic Position (TA sites)")
+                plt.ylabel("Reads per 100 insertion sites")
+                
+                plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
+                plt.show()
