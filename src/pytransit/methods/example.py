@@ -86,49 +86,49 @@ class Analysis:
         # global data
         # 
         # HANDLE_THIS
-        universal.interface # "gui" or "console"
-        universal.frame # self.wxobj equivalent
-        universal.busy_running_method # Boolean, is true when any .Run() is started but not finished
-        universal.annotation_path # string, may need to become a list of strings
-        universal.conditions # list of Condition objects
-        universal.conditions[0].name # string
-        universal.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
-        universal.combined_wigs # list of CombinedWig objects
-        universal.combined_wigs[0].main_path
-        universal.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in universal.combined_wigs ]
-        universal.combined_wigs[0].samples # list of Wig objects
-        universal.combined_wigs[0].samples[0].id # id from the metadata file
-        universal.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
-        universal.combined_wigs[0].samples[0].condition_names # a list of strings
-        universal.combined_wigs[0].samples[0].positions # list of ints
-        universal.combined_wigs[0].samples[0].insertion_counts # list of numbers
-        universal.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
-        universal.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
-        universal.combined_wigs[0].samples[0].extra_data.count
-        universal.combined_wigs[0].samples[0].extra_data.sum
-        universal.combined_wigs[0].samples[0].extra_data.non_zero_mean
-        universal.combined_wigs[0].samples[0].extra_data.non_zero_median
-        universal.combined_wigs[0].samples[0].extra_data.density
-        universal.combined_wigs[0].samples[0].extra_data.mean
-        universal.combined_wigs[0].samples[0].extra_data.max
-        universal.combined_wigs[0].samples[0].extra_data.skew
-        universal.combined_wigs[0].samples[0].extra_data.kurtosis
-        universal.combined_wigs[0].metadata # CombinedWigMetadata object
-        universal.combined_wigs[0].metadata.path
-        universal.combined_wigs[0].metadata.headers
-        universal.combined_wigs[0].metadata.rows
-        universal.combined_wigs[0].metadata.conditions
-        universal.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-        universal.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
-        universal.combined_wigs[0].metadata.id_for(wig_fingerprint)
-        universal.combined_wigs[0].metadata.fingerprints_for(condition_name)
-        universal.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        gui.is_active # false if using command line
+        gui.frame # self.wxobj equivalent
+        gui.busy_running_method # Boolean, is true when any .Run() is started but not finished
+        gui.annotation_path # string, may need to become a list of strings
+        gui.conditions # list of Condition objects
+        gui.conditions[0].name # string
+        gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
+        gui.combined_wigs # list of CombinedWig objects
+        gui.combined_wigs[0].main_path
+        gui.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
+        gui.combined_wigs[0].samples # list of Wig objects
+        gui.combined_wigs[0].samples[0].id # id from the metadata file
+        gui.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
+        gui.combined_wigs[0].samples[0].condition_names # a list of strings
+        gui.combined_wigs[0].samples[0].positions # list of ints
+        gui.combined_wigs[0].samples[0].insertion_counts # list of numbers
+        gui.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
+        gui.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
+        gui.combined_wigs[0].samples[0].extra_data.count
+        gui.combined_wigs[0].samples[0].extra_data.sum
+        gui.combined_wigs[0].samples[0].extra_data.non_zero_mean
+        gui.combined_wigs[0].samples[0].extra_data.non_zero_median
+        gui.combined_wigs[0].samples[0].extra_data.density
+        gui.combined_wigs[0].samples[0].extra_data.mean
+        gui.combined_wigs[0].samples[0].extra_data.max
+        gui.combined_wigs[0].samples[0].extra_data.skew
+        gui.combined_wigs[0].samples[0].extra_data.kurtosis
+        gui.combined_wigs[0].metadata # CombinedWigMetadata object
+        gui.combined_wigs[0].metadata.path
+        gui.combined_wigs[0].metadata.headers
+        gui.combined_wigs[0].metadata.rows
+        gui.combined_wigs[0].metadata.conditions
+        gui.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
+        gui.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        gui.combined_wigs[0].metadata.id_for(wig_fingerprint)
+        gui.combined_wigs[0].metadata.fingerprints_for(condition_name)
+        gui.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
         
         # 
         # get annotation
         # 
         # HANDLE_THIS
-        Analysis.inputs.annotation_path = universal.annotation_path
+        Analysis.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 

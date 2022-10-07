@@ -138,14 +138,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        wig_group = universal.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+        wig_group = gui.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
         Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-        Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+        Analysis.inputs.metadata_path = gui.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
 
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.annotation_path
+        Analysis.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
@@ -587,7 +587,7 @@ class Analysis:
             self.output = open(self.inputs.output_path, "w")
         self.output.write("#%s\n" % self.identifier)
 
-        if universal.interface=="console":
+        if gui.interface=="console":
           self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
 
         now = str(datetime.datetime.now())

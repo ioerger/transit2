@@ -11,7 +11,7 @@ class Button:
             self.events.on_click
     """
     def __init__(self, text="", background_color=None, default_size=(250, -1), min_size=None, max_size=None):
-        frame       = universal.frame
+        frame       = gui.frame
         
         # 
         # wx_object

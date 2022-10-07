@@ -322,7 +322,7 @@ class HMMMethod(base.SingleConditionMethod):
 
         # Get Annotation file
         from pytransit.interfaces import gui, cli
-        annotation_path = universal.annotation_path
+        annotation_path = gui.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

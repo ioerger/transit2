@@ -110,14 +110,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        combined_wig = universal.combined_wigs[0]
+        combined_wig = gui.combined_wigs[0]
         Analysis.inputs.combined_wig = combined_wig.main_path
         Analysis.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.annotation_path
+        Analysis.inputs.annotation_path = gui.annotation_path
         if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
             return None
         
@@ -145,7 +145,7 @@ class Analysis:
         if not Analysis.inputs.output_path:
             return None
         
-        Analysis.inputs.data_sources = [ universal.combined_wigs[0].main_path ]
+        Analysis.inputs.data_sources = [ gui.combined_wigs[0].main_path ]
         
         # 
         # extract universal data
@@ -318,7 +318,7 @@ class Analysis:
                     rows=rows,
                     column_names=SitesFile.column_names,
                     extra_info=dict(
-                        gui_or_cli=universal.interface,
+                        gui_or_cli=gui.interface,
                         cli_args=sys.argv,
                         stats=dict(
                             mean=float(numpy.average(reads_nz)),

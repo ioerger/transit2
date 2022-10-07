@@ -11,10 +11,11 @@ naming discussion:
 replacements:
 ```shell
 sd '"Orf"' '"ORF"' src/**/*.py
-sd 'from pytransit.universal_data import universal' 'from pytransit.interfaces import gui, cli' src/**/*.py
-sd 'from pytransit.universal_data import universal' 'from pytransit.interfaces import gui, cli' src/**/*.py
-sd 'universal.interface == "gui"' 'gui.is_active'       src/**/*.py
-sd 'universal.interface != "gui"' 'not gui.is_active'   src/**/*.py
-sd 'universal.interface != "cli"' 'gui.is_active'       src/**/*.py
-sd 'universal.interface == "cli"' 'not gui.is_active'   src/**/*.py
+sd 'from pytransit.universal_data import universal'   'from pytransit.interfaces import gui, cli' src/**/*.py
+sd 'from pytransit.universal_data import universal'   'from pytransit.interfaces import gui, cli' src/**/*.py
+sd 'universal\.interface == "gui"'                    'gui.is_active'                             src/**/*.py
+sd 'universal\.interface != "gui"'                    'not gui.is_active'                         src/**/*.py
+sd 'universal\.interface != "cli"'                    'gui.is_active'                             src/**/*.py
+sd 'universal\.interface == "cli"'                    'not gui.is_active'                         src/**/*.py
+sd 'universal\.'                                      'gui.'                                      src/**/*.py
 ```

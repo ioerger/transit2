@@ -5,7 +5,7 @@ from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, 
 from pytransit.tools import logging, gui_tools
 
 def create_checkbox(label, checked=False, position=(0,0)):
-    frame = universal.frame
+    frame = gui.frame
     
     # 
     # component

@@ -164,11 +164,11 @@ class Analysis:
     @classmethod
     def from_gui(cls, frame):
         with gui_tools.nice_error_log:
-            combined_wig = universal.combined_wigs[0]
+            combined_wig = gui.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path 
-            Analysis.inputs.annotation_path = universal.annotation_path
+            Analysis.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
+            Analysis.inputs.annotation_path = gui.annotation_path
 
             # 
             # call all GUI getters, puts results into respective Analysis.inputs key-value
@@ -280,7 +280,7 @@ class Analysis:
             self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path) 
 
 
-            if universal.interface=="gui" and self.inputs.genes_output_path!=None:
+            if gui.interface=="gui" and self.inputs.genes_output_path!=None:
                 logging.log(f"Adding File: {self.inputs.genes_output_path}")
                 results_area.add(self.inputs.genes_output_path)
                 logging.log(f"Adding File: {self.inputs.sites_output_path}")

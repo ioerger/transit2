@@ -10,7 +10,7 @@ class Text:
             self.wx_object
     """
     def __init__(self, content, font_size=12, underline=False, bold=False, italic=False):
-        frame       = universal.frame
+        frame       = gui.frame
         wx_object = wx.StaticText( # not actually static btw
             frame,
             wx.ID_ANY,

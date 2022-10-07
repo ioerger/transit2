@@ -71,7 +71,7 @@ class TnSeqFrame(wx.Frame):
     # constructor
     def __init__(self, parent, DEBUG=False):
         # data accessable to all analysis methods
-        universal.frame = self
+        gui.frame = self
         # connect to GUI tools (otherwise they will not function)
         gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         

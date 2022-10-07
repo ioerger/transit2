@@ -138,17 +138,17 @@ class Analysis:
             # 
             # get wig files
             # 
-            combined_wig = universal.combined_wigs[0]
+            combined_wig = gui.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Analysis.inputs.metadata_path = universal.combined_wigs[0].metadata_path 
+            Analysis.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
 
 
             
             # 
             # get annotation
             # 
-            Analysis.inputs.annotation_path = universal.annotation_path
+            Analysis.inputs.annotation_path = gui.annotation_path
             transit_tools.validate_annotation(Analysis.inputs.annotation_path)
 
 
@@ -372,7 +372,7 @@ class Analysis:
             phi_old = phi_new
             # Update progress
             percentage = (100.0 * (count + 1) / (self.samples + self.burnin))
-            if universal.interface != 'console':
+            if gui.interface != 'console':
                 text = "Running Gumbel... %5.1f%%" % percentage
                 progress_update(text, percentage)
 

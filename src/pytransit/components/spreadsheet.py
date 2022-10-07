@@ -92,8 +92,8 @@ if gui.is_active:
                 sort_by: list of strings
             """
             
-            wx.Frame.__init__(self, universal.frame, size=(-1,-1))
-            self.parent = universal.frame
+            wx.Frame.__init__(self, gui.frame, size=(-1,-1))
+            self.parent = gui.frame
             self.col = 0
             self.row = 0
             

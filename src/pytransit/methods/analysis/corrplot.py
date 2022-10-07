@@ -64,10 +64,10 @@ class Analysis:
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path =universal.annotation_path
+        Analysis.inputs.annotation_path =gui.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
-        Analysis.inputs.combined_wig =universal.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
-        Analysis.inputs.metadata =universal.combined_wigs[0].metadata.path
+        Analysis.inputs.combined_wig =gui.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
+        Analysis.inputs.metadata =gui.combined_wigs[0].metadata.path
         
         # 
         # call all GUI getters, puts results into respective Analysis.inputs key-value
@@ -136,7 +136,7 @@ class Analysis:
                 output_path=self.inputs.output_path,
             )
             
-            if universal.interface=="gui":
+            if gui.interface=="gui":
                 logging.log(f"Adding File: {self.inputs.output_path}")
                 results_area.add(self.inputs.output_path)
             logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")

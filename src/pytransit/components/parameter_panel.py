@@ -34,7 +34,7 @@ def create_panel_area(_):
         # 
         if True:
             logo_img = wx.StaticBitmap(
-                universal.frame,
+                gui.frame,
                 wx.ID_ANY,
                 wx.NullBitmap,
                 wx.DefaultPosition,
@@ -49,7 +49,7 @@ def create_panel_area(_):
         # 
         if True:
             version_label = wx.StaticText(
-                universal.frame,
+                gui.frame,
                 wx.ID_ANY,
                 "",
                 wx.DefaultPosition,
@@ -69,7 +69,7 @@ def create_panel_area(_):
         # methodInfoSizer
         # 
         if True:
-            panel.method_info_text = wx.StaticBox(universal.frame, wx.ID_ANY, "Instructions")
+            panel.method_info_text = wx.StaticBox(gui.frame, wx.ID_ANY, "Instructions")
             panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
             panel.method_info_sizer = wx.StaticBoxSizer(panel.method_info_text, wx.VERTICAL)
             
@@ -78,7 +78,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_short_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
+                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_short_text.Wrap(250)
                 panel.method_short_text.Hide()
@@ -91,7 +91,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_long_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
+                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_long_text.Wrap(250)
                 panel.method_long_text.Hide()
@@ -105,7 +105,7 @@ def create_panel_area(_):
             if True:
 
                 panel.method_desc_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
+                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_desc_text.Wrap(250)
                 panel.method_desc_text.Hide()
@@ -118,7 +118,7 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_tn_text = wx.StaticText(
-                    universal.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
+                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
                 panel.method_tn_text.Wrap(250)
 
@@ -135,9 +135,9 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_instructions = wx.StaticText(
-                    universal.frame,
+                    gui.frame,
                     wx.ID_ANY,
-                    universal.frame.instructions_text,
+                    gui.frame.instructions_text,
                     wx.DefaultPosition,
                     wx.DefaultSize,
                     0,
@@ -160,7 +160,7 @@ def create_panel_area(_):
     
     # progress
     panel.progress_panel = wx.Panel(
-        universal.frame,
+        gui.frame,
         wx.ID_ANY,
         wx.DefaultPosition,
         wx.DefaultSize,

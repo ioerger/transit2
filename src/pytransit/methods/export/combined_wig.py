@@ -77,7 +77,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
     def from_gui(self, wxobj):
         # Get Annotation file
         from pytransit.interfaces import gui, cli
-        annotation_path = universal.annotation_path
+        annotation_path = gui.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None
 

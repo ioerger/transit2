@@ -17,11 +17,11 @@ if True:
         
         def __enter__(self):
             self.wx_panel = wx.Panel(
-                universal.frame,
+                gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
                 wx.DefaultSize,
-                #wx.Size(int(universal.frame.GetSize()[0]/2), wx.DefaultSize[1]),
+                #wx.Size(int(gui.frame.GetSize()[0]/2), wx.DefaultSize[1]),
                 wx.TAB_TRAVERSAL,
             )
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -31,7 +31,7 @@ if True:
             if error is not None:
                 import traceback
                 print(''.join(traceback.format_tb(traceback_obj)))
-                frame = universal.frame
+                frame = gui.frame
                 if frame and hasattr(frame, "status_bar"):
                     frame.status_bar.SetStatusText("Error: "+str(error.args))
             else:
@@ -40,7 +40,7 @@ if True:
                 self.wx_panel.SetSizer(self.main_sizer)
                 self.wx_panel.Layout()
                 self.main_sizer.Fit(self.wx_panel)
-                universal.frame.Layout()
+                gui.frame.Layout()
     
     def create_button(panel, sizer, *, label):
         run_button = wx.Button(
@@ -65,7 +65,7 @@ if True:
     def create_default_pathway_button(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
         import csv
         COG_orgs = []
-        with open(universal.root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
+        with open(gui.root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
@@ -462,11 +462,11 @@ if True:
                 use_selected = False
                 if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
                     use_selected = True
-                    if not universal.selected_samples:
+                    if not gui.selected_samples:
                         # NOTE: was a popup
                         logging.error("Need to select at least one control or experimental dataset.")
                 
-                wig_objects = universal.samples
+                wig_objects = gui.samples
                 
                 #
                 # get read_counts and positions
@@ -524,7 +524,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text=label_text,
-            options=[x.name for x in universal.conditions],
+            options=[x.name for x in gui.conditions],
             tooltip_text=tooltip_text,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -538,7 +538,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Ref Condition:",
-            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
+            options=[ "[None]" ] + [ each.name for each in gui.conditions ],
             tooltip_text="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -552,7 +552,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text=label_text,
-            options=[ "[None]" ] + [x.name for x in universal.conditions],
+            options=[ "[None]" ] + [x.name for x in gui.conditions],
             tooltip_text=tooltip_text,
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -575,7 +575,7 @@ if True:
             as_list = wxobj.GetValue().split(",")
             without_empty_strings = [ each for each in as_list if len(each) > 0 ]
             if len(without_empty_strings) == 0:
-                return [ each.name for each in universal.conditions ]
+                return [ each.name for each in gui.conditions ]
             else:
                 return without_empty_strings
         
@@ -609,7 +609,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Control Condition:",
-            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
+            options=[ "[None]" ] + [ each.name for each in gui.conditions ],
             tooltip_text="which condition(s) to use as the control group",
             label_size=(200, 20),
         )
@@ -624,7 +624,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Experimental Condition:",
-            options=[ "[None]" ] + [ each.name for each in universal.conditions ],
+            options=[ "[None]" ] + [ each.name for each in gui.conditions ],
             tooltip_text="which condition(s) to use as the experimental group",
             label_size=(200, 20),
         )
@@ -709,16 +709,16 @@ if True:
         def run(*args):
             # a workaround for python WX somehow clicking the add files button every time the run method is called
             def run_wrapper():
-                universal.busy_running_method = True
+                gui.busy_running_method = True
                 try:
                     method_instance.Run()
                 except Exception as error:
                     pass
-                universal.busy_running_method = False
+                gui.busy_running_method = False
                 
             import threading
             with gui_tools.nice_error_log:
-                method_instance = from_gui_function(universal.frame)
+                method_instance = from_gui_function(gui.frame)
                 if method_instance:
                     thread = threading.Thread(target=run_wrapper())
                     thread.setDaemon(True)

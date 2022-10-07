@@ -27,7 +27,7 @@ def create_results_area(frame):
     if True:
         results_sizer.Add(
             wx.StaticText(
-                universal.frame,
+                gui.frame,
                 label="Results Files",
                 size=(330, -1),
             ),
@@ -89,7 +89,7 @@ def create_results_area(frame):
     # 
     with Table(
         initial_columns=[ "name", "type", "path"],
-        #max_size=(int(universal.frame.GetSize()[0]*2/3), 200)
+        #max_size=(int(gui.frame.GetSize()[0]*2/3), 200)
         max_size=(-1, 200)
     ) as results.table:
     
@@ -124,7 +124,7 @@ def change_file_action_choices(new_choices):
             results.file_action_choice_element.Hide()
         
         results.file_action_choice_element = wx.Choice(
-            universal.frame,
+            gui.frame,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.DefaultSize,

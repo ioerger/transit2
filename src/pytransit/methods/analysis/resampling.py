@@ -177,14 +177,14 @@ class Analysis:
         # 
         # get wig files
         # 
-        combined_wig = universal.combined_wigs[0]
+        combined_wig = gui.combined_wigs[0]
         Analysis.inputs.combined_wig = combined_wig.main_path
         Analysis.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = universal.annotation_path
+        Analysis.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(Analysis.inputs.annotation_path)
         
         # 
@@ -208,8 +208,8 @@ class Analysis:
         # 
         # extract universal data
         # 
-        cwig_path     = universal.combined_wigs[0].main_path
-        metadata_path = universal.combined_wigs[0].metadata.path
+        cwig_path     = gui.combined_wigs[0].main_path
+        metadata_path = gui.combined_wigs[0].metadata.path
         
         from pytransit.components.samples_area import sample_table
         Analysis.inputs.combined_wig_params = dict(
@@ -764,7 +764,7 @@ class Analysis:
 
             # Update progress
             percentage = (100.0 * count / control_group_size)
-            if universal.interface != 'console':
+            if gui.interface != 'console':
                 text = "Running Resampling Method... %5.1f%%" % percentage
                 parameter_panel.progress_update(text, percentage)
 

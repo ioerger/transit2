@@ -63,7 +63,7 @@ def create_sample_area(frame):
                 @gui_tools.bind_to(combined_wig_file_picker, wx.EVT_BUTTON)
                 def load_combined_wig_file_func(event):
                     with gui_tools.nice_error_log:
-                        if not universal.busy_running_method: # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
+                        if not gui.busy_running_method: # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
                             file_dialog = wx.FileDialog(
                                 frame,
                                 message="Choose a cwig file",
@@ -148,11 +148,11 @@ def create_sample_area(frame):
     # 
     # preload files if in debugging mode
     # 
-    if universal.debugging_enabled:
+    if gui.debugging_enabled:
         from os import remove, getcwd
         load_combined_wigs_and_metadatas(
-            [f"{universal.root_folder}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
-            [f"{universal.root_folder}/src/pytransit/data/222_samples_metadata_cg.txt"],
+            [f"{gui.root_folder}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
+            [f"{gui.root_folder}/src/pytransit/data/222_samples_metadata_cg.txt"],
         )
         
     return wx_object
@@ -170,7 +170,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
         logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
         with gui_tools.nice_error_log:
-            universal.combined_wigs.append(
+            gui.combined_wigs.append(
                 tnseq_tools.CombinedWig(
                     main_path=each_cwig_path,
                     metadata_path=each_metadata_path,
@@ -184,7 +184,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # add graphical entries for each condition
     # 
     if True:
-        for each_sample in universal.samples:
+        for each_sample in gui.samples:
             # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
             sample_table.add(dict(
                 # add hidden link to object
@@ -204,7 +204,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 # kurtosis=each_sample.extra_data.kurtosis,
             ))
         
-        for each_condition in universal.conditions:
+        for each_condition in gui.conditions:
             conditions_table.add(dict(
                 name=each_condition.name,
             ))
@@ -226,7 +226,7 @@ if True:
                         show_thing_button.Hide()
                     
                     show_thing_button = GenBitmapTextButton(
-                        universal.frame,
+                        gui.frame,
                         1,
                         gui_tools.bit_map,
                         name,
@@ -253,7 +253,7 @@ if True:
     # 
     @create_sample_area_button(name="Show Table", size=(100, -1))
     def click_show_table(event):
-        selected_wigs = universal.selected_samples or universal.samples
+        selected_wigs = gui.selected_samples or gui.samples
         
         # 
         # heading (only if single wig)
@@ -289,16 +289,16 @@ if True:
     def click_show_track_view(event):
         with gui_tools.nice_error_log:
             import pytransit.components.trash as trash
-            annotation_path = universal.annotation_path
-            wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
+            annotation_path = gui.annotation_path
+            wig_ids = [ each_sample.id for each_sample in gui.selected_samples ]
 
             if wig_ids and annotation_path:
-                if universal.debugging_enabled:
+                if gui.debugging_enabled:
                     logging.log(
                         "Visualizing counts for: %s"
                         % ", ".join(wig_ids)
                     )
-                view_window = trash.TrashFrame(universal.frame, wig_ids, annotation_path, gene="")
+                view_window = trash.TrashFrame(gui.frame, wig_ids, annotation_path, gene="")
                 view_window.Show()
             elif not wig_ids:
                 # NOTE: was a popup
@@ -319,7 +319,7 @@ if True:
             import matplotlib
             import matplotlib.pyplot as plt
             from pytransit.tools import stat_tools
-            selected_samples = universal.selected_samples
+            selected_samples = gui.selected_samples
             if len(selected_samples) == 2:
                 logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
                 from pytransit.tools.transit_tools import gather_sample_data_for
@@ -342,7 +342,7 @@ if True:
     @create_sample_area_button(name="Quality Control", size=(130,-1))
     def click_show_quality_control(event):
         with gui_tools.nice_error_log:
-            wig_ids = [ each_sample.id for each_sample in universal.selected_samples ] 
+            wig_ids = [ each_sample.id for each_sample in gui.selected_samples ] 
             number_of_files = len(wig_ids)
 
             if number_of_files <= 0:
@@ -350,7 +350,7 @@ if True:
             else:
                 logging.log(f"Displaying results: {wig_ids}")
                 try:
-                    qc_window = qc_display.QualityControlFrame(universal.frame, wig_ids)
+                    qc_window = qc_display.QualityControlFrame(gui.frame, wig_ids)
                     qc_window.Show()
                 except Exception as error:
                     raise Exception(f"Error occured displaying file: {error}")
@@ -372,7 +372,7 @@ if True:
             # 
             # get selection
             # 
-            wig_objects = universal.selected_samples  or  universal.samples
+            wig_objects = gui.selected_samples  or  gui.samples
             
             #
             # get read_counts and positions

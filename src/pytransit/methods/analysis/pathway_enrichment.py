@@ -160,29 +160,29 @@ class Analysis:
         if Analysis.inputs.organism_pathway != None:
             organism,pathway = Analysis.inputs.organism_pathway.split("-")
             if pathway == "COG_20":
-                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/COG_20_org_associations/"+organism+"_COG_20_roles.associations.txt"
-                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_20_roles.txt"
+                Analysis.inputs.associations_file = gui.root_folder+"src/pytransit/data/COG_20_org_associations/"+organism+"_COG_20_roles.associations.txt"
+                Analysis.inputs.pathways_file = gui.root_folder+"src/pytransit/data/COG_20_roles.txt"
 
             elif Analysis.inputs.organism_pathway =="H37Rv-Sanger":
                 logging.log("Loading in H37Rv Associations for Sanger Pathways")
-                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
-                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/sanger_roles.dat"
+                Analysis.inputs.associations_file = gui.root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
+                Analysis.inputs.pathways_file = gui.root_folder+"src/pytransit/data/sanger_roles.dat"
             elif Analysis.inputs.organism_pathway =="H37Rv-GO":
                 logging.log("Loading in H37Rv Associations for GO Pathways")
-                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
-                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+                Analysis.inputs.associations_file = gui.root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                Analysis.inputs.pathways_file = gui.root_folder+"src/pytransit/data/GO_term_names.dat"
             elif Analysis.inputs.organism_pathway =="H37Rv-COG":
                 logging.log("Loading in H37Rv Associations for COG Pathways")
-                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
-                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"
+                Analysis.inputs.associations_file = gui.root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
+                Analysis.inputs.pathways_file = gui.root_folder+"src/pytransit/data/COG_roles.dat"
             elif Analysis.inputs.organism_pathway =="Smeg-GO":
                 logging.log("Loading in Smeg Associations for GO Pathways")
-                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_GO_terms.txt"
-                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/GO_term_names.dat"
+                Analysis.inputs.associations_file = gui.root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                Analysis.inputs.pathways_file = gui.root_folder+"src/pytransit/data/GO_term_names.dat"
             elif Analysis.inputs.organism_pathway =="Smeg-COG":
                 logging.log("Loading in Smeg Associations for COG Pathways")
-                Analysis.inputs.associations_file = universal.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
-                Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"   
+                Analysis.inputs.associations_file = gui.root_folder+"src/pytransit/data/smeg_COG_roles.dat"
+                Analysis.inputs.pathways_file = gui.root_folder+"src/pytransit/data/COG_roles.dat"   
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Analysis.cli_name}_output.csv",

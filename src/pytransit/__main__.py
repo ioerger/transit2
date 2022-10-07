@@ -44,7 +44,6 @@ def main(*args, **kwargs):
     # GUI Mode
     # 
     if not (args or kwargs):
-        universal.interface = "gui"
         # Tried GUI but no wxPython
         if not console_tools.check_if_has_wx():
             print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
@@ -74,7 +73,6 @@ def main(*args, **kwargs):
     # Console mode
     # 
     else:
-        universal.interface = "console"
         import matplotlib
         from pytransit.methods.analysis import methods as analysis_methods
         from pytransit.methods.export   import methods as export_methods

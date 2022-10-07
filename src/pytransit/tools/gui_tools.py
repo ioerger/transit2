@@ -32,13 +32,13 @@ def bind_to(wx_python_obj, event, *args, **kwargs):
 
 def handle_traceback(traceback_obj):
     import traceback
-    frame = universal.frame
+    frame = gui.frame
     print(''.join(traceback.format_tb(traceback_obj)))
     if frame and hasattr(frame, "status_bar") and hasattr(frame.status_bar, "SetStatusText"):
         frame.status_bar.SetStatusText("Error: "+str(error.args))
 
 def set_status(message):
-    frame = universal.frame
+    frame = gui.frame
     if frame and gui.is_active and hasattr(frame, "status_bar"):
         frame.status_bar.SetStatusText(message)
         wx.Yield()
@@ -53,7 +53,7 @@ def ask_for_files(
         import os
         output = []
         file_dialog = wx.FileDialog(
-            universal.frame,
+            gui.frame,
             message=message,
             defaultDir=default_folder or os.getcwd(),
             defaultFile=default_file_name,
@@ -75,7 +75,7 @@ def ask_for_file(
         
         path = None
         file_dialog = wx.FileDialog(
-            universal.frame,
+            gui.frame,
             message=message,
             defaultDir=default_folder or os.getcwd(),
             defaultFile=default_file_name,
@@ -98,7 +98,7 @@ def ask_for_output_file_path(
 
         
         file_dialog = wx.FileDialog(
-            universal.frame,
+            gui.frame,
             message="Save file as ...",
             defaultDir=default_folder,
             defaultFile=default_file_name,
@@ -147,7 +147,7 @@ class NiceErrorLog(object):
         pass
     
     def __enter__(self):
-        frame = universal.frame
+        frame = gui.frame
         return frame
     
     def __exit__(self, _, error, traceback_obj):
@@ -155,7 +155,7 @@ class NiceErrorLog(object):
             print(''.join(traceback.format_tb(traceback_obj)))
             error_message = " ".join([ f"{each}" for each in error.args])
             print(error_message)
-            frame = universal.frame
+            frame = gui.frame
             if frame and hasattr(frame, "status_bar"):
                 frame.status_bar.SetStatusText("Error: "+error_message)
 

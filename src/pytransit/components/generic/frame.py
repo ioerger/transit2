@@ -12,7 +12,7 @@ class InnerFrame:
             self.add(component)
     """
     def __init__(self, parent, title, default_size=(1350, 975), min_size=None, max_size=None):
-        frame = universal.frame
+        frame = gui.frame
         
         # 
         # wx_object

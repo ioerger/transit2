@@ -21,7 +21,7 @@ def create_menu(frame):
     global selected_export_menu_item
     global convert_menu_item
     menu_bar = wx.MenuBar(0)
-    frame = universal.frame
+    frame = gui.frame
     
     # 
     # File Menu
@@ -89,7 +89,7 @@ def create_menu(frame):
             convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
             def when_annotation_pt_to_ptt_clicked(event):
                 with gui_tools.nice_error_log:
-                    annotation_path = universal.annotation_path
+                    annotation_path = gui.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".ptt.table"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
@@ -150,7 +150,7 @@ def create_menu(frame):
             convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
             def when_annotation_pt_to_gff3_clicked(event):
                 with gui_tools.nice_error_log:
-                    annotation_path = universal.annotation_path
+                    annotation_path = gui.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".gff3"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
@@ -217,7 +217,7 @@ def create_menu(frame):
             def when_annotation_ptt_to_pt_clicked(event):
                 with gui_tools.nice_error_log:
                     
-                    annotation_path = universal.annotation_path
+                    annotation_path = gui.annotation_path
                     default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
                     # default_dir = os.path.dirname(os.path.realpath(__file__))
                     default_dir = os.getcwd()
@@ -340,7 +340,7 @@ def create_menu(frame):
                     import matplotlib
                     import matplotlib.pyplot as plt
                     from pytransit.tools import stat_tools
-                    selected_samples = universal.selected_samples
+                    selected_samples = gui.selected_samples
                     if len(selected_samples) == 2:
                         if frame.verbose: logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
                         from pytransit.tools.transit_tools import gather_sample_data_for
@@ -367,8 +367,8 @@ def create_menu(frame):
             def when_track_view_clicked(event, gene=""):
                 with gui_tools.nice_error_log:
                     import pytransit.components.trash as trash
-                    annotation_path = universal.annotation_path
-                    wig_ids = [ each_sample.id for each_sample in universal.selected_samples ]
+                    annotation_path = gui.annotation_path
+                    wig_ids = [ each_sample.id for each_sample in gui.selected_samples ]
 
                     if wig_ids and annotation_path:
                         if frame.verbose:
@@ -397,7 +397,7 @@ def create_menu(frame):
             view_menu_item.Append( quality_control_option )
             def when_quality_control_clicked(event):
                 with gui_tools.nice_error_log:
-                    wig_ids = [ each_sample.id for each_sample in universal.selected_samples ] 
+                    wig_ids = [ each_sample.id for each_sample in gui.selected_samples ] 
                     number_of_files = len(wig_ids)
 
                     if number_of_files <= 0:
@@ -536,7 +536,7 @@ def create_menu(frame):
 # UNUSED 
 def annotation_gff3_to_pt(event):
     with gui_tools.nice_error_log:
-        annotation_path = universal.annotation_path
+        annotation_path = gui.annotation_path
         default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
         # default_dir = os.path.dirname(os.path.realpath(__file__))
         default_dir = os.getcwd()
