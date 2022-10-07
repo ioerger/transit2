@@ -18,7 +18,7 @@ from pytransit.basics.lazy_dict import LazyDict
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.tools.tnseq_tools import Wig
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.basics.csv as csv

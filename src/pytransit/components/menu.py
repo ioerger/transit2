@@ -3,7 +3,7 @@ from functools import partial
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit.components.qc_display as qc_display
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 import pytransit
 
 selected_export_menu_item = None

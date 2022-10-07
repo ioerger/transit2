@@ -1,4 +1,4 @@
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 SpreadSheet = None
 TransitTable = None

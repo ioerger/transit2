@@ -14,7 +14,7 @@ import scipy
 
 from pytransit.basics.lazy_dict import LazyDict
 
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *

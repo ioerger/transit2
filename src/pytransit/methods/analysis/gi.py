@@ -22,7 +22,7 @@ from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tn
 from pytransit.basics import csv, misc
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.interfaces import gui

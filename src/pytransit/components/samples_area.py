@@ -3,7 +3,7 @@ import os
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import singleton, no_duplicates, flatten_once, human_readable_data
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
 
@@ -148,11 +148,11 @@ def create_sample_area(frame):
     # 
     # preload files if in debugging mode
     # 
-    if gui.debugging_enabled:
+    if debugging_enabled:
         from os import remove, getcwd
         load_combined_wigs_and_metadatas(
-            [f"{gui.root_folder}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
-            [f"{gui.root_folder}/src/pytransit/data/222_samples_metadata_cg.txt"],
+            [f"{root_folder}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
+            [f"{root_folder}/src/pytransit/data/222_samples_metadata_cg.txt"],
         )
         
     return wx_object
@@ -293,7 +293,7 @@ if True:
             wig_ids = [ each_sample.id for each_sample in gui.selected_samples ]
 
             if wig_ids and annotation_path:
-                if gui.debugging_enabled:
+                if debugging_enabled:
                     logging.log(
                         "Visualizing counts for: %s"
                         % ", ".join(wig_ids)
@@ -365,7 +365,7 @@ if True:
             import matplotlib
             import matplotlib.pyplot as plt
             from pytransit.tools import stat_tools
-            from pytransit.interfaces import gui, cli
+            from pytransit.globals import gui, cli, root_folder, debugging_enabled
             from pytransit.tools.tnseq_tools import Wig
             
             

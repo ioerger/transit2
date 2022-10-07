@@ -3,7 +3,7 @@ import os
 from typing import NamedTuple
 
 from pytransit.tools.transit_tools import wx
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
 

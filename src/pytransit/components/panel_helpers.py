@@ -1,5 +1,5 @@
 from pytransit.tools.transit_tools import wx, pub
-from pytransit.interfaces import gui, cli
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 default_label_size = (200, -1)
@@ -65,7 +65,7 @@ if True:
     def create_default_pathway_button(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
         import csv
         COG_orgs = []
-        with open(gui.root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
+        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
@@ -451,7 +451,7 @@ if True:
                 import matplotlib
                 import matplotlib.pyplot as plt
                 from pytransit.tools import stat_tools
-                from pytransit.interfaces import gui, cli
+                from pytransit.globals import gui, cli, root_folder, debugging_enabled
                 from pytransit.tools.tnseq_tools import Wig
                 
                 # 
