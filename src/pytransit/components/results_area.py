@@ -77,9 +77,7 @@ def create_results_area(frame):
         # 
         if True:
             # by default no options are available
-            change_file_action_choices({
-                "[None]": lambda event: None
-            })
+            change_file_action_choices({})
 
             
         results_sizer.Add(results.header, 0, 0, gui_tools.default_padding)
@@ -114,32 +112,35 @@ def create_results_area(frame):
 
 def change_file_action_choices(new_choices):
     with gui_tools.nice_error_log:
-        new_choices = {
-            "[None]": lambda event: None, # always have a none option, and always make it the first option
-            **new_choices,
-        }
-        
+            
         # hide the old one before showing the new one
         if results.file_action_choice_element != None:
             results.file_action_choice_element.Hide()
         
-        results.file_action_choice_element = wx.Choice(
-            gui.frame,
-            wx.ID_ANY,
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            list(new_choices.keys()),
-            0,
-        )
-        results.file_action_choice_element.SetSelection(0)
-        results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
-        results.header.Layout()
-        
-        @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
-        def _(event):
-            choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
-            # run the callback that corrisponds the the choice
-            new_choices[choice](event)
+        # if not (None or empty)
+        if new_choices: 
+            new_choices = {
+                "[Select Tool]": lambda event: None, # always have a none option, and always make it the first option
+                **new_choices,
+            }
+            
+            results.file_action_choice_element = wx.Choice(
+                gui.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                wx.DefaultSize,
+                list(new_choices.keys()),
+                0,
+            )
+            results.file_action_choice_element.SetSelection(0)
+            results.header.Add(results.file_action_choice_element, proportion=1, flag=wx.ALL, border=gui_tools.default_padding)
+            results.header.Layout()
+            
+            @gui_tools.bind_to(results.file_action_choice_element, wx.EVT_CHOICE)
+            def _(event):
+                choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
+                # run the callback that corrisponds the the choice
+                new_choices[choice](event)
     
 
 def add(path):
