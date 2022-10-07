@@ -11,7 +11,7 @@ import collections
 import numpy
 from pytransit.basics.lazy_dict import LazyDict
 
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.spreadsheet import SpreadSheet

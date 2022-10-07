@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 
 if universal.interface == "gui":
     # ----------------------------------------------------------------------

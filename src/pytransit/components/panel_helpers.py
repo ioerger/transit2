@@ -1,5 +1,5 @@
 from pytransit.tools.transit_tools import wx, pub
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 default_label_size = (200, -1)
@@ -451,7 +451,7 @@ if True:
                 import matplotlib
                 import matplotlib.pyplot as plt
                 from pytransit.tools import stat_tools
-                from pytransit.universal_data import universal
+                from pytransit.interfaces import gui, cli
                 from pytransit.tools.tnseq_tools import Wig
                 
                 # 

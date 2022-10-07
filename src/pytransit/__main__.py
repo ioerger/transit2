@@ -2,7 +2,7 @@ import sys
 import traceback
 
 from pytransit.tools import console_tools
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 
 
 def main(*args, **kwargs):

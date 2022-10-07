@@ -15,7 +15,7 @@ from pytransit.basics.lazy_dict import LazyDict
 import pytransit.basics.csv as csv
 import pytransit.basics.misc as misc
 from pytransit.tools.transit_tools import wx, pub, basename, FloatVector, DataFrame, StrVector, r, DataFrame, globalenv, IntVector, FloatVector, StrVector
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button

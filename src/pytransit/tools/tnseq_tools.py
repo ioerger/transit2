@@ -77,7 +77,7 @@ class Wig:
     @staticmethod
     def selected_as_gathered_data(wig_objects):
         import numpy
-        from pytransit.universal_data import universal
+        from pytransit.interfaces import gui, cli
         
         # fail fast
         if len(wig_objects) == 0:

@@ -3,7 +3,7 @@ import os
 from pytransit.basics.lazy_dict import LazyDict, stringify, indent
 from pytransit.basics.named_list import named_list
 from pytransit.basics.misc import singleton, no_duplicates, flatten_once, human_readable_data
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
 
@@ -365,7 +365,7 @@ if True:
             import matplotlib
             import matplotlib.pyplot as plt
             from pytransit.tools import stat_tools
-            from pytransit.universal_data import universal
+            from pytransit.interfaces import gui, cli
             from pytransit.tools.tnseq_tools import Wig
             
             

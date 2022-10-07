@@ -20,7 +20,7 @@ from pytransit.basics.lazy_dict import LazyDict
 import pytransit.basics.csv as csv
 import pytransit.basics.misc as misc
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 from pytransit.tools.gui_tools import nice_error_log
 from pytransit.interfaces import gui

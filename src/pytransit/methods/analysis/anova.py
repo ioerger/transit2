@@ -16,7 +16,7 @@ import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.basics import misc

@@ -25,7 +25,7 @@ import pytransit.components.file_display as file_display
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.interfaces import gui

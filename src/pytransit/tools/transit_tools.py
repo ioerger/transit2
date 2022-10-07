@@ -683,7 +683,7 @@ def winsorize(counts):
         return numpy.array(result)
 
 def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None, selected_samples=False):
-    from pytransit.universal_data import universal
+    from pytransit.interfaces import gui, cli
     from pytransit.tools.tnseq_tools import Wig
     
     wig_objects = universal.samples

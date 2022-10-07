@@ -1,4 +1,4 @@
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 
 def log(message, *args, **kwargs):
     import inspect

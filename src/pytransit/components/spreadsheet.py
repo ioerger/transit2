@@ -1,4 +1,4 @@
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 
 SpreadSheet = None
 TransitTable = None
@@ -7,7 +7,6 @@ if universal.interface == "gui":
 
     from pytransit.tools import logging, gui_tools
     from pytransit.tools.transit_tools import wx
-    from pytransit.universal_data import universal
 
     class TransitTable(wx.grid.GridTableBase):
         """

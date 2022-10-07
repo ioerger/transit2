@@ -17,7 +17,7 @@ import statsmodels.api as sm
 
 from pytransit.basics.lazy_dict import LazyDict
 
-from pytransit.universal_data import universal
+from pytransit.interfaces import gui, cli
 from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
