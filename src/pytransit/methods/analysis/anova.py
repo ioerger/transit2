@@ -20,7 +20,6 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.basics import misc
-command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:

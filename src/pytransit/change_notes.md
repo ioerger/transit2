@@ -20,4 +20,9 @@ sd 'universal\.'                                       'gui.'                   
 sd 'from pytransit.interfaces *import gui, cli'        'from pytransit.globals import gui, cli, root_folder, debugging_enabled' src/**/*.py
 sd 'gui.debugging_enabled'                             'debugging_enabled'                                                      src/**/*.py
 sd 'gui.root_folder'                                   'root_folder'                                                            src/**/*.py
+sd 'gui\.interface *== *("|'"'"')gui("|'"'"')'         'gui.is_active'                                                          src/**/*.py
+sd 'gui\.interface *!= *("|'"'"')gui("|'"'"')'         'not gui.is_active'                                                      src/**/*.py
+sd 'gui\.interface *!= *("|'"'"')console("|'"'"')'     'gui.is_active'                                                          src/**/*.py
+sd 'gui\.interface *== *("|'"'"')console("|'"'"')'     'not gui.is_active'                                                      src/**/*.py
+sd 'sys.argv'                                          'console_tools.subcommand_prefix#FIXME'                                  src/methods/**/*.py
 ```

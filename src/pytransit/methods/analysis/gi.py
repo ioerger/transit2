@@ -26,7 +26,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
-command_name = sys.argv[0]
+
 
 @misc.singleton
 class Analysis:
@@ -172,8 +172,7 @@ class Analysis:
     def from_args(cls, args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, Analysis.usage_string)
-
-        if len(args) < 8: logging.error(f"Only {len(args)} of the +8 arguments were given to GI, please see the usage string below\n", Analysis.usage_string)
+        console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=8)
 
         combined_wig = args[0]
         metadata_path = args[1]
@@ -586,8 +585,8 @@ class Analysis:
             self.output = open(self.inputs.output_path, "w")
         self.output.write("#%s\n" % self.identifier)
 
-        if gui.interface=="console":
-          self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
+        if not gui.is_active:
+            self.output.write(f"#Console: {console_tools.full_commandline_command}")
 
         now = str(datetime.datetime.now())
         now = now[: now.rfind(".")]

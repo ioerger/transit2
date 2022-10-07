@@ -140,10 +140,7 @@ class GffProtMethod(base.ConvertMethod):
         output_file.close()
         logging.log("Finished conversion")
 
-    usage_string = (
-            """python %s convert gff_to_prot_table <annotation in gff format> <output file>"""
-            % (sys.argv[0])
-        )
+    usage_string = f"""{console_tools.subcommand_prefix} convert gff_to_prot_table <annotation in gff format> <output file>"""
 
 
 if __name__ == "__main__":

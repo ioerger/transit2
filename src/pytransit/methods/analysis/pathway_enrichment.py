@@ -22,10 +22,6 @@ import pytransit.basics.misc as misc
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
-from pytransit.tools.gui_tools import nice_error_log
-
-command_name = sys.argv[0]
-
 
 @misc.singleton
 class Analysis:
@@ -61,7 +57,7 @@ class Analysis:
     #-Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
     #-LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
-    usage_string = """python3 %s pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
 
         Optional parameters:
         -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
@@ -72,7 +68,7 @@ class Analysis:
         -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
         for FET...
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
-        """ % sys.argv[0]
+    """.replace("\n        ", "\n")
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):

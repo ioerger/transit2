@@ -13,7 +13,7 @@ import datetime
 
 from pytransit.methods import export_base as base
 import pytransit
-from pytransit.tools import transit_tools
+from pytransit.tools import transit_tools, console_tools
 from pytransit.tools import tnseq_tools
 from pytransit.tools import norm_tools
 from pytransit.tools import stat_tools
@@ -258,7 +258,4 @@ class MeanCountsMethod(base.SingleConditionMethod):
 
     #
 
-    usage_string = (
-            """python %s export mean_counts <comma-separated .wig files>|<combined_wig> <annotation .prot_table> <output file> [-c]\n note: append -c if inputing a combined_wig file\n"""
-            % (sys.argv[0])
-        )
+    usage_string = f"""{console_tools.subcommand_prefix} export mean_counts <comma-separated .wig files>|<combined_wig> <annotation .prot_table> <output file> [-c]\n note: append -c if inputing a combined_wig file\n"""

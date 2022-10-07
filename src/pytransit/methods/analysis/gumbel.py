@@ -29,7 +29,7 @@ from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, informative_iterator
 
-command_name = sys.argv[0]
+
 
 @misc.singleton
 class Analysis:
@@ -88,7 +88,7 @@ class Analysis:
         "-iC",
     ]
 
-    usage_string = """python3 %s gumbel <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    usage_string = f"""{console_tools.subcommand_prefix} gumbel <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
         Optional Arguments:
         -s <integer>    :=  Number of samples. Default: -s 10000
@@ -98,7 +98,7 @@ class Analysis:
         -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
         -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        """ % sys.argv[0]
+    """.replace("\n        ", "\n")
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -169,8 +169,7 @@ class Analysis:
     @staticmethod
     def from_args(args, kwargs):
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-        if len(args) != 3: logging.error(Analysis.usage_string)
-        
+        console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=3)
 
         Analysis.inputs.update(dict(
             combined_wig=None,
@@ -372,7 +371,7 @@ class Analysis:
             phi_old = phi_new
             # Update progress
             percentage = (100.0 * (count + 1) / (self.samples + self.burnin))
-            if gui.interface != 'console':
+            if gui.is_active:
                 text = "Running Gumbel... %5.1f%%" % percentage
                 progress_update(text, percentage)
 

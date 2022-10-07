@@ -84,7 +84,7 @@ import pytransit
 from pytransit.tools import tnseq_tools
 from pytransit.tools import norm_tools
 import pytransit.basics.csv as csv
-from pytransit.tools import logging
+from pytransit.tools import logging, console_tools
 from pytransit.basics.lazy_dict import LazyDict
 from pytransit.basics.named_list import named_list
 from pytransit.tools.console_tools import clean_args
@@ -505,7 +505,8 @@ if True:
             comments=[
                 file_kind, # identifier always comes first
                 f"yaml:",
-                f"    Console Command: python3 {' '.join(sys.argv)}",
+                f"    Console Command: |",
+                indent(console_tools.full_commandline_command, by="        "),
                 indent(yaml_string, by="    "),
                 "\t".join(column_names) # column names always last
             ],

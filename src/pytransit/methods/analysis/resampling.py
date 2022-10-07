@@ -28,7 +28,7 @@ from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
-command_name = sys.argv[0]
+
 
 @misc.singleton
 class Analysis:
@@ -98,11 +98,11 @@ class Analysis:
     )
     
     usage_string = f"""
-        python3 {sys.argv[0]} resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        {console_tools.subcommand_prefix} resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
         ---
         OR
         ---
-        python3 {sys.argv[0]} resampling -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
+        {console_tools.subcommand_prefix} resampling -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
         NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
 
         Optional Arguments:
@@ -764,7 +764,7 @@ class Analysis:
 
             # Update progress
             percentage = (100.0 * count / control_group_size)
-            if gui.interface != 'console':
+            if gui.is_active:
                 text = "Running Resampling Method... %5.1f%%" % percentage
                 parameter_panel.progress_update(text, percentage)
 

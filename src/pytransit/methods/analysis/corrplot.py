@@ -19,7 +19,6 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
-command_name = sys.argv[0]
 
 @misc.singleton
 class Analysis:
@@ -135,7 +134,7 @@ class Analysis:
                 output_path=self.inputs.output_path,
             )
             
-            if gui.interface=="gui":
+            if gui.is_active:
                 logging.log(f"Adding File: {self.inputs.output_path}")
                 results_area.add(self.inputs.output_path)
             logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")

@@ -19,7 +19,6 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
-command_name = sys.argv[0]
 
 
 @misc.singleton

@@ -14,10 +14,7 @@ import datetime
 
 from pytransit.methods import export_base as base
 import pytransit
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-from pytransit.tools import stat_tools
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools
 
 
 ############# Description ##################
@@ -228,7 +225,4 @@ class IGVMethod(base.SingleConditionMethod):
 
     #
 
-    usage_string = (
-            """python %s export igv <comma-separated .wig files> <annotation .prot_table> <output file>"""
-            % (sys.argv[0])
-        )
+    usage_string = f"""{console_tools.subcommand_prefix} export igv <comma-separated .wig files> <annotation .prot_table> <output file>"""

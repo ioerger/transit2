@@ -19,7 +19,7 @@ from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tn
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 
-command_name = sys.argv[0]
+
 
 @misc.singleton
 class Analysis:
@@ -52,7 +52,7 @@ class Analysis:
         "-o", # output filename (optional)
         "-c", # indicates whether input is list of wig files (comma- or space-separated?), or a combined_wig file
     ]
-    usage_string = f"""usage: python3 %s tnseq_stats <file.wig>+ [-o <output_file>]\n       python %s tnseq_stats -c <combined_wig> [-o <output_file>]""" % (sys.argv[0],sys.argv[0])
+    usage_string = f"""usage: {console_tools.subcommand_prefix} tnseq_stats <file.wig>+ [-o <output_file>]\n       {console_tools.subcommand_prefix} tnseq_stats -c <combined_wig> [-o <output_file>]"""
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):

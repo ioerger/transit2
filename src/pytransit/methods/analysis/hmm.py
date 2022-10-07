@@ -27,7 +27,7 @@ import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
 import pytransit.basics.misc as misc
 
-command_name = sys.argv[0]
+
     
 @misc.singleton
 class Analysis:
@@ -61,7 +61,7 @@ class Analysis:
         "-iC",
     ]
     
-    usage_string = f"""python3 {sys.argv[0]} hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
+    usage_string = f"""{console_tools.subcommand_prefix} hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
 
         Optional Arguments:
             -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
@@ -70,6 +70,20 @@ class Analysis:
             -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
             -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
+    
+    column_names = [
+        "ORF",
+        "Gene",
+        "Annotation",
+        "TAs",
+        "ES Sites",
+        "GD Sites",
+        "NE Sites",
+        "GA Sites",
+        "Saturation",
+        "Mean",
+        "Call",
+    ]
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -157,8 +171,7 @@ class Analysis:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-        
-        assert len(args) >= 3, f"There needs to be at least 3 arguments. See help info below: \n{Analysis.usage_string}"
+        console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=3)
         
         ctrldata        = args[0].split(",")
         annotation_path = args[1]
@@ -318,7 +331,7 @@ class Analysis:
                     column_names=SitesFile.column_names,
                     extra_info=dict(
                         gui_or_cli=gui.interface,
-                        cli_args=sys.argv,
+                        cli_command=console_tools.full_commandline_command,
                         stats=dict(
                             mean=float(numpy.average(reads_nz)),
                             median=float(numpy.median(reads_nz)),
@@ -562,11 +575,11 @@ class Analysis:
                 if S not in counts:
                     counts[S] = 0
                 counts[S] += 1
-
-            output.write("#command line: python3 %s\n" % (" ".join(sys.argv)))
+            
+            output.write(f"#Console: {console_tools.full_commandline_command}")
             output.write("#summary of gene calls: ES=%s, GD=%s, NE=%s, GA=%s, N/A=%s\n"% tuple([counts.get(x, 0) for x in "ES GD NE GA N/A".split()]))
             output.write("#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)\n")
-            output.write("#ORF\tgene\tannotation\tTAs\tES sites\tGD sites\tNE sites\tGA sites\tsaturation\tmean\tcall\n" )
+            output.write("#"+"\t".join(self.column_names)+"\n" )
             for line in lines:
                 output.write(line)
 

@@ -26,7 +26,7 @@ from pytransit.tools import informative_iterator, gui_tools, transit_tools, tnse
 from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 
-command_name = sys.argv[0]
+
 
 # 
 # Column names (put here for standardization, can be put back inside methods after)
@@ -103,7 +103,7 @@ class Analysis:
         normalization = "TTR",
     )
 
-    usage_string = f"""usage: python3 %s ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" % sys.argv[0] # the old way, with multiple wigs as input
+    usage_string = f"""usage: {console_tools.subcommand_prefix} ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" # TODO: this is the old way, with multiple wigs as input
     
     @gui.add_menu("Analysis", "himar1", menu_name)
     def on_menu_click(event):
@@ -279,7 +279,7 @@ class Analysis:
             self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path) 
 
 
-            if gui.interface=="gui" and self.inputs.genes_output_path!=None:
+            if gui.is_active and self.inputs.genes_output_path!=None:
                 logging.log(f"Adding File: {self.inputs.genes_output_path}")
                 results_area.add(self.inputs.genes_output_path)
                 logging.log(f"Adding File: {self.inputs.sites_output_path}")

@@ -228,7 +228,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         logging.log("Finished Export")
 
     usage_string = f"""
-        python {sys.argv[0]} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
+        {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
         
             default normalization_method=TTR
     """.replace("\n    ","\n")

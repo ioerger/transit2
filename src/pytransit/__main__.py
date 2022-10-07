@@ -13,18 +13,7 @@ def help_command(args=[], kwargs={}):
     # create available subcommand string
     # 
     if True:
-        probably_used_transit_executable_directly = os.path.basename(sys.argv[0]) == "transit"
-        # I don't think there is a way to know for sure without writing a C-extension for python and checking the real argv[0]
-        if probably_used_transit_executable_directly:
-            subcommand_prefix      = command_line.color(
-                f" transit ",
-                foreground="bright_blue"
-            )
-        else:
-            subcommand_prefix      = command_line.color(
-                f" python {sys.argv[0]} ",
-                foreground="bright_blue"
-            )
+        subcommand_prefix      = console_tools.subcommand_prefix
         
         # convert to strings
         subcommands_as_strings = [
