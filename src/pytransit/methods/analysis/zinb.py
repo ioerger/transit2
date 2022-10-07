@@ -65,7 +65,7 @@ class Analysis:
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
                 method_short_text= self.short_name,
                 method_long_text = self.long_name,
@@ -87,21 +87,21 @@ class Analysis:
 
             self.value_getters = LazyDict()
             # HANDLE_THIS
-            # panel_helpers.create_float_getter(self.panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_int_getter(self.panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_file_input(self.panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(self.panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(self.panel, main_sizer, label="")
+            # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
+            # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
+            # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            # panel_helpers.create_choice_input(panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
+            # panel_helpers.create_text_box_getter(panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            # panel_helpers.create_check_box_getter(panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
+            # @panel_helpers.create_button(panel, main_sizer, label="")
             # def when_button_clicked(event):
             #     print("do stuff")
             
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
 
     @staticmethod
@@ -168,8 +168,8 @@ class Analysis:
         # ask for output path(s)
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.identifier}_output.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Analysis.cli_name}_output.csv",
+            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
         if not Analysis.inputs.output_path:

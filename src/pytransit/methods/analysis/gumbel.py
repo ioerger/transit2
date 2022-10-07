@@ -107,7 +107,7 @@ class Analysis:
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
                 method_short_text= self.short_name,
                 method_long_text = self.long_name,
@@ -122,15 +122,15 @@ class Analysis:
                 
             self.value_getters = LazyDict()
             
-            self.value_getters.condition       = panel_helpers.create_condition_choice(self.panel,main_sizer, label_text="Condition to analyze:")
-            self.value_getters.normalization   = panel_helpers.create_normalization_input(self.panel, main_sizer) # TTR 
-            self.value_getters.samples         = panel_helpers.create_int_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
-            self.value_getters.burnin          = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
-            self.value_getters.trim            = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="trim", default_value=1, tooltip_text="trim")
-            self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
+            self.value_getters.condition       = panel_helpers.create_condition_choice(panel,main_sizer, label_text="Condition to analyze:")
+            self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer) # TTR 
+            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
+            self.value_getters.burnin          = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
+            self.value_getters.trim            = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="trim", default_value=1, tooltip_text="trim")
+            self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
         
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
     @staticmethod
     def from_gui(frame):
@@ -159,8 +159,8 @@ class Analysis:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
             Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-                default_file_name="gumbel_output.dat",
-                output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*"',
+                default_file_name=f"{Analysis.cli_name}_output.csv",
+                output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
             )
 
             #if not Analysis.inputs.output_path: return None ### why?

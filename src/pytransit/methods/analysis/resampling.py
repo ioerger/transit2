@@ -138,7 +138,7 @@ class Analysis:
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
                 method_short_text= self.short_name,
                 method_long_text = self.long_name,
@@ -154,23 +154,23 @@ class Analysis:
                 )
 
             self.value_getters = LazyDict()
-            sample_getter          = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
+            sample_getter          = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
             
-            self.value_getters.ctrldata               = panel_helpers.create_control_condition_input(self.panel, main_sizer)
-            self.value_getters.expdata                = panel_helpers.create_experimental_condition_input(self.panel, main_sizer)
+            self.value_getters.ctrldata               = panel_helpers.create_control_condition_input(panel, main_sizer)
+            self.value_getters.expdata                = panel_helpers.create_experimental_condition_input(panel, main_sizer)
             self.value_getters.samples                = lambda *args: int(sample_getter(*args))
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-            self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(self.panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
-            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            self.value_getters.site_restricted        = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
-            panel_helpers.create_preview_loess_button(self.panel, main_sizer)
-            self.value_getters.adaptive                = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
-            self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.include_zeros           = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            self.value_getters.site_restricted        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
+            panel_helpers.create_preview_loess_button(panel, main_sizer)
+            self.value_getters.adaptive                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
+            self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
+            self.value_getters.include_zeros           = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
         
     @classmethod
     def from_gui(cls, frame):
@@ -199,7 +199,7 @@ class Analysis:
         # save result files
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{cli_name}_output.csv",
+            default_file_name=f"{Analysis.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:

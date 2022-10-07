@@ -139,8 +139,8 @@ class Analysis:
         # save result files
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="hmm_output.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Analysis.cli_name}_output.csv",
+            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:
             return None

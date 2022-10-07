@@ -89,7 +89,7 @@ class Analysis:
 
     def define_panel(self,_=None):
         from pytransit.components import panel_helpers 
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
@@ -109,43 +109,43 @@ class Analysis:
             self.value_getters = LazyDict()
 
             if Analysis.inputs.resampling_file == None:
-                self.value_getters.reampling_file = panel_helpers.create_file_input(self.panel, main_sizer, 
+                self.value_getters.reampling_file = panel_helpers.create_file_input(panel, main_sizer, 
                     button_label="Select Input File", 
                     tooltip_text="FIX ME", popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*')   
 
-            self.value_getters.associations_file = panel_helpers.create_file_input(self.panel, main_sizer, 
+            self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Associations_File", 
                 tooltip_text="FIX ME", popup_title="Select Associations File",
                 allowed_extensions='All files (*.*)|*.*')
 
-            self.value_getters.pathways_file = panel_helpers.create_file_input(self.panel, main_sizer, 
+            self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Pathways File", 
                 tooltip_text="FIX ME", popup_title="Select Pathways File",
                 allowed_extensions='All files (*.*)|*.*')
 
-            self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(self.panel, main_sizer, 
+            self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select Default Files", 
                 tooltip_text="FIX ME", 
                 popup_title="")
 
     
-            self.value_getters.method = panel_helpers.create_choice_input(self.panel, main_sizer,
+            self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
                 options= ["FET", "GSEA", "ONT"],
                 tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
-            self.value_getters.ranking = panel_helpers.create_choice_input(self.panel, main_sizer,
+            self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Ranking",
                 options= ["SPLV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
                 
-            self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
-            self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  self.panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
-            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(self.panel, main_sizer, default_value=2)
+            self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
+            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
             
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function = self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
 
 
     @classmethod
@@ -185,9 +185,9 @@ class Analysis:
                 Analysis.inputs.pathways_file = universal.root_folder+"src/pytransit/data/COG_roles.dat"   
 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.identifier}_output.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-        )   
+            default_file_name=f"{Analysis.cli_name}_output.csv",
+            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
+        )
         return Analysis
 
     @staticmethod

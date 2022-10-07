@@ -61,12 +61,12 @@ class Analysis:
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as  (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
             # only need Norm selection and Run button        
             self.value_getters = LazyDict(
-                normalization=panel_helpers.create_normalization_input(self.panel, main_sizer,default="nonorm")
+                normalization=panel_helpers.create_normalization_input(panel, main_sizer,default="nonorm")
             )
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
 
     @staticmethod
     def from_gui(frame):
