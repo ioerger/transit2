@@ -6,3 +6,8 @@ naming discussion:
     - "Coord"
     - "Adj Pval", "Adj P Value"
     - "Non Insertions"
+
+
+replacements:
+    `sd '"Orf"' '"ORF"' src/**/*.py`
+    `sd 'from pytransit.universal_data import universal' 'from pytransit.interfaces import gui, cli' src/**/*.py`

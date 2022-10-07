@@ -23,6 +23,7 @@ if debugging_enabled:
 
 # TODO:
     # remove 'universal' in favor of gui/cli
+    # change "Analysis" to "Method"
     # create abstraction for sample-area buttons
     # update __main__ so that it uses the cli singleton
     # update each Analysis method to use the @cli.add_command
