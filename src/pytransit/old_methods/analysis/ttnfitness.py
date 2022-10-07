@@ -501,8 +501,8 @@ class TTNFitnessMethod(base.SingleConditionMethod):
         logging.log("\t + Assessing Models")
         # create Models Summary df
         Models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
-        Models_df["M1 Pval"] = results1.pvalues[1:-256]
-        Models_df["M1 Adjusted Pval"] = statsmodels.stats.multitest.fdrcorrection(
+        Models_df["M1 P Value"] = results1.pvalues[1:-256]
+        Models_df["M1 Adj P Value"] = statsmodels.stats.multitest.fdrcorrection(
             results1.pvalues[1:-256], alpha=0.05
         )[1]
         # Models_df["mod ttn Coef"] = results2.params[1:-1]
@@ -511,18 +511,18 @@ class TTNFitnessMethod(base.SingleConditionMethod):
 
         # creating a mask for the adjusted pvals
         Models_df.loc[
-            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "GA"
         Models_df.loc[
-            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "GD"
         Models_df.loc[
-            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "NE"
-        Models_df.loc[(Models_df["M1 Adjusted Pval"] > 0.05), "Gene+TTN States"] = "NE"
+        Models_df.loc[(Models_df["M1 Adj P Value"] > 0.05), "Gene+TTN States"] = "NE"
 
         # mask using mod TTN fitness
         # Models_df.loc[(Models_df["mod ttn Coef"]>0) & (Models_df["mod ttn Adjusted Pval"]<0.05),"mod ttn States"]="GA"
@@ -570,7 +570,7 @@ class TTNFitnessMethod(base.SingleConditionMethod):
             # M1 info
             if "_" + g in Models_df.index:
                 M1_coef = Models_df.loc["_" + g, "M1 Coef"]
-                M1_adj_pval = Models_df.loc["_" + g, "M1 Adjusted Pval"]
+                M1_adj_pval = Models_df.loc["_" + g, "M1 Adj P Value"]
                 modified_M1 = math.exp(
                     M1_coef - statistics.median(Models_df["M1 Coef"].values.tolist())
                 )

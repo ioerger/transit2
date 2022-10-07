@@ -18,7 +18,7 @@ import statsmodels.api as sm
 from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
+from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
 from pytransit.components.spreadsheet import SpreadSheet
@@ -60,6 +60,27 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at 
+                TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
+
+                Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) 
+                from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant 
+                has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. 
+                Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of 
+                the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
+
+                These insertion preferences are influenced by the nucleotide context of each TA site. The TTN-Fitness method uses a statistical model based on surrounding 
+                nucleotides to estimate the insertion bias of each site. Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio 
+                is 0 for ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
+                )
+
             self.value_getters = LazyDict()
 
             self.value_getters.condition = panel_helpers.create_condition_choice(self.panel, main_sizer, label_text="Condition to analyze:")
@@ -441,25 +462,25 @@ class Analysis:
         logging.log("\t + Assessing Models")
         # create Models Summary df
         Models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
-        Models_df["M1 Pval"] = results1.pvalues[1:-256]
-        Models_df["M1 Adjusted Pval"] = statsmodels.stats.multitest.fdrcorrection(
+        Models_df["M1 P Value"] = results1.pvalues[1:-256]
+        Models_df["M1 Adj P Value"] = statsmodels.stats.multitest.fdrcorrection(
             results1.pvalues[1:-256], alpha=0.05
         )[1]
 
         # creating a mask for the adjusted pvals
         Models_df.loc[
-            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "GA"
         Models_df.loc[
-            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "GD"
         Models_df.loc[
-            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adjusted Pval"] < 0.05),
+            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adj P Value"] < 0.05),
             "Gene+TTN States",
         ] = "NE"
-        Models_df.loc[(Models_df["M1 Adjusted Pval"] > 0.05), "Gene+TTN States"] = "NE"
+        Models_df.loc[(Models_df["M1 Adj P Value"] > 0.05), "Gene+TTN States"] = "NE"
 
         return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
@@ -504,7 +525,7 @@ class Analysis:
             # M1 info
             if "_" + g in Models_df.index:
                 M1_coef = Models_df.loc["_" + g, "M1 Coef"]
-                M1_adj_pval = Models_df.loc["_" + g, "M1 Adjusted Pval"]
+                M1_adj_pval = Models_df.loc["_" + g, "M1 Adj P Value"]
                 modified_M1 = math.exp(
                     M1_coef - statistics.median(Models_df["M1 Coef"].values.tolist())
                 )
@@ -542,7 +563,7 @@ class Analysis:
             ]
         output_df = pandas.DataFrame.from_dict(gene_dict, orient="index")
         output_df.columns = [
-            "ORF ID",
+            "Orf",
             "Name",
             "Description",
             "Total # TA Sites",
@@ -559,7 +580,7 @@ class Analysis:
         saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df) 
         TA_sites_df = TA_sites_df[
             [
-                "Coord",
+                "Coordinate",
                 "Orf",
                 "Name",
                 "Upstream TTN",
@@ -737,7 +758,7 @@ class GenesFile:
             plt.axvline(0, color="k", linestyle="dashed", linewidth=2)
             plt.legend()
             plt.xlabel("Gene+TTN (M1) Coef")
-            plt.ylabel("-Log adjusted p-value (base 10)")
+            plt.ylabel("-Log Adj P Value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
             plt.title("Adjusted threshold (horizonal line): P-value=%1.8f\nVertical line set at Coef=0" % threshold)
             plt.show()

@@ -17,7 +17,7 @@ import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import progress_update
+from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.basics import misc
 from pytransit.interfaces import gui
@@ -28,7 +28,7 @@ class Analysis:
     name = "Anova"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Perform Anova analysis"
+    menu_name   = f"{name} - Analysis of variance"
     description = """Perform Anova analysis"""
     
     transposons = ["himar1", "tn5"]
@@ -87,6 +87,24 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            set_instructions(
+                method_short_text= self.name,
+                method_long_text= "",
+                method_descr="""
+                    The Anova (Analysis of variance) method is used to determine which genes exhibit statistically significant 
+                    variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig 
+                    files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file 
+                    (which describes which samples/replicates belong to which experimental conditions).
+                """.replace("\n            ","\n"),
+                method_specific_instructions="""
+                    1. Ensure you have the annotation file ("prot table") that corresponds to the datasets to be analyzed.
+                    2. Select reference condition for the analysis
+                    3. [Optional] Add in comma-seperated values of conditions to include and comma-seperated values of condtions to exclude. 
+                       If these values are not provided, all conditions in the Condtion Panel will be included
+                    4. Adjust other parameters to your liking
+                    5. Click Run
+                """.replace("\n            ","\n")
+            )
             # 
             # parameter inputs
             # 

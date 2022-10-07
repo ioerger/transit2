@@ -89,6 +89,7 @@ def create_results_area(frame):
     # 
     with Table(
         initial_columns=[ "name", "type", "path"],
+        #max_size=(int(universal.frame.GetSize()[0]*2/3), 200)
         max_size=(-1, 200)
     ) as results.table:
     

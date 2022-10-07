@@ -13,6 +13,7 @@ import scipy
 import scipy.stats
 import heapq
 import math
+from pytransit.components.parameter_panel import set_instructions
 from pytransit.methods.analysis.pathway_enrichment import Analysis as PathwayEnrichment
 
 from pytransit.basics.lazy_dict import LazyDict
@@ -40,16 +41,16 @@ class Analysis:
     columns = [
         "Orf",
         "Name",
-        "Desc",
+        "Description",
         "Sites",
         "Mean Ctrl",
         "Mean Exp",
-        "log2FC",
+        "Log 2 FC",
         "Sum Ctrl",
         "Sum Exp",
         "Delta Mean",
-        "p-value",
-        "Adj. p-value",
+        "P Value",
+        "Adj P Value",
     ]
     
     valid_cli_flags = [
@@ -138,6 +139,20 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
+                It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+
+                See Pathway Enrichment Analysis for post-processing the hits to determine if the hits are associated with a particular functional 
+                catogory of genes or known biological pathway.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
+                )
+
             self.value_getters = LazyDict()
             sample_getter          = panel_helpers.create_text_box_getter(self.panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
             
@@ -498,17 +513,17 @@ class Analysis:
                 column_names=Analysis.columns if not self.inputs.Z else [
                     "Orf",
                     "Name",
-                    "Desc",
+                    "Description",
                     "Sites",
                     "Mean Ctrl",
                     "Mean Exp",
-                    "log2FC",
+                    "Log 2 FC",
                     "Sum Ctrl",
                     "Sum Exp",
                     "Delta Mean",
-                    "p-value",
-                    "Z-score",
-                    "Adj. p-value",
+                    "P Value",
+                    "Z Score",
+                    "Adj P Value",
                 ],
                 extra_info=dict(
                     parameters=dict(
@@ -781,7 +796,7 @@ class ResultFileType1:
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[ "Adj. p-value", "p-value" ]
+                    sort_by=[ "Adj P Value", "P Value" ]
                 ).Show(),
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
                 "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
@@ -800,7 +815,7 @@ class ResultFileType1:
     
     def graph_volcano_plot(self):
         # questions:
-            # are the selected rows correct ("log2FC", "Adj. p-value")?
+            # are the selected rows correct ("log2FC", "Adj P Value")?
             # what is the q_value supposed to be?
             # why are some log2 and the other axis log10?
         with gui_tools.nice_error_log:
@@ -808,9 +823,9 @@ class ResultFileType1:
             except:
                 print("Error: cannot do plots, no matplotlib")
                 
-            log2_fc_values = [ each_row["log2FC"]  for each_row in self.rows ]
-            p_values       = [ each_row["p-value"] for each_row in self.rows ]
-            q_values       = [ each_row["Adj. p-value"] for each_row in self.rows ]
+            log2_fc_values = [ each_row["Log 2 FC"]  for each_row in self.rows ]
+            p_values       = [ each_row["P Value"] for each_row in self.rows ]
+            q_values       = [ each_row["Adj P Value"] for each_row in self.rows ]
             log10_p_values = []
             for each_p_value in p_values:
                 try:
@@ -852,9 +867,9 @@ class ResultFileType1:
             plt.plot(log2_fc_values, log10_p_values, "bo")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")
-            plt.ylabel("-Log p-value (base 10)")
+            plt.ylabel("-Log P Value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
-            plt.title("Adjusted threshold (red line): P-value=%1.8f" % threshold)
+            plt.title("Adjusted Threshold (red line): P Value=%1.8f" % threshold)
             plt.show()
 
 Method = GUI = Analysis # for compatibility with older code/methods

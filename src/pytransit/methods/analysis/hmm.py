@@ -19,7 +19,7 @@ from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector,
 from pytransit.tools.tnseq_tools import Wig
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import progress_update
+from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 import pytransit.basics.csv as csv
 import pytransit.components.file_display as file_display
@@ -78,20 +78,32 @@ class Analysis:
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
+        with panel_helpers.NewPanel() as (panel, main_sizer):
+            set_instructions(
+                method_short_text= self.name,
+                method_long_text= "Hidden Markov Model",
+                method_descr="""
+                    The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other 
+                    methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or 
+                    growth defect regions), in addition to the more common categories of essential and non-essential.
+                """.replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIXME
+                """.replace("\n            ","\n")
+            )
             # 
             # parameter inputs
             # 
             self.value_getters = LazyDict()
             if True:
-                self.value_getters.normalization          = panel_helpers.create_normalization_input(self.panel, main_sizer)
-                self.value_getters.replicates             = panel_helpers.create_choice_input(self.panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-                self.value_getters.condition              = panel_helpers.create_condition_input(self.panel, main_sizer)
-                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(self.panel, main_sizer)
-                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(self.panel, main_sizer)
-                self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+                self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
+                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
+                self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
+                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+                self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
                 
-                panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+                panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
         
     @staticmethod
     def from_gui(frame):
@@ -565,10 +577,10 @@ class SitesFile:
     column_names = [
         "Location",
         "Read Count",
-        "Probability - ES",
-        "Probability - GD",
-        "Probability - NE",
-        "Probability - GA",
+        "Probability ES",
+        "Probability GD",
+        "Probability NE",
+        "Probability GA",
         "State",
         "Gene",
     ]
@@ -591,7 +603,7 @@ class SitesFile:
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[ "Adj. p-value", "p-value" ]
+                    sort_by=[ "Probability ES" ]
                 ).Show(),
             })
         )
@@ -614,12 +626,12 @@ class GeneFile:
         "Name",
         "Description",
         "Total Sites",
-        "Num. ES",
-        "Num. GD",
-        "Num. NE",
-        "Num. GA",
-        "Avg. Insertions",
-        "Avg. Reads",
+        "ES Count",
+        "GD Count",
+        "NE Count",
+        "GA Count",
+        "Mean Insertions",
+        "Mean Reads",
         "State Call",
     ]
     

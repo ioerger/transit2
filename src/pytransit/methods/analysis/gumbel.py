@@ -15,7 +15,7 @@ import scipy
 from pytransit.basics.lazy_dict import LazyDict
 
 from pytransit.universal_data import universal
-from pytransit.components.parameter_panel import panel as parameter_panel
+from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.panel_helpers import *
 from pytransit.components.spreadsheet import SpreadSheet
@@ -43,7 +43,15 @@ class Analysis:
     Reference: DeJesus et al. (2013; Bioinformatics)"""
     
     transposons = ["himar1"]
-    columns = ["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"]
+    columns = ["Orf", 
+        "Name", 
+        "Description", 
+        "Number of Insertions within ORF",
+        "Total Number of TA sites within ORF", 
+        "Length of Maximum Run Of Non-Insertions", 
+        "Nucleotide Span for Maximum Run of Non-Insertions", 
+        "Posterior Probability of Essentiality", 
+        "Essentiality Call"]
     
     inputs = LazyDict(
         combined_wig = None,
@@ -98,6 +106,18 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
+            set_instructions(
+                method_short_text= self.short_name,
+                method_long_text = self.long_name,
+                method_descr="""
+                The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
+                at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
+                the probability of this using a Bayesian model.""".replace("\n            ","\n"),
+                method_specific_instructions="""
+                    FIX ME
+                """.replace("\n            ","\n")
+                )
+                
             self.value_getters = LazyDict()
             
             self.value_getters.condition       = panel_helpers.create_condition_choice(self.panel,main_sizer, label_text="Condition to analyze:")
