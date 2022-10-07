@@ -50,7 +50,7 @@ from pytransit.components.results_area           import create_results_area
 from pytransit.components.samples_area           import create_sample_area
 from pytransit.components.annotation_area        import create_annotation_area
 from pytransit.basics.lazy_dict                  import LazyDict
-from pytransit.universal_data                    import universal
+from pytransit.interfaces                        import gui, cli
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit
