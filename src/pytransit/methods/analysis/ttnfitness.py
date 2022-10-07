@@ -184,6 +184,7 @@ class Analysis:
             return Analysis
 
     @classmethod
+    @cli.add_command(cli_name)
     def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
         console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=6)
         Analysis.inputs.update(dict(

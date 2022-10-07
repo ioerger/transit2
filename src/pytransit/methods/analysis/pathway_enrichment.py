@@ -27,7 +27,7 @@ from pytransit.components import file_display, results_area, parameter_panel, pa
 class Analysis:
     name = "Pathway Enrichment"
     identifier  = name.replace(" ", "")
-    # cli_name    = identifier.lower() # is this available from the cli? --Jeff
+    cli_name    = identifier.lower() # is this available from the cli? --Jeff
     menu_name   = f"{identifier} - Perform {name} analysis"
     description = f"""Perform {name} analysis"""
     rows = []
@@ -186,6 +186,7 @@ class Analysis:
         return Analysis
 
     @staticmethod
+    @cli.add_command(cli_name)
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=4)

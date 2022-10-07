@@ -7,6 +7,7 @@ import csv
 import traceback
 from pytransit.tools import transit_tools, console_tools, logging
 from pytransit.methods import convert_base as base
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 ############# Description ##################
 
@@ -77,7 +78,8 @@ class GffProtMethod(base.ConvertMethod):
         output_file = open(output_path, "w")
 
         return self(annotation_path, output_file, wxobj)
-
+    
+    @cli.add_command("convert", "gff_to_prot")
     @classmethod
     def from_args(self, args, kwargs):
         console_tools.enforce_number_of_args(args, self.usage_string, at_least=2)
@@ -141,8 +143,3 @@ class GffProtMethod(base.ConvertMethod):
         logging.log("Finished conversion")
 
     usage_string = f"""{console_tools.subcommand_prefix} convert gff_to_prot_table <annotation in gff format> <output file>"""
-
-
-if __name__ == "__main__":
-
-    pass

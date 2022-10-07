@@ -13,10 +13,8 @@ import datetime
 
 from pytransit.methods import export_base as base
 import pytransit
-from pytransit.tools import transit_tools, console_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-from pytransit.tools import stat_tools
+from pytransit.tools import transit_tools, console_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
 ############# Description ##################
@@ -143,7 +141,8 @@ class MeanCountsMethod(base.SingleConditionMethod):
             c_terminus,
             wxobj,
         )
-
+    
+    @cli.add_command("export", "mean_counts")
     @classmethod
     def from_args(self, args, kwargs):
         print("ARGS=" + str(args))

@@ -6,6 +6,7 @@ import time
 from pytransit.methods import export_base as base
 from pytransit.tools import transit_tools, tnseq_tools, norm_tools, logging, console_tools
 from pytransit.basics import misc
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
 ############# Description ##################
@@ -118,6 +119,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
             wxobj,
         )
 
+    @cli.add_command("export", "combined_wig")
     @classmethod
     def from_args(self, args, kwargs):
         console_tools.enforce_number_of_args(args, self.usage_string, exactly=3)

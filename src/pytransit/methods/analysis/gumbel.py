@@ -167,6 +167,7 @@ class Analysis:
             return Analysis
 
     @staticmethod
+    @cli.add_command(cli_name)
     def from_args(args, kwargs):
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
         console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=3)

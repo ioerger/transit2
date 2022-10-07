@@ -11,10 +11,8 @@ import scipy.stats
 import datetime
 
 from pytransit.old_methods import analysis_base as base
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.stat_tools as stat_tools
+from pytransit.tools import transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
 ############# Description ##################
@@ -105,6 +103,7 @@ class NormMethod(base.SingleConditionMethod):
             wxobj=wxobj,
         )
 
+    @cli.add_command("export", "norm")
     @classmethod
     def from_args(self, args, kwargs):
         from pytransit.tools.console_tools import InvalidArgumentException

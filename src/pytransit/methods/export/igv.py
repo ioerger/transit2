@@ -15,6 +15,7 @@ import datetime
 from pytransit.methods import export_base as base
 import pytransit
 from pytransit.tools import transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
 ############# Description ##################
@@ -134,7 +135,8 @@ class IGVMethod(base.SingleConditionMethod):
             c_terminus,
             wxobj,
         )
-
+    
+    @cli.add_command("export", "igv")
     @classmethod
     def from_args(self, args, kwargs):
 
