@@ -62,6 +62,8 @@ def help_command(args=[], kwargs={}):
 
 # this wrapper exist to help with test cases. Might be good to change the test cases to elimate the need for it
 def main(*args, **kwargs):
+    import pytransit.methods.analysis
+    
     # 
     # Check python version
     # 
@@ -132,10 +134,6 @@ def main(*args, **kwargs):
     else:
         import matplotlib
         matplotlib.use("Agg")
-        
-        from pytransit.methods.analysis import methods as analysis_methods
-        from pytransit.methods.export   import methods as export_methods
-        from pytransit.methods.convert  import methods as convert_methods
         
         # 
         # try to match longest sequence of arguments with a subcommand
