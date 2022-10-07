@@ -38,16 +38,16 @@ class Analysis:
     menu_name   = f"{identifier} - test of conditional essentiality between two conditions"
     description = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
     
-    columns = [
-        "Orf",
+    column_names = [
+        "ORF",
         "Name",
         "Description",
         "Sites",
-        "Mean Ctrl",
-        "Mean Exp",
+        "Mean Control",
+        "Mean Experimental",
         "Log 2 FC",
-        "Sum Ctrl",
-        "Sum Exp",
+        "Sum Control",
+        "Sum Experimental",
         "Delta Mean",
         "P Value",
         "Adj P Value",
@@ -199,8 +199,8 @@ class Analysis:
         # save result files
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="resampling_output.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{cli_name}_output.csv",
+            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:
             return None
@@ -510,16 +510,16 @@ class Analysis:
                 path=self.inputs.output_path,
                 file_kind=Analysis.identifier,
                 rows=rows,
-                column_names=Analysis.columns if not self.inputs.Z else [
-                    "Orf",
+                column_names=Analysis.column_names if not self.inputs.Z else [
+                    "ORF",
                     "Name",
                     "Description",
                     "Sites",
-                    "Mean Ctrl",
-                    "Mean Exp",
+                    "Mean Control",
+                    "Mean Experimental",
                     "Log 2 FC",
-                    "Sum Ctrl",
-                    "Sum Exp",
+                    "Sum Control",
+                    "Sum Experimental",
                     "Delta Mean",
                     "P Value",
                     "Z Score",

@@ -54,10 +54,10 @@ class Analysis:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         self.value_getters = LazyDict()
-        with panel_helpers.NewPanel() as (self.panel, main_sizer):
-            self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(self.panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
+        with panel_helpers.NewPanel() as (panel, main_sizer):
+            self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
 
-            panel_helpers.create_run_button(self.panel, main_sizer, from_gui_function=self.from_gui)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):

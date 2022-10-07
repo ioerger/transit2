@@ -626,27 +626,26 @@ class Analysis:
 
         # Write column names (redundant with self.columns)
         column_names = [
-            "ORF",
-            "gene",
-            "annotation",
-            "TA sites",
-            "A1 mean count",
-            "A2 mean count",
-            "B1 mean count",
-            "B2 mean count",
-            "logFC (Strain A)",
-            "logFC (Strain B) ",
-            "delta logFC",
-            "Lower Bound delta logFC",
-            "Upper Bound delta logFC",
-            "Is HDI outside ROPE?",
-            "Probability of delta-logFC being within ROPE",
-            f"{adjusted_label} Adjusted P Value",
-            "Type of Interaction",
+            'ORF',
+            'Gene',
+            'Annotation',
+            'TA Sites',
+            'A1 Mean Count',
+            'A2 Mean Count',
+            'B1 Mean Count',
+            'B2 Mean Count',
+            'Log FC Strain A',
+            'Log FC Strain B',
+            'Delta Log FC',
+            'Lower Bound Delta Log FC',
+            'Upper Bound Delta Log FC',
+            'Is HDI Outside ROPE',
+            'Probability Of Delta Log FC Being Within ROPE',
+            f'{adjusted_label} Adj P Value',
+            'Type Of Interaction'
         ]
-        column_names = [ misc.pascal_case_with_spaces(each) for each in column_names ]
         self.output.write(
-            "#"+self.column_names.join("\t")+"\n"
+            "#"+"\t".join(column_names)+"\n"
         )
     
         annot = {}

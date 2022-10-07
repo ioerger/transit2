@@ -157,8 +157,8 @@ class Analysis:
         # save result files
         # 
         Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="anova_output.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{cli_name}_output.csv",
+            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
         if not Analysis.inputs.output_path:
             return None
@@ -452,14 +452,14 @@ class Analysis:
                     "Rv",
                     "Gene",
                     "TAs",
-                    *[ f"Mean_{condition_name}" for condition_name in conditions_list ],
-                    *[  f"LFC_{condition_name}" for condition_name in conditions_list ],
+                    *[ f"Mean {condition_name}" for condition_name in conditions_list ],
+                    *[  f"LFC {condition_name}" for condition_name in conditions_list ],
                     "MSR",
-                    "MSE+alpha",
+                    "MSE With Alpha",
                     "Fstat",
-                    "Pval",
-                    "Padj",
-                    "status"
+                    "P Value",
+                    "Adj P Value",
+                    "Status"
                 ],
                 extra_info=dict(
                     parameters=dict(
@@ -490,7 +490,7 @@ class File:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows, sort_by=["Padj", "Pval"]).Show(),
+                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
@@ -543,7 +543,7 @@ class File:
                 for line in file:
                     w = line.rstrip().split("\t")
                     if line[0] == "#" or (
-                        "pval" in line and "padj" in line
+                        "P Value" in line and "Adj P Value" in line
                     ):  # check for 'pval' for backwards compatibility
                         headers = w
                         continue  # keep last comment line as headers
@@ -552,7 +552,7 @@ class File:
                         # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, lfc_s) X number_of_conditions conditions)
                         number_of_conditions = int((len(w) - 6) / 2)
                         headers = headers[3 : 3 + number_of_conditions]
-                        headers = [x.replace("Mean_", "") for x in headers]
+                        headers = [x.replace("Mean ", "") for x in headers]
                     else:
                         means = [
                             float(x) for x in w[3 : 3 + number_of_conditions]
@@ -579,7 +579,7 @@ class File:
             print("heatmap based on %s genes" % len(hits))
             gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
             hash = {}
-            headers = [h.replace("Mean_", "") for h in headers]
+            headers = [h.replace("Mean ", "") for h in headers]
             for i, col in enumerate(headers):
                 hash[col] = FloatVector([x[i] for x in lfc_s])
             df = DataFrame(hash)

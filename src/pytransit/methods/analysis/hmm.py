@@ -622,7 +622,7 @@ class SitesFile:
 class GeneFile:
     identifier = "HMM_Genes"
     column_names = [
-        "Orf",
+        "ORF",
         "Name",
         "Description",
         "Total Sites",

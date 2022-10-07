@@ -29,6 +29,70 @@ from pytransit.interfaces import gui
 
 command_name = sys.argv[0]
 
+# 
+# Column names (put here for standardization, can be put back inside methods after)
+# 
+if True:
+    pandas_read_csv_column_names = [
+        "ORF",
+        "Name",
+        "Description",
+        "K",
+        "N",
+        "R",
+        "S",
+        "Z Bar",
+        "Call"
+    ]
+    output_dataframe_columns = [
+        "ORF",
+        "Name",
+        "Description",
+        "Total TA Site Count",
+        "Count Of Sites With Insertions",
+        "Gene Saturation",
+        "Gene Plus TTN M1 Coef",
+        "Gene Plus TTN M1 Adj P Value",
+        "Mean Insertion Count",
+        "Fitness Ratio",
+        "TTN Fitness Assessment",
+    ]
+    ta_sites_dataframe_columns = [
+        "Coord",
+        "ORF",
+        "Name",
+        "Upstream TTN",
+        "Downstream TTN",
+        "TTN Fitness Assessment",
+        "Insertion Count",
+        "Local Average",
+        "M1 Predicted Count",
+    ]
+    ttnfitness_genes_summary_columns = [
+        "ORF ID",
+        "Name",
+        "Description",
+        "Total TA Site Count",
+        "Count Of Sites With Insertions",
+        "Gene Saturation",
+        "Gene Plus TTN M1 Coef",
+        "Gene Plus TTN M1 Adj P Value",
+        "Mean Insertion Count",
+        "Fitness Ratio",
+        "TTN Fitness Assessment",
+    ]
+    columns_to_drop = [
+        "Coord",
+        "Insertion Count",
+        "ORF",
+        "Name",
+        "Local Average",
+        "Actual LFC",
+        "State",
+        "Upstream TTN",
+        "Downstream TTN",
+    ]
+
 @misc.singleton
 class Analysis:
     name = "TTN Fitness"
@@ -61,25 +125,26 @@ class Analysis:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (self.panel, main_sizer):
             set_instructions(
-                method_short_text= self.short_name,
-                method_long_text = self.long_name,
+                method_short_text= self.name,
+                method_long_text="",
                 method_descr="""
-                TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at 
-                TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
+                    TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at 
+                    TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
 
-                Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) 
-                from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant 
-                has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. 
-                Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of 
-                the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
+                    Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) 
+                    from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant 
+                    has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. 
+                    Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of 
+                    the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
 
-                These insertion preferences are influenced by the nucleotide context of each TA site. The TTN-Fitness method uses a statistical model based on surrounding 
-                nucleotides to estimate the insertion bias of each site. Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio 
-                is 0 for ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.""".replace("\n            ","\n"),
+                    These insertion preferences are influenced by the nucleotide context of each TA site. The TTN-Fitness method uses a statistical model based on surrounding 
+                    nucleotides to estimate the insertion bias of each site. Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio 
+                    is 0 for ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.
+                """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIX ME
+                    FIXME
                 """.replace("\n            ","\n")
-                )
+            )
 
             self.value_getters = LazyDict()
 
@@ -227,10 +292,10 @@ class Analysis:
 
 
             if universal.interface=="gui" and self.inputs.genes_output_path!=None:
-              logging.log(f"Adding File: {self.inputs.genes_output_path}")
-              results_area.add(self.inputs.genes_output_path)
-              logging.log(f"Adding File: {self.inputs.sites_output_path}")
-              results_area.add(self.inputs.sites_output_path)
+                logging.log(f"Adding File: {self.inputs.genes_output_path}")
+                results_area.add(self.inputs.genes_output_path)
+                logging.log(f"Adding File: {self.inputs.sites_output_path}")
+                results_area.add(self.inputs.sites_output_path)
             logging.log("Finished TnseqStats")
             logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
 
@@ -295,7 +360,7 @@ class Analysis:
 
         TA_sites_df = pandas.DataFrame(
             {
-                "Orf": orf,
+                "ORF": orf,
                 "Name": name,
                 "Coord": coords,
                 "Insertion Count": all_counts,
@@ -370,7 +435,7 @@ class Analysis:
             self.gumbelestimations,
             sep="\t",
             skiprows=skip_count,
-            names=["Orf", "Name", "Desc", "k", "n", "r", "s", "zbar", "Call"],
+            names=pandas_read_csv_column_names,
             dtype=str,
         )
 
@@ -381,16 +446,16 @@ class Analysis:
         logging.log("\t + Filtering ES/ESB Genes")
         # function to extract gumbel calls to filter out ES and ESB
         gumbel_bernoulli_gene_calls = {}
-        for _, g in informative_iterator.ProgressBar(TA_sites_df["Orf"].unique(), title="Filtering ES/ESB Genes"):
+        for _, g in informative_iterator.ProgressBar(TA_sites_df["ORF"].unique(), title="Filtering ES/ESB Genes"):
             if g == "igr":
                 gene_call = numpy.nan
             else:
                 gene_call = "U"
-                sub_gumbel = gumbel_df[gumbel_df["Orf"] == g]
+                sub_gumbel = gumbel_df[gumbel_df["ORF"] == g]
                 if len(sub_gumbel) > 0:
                     gene_call = sub_gumbel["Call"].iloc[0]
                 # set to ES if greater than n and all 0s
-                sub_data = TA_sites_df[TA_sites_df["Orf"] == g]
+                sub_data = TA_sites_df[TA_sites_df["ORF"] == g]
                 if (
                     len(sub_data) > significant_n
                     and len(sub_data[sub_data["Insertion Count"] > 0]) == 0
@@ -406,8 +471,8 @@ class Analysis:
         logging.log("\t + Filtering Short Genes. Labeling as Uncertain")
         # function to call short genes (1 TA site) with no insertions as Uncertain
         uncertain_genes = []
-        for _, g in informative_iterator.ProgressBar(TA_sites_df["Orf"].unique(), title="Filtering Short Genes"):
-            sub_data = TA_sites_df[TA_sites_df["Orf"] == g]
+        for _, g in informative_iterator.ProgressBar(TA_sites_df["ORF"].unique(), title="Filtering Short Genes"):
+            sub_data = TA_sites_df[TA_sites_df["ORF"] == g]
             len_of_gene = len(sub_data)
             num_insertions = len(sub_data[sub_data["Insertion Count"] > 0])
             saturation = num_insertions / len_of_gene
@@ -417,22 +482,22 @@ class Analysis:
         filtered_ttn_data = TA_sites_df[TA_sites_df["State"] != "ES"]
         filtered_ttn_data = filtered_ttn_data[filtered_ttn_data["Local Average"] != -1]
         filtered_ttn_data = filtered_ttn_data[
-            ~filtered_ttn_data["Orf"].isin(ess_genes)
+            ~filtered_ttn_data["ORF"].isin(ess_genes)
         ]  # filter out ess genes
         filtered_ttn_data = filtered_ttn_data[
-            ~filtered_ttn_data["Orf"].isin(uncertain_genes)
+            ~filtered_ttn_data["ORF"].isin(uncertain_genes)
         ]  # filter out uncertain genes
         filtered_ttn_data = filtered_ttn_data.reset_index(drop=True)
 
 
         ##########################################################################################
         # Linear Regression
-        gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["Orf"], prefix="")
+        gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="")
         ttn_vectors = filtered_ttn_data.drop(
             [
                 "Coord",
                 "Insertion Count",
-                "Orf",
+                "ORF",
                 "Name",
                 "Local Average",
                 "Actual LFC",
@@ -453,10 +518,10 @@ class Analysis:
             X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
             #X1 = sm.add_constant(X1)
             results1 = sm.OLS(Y, X1).fit()
-            filtered_ttn_data["M1 Pred log Count"] = results1.predict(X1) 
-            filtered_ttn_data["M1 Pred log Count"] = filtered_ttn_data["M1 Pred log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
+            filtered_ttn_data["M1 Pred Log Count"] = results1.predict(X1) 
+            filtered_ttn_data["M1 Pred Log Count"] = filtered_ttn_data["M1 Pred Log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
             filtered_ttn_data["M1 Predicted Count"] = numpy.power(
-                10, (filtered_ttn_data["M1 Pred log Count"] - 0.5)
+                10, (filtered_ttn_data["M1 Pred Log Count"] - 0.5)
             )
 
         logging.log("\t + Assessing Models")
@@ -470,17 +535,17 @@ class Analysis:
         # creating a mask for the adjusted pvals
         Models_df.loc[
             (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adj P Value"] < 0.05),
-            "Gene+TTN States",
+            "Gene Plus TTN States",
         ] = "GA"
         Models_df.loc[
             (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adj P Value"] < 0.05),
-            "Gene+TTN States",
+            "Gene Plus TTN States",
         ] = "GD"
         Models_df.loc[
             (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adj P Value"] < 0.05),
-            "Gene+TTN States",
+            "Gene Plus TTN States",
         ] = "NE"
-        Models_df.loc[(Models_df["M1 Adj P Value"] > 0.05), "Gene+TTN States"] = "NE"
+        Models_df.loc[(Models_df["M1 Adj P Value"] > 0.05), "Gene Plus TTN States"] = "NE"
 
         return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
@@ -488,12 +553,11 @@ class Analysis:
         genes_out_rows, sites_out_rows = [],[]
         logging.log("Writing To Output Files")
         # Write Models Information to CSV
-        # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj Pval
+        # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj P Value
 
         gene_dict = {}  # dictionary to map information per gene
         TA_sites_df["M1 Predicted Count"] = [None] * len(TA_sites_df)
-        # TA_sites_df["mod ttn Predicted Count"] = [None]*len(TA_sites_df)
-        for progress, g in informative_iterator.ProgressBar(TA_sites_df["Orf"].unique(), title="Writing To Output"):
+        for progress, g in informative_iterator.ProgressBar(TA_sites_df["ORF"].unique(), title="Writing To Output"):
             # ORF Name
             orfName = gene_obj_dict[g].name
             # ORF Description
@@ -503,15 +567,15 @@ class Analysis:
             # Sites > 0
             above0TAsites = len([r for r in gene_obj_dict[g].reads[0] if r > 0])
             # Insertion Count
-            actual_counts = TA_sites_df[TA_sites_df["Orf"] == g]["Insertion Count"]
+            actual_counts = TA_sites_df[TA_sites_df["ORF"] == g]["Insertion Count"]
             mean_actual_counts = numpy.mean(actual_counts)
             local_saturation = above0TAsites / numTAsites
             # Predicted Count
-            if g in filtered_ttn_data["Orf"].values:
-                actual_df = filtered_ttn_data[filtered_ttn_data["Orf"] == g][
+            if g in filtered_ttn_data["ORF"].values:
+                actual_df = filtered_ttn_data[filtered_ttn_data["ORF"] == g][
                     "Insertion Count"
                 ]
-                coords_orf = filtered_ttn_data[filtered_ttn_data["Orf"] == g][
+                coords_orf = filtered_ttn_data[filtered_ttn_data["ORF"] == g][
                     "Coord"
                 ].values.tolist()
                 for c in coords_orf:
@@ -542,11 +606,11 @@ class Analysis:
                 gene_ttn_call = "ESB"
             else:
                 if "_" + g in Models_df.index:
-                    gene_ttn_call = Models_df.loc["_" + g, "Gene+TTN States"]
+                    gene_ttn_call = Models_df.loc["_" + g, "Gene Plus TTN States"]
                 else:
                     gene_ttn_call = "U"  # these genes are in the uncertain genes list
             TA_sites_df.loc[
-                (TA_sites_df["Orf"] == g), "TTN-Fitness Assessment"
+                (TA_sites_df["ORF"] == g), "TTN Fitness Assessment"
             ] = gene_ttn_call
             gene_dict[g] = [
                 g,
@@ -562,34 +626,12 @@ class Analysis:
                 gene_ttn_call,
             ]
         output_df = pandas.DataFrame.from_dict(gene_dict, orient="index")
-        output_df.columns = [
-            "Orf",
-            "Name",
-            "Description",
-            "Total # TA Sites",
-            "#Sites with insertions",
-            "Gene Saturation",
-            "Gene+TTN (M1) Coef",
-            "Gene+TTN (M1) Adj Pval",
-            "Mean Insertion Count",
-            "Fitness Ratio",
-            "TTN-Fitness Assessment",
-        ]
-        assesment_cnt = output_df["TTN-Fitness Assessment"].value_counts()
+        output_df.columns = output_dataframe_columns
+        assesment_cnt = output_df["TTN Fitness Assessment"].value_counts()
 
         saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df) 
         TA_sites_df = TA_sites_df[
-            [
-                "Coordinate",
-                "Orf",
-                "Name",
-                "Upstream TTN",
-                "Downstream TTN",
-                "TTN-Fitness Assessment",
-                "Insertion Count",
-                "Local Average",
-                "M1 Predicted Count",
-            ]
+            ta_sites_dataframe_columns
         ]
 
         genes_out_rows = output_df.values.tolist()
@@ -716,19 +758,7 @@ class GenesFile:
                 print("Error: cannot do plots, no matplotlib")
 
             ttnfitness_genes_summary = pandas.read_csv(self.path, sep= "\t",comment='#')
-            ttnfitness_genes_summary.columns = [
-                "ORF ID",
-                "Name",
-                "Description",
-                "Total # TA Sites",
-                "#Sites with insertions",
-                "Gene Saturation",
-                "Gene+TTN (M1) Coef",
-                "Gene+TTN (M1) Adj Pval",
-                "Mean Insertion Count",
-                "Fitness Ratio",
-                "TTN-Fitness Assessment",
-            ]
+            ttnfitness_genes_summary.columns = ttnfitness_genes_summary_columns
 
             color_dict = {
                 "ES":"r",
@@ -739,10 +769,10 @@ class GenesFile:
                 "U": "y"
             }
             plt.figure()
-            for call in set(ttnfitness_genes_summary["TTN-Fitness Assessment"]):
-                sub_summary = ttnfitness_genes_summary[ttnfitness_genes_summary["TTN-Fitness Assessment"]==call]
-                coef_vals = sub_summary["Gene+TTN (M1) Coef"]
-                q_vals = sub_summary["Gene+TTN (M1) Adj Pval"]
+            for call in set(ttnfitness_genes_summary["TTN Fitness Assessment"]):
+                sub_summary = ttnfitness_genes_summary[ttnfitness_genes_summary["TTN Fitness Assessment"]==call]
+                coef_vals = sub_summary["Gene Plus TTN M1 Coef"]
+                q_vals = sub_summary["Gene Plus TTN M1 Adj P Value"]
                 log10_q_vals = []
                 for each_q_val in q_vals:
                     try:
@@ -757,7 +787,7 @@ class GenesFile:
             plt.axhline( -math.log(threshold, 10), color="k", linestyle="dashed", linewidth=2)
             plt.axvline(0, color="k", linestyle="dashed", linewidth=2)
             plt.legend()
-            plt.xlabel("Gene+TTN (M1) Coef")
+            plt.xlabel("Gene Plus TTN M1 Coef")
             plt.ylabel("-Log Adj P Value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
             plt.title("Adjusted threshold (horizonal line): P-value=%1.8f\nVertical line set at Coef=0" % threshold)

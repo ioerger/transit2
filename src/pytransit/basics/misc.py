@@ -105,7 +105,7 @@ def pascal_case_with_spaces(string):
             new_string += each_character.upper()
         # start of number
         elif prev_character not in digits and each_character in digits:
-            new_string += " "+each_character
+            new_string += each_character
         # end of number
         elif prev_character in digits and each_character not in digits:
             new_string += " "+each_character.upper()

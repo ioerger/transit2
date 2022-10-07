@@ -43,15 +43,17 @@ class Analysis:
     Reference: DeJesus et al. (2013; Bioinformatics)"""
     
     transposons = ["himar1"]
-    columns = ["Orf", 
+    column_names = [
+        "ORF", 
         "Name", 
         "Description", 
-        "Number of Insertions within ORF",
-        "Total Number of TA sites within ORF", 
-        "Length of Maximum Run Of Non-Insertions", 
-        "Nucleotide Span for Maximum Run of Non-Insertions", 
-        "Posterior Probability of Essentiality", 
-        "Essentiality Call"]
+        "Number Of Insertions Within ORF",
+        "Total Number Of TA Sites Within ORF", 
+        "Length Of Maximum Run Of Non Insertions",
+        "Nucleotide Span For Maximum Run Of Non Insertions",
+        "Posterior Probability Of Essentiality", 
+        "Essentiality Call"
+    ]
     
     inputs = LazyDict(
         combined_wig = None,
@@ -424,7 +426,7 @@ class Analysis:
             path=self.inputs.output_path,
             file_kind=Analysis.identifier,
             rows=rows,
-            column_names=Analysis.columns,
+            column_names=Analysis.column_names,
             extra_info=dict(
                 parameters=dict(
                     samples=self.inputs.samples,
@@ -435,7 +437,7 @@ class Analysis:
                     replicates = self.inputs.replicates,
                     iN = self.inputs.iN,
                     iC=self.inputs.iC,
-                    ),
+                ),
                 annotation_path=self.inputs.annotation_path,
                 time=(time.time() - self.start_time),
 

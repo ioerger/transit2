@@ -35,6 +35,19 @@ class Analysis:
         output_path=None,
     )
     
+    column_names = [
+        "Dataset",
+        "Density",
+        "Mean Count",
+        "Non Zero Mean",
+        "Non Zero Median",
+        "Max Count",
+        "Total Counts",
+        "Skewness",
+        "Kurtosis",
+        "Pickands Tail Index",
+    ]
+    
     valid_cli_flags = [
         "-n", # normalization flag
         "-o", # output filename (optional)
@@ -140,7 +153,7 @@ class Analysis:
                 file = open(self.inputs.output_path, "w")
             file.write("#%s\n" % self.identifier)
             file.write("#normalization: %s\n" % self.inputs.normalization)
-            file.write("#dataset\tdensity\tmean_ct\tNZmean\tNZmedian\tmax_ct\ttotal_cts\tskewness\tkurtosis\tpickands_tail_index\n")
+            file.write("#"+"\t".join(self.column_names)+"\n")
 
             for vals in results:
                 file.write("\t".join([str(x) for x in vals]) + "\n")
