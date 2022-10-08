@@ -674,9 +674,8 @@ class Analysis:
                         ii_exp = numpy.ones(gene_exp.n) == 1
 
                     # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
-                    data1 = gene.reads[:,ii_ctrl]
-                    data2 = gene_exp.reads[:,ii_exp]
-                    
+                    data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
+                    data2 = gene_exp.reads[:,ii_exp]###.flatten()
                     if self.inputs.winz:
                         data1 = self.winsorize_for_resampling(data1)
                         data2 = self.winsorize_for_resampling(data2)
