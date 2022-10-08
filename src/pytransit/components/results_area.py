@@ -87,8 +87,7 @@ def create_results_area(frame):
     # 
     with Table(
         initial_columns=[ "name", "type", "path"],
-        #max_size=(int(gui.frame.GetSize()[0]*2/3), 200)
-        max_size=(-1, 200)
+        max_size=(int(gui.width*0.7), 200)
     ) as results.table:
     
         @results.table.events.on_select

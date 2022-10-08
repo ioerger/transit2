@@ -19,5 +19,6 @@ sd 'gui\.interface *== *("|'"'"')gui("|'"'"')'         'gui.is_active'          
 sd 'gui\.interface *!= *("|'"'"')gui("|'"'"')'         'not gui.is_active'                                                      src/**/*.py
 sd 'gui\.interface *!= *("|'"'"')console("|'"'"')'     'gui.is_active'                                                          src/**/*.py
 sd 'gui\.interface *== *("|'"'"')console("|'"'"')'     'not gui.is_active'                                                      src/**/*.py
+sd 'FIX ME'                                            'FIXME'                                                                  src/**/*.py
 sd 'sys.argv'                                          'console_tools.subcommand_prefix#FIXME'                                  src/methods/**/*.py
 ```

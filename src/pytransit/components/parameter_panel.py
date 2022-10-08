@@ -208,6 +208,7 @@ def create_panel_area(_):
 old_panel = None
 def set_panel(new_panel):
     with gui_tools.nice_error_log:
+        current_size = panel.progress_panel.GetSize()
         global old_panel
         if old_panel != None:
             old_panel.Hide()
@@ -219,6 +220,7 @@ def set_panel(new_panel):
         except Exception as error: print(error)
         
         panel.method_sizer.Add(new_panel, 1, wx.ALL|wx.EXPAND, gui_tools.default_padding)
+        #new_panel.SetSize(current_size[0],-1)
         new_panel.Show()
         panel.method_sizer.Add(
             panel.progress_panel,
@@ -226,6 +228,7 @@ def set_panel(new_panel):
             wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
             5,
         )
+        
         panel.progress_panel.Layout()
         panel.method_sizer.Fit(panel.progress_panel)
         panel.method_sizer.Fit(new_panel)
@@ -233,6 +236,9 @@ def set_panel(new_panel):
         old_panel = new_panel
         panel.progress_label.Show()
         panel.progress.Show()
+
+        
+        
 
 def set_instructions( method_short_text, method_long_text, method_descr, method_specific_instructions):
     with gui_tools.nice_error_log:

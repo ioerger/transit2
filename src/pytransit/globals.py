@@ -48,6 +48,14 @@ class gui:
     menu_heirarchy = LazyDict()
     
     @property
+    def width(self):
+        return self.frame.GetSize()[0]
+    
+    @property
+    def height(self):
+        return self.frame.GetSize()[1]
+        
+    @property
     def conditions(self):
         return no_duplicates(flatten_once(each_combined_wig.conditions for each_combined_wig in self.combined_wigs))
             

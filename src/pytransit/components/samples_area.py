@@ -109,7 +109,9 @@ def create_sample_area(frame):
         # 
         # sample_table
         # 
-        with Table() as sample_table:
+        with Table(
+            max_size=(int(universal.frame.GetSize()[0]*0.7), 200)
+        ) as sample_table:
             # 
             # show wig-specific buttons
             # 
@@ -136,7 +138,9 @@ def create_sample_area(frame):
         # 
         # conditions_table
         # 
-        with Table() as conditions_table:
+        with Table(
+           max_size=(int(universal.frame.GetSize()[0]*0.7), 200)
+        ) as conditions_table:
             outer_sample_sizer.add(
                 conditions_table.wx_object,
                 proportion=1, # 29 does something strange
