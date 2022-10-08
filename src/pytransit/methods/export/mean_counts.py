@@ -92,7 +92,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         self.combined_wig = combined_wig  # boolean, interprete ctrldata as combined_wig file or comma-separated list of wig files?
 
     @classmethod
-    def from_gui(self, wxobj):
+    def from_gui(cls, wxobj):
         """ """
 
         # Get Annotation file
@@ -129,7 +129,7 @@ class MeanCountsMethod(base.SingleConditionMethod):
         # could add a checkbox for combined_wig
         combined_wig = False
 
-        return self(
+        return cls(
             combined_wig,
             ctrldata,
             annotation_path,

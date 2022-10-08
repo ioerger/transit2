@@ -89,7 +89,7 @@ def clean_args(rawargs):
     return (args, kwargs)
 
 def handle_help_flag(kwargs, usage_string):
-    if kwargs.get("-help", False) or kwargs.get("h", False):
+    if kwargs.get("-help", False):
         print(usage_string)
         exit(0)
 
@@ -109,6 +109,7 @@ def enforce_number_of_args(args, usage_string, *, exactly=None, at_least=type(No
 def handle_unrecognized_flags(flags, kwargs, usage_string):
     for arg_name in kwargs.keys():
         if arg_name not in flags and f"-{arg_name}" not in flags:
+            print(f"{arg_name} was not one of the available flags: {' '.join(flags)}")
             raise Exception(f'''unrecognized flag: {arg_name}\n\n{usage_string}''')
 
 def check_if_has_wx():

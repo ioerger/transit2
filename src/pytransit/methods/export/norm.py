@@ -104,8 +104,8 @@ class NormMethod(base.SingleConditionMethod):
         )
 
     @cli.add_command("export", "norm")
-    @classmethod
-    def from_args(self, args, kwargs):
+    @staticmethod
+    def from_args(args, kwargs):
         from pytransit.tools.console_tools import InvalidArgumentException
         if len(args) < 3:
             raise InvalidArgumentException("Must provide all necessary arguments")
@@ -122,7 +122,7 @@ class NormMethod(base.SingleConditionMethod):
         n_terminus = 0.0
         c_terminus = 0.0
 
-        return self(
+        return NormMethod(
             ctrldata,
             annotation_path,
             output_file,

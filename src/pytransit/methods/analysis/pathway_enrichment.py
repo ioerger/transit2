@@ -149,8 +149,8 @@ class Analysis:
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
 
 
-    @classmethod
-    def from_gui(cls,frame):       
+    @staticmethod
+    def from_gui(frame):       
 
         for each_key, each_getter in Analysis.value_getters.items():
             try:

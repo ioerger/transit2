@@ -225,15 +225,15 @@ def validate_transposons_used(datasets, transposons, just_warn=True):
             logging.error(f"Error: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: {','.join(unknown)}.")
     return True
 
-def validate_wig_format(wig_list, wxobj=None):
+def validate_wig_format(wig_list):
     # Check if the .wig files include zeros or not
     status = 0
     genome = ""
     includes_zeros = tnseq_tools.check_wig_includes_zeros(wig_list)
 
     if sum(includes_zeros) < len(includes_zeros):
-        # If console mode, just print(a warning)
-        if not wxobj or not HAS_WX:
+        from pytransit.globals import gui
+        if not gui.is_active:
             warnings.warn(
                 "\nOne or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). Proceeding as if data was Tn5 (all other sites assumed to be zero)!\n"
             )
@@ -242,12 +242,12 @@ def validate_wig_format(wig_list, wxobj=None):
         # Else check their decision
         dlg = AssumeZerosDialog()
         result = dlg.ShowModal()
-        if result == dlg.ID_HIMAR1 and wxobj:
+        if result == dlg.ID_HIMAR1 and gui.is_active:
             status = 1
             # Get genome
             wc = "Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
             gen_dlg = wx.FileDialog(
-                wxobj,
+                gui.frame,
                 message="Save file as ...",
                 defaultDir=os.getcwd(),
                 defaultFile="",
@@ -375,13 +375,12 @@ def convert_to_combined_wig(dataset_list, annotation_path, outputPath, normchoic
         )
     output.close()
 
-def get_validated_data(wig_list, wxobj=None):
+def get_validated_data(wig_list):
     """ Returns a tuple of (data, position) containing a matrix of raw read-counts
         , and list of coordinates. 
 
     Arguments:
         wig_list (list): List of paths to wig files.
-        wxobj (object): wxPython GUI object for warnings
 
     Returns:
         tuple: Two lists containing data and positions of the wig files given.
@@ -396,7 +395,7 @@ def get_validated_data(wig_list, wxobj=None):
 
     .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.tools.norm_tools.normalize_data`
     """
-    (status, genome) = validate_wig_format(wig_list, wxobj=wxobj)
+    (status, genome) = validate_wig_format(wig_list)
 
     # Regular file with empty sites
     if status == 0:

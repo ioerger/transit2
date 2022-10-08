@@ -325,8 +325,9 @@ class Analysis:
             rvs.append(rv)
 
             # Update progress
-            percentage = 100.0 * count / len(genes)
-            progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
+            if gui.is_active:
+                percentage = 100.0 * count / len(genes)
+                progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
 
         pvals = numpy.array(pvals)
         mask = numpy.isfinite(pvals)

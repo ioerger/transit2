@@ -217,7 +217,7 @@ class Analysis:
                 
             elif self.inputs.wig_files!=None:
                 logging.log("Getting Data")
-                (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
+                (data, position) = transit_tools.get_validated_data( self.inputs.wig_files)
                 
             else:
                 logging.error("error: must provide either combined_wig or list of wig files")

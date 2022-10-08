@@ -331,8 +331,7 @@ class Analysis:
                     rows=rows,
                     column_names=SitesFile.column_names,
                     extra_info=dict(
-                        gui_or_cli=gui.interface,
-                        cli_command=console_tools.full_commandline_command,
+                        gui_or_cli=("gui" if gui.is_active else "cli"),
                         stats=dict(
                             mean=float(numpy.average(reads_nz)),
                             median=float(numpy.median(reads_nz)),

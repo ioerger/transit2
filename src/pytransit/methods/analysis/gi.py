@@ -130,8 +130,8 @@ class Analysis:
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
 
 
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         # 
         # get wig files
         # 
@@ -166,11 +166,11 @@ class Analysis:
 
         return Analysis
 
-    @classmethod
+    @staticmethod
     @cli.add_command(cli_name)
-    def from_args(cls, args, kwargs):
+    def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(cls.valid_cli_flags, kwargs, Analysis.usage_string)
+        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
         console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=8)
 
         combined_wig = args[0]

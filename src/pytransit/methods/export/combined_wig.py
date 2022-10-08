@@ -75,7 +75,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
         )
 
     @classmethod
-    def from_gui(self, wxobj):
+    def from_gui(cls, wxobj):
         # Get Annotation file
         from pytransit.globals import gui, cli, root_folder, debugging_enabled
         annotation_path = gui.annotation_path
@@ -107,7 +107,7 @@ class CombinedWigMethod(base.SingleConditionMethod):
             return None
         output_file = open(output_path, "w")
 
-        return self(
+        return cls(
             ctrldata,
             annotation_path,
             output_file,

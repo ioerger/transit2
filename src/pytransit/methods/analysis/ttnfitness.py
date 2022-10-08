@@ -124,8 +124,8 @@ class Analysis:
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         with gui_tools.nice_error_log:
             combined_wig = gui.combined_wigs[0]
             Analysis.inputs.combined_wig = combined_wig.main_path
@@ -147,9 +147,9 @@ class Analysis:
 
             return Analysis
 
-    @classmethod
+    @staticmethod
     @cli.add_command(cli_name)
-    def from_args(cls, args, kwargs): # clean_args() was already called in pytransit/__main__.py
+    def from_args(args, kwargs): # clean_args() was already called in pytransit/__main__.py
         console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=6)
         Analysis.inputs.update(dict(
             combined_wig = None,
@@ -191,7 +191,7 @@ class Analysis:
 
             elif self.inputs.wig_files!=None:
                 logging.log("Getting Data")
-                (data, position) = transit_tools.get_validated_data( self.inputs.wig_files, wxobj=self.wxobj )
+                (data, position) = transit_tools.get_validated_data(self.inputs.wig_files)
 
             else:
                 logging.error("error: must provide either combined_wig or list of wig files")

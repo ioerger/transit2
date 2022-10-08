@@ -173,8 +173,8 @@ class Analysis:
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
         
-    @classmethod
-    def from_gui(cls, frame):
+    @staticmethod
+    def from_gui(frame):
         # 
         # get wig files
         # 
@@ -234,9 +234,9 @@ class Analysis:
         
         return Analysis
 
-    @classmethod
+    @staticmethod
     @cli.add_command(cli_name)
-    def from_args(cls, args, kwargs):
+    def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
         
@@ -289,7 +289,7 @@ class Analysis:
         ctrl_lib_str = kwargs.get("-ctrl_lib", "")
         exp_lib_str = kwargs.get("-exp_lib", "")
         
-        cls.inputs.update(dict(
+        Analysis.inputs.update(dict(
             ctrldata=ctrldata,
             expdata=expdata,
             output_path=output_path,
@@ -371,13 +371,9 @@ class Analysis:
             )
             position_ctrl, position_exp = position, position
         else:
-            output = transit_tools.get_validated_data(
-                self.inputs.ctrldata, wxobj=self.wxobj
-            )
+            output = transit_tools.get_validated_data(self.inputs.ctrldata)
             (data_ctrl, position_ctrl, *_) = output
-            (data_exp, position_exp) = transit_tools.get_validated_data(
-                self.inputs.expdata, wxobj=self.wxobj
-            )
+            (data_exp, position_exp) = transit_tools.get_validated_data(self.inputs.expdata)
         (K_ctrl, N_ctrl) = data_ctrl.shape
         (K_exp, N_exp) = data_exp.shape
 

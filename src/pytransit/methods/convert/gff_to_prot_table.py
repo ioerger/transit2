@@ -59,7 +59,7 @@ class GffProtMethod(base.ConvertMethod):
         )
 
     @classmethod
-    def from_gui(self, wxobj):
+    def from_gui(cls, wxobj):
         """ """
         # Get Annotation file
         from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -77,7 +77,7 @@ class GffProtMethod(base.ConvertMethod):
             return None
         output_file = open(output_path, "w")
 
-        return self(annotation_path, output_file, wxobj)
+        return cls(annotation_path, output_file, wxobj)
     
     @cli.add_command("convert", "gff_to_prot")
     @classmethod
