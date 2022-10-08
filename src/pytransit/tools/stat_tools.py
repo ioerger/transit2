@@ -3,9 +3,6 @@ import math
 import numpy
 import scipy.stats
 
-from pytransit.basics.lazy_dict import LazyDict
-
-from blissful_basics import print
 
 def sample_trunc_norm_post(data, S, mu0, s20, k0, nu0):
     n = len(data)
@@ -564,9 +561,6 @@ def resampling(
 
     mean1 = 0
     mean2 = 0
-    print(f'''''')
-    print(f'''data1 = {data1}''')
-    print(f'''data2 = {data2}''')
     if number_of_samples1 > 0: mean1 = numpy.mean(data1) # over all counts pooled across reps and libs for cond1
     if number_of_samples2 > 0: mean2 = numpy.mean(data2)
 
@@ -584,34 +578,14 @@ def resampling(
     # Get stats and info based on whether working with libraries or not:
     number_of_ta_sites = 0
     if lib_str1:
-        flat_data1 = data1.flatten()
-        flat_data2 = data2.flatten()
         # note: returns a generator, not a list
         # Get number of TA sites implied
-        number_of_ta_sites1 = len(flat_data1)//len(lib_str1)
-        number_of_ta_sites2 = len(flat_data2)//len(lib_str2)
-        print("number_of_ta_sites1= ",number_of_ta_sites1,)
-        print("number_of_ta_sites2= ",number_of_ta_sites2,)
-        print("length_flat_data1= ",len(flat_data1),)
-        print("length_flat_data2= ",len(flat_data2),)
-        print("lib_str1= ",lib_str1,)
-        print("lib_str2= ",lib_str2,)
-        assert number_of_ta_sites1 != number_of_ta_sites2, f"""Datasets do not have matching sites; check input data and library strings:\n{LazyDict(
-            number_of_ta_sites1=number_of_ta_sites1,
-            number_of_ta_sites2=number_of_ta_sites2,
-            length_flat_data1=len(flat_data1),
-            length_flat_data2=len(flat_data2),
-            lib_str1=lib_str1,
-            lib_str2=lib_str2,
-            data1=data1,
-            data2=data2,
-            
-        )}"""
-        number_of_ta_sites = number_of_ta_sites1
+        number_of_ta_sites = len(data1.flatten())//len(lib_str1)
+        assert len(data2.flatten())//len(lib_str2) == number_of_ta_sites, "Datasets do not have matching sites; check input data and library strings."
 
         # Get data
         # for lib_str, perm is a dict mapping letters to pairs of numpy arrays (1 for each cond)
-        perm = get_lib_data_dict(flat_data1, lib_str1, flat_data2, lib_str2, number_of_ta_sites) 
+        perm = get_lib_data_dict(data1.flatten(), lib_str1, data2.flatten(), lib_str2, number_of_ta_sites) 
         test_obs = test_func(perm) 
     else:
         try:
