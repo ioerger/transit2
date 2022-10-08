@@ -874,4 +874,3 @@ class ResultFileType1:
             plt.title("Adjusted Threshold (red line): P Value=%1.8f" % threshold)
             plt.show()
 
-Method = GUI = Method # for compatibility with older code/methods

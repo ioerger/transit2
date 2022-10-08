@@ -590,4 +590,3 @@ class File:
             results_area.add(output_path)
             gui_tools.show_image(output_path)
 
-Method = GUI = Method

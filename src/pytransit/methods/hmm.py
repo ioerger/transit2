@@ -709,4 +709,3 @@ class GeneFile:
         """.replace('\n            ','\n').strip()
 
 
-Method = GUI = Method

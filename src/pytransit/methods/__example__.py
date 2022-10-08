@@ -256,4 +256,3 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
-Method = GUI = Method # for compatibility with older code/methods

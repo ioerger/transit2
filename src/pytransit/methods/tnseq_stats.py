@@ -254,4 +254,3 @@ class ResultFileType1:
         """.replace('\n            ','\n').strip()
     
     
-Method = GUI = Method # for compatibility with older code/methods

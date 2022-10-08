@@ -141,4 +141,3 @@ class Method:
             logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
 
 
-Method = GUI = Method # for compatibility with older code/methods
