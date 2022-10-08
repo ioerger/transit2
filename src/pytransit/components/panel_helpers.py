@@ -113,7 +113,7 @@ if True:
 
                     pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
                     popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG", "COG_20" ,"GO", "KEGG"])
+                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
                     popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
                     select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
@@ -126,10 +126,10 @@ if True:
                     if selected_path == wx.ID_OK:
                         pathway_type_selected = pathway_type.GetValue()
 
-                        if pathway_type_selected== "COG_20":
+                        if pathway_type_selected== "COG":
                             organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
                             popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = COG_orgs)
+                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))
                             popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
                         else:
                             organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
