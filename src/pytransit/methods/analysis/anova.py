@@ -277,7 +277,7 @@ class Analysis:
         count = 0
 
         msrs, mses, f_stats, pvals, rvs, status = [],[],[],[],[],[]
-        for _, gene in informative_iterator.ProgressBar(genes):
+        for _, gene in informative_iterator.ProgressBar(genes, title="Running Anova"):
             count += 1
             rv = gene["rv"]
             if len(rv_site_indexes_map[rv]) <= 1:

@@ -1,3 +1,5 @@
+import sys
+
 foreground_colors = {
     "black"          : 30,
     "red"            : 31,
@@ -36,6 +38,10 @@ background_colors = {
 }
 
 def color(string, foreground="white", background="black"):
+    # if outputing to a file, dont color anything
+    if not sys.stdout.isatty():
+        return string
+        
     if foreground not in foreground_colors:
         raise Exception(f"couldn't find foreground color {foreground}")
     if background not in background_colors:

@@ -5,6 +5,8 @@ import traceback
 
 from pytransit.tools import console_tools, logging
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
+import pytransit.methods.combined_wig
+
 
 @cli.add_command("help")
 def help_command(args=[], kwargs={}):

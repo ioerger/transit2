@@ -51,7 +51,7 @@ class Analysis:
         "Length Of Maximum Run Of Non Insertions",
         "Nucleotide Span For Maximum Run Of Non Insertions",
         "Posterior Probability Of Essentiality", # Z Bar
-        "Essentiality Call"
+        "Essentiality Call",
     ]
     
     inputs = LazyDict(
@@ -124,7 +124,7 @@ class Analysis:
             
             self.value_getters.condition       = panel_helpers.create_condition_choice(panel,main_sizer, label_text="Condition to analyze:")
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer) # TTR 
-            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="")
+            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value=10000, tooltip_text="")
             self.value_getters.burnin          = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
             self.value_getters.trim            = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="trim", default_value=1, tooltip_text="trim")
             self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)

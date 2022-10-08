@@ -4,15 +4,15 @@ import sys
 from pytransit.basics import command_line
 probably_used_transit_executable_directly = os.path.basename(sys.argv[0]) == "transit"
 if probably_used_transit_executable_directly:
-    full_commandline_command = "transit " + " ".join(sys.argv[1:])
+    full_commandline_command = "transit " + " ".join([ f"'{each}'" for each in sys.argv[1:]])
     subcommand_prefix = command_line.color(
         f" transit ",
         foreground="bright_blue"
     )
 else:
-    full_commandline_command = f"python " + " ".join(sys.argv)
+    full_commandline_command = f"python3 " + " ".join([ f"'{each}'" for each in sys.argv])
     subcommand_prefix = command_line.color(
-        f" python {sys.argv[0]} ",
+        f" python3 {sys.argv[0]} ",
         foreground="bright_blue"
     )
 

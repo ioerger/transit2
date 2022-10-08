@@ -784,18 +784,6 @@ class Analysis:
         counts = [x + [y] for x, y in zip(counts, qvals)]
         counts.sort(key=lambda x: x[-1])
 
-        # self.rows.append(
-        #     "# number of GO terms that are significantly enriched (qval<0.05): %s"
-        #     % len(list(filter(lambda x: x[-1] < 0.05, counts)))
-        # )
-
-        # 1-sided pvals, only report enriched terms, not depleted
-
-        # self.rows.append(
-        #     "\t".join(
-        #         "GO_term description total_orfs orfs_in_GO orfs_in_parents hits_in_parents hits GO_in_hits num_parent_nodes enrichment pval qval genes_in_intersection_of_hits_and_GO_term".split()
-        #     )
-        # )  # assume self.inputs.outputFile has already been opened
         for (go, n, m, p, q, a, b, npar, enrich, pval, qval) in counts:
             hits = filter(lambda x: x in go2rvs[go], studyset)
             hits = [(x, genes[x][1], ranks[x]) for x in hits]
