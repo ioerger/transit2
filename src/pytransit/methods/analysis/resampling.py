@@ -81,7 +81,7 @@ class Analysis:
         normalization="TTR",
         samples=10000,
         adaptive=False,
-        include_zeros=False,
+        include_zeros=True, # FIXME: include_zeros=False breaks resampling (even on master I believe)
         pseudocount=1,
         replicates="Sum",
         LOESS=False,
