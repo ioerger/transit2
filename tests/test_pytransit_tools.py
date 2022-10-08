@@ -21,6 +21,10 @@ import pytransit.tools.stat_tools as stat_tools
 import pytransit.tools.transit_tools as transit_tools
 
 
+# fake setup for testing
+from pytransit.globals import gui
+gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
+
 class TestTnSeqTools(TransitTestCase):
     def test_read_data(self):
         data,position = tnseq_tools.CombinedWig.gather_wig_data(all_data_list)

@@ -20,6 +20,9 @@ from pytransit.methods.analysis.hmm        import Analysis as HMMMethod
 
 from pytransit.methods.analysis.resampling import Analysis as ResamplingMethod
 
+# fake setup for testing
+from pytransit.globals import gui
+gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
 
 # RAW STATISTICS:
 raw_ctrl_rep1 = (0.41855103545338784, 53.913866362844317, 128.81073464420675, 70.0, 3855.0, 4022244.0, 4.022213863266365, 33.02399374787363)
@@ -54,7 +57,6 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_nonorm(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "nonorm"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
         self.assertLessEqual(len(pvals), 5)
@@ -64,7 +66,6 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_ttr(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "TTR"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
         self.assertLessEqual(len(pvals), 1)
@@ -74,7 +75,6 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_nz_mean(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "nzmean"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
         self.assertLessEqual(len(pvals), 5)
@@ -83,7 +83,6 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_tot_reads(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "totreads"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
         self.assertLessEqual(len(pvals), 5)
@@ -92,7 +91,6 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_quantile(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "quantile"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
         hits = count_hits(output)
         pvals, qvals = significant_pvals_qvals(output)
@@ -102,14 +100,12 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_zinfnb(self):
         args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "zinfnb"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
 
     """
     def test_resampling_bgc(self):
         args = [ctrl_data_txt, exp_data_txt, annotation, output, "-s", "1000", "-n", "betageom"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
         hits = count_hits(output)
         self.assertLessEqual(hits, 20)
@@ -120,7 +116,6 @@ class TestNormMethods(TransitTestCase):
     def test_resampling_a_bgc(self):
         args = [ctrl_data_txt, exp_data_txt, annotation, output, "-s", "1000", "-n", "aBGC"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
-        G.Run()
         self.assertTrue(os.path.exists(output))
     """
     
