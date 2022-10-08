@@ -238,8 +238,6 @@ class Analysis:
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        print(f'''args = {args}''')
-        print(f'''kwargs = {kwargs}''')
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
         
@@ -614,12 +612,25 @@ class Analysis:
         if s[1] == 0:
             return data # don't do anything if there is only 1 non-zero value
         
+        print(f'''counts = {counts}''')
         c2 = [
             (s[1] if x==s[0] else x)
                 for x in counts 
         ]
+        print(f'''c2 = {c2}''')
         
         return numpy.array(c2).reshape(original_shape)
+    
+    def winsorize_resampling(self, counts):
+        # input is insertion counts for gene as pre-flattened numpy array
+        counts = counts.tolist()
+        if len(counts) < 3:
+            return counts
+        s = sorted(counts, reverse=True)
+        if s[1] == 0:
+            return counts  # don't do anything if there is only 1 non-zero value
+        c2 = [s[1] if x == s[0] else x for x in counts]
+        return numpy.array(c2)
 
     def run_resampling(
         self, g_ctrl, g_exp=None, do_library_resampling=False
@@ -672,7 +683,11 @@ class Analysis:
                     else:
                         ii_ctrl = numpy.ones(gene.n) == 1
                         ii_exp = numpy.ones(gene_exp.n) == 1
-
+                    
+                    print(f'''PRE: data1.flatten() = {gene.reads.flatten().shape}''')
+                    print(f'''PRE: data1.flatten() = {gene_exp.reads.flatten().shape}''')
+                    print(f'''PRE: data2.flatten() = {gene.reads.flatten()}''')
+                    print(f'''PRE: data2.flatten() = {gene_exp.reads.flatten()}''')
                     # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
                     data1 = gene.reads[:,ii_ctrl]
                     data2 = gene_exp.reads[:,ii_exp]
@@ -680,8 +695,6 @@ class Analysis:
                     if self.inputs.winz:
                         data1 = self.winsorize_for_resampling(data1)
                         data2 = self.winsorize_for_resampling(data2)
-                    print(f'''data1 = {data1}'''.replace("\n", "\t"))
-                    print(f'''data2 = {data2}'''.replace("\n", "\t"))
                     
                     #data1 = gene.reads[:,ii_ctrl].flatten() + self.pseudocount # we used to have an option to add pseudocounts to each observation, like this
                     data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
@@ -740,7 +753,7 @@ class Analysis:
                         pval_ltail=pval_ltail,
                         pval_utail=pval_utail,
                         pval_2tail=pval_2tail,
-                        testlist=testlist,
+                        testlist_first_100=testlist[:100],
                     ))    
                 
                 # 
