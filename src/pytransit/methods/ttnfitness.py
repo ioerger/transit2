@@ -31,7 +31,7 @@ import pytransit.components.results_area as results_area
 class Method:
     name = "TTN Fitness"
     identifier  = name.replace(" ", "")
-    cli_name    = name.lower()
+    cli_name    = identifier.lower()
     menu_name   = f"{name} - Analyze fitness effect of (non-essential) genes"
     description = """Analyze fitness effect of (non-essential) genes using a predictive model that corrects for the bias in Himar1 insertion probabilities based on nucleotides around each TA site"""
     transposons = [ "himar1" ] # definitely Himar1 only
@@ -234,10 +234,13 @@ class Method:
             logging.log("Finished TnseqStats")
             logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
 
-    # returns: ta_sites_df , models_df , gene_obj_dict
-
-    def calc_ttnfitness(self,genome,G,gumbel_results_file):
-        self.gumbelestimations = gumbel_results_file
+    def calc_ttnfitness(self, genome, G, gumbel_results_file):
+        """
+        Returns:
+            ta_sites_df, models_df, gene_obj_dict
+        """
+        
+        self.gumbel_estimations = gumbel_results_file
 
         # Creating the dataset
         orf = []
@@ -359,7 +362,7 @@ class Method:
         logging.log("Making Fitness Estimations")
         # Read in Gumbel estimations
         skip_count = 0
-        gumbel_file = open(self.gumbelestimations, "r")
+        gumbel_file = open(self.gumbel_estimations, "r")
         for line in gumbel_file.readlines():
             if line.startswith("#"):
                 skip_count = skip_count + 1
@@ -368,7 +371,7 @@ class Method:
         gumbel_file.close()
         from .gumbel import Method as Gumbel
         gumbel_df = pandas.read_csv(
-            self.gumbelestimations,
+            self.gumbel_estimations,
             sep="\t",
             skiprows=skip_count,
             names=Gumbel.column_names,
@@ -394,7 +397,7 @@ class Method:
                 sub_data = ta_sites_df[ta_sites_df["ORF"] == g]
                 if (
                     len(sub_data) > significant_n
-                    and len(sub_data[sub_data["Number Of Insertions Within ORF"] > 0]) == 0
+                    and len(sub_data[sub_data["Insertion Count"] > 0]) == 0
                 ):
                     gene_call = "EB"  # binomial filter
             gumbel_bernoulli_gene_calls[g] = gene_call
@@ -429,18 +432,18 @@ class Method:
         ##########################################################################################
         # Linear Regression
         gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="")
+        columns_to_drop = [
+            "Coordinates",
+            "Insertion Count",
+            "ORF",
+            "Name",
+            "Local Average",
+            "Upstream TTN",
+            "Downstream TTN",
+        ]
+        assert all([ each in SitesFile.column_names for each in columns_to_drop]), f"Developer Error: TTN Fitness is dropping columns that were probably renamed: {[ each for each in columns_to_drop if each not in SitesFile.column_names]}"
         ttn_vectors = filtered_ttn_data.drop(
-            [
-                "Coordinates",
-                "Insertion Count",
-                "ORF",
-                "Name",
-                "Local Average",
-                "Actual LFC",
-                "State",
-                "Upstream TTN",
-                "Downstream TTN",
-            ],
+            [ "Actual LFC", "State",] + columns_to_drop,
             axis=1,
         )
    
@@ -485,7 +488,7 @@ class Method:
 
         return (ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
-    def write_ttnfitness_results(self,ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,genes_output_path,sites_output_path):
+    def write_ttnfitness_results(self, ta_sites_df, models_df, gene_obj_dict, filtered_ttn_data, gumbel_bernoulli_gene_calls, genes_output_path, sites_output_path):
         genes_out_rows, sites_out_rows = [],[]
         logging.log("Writing To Output Files")
         # Write Models Information to CSV
@@ -495,17 +498,17 @@ class Method:
         ta_sites_df["M1 Predicted Count"] = [None] * len(ta_sites_df)
         for progress, g in informative_iterator.ProgressBar(ta_sites_df["ORF"].unique(), title="Writing To Output"):
             # ORF Name
-            orfName = gene_obj_dict[g].name
+            orf_name = gene_obj_dict[g].name
             # ORF Description
-            orfDescription = gene_obj_dict[g].desc
+            orf_description = gene_obj_dict[g].desc
             # Total TA sites
-            numTAsites = len(gene_obj_dict[g].reads[0])  # TRI check this!
+            num_t_asites = len(gene_obj_dict[g].reads[0])  # TRI check this!
             # Sites > 0
-            above0TAsites = len([r for r in gene_obj_dict[g].reads[0] if r > 0])
+            above0_ta_sites = len([r for r in gene_obj_dict[g].reads[0] if r > 0])
             # Insertion Count
             actual_counts = ta_sites_df[ta_sites_df["ORF"] == g]["Insertion Count"]
             mean_actual_counts = numpy.mean(actual_counts)
-            local_saturation = above0TAsites / numTAsites
+            local_saturation = above0_ta_sites / num_t_asites
             # Predicted Count
             if g in filtered_ttn_data["ORF"].values:
                 actual_df = filtered_ttn_data[filtered_ttn_data["ORF"] == g][
@@ -524,15 +527,15 @@ class Method:
                     ]
             # M1 info
             if "_" + g in models_df.index:
-                M1_coef = models_df.loc["_" + g, "M1 Coef"]
-                M1_adj_pval = models_df.loc["_" + g, "M1 Adj P Value"]
-                modified_M1 = math.exp(
-                    M1_coef - statistics.median(models_df["M1 Coef"].values.tolist())
+                m1_coef = models_df.loc["_" + g, "M1 Coef"]
+                m1_adj_p_value = models_df.loc["_" + g, "M1 Adj P Value"]
+                modified_m1 = math.exp(
+                    m1_coef - statistics.median(models_df["M1 Coef"].values.tolist())
                 )
             else:
-                M1_coef = None
-                M1_adj_pval = None
-                modified_M1 = None
+                m1_coef = None
+                m1_adj_p_value = None
+                modified_m1 = None
 
             # States
             gumbel_bernoulli_call = gumbel_bernoulli_gene_calls[g]
@@ -550,28 +553,28 @@ class Method:
             ] = gene_ttn_call
             gene_dict[g] = [
                 g,
-                orfName,
-                orfDescription,
-                numTAsites,
-                above0TAsites,
+                orf_name,
+                orf_description,
+                num_t_asites,
+                above0_ta_sites,
                 local_saturation,
-                M1_coef,
-                M1_adj_pval,
+                m1_coef,
+                m1_adj_p_value,
                 mean_actual_counts,
-                modified_M1,
+                modified_m1,
                 gene_ttn_call,
             ]
-        output_df = pandas.DataFrame.from_dict(gene_dict, orient="index")
-        output_df.columns = ttnfitness_genes_summary_columns
-        assesment_cnt = output_df["TTN Fitness Assessment"].value_counts()
-
+            
         saturation = len(ta_sites_df[ta_sites_df["Insertion Count"] > 0]) / len(ta_sites_df) 
-        ta_sites_df = ta_sites_df[
-            SitesFile.comlumn_names
-        ]
-
+        
+        # 
+        # Write Genes data
+        # 
+        output_df = pandas.DataFrame.from_dict(gene_dict, orient="index")
+        output_df.columns = GenesFile.column_names
+        assesment_cnt = output_df["TTN Fitness Assessment"].value_counts()
         genes_out_rows = output_df.values.tolist()
-
+        
         logging.log("Writing File: %s" % (self.inputs.genes_output_path))
         transit_tools.write_result(
             path=self.inputs.genes_output_path,
@@ -600,10 +603,12 @@ class Method:
                 
             ),
         )
-        # write sites data
-
+        
+        # 
+        # write Sites data
+        # 
+        ta_sites_df = ta_sites_df[SitesFile.column_names]
         sites_out_rows = ta_sites_df.values.tolist()
-
         logging.log("Writing File: %s" % (self.inputs.sites_output_path))
         transit_tools.write_result(
             path=self.inputs.sites_output_path,
@@ -745,7 +750,7 @@ class GenesFile:
 
 @transit_tools.ResultsFile
 class SitesFile:
-    comlumn_names = [
+    column_names = [
         "Coordinates",
         "ORF",
         "Name",
@@ -799,6 +804,3 @@ class SitesFile:
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
-
-
-Method = GUI = Method # for compatibility with older code/methods
