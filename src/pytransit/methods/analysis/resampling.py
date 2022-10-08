@@ -29,6 +29,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 
+from blissful_basics import print
 
 @misc.singleton
 class Analysis:
@@ -237,6 +238,8 @@ class Analysis:
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
+        print(f'''args = {args}''')
+        print(f'''kwargs = {kwargs}''')
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
         
@@ -313,6 +316,7 @@ class Analysis:
             combined_wig_params=combined_wig_params,
             do_histogram=do_histogram,
         ))
+        print(f'''Analysis.inputs = {Analysis.inputs}''')
         Analysis.Run()
 
     def Run(self):
@@ -634,95 +638,109 @@ class Analysis:
             )
             os.makedirs(hist_path, exist_ok=True)
         
-        for progress, gene in informative_iterator.ProgressBar(g_ctrl, title="Running Resampling "):
-            if gene.orf not in g_exp:
-                if self.inputs.diff_strains:
-                    continue
-                else:
-                    # NOTE: returned ([], [])
-                    logging.error("Error: Gene in ctrl data not present in exp data. Make sure all .wig files come from the same strain.")
+        with print.indent:
+            for progress, gene in informative_iterator.ProgressBar(g_ctrl, title="Running Resampling "):
+                if gene.orf not in g_exp:
+                    if self.inputs.diff_strains:
+                        continue
+                    else:
+                        # NOTE: returned ([], [])
+                        logging.error("Error: Gene in ctrl data not present in exp data. Make sure all .wig files come from the same strain.")
 
-            gene_exp = g_exp[gene.orf]
-            count += 1
-            
-            if not self.inputs.diff_strains and gene.n != gene_exp.n:
-                # NOTE: returned ([], [])
-                logging.error("Error: No. of TA sites in Exp and Ctrl data are different. Make sure all .wig files come from the same strain.")
-
-            if (gene.k == 0 and gene_exp.k == 0) or gene.n == 0 or gene_exp.n == 0:
-                test_obs   = 0
-                mean1      = 0
-                mean2      = 0
-                log2FC     = 0
-                pval_ltail = 1.00
-                pval_utail = 1.00
-                pval_2tail = 1.00
-                testlist   = []
-                data1      = [0]
-                data2      = [0]
-            else:
-                if not self.inputs.include_zeros:
-                    ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
-                    ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
-                else:
-                    ii_ctrl = numpy.ones(gene.n) == 1
-                    ii_exp = numpy.ones(gene_exp.n) == 1
-
-                # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
-                data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
-                data2 = gene_exp.reads[:,ii_exp]###.flatten()
-                if self.inputs.winz:
-                    data1 = self.winsorize_for_resampling(data1)
-                    data2 = self.winsorize_for_resampling(data2)
+                gene_exp = g_exp[gene.orf]
+                count += 1
                 
-                #data1 = gene.reads[:,ii_ctrl].flatten() + self.pseudocount # we used to have an option to add pseudocounts to each observation, like this
-                data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
-                data2 = gene_exp.reads[:,ii_exp]###.flatten()
+                if not self.inputs.diff_strains and gene.n != gene_exp.n:
+                    # NOTE: returned ([], [])
+                    logging.error("Error: No. of TA sites in Exp and Ctrl data are different. Make sure all .wig files come from the same strain.")
 
-                if do_library_resampling:
-                    (
-                        test_obs,
-                        mean1,
-                        mean2,
-                        log2FC,
-                        pval_ltail,
-                        pval_utail,
-                        pval_2tail,
-                        testlist,
-                    ) = stat_tools.resampling(
-                        data1,
-                        data2,
-                        S=self.inputs.samples,
-                        test_func=stat_tools.f_mean_diff_dict,
-                        perm_func=stat_tools.f_shuffle_dict_libraries,
-                        adaptive=self.inputs.adaptive,
-                        lib_str1=self.inputs.ctrl_lib_str,
-                        lib_str2=self.inputs.exp_lib_str,
-                        pseudocount=self.inputs.pseudocount,
-                        site_restricted=self.inputs.site_restricted,
-                    )
+                if (gene.k == 0 and gene_exp.k == 0) or gene.n == 0 or gene_exp.n == 0:
+                    test_obs   = 0
+                    mean1      = 0
+                    mean2      = 0
+                    log2FC     = 0
+                    pval_ltail = 1.00
+                    pval_utail = 1.00
+                    pval_2tail = 1.00
+                    testlist   = []
+                    data1      = [0]
+                    data2      = [0]
                 else:
-                    (
-                        test_obs,
-                        mean1,
-                        mean2,
-                        log2FC,
-                        pval_ltail,
-                        pval_utail,
-                        pval_2tail,
-                        testlist,
-                    ) = stat_tools.resampling(
-                        data1,
-                        data2,
-                        S=self.inputs.samples,
-                        test_func=stat_tools.f_mean_diff_flat,
-                        perm_func=stat_tools.f_shuffle_flat,
-                        adaptive=self.inputs.adaptive,
-                        lib_str1=self.inputs.ctrl_lib_str,
-                        lib_str2=self.inputs.exp_lib_str,
-                        pseudocount=self.inputs.pseudocount,
-                        site_restricted=self.inputs.site_restricted,
-                    )
+                    if not self.inputs.include_zeros:
+                        ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
+                        ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
+                    else:
+                        ii_ctrl = numpy.ones(gene.n) == 1
+                        ii_exp = numpy.ones(gene_exp.n) == 1
+
+                    # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
+                    data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
+                    data2 = gene_exp.reads[:,ii_exp]###.flatten()
+                    if self.inputs.winz:
+                        data1 = self.winsorize_for_resampling(data1)
+                        data2 = self.winsorize_for_resampling(data2)
+                    print(f'''data1 = {data1}'''.replace("\n", "\t"))
+                    print(f'''data2 = {data2}'''.replace("\n", "\t"))
+                    
+                    #data1 = gene.reads[:,ii_ctrl].flatten() + self.pseudocount # we used to have an option to add pseudocounts to each observation, like this
+                    data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
+                    data2 = gene_exp.reads[:,ii_exp]###.flatten()
+                    
+                    if do_library_resampling:
+                        (
+                            test_obs,
+                            mean1,
+                            mean2,
+                            log2FC,
+                            pval_ltail,
+                            pval_utail,
+                            pval_2tail,
+                            testlist,
+                        ) = stat_tools.resampling(
+                            data1,
+                            data2,
+                            S=self.inputs.samples,
+                            test_func=stat_tools.f_mean_diff_dict,
+                            perm_func=stat_tools.f_shuffle_dict_libraries,
+                            adaptive=self.inputs.adaptive,
+                            lib_str1=self.inputs.ctrl_lib_str,
+                            lib_str2=self.inputs.exp_lib_str,
+                            pseudocount=self.inputs.pseudocount,
+                            site_restricted=self.inputs.site_restricted,
+                        )
+                    else:
+                        (
+                            test_obs,
+                            mean1,
+                            mean2,
+                            log2FC,
+                            pval_ltail,
+                            pval_utail,
+                            pval_2tail,
+                            testlist,
+                        ) = stat_tools.resampling(
+                            data1,
+                            data2,
+                            S=self.inputs.samples,
+                            test_func=stat_tools.f_mean_diff_flat,
+                            perm_func=stat_tools.f_shuffle_flat,
+                            adaptive=self.inputs.adaptive,
+                            lib_str1=self.inputs.ctrl_lib_str,
+                            lib_str2=self.inputs.exp_lib_str,
+                            pseudocount=self.inputs.pseudocount,
+                            site_restricted=self.inputs.site_restricted,
+                        )
+                    
+                    print(LazyDict(
+                        test_obs=test_obs,
+                        mean1=mean1,
+                        mean2=mean2,
+                        log2FC=log2FC,
+                        pval_ltail=pval_ltail,
+                        pval_utail=pval_utail,
+                        pval_2tail=pval_2tail,
+                        testlist=testlist,
+                    ))    
                 
                 # 
                 # write historgram if needed
