@@ -50,7 +50,7 @@ class Analysis:
         "Total Number Of TA Sites Within ORF", 
         "Length Of Maximum Run Of Non Insertions",
         "Nucleotide Span For Maximum Run Of Non Insertions",
-        "Posterior Probability Of Essentiality", 
+        "Posterior Probability Of Essentiality", # Z Bar
         "Essentiality Call"
     ]
     

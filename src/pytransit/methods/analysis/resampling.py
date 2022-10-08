@@ -37,6 +37,7 @@ class Analysis:
     cli_name    = identifier.lower()
     menu_name   = f"{identifier} - test of conditional essentiality between two conditions"
     description = """Method for determining conditional essentiality based on resampling (i.e. permutation test). Identifies significant changes in mean read-counts for each gene after normalization."""
+    significance_threshold = 0.05
     
     column_names = [
         "ORF",
@@ -163,8 +164,8 @@ class Analysis:
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
             self.value_getters.site_restricted        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
+            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
             panel_helpers.create_preview_loess_button(panel, main_sizer) # TODO: change tooltip text that references this button, then remove this button
             self.value_getters.adaptive                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
@@ -805,7 +806,11 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        parameters = LazyDict(self.extra_data.get("parameters", {}))
+        number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Analysis.significance_threshold ])
+        self.values_for_result_table.update({
+            "": f"{number_of_significant} significant conditionally essential genes"
+        })
     
     def __str__(self):
         return f"""

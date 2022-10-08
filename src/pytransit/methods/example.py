@@ -79,7 +79,6 @@ class Analysis:
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
-
     @staticmethod
     def from_gui(frame):
         # 

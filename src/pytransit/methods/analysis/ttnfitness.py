@@ -32,32 +32,9 @@ import pytransit.components.results_area as results_area
 # Column names (put here for standardization, can be put back inside methods after)
 # 
 if True:
-    pandas_read_csv_column_names = [
-        "ORF",
-        "Name",
-        "Description",
-        "K",
-        "N",
-        "R",
-        "S",
-        "Z Bar",
-        "Call"
-    ]
-    output_dataframe_columns = [
-        "ORF",
-        "Name",
-        "Description",
-        "Total TA Site Count",
-        "Count Of Sites With Insertions",
-        "Gene Saturation",
-        "Gene Plus TTN M1 Coef",
-        "Gene Plus TTN M1 Adj P Value",
-        "Mean Insertion Count",
-        "Fitness Ratio",
-        "TTN Fitness Assessment",
-    ]
+    
     ta_sites_dataframe_columns = [
-        "Coord",
+        "Coordinates",
         "ORF",
         "Name",
         "Upstream TTN",
@@ -66,19 +43,6 @@ if True:
         "Insertion Count",
         "Local Average",
         "M1 Predicted Count",
-    ]
-    ttnfitness_genes_summary_columns = [
-        "ORF ID",
-        "Name",
-        "Description",
-        "Total TA Site Count",
-        "Count Of Sites With Insertions",
-        "Gene Saturation",
-        "Gene Plus TTN M1 Coef",
-        "Gene Plus TTN M1 Adj P Value",
-        "Mean Insertion Count",
-        "Fitness Ratio",
-        "TTN Fitness Assessment",
     ]
 
 @misc.singleton
@@ -351,7 +315,7 @@ class Analysis:
             {
                 "ORF": orf,
                 "Name": name,
-                "Coord": coords,
+                "Coordinates": coords,
                 "Insertion Count": all_counts,
                 "Upstream TTN": upseq_list,
                 "Downstream TTN": downseq_list,
@@ -360,7 +324,7 @@ class Analysis:
         TA_sites_df = pandas.concat(
             [TA_sites_df, pandas.DataFrame(ttn_vector_list)], axis=1
         )
-        TA_sites_df = TA_sites_df.sort_values(by=["Coord"], ignore_index=True)
+        TA_sites_df = TA_sites_df.sort_values(by=["Coordinates"], ignore_index=True)
         # get initial states of the TA Sites
         # compute state labels (ES or NE)
         # for runs of >=R TA sites with cnt=0; label them as "ES", and the rest as "NE"
@@ -420,11 +384,12 @@ class Analysis:
             else:
                 break
         gumbel_file.close()
+        from .gumbel import Analysis as Gumbel
         gumbel_df = pandas.read_csv(
             self.gumbelestimations,
             sep="\t",
             skiprows=skip_count,
-            names=pandas_read_csv_column_names,
+            names=Gumbel.column_names,
             dtype=str,
         )
 
@@ -484,7 +449,7 @@ class Analysis:
         gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="")
         ttn_vectors = filtered_ttn_data.drop(
             [
-                "Coord",
+                "Coordinates",
                 "Insertion Count",
                 "ORF",
                 "Name",
@@ -565,12 +530,12 @@ class Analysis:
                     "Insertion Count"
                 ]
                 coords_orf = filtered_ttn_data[filtered_ttn_data["ORF"] == g][
-                    "Coord"
+                    "Coordinates"
                 ].values.tolist()
                 for c in coords_orf:
                     TA_sites_df.loc[
-                        (TA_sites_df["Coord"] == c), "M1 Predicted Count"
-                    ] = filtered_ttn_data[filtered_ttn_data["Coord"] == c][
+                        (TA_sites_df["Coordinates"] == c), "M1 Predicted Count"
+                    ] = filtered_ttn_data[filtered_ttn_data["Coordinates"] == c][
                         "M1 Predicted Count"
                     ].iloc[
                         0
@@ -615,12 +580,12 @@ class Analysis:
                 gene_ttn_call,
             ]
         output_df = pandas.DataFrame.from_dict(gene_dict, orient="index")
-        output_df.columns = output_dataframe_columns
+        output_df.columns = ttnfitness_genes_summary_columns
         assesment_cnt = output_df["TTN Fitness Assessment"].value_counts()
 
         saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df) 
         TA_sites_df = TA_sites_df[
-            ta_sites_dataframe_columns
+            SitesFile.comlumn_names
         ]
 
         genes_out_rows = output_df.values.tolist()
@@ -695,6 +660,19 @@ class Analysis:
 
 @transit_tools.ResultsFile
 class GenesFile:
+    column_names = [
+        "ORF",
+        "Name",
+        "Description",
+        "Total TA Site Count",
+        "Count Of Sites With Insertions",
+        "Gene Saturation",
+        "Gene Plus TTN M1 Coef",
+        "Gene Plus TTN M1 Adj P Value",
+        "Mean Insertion Count",
+        "Fitness Ratio",
+        "TTN Fitness Assessment",
+    ]
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Analysis.identifier+"Genes")
@@ -747,7 +725,7 @@ class GenesFile:
                 print("Error: cannot do plots, no matplotlib")
 
             ttnfitness_genes_summary = pandas.read_csv(self.path, sep= "\t",comment='#')
-            ttnfitness_genes_summary.columns = ttnfitness_genes_summary_columns
+            ttnfitness_genes_summary.columns = GenesFile.column_names
 
             color_dict = {
                 "ES":"r",
@@ -785,6 +763,18 @@ class GenesFile:
 
 @transit_tools.ResultsFile
 class SitesFile:
+    comlumn_names = [
+        "Coordinates",
+        "ORF",
+        "Name",
+        "Upstream TTN",
+        "Downstream TTN",
+        "TTN Fitness Assessment",
+        "Insertion Count",
+        "Local Average",
+        "M1 Predicted Count",
+    ]
+    
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Analysis.identifier+"Sites")
