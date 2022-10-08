@@ -216,14 +216,14 @@ class Analysis:
 
             logging.log("processing data")
 
-            TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls = self.calc_ttnfitness(genome,G,self.inputs.gumbel_results_path)
+            ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls = self.calc_ttnfitness(genome,G,self.inputs.gumbel_results_path)
 
             ###########################
             # write output
             # 
             # note: first header line is filetype, last header line is column headers
 
-            self.write_ttnfitness_results(TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path) 
+            self.write_ttnfitness_results(ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,self.inputs.genes_output_path,self.inputs.sites_output_path) 
 
 
             if gui.is_active and self.inputs.genes_output_path!=None:
@@ -234,7 +234,7 @@ class Analysis:
             logging.log("Finished TnseqStats")
             logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
 
-    # returns: TA_sites_df , Models_df , gene_obj_dict
+    # returns: ta_sites_df , models_df , gene_obj_dict
 
     def calc_ttnfitness(self,genome,G,gumbel_results_file):
         self.gumbelestimations = gumbel_results_file
@@ -293,7 +293,7 @@ class Analysis:
                 name.append(gene.name)
                 coords.append(pos)
 
-        TA_sites_df = pandas.DataFrame(
+        ta_sites_df = pandas.DataFrame(
             {
                 "ORF": orf,
                 "Name": name,
@@ -303,22 +303,22 @@ class Analysis:
                 "Downstream TTN": downseq_list,
             }
         )
-        TA_sites_df = pandas.concat(
-            [TA_sites_df, pandas.DataFrame(ttn_vector_list)], axis=1
+        ta_sites_df = pandas.concat(
+            [ta_sites_df, pandas.DataFrame(ttn_vector_list)], axis=1
         )
-        TA_sites_df = TA_sites_df.sort_values(by=["Coordinates"], ignore_index=True)
+        ta_sites_df = ta_sites_df.sort_values(by=["Coordinates"], ignore_index=True)
         # get initial states of the TA Sites
         # compute state labels (ES or NE)
         # for runs of >=R TA sites with cnt=0; label them as "ES", and the rest as "NE"
         # treat ends of genome as connected (circular)
-        Nsites = len(TA_sites_df["Insertion Count"])
+        Nsites = len(ta_sites_df["Insertion Count"])
         states = ["NE"] * Nsites
         R = 6  # make this adaptive based on saturation?
         MinCount = 2
         i = 0
         while i < Nsites:
             j = i
-            while j < Nsites and TA_sites_df["Insertion Count"].iloc[j] < MinCount:
+            while j < Nsites and ta_sites_df["Insertion Count"].iloc[j] < MinCount:
                 j += 1
             if j - i >= R:
                 for k in range(i, j):
@@ -338,21 +338,21 @@ class Analysis:
                 ):  # this excludes the site itself
                     if states[i + j] != states[i]:
                         continue  # include only neighboring sites with same state when calculating localmean # diffs2.txt !!!
-                    vals.append(float(TA_sites_df["Insertion Count"].iloc[i + j]))
+                    vals.append(float(ta_sites_df["Insertion Count"].iloc[i + j]))
             smoothed = -1 if len(vals) == 0 else numpy.mean(vals)
             localmeans.append(smoothed)
 
         # get LFCs
-        LFC_values = []
+        lfc_values = []
         pseudocount = 10
-        for i in range(len(TA_sites_df["Insertion Count"])):
-            c, m = TA_sites_df["Insertion Count"].iloc[i], localmeans[i]
+        for i in range(len(ta_sites_df["Insertion Count"])):
+            c, m = ta_sites_df["Insertion Count"].iloc[i], localmeans[i]
             lfc = math.log((c + pseudocount) / float(m + pseudocount), 2)
-            LFC_values.append(lfc)
+            lfc_values.append(lfc)
 
-        TA_sites_df["State"] = states
-        TA_sites_df["Local Average"] = localmeans
-        TA_sites_df["Actual LFC"] = LFC_values
+        ta_sites_df["State"] = states
+        ta_sites_df["Local Average"] = localmeans
+        ta_sites_df["Actual LFC"] = lfc_values
 
         ####################################################
 
@@ -375,14 +375,14 @@ class Analysis:
             dtype=str,
         )
 
-        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df)
+        saturation = len(ta_sites_df[ta_sites_df["Insertion Count"] > 0]) / len(ta_sites_df)
         phi = 1.0 - saturation
         significant_n = math.log10(0.05) / math.log10(phi)
 
         logging.log("\t + Filtering ES/ESB Genes")
         # function to extract gumbel calls to filter out ES and ESB
         gumbel_bernoulli_gene_calls = {}
-        for _, g in informative_iterator.ProgressBar(TA_sites_df["ORF"].unique(), title="Filtering ES/ESB Genes"):
+        for _, g in informative_iterator.ProgressBar(ta_sites_df["ORF"].unique(), title="Filtering ES/ESB Genes"):
             if g == "igr":
                 gene_call = numpy.nan
             else:
@@ -391,7 +391,7 @@ class Analysis:
                 if len(sub_gumbel) > 0:
                     gene_call = sub_gumbel["Essentiality Call"].iloc[0]
                 # set to ES if greater than n and all 0s
-                sub_data = TA_sites_df[TA_sites_df["ORF"] == g]
+                sub_data = ta_sites_df[ta_sites_df["ORF"] == g]
                 if (
                     len(sub_data) > significant_n
                     and len(sub_data[sub_data["Number Of Insertions Within ORF"] > 0]) == 0
@@ -407,15 +407,15 @@ class Analysis:
         logging.log("\t + Filtering Short Genes. Labeling as Uncertain")
         # function to call short genes (1 TA site) with no insertions as Uncertain
         uncertain_genes = []
-        for _, g in informative_iterator.ProgressBar(TA_sites_df["ORF"].unique(), title="Filtering Short Genes"):
-            sub_data = TA_sites_df[TA_sites_df["ORF"] == g]
+        for _, g in informative_iterator.ProgressBar(ta_sites_df["ORF"].unique(), title="Filtering Short Genes"):
+            sub_data = ta_sites_df[ta_sites_df["ORF"] == g]
             len_of_gene = len(sub_data)
             num_insertions = len(sub_data[sub_data["Insertion Count"] > 0])
             saturation = num_insertions / len_of_gene
             if saturation == 0 and len_of_gene <= 1:
                 uncertain_genes.append(g)
 
-        filtered_ttn_data = TA_sites_df[TA_sites_df["State"] != "ES"]
+        filtered_ttn_data = ta_sites_df[ta_sites_df["State"] != "ES"]
         filtered_ttn_data = filtered_ttn_data[filtered_ttn_data["Local Average"] != -1]
         filtered_ttn_data = filtered_ttn_data[
             ~filtered_ttn_data["ORF"].isin(ess_genes)
@@ -462,38 +462,38 @@ class Analysis:
 
         logging.log("\t + Assessing Models")
         # create Models Summary df
-        Models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
-        Models_df["M1 P Value"] = results1.pvalues[1:-256]
-        Models_df["M1 Adj P Value"] = statsmodels.stats.multitest.fdrcorrection(
+        models_df = pandas.DataFrame(results1.params[1:-256], columns=["M1 Coef"])
+        models_df["M1 P Value"] = results1.pvalues[1:-256]
+        models_df["M1 Adj P Value"] = statsmodels.stats.multitest.fdrcorrection(
             results1.pvalues[1:-256], alpha=0.05
         )[1]
 
         # creating a mask for the adjusted pvals
-        Models_df.loc[
-            (Models_df["M1 Coef"] > 0) & (Models_df["M1 Adj P Value"] < 0.05),
+        models_df.loc[
+            (models_df["M1 Coef"] > 0) & (models_df["M1 Adj P Value"] < 0.05),
             "Gene Plus TTN States",
         ] = "GA"
-        Models_df.loc[
-            (Models_df["M1 Coef"] < 0) & (Models_df["M1 Adj P Value"] < 0.05),
+        models_df.loc[
+            (models_df["M1 Coef"] < 0) & (models_df["M1 Adj P Value"] < 0.05),
             "Gene Plus TTN States",
         ] = "GD"
-        Models_df.loc[
-            (Models_df["M1 Coef"] == 0) & (Models_df["M1 Adj P Value"] < 0.05),
+        models_df.loc[
+            (models_df["M1 Coef"] == 0) & (models_df["M1 Adj P Value"] < 0.05),
             "Gene Plus TTN States",
         ] = "NE"
-        Models_df.loc[(Models_df["M1 Adj P Value"] > 0.05), "Gene Plus TTN States"] = "NE"
+        models_df.loc[(models_df["M1 Adj P Value"] > 0.05), "Gene Plus TTN States"] = "NE"
 
-        return (TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
+        return (ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
-    def write_ttnfitness_results(self,TA_sites_df,Models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,genes_output_path,sites_output_path):
+    def write_ttnfitness_results(self,ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls,genes_output_path,sites_output_path):
         genes_out_rows, sites_out_rows = [],[]
         logging.log("Writing To Output Files")
         # Write Models Information to CSV
         # Columns: ORF ID, ORF Name, ORF Description,M0 Coef, M0 Adj P Value
 
         gene_dict = {}  # dictionary to map information per gene
-        TA_sites_df["M1 Predicted Count"] = [None] * len(TA_sites_df)
-        for progress, g in informative_iterator.ProgressBar(TA_sites_df["ORF"].unique(), title="Writing To Output"):
+        ta_sites_df["M1 Predicted Count"] = [None] * len(ta_sites_df)
+        for progress, g in informative_iterator.ProgressBar(ta_sites_df["ORF"].unique(), title="Writing To Output"):
             # ORF Name
             orfName = gene_obj_dict[g].name
             # ORF Description
@@ -503,7 +503,7 @@ class Analysis:
             # Sites > 0
             above0TAsites = len([r for r in gene_obj_dict[g].reads[0] if r > 0])
             # Insertion Count
-            actual_counts = TA_sites_df[TA_sites_df["ORF"] == g]["Insertion Count"]
+            actual_counts = ta_sites_df[ta_sites_df["ORF"] == g]["Insertion Count"]
             mean_actual_counts = numpy.mean(actual_counts)
             local_saturation = above0TAsites / numTAsites
             # Predicted Count
@@ -515,19 +515,19 @@ class Analysis:
                     "Coordinates"
                 ].values.tolist()
                 for c in coords_orf:
-                    TA_sites_df.loc[
-                        (TA_sites_df["Coordinates"] == c), "M1 Predicted Count"
+                    ta_sites_df.loc[
+                        (ta_sites_df["Coordinates"] == c), "M1 Predicted Count"
                     ] = filtered_ttn_data[filtered_ttn_data["Coordinates"] == c][
                         "M1 Predicted Count"
                     ].iloc[
                         0
                     ]
             # M1 info
-            if "_" + g in Models_df.index:
-                M1_coef = Models_df.loc["_" + g, "M1 Coef"]
-                M1_adj_pval = Models_df.loc["_" + g, "M1 Adj P Value"]
+            if "_" + g in models_df.index:
+                M1_coef = models_df.loc["_" + g, "M1 Coef"]
+                M1_adj_pval = models_df.loc["_" + g, "M1 Adj P Value"]
                 modified_M1 = math.exp(
-                    M1_coef - statistics.median(Models_df["M1 Coef"].values.tolist())
+                    M1_coef - statistics.median(models_df["M1 Coef"].values.tolist())
                 )
             else:
                 M1_coef = None
@@ -541,12 +541,12 @@ class Analysis:
             elif gumbel_bernoulli_call == "EB":
                 gene_ttn_call = "ESB"
             else:
-                if "_" + g in Models_df.index:
-                    gene_ttn_call = Models_df.loc["_" + g, "Gene Plus TTN States"]
+                if "_" + g in models_df.index:
+                    gene_ttn_call = models_df.loc["_" + g, "Gene Plus TTN States"]
                 else:
                     gene_ttn_call = "U"  # these genes are in the uncertain genes list
-            TA_sites_df.loc[
-                (TA_sites_df["ORF"] == g), "TTN Fitness Assessment"
+            ta_sites_df.loc[
+                (ta_sites_df["ORF"] == g), "TTN Fitness Assessment"
             ] = gene_ttn_call
             gene_dict[g] = [
                 g,
@@ -565,8 +565,8 @@ class Analysis:
         output_df.columns = ttnfitness_genes_summary_columns
         assesment_cnt = output_df["TTN Fitness Assessment"].value_counts()
 
-        saturation = len(TA_sites_df[TA_sites_df["Insertion Count"] > 0]) / len(TA_sites_df) 
-        TA_sites_df = TA_sites_df[
+        saturation = len(ta_sites_df[ta_sites_df["Insertion Count"] > 0]) / len(ta_sites_df) 
+        ta_sites_df = ta_sites_df[
             SitesFile.comlumn_names
         ]
 
@@ -602,14 +602,14 @@ class Analysis:
         )
         # write sites data
 
-        sites_out_rows = TA_sites_df.values.tolist()
+        sites_out_rows = ta_sites_df.values.tolist()
 
         logging.log("Writing File: %s" % (self.inputs.sites_output_path))
         transit_tools.write_result(
             path=self.inputs.sites_output_path,
             file_kind=Analysis.identifier+"Sites",
             rows=sites_out_rows,
-            column_names=TA_sites_df.columns,
+            column_names=ta_sites_df.columns,
             extra_info=dict(
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
