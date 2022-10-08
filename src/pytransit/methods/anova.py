@@ -22,11 +22,11 @@ from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.basics import misc
 
 @misc.singleton
-class Analysis:
+class Method:
     name = "Anova"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Analysis of variance"
+    menu_name   = f"{name} - Method of variance"
     description = """Perform Anova analysis"""
     
     transposons = ["himar1", "tn5"]
@@ -74,13 +74,13 @@ class Analysis:
             -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
-    @gui.add_menu("Analysis", "tn5", menu_name)
+    @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -89,7 +89,7 @@ class Analysis:
                 method_short_text= self.name,
                 method_long_text= "",
                 method_descr="""
-                    The Anova (Analysis of variance) method is used to determine which genes exhibit statistically significant 
+                    The Anova (Method of variance) method is used to determine which genes exhibit statistically significant 
                     variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig 
                     files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file 
                     (which describes which samples/replicates belong to which experimental conditions).
@@ -134,59 +134,59 @@ class Analysis:
         # get wig files
         # 
         combined_wig = gui.combined_wigs[0]
-        Analysis.inputs.combined_wig = combined_wig.main_path
-        Analysis.inputs.metadata     = combined_wig.metadata.path
+        Method.inputs.combined_wig = combined_wig.main_path
+        Method.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        Method.inputs.annotation_path = gui.annotation_path
+        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # setup custom inputs
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         # 
         # save result files
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.cli_name}_output.csv",
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
 
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-        console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=4)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=4)
         
         combined_wig      = args[0]
         annotation_path   = args[2]
         metadata          = args[1]
         output_path       = args[3]
-        normalization     = kwargs.get("n", Analysis.inputs.normalization)
-        n_terminus        = float(kwargs.get("iN", Analysis.inputs.n_terminus))
-        c_terminus        = float(kwargs.get("iC", Analysis.inputs.c_terminus))
+        normalization     = kwargs.get("n", Method.inputs.normalization)
+        n_terminus        = float(kwargs.get("iN", Method.inputs.n_terminus))
+        c_terminus        = float(kwargs.get("iC", Method.inputs.c_terminus))
         winz              = "winz" in kwargs
-        pseudocount       = int(kwargs.get("PC", Analysis.inputs.pseudocount))
-        alpha             = float(kwargs.get("alpha", Analysis.inputs.alpha))
-        refs              = kwargs.get("-ref", Analysis.inputs.refs)  # list of condition names to use a reference for calculating lfc_s
+        pseudocount       = int(kwargs.get("PC", Method.inputs.pseudocount))
+        alpha             = float(kwargs.get("alpha", Method.inputs.alpha))
+        refs              = kwargs.get("-ref", Method.inputs.refs)  # list of condition names to use a reference for calculating lfc_s
         if refs != []: refs = refs.split(",")
         excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
         included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
 
         # save all the data
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             combined_wig=combined_wig,
             metadata=metadata,
             annotation_path=annotation_path,
@@ -203,7 +203,7 @@ class Analysis:
             alpha=alpha,
         ))
         
-        Analysis.Run()
+        Method.Run()
         
     def means_by_condition_for_gene(self, sites, conditions, data):
         """
@@ -447,7 +447,7 @@ class Analysis:
             # 
             transit_tools.write_result(
                 path=self.inputs.output_path,
-                file_kind=Analysis.identifier,
+                file_kind=Method.identifier,
                 rows=rows,
                 column_names=[
                     "Rv",
@@ -480,14 +480,14 @@ class Analysis:
 class File:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
@@ -519,15 +519,15 @@ class File:
         #
         self.values_for_result_table.update({
             f"Gene Count": len(self.rows),
-            f"Padj<{Analysis.significance_threshold}": len([
+            f"Padj<{Method.significance_threshold}": len([
                 1 for each in self.rows
-                    if each.get("Padj", 0) < Analysis.significance_threshold 
+                    if each.get("Padj", 0) < Method.significance_threshold 
             ]),
         })
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -590,4 +590,4 @@ class File:
             results_area.add(output_path)
             gui_tools.show_image(output_path)
 
-Method = GUI = Analysis
+Method = GUI = Method

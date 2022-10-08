@@ -232,7 +232,7 @@ if True:
             # tooltip
             # 
             if tooltip_text:
-                from pytransit.methods.analysis_base import InfoIcon
+                from pytransit.components.icon import InfoIcon
                 row_sizer.Add(
                     InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
                     0,

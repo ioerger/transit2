@@ -30,12 +30,12 @@ import pytransit.basics.misc as misc
 
     
 @misc.singleton
-class Analysis:
+class Method:
     name = "HMM"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Analysis of genomic regions using a Hidden Markov Model"
-    description = """Analysis of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
+    menu_name   = f"{name} - Method of genomic regions using a Hidden Markov Model"
+    description = """Method of essentiality in the entire genome using a Hidden Markov Model. Capable of determining regions with different levels of essentiality representing Essential, Growth-Defect, Non-Essential and Growth-Advantage regions. Reference: DeJesus et al. (2013; BMC Bioinformatics)"""
     
     transposons = ["himar1"]
     categories = ["ES", "NE", "GD", "GA"]
@@ -85,9 +85,9 @@ class Analysis:
         "Call",
     ]
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -124,69 +124,69 @@ class Analysis:
         # get wig files
         # 
         combined_wig = gui.combined_wigs[0]
-        Analysis.inputs.combined_wig = combined_wig.main_path
-        Analysis.inputs.metadata     = combined_wig.metadata.path
+        Method.inputs.combined_wig = combined_wig.main_path
+        Method.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = gui.annotation_path
-        if not transit_tools.validate_annotation(Analysis.inputs.annotation_path):
+        Method.inputs.annotation_path = gui.annotation_path
+        if not transit_tools.validate_annotation(Method.inputs.annotation_path):
             return None
         
         # 
         # setup custom inputs
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
         # 
         # validate
         # 
-        assert Analysis.inputs.condition != "[None]", "Please select a condition"
+        assert Method.inputs.condition != "[None]", "Please select a condition"
         
         # 
         # save result files
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.cli_name}_output.csv",
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
         
-        Analysis.inputs.data_sources = [ gui.combined_wigs[0].main_path ]
+        Method.inputs.data_sources = [ gui.combined_wigs[0].main_path ]
         
         # 
         # extract universal data
         # 
-        Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions = transit_tools.gather_sample_data_for(conditions=[ Analysis.value_getters.condition() ])
+        Method.inputs.ctrl_read_counts, Method.inputs.ctrl_positions = transit_tools.gather_sample_data_for(conditions=[ Method.value_getters.condition() ])
         
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-        console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=3)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
         
         ctrldata        = args[0].split(",")
         annotation_path = args[1]
         output_path     = args[2]
         
-        replicates    = kwargs.get("r", Analysis.inputs.replicates)
-        normalization = kwargs.get("n", Analysis.inputs.normalization)
-        loess_correction         = kwargs.get("l", Analysis.inputs.loess_correction)
-        n_terminus    = float(kwargs.get("iN", Analysis.inputs.n_terminus))
-        c_terminus    = float(kwargs.get("iC", Analysis.inputs.c_terminus))
+        replicates    = kwargs.get("r", Method.inputs.replicates)
+        normalization = kwargs.get("n", Method.inputs.normalization)
+        loess_correction         = kwargs.get("l", Method.inputs.loess_correction)
+        n_terminus    = float(kwargs.get("iN", Method.inputs.n_terminus))
+        c_terminus    = float(kwargs.get("iC", Method.inputs.c_terminus))
         
         (ctrl_read_counts, ctrl_positions) = transit_tools.get_validated_data(ctrldata)
 
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             data_sources=ctrldata,
             ctrl_read_counts=ctrl_read_counts,
             ctrl_positions=ctrl_positions,
@@ -198,7 +198,7 @@ class Analysis:
             n_terminus=n_terminus,
             c_terminus=c_terminus,
         ))
-        Analysis.Run()
+        Method.Run()
 
     def Run(self):
         with gui_tools.nice_error_log:
@@ -206,12 +206,12 @@ class Analysis:
             # Calculations
             # 
             if True:
-                self.max_iterations = len(Analysis.inputs.ctrl_positions) * len(Analysis.categories) + 1
+                self.max_iterations = len(Method.inputs.ctrl_positions) * len(Method.categories) + 1
                 self.count = 1
                 logging.log("Starting HMM Method")
                 start_time = time.time()
                 
-                data, position = Analysis.inputs.ctrl_read_counts, Analysis.inputs.ctrl_positions
+                data, position = Method.inputs.ctrl_read_counts, Method.inputs.ctrl_positions
                 (K, N) = data.shape
 
                 # Normalize data
@@ -625,7 +625,7 @@ class SitesFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -695,18 +695,18 @@ class GeneFile:
             # HANDLE_THIS (additional summary_info for results table)
             # examples:
                 # f"Gene Count": len(self.rows),
-                # f"Padj<{Analysis.significance_threshold}": len([
+                # f"Padj<{Method.significance_threshold}": len([
                 #     1 for each in self.rows
-                #         if each.get("Padj", 0) < Analysis.significance_threshold 
+                #         if each.get("Padj", 0) < Method.significance_threshold 
                 # ]),
         })
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
 
-Method = GUI = Analysis
+Method = GUI = Method

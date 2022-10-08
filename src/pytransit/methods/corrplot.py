@@ -21,7 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.panel_helpers import create_normalization_input, create_reference_condition_input, create_include_condition_list_input, create_exclude_condition_list_input, create_n_terminus_input, create_c_terminus_input, create_pseudocount_input, create_winsorize_input, create_alpha_input, create_button
 
 @misc.singleton
-class Analysis:
+class Method:
     name = "Corrplot"
     identifier  = name
     cli_name    = name.lower()
@@ -45,9 +45,9 @@ class Analysis:
     #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
     usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
     
-    @gui.add_menu("Analysis", menu_name)
+    @gui.add_menu("Method", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -62,41 +62,41 @@ class Analysis:
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path =gui.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
-        Analysis.inputs.combined_wig =gui.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
-        Analysis.inputs.metadata =gui.combined_wigs[0].metadata.path
+        Method.inputs.annotation_path =gui.annotation_path
+        transit_tools.validate_annotation(Method.inputs.annotation_path)
+        Method.inputs.combined_wig =gui.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
+        Method.inputs.metadata =gui.combined_wigs[0].metadata.path
         
         # 
-        # call all GUI getters, puts results into respective Analysis.inputs key-value
+        # call all GUI getters, puts results into respective Method.inputs key-value
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-        #logging.log("included_conditions", Analysis.inputs.included_conditions)
+        #logging.log("included_conditions", Method.inputs.included_conditions)
         
         # 
         # ask for output path(s)
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"corrplot.png",
             output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
         )
-        Analysis.inputs.normalization = "TTR" #TRI I should add a dropdown for this, but hard-code it for now
+        Method.inputs.normalization = "TTR" #TRI I should add a dropdown for this, but hard-code it for now
         # if user didn't select an output path
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
 
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-        console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=3)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
         combined_wig    = args[0]
         annotation_path = args[1]
@@ -105,25 +105,25 @@ class Analysis:
         avg_by_conditions = (metadata!=None) # boolean
 
         # save the data
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             combined_wig = combined_wig,
             annotation_path = annotation_path,
             output_path = output_path,
             metadata = metadata,
             avg_by_conditions = avg_by_conditions, # bool
             normalization = "TTR", #TRI hard-coded for now
-            #normalization=kwargs.get("n", Analysis.inputs.normalization), #TRI these might be useful for corrplot...
-            #n_terminus=float(kwargs.get("iN", Analysis.inputs.n_terminus)),
-            #c_terminus=float(kwargs.get("iC", Analysis.inputs.c_terminus)),
+            #normalization=kwargs.get("n", Method.inputs.normalization), #TRI these might be useful for corrplot...
+            #n_terminus=float(kwargs.get("iN", Method.inputs.n_terminus)),
+            #c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
         ))
         
-        Analysis.Run()
+        Method.Run()
         
     ##################################################
 
     def Run(self):
         with gui_tools.nice_error_log:
-            logging.log(f"Starting {Analysis.identifier} analysis")
+            logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()
             
             transit_tools.make_corrplot(
@@ -138,7 +138,7 @@ class Analysis:
             if gui.is_active:
                 logging.log(f"Adding File: {self.inputs.output_path}")
                 results_area.add(self.inputs.output_path)
-            logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")
+            logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
 
 
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

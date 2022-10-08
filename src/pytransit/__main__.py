@@ -5,7 +5,7 @@ import traceback
 
 from pytransit.tools import console_tools, logging
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-import pytransit.methods.combined_wig
+import pytransit.methods
 
 
 @cli.add_command("help")
@@ -68,8 +68,6 @@ def help_command(args=[], kwargs={}):
 
 # this wrapper exist to help with test cases. Might be good to change the test cases to elimate the need for it
 def main(*args, **kwargs):
-    import pytransit.methods.analysis
-    
     # 
     # Check python version
     # 

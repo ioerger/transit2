@@ -28,7 +28,7 @@ import pytransit.components.results_area as results_area
 
 
 @misc.singleton
-class Analysis:
+class Method:
     name = "TTN Fitness"
     identifier  = name.replace(" ", "")
     cli_name    = name.lower()
@@ -51,9 +51,9 @@ class Analysis:
 
     usage_string = f"""usage: {console_tools.subcommand_prefix} ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" # TODO: this is the old way, with multiple wigs as input
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -110,30 +110,30 @@ class Analysis:
     def from_gui(frame):
         with gui_tools.nice_error_log:
             combined_wig = gui.combined_wigs[0]
-            Analysis.inputs.combined_wig = combined_wig.main_path
+            Method.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Analysis.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
-            Analysis.inputs.annotation_path = gui.annotation_path
+            Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
+            Method.inputs.annotation_path = gui.annotation_path
 
             # 
-            # call all GUI getters, puts results into respective Analysis.inputs key-value
+            # call all GUI getters, puts results into respective Method.inputs key-value
             # 
-            for each_key, each_getter in Analysis.value_getters.items():
+            for each_key, each_getter in Method.value_getters.items():
                 try:
-                    Analysis.inputs[each_key] = each_getter()
+                    Method.inputs[each_key] = each_getter()
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
             
-            Analysis.inputs.genes_output_path = "%s.genes.dat" % (Analysis.inputs.output_basename)
-            Analysis.inputs.sites_output_path = "%s.sites.dat" % (Analysis.inputs.output_basename)
+            Method.inputs.genes_output_path = "%s.genes.dat" % (Method.inputs.output_basename)
+            Method.inputs.sites_output_path = "%s.sites.dat" % (Method.inputs.output_basename)
 
-            return Analysis
+            return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs): # clean_args() was already called in pytransit/__main__.py
-        console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=6)
-        Analysis.inputs.update(dict(
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
+        Method.inputs.update(dict(
             combined_wig = None,
             metadata = None,
             wig_files = args[0].split(','),
@@ -144,7 +144,7 @@ class Analysis:
             sites_output_path = args[5],
         ))
             
-        Analysis.Run()
+        Method.Run()
         
     def Run(self):
         with gui_tools.nice_error_log:
@@ -164,7 +164,7 @@ class Analysis:
                     cond = row["Condition"] 
                     if cond not in indexes: indexes[cond] = []
                     indexes[cond].append(i)
-                cond = Analysis.inputs.condition
+                cond = Method.inputs.condition
                 ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
                 logging.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
                 data = data[indexes[cond]] # project array down to samples selected by condition
@@ -366,7 +366,7 @@ class Analysis:
             else:
                 break
         gumbel_file.close()
-        from .gumbel import Analysis as Gumbel
+        from .gumbel import Method as Gumbel
         gumbel_df = pandas.read_csv(
             self.gumbelestimations,
             sep="\t",
@@ -575,7 +575,7 @@ class Analysis:
         logging.log("Writing File: %s" % (self.inputs.genes_output_path))
         transit_tools.write_result(
             path=self.inputs.genes_output_path,
-            file_kind=Analysis.identifier+"Genes",
+            file_kind=Method.identifier+"Genes",
             rows=genes_out_rows,
             column_names=output_df.columns,
             extra_info=dict(
@@ -607,7 +607,7 @@ class Analysis:
         logging.log("Writing File: %s" % (self.inputs.sites_output_path))
         transit_tools.write_result(
             path=self.inputs.sites_output_path,
-            file_kind=Analysis.identifier+"Sites",
+            file_kind=Method.identifier+"Sites",
             rows=sites_out_rows,
             column_names=ta_sites_df.columns,
             extra_info=dict(
@@ -657,14 +657,14 @@ class GenesFile:
     ]
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier+"Genes")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"Genes")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=transit_tools.basename(self.path),
-            type=Analysis.identifier+"Genes",
+            type=Method.identifier+"Genes",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
@@ -694,7 +694,7 @@ class GenesFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -759,14 +759,14 @@ class SitesFile:
     
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier+"Sites")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"Sites")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=transit_tools.basename(self.path),
-            type=Analysis.identifier+"Sites",
+            type=Method.identifier+"Sites",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
@@ -795,10 +795,10 @@ class SitesFile:
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
 
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

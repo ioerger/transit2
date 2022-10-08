@@ -27,7 +27,7 @@ from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
-class Analysis:
+class Method:
     name = "Genetic Interaction"
     identifier  = "GI"
     cli_name    = identifier.lower()
@@ -86,13 +86,13 @@ class Analysis:
         -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05
     """
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
-    @gui.add_menu("Analysis", "tn5", menu_name)
+    @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -136,42 +136,42 @@ class Analysis:
         # get wig files
         # 
         wig_group = gui.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
-        Analysis.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-        Analysis.inputs.metadata_path = gui.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+        Method.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
+        Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
 
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        Method.inputs.annotation_path = gui.annotation_path
+        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # setup custom inputs
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
         # 
         # save result files
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name="GI_test.dat",
             output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
 
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
-        console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=8)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=8)
 
         combined_wig = args[0]
         metadata_path = args[1]
@@ -192,7 +192,7 @@ class Analysis:
         c_terminus = float(kwargs.get("iC", 0.00))
 
         # save all the data
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
           combined_wig=combined_wig,
           metadata_path=metadata_path,
           condA1=condA1,
@@ -212,7 +212,7 @@ class Analysis:
           c_terminus=c_terminus
         ))
         
-        Analysis.Run()
+        Method.Run()
         
     def Run(self):
         logging.log("Starting Genetic Interaction analysis")
@@ -701,18 +701,18 @@ class Analysis:
 class ResultFileType1:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Analysis.description,heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Method.description,heading="",column_names=self.column_names,rows=self.rows).Show(),
             })
         )
         
@@ -737,10 +737,10 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
     
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

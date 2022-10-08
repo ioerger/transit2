@@ -15,10 +15,10 @@ import pytransit.tools.norm_tools as norm_tools
 import pytransit.tools.tnseq_tools as tnseq_tools
 import pytransit.tools.console_tools as console_tools
 
-from pytransit.methods.analysis.gumbel import Analysis as GumbelMethod
-from pytransit.methods.analysis.hmm        import Analysis as HMMMethod
+from pytransit.methods.gumbel import Method as GumbelMethod
+from pytransit.methods.hmm        import Method as HMMMethod
 
-from pytransit.methods.analysis.resampling import Analysis as ResamplingMethod
+from pytransit.methods.resampling import Method as ResamplingMethod
 
 # fake setup for testing
 from pytransit.globals import gui

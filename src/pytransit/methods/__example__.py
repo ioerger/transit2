@@ -21,7 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 
 @misc.singleton
-class Analysis:
+class Method:
     name = "Example" # HANDLE_THIS
     identifier  = name
     cli_name    = name.lower()
@@ -51,13 +51,13 @@ class Analysis:
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
-    @gui.add_menu("Analysis", "tn5", menu_name)
+    @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -127,51 +127,51 @@ class Analysis:
         # get annotation
         # 
         # HANDLE_THIS
-        Analysis.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        Method.inputs.annotation_path = gui.annotation_path
+        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
-        # call all GUI getters, puts results into respective Analysis.inputs key-value
+        # call all GUI getters, puts results into respective Method.inputs key-value
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
         # 
         # ask for output path(s)
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.cli_name}_output.csv",
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.csv,*.dat,*.out)|*.txt;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
 
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
 
         # save the data
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             output_path=args[0],
-            normalization=kwargs.get("n", Analysis.inputs.normalization),
-            n_terminus=float(kwargs.get("iN", Analysis.inputs.n_terminus)),
-            c_terminus=float(kwargs.get("iC", Analysis.inputs.c_terminus)),
+            normalization=kwargs.get("n", Method.inputs.normalization),
+            n_terminus=float(kwargs.get("iN", Method.inputs.n_terminus)),
+            c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
             # HANDLE_THIS
         ))
         
-        Analysis.Run()
+        Method.Run()
         
     def Run(self):
         from pytransit.tools import stat_tools
-        logging.log(f"Starting {Analysis.identifier} analysis")
+        logging.log(f"Starting {Method.identifier} analysis")
         start_time = time.time()
         
         # 
@@ -190,7 +190,7 @@ class Analysis:
             # 
             transit_tools.write_result(
                 path=self.inputs.output_path, # path=None means write to STDOUT
-                file_kind=Analysis.identifier,
+                file_kind=Method.identifier,
                 rows=rows,
                 column_names=[
                     # HANDLE_THIS
@@ -200,26 +200,26 @@ class Analysis:
                     parameters=self.inputs,
                 ),
             )
-            logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")
+            logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
         results_area.add(self.inputs.output_path)
 
 @transit_tools.ResultsFile
 class ResultFileType1:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Analysis.identifier,
+                    title=Method.identifier,
                     heading=self.comments_string or misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -243,17 +243,17 @@ class ResultFileType1:
             # HANDLE_THIS (additional summary_info for results table)
             # examples:
                 # f"Gene Count": len(self.rows),
-                # f"Padj<{Analysis.significance_threshold}": len([
+                # f"Padj<{Method.significance_threshold}": len([
                 #     1 for each in self.rows
-                #         if each.get("Padj", 0) < Analysis.significance_threshold 
+                #         if each.get("Padj", 0) < Method.significance_threshold 
                 # ]),
         })
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

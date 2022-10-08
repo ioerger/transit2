@@ -24,7 +24,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 
 @misc.singleton
-class Analysis:
+class Method:
     name = "Pathway Enrichment"
     identifier  = name.replace(" ", "")
     cli_name    = identifier.lower() # is this available from the cli? --Jeff
@@ -60,7 +60,7 @@ class Analysis:
     usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
 
         Optional parameters:
-        -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
+        -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
 
         for GSEA...
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
@@ -70,13 +70,13 @@ class Analysis:
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
-    @gui.add_menu("Analysis", "tn5", menu_name)
+    @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
 
     def call_from_results_panel(self, results_file):
         self.inputs.resampling_file = results_file
@@ -89,10 +89,10 @@ class Analysis:
                 method_short_text=self.name,
                 method_long_text="",
                 method_descr="""
-                    Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally 
+                    Pathway Enrichment Method provides a method to identify enrichment of functionally-related genes among those that are conditionally 
                     essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step 
                     to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test 
-                    (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
+                    (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Method) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
                     test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
                     of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
                     enrichment.
@@ -109,7 +109,7 @@ class Analysis:
             )
             self.value_getters = LazyDict()
 
-            if Analysis.inputs.resampling_file == None:
+            if Method.inputs.resampling_file == None:
                 self.value_getters.reampling_file = panel_helpers.create_file_input(panel, main_sizer, 
                     button_label="Select Input File", 
                     tooltip_text="FIXME", popup_title="Select File with Hits",
@@ -134,7 +134,7 @@ class Analysis:
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
                 options= ["FET", "GSEA", "ONT"],
-                tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
+                tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
@@ -152,54 +152,54 @@ class Analysis:
     @staticmethod
     def from_gui(frame):       
 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-        if Analysis.inputs.organism_pathway != None:
-            organism,pathway = Analysis.inputs.organism_pathway.split("-")
+        if Method.inputs.organism_pathway != None:
+            organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG_20":
-                Analysis.inputs.associations_file = root_folder+"src/pytransit/data/COG_20_org_associations/"+organism+"_COG_20_roles.associations.txt"
-                Analysis.inputs.pathways_file = root_folder+"src/pytransit/data/COG_20_roles.txt"
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/COG_20_org_associations/"+organism+"_COG_20_roles.associations.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_20_roles.txt"
 
-            elif Analysis.inputs.organism_pathway =="H37Rv-Sanger":
+            elif Method.inputs.organism_pathway =="H37Rv-Sanger":
                 logging.log("Loading in H37Rv Associations for Sanger Pathways")
-                Analysis.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
-                Analysis.inputs.pathways_file = root_folder+"src/pytransit/data/sanger_roles.dat"
-            elif Analysis.inputs.organism_pathway =="H37Rv-GO":
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/sanger_roles.dat"
+            elif Method.inputs.organism_pathway =="H37Rv-GO":
                 logging.log("Loading in H37Rv Associations for GO Pathways")
-                Analysis.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
-                Analysis.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
-            elif Analysis.inputs.organism_pathway =="H37Rv-COG":
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
+            elif Method.inputs.organism_pathway =="H37Rv-COG":
                 logging.log("Loading in H37Rv Associations for COG Pathways")
-                Analysis.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
-                Analysis.inputs.pathways_file = root_folder+"src/pytransit/data/COG_roles.dat"
-            elif Analysis.inputs.organism_pathway =="Smeg-GO":
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_roles.dat"
+            elif Method.inputs.organism_pathway =="Smeg-GO":
                 logging.log("Loading in Smeg Associations for GO Pathways")
-                Analysis.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
-                Analysis.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
-            elif Analysis.inputs.organism_pathway =="Smeg-COG":
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
+            elif Method.inputs.organism_pathway =="Smeg-COG":
                 logging.log("Loading in Smeg Associations for COG Pathways")
-                Analysis.inputs.associations_file = root_folder+"src/pytransit/data/smeg_COG_roles.dat"
-                Analysis.inputs.pathways_file = root_folder+"src/pytransit/data/COG_roles.dat"   
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_COG_roles.dat"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_roles.dat"   
 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.cli_name}_output.csv",
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=4)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
 
         # save the data
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             resampling_file = args[0],
             associations_file = args[1],
             pathways_file = args[2],
@@ -214,16 +214,16 @@ class Analysis:
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
-        Analysis.Run()
+        Method.Run()
         
     def Run(self):
         with gui_tools.nice_error_log:
             from pytransit.tools import stat_tools
-            logging.log(f"Starting {Analysis.identifier} analysis")
+            logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()
 
-            logging.log(Analysis.inputs.associations_file)
-            logging.log(Analysis.inputs.pathways_file)
+            logging.log(Method.inputs.associations_file)
+            logging.log(Method.inputs.pathways_file)
             
                 #checking validation of inputs
             if self.inputs.method == "FET":
@@ -252,7 +252,7 @@ class Analysis:
                 # 
                 transit_tools.write_result(
                     path=self.inputs.output_path, # path=None means write to STDOUT
-                    file_kind=Analysis.identifier,
+                    file_kind=Method.identifier,
                     rows=self.rows,
                     column_names=[
                         "Pathway",
@@ -286,7 +286,7 @@ class Analysis:
                         ),
                     ),
                 )
-                logging.log(f"Finished {Analysis.identifier} analysis in {time.time() - start_time:0.1f}sec")
+                logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
             results_area.add(self.inputs.output_path)
         
     # def write(self, msg):
@@ -301,9 +301,9 @@ class Analysis:
                     headers = line.split("\t")
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
-                        Analysis.inputs.pval_col = standardized_headers.index("P Value")
-                        Analysis.inputs.qval_col = standardized_headers.index("Adj P Value")
-                        Analysis.inputs.LFC_col = standardized_headers.index("Log 2 FC")
+                        Method.inputs.pval_col = standardized_headers.index("P Value")
+                        Method.inputs.qval_col = standardized_headers.index("Adj P Value")
+                        Method.inputs.LFC_col = standardized_headers.index("Log 2 FC")
                     continue
                 w = line.rstrip().split("\t")
                 genes.append(w)
@@ -819,19 +819,19 @@ class Analysis:
 class ResultFileType1:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Analysis.identifier,
+                    title=Method.identifier,
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -870,17 +870,17 @@ class ResultFileType1:
             # HANDLE_THIS (additional summary_info for results table)
             # examples:
                 # f"Gene Count": len(self.rows),
-                # f"Padj<{Analysis.significance_threshold}": len([
+                # f"Padj<{Method.significance_threshold}": len([
                 #     1 for each in self.rows
-                #         if each.get("Padj", 0) < Analysis.significance_threshold 
+                #         if each.get("Padj", 0) < Method.significance_threshold 
                 # ]),
         #})
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

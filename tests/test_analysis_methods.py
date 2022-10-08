@@ -19,17 +19,17 @@ from pytransit.tools import console_tools
 from pytransit.tools.transit_tools import HAS_R
 
 # Single condition methods
-from pytransit.methods.analysis.anova      import Analysis as AnovaMethod
-from pytransit.methods.analysis.gumbel import Analysis as GumbelMethod
-from pytransit.methods.analysis.hmm        import Analysis as HMMMethod
-from pytransit.methods.analysis.zinb       import Analysis as ZinbMethod
+from pytransit.methods.anova  import Method as AnovaMethod
+from pytransit.methods.gumbel import Method as GumbelMethod
+from pytransit.methods.hmm    import Method as HMMMethod
+from pytransit.methods.zinb   import Method as ZinbMethod
 
 # Comparative methods
-from pytransit.methods.analysis.resampling  import Analysis as ResamplingMethod
-# from pytransit.methods.analysis.utest       import UTestMethod # TODO: check if utest is needed
+from pytransit.methods.resampling  import Method as ResamplingMethod
+# from pytransit.methods.utest       import UTestMethod # TODO: check if utest is needed
 
 # Genetic Interactions
-from pytransit.methods.analysis.gi import Analysis as GIMethod
+from pytransit.methods.gi import Method as GIMethod
 
 # fake setup for testing
 from pytransit.globals import gui

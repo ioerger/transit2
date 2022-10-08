@@ -212,7 +212,6 @@ def set_panel(new_panel):
         global old_panel
         if old_panel != None:
             old_panel.Hide()
-        hide_all_options()
         
         try: panel.method_sizer.Detach(panel.progress_panel)
         except Exception as error: print(error)
@@ -259,32 +258,6 @@ def set_instructions( method_short_text, method_long_text, method_descr, method_
         panel.method_instructions.SetLabel(method_specific_instructions)
         panel.method_instructions.Wrap(-1)
         panel.method_instructions.Show()
-
- 
-
-def hide_all_options():
-    from pytransit.methods.analysis import methods
-    
-    panel.progress_label.Hide()
-    panel.progress.Hide()
-    for method in methods.values():
-        if hasattr(method, "gui"): # TODO: remove this once the convert/export methods have been updated (probably in a few weeks - Oct 13st) --Jeff
-            method = method.gui
-        
-        try: method.panel.Hide()
-        except Exception as error: pass
-        try: method.Hide()
-        except Exception as error: pass
-    
-    #panel.method_info_text.Hide()
-    #panel.method_instructions.Hide()
-    #panel.method_short_text.Hide()
-    #panel.method_long_text.Hide()
-    panel.method_tn_text.Hide()
-    #panel.method_desc_text.Hide()
-    
-        
-    
 
 def progress_update(text, percent):
     string = f" {text}   \r"

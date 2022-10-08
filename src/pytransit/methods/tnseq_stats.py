@@ -22,7 +22,7 @@ import pytransit.components.results_area as results_area
 
 
 @misc.singleton
-class Analysis:
+class Method:
     identifier  = "tnseq_stats"
     cli_name    = identifier.lower()
     menu_name   = f"{identifier} - Analyze statistics of TnSeq datasets"
@@ -54,9 +54,9 @@ class Analysis:
     ]
     usage_string = f"""usage: {console_tools.subcommand_prefix} tnseq_stats <file.wig>+ [-o <output_file>]\n       {console_tools.subcommand_prefix} tnseq_stats -c <combined_wig> [-o <output_file>]"""
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -73,52 +73,52 @@ class Analysis:
         # get wig files
         # 
         combined_wig = gui.combined_wigs[0]
-        Analysis.inputs.combined_wig = combined_wig.main_path
+        Method.inputs.combined_wig = combined_wig.main_path
         
         # 
         # setup custom inputs
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
         # 
         # save result files
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name="tnseq_stats.dat",
             output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
 
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
 
         wigs = args # should be args[0]?
-        combined_wig  = kwargs.get("c", Analysis.inputs.combined_wig)
-        normalization = kwargs.get("n", Analysis.inputs.normalization) 
-        output_path   = kwargs.get("o", Analysis.inputs.output_path)
+        combined_wig  = kwargs.get("c", Method.inputs.combined_wig)
+        normalization = kwargs.get("n", Method.inputs.normalization) 
+        output_path   = kwargs.get("o", Method.inputs.output_path)
 
         if combined_wig == None and len(wigs) == 0:
-            logging.error(Analysis.usage_string)
+            logging.error(Method.usage_string)
 
         # save all the data
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             wigs=wigs, ### what if user gives a list of wig files instead of a combined_wig?
             combined_wig=combined_wig, 
             normalization=normalization,
             output_path=output_path,
         ))
         
-        Analysis.Run()
+        Method.Run()
         
     def Run(self):
         logging.log("Starting tnseq_stats analysis")
@@ -212,14 +212,14 @@ class Analysis:
 class ResultFileType1:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=transit_tools.basename(self.path),
-            type=Analysis.identifier,
+            type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
@@ -248,10 +248,10 @@ class ResultFileType1:
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
     
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

@@ -14,7 +14,7 @@ import scipy.stats
 import heapq
 import math
 from pytransit.components.parameter_panel import set_instructions
-from pytransit.methods.analysis.pathway_enrichment import Analysis as PathwayEnrichment
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 from pytransit.basics.lazy_dict import LazyDict
 
@@ -31,7 +31,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 
 @misc.singleton
-class Analysis:
+class Method:
     name        = "Resampling"
     identifier  = name
     cli_name    = identifier.lower()
@@ -129,13 +129,13 @@ class Analysis:
         -sr             :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Analysis", "himar1", menu_name)
+    @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
     
-    @gui.add_menu("Analysis", "tn5", menu_name)
+    @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
-        Analysis.define_panel(event)
+        Method.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers
@@ -147,7 +147,7 @@ class Analysis:
                     The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
                     It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
 
-                    See Pathway Enrichment Analysis for post-processing the hits to determine if the hits are associated with a particular functional 
+                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
                     catogory of genes or known biological pathway.
                 """.replace("\n            ","\n"),
                 method_specific_instructions="""
@@ -179,31 +179,31 @@ class Analysis:
         # get wig files
         # 
         combined_wig = gui.combined_wigs[0]
-        Analysis.inputs.combined_wig = combined_wig.main_path
-        Analysis.inputs.metadata     = combined_wig.metadata.path
+        Method.inputs.combined_wig = combined_wig.main_path
+        Method.inputs.metadata     = combined_wig.metadata.path
         
         # 
         # get annotation
         # 
-        Analysis.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Analysis.inputs.annotation_path)
+        Method.inputs.annotation_path = gui.annotation_path
+        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # setup custom inputs
         # 
-        for each_key, each_getter in Analysis.value_getters.items():
+        for each_key, each_getter in Method.value_getters.items():
             try:
-                Analysis.inputs[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         # 
         # save result files
         # 
-        Analysis.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Analysis.cli_name}_output.csv",
+        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
         )
-        if not Analysis.inputs.output_path:
+        if not Method.inputs.output_path:
             return None
         
         # 
@@ -213,37 +213,37 @@ class Analysis:
         metadata_path = gui.combined_wigs[0].metadata.path
         
         from pytransit.components.samples_area import sample_table
-        Analysis.inputs.combined_wig_params = dict(
+        Method.inputs.combined_wig_params = dict(
             combined_wig=cwig_path,
             samples_metadata=metadata_path,
             conditions=[
-                Analysis.inputs.ctrldata,
-                Analysis.inputs.expdata,
+                Method.inputs.ctrldata,
+                Method.inputs.expdata,
             ],
         )
-        assert Analysis.inputs.ctrldata != "[None]", "Control group can't be None"
-        assert Analysis.inputs.expdata != "[None]", "Experimental group can't be None"
+        assert Method.inputs.ctrldata != "[None]", "Control group can't be None"
+        assert Method.inputs.expdata != "[None]", "Experimental group can't be None"
         
         # backwards compatibility
-        Analysis.inputs.ctrldata = [Analysis.inputs.combined_wig_params["conditions"][0]]
-        Analysis.inputs.expdata = [Analysis.inputs.combined_wig_params["conditions"][1]]
+        Method.inputs.ctrldata = [Method.inputs.combined_wig_params["conditions"][0]]
+        Method.inputs.expdata = [Method.inputs.combined_wig_params["conditions"][1]]
 
-        Analysis.inputs.update(dict(
-            annotation_path_exp=Analysis.inputs.annotation_path_exp if Analysis.inputs.diff_strains else Analysis.inputs.annotation_path
+        Method.inputs.update(dict(
+            annotation_path_exp=Method.inputs.annotation_path_exp if Method.inputs.diff_strains else Method.inputs.annotation_path
         ))
         
-        return Analysis
+        return Method
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Analysis.usage_string)
-        console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         
         is_combined_wig = True if kwargs.get("c", False) else False
         combined_wig_params = None
         if is_combined_wig:
-            console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=5)
+            console_tools.enforce_number_of_args(args, Method.usage_string, exactly=5)
             combined_wig_params = {
                 "combined_wig": kwargs.get("c"),
                 "samples_metadata": args[0],
@@ -255,7 +255,7 @@ class Analysis:
             expdata  = [combined_wig_params["conditions"][1]]
             output_path = args[4]
         else:
-            console_tools.enforce_number_of_args(args, Analysis.usage_string, exactly=4)
+            console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
             ctrldata    = args[0].split(",")
             expdata     = args[1].split(",")
             annot_paths = args[2].split(",")
@@ -271,13 +271,13 @@ class Analysis:
             logging.error("Error: Cannot have combined wig and different annotation files.")
 
         winz          = True if "winz" in kwargs else False
-        normalization = kwargs.get("n", Analysis.inputs.normalization)
-        samples       = int(kwargs.get("s", Analysis.inputs.samples))
-        adaptive      = kwargs.get("a", Analysis.inputs.adaptive)
-        replicates    = kwargs.get("r", Analysis.inputs.replicates)
-        do_histogram  = kwargs.get("h", Analysis.inputs.do_histogram)
-        include_zeros = not kwargs.get("ez", not Analysis.inputs.include_zeros)
-        pseudocount   = float(kwargs.get("PC", Analysis.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
+        normalization = kwargs.get("n", Method.inputs.normalization)
+        samples       = int(kwargs.get("s", Method.inputs.samples))
+        adaptive      = kwargs.get("a", Method.inputs.adaptive)
+        replicates    = kwargs.get("r", Method.inputs.replicates)
+        do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
+        include_zeros = not kwargs.get("ez", not Method.inputs.include_zeros)
+        pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
         
         Z = True if "Z" in kwargs else False
 
@@ -289,7 +289,7 @@ class Analysis:
         ctrl_lib_str = kwargs.get("-ctrl_lib", "")
         exp_lib_str = kwargs.get("-exp_lib", "")
         
-        Analysis.inputs.update(dict(
+        Method.inputs.update(dict(
             ctrldata=ctrldata,
             expdata=expdata,
             output_path=output_path,
@@ -313,7 +313,7 @@ class Analysis:
             combined_wig_params=combined_wig_params,
             do_histogram=do_histogram,
         ))
-        Analysis.Run()
+        Method.Run()
 
     def Run(self):
         if self.inputs.do_histogram:
@@ -506,9 +506,9 @@ class Analysis:
             # 
             transit_tools.write_result(
                 path=self.inputs.output_path,
-                file_kind=Analysis.identifier,
+                file_kind=Method.identifier,
                 rows=rows,
-                column_names=Analysis.column_names if not self.inputs.Z else [
+                column_names=Method.column_names if not self.inputs.Z else [
                     "ORF",
                     "Name",
                     "Description",
@@ -547,7 +547,7 @@ class Analysis:
             )
             results_area.add(self.inputs.output_path)
             
-        logging.log(f"Finished running {Analysis.identifier}")
+        logging.log(f"Finished running {Method.identifier}")
 
     def preprocess_data(self, position, data):
         (K, N) = data.shape
@@ -778,19 +778,19 @@ class Analysis:
 class ResultFileType1:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Analysis.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Analysis.identifier,
+            type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Analysis.identifier,
+                    title=Method.identifier,
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -803,14 +803,14 @@ class ResultFileType1:
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         parameters = LazyDict(self.extra_data.get("parameters", {}))
-        number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Analysis.significance_threshold ])
+        number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Method.significance_threshold ])
         self.values_for_result_table.update({
             "": f"{number_of_significant} significant conditionally essential genes"
         })
     
     def __str__(self):
         return f"""
-            File for {Analysis.identifier}
+            File for {Method.identifier}
                 path: {self.path}
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
@@ -874,4 +874,4 @@ class ResultFileType1:
             plt.title("Adjusted Threshold (red line): P Value=%1.8f" % threshold)
             plt.show()
 
-Method = GUI = Analysis # for compatibility with older code/methods
+Method = GUI = Method # for compatibility with older code/methods

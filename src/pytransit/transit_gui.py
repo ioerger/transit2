@@ -34,9 +34,6 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 
-from pytransit.methods.analysis                  import methods
-from pytransit.methods.convert                   import methods as convert_methods
-from pytransit.methods.export                    import methods as export_methods
 from pytransit.tools.gui_tools                   import bind_to, rgba, color
 from pytransit.tools.norm_tools                  import methods as norm_methods
 from pytransit.tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe

@@ -12,9 +12,7 @@ documentation_url = "http://saclab.tamu.edu/essentiality/transit/transit.html"
 def create_menu(frame):
     # must imported inside the function to avoid circular import
     import pytransit.components.parameter_panel as parameter_panel
-    from pytransit.methods.export     import methods as export_methods
-    from pytransit.methods.convert    import methods as convert_methods
-    from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+    from pytransit.tools.transit_tools import wx
     
     global selected_export_menu_item
     menu_bar = wx.MenuBar(0)
