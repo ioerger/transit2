@@ -6,6 +6,6 @@ python3 ./src/transit.py ttnfitness \
     "./src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig" \
     ./src/pytransit/genomes/H37Rv.prot_table \
     ./src/pytransit/genomes/H37Rv.fna \
-    ./tests/data/gumbel.1.output \
+    ./tests/cli_tests/gumbel/0001_basic.sh.1.result \
     "$result_file.genes" \
     "$result_file.sites"

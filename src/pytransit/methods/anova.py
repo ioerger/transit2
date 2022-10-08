@@ -519,9 +519,9 @@ class File:
         #
         self.values_for_result_table.update({
             f"Gene Count": len(self.rows),
-            f"Padj<{Method.significance_threshold}": len([
+            f"Adj P Value < {Method.significance_threshold}": len([
                 1 for each in self.rows
-                    if each.get("Padj", 0) < Method.significance_threshold 
+                    if each.get("Adj P Value", 1) < Method.significance_threshold 
             ]),
         })
     

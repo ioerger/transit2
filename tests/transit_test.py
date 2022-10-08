@@ -80,17 +80,13 @@ def count_hits(path):
                 hits+=1
     return hits
 
-# for ANOVA output; assume last 3 columns are pval, qval, and status
-
+# for ANOVA output; assume last 3 columns are pval, qval, and status # FIXME
 def significant_pvals_qvals(fname, pcol=-2, qcol=-1):
     pvals, qvals = [], []
-    #with open(fname) as f:
-    #    lines = f.readlines()
-    #for line in lines[2:]:
     with open(fname) as file:
         for line in file:
             if line[0]=='#': continue
-            if "pval" in line and "padj" in line: continue
+            if "P Value" in line and "Adj P Value" in line: continue
             cols = line.split("\t")
             # Read in position as int, and readcounts as float
             pvals.append(float(cols[pcol]))

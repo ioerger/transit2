@@ -39,7 +39,7 @@ class Method:
     
     valid_cli_flags = [ #TRI - consider adding these flags?
     ]
-    # could add a flag for padj cutoff (or top n most signif genes)
+    # could add a flag for Adj P Value cutoff (or top n most signif genes)
 
     #TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""

@@ -693,12 +693,6 @@ class GeneFile:
         #
         self.values_for_result_table.update({
             # HANDLE_THIS (additional summary_info for results table)
-            # examples:
-                # f"Gene Count": len(self.rows),
-                # f"Padj<{Method.significance_threshold}": len([
-                #     1 for each in self.rows
-                #         if each.get("Padj", 0) < Method.significance_threshold 
-                # ]),
         })
     
     def __str__(self):

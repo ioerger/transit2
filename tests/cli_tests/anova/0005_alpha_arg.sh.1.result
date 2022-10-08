@@ -1,6 +1,7 @@
 #Anova
 #yaml:
-#    Console Command: python3 ./src/transit.py anova ./src/pytransit/data/cholesterol_glycerol_combined.dat ./src/pytransit/data/samples_metadata_cg.txt ./src/pytransit/genomes/H37Rv.prot_table ./tests/cli_tests/anova/0005_alpha_arg.sh.1.result -alpha 100
+#    Console Command: |
+#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0005_alpha_arg.sh.1.result' '-alpha' '100'
 #    parameters:
 #       conditions_list:
 #       - Cholesterol
@@ -10,7 +11,7 @@
 #       pseudocounts: 5
 #       alpha: 100.0
 #    
-#Rv	Gene	TAs	Mean_Cholesterol	Mean_Glycerol	LFC_Cholesterol	LFC_Glycerol	MSR	MSE+alpha	Fstat	Pval	Padj	status
+#Rv	Gene	TAs	Mean Cholesterol	Mean Glycerol	LFC Cholesterol	LFC Glycerol	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
 Rv0001	dnaA	31	0.00	0.00	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions
 Rv0002	dnaN	31	0.00	0.00	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions
 Rv0003	recF	35	21.59	16.82	0.136	-0.150	617.903517	3663.341611	0.168672	0.681803	1.000000	-

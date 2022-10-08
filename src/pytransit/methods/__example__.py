@@ -243,9 +243,9 @@ class ResultFileType1:
             # HANDLE_THIS (additional summary_info for results table)
             # examples:
                 # f"Gene Count": len(self.rows),
-                # f"Padj<{Method.significance_threshold}": len([
+                # f"Adj P Value < {Method.significance_threshold}": len([
                 #     1 for each in self.rows
-                #         if each.get("Padj", 0) < Method.significance_threshold 
+                #         if each.get("Adj P Value", 0) < Method.significance_threshold 
                 # ]),
         })
     
