@@ -570,7 +570,11 @@ def resampling(
         # Only adjust log2FC if one of the means is zero
         if mean1 > 0 and mean2 > 0: log2FC = math.log((mean2)/(mean1),2)
         else: log2FC = math.log((mean2+1.0)/(mean1+1.0),2)
-
+    
+    print(f'''mean1 = {mean1}''')
+    print(f'''mean2 = {mean2}''')
+    print(f'''log2FC = {log2FC}''')
+    
     # Get stats and info based on whether working with libraries or not:
     number_of_ta_sites = 0
     if lib_str1:
