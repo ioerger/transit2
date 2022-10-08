@@ -66,7 +66,7 @@ class Analysis:
         "--rope", # Region Of Probable Equivalence around 0
     ]
 
-    usage_string = f"""usage: python3 %s GI <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
+    usage_string = f"""usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
         GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
         It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
         Provide replicates in each group as a comma-separated list of wig files.

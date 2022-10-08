@@ -44,7 +44,7 @@ class Analysis:
     ]
     usage_string = f"""
         # HANDLE_THIS
-        Usage: python3 transit.py {cli_name} [Optional Arguments]
+        Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments]
         Optional Arguments:
             -n <string>         :=  Normalization method. Default: -n TTR
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0

@@ -42,8 +42,8 @@ class Analysis:
     # could add a flag for padj cutoff (or top n most signif genes)
 
     #TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
-    #usage_string = """usage: python3 transit.py corrplot <gene_means> <output.png> [-anova|-zinb]""""
-    usage_string = """usage: python3 transit.py corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
+    #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
+    usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
     
     @gui.add_menu("Analysis", menu_name)
     def on_menu_click(event):

@@ -1,14 +1,26 @@
 #!/usr/bin/env bash
-export PYTHONHASHSEED="0"
+
 # no args
 if [ -z "$1" ]
 then
     # 
     # python code tests
     # 
+    echo '#'
+    echo '# test_analysis_methods'
+    echo '#'
     python3 ./tests/test_analysis_methods.py
+    echo '#'
+    echo '# test_norm_methods'
+    echo '#'
     python3 ./tests/test_norm_methods.py
+    echo '#'
+    echo '# test_pytransit_tools'
+    echo '#'
     python3 ./tests/test_pytransit_tools.py
+    echo '#'
+    echo '# test_tpp'
+    echo '#'
     python3 ./tests/test_tpp.py
     
     

@@ -61,7 +61,7 @@ class Analysis:
         "-winz",
     ]
     usage_string = f"""
-        Usage: python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+        Usage: {console_tools.subcommand_prefix} anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
         Optional Arguments:
             -n <string>         :=  Normalization method. Default: -n TTR
             --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
@@ -168,6 +168,7 @@ class Analysis:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
+        console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=4)
 
         combined_wig      = args[0]
         annotation_path   = args[2]

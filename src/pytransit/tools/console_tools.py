@@ -93,7 +93,7 @@ def handle_help_flag(kwargs, usage_string):
         print(usage_string)
         exit(0)
 
-def enforce_number_of_args(args, usage_string, *, exactly, at_least=type(None)):
+def enforce_number_of_args(args, usage_string, *, exactly=None, at_least=type(None)):
     number_of_args = len(args)
     if at_least != type(None):
         if number_of_args < at_least:

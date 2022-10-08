@@ -21,17 +21,17 @@ def help_command(args=[], kwargs={}):
                 for each_subcommand in cli.subcommands.keys()
         ]
         # add color
-        subcommands_as_strings = [
+        subcommands_as_strings_with_color = [
             command_line.color(each_subcommand_string+" ", foreground="bright_green")
                 for each_subcommand_string in subcommands_as_strings
         ]
         # add prefix
-        subcommands_as_strings = [
+        subcommands_as_strings_with_color = [
             misc.indent(subcommand_prefix + each_subcommand_string)
-                for each_subcommand_string in subcommands_as_strings
+                for each_subcommand_string in subcommands_as_strings_with_color
         ]
         # combine
-        possible_commands = "\n".join(subcommands_as_strings)
+        possible_commands = "\n".join(subcommands_as_strings_with_color)
     
     # 
     # user directly asked for help
@@ -50,12 +50,16 @@ def help_command(args=[], kwargs={}):
     # 
     else:
         length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
-        given_command = subcommand_prefix + command_line.color(" ".join(args[:length_of_longest_subcommand])+" ", foreground="bright_red")
+        given_command                = " ".join(args[:length_of_longest_subcommand])
+        given_command_formatted      = subcommand_prefix + command_line.color(" ".join(args[:length_of_longest_subcommand])+" ", foreground="bright_red")
+        closest_match, *_            = misc.levenshtein_distance_sort(word=given_command, other_words=subcommands_as_strings)
+        closest_match_formatted      = subcommand_prefix + command_line.color(closest_match, foreground="bright_yellow")
         logging.error(
             f"""
-                I got this subcommand: {given_command}
+                I got this subcommand: {given_command_formatted}
+                Maybe you meant:       {closest_match_formatted}
                 
-                However it didn't overlap with any of the available subcommands:\n{possible_commands}
+                Here are all the available subcommands:\n{possible_commands}
             """.replace("\n                ","\n"),
             no_traceback=True,
         )
@@ -139,11 +143,12 @@ def main(*args, **kwargs):
         # try to match longest sequence of arguments with a subcommand
         # 
         length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
-        for each_length in reversed(range(1, length_of_longest_subcommand)):
-            subcommand, subcommand_args = args[0:each_length], args[each_length:]
+        for each_length in reversed(range(1, length_of_longest_subcommand+1)):
+            subcommand, subcommand_args = tuple(args[:each_length]), args[each_length:]
             if subcommand in cli.subcommands:
                 # if the subcommand exists, run it
                 cli.subcommands[subcommand](args, kwargs)
+                exit(0)
         
         # 
         # runtime only gets here if no subcommands were matched
