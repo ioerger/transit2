@@ -160,8 +160,13 @@ class Method:
 
         if Method.inputs.organism_pathway != None:
             organism,pathway = Method.inputs.organism_pathway.split("-")
-            if pathway == "COG_20":
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/COG_20_org_associations/"+organism+"_COG_20_roles.associations.txt"
+            if pathway == "COG":
+                import requests
+                URL = "https://orca1.tamu.edu/essentiality/transit/COG2020/"+organism+"_COG_20_roles.associations.txt"
+                response = requests.get(URL)
+                open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb").write(response.content)
+
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_20_roles.txt"
 
             elif Method.inputs.organism_pathway =="H37Rv-Sanger":
@@ -172,18 +177,10 @@ class Method:
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
-            elif Method.inputs.organism_pathway =="H37Rv-COG":
-                logging.log("Loading in H37Rv Associations for COG Pathways")
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_COG_roles.dat"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_roles.dat"
             elif Method.inputs.organism_pathway =="Smeg-GO":
                 logging.log("Loading in Smeg Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
-            elif Method.inputs.organism_pathway =="Smeg-COG":
-                logging.log("Loading in Smeg Associations for COG Pathways")
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_COG_roles.dat"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_roles.dat"   
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.csv",
