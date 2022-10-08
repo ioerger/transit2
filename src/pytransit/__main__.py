@@ -76,7 +76,7 @@ def main(*args, **kwargs):
         sys.exit(0)
     
     # 
-    # parse args
+    # parse global args
     # 
     if True:
         # 
@@ -147,7 +147,7 @@ def main(*args, **kwargs):
             subcommand, subcommand_args = tuple(args[:each_length]), args[each_length:]
             if subcommand in cli.subcommands:
                 # if the subcommand exists, run it
-                cli.subcommands[subcommand](args, kwargs)
+                cli.subcommands[subcommand](subcommand_args, kwargs)
                 exit(0)
         
         # 

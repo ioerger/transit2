@@ -26,8 +26,6 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
-
-
 @misc.singleton
 class Analysis:
     name = "Genetic Interaction"
@@ -214,7 +212,7 @@ class Analysis:
           c_terminus=c_terminus
         ))
         
-        return Analysis
+        Analysis.Run()
         
     def Run(self):
         logging.log("Starting Genetic Interaction analysis")

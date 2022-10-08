@@ -214,7 +214,7 @@ class Analysis:
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
-        return Analysis
+        Analysis.Run()
         
     def Run(self):
         with gui_tools.nice_error_log:

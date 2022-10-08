@@ -169,7 +169,7 @@ class Analysis:
         console_tools.handle_help_flag(kwargs, Analysis.usage_string)
         console_tools.handle_unrecognized_flags(Analysis.valid_cli_flags, kwargs, Analysis.usage_string)
         console_tools.enforce_number_of_args(args, Analysis.usage_string, at_least=4)
-
+        
         combined_wig      = args[0]
         annotation_path   = args[2]
         metadata          = args[1]
@@ -203,7 +203,7 @@ class Analysis:
             alpha=alpha,
         ))
         
-        return Analysis
+        Analysis.Run()
         
     def means_by_condition_for_gene(self, sites, conditions, data):
         """

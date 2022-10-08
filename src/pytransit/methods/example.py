@@ -167,7 +167,7 @@ class Analysis:
             # HANDLE_THIS
         ))
         
-        return Analysis
+        Analysis.Run()
         
     def Run(self):
         from pytransit.tools import stat_tools

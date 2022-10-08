@@ -118,7 +118,7 @@ class Analysis:
             output_path=output_path,
         ))
         
-        return Analysis
+        Analysis.Run()
         
     def Run(self):
         logging.log("Starting tnseq_stats analysis")

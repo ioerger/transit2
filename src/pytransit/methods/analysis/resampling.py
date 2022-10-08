@@ -313,7 +313,7 @@ class Analysis:
             combined_wig_params=combined_wig_params,
             do_histogram=do_histogram,
         ))
-        return Analysis
+        Analysis.Run()
 
     def Run(self):
         if self.inputs.do_histogram:

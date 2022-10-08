@@ -198,7 +198,7 @@ class Analysis:
             n_terminus=n_terminus,
             c_terminus=c_terminus,
         ))
-        return Analysis
+        Analysis.Run()
 
     def Run(self):
         with gui_tools.nice_error_log:

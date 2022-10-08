@@ -117,7 +117,7 @@ class Analysis:
             #c_terminus=float(kwargs.get("iC", Analysis.inputs.c_terminus)),
         ))
         
-        return Analysis
+        Analysis.Run()
         
     ##################################################
 

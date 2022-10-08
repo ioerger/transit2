@@ -188,7 +188,7 @@ class Analysis:
             iC=float(kwargs.get("iC", 0.00)),
         ))
 
-        return Analysis
+        Analysis.Run()
         
     def Run(self):
         with gui_tools.nice_error_log:

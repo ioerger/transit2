@@ -162,7 +162,7 @@ class Analysis:
             sites_output_path = args[5],
         ))
             
-        return Analysis
+        Analysis.Run()
         
     def Run(self):
         with gui_tools.nice_error_log:
