@@ -27,24 +27,6 @@ from pytransit.basics import csv, misc
 import pytransit.components.results_area as results_area
 
 
-
-# 
-# Column names (put here for standardization, can be put back inside methods after)
-# 
-if True:
-    
-    ta_sites_dataframe_columns = [
-        "Coordinates",
-        "ORF",
-        "Name",
-        "Upstream TTN",
-        "Downstream TTN",
-        "TTN Fitness Assessment",
-        "Insertion Count",
-        "Local Average",
-        "M1 Predicted Count",
-    ]
-
 @misc.singleton
 class Analysis:
     name = "TTN Fitness"
@@ -407,12 +389,12 @@ class Analysis:
                 gene_call = "U"
                 sub_gumbel = gumbel_df[gumbel_df["ORF"] == g]
                 if len(sub_gumbel) > 0:
-                    gene_call = sub_gumbel["Call"].iloc[0]
+                    gene_call = sub_gumbel["Essentiality Call"].iloc[0]
                 # set to ES if greater than n and all 0s
                 sub_data = TA_sites_df[TA_sites_df["ORF"] == g]
                 if (
                     len(sub_data) > significant_n
-                    and len(sub_data[sub_data["Insertion Count"] > 0]) == 0
+                    and len(sub_data[sub_data["Number Of Insertions Within ORF"] > 0]) == 0
                 ):
                     gene_call = "EB"  # binomial filter
             gumbel_bernoulli_gene_calls[g] = gene_call
@@ -756,7 +738,7 @@ class GenesFile:
             plt.legend()
             plt.xlabel("Gene Plus TTN M1 Coef")
             plt.ylabel("-Log Adj P Value (base 10)")
-            plt.suptitle("Resampling - Volcano plot")
+            plt.suptitle("Volcano plot")
             plt.title("Adjusted threshold (horizonal line): P-value=%1.8f\nVertical line set at Coef=0" % threshold)
             plt.show()
             
