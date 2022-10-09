@@ -54,6 +54,7 @@ class Method:
     
     # a helper for all the methods above
     def gui_normalize(self, kind):
+        # FIXME: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
         return Method.run_normalize(
             is_combined_wig=True,
             infile_path=gui.combined_wigs[0].main_path,
