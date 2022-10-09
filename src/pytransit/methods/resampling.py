@@ -212,7 +212,6 @@ class Method:
         cwig_path     = gui.combined_wigs[0].main_path
         metadata_path = gui.combined_wigs[0].metadata.path
         
-        from pytransit.components.samples_area import sample_table
         Method.inputs.combined_wig_params = dict(
             combined_wig=cwig_path,
             samples_metadata=metadata_path,

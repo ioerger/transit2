@@ -31,7 +31,7 @@ class Method:
     # 
     # Quality Control
     # 
-    @samples_area.create_sample_area_button(name=name, size=(130,-1))
+    @samples_area.add_wig_area_dropdown_option(name=name)
     def click_show_quality_control(event):
         from pytransit.components import qc_display
         with gui_tools.nice_error_log:

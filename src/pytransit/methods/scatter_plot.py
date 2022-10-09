@@ -30,8 +30,8 @@ class Method:
     # 
     # Scatter Plot
     # 
-    @samples_area.create_sample_area_button(name=name, size=(120, -1))
-    def create_show_scatter_plot_button(event):
+    @samples_area.add_wig_area_dropdown_option(name=name)
+    def on_button_click(event):
         with gui_tools.nice_error_log:
             import numpy
             import matplotlib

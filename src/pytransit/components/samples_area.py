@@ -14,17 +14,63 @@ from pytransit.components.generic.button import Button
 from pytransit.components.generic.table import Table
 
 # 
-# Samples
+# data shared between functions
 # 
-sample_table, conditions_table = None, None
-sample_button_creators = []
-def get_selected_samples():
-    return [ each["__wig_obj"] for each in sample_table.selected_rows ]
+samples = LazyDict(
+    wig_header_sizer=None,
+    wig_dropdown_wxobj=None,
+    wig_table=None,
+    dropdown_options={},
+    conditions_table=None,
+    sample_button_creators = {
+        # put "name": None here for buttons you want to be in a specific order
+        # "LOESS": None,
+    },
+)
 
+# 
+# 
+# internal tools 
+# 
+# 
+
+# 
+# for updating the dropdown options
+# 
+def update_sample_area_dropdown(new_choices):
+    with gui_tools.nice_error_log:
+        # hide the old one before showing the new one
+        if samples.wig_dropdown_wxobj != None:
+            samples.wig_dropdown_wxobj.Hide()
+        
+        # if not (None or empty)
+        if new_choices: 
+            new_choices = {
+                "[Select Tool]": lambda event: None, # always have a none option, and always make it the first option
+                **new_choices,
+            }
+            
+            samples.wig_dropdown_wxobj = wx.Choice(
+                gui.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                (120, -1),
+                list(new_choices.keys()),
+                0,
+            )
+            samples.wig_dropdown_wxobj.SetSelection(0)
+            samples.wig_header_sizer.Add(samples.wig_dropdown_wxobj, proportion=0, flag=wx.EXPAND, border=gui_tools.default_padding)
+            samples.wig_header_sizer.Layout()
+            gui.frame.Layout()
+            
+            @gui_tools.bind_to(samples.wig_dropdown_wxobj, wx.EVT_CHOICE)
+            def _(event):
+                choice = samples.wig_dropdown_wxobj.GetString(samples.wig_dropdown_wxobj.GetCurrentSelection())
+                # run the callback that corrisponds the the choice
+                new_choices[choice](event)
+
+# is only called in transit_gui.py
 def create_sample_area(frame):
-    global sample_table
-    global conditions_table
-    
     wx_object = None
     with Column() as outer_sample_sizer:
         wx_object = outer_sample_sizer.wx_object
@@ -38,7 +84,7 @@ def create_sample_area(frame):
         # box
         # 
         if True:
-            inner_sample_sizer = wx.BoxSizer(wx.HORIZONTAL)
+            samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
             
             # 
             # combined_wig_file_picker
@@ -97,33 +143,34 @@ def create_sample_area(frame):
                             
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
-                # inner_sample_sizer.Add(combined_wig_file_picker, proportion=2, flag=wx.ALIGN_LEFT, border=5)
-                inner_sample_sizer.Add(combined_wig_file_picker)
+                # samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=2, flag=wx.ALIGN_LEFT, border=5)
+                samples.wig_header_sizer.Add(combined_wig_file_picker)
                 
             outer_sample_sizer.add(
-                inner_sample_sizer,
+                samples.wig_header_sizer,
                 expand=True,
                 proportion=0,
             )
         
         # 
-        # sample_table
+        # samples.wig_table
         # 
         with Table(
             max_size=(int(gui.width*0.7), 200)
-        ) as sample_table:
+        ) as samples.wig_table:
             # 
             # show wig-specific buttons
             # 
             show_table_button = None
-            @sample_table.events.on_select
+            @samples.wig_table.events.on_select
             def _(event):
-                for each in sample_button_creators:
+                update_sample_area_dropdown(samples.dropdown_options)
+                for each in samples.sample_button_creators.values():
                     with gui_tools.nice_error_log:
-                        each(sample_table, inner_sample_sizer)
+                        each(samples.wig_table, samples.wig_header_sizer)
             
             outer_sample_sizer.add(
-                sample_table.wx_object,
+                samples.wig_table.wx_object,
                 proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
@@ -136,13 +183,13 @@ def create_sample_area(frame):
         )
         
         # 
-        # conditions_table
+        # samples.conditions_table
         # 
         with Table(
            max_size=(int(gui.width*0.7), 200)
-        ) as conditions_table:
+        ) as samples.conditions_table:
             outer_sample_sizer.add(
-                conditions_table.wx_object,
+                samples.conditions_table.wx_object,
                 proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
@@ -190,7 +237,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     if True:
         for each_sample in gui.samples:
             # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
-            sample_table.add(dict(
+            samples.wig_table.add(dict(
                 # add hidden link to object
                 __wig_obj=each_sample,
                 # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
@@ -209,18 +256,51 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
             ))
         
         for each_condition in gui.conditions:
-            conditions_table.add(dict(
+            samples.conditions_table.add(dict(
                 name=each_condition.name,
             ))
 
+# should only be called/used by globals.py
+def get_selected_samples():
+    return [ each["__wig_obj"] for each in samples.wig_table.selected_rows ]
+
+# 
+# 
+# External tools
+# 
+# 
+
+# 
+# Let methods add dropdown options
+# 
+def add_wig_area_dropdown_option(name):
+    """
+    Example Usage:
+        @samples_area.add_wig_area_dropdown_option(name="Click Me", size=(120, -1))
+        def on_button_click(event):
+            print("Howdy")
+    """
+    def decorator(function_being_wrapped):
+        def wrapper(*args,**kwargs):
+            with gui_tools.nice_error_log:
+                return function_being_wrapped(*args, **kwargs)
+        samples.dropdown_options[name] = wrapper
+        return wrapper
+    return decorator
 
 # 
 # Let methods add Buttons
 # 
-def create_sample_area_button(name, size=(150, -1)):
+def add_wig_area_button(name, size=(150, -1)):
+    """
+    Example Usage:
+        @samples_area.add_wig_area_button(name="Click Me", size=(120, -1))
+        def on_button_click(event):
+            print("Howdy")
+    """
     show_thing_button = None
     def decorator(function_being_wrapped):
-        def create_show_thing_button(sample_table, inner_sample_sizer):
+        def create_show_thing_button(wig_table, wig_header_sizer):
             nonlocal show_thing_button
             with gui_tools.nice_error_log:
                 # hide an old button if it exists
@@ -241,11 +321,13 @@ def create_sample_area_button(name, size=(150, -1)):
                 # 
                 @gui_tools.bind_to(show_thing_button, wx.EVT_BUTTON)
                 def click_show_thing(event):
-                    return function_being_wrapped(event)
+                    with gui_tools.nice_error_log:
+                        return function_being_wrapped(event)
             
-            inner_sample_sizer.Add(show_thing_button)
-            inner_sample_sizer.Layout()
+            samples.wig_header_sizer.Add(show_thing_button)
+            samples.wig_header_sizer.Layout()
         
-        sample_button_creators.append(create_show_thing_button)
+        samples.sample_button_creators[name] = create_show_thing_button
         return create_show_thing_button
     return decorator
+

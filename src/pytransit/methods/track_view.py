@@ -31,7 +31,7 @@ class Method:
     # 
     # Track View
     # 
-    @samples_area.create_sample_area_button(name=name, size=(120, -1))
+    @samples_area.add_wig_area_dropdown_option(name=name)
     @staticmethod
     def click_show_track_view(event):
         with gui_tools.nice_error_log:
