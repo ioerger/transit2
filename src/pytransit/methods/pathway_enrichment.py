@@ -234,12 +234,6 @@ class Method:
                 progress_update("Not a valid method", 100)
         
         # 
-        # process data
-        # 
-        # if True:
-        #     rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
-        
-        # 
         # write output
         # 
             if True:
