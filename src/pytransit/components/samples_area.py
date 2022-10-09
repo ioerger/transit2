@@ -215,104 +215,42 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
 
 
 # 
-# Buttons
+# Let methods add Buttons
 # 
-if True:
-    # Helper function for the button below
-    def create_sample_area_button(name, size=(150, -1)):
-        show_thing_button = None
-        def decorator(function_being_wrapped):
-            def create_show_thing_button(sample_table, inner_sample_sizer):
-                nonlocal show_thing_button
-                with gui_tools.nice_error_log:
-                    # hide an old button if it exists
-                    if show_thing_button != None:
-                        show_thing_button.Hide()
-                    
-                    show_thing_button = GenBitmapTextButton(
-                        gui.frame,
-                        1,
-                        gui_tools.bit_map,
-                        name,
-                        size=wx.Size(*size),
-                    )
-                    show_thing_button.SetBackgroundColour(gui_tools.color.light_blue)
-                    
-                    # 
-                    # callback
-                    # 
-                    @gui_tools.bind_to(show_thing_button, wx.EVT_BUTTON)
-                    def click_show_thing(event):
-                        return function_being_wrapped(event)
+def create_sample_area_button(name, size=(150, -1)):
+    show_thing_button = None
+    def decorator(function_being_wrapped):
+        def create_show_thing_button(sample_table, inner_sample_sizer):
+            nonlocal show_thing_button
+            with gui_tools.nice_error_log:
+                # hide an old button if it exists
+                if show_thing_button != None:
+                    show_thing_button.Hide()
                 
-                inner_sample_sizer.Add(show_thing_button)
-                inner_sample_sizer.Layout()
+                show_thing_button = GenBitmapTextButton(
+                    gui.frame,
+                    1,
+                    gui_tools.bit_map,
+                    name,
+                    size=wx.Size(*size),
+                )
+                show_thing_button.SetBackgroundColour(gui_tools.color.light_blue)
+                
+                # 
+                # callback
+                # 
+                @gui_tools.bind_to(show_thing_button, wx.EVT_BUTTON)
+                def click_show_thing(event):
+                    return function_being_wrapped(event)
             
-            sample_button_creators.append(create_show_thing_button)
-            return create_show_thing_button
-        return decorator
-    
-    # 
-    # Show Table
-    # 
-    @create_sample_area_button(name="Show Table", size=(100, -1))
-    def click_show_table(event):
-        selected_wigs = gui.selected_samples or gui.samples
+            inner_sample_sizer.Add(show_thing_button)
+            inner_sample_sizer.Layout()
         
-        # 
-        # heading (only if single wig)
-        # 
-        heading = ""
-        if len(selected_wigs) == 1:
-            heading = human_readable_data(selected_wigs[0].extra_data)
-        
-        # 
-        # row data
-        # 
-        column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
-        positions = selected_wigs[0].positions
-        rows = []
-        for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
-            rows.append({
-                column_name: cell_value
-                    for column_name, cell_value in zip(column_names, row_data)
-            })
-        
-        SpreadSheet(
-            title="Read Counts",
-            heading=heading,
-            column_names=column_names,
-            rows=rows,
-            sort_by=[]
-        ).Show()
-    
-    # 
-    # Track View
-    # 
-    @create_sample_area_button(name="Track View", size=(120, -1))
-    def click_show_track_view(event):
-        with gui_tools.nice_error_log:
-            import pytransit.components.trash as trash
-            annotation_path = gui.annotation_path
-            wig_ids = [ each_sample.id for each_sample in gui.selected_samples ]
+        sample_button_creators.append(create_show_thing_button)
+        return create_show_thing_button
+    return decorator
 
-            if wig_ids and annotation_path:
-                if debugging_enabled:
-                    logging.log(
-                        "Visualizing counts for: %s"
-                        % ", ".join(wig_ids)
-                    )
-                view_window = trash.TrashFrame(gui.frame, wig_ids, annotation_path, gene="")
-                view_window.Show()
-            elif not wig_ids:
-                # NOTE: was a popup
-                logging.error("Error: No samples selected.")
-                return
-            else:
-                # NOTE: was a popup
-                logging.error("Error: No annotation file selected.")
-                return
-    
+if True:
     # 
     # Scatter Plot
     # 

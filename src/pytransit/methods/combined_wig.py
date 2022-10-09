@@ -6,6 +6,7 @@ import time
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
+from pytransit.components import samples_area
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 @misc.singleton
@@ -117,3 +118,38 @@ class Method:
 
         logging.log("")  # Printing empty line to flush stdout
         logging.log("Finished Export")
+        
+    # 
+    # Samples-area button
+    # 
+    @samples_area.create_sample_area_button(name="Show Table", size=(100, -1))
+    @staticmethod
+    def click_show_table(event):
+        selected_wigs = gui.selected_samples or gui.samples
+        
+        # 
+        # heading (only if single wig)
+        # 
+        heading = ""
+        if len(selected_wigs) == 1:
+            heading = human_readable_data(selected_wigs[0].extra_data)
+        
+        # 
+        # row data
+        # 
+        column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
+        positions = selected_wigs[0].positions
+        rows = []
+        for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
+            rows.append({
+                column_name: cell_value
+                    for column_name, cell_value in zip(column_names, row_data)
+            })
+        
+        SpreadSheet(
+            title="Read Counts",
+            heading=heading,
+            column_names=column_names,
+            rows=rows,
+            sort_by=[]
+        ).Show()
