@@ -13,10 +13,10 @@ import unittest
 from transit_test import *
 
 import pytransit
-from pytransit.tools import norm_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import console_tools
-from pytransit.tools.transit_tools import HAS_R
+from pytransit.specific_tools import norm_tools
+from pytransit.specific_tools import tnseq_tools
+from pytransit.specific_tools import console_tools
+from pytransit.specific_tools.transit_tools import HAS_R
 
 # Single condition methods
 from pytransit.methods.anova  import Method as AnovaMethod

@@ -81,13 +81,13 @@ except Exception as e:
     rpackages   = None
 
 import pytransit
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-import pytransit.basics.csv as csv
-from pytransit.tools import logging, console_tools
-from pytransit.basics.lazy_dict import LazyDict
-from pytransit.basics.named_list import named_list
-from pytransit.tools.console_tools import clean_args
+from pytransit.specific_tools import tnseq_tools
+from pytransit.specific_tools import norm_tools
+import pytransit.generic_tools.csv as csv
+from pytransit.specific_tools import logging, console_tools
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.generic_tools.named_list import named_list
+from pytransit.specific_tools.console_tools import clean_args
 
 def write_dat(path, heading, table, eol="\n"):
     if len(heading) != 0:
@@ -387,13 +387,13 @@ def get_validated_data(wig_list):
 
     :Example:
 
-        >>> from pytransit.tools import tnseq_tools
+        >>> from pytransit.specific_tools import tnseq_tools
         >>> (data, position) = tnseq_tools.get_validated_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
 
-    .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.tools.norm_tools.normalize_data`
+    .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.specific_tools.norm_tools.normalize_data`
     """
     (status, genome) = validate_wig_format(wig_list)
 
@@ -479,8 +479,8 @@ if True:
         assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
         
         import ez_yaml
-        import pytransit.basics.csv as csv
-        from pytransit.basics.misc import indent
+        import pytransit.generic_tools.csv as csv
+        from pytransit.generic_tools.misc import indent
         ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
         
         extra_info = extra_info or {}
@@ -684,7 +684,7 @@ def winsorize(counts):
 
 def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None, selected_samples=False):
     from pytransit.globals import gui, cli, root_folder, debugging_enabled
-    from pytransit.tools.tnseq_tools import Wig
+    from pytransit.specific_tools.tnseq_tools import Wig
     
     wig_objects = gui.samples
     # default to all samples unless selected_samples is true

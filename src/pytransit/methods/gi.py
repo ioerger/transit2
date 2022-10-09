@@ -15,11 +15,11 @@ import scipy.stats
 import heapq
 import math
 import statsmodels.stats.multitest
-from pytransit.basics.lazy_dict import LazyDict
+from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
-from pytransit.basics import csv, misc
+from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
+from pytransit.generic_tools import csv, misc
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -293,7 +293,7 @@ class Method:
 
 
     def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
-        from pytransit.tools import stat_tools
+        from pytransit.specific_tools import stat_tools
         
         # Get Gene objects for each condition
         G_A1 = tnseq_tools.Genes(

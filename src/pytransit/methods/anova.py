@@ -11,15 +11,15 @@ import heapq
 import numpy
 
 from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
-from pytransit.basics.lazy_dict import LazyDict
-import pytransit.basics.csv as csv
+from pytransit.generic_tools.lazy_dict import LazyDict
+import pytransit.generic_tools.csv as csv
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
 from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.basics import misc
+from pytransit.generic_tools import misc
 
 @misc.singleton
 class Method:
@@ -156,7 +156,7 @@ class Method:
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
         if not Method.inputs.output_path:
             return None
@@ -491,7 +491,7 @@ class File:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="Anova",heading="",column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=self.comments,column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
@@ -503,6 +503,7 @@ class File:
         if len(comments) == 0:
             raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
         self.column_names = comments[-1].split("\t")
+        self.comments = "\n".join(comments)
         
         # 
         # get rows

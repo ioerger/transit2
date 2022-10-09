@@ -1,7 +1,7 @@
 import os
 import sys
 
-from pytransit.basics import command_line
+from pytransit.generic_tools import command_line
 probably_used_transit_executable_directly = os.path.basename(sys.argv[0]) == "transit"
 if probably_used_transit_executable_directly:
     full_commandline_command = "transit " + " ".join([ f"'{each}'" for each in sys.argv[1:]])

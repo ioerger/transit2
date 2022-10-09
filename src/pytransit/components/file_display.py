@@ -23,7 +23,7 @@ import os
 import sys
 from functools import partial
 
-from pytransit.tools.transit_tools import wx
+from pytransit.specific_tools.transit_tools import wx
 
 if wx:
     class ImgFrame(wx.Frame):

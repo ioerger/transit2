@@ -2,10 +2,10 @@ from random import random, seed
 from os import getcwd, path
 import sys
 
-import pytransit.basics.csv as csv
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.basics.misc import flatten_once, no_duplicates, singleton
+import pytransit.generic_tools.csv as csv
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
+from pytransit.generic_tools.named_list import named_list
+from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton
 
 debugging_enabled = True
 root_folder       = path.join(path.dirname(__file__),"../../")
@@ -89,7 +89,7 @@ class gui:
         parent_menu[last_menu_name] = None
         
         def decorator(function_being_wrapped):
-            from pytransit.tools import gui_tools
+            from pytransit.specific_tools import gui_tools
             
             def wrapped_with_helper(*args, **kwargs):
                 with gui_tools.nice_error_log:

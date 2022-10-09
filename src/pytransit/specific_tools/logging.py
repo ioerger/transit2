@@ -4,7 +4,7 @@ def log(message, *args, **kwargs):
     import inspect
     import os
     if gui.is_active:
-        from pytransit.tools.gui_tools import set_status
+        from pytransit.specific_tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
         
@@ -31,7 +31,7 @@ def log(message, *args, **kwargs):
 
 def warn(*args, **kwargs):
     if gui.is_active:
-        from pytransit.tools.gui_tools import set_status
+        from pytransit.specific_tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
         
@@ -44,7 +44,7 @@ def warn(*args, **kwargs):
 def error(*args, no_traceback=False, **kwargs):
     import traceback
     if gui.is_active:
-        from pytransit.tools.gui_tools import set_status
+        from pytransit.specific_tools.gui_tools import set_status
     else:
         def set_status(*args, **kwargs): pass
     

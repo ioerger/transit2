@@ -9,14 +9,14 @@ import heapq
 import collections
 
 import numpy
-from pytransit.basics.lazy_dict import LazyDict
+from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel as parameter_panel
 from pytransit.components.parameter_panel import progress_update
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
-from pytransit.basics import csv, misc
+from pytransit.specific_tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
+from pytransit.generic_tools import csv, misc
 import pytransit.components.results_area as results_area
 
 

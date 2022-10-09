@@ -3,9 +3,9 @@ import sys
 import os
 import time
 
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
-from pytransit.basics.lazy_dict import LazyDict
-from pytransit.basics import misc
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.generic_tools import misc
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 @misc.singleton

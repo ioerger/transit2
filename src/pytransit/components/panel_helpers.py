@@ -1,6 +1,6 @@
-from pytransit.tools.transit_tools import wx, pub
+from pytransit.specific_tools.transit_tools import wx, pub
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 default_label_size = (200, -1)
 default_widget_size = (100, -1)
@@ -450,9 +450,9 @@ if True:
                 import numpy
                 import matplotlib
                 import matplotlib.pyplot as plt
-                from pytransit.tools import stat_tools
+                from pytransit.specific_tools import stat_tools
                 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-                from pytransit.tools.tnseq_tools import Wig
+                from pytransit.specific_tools.tnseq_tools import Wig
                 
                 # 
                 # determine selection method

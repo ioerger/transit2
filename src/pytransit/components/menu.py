@@ -1,7 +1,7 @@
 from collections import defaultdict
 from functools import partial
 
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit.components.qc_display as qc_display
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 import pytransit
@@ -12,7 +12,7 @@ documentation_url = "http://saclab.tamu.edu/essentiality/transit/transit.html"
 def create_menu(frame):
     # must imported inside the function to avoid circular import
     import pytransit.components.parameter_panel as parameter_panel
-    from pytransit.tools.transit_tools import wx
+    from pytransit.specific_tools.transit_tools import wx
     
     global selected_export_menu_item
     menu_bar = wx.MenuBar(0)
@@ -91,7 +91,7 @@ def create_menu(frame):
             help_menu.Append(documentation_option)
             def when_documentation_clicked(event):
                 with gui_tools.nice_error_log:
-                    from pytransit.basics.misc import open_url
+                    from pytransit.generic_tools.misc import open_url
                     open_url(documentation_url)
                     
             frame.Bind(wx.EVT_MENU, when_documentation_clicked, id=documentation_option.GetId())

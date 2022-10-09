@@ -1,10 +1,10 @@
 import os
 
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
+from pytransit.generic_tools.named_list import named_list
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.tools import logging, gui_tools
+from pytransit.specific_tools import logging, gui_tools
 
 from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text

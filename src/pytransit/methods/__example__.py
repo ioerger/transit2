@@ -10,11 +10,11 @@ import heapq
 
 import numpy
 
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.basics.lazy_dict import LazyDict
-import pytransit.basics.csv as csv
-import pytransit.basics.misc as misc
-from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.generic_tools.lazy_dict import LazyDict
+import pytransit.generic_tools.csv as csv
+import pytransit.generic_tools.misc as misc
+from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -170,7 +170,7 @@ class Method:
         Method.Run()
         
     def Run(self):
-        from pytransit.tools import stat_tools
+        from pytransit.specific_tools import stat_tools
         logging.log(f"Starting {Method.identifier} analysis")
         start_time = time.time()
         

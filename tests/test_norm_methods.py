@@ -11,9 +11,9 @@ import numpy
 
 from transit_test import *
 
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.console_tools as console_tools
+import pytransit.specific_tools.norm_tools as norm_tools
+import pytransit.specific_tools.tnseq_tools as tnseq_tools
+import pytransit.specific_tools.console_tools as console_tools
 
 from pytransit.methods.gumbel import Method as GumbelMethod
 from pytransit.methods.hmm        import Method as HMMMethod

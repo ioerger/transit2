@@ -15,10 +15,10 @@ import numpy
 
 from transit_test import *
 
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.stat_tools as stat_tools
-import pytransit.tools.transit_tools as transit_tools
+import pytransit.specific_tools.norm_tools as norm_tools
+import pytransit.specific_tools.tnseq_tools as tnseq_tools
+import pytransit.specific_tools.stat_tools as stat_tools
+import pytransit.specific_tools.transit_tools as transit_tools
 
 
 # fake setup for testing

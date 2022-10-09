@@ -26,7 +26,7 @@ import scipy.stats
 import matplotlib.pyplot as plt
 
 from matplotlib.figure import Figure
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
 
 class QualityControlFrame(wx_frame):
     def __init__(self, parent, wig_ids):
@@ -221,7 +221,7 @@ class QualityControlFrame(wx_frame):
 
             ############################
             self.norm = "nonorm"
-            from pytransit.tools.transit_tools import gather_sample_data_for
+            from pytransit.specific_tools.transit_tools import gather_sample_data_for
             self.data, self.position = gather_sample_data_for(wig_ids=self.wig_ids)
 
             self.refresh()

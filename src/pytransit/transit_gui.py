@@ -34,9 +34,9 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 
-from pytransit.tools.gui_tools                   import bind_to, rgba, color
-from pytransit.tools.norm_tools                  import methods as norm_methods
-from pytransit.tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
+from pytransit.specific_tools.gui_tools                   import bind_to, rgba, color
+from pytransit.specific_tools.norm_tools                  import methods as norm_methods
+from pytransit.specific_tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
 from pytransit.components.generic.box            import Row, Column
 from pytransit.components.generic.frame          import InnerFrame
 from pytransit.components.generic.text           import Text
@@ -46,10 +46,10 @@ from pytransit.components.parameter_panel        import create_panel_area
 from pytransit.components.results_area           import create_results_area
 from pytransit.components.samples_area           import create_sample_area
 from pytransit.components.annotation_area        import create_annotation_area
-from pytransit.basics.lazy_dict                  import LazyDict
+from pytransit.generic_tools.lazy_dict                  import LazyDict
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit
 import pytransit.components.parameter_panel as parameter_panel
 import pytransit.components.trash as trash

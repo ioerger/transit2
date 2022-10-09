@@ -8,14 +8,14 @@ from os.path import isabs, isfile, isdir, join, dirname, basename, exists, split
 
 import numpy
 import scipy.stats
-from pytransit.basics.lazy_dict import LazyDict, stringify
-import pytransit.basics.csv as csv
-from pytransit.basics.named_list import named_list
-from pytransit.basics.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces
-from pytransit.tools import logging
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify
+import pytransit.generic_tools.csv as csv
+from pytransit.generic_tools.named_list import named_list
+from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces
+from pytransit.specific_tools import logging
 
 try:
-    from pytransit.tools import norm_tools
+    from pytransit.specific_tools import norm_tools
 
     no_norm = False
 except ImportError:
@@ -274,7 +274,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
             Filename :: String
         """
         import ez_yaml
-        from pytransit.tools import transit_tools
+        from pytransit.specific_tools import transit_tools
         
         sites, counts_by_wig, files, extra_data = [], [], [], {}
         contained_yaml_data = False
@@ -341,7 +341,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
         
         return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
 
-from pytransit.basics.named_list import named_list
+from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
     PositionsAndReads = named_list(["read_counts", "positions"])
     def __init__(self, *, main_path, metadata_path, comments=None, extra_data=None):
@@ -521,13 +521,13 @@ class CombinedWig:
 
         :Example:
 
-            >>> from pytransit.tools.tnseq_tools import CombinedWig
+            >>> from pytransit.specific_tools.tnseq_tools import CombinedWig
             >>> (data, position) = CombinedWig.gather_wig_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                 [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
 
-        .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.tools.norm_tools.normalize_data`
+        .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.specific_tools.norm_tools.normalize_data`
         """
         # if its already been processed, just return it
         if isinstance(list_of_paths, CombinedWig.PositionsAndReads):
@@ -637,7 +637,7 @@ class Gene:
 
     :Example:
 
-        >>> from pytransit.tools import tnseq_tools
+        >>> from pytransit.specific_tools import tnseq_tools
         >>> G = tnseq_tools.Gene("Rv0001", "dnaA", "DNA Replication A", [[0,0,0,0,1,3,0,1]],  [1,21,32,37,45,58,66,130], strand="+" )
         >>> print(G)
         Rv0001  (dnaA)  k=3 n=8 r=4 theta=0.37500
@@ -815,7 +815,7 @@ class Genes:
 
     :Example:
 
-        >>> from pytransit.tools import tnseq_tools
+        >>> from pytransit.specific_tools import tnseq_tools
         >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/genomes/H37Rv.prot_table", norm="TTR")
         >>> print(G)
         Genes Object (N=3990)
@@ -2111,7 +2111,7 @@ def extract_yaml_data(comment_lines):
     return extra_data
 
 def read_results_file(path):
-    from pytransit.basics import csv
+    from pytransit.generic_tools import csv
     # 
     # get column names
     # 

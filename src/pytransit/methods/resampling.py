@@ -16,15 +16,15 @@ import math
 from pytransit.components.parameter_panel import set_instructions
 from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
-from pytransit.basics.lazy_dict import LazyDict
+from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
-from pytransit.tools.tnseq_tools import Wig
+from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.tnseq_tools import Wig
 import pytransit
 import pytransit.components.file_display as file_display
-from pytransit.basics import csv, misc
+from pytransit.generic_tools import csv, misc
 import pytransit.components.results_area as results_area
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -201,7 +201,7 @@ class Method:
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.txt,*.dat,*.csv,*.out)|*.txt;*.dat;*.csv;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
         if not Method.inputs.output_path:
             return None
@@ -563,7 +563,7 @@ class Method:
 
         if self.inputs.LOESS:
             logging.log("Performing LOESS Correction")
-            from pytransit.tools import stat_tools
+            from pytransit.specific_tools import stat_tools
             for j in range(K):
                 data[j] = stat_tools.loess_correction(position, data[j])
 
@@ -620,7 +620,7 @@ class Method:
     def run_resampling(
         self, g_ctrl, g_exp=None, do_library_resampling=False
     ):
-        from pytransit.tools import stat_tools
+        from pytransit.specific_tools import stat_tools
         
         data = []
         control_group_size = len(g_ctrl)

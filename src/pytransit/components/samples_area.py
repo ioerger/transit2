@@ -1,11 +1,11 @@
 import os
 
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.basics.misc import singleton, no_duplicates, flatten_once, human_readable_data
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
+from pytransit.generic_tools.named_list import named_list
+from pytransit.generic_tools.misc import singleton, no_duplicates, flatten_once, human_readable_data
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
-from pytransit.tools import logging, gui_tools, transit_tools, tnseq_tools
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools
 
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.components.generic.box import Column, Row
@@ -322,11 +322,11 @@ if True:
             import numpy
             import matplotlib
             import matplotlib.pyplot as plt
-            from pytransit.tools import stat_tools
+            from pytransit.specific_tools import stat_tools
             selected_samples = gui.selected_samples
             if len(selected_samples) == 2:
                 logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
-                from pytransit.tools.transit_tools import gather_sample_data_for
+                from pytransit.specific_tools.transit_tools import gather_sample_data_for
                 data, position = gather_sample_data_for(selected_samples=True)
                 x = data[0, :]
                 y = data[1, :]
@@ -368,9 +368,9 @@ if True:
             import numpy
             import matplotlib
             import matplotlib.pyplot as plt
-            from pytransit.tools import stat_tools
+            from pytransit.specific_tools import stat_tools
             from pytransit.globals import gui, cli, root_folder, debugging_enabled
-            from pytransit.tools.tnseq_tools import Wig
+            from pytransit.specific_tools.tnseq_tools import Wig
             
             
             # 

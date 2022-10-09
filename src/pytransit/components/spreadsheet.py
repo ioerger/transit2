@@ -5,8 +5,8 @@ TransitTable = None
 if gui.is_active:
     import wx.grid
 
-    from pytransit.tools import logging, gui_tools
-    from pytransit.tools.transit_tools import wx
+    from pytransit.specific_tools import logging, gui_tools
+    from pytransit.specific_tools.transit_tools import wx
 
     class TransitTable(wx.grid.GridTableBase):
         """

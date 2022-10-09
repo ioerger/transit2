@@ -2,7 +2,7 @@ import traceback
 import os
 from typing import NamedTuple
 
-from pytransit.tools.transit_tools import wx
+from pytransit.specific_tools.transit_tools import wx
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 

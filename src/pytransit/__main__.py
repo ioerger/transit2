@@ -3,14 +3,14 @@ import os
 import sys
 import traceback
 
-from pytransit.tools import console_tools, logging
+from pytransit.specific_tools import console_tools, logging
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 import pytransit.methods
 
 
 @cli.add_command("help")
 def help_command(args=[], kwargs={}):
-    from pytransit.basics import misc, command_line
+    from pytransit.generic_tools import misc, command_line
     # 
     # create available subcommand string
     # 
@@ -156,7 +156,7 @@ def main(*args, **kwargs):
         help_command(args, kwargs)
 
 def run_main():
-    from pytransit.tools.console_tools import clean_args
+    from pytransit.specific_tools.console_tools import clean_args
     (args, kwargs) = clean_args(sys.argv[1:])
     main(*args, **kwargs)
 

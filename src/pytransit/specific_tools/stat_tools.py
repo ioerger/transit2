@@ -515,7 +515,7 @@ def resampling(
             - test_sample -- List of samples of the test statistic.
     
     :Example:
-        >>> from pytransit.tools import stat_tools
+        >>> from pytransit.specific_tools import stat_tools
         >>> import numpy
         >>> X = numpy.random.random(100)
         >>> Y = numpy.random.random(100)
@@ -588,7 +588,7 @@ def resampling(
             # site_retricted use F_sum_diff_flat() as test_func too
             test_obs = test_func(data1, data2) # first call, actual value from observed counts
         except Exception as error:
-            from pytransit.tools import logging
+            from pytransit.specific_tools import logging
             logging.error(f"""
                 the resampling function could not apply test function to input data!
                     data1: {data1}
@@ -761,9 +761,9 @@ if __name__ == "__main__":
     """
 
     ## TEST
-    import pytransit.tools.transit_tools as transit_tools
-    import pytransit.tools.tnseq_tools as tnseq_tools
-    import pytransit.tools.norm_tools as norm_tools
+    import pytransit.specific_tools.transit_tools as transit_tools
+    import pytransit.specific_tools.tnseq_tools as tnseq_tools
+    import pytransit.specific_tools.norm_tools as norm_tools
     import sys
 
     ctrldata = [

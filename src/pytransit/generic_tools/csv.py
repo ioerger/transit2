@@ -1,4 +1,4 @@
-from pytransit.basics.named_list import named_list
+from pytransit.generic_tools.named_list import named_list
 
 # reads .csv, .tsv, etc 
 def read(path, *, seperator=",", first_row_is_column_names=False, column_names=None, skip_empty_lines=True, comment_symbol=None):

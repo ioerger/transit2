@@ -28,7 +28,7 @@ import ntpath
 import traceback
 from PIL import Image, ImageDraw, ImageFont
 
-from pytransit.tools import logging, transit_tools, tnseq_tools, norm_tools, gui_tools
+from pytransit.specific_tools import logging, transit_tools, tnseq_tools, norm_tools, gui_tools
 
 track_prefix = "[TrackView]"
 
@@ -69,7 +69,7 @@ class TrashFrame(view_trash.MainFrame):
         self.lowerid2id = dict([(x.lower(), x) for x in self.orf2data.keys()])
         self.labels = wig_ids + ["All"]
         
-        from pytransit.tools.transit_tools import gather_sample_data_for
+        from pytransit.specific_tools.transit_tools import gather_sample_data_for
         self.fulldata, self.position = gather_sample_data_for(selected_samples=True)
 
         # Save normalized data
