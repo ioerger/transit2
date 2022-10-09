@@ -145,12 +145,12 @@ def create_panel_area(_):
 
     
     # progress
-    panel.progress_panel = wx.Panel(
+    panel.wx_panel = wx.lib.scrolledpanel.ScrolledPanel(
         gui.frame,
         wx.ID_ANY,
-        wx.DefaultPosition,
-        wx.Size(int(gui.width/4), -1),
-        wx.TAB_TRAVERSAL,
+        pos=wx.DefaultPosition,
+        size=wx.Size(panel.max_width, 100),
+        style=wx.TAB_TRAVERSAL,
     )
     if True:
         progress_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -160,11 +160,11 @@ def create_panel_area(_):
         # 
         if True:
             panel.progress_label = wx.StaticText(
-                panel.progress_panel,
+                panel.wx_panel,
                 wx.ID_ANY,
                 "Progress",
                 wx.DefaultPosition,
-                wx.DefaultSize,
+                wx.Size(-1, -1),
                 0,
             )
             panel.progress_label.Wrap(panel.max_width)
@@ -172,19 +172,20 @@ def create_panel_area(_):
 
         if True:
             panel.progress = wx.Gauge(
-                panel.progress_panel,
+                panel.wx_panel,
                 wx.ID_ANY,
                 20,
                 wx.DefaultPosition,
-                wx.Size(200, 10),
+                wx.Size(int(panel.max_width*0.7), 10),
                 wx.GA_HORIZONTAL | wx.GA_SMOOTH,
             )
             progress_sizer.Add(panel.progress, 0, wx.ALL | wx.EXPAND, 0)
 
     panel.progress_sizer = progress_sizer
-    panel.progress_panel.SetSizer(progress_sizer)
-    # panel.progress_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented in or out)
-    panel.progress_panel.Layout()
+    panel.wx_panel.SetSizer(progress_sizer)
+    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented in or out)
+    panel.wx_panel.Layout()
+    panel.wx_panel.SetupScrolling()
     
     panel.progress.SetRange(1000)
     panel.progress_label.Hide()
@@ -195,12 +196,12 @@ def create_panel_area(_):
 old_panel = None
 def set_panel(new_panel):
     with gui_tools.nice_error_log:
-        current_size = panel.progress_panel.GetSize()
+        current_size = panel.wx_panel.GetSize()
         global old_panel
         if old_panel != None:
             old_panel.Hide()
         
-        try: panel.method_sizer.Detach(panel.progress_panel)
+        try: panel.method_sizer.Detach(panel.wx_panel)
         except Exception as error: print(error)
         try: panel.method_sizer.Detach(new_panel)
         except Exception as error: print(error)
@@ -209,14 +210,14 @@ def set_panel(new_panel):
         #new_panel.SetSize(current_size[0],-1)
         new_panel.Show()
         panel.method_sizer.Add(
-            panel.progress_panel,
+            panel.wx_panel,
             0,
             wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
             5,
         )
         
-        panel.progress_panel.Layout()
-        panel.method_sizer.Fit(panel.progress_panel)
+        panel.wx_panel.Layout()
+        panel.method_sizer.Fit(panel.wx_panel)
         panel.method_sizer.Fit(new_panel)
         new_panel.SetBackgroundColour(gui_tools.color.light_gray)
         old_panel = new_panel
@@ -235,9 +236,9 @@ def set_instructions( method_short_text, method_long_text, method_descr, method_
         panel.method_name.SetLabel(method_long_text + "("+method_short_text+")")
         panel.method_name.Show()
         
-        panel.method_description.SetLabel(method_descr)
-        panel.method_description.Wrap(panel.max_width)
-        panel.method_description.Show()
+        # panel.method_description.SetLabel(method_descr)
+        # panel.method_description.Wrap(panel.max_width)
+        # panel.method_description.Show()
         
         panel.method_instructions.SetLabel(method_specific_instructions)
         panel.method_instructions.Wrap(panel.max_width)

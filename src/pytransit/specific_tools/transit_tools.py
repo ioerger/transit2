@@ -36,6 +36,7 @@ try:
     import wx
     import wx.xrc
     import wx.adv
+    import wx.lib.scrolledpanel
     import wx.lib.mixins.listctrl as listmix
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub

@@ -16,12 +16,12 @@ if True:
             pass
         
         def __enter__(self):
-            self.wx_panel = wx.Panel(
+            self.wx_panel = wx.lib.scrolledpanel.ScrolledPanel(
                 gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
                 # wx.DefaultSize,
-                wx.Size(int(gui.width/4), wx.DefaultSize[1]),
+                wx.Size(int(gui.width/4), int(gui.height*0.35)),
                 wx.TAB_TRAVERSAL,
             )
             # self.wx_panel.SetMaxSize((width + (width - width_2) + dx, -1)) # Trying to limit the width of our frame
@@ -41,6 +41,7 @@ if True:
                 self.wx_panel.SetSizer(self.main_sizer)
                 self.wx_panel.Layout()
                 self.main_sizer.Fit(self.wx_panel)
+                self.wx_panel.SetupScrolling()
                 gui.frame.Layout()
     
     def create_button(panel, sizer, *, label):
