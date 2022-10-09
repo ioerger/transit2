@@ -69,15 +69,14 @@ class Method:
     @staticmethod
     def from_args(args, kwargs):
         is_combined_wig = "c" in kwargs
-        
-        if not is_combined_wig:
+        if is_combined_wig:
             console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)
             infile_path = kwargs.get("c")  # only 1 input wig file
-            otuput_path = args[0]  # if no arg give, could print to screen
+            output_path = args[0]  # if no arg give, could print to screen
         else:
             console_tools.enforce_number_of_args(args, Method.usage_string, at_least=1)
             infile_path = args[0]  # only 1 input wig file
-            otuput_path = args[1]  # if no arg give, could print to screen
+            output_path = args[1]  # if no arg give, could print to screen
         
         Method.run_normalize(
             is_combined_wig=is_combined_wig,
@@ -100,17 +99,17 @@ class Method:
                         line2 = line.rstrip()
                         break
 
-            if is_combined_wig == True:
+            if is_combined_wig:
                 (sites, data, files) = tnseq_tools.read_combined_wig(infile_path)
             else:
-                (data, sites) = tnseq_tools.CombinedWig.gather_wig_data(infile_path)
+                (data, sites) = tnseq_tools.CombinedWig.gather_wig_data([ infile_path ])
             print(f"normlizing, {data.shape}, {normalization}")
             (data, factors) = norm_tools.normalize_data(data, normalization)
 
             print("writing", output_path)
             with open(output_path,'w') as file:
                 file.write("# %s normalization of %s\n" % (normalization, infile_path))
-                if is_combined_wig == True:
+                if is_combined_wig:
                     for each_wig_file in files:
                         file.write("#File: %s\n" % each_wig_file)
                     for i in range(len(sites)):
