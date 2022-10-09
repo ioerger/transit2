@@ -298,7 +298,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
         import ez_yaml
         from pytransit.specific_tools import transit_tools
         
-        sites, counts_by_wig, files, extra_data = [], [], [], {}
+        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
         contained_yaml_data = False
         number_of_lines = line_count_of(file_path)
         with open(file_path) as f:
