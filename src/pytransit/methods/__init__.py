@@ -13,3 +13,4 @@ from .combined_wig       import *
 from .gff_to_prot_table  import *
 from .igv                import *
 from .mean_counts        import *
+from .gene_means         import *
