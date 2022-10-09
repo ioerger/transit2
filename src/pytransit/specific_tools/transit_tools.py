@@ -485,7 +485,7 @@ if True:
             comments=[
                 file_kind, # identifier always comes first
                 f"yaml:",
-                f"    Console Command: |",
+                f"    console_command: |",
                 indent(console_tools.full_commandline_command, by="        "),
                 indent(yaml_string, by="    "),
                 "\t".join(column_names) # column names always last

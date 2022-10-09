@@ -141,3 +141,50 @@ def levenshtein_distance_sort(*, word, other_words):
     
     prioritized = sorted(other_words, key=lambda each_other: levenshtein_distance(word, each_other))
     return prioritized
+
+def all_equal(a_list):
+    if len(a_list) == 0:
+        return True
+    
+    prev = a_list[0]
+    for each in a_list[1:]:
+        if prev != each:
+            return False
+        prev = each
+    
+    return True
+
+def all_different(a_list):
+    if len(a_list) == 0:
+        return True
+    
+    prev = a_list[0]
+    for each in a_list[1:]:
+        if prev == each:
+            return False
+        prev = each
+    
+    return True
+
+def remove_common_prefix(list_of_strings):
+    def all_equal(a_list):
+        if len(a_list) == 0:
+            return True
+        
+        prev = a_list[0]
+        for each in a_list:
+            if prev != each:
+                return False
+            prev = each
+        
+        return True
+    
+    shortest_path_length = min([ len(each_path) for each_path in list_of_strings ])
+    longest_common_path_length = shortest_path_length
+    while longest_common_path_length > 0:
+        # binary search would be more efficient but its fine
+        longest_common_path_length -= 1
+        if all_equal([ each[0:longest_common_path_length] for each_path in list_of_strings ]):
+            break
+    
+    return [ each[longest_common_path_length:] for each_path in list_of_strings ]

@@ -41,7 +41,7 @@ class Method:
     
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Sites",
         "Mean Control",
@@ -509,7 +509,7 @@ class Method:
                 rows=rows,
                 column_names=Method.column_names if not self.inputs.Z else [
                     "ORF",
-                    "Name",
+                    "Gene Name",
                     "Description",
                     "Sites",
                     "Mean Control",

@@ -98,13 +98,29 @@ class Method:
                     if line.startswith("variableStep"):
                         line2 = line.rstrip()
                         break
-
+            files = [infile_path]
             if is_combined_wig:
-                (sites, data, files) = tnseq_tools.read_combined_wig(infile_path)
+                sites, data, files = tnseq_tools.CombinedWigData.load(infile_path)
             else:
-                (data, sites) = tnseq_tools.CombinedWig.gather_wig_data([ infile_path ])
+                data, sites = tnseq_tools.CombinedWig.gather_wig_data([ infile_path ])
+                
             print(f"normlizing, {data.shape}, {normalization}")
             (data, factors) = norm_tools.normalize_data(data, normalization)
+            
+            transit_tools.write_result(
+                path=output_path,
+                file_kind="CombinedWig",
+                rows=rows,
+                column_names=[
+                    # FIXME
+                    *each_wig_file,
+                ],
+                extra_info=dict(
+                    time=(time.time() - start_time),
+                    normalization=normalization,
+                    files=files,
+                ),
+            )
 
             print("writing", output_path)
             with open(output_path,'w') as file:

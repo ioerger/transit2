@@ -324,18 +324,18 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                         if len(yaml_string) > 0:
                             an_object = ez_yaml.to_object(string=yaml_string)
                             extra_data.update(an_object["extra_data"] or {})
-                            files += extra_data.get('files',[])
+                            wig_fingerprints += extra_data.get('wig_fingerprints',[])
                     # 
                     # handle older file method
                     # 
                     if line.startswith("#File: "):
-                        files.append(line.rstrip()[7:])  # allows for spaces in filenames
+                        wig_fingerprints.append(line.rstrip()[7:])  # allows for spaces in filenames
                         continue
             
             # 
             # handle body
             # 
-            counts_by_wig = [ [] for _ in files ]
+            counts_by_wig = [ [] for _ in wig_fingerprints ]
             for index, line in enumerate(lines):
                 if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
                     percent_done = round(index/number_of_lines * 100, ndigits=2)
@@ -348,8 +348,8 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                 #
                 # actual parsing
                 #
-                cols = line.split("\t")[0 : 1+len(files)]
-                cols = cols[: 1+len(files)]  # additional columns at end could contain gene info
+                cols = line.split("\t")[0 : 1+len(wig_fingerprints)]
+                cols = cols[: 1+len(wig_fingerprints)]  # additional columns at end could contain gene info
                 # Read in position as int, and readcounts as float
                 cols = [
                     int(each_t_iv) if index == 0 else float(each_t_iv)
@@ -361,7 +361,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                     counts_by_wig[index].append(count)
             logging.log(f"\rreading lines: 100%          ")
         
-        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
+        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints))
 
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
@@ -1836,7 +1836,7 @@ def get_gene_info_gff(path):
             if "ID" not in features:
                 continue
             orf = features["ID"]
-            name = features.get("Name", "-")
+            name = features.get("Name", features.get("Gene Name","-"))
             if name == "-":
                 name = features.get("name", "-")
 
@@ -2216,3 +2216,52 @@ def read_results_file(path):
         })
     
     return standardized_column_names, rows_of_dicts, extra_data, comments_string
+
+def filepaths_to_fingerprints(filepaths):
+    import os
+    from pytransit.generic_tools import misc
+    
+    filepaths = misc.no_duplicates(filepaths)
+    
+    # 
+    # Pascal Case of Basenames
+    # 
+    basenames     = [ os.path.basename(each) for each in filepaths ]
+    basenames     = [ each if not each.endswith(".wig") else each[:-4] for each in basenames ]
+    first_attempt = [ misc.pascal_case_with_spaces(each) for each in basenames ]
+    if misc.all_different(first_attempt):
+        return first_attempt
+    
+    # 
+    # Pascal Case of Dirnames
+    # 
+    dirnames = [ misc.pascal_case_with_spaces(os.path.dirname(each)) for each in filepaths ]
+    minimal_dirnames = misc.remove_common_prefix(dirnames)
+    fingerprints_base = [
+        f"{minimal_dirname}_{minimal_basename}".replace("/","_").replace("\\","_")
+            for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
+    ]
+    second_attempt = [ misc.pascal_case_with_spaces(each) for each in fingerprints_base ]
+    if misc.all_different(second_attempt):
+        return second_attempt
+    
+    # 
+    # Minimal simplified dirnames
+    # 
+    dirnames = [ os.path.dirname(each) for each in filepaths ]
+    minimal_dirnames = misc.remove_common_prefix(dirnames)
+    fingerprints_base = [
+        f"{minimal_dirname}_{basename}".replace("/","_").replace("\\","_")
+            for minimal_dirname, basename in zip(minimal_dirnames, basenames) 
+    ]
+    third_attempt = [ each for each in fingerprints_base ]
+    if misc.all_different(third_attempt):
+        return third_attempt
+    
+    # 
+    # Minimal dirnames
+    # 
+    return [
+        f"{minimal_dirname}/{minimal_basename}"
+            for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
+    ]

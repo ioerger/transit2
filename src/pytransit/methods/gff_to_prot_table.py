@@ -119,7 +119,7 @@ def annotation_gff3_to_pt(event):
                     if "ID" not in features:
                         continue
                     orf = features["ID"]
-                    name = features.get("Name", "-")
+                    name = features.get("Name", features.get("Gene Name","-"))
                     if name == "-":
                         name = features.get("name", "-")
 

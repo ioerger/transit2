@@ -635,7 +635,7 @@ class GeneFile:
     identifier = "HMM_Genes"
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Total Sites",
         "ES Count",

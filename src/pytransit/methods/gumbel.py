@@ -34,7 +34,7 @@ class Method:
     transposons = ["himar1"]
     column_names = [
         "ORF", 
-        "Name", 
+        "Gene Name", 
         "Description", 
         "Number Of Insertions Within ORF",
         "Total Number Of TA Sites Within ORF", 

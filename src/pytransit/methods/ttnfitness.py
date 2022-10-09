@@ -297,7 +297,7 @@ class Method:
         ta_sites_df = pandas.DataFrame(
             {
                 "ORF": orf,
-                "Name": name,
+                "Gene Name": name,
                 "Coordinates": coords,
                 "Insertion Count": all_counts,
                 "Upstream TTN": upseq_list,
@@ -434,7 +434,7 @@ class Method:
             "Coordinates",
             "Insertion Count",
             "ORF",
-            "Name",
+            "Gene Name",
             "Local Average",
             "Upstream TTN",
             "Downstream TTN",
@@ -643,7 +643,7 @@ class Method:
 class GenesFile:
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Total TA Site Count",
         "Count Of Sites With Insertions",
@@ -747,7 +747,7 @@ class SitesFile:
     column_names = [
         "Coordinates",
         "ORF",
-        "Name",
+        "Gene Name",
         "Upstream TTN",
         "Downstream TTN",
         "TTN Fitness Assessment",

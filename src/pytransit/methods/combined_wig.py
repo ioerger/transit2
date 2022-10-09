@@ -3,6 +3,8 @@ import sys
 import os
 import time
 
+import numpy
+
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
@@ -12,6 +14,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
 class Method:
+    identifier = "CombinedWig"
     usage_string = f"""
         {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
         
@@ -22,7 +25,7 @@ class Method:
         ctrldata=None,
         normalization=None,
         annotation_path=None,
-        output_file=None,
+        output_path=None,
         ref=None,
     )
     
@@ -33,8 +36,8 @@ class Method:
 
         Method.inputs.update(dict(
             ctrldata= args[0].split(","),
-            annotation_path= args[1],
-            output_file=open(args[2], "w"),
+            annotation_path=args[1],
+            output_path=args[2],
             normalization= kwargs.get("n", "TTR"),
         ))
         
@@ -43,79 +46,154 @@ class Method:
     def Run(self):
         logging.log("Starting Combined Wig Export")
         start_time = time.time()
-
-        # Get orf data
+        extra_info = LazyDict()
+        
+        # 
+        # Read Data
+        # 
         logging.log("Getting Data")
-        (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(self.inputs.ctrldata)
-        (fulldata, factors) = norm_tools.normalize_data(
-            fulldata, self.inputs.normalization, self.inputs.ctrldata, self.inputs.annotation_path
-        )
-        position = position.astype(int)
-
-        hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
-        rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
-
+        read_counts_at_position_for_wig, ta_site_positions = tnseq_tools.CombinedWig.gather_wig_data(self.inputs.ctrldata)
+        ta_site_positions = ta_site_positions.astype(int)
+        
+        # 
+        # normlize
+        # 
         logging.log("Normalizing")
-        self.inputs.output_file.write("#Converted to CombinedWig with TRANSIT.\n")
-        self.inputs.output_file.write("#normalization method: %s\n" % self.inputs.normalization)
-        if self.inputs.normalization != "nonorm":
-            if type(factors[0]) == type(0.0):
-                self.inputs.output_file.write(
-                    "#Normalization Factors: %s\n"
-                    % "\t".join(["%s" % f for f in factors.flatten()])
-                )
-            else:
-                self.inputs.output_file.write(
-                    "#Normalization Factors: %s\n"
-                    % " ".join([",".join(["%s" % bx for bx in b]) for b in factors])
-                )
-
+        (read_counts_at_position_for_wig, factors) = norm_tools.normalize_data(
+            read_counts_at_position_for_wig,
+            method=self.inputs.normalization,
+            wig_list=self.inputs.ctrldata,
+            annotation_path=self.inputs.annotation_path,
+        )
+        if type(factors[0]) == type(0.0):
+            extra_info.normalization_factors = factors.flatten().tolist()
+        else:
+            extra_info.normalization_factors = misc.flatten_once(factors.tolist())
+        
+        # 
+        # Genome Data
+        # 
+        positional_hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
+        rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
+        def get_gene_name(orf_id):
+            return rv2info.get(orf_id,["-"])[0]
+        
         # get ref genome from first wig file (we could check that they are all the same)
         # by this point, we know all the wig files exist and have same number of TA sites
         # this assumes 2nd line of each wig file is "variableStep chrom=XXX"; if not, set ref to "unknown"
         self.inputs.ref = "unknown"
         wig = self.inputs.ctrldata[0]
         with open(wig) as file:
-          line = file.readline()
-          line = file.readline()
-          if line.startswith("variableStep"): 
-            w = line.rstrip().split("=")
-            if len(w)>=2: self.inputs.ref = w[1]
+            line = file.readline()
+            line = file.readline()
+            if line.startswith("variableStep"):
+                splits = line.rstrip().split("=")
+                if len(splits)>=2: self.inputs.ref = splits[1]
 
-        (K,N) = fulldata.shape
-        self.inputs.output_file.write("#RefGenome: %s\n" % self.inputs.ref)
-        for f in self.inputs.ctrldata:
-            self.inputs.output_file.write("#File: %s\n" % f)
-        self.inputs.output_file.write("#TA_coord\t%s\n" % ('\t'.join(self.inputs.ctrldata)))
-
-        for i,pos in enumerate(position):
-            #self.inputs.output_file.write("%d\t%s\t%s\n" % (position[i], "\t".join(["%1.1f" % c for c in fulldata[:,i]]),",".join(["%s (%s)" % (orf,rv2info.get(orf,["-"])[0]) for orf in hash.get(position[i], [])])   ))
-            if self.inputs.normalization != 'nonorm':
-                vals = "\t".join(["%1.1f" % c for c in fulldata[:,i]])
-            else:
+        extra_info.reference_genome = self.inputs.ref
+        number_of_ta_sites = len(ta_site_positions)
+        
+        # 
+        # Compute rows
+        # 
+        rows = []
+        for position_index, _ in enumerate(informative_iterator.ProgressBar(ta_site_positions, title="Running Export Method")):
+            orf_info_sources = positional_hash.get(ta_site_positions[position_index], [])
+            orf_ids          = [ orf for orf in orf_info_sources ]
+            gene_names       = [ get_gene_name(orf) for orf in orf_info_sources ]
+            read_counts      = [
                 # no decimals if raw counts
-                vals = "\t".join(["%d"    % c for c in fulldata[:,i]])
-            self.inputs.output_file.write(
-                "%d\t%s\t%s\n" % (
-                    position[i],
-                    vals,
-                    ",".join(
-                        [
-                            "%s (%s)" % (
-                                orf,
-                                rv2info.get(orf,["-"])[0]
-                            )
-                                for orf in hash.get(position[i], [])
-                        ]
-                    )
-                )
-            )
+                ("%d" if self.inputs.normalization == 'nonorm' else "%1.1f") % count 
+                    for count in read_counts_at_position_for_wig[:,position_index]
+            ]
+            
+            rows.append([ 
+                int(ta_site_positions[position_index]),
+                *read_counts,
+                *misc.flatten_once(zip(orf_ids, gene_names)),
+            ])
+            
             # Update progress
-            percentage = (100.0*i/N)
-            text = "Running Export Method... %5.1f%%" % percentage
-            if i % 1000 == 0:
-                progress_update(text, percentage)
-        self.inputs.output_file.close()
+            if gui.is_active:
+                percentage = (100.0*position_index/number_of_ta_sites)
+                text = "Running Export Method... %5.1f%%" % percentage
+                if position_index % 1000 == 0:
+                    progress_update(text, percentage)
+        
+        # 
+        # wig fingerprints
+        # 
+        wig_fingerprints = tnseq_tools.filepaths_to_fingerprints(self.inputs.ctrldata)
+        
+        # 
+        # Stats per wig
+        # 
+        from pytransit.methods.tnseq_stats import Method as tnseq_stats
+        logging.log("Generating stats")
+        stats = LazyDict()
+        for wig_file_index, each_wig_fingerprint in enumerate(wig_fingerprints):
+            wig_insertion_counts = read_counts_at_position_for_wig[wig_file_index, :]
+            
+            (
+                density,
+                mean_read,
+                non_zero_mean_read,
+                non_zero_median_read,
+                max_read,
+                total_read,
+                skew,
+                kurtosis,
+            ) = tnseq_tools.get_data_stats(wig_insertion_counts)
+            
+            import ez_yaml
+            ez_yaml.yaml.version = None
+            ez_yaml.yaml.width = 4096*100 
+            stats[each_wig_fingerprint] = ez_yaml.to_string(dict(
+                density=float(density),
+                mean_read=float(mean_read),
+                non_zero_mean_read=float(non_zero_mean_read),
+                non_zero_median_read= 0 if numpy.isnan(non_zero_median_read) else int(non_zero_median_read),
+                max_read=int(max_read),
+                total_read=int(total_read),
+                skew=float(skew),
+                kurtosis=float(kurtosis),
+                pickands_tail_index=float(tnseq_stats.pickands_tail_index(wig_insertion_counts)),
+                
+                # density="%0.3f" % density,
+                # mean_read="%0.1f" % mean_read,
+                # non_zero_mean_read="%0.1f" % non_zero_mean_read,
+                # non_zero_median_read= 0 if numpy.isnan(non_zero_median_read) else int(non_zero_median_read),
+                # max_read=int(max_read),
+                # total_read=int(total_read),
+                # skew="%0.1f" % skew,
+                # kurtosis="%0.1f" % kurtosis,
+                # pickands_tail_index= "%0.3f" % tnseq_stats.pickands_tail_index(wig_insertion_counts),
+            )).replace("\n", ", ").strip()
+        
+        #
+        # Write to output
+        #
+        transit_tools.write_result(
+            path=self.inputs.output_path,
+            file_kind=Method.identifier,
+            rows=rows,
+            column_names=[
+                "TA Site Positions",
+                *wig_fingerprints,
+                "ORF",
+                "Gene Name"
+            ],
+            extra_info={
+                **dict(
+                    time=(time.time() - start_time),
+                    normalization=self.inputs.normalization,
+                    annotation=os.path.basename(self.inputs.annotation_path),
+                    # wig_fingerprints=wig_fingerprints,
+                ),
+                **extra_info,
+                "stats": dict(stats),
+            },
+        )
 
         logging.log("")  # Printing empty line to flush stdout
         logging.log("Finished Export")
@@ -138,10 +216,10 @@ class Method:
         # 
         # row data
         # 
-        column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
-        positions = selected_wigs[0].positions
+        column_names = [ "ta_site_positionss",  *[ each.id for each in selected_wigs] ]
+        ta_site_positionss = selected_wigs[0].ta_site_positionss
         rows = []
-        for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
+        for row_data in zip(*([ ta_site_positionss ] + [ each.insertion_counts for each in selected_wigs ])):
             rows.append({
                 column_name: cell_value
                     for column_name, cell_value in zip(column_names, row_data)
