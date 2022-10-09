@@ -20,7 +20,23 @@ root_folder       = path.join(path.dirname(__file__),"../../")
 # @gui.add_results_button("Name")
 
 # TODO:
-    # make the run button callback more explicit
+    # Add CLI tests for
+        # gff_to_prot_table.py
+        # igv.py
+        # loess.py
+        # mean_counts.py
+        # scatter_plot.py
+    # Add GUI pops for
+        # gff_to_prot_table.py
+        # igv.py
+        # loess.py
+        # mean_counts.py
+    # Add CLI tests for
+        # tnseq_stats.py
+        # gi.py
+    # Standardize the transit_tools.write method
+    # Flesh out zinb
+    # Flesh out utest
 
 # tools to make
     # popup tool for convert/export methods

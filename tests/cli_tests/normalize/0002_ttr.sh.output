@@ -1,0 +1,4 @@
+[normalize:run_normalize()] Starting Normalization 
+normlizing, (1, 74605), TTR
+writing ./tests/cli_tests/normalize/0002_ttr.sh.1.result
+[normalize:run_normalize()] Finished Normalization 

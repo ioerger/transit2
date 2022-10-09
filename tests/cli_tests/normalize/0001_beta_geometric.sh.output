@@ -1,0 +1,4 @@
+[normalize:run_normalize()] Starting Normalization 
+normlizing, (1, 74605), betageom
+writing ./tests/cli_tests/normalize/0001_beta_geometric.sh.1.result
+[normalize:run_normalize()] Finished Normalization 
