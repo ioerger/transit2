@@ -54,7 +54,6 @@ import pytransit
 import pytransit.components.parameter_panel as parameter_panel
 import pytransit.components.trash as trash
 import pytransit.components.file_display as file_display
-import pytransit.components.qc_display as qc_display
 import pytransit.components.images as images
 
 class TnSeqFrame(wx.Frame):

@@ -15,3 +15,8 @@ from .igv                import *
 from .mean_counts        import *
 from .normalize          import *
 from .track_view         import *
+from .scatter_plot       import *
+from .quality_control    import *
+from .loess              import *
+
+# from .heat_map           import *

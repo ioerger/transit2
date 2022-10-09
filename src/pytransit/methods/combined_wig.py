@@ -8,6 +8,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.components import samples_area
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
 class Method:
@@ -132,7 +133,7 @@ class Method:
         # 
         heading = ""
         if len(selected_wigs) == 1:
-            heading = human_readable_data(selected_wigs[0].extra_data)
+            heading = misc.human_readable_data(selected_wigs[0].extra_data)
         
         # 
         # row data
