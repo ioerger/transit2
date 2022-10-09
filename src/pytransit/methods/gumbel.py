@@ -15,21 +15,11 @@ import scipy
 from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
-from pytransit.components.parameter_panel import progress_update
-from pytransit.components.panel_helpers import *
+from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-import pytransit.specific_tools.console_tools as console_tools
-import pytransit.specific_tools.gui_tools as gui_tools
-import pytransit.specific_tools.transit_tools as transit_tools
-import pytransit.specific_tools.tnseq_tools as tnseq_tools
-import pytransit.specific_tools.norm_tools as norm_tools
-import pytransit.specific_tools.stat_tools as stat_tools
-from pytransit.generic_tools import csv, misc
+from pytransit.generic_tools import csv, misc, informative_iterator
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, stat_tools
 import pytransit.components.results_area as results_area
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, informative_iterator
-
-
 
 @misc.singleton
 class Method:

@@ -18,12 +18,10 @@ import statsmodels.api as sm
 from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components.parameter_panel import panel as parameter_panel, set_instructions
-from pytransit.components.parameter_panel import progress_update
-from pytransit.components.panel_helpers import *
+from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.specific_tools import informative_iterator, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools
-from pytransit.generic_tools import csv, misc
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools, logging
+from pytransit.generic_tools import csv, misc, informative_iterator
 import pytransit.components.results_area as results_area
 
 
@@ -637,9 +635,8 @@ class Method:
         )
 
         logging.log("")  # Printing empty line to flush stdout
-        # logging.log("Adding File: %s" % (self.output.name))
-        # results_area.add(self.output.name)
-        #self.finish()
+        logging.log(f"Adding File: {self.inputs.sites_output_path}")
+        results_area.add(self.inputs.sites_output_path)
         logging.log("Finished TTNFitness Method")
 
 
