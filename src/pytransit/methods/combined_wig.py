@@ -123,7 +123,7 @@ class Method:
     # 
     # Samples-area button
     # 
-    @samples_area.add_wig_area_dropdown_option(name="Show Table")
+    @gui.add_wig_area_dropdown_option(name="Show Table")
     @staticmethod
     def click_show_table(event):
         selected_wigs = gui.selected_samples or gui.samples

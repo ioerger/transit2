@@ -23,14 +23,14 @@ class Method:
     name = "Scatter Plot"
     
     # TODO: confirm menu option not needed
-    # @gui.add_menu("Preprocessing", name)
+    # @gui.add_menu("Pre-Processing", name)
     # def on_menu_click(event):
     #     pass
     
     # 
     # Scatter Plot
     # 
-    @samples_area.add_wig_area_dropdown_option(name=name)
+    @gui.add_wig_area_dropdown_option(name=name)
     def on_button_click(event):
         with gui_tools.nice_error_log:
             import numpy

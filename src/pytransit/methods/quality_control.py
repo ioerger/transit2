@@ -24,14 +24,14 @@ class Method:
     name = "Quality Control"
     
     # TODO: confirm menu option not needed
-    # @gui.add_menu("Preprocessing", name)
+    # @gui.add_menu("Pre-Processing", name)
     # def on_menu_click(event):
     #     pass
     
     # 
     # Quality Control
     # 
-    @samples_area.add_wig_area_dropdown_option(name=name)
+    @gui.add_wig_area_dropdown_option(name=name)
     def click_show_quality_control(event):
         from pytransit.components import qc_display
         with gui_tools.nice_error_log:

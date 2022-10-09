@@ -71,7 +71,7 @@ class Method:
     # 
     # Button method
     # 
-    @samples_area.add_wig_area_dropdown_option(name=name)
+    @gui.add_wig_area_dropdown_option(name=name)
     def on_button_click(event):
         transit_tools.require_r_to_be_installed()
         
@@ -102,7 +102,7 @@ class Method:
     # 
     # Panel method
     # 
-    @gui.add_menu("Preprocessing", menu_name)
+    @gui.add_menu("Pre-Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     

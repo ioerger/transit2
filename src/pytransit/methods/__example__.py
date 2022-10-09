@@ -51,6 +51,10 @@ class Method:
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
+    @gui.add_wig_area_dropdown_option(name=name)
+    def on_wig_option_click():
+        print("You clicked a dropdown option")
+    
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)

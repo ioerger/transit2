@@ -38,7 +38,7 @@ class gui:
     combined_wigs = []
     
     menu_heirarchy = LazyDict({
-        "Preprocessing": {},
+        "Pre-Processing": {},
     })
     
     @property
@@ -97,6 +97,14 @@ class gui:
             parent_menu[last_menu_name] = wrapped_with_helper
             return function_being_wrapped
         return decorator
+
+    def add_wig_area_dropdown_option(self, *args, **kwargs):
+        from pytransit.components import samples_area
+        return samples_area.add_wig_area_dropdown_option(*args, **kwargs)
+    
+    def add_wig_area_button(self, *args, **kwargs):
+        from pytransit.components import samples_area
+        return samples_area.add_wig_area_button(*args, **kwargs)
 
 @singleton
 class cli:

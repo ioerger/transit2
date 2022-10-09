@@ -279,7 +279,7 @@ def get_selected_condition_names():
 def add_wig_area_dropdown_option(name):
     """
     Example Usage:
-        @samples_area.add_wig_area_dropdown_option(name="Click Me", size=(120, -1))
+        @gui.add_wig_area_dropdown_option(name="Click Me", size=(120, -1))
         def on_button_click(event):
             print("Howdy")
     """

@@ -499,6 +499,7 @@ if True:
                     plt.show()
     
     def create_normalization_input(panel, sizer, default="TTR"):
+        from pytransit.methods.normalization import Method
         (
             label,
             normalization_wxobj,
@@ -506,15 +507,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Normalization: ",
-            options=[
-                "TTR",
-                "nzmean",
-                "totreads",
-                "zinfnb",
-                "quantile",
-                "betageom",
-                "nonorm",
-            ],
+            options=Method.options,
             tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
