@@ -152,6 +152,10 @@ class Method:
                 Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        
+        assert not Method.inputs.refs or Method.inputs.refs[0] in Method.inputs.included_conditions, f"Ref Condition '{Method.inputs.refs[0]}' is not one of the selected conditions: {Method.inputs.included_conditions}"
+        assert len(Method.inputs.included_conditions) > 1, "please select more than one condition"
+        
         # 
         # save result files
         # 
