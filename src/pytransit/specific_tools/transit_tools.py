@@ -688,7 +688,7 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     return Wig.selected_as_gathered_data(wig_objects)
 
 corrplot_r_function = None
-def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, metadata, output_path):
+def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path):
     global corrplot_r_function
     import numpy
     # instantiate the corrplot_r_function if needed
@@ -706,7 +706,7 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         corrplot_r_function = globalenv["make_corrplot"]
     
     logging.log("Reading combined_wig file")
-    sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(combined_wig)
+    sites, data, filenames_in_comb_wig = combined_wig.data
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
@@ -726,7 +726,7 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
     logging.log("means.shape="+str(means.shape))
 
     if avg_by_conditions:
-        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata)
+        conditions_by_file = combined_wig.metadata.conditions_by_file
         conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
         # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
         conditon_list = sorted(list(set(conditions))) # make unique
@@ -735,16 +735,19 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         # make a reduced numpy array by average over replicates of each condition
         count_lists = []
         for each_condition in conditon_list:
-            count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
+            count_lists.append(
+                # pick columns corresponding to condition; avg across rows (genes)
+                numpy.mean(means[:,conditions_array==each_condition], axis=1)
+            )
         means = numpy.array(count_lists).transpose()
 
         labels = conditon_list
     
     logging.log("means.shape="+str(means.shape))
 
-    hash,headers = {},labels
+    hash, headers = {},labels
     for i, col in enumerate(headers):
         hash[col] = FloatVector([x[i] for x in means])
     df = DataFrame(hash)  
 
-    corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
+    corrplot_r_function(df, StrVector(headers), output_path) # pass in headers to put cols in order, since df comes from dict

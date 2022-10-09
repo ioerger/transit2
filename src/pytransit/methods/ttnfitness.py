@@ -589,16 +589,13 @@ class Method:
                     normalization = self.inputs.normalization,
                 ),
                 time=(time.time() - self.start_time),
-                saturation = saturation,
-
-                ES = str(assesment_cnt["ES"]) + " #essential based on Gumbel",
-                ESB = str(assesment_cnt["ESB"]) + " #essential based on Binomial",
-                GD = str(assesment_cnt["GD"]) +" #Growth Defect",
-                GA = str(assesment_cnt["GA"]) +" #Growth Advantage",
-                NE = str(assesment_cnt["NE"]) + " #non-essential",
-                U = str(assesment_cnt["U"]) + " #uncertain",
-                
-                
+                saturation= saturation,
+                ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
+                ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
+                GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
+                NE=  str(assesment_cnt["NE"] ) + " non-essential",
+                U=   str(assesment_cnt["U"]  ) + " uncertain",
             ),
         )
         

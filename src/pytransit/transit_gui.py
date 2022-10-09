@@ -141,3 +141,28 @@ class TnSeqFrame(wx.Frame):
         self.status_bar.SetStatusText("Welcome to TRANSIT")
         
         create_menu(self)
+
+# 
+# PNG render options
+# 
+@transit_tools.ResultsFile
+class PngFile:
+    @staticmethod
+    def can_load(path):
+        return path.endswith(".png")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        from pytransit.specific_tools import gui_tools
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type="Image",
+            path=self.path,
+            # could potentially add file date here
+            
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Image": lambda *args: gui_tools.show_image(self.path),
+            })
+        )

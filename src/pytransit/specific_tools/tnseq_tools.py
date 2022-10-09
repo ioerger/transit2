@@ -109,11 +109,13 @@ class CombinedWigMetadata:
     _CacheClass = named_list([ 'conditions_by_file','covariates_by_file_list','interactions_by_file_list','ordering_metadata',])
     
     # can contain more data
-    def __init__(self, path):
+    def __init__(self, path=None, rows=None, headers=None, comments=None):
         self.path = path
-        self.headers = []
-        self.rows = []
-        self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
+        self.headers = headers or []
+        self.rows = rows or []
+        self.comments = comments or []
+        if path:
+            self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         self.conditions = no_duplicates(
             Condition(
                 name=each_row["Condition"],
@@ -121,6 +123,20 @@ class CombinedWigMetadata:
                 for each_row in self.rows
         )
         self._cache_for_read = None
+    
+    def with_only(self, condition_names=None, wig_fingerprints=None):
+        print(f'''condition_names = {condition_names}''')
+        from copy import deepcopy
+        new_rows = []
+        not_filtering_by_condition = not condition_names
+        for each_row in self.rows:
+            if condition_names and each_row["Condition"] not in condition_names:
+                continue
+            if wig_fingerprints and each_row["Filename"] not in wig_fingerprints:
+                continue
+            new_rows.append(deepcopy(each_row))
+        
+        return CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
     
     def condition_names_for(self, wig_fingerprint=None, id=None):
         conditions = []
@@ -140,11 +156,17 @@ class CombinedWigMetadata:
                 return each_row["Id"]
     
     def fingerprints_for(self, condition):
-        return [
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([
             each_row["Filename"]
                 for each_row in self.rows
                     if each_row["Condition"] == condition
-        ]
+        ])
+    
+    @property
+    def wig_fingerprints(self):
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
     
     def __repr__(self):
         return f"""CWigMetadata(
@@ -410,6 +432,70 @@ class CombinedWig:
                 )
         return counts_for_wig
     
+    def with_only(self, condition_names=None, wig_fingerprints=None):
+        import numpy
+        from copy import deepcopy
+        
+        # create a new shell
+        class A: pass
+        new_combined_wig = A()
+        new_combined_wig.__class__ = CombinedWig
+        
+        # copy the easy stuff
+        new_combined_wig.main_path     = None
+        new_combined_wig.metadata_path = None
+        new_combined_wig.comments      = self.comments
+        new_combined_wig.extra_data    = dict(self.extra_data)
+        new_combined_wig.rows          = []
+        new_combined_wig.samples       = []
+        new_combined_wig.metadata      = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
+        
+        # extract only data relating to new_wig_fingerprints
+        new_wig_fingerprints = self.metadata.wig_fingerprints
+        sites, counts_by_wig_array, old_wig_fingerprints = self.data
+        new_counts_by_wig = numpy.zeros((len(new_wig_fingerprints), sites.shape[0], ))
+        for index, each_fingerprint in enumerate(new_wig_fingerprints):
+            old_index = old_wig_fingerprints.index(each_fingerprint)
+            new_counts_by_wig[index,:] = counts_by_wig_array[old_index,:]
+        
+        removed_wig_fingerprints = set(old_wig_fingerprints) - set(new_wig_fingerprints)
+        # create new data object
+        new_combined_wig.data = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
+        
+        # generate named lists for rows
+        new_combined_wig.extra_data["wig_fingerprints"] = new_wig_fingerprints
+        wig_fingerprints = new_wig_fingerprints
+        CWigRow = named_list([ "position", *wig_fingerprints ])
+        for position, row in zip(sites, new_counts_by_wig.transpose()):
+            #
+            # extract
+            #
+            read_counts = row[ 0: len(wig_fingerprints) ]
+            other      = row[ len(wig_fingerprints) :  ] # often empty
+            
+            # force types
+            position   = int(position)
+            read_counts = [ float(each) for each in read_counts ]
+            
+            # save
+            new_combined_wig.rows.append(CWigRow([position]+read_counts+[each for each in other]))
+            
+        for column_index, wig_fingerprint in enumerate(new_combined_wig.wig_fingerprints):
+            new_combined_wig.samples.append(
+                Wig(
+                    rows=list(zip(new_combined_wig.positions, new_combined_wig.read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    fingerprint=wig_fingerprint,
+                    column_index=column_index,
+                    condition_names=new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
+            )
+        
+        return new_combined_wig
+        
     def wig_with_id(self, id):
         for each in self.samples:
             if each.id == id:
@@ -420,7 +506,7 @@ class CombinedWig:
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
         
-        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
+        sites, wig_fingerprints, extra_data = [], [], {}
         yaml_switch_is_on = False
         yaml_string = "extra_data:\n"
         for line in comments:
@@ -486,16 +572,11 @@ class CombinedWig:
             self.rows.append(CWigRow([position]+read_counts+other))
             
             sites.append(position)
-            for index, count in enumerate(read_counts):
-                if len(counts_by_wig) < index+1:
-                    counts_by_wig.append([])
-                counts_by_wig[index].append(count)
         
-        read_counts_by_wig_fingerprint = self.read_counts_by_wig_fingerprint
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(
-                    rows=list(zip(self.positions, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(self.positions, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,

@@ -37,7 +37,9 @@ class gui:
     annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
     combined_wigs = []
     
-    menu_heirarchy = LazyDict()
+    menu_heirarchy = LazyDict({
+        "Preprocessing": {},
+    })
     
     @property
     def width(self):
