@@ -10,13 +10,13 @@ import heapq
 
 import numpy
 
+from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
-import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components import file_display, results_area, parameter_panel
+from pytransit.components import samples_area, results_area, parameter_panel, file_display
+
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.components.spreadsheet import SpreadSheet
 
 

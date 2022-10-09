@@ -17,10 +17,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-DEBUG = False
-EOL = "\n"
-SEPARATOR = "\1"  # for making names that combine conditions and interactions; try not to use a char a user might have in a condition name
-
 import sys
 import os
 import math
