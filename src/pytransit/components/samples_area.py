@@ -4,7 +4,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import singleton, no_duplicates, flatten_once, human_readable_data
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename, working_directory
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools
 
 from pytransit.components.spreadsheet import SpreadSheet

@@ -1,4 +1,4 @@
-from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton
 
 from pytransit.specific_tools import logging, gui_tools
 

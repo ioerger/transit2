@@ -18,7 +18,7 @@ from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.specific_tools.tnseq_tools import Wig
 import pytransit
 import pytransit.components.file_display as file_display

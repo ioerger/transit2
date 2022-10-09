@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 
 from pytransit.specific_tools.gui_tools                   import bind_to, rgba, color
 from pytransit.specific_tools.norm_tools                  import methods as norm_methods
-from pytransit.specific_tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
+from pytransit.specific_tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, basename
 from pytransit.components.generic.box            import Row, Column
 from pytransit.components.generic.frame          import InnerFrame
 from pytransit.components.generic.text           import Text
@@ -147,21 +147,8 @@ class TnSeqFrame(wx.Frame):
         self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self.status_bar.SetStatusText("Welcome to TRANSIT")
         
-        pub.subscribe(self.save_histogram, "histogram")
         create_menu(self)
         
-    def save_histogram(self, msg):
-        data, orf, path, delta = msg
-        n, bins, patches = plt.hist(data, density=1, facecolor="c", alpha=0.75, bins=100)
-        plt.xlabel("Delta Sum")
-        plt.ylabel("Probability")
-        plt.title("%s - Histogram of Delta Sum" % orf)
-        plt.axvline(delta, color="r", linestyle="dashed", linewidth=3)
-        plt.grid(True)
-        genePath = os.path.join(path, orf + ".png")
-        plt.savefig(genePath)
-        plt.clf()
-
     def SaveFile(
         self,
         DIR=None,

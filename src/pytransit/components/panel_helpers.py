@@ -1,4 +1,4 @@
-from pytransit.specific_tools.transit_tools import wx, pub
+from pytransit.specific_tools.transit_tools import wx
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
