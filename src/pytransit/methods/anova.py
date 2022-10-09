@@ -25,7 +25,7 @@ class Method:
     name = "Anova"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Method of variance"
+    menu_name   = f"{name} - analysis of variance"
     description = """Perform Anova analysis"""
     
     transposons = ["himar1", "tn5"]
@@ -88,19 +88,22 @@ class Method:
                 method_short_text= self.name,
                 method_long_text= "",
                 method_descr="""
-                    The Anova (Method of variance) method is used to determine which genes exhibit statistically significant 
+                    The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant 
                     variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig 
                     files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file 
                     (which describes which samples/replicates belong to which experimental conditions).
-                """.replace("\n            ","\n"),
+                """.replace("\n                    "," "),
                 method_specific_instructions="""
                     1. Ensure you have the annotation file ("prot table") that corresponds to the datasets to be analyzed.
+                    
                     2. Select reference condition for the analysis
-                    3. [Optional] Add in comma-seperated values of conditions to include and comma-seperated values of condtions to exclude. 
-                       If these values are not provided, all conditions in the Condtion Panel will be included
+                    
+                    3. [Optional] Add in comma-seperated values of conditions to include and comma-seperated values of condtions to exclude. If these values are not provided, all conditions in the Condtion Panel will be included
+                    
                     4. Adjust other parameters to your liking
+                    
                     5. Click Run
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n")
             )
             # 
             # parameter inputs
@@ -112,20 +115,19 @@ class Method:
             # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
             # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
             # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-            self.value_getters = LazyDict()
-            if True:
-                self.value_getters.included_conditions    = panel_helpers.create_include_condition_list_input(panel, main_sizer)
-                self.value_getters.excluded_conditions    = panel_helpers.create_exclude_condition_list_input(panel, main_sizer)
-                self.value_getters.reference_condition    = panel_helpers.create_reference_condition_input(panel, main_sizer)
-                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-                self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-                self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
-                self.value_getters.alpha                  = panel_helpers.create_alpha_input(panel, main_sizer)
-                self.value_getters.winz                   = panel_helpers.create_winsorize_input(panel, main_sizer)
-                self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
-                
-                panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+            self.value_getters = LazyDict(
+                included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
+                excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
+                reference_condition= panel_helpers.create_reference_condition_input(panel, main_sizer),
+                n_terminus=          panel_helpers.create_n_terminus_input(panel, main_sizer),
+                c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),
+                normalization=       panel_helpers.create_normalization_input(panel, main_sizer),
+                pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
+                alpha=               panel_helpers.create_alpha_input(panel, main_sizer),
+                winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
+                refs=                (lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]),
+            )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):

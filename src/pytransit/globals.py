@@ -20,15 +20,7 @@ root_folder       = path.join(path.dirname(__file__),"../../")
 # @gui.add_results_button("Name")
 
 # TODO:
-    # rename "tools" to "specific_tools" and "basics" to "generic_tools"
-    # change "Analysis" to "Method"
-    # create abstraction for sample-area buttons
-    # update __main__ so that it uses the cli singleton
-    # update each Analysis method to use the @cli.add_command
     # make the run button callback more explicit
-    # remove all the junk names (Method = GUI = Analysis, __repr__, __str__, transposons, etc)
-    # flatten the methods folder
-    # update the export/convert methods
 
 # tools to make
     # popup tool for convert/export methods
@@ -64,9 +56,14 @@ class gui:
         return no_duplicates(flatten_once(each_combined_wig.samples for each_combined_wig in self.combined_wigs))
     
     @property
-    def selected_samples(self):
+    def selected_samples(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
         from pytransit.components.samples_area import get_selected_samples
         return get_selected_samples()
+    
+    @property
+    def selected_condition_names(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        from pytransit.components.samples_area import get_selected_condition_names
+        return get_selected_condition_names()
     
     def add_menu(self, *args):
         """

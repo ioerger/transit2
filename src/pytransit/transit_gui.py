@@ -57,13 +57,6 @@ import pytransit.components.file_display as file_display
 import pytransit.components.images as images
 
 class TnSeqFrame(wx.Frame):
-    instructions_text = """
-        1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
-        2. Add the desired Control and Experimental datasets.
-        3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
-        4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
-    """.replace("\n            ","\n")
-    
     # constructor
     def __init__(self, parent, DEBUG=False):
         # data accessable to all analysis methods
@@ -148,74 +141,3 @@ class TnSeqFrame(wx.Frame):
         self.status_bar.SetStatusText("Welcome to TRANSIT")
         
         create_menu(self)
-        
-    def SaveFile(
-        self,
-        DIR=None,
-        FILE="",
-        WC='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-    ):
-        """
-        Create and show the Save FileDialog
-        """
-        path = ""
-
-        if not DIR:
-            DIR = os.getcwd()
-
-        
-        dlg = wx.FileDialog(
-            self,
-            message="Save file as ...",
-            defaultDir=DIR,
-            defaultFile=FILE,
-            wildcard=WC,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
-        )
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            if self.verbose:
-                logging.log(
-                    "You chose the following output filename: %s" % path
-                )
-        dlg.Destroy()
-        return path
-
-    def OpenFile(self, DIR=".", FILE="", WC=""):
-        """
-        Create and show the Open FileDialog
-        """
-        path = ""
-        
-        dlg = wx.FileDialog(
-            self,
-            message="Save file as ...",
-            defaultDir=DIR,
-            defaultFile=FILE,
-            wildcard=WC,
-            style=wx.FD_OPEN,
-        )
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            if self.verbose:
-                logging.log("You chose the following file: %s" % path)
-        dlg.Destroy()
-        return path
-
-    def choose_normalization(self):
-        norm_methods_choices = sorted(norm_methods.keys())
-        dlg = wx.SingleChoiceDialog(
-            self,
-            "Choose how to normalize read-counts accross datasets.",
-            "Normalization Choice",
-            norm_methods_choices,
-            wx.CHOICEDLG_STYLE,
-        )
-
-        if dlg.ShowModal() == wx.ID_OK:
-            logging.log(
-                "Selected the '%s' normalization method" % dlg.GetStringSelection()
-            )
-
-        dlg.Destroy()
-        return dlg.GetStringSelection()

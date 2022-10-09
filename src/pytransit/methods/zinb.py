@@ -78,10 +78,10 @@ class Method:
                     counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
 
                     Note: ZINB analysis requires R (statistical analysis software) to be installed on your system, along with the ‘pscl’ R package. See Installation Instructions.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()

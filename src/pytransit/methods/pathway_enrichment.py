@@ -96,7 +96,7 @@ class Method:
                     test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
                     of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
                     enrichment.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select Input File button below
                     2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
@@ -105,7 +105,7 @@ class Method:
                         * Ontologizer is best suited for GO Terms
                     4. [Optional] Adjust parameters
                     5. Click Run
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
             self.value_getters = LazyDict()
 

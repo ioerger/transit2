@@ -149,10 +149,10 @@ class Method:
 
                     See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
                     catogory of genes or known biological pathway.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()
