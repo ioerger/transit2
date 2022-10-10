@@ -146,8 +146,9 @@ class Method:
             ) = tnseq_tools.get_data_stats(wig_insertion_counts)
             
             import ez_yaml
+            import sys
             ez_yaml.yaml.version = None
-            ez_yaml.yaml.width = 4096*100 
+            ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
             stats[each_wig_fingerprint] = ez_yaml.to_string(dict(
                 density=float(density),
                 mean_read=float(mean_read),
@@ -223,9 +224,9 @@ class Method:
                     for each in selected_wigs
             ] 
         ]
-        ta_site_positionss = selected_wigs[0].ta_site_positionss
+        ta_site_positions = selected_wigs[0].positions
         rows = []
-        for row_data in zip(*([ ta_site_positionss ] + [ each.insertion_counts for each in selected_wigs ])):
+        for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
             rows.append({
                 column_name: cell_value
                     for column_name, cell_value in zip(column_names, row_data)

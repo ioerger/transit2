@@ -142,6 +142,7 @@ class Method:
         # write output
         # 
         if True:
+            # FIXME: switch to transit_tools.write_result()
             # note: first comment line is filetype, last comment line is column headers
             file = sys.stdout # print to console if not output file defined
             if self.inputs.output_path != None:

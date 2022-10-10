@@ -58,6 +58,7 @@ class Method:
         rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
 
         logging.log("Normalizing")
+        # FIXME: switch to transit_tools.write_result()
         self.inputs.output_file.write("#Summarized to Mean Gene Counts with TRANSIT.\n")
         if self.inputs.normalization != "nonorm":
             self.inputs.output_file.write("#Reads normalized using '%s'\n" % self.inputs.normalization)

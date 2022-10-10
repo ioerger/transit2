@@ -463,9 +463,10 @@ if True:
         import ez_yaml
         import pytransit
         import pytransit.generic_tools.csv as csv
+        from pytransit.globals import gui
         from pytransit.generic_tools.misc import indent, to_pure
         ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
-        
+        ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
         extra_info = extra_info or {}
         
         yaml_string = ""
@@ -492,6 +493,7 @@ if True:
                 f"yaml:",
                 f"    date: {todays_date}",
                 f"    transit_version: {pytransit.__version__}",
+                f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
                 f"    console_command: |",
                 indent(console_tools.full_commandline_command, by="        "),
                 indent(yaml_string, by="    "),
