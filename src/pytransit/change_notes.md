@@ -389,4 +389,5 @@ sd 'FIX ME'                                            'FIXME'                  
 sd 'sys.argv'                                          'console_tools.subcommand_prefix#FIXME'                                  src/methods/**/*.py
 sd '\bAnalysis\b'                                      'Method'                                                                 src/methods/**/*.py
 sd 'Method = GUI = Method'                             ''                                                                       src/**/*.py
+sd '\bresults_area.add\b'                              'gui.add_result'                                                         src/methods/**/*.py
 ```
