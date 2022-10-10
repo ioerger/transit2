@@ -89,16 +89,16 @@ class Method:
                 method_short_text=self.name,
                 method_long_text="",
                 method_descr="""
-                    Pathway Enrichment Method provides a method to identify enrichment of functionally-related genes among those that are conditionally 
-                    essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step 
-                    to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test 
-                    (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Method) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
-                    test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
-                    of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
-                    enrichment.
-                """.replace("\n            ","\n"),
+                Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally 
+                essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step 
+                to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test 
+                (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
+                test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
+                of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
+                enrichment.""".replace("\n            ","\n"),
                 method_specific_instructions="""
-                    1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select Input File button below
+                    1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select 
+                       Input File button below
                     2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
                        Select your own using the Select Custom Associations and Select Custom Pathways Buttons
                     3. Select Pathway Enrichement Method. 
