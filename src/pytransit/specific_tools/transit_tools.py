@@ -726,8 +726,8 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
     logging.log("means.shape="+str(means.shape))
 
     if avg_by_conditions:
-        conditions_by_file = combined_wig.metadata.conditions_by_file
-        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
+        conditions_by_wig_fingerprint = combined_wig.metadata.conditions_by_wig_fingerprint
+        conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
         # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
         conditon_list = sorted(list(set(conditions))) # make unique
         conditions_array = numpy.array(conditions)

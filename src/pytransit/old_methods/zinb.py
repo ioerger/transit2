@@ -163,14 +163,14 @@ class ZinbMethod(base.MultiConditionMethod):
             prot_table=prot_table,
         )
 
-    def wigs_to_conditions(self, conditions_by_file, filenames_in_comb_wig):
+    def wigs_to_conditions(self, conditions_by_wig_fingerprint, filenames_in_comb_wig):
         """
             Returns list of conditions corresponding to given wigfiles.
             ({FileName: Condition}, [FileName]) -> [Condition]
             Condition :: [String]
         """
         return [
-            conditions_by_file.get(f, self.unknown_cond_flag) for f in filenames_in_comb_wig
+            conditions_by_wig_fingerprint.get(f, self.unknown_cond_flag) for f in filenames_in_comb_wig
         ]
 
     # the following 2 functions seem redundant and could be merged...
@@ -680,7 +680,7 @@ class ZinbMethod(base.MultiConditionMethod):
         # if a covar is not found, this crashes; check for it?
         # read it first with no condition specified, to get original Condition names
         (
-            conditions_by_file1,
+            conditions_by_wig_fingerprint1,
             covariatesByFileList1,
             interactionsByFileList1,
             orderingMetadata1,
@@ -688,7 +688,7 @@ class ZinbMethod(base.MultiConditionMethod):
             self.metadata, self.covars, self.interactions
         )  # without specifiying condition
         (
-            conditions_by_file,
+            conditions_by_wig_fingerprint,
             covariatesByFileList,
             interactionsByFileList,
             orderingMetadata,
@@ -697,7 +697,7 @@ class ZinbMethod(base.MultiConditionMethod):
         )
 
         ## [Condition] in the order of files in combined wig
-        conditions = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
+        conditions = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
         ## [Covariate] in the order of files in combined wig
         covariates = self.wigs_to_covariates(covariatesByFileList, filenames_in_comb_wig)
         ## [Interaction] in the order of files in combined wig
@@ -742,7 +742,7 @@ class ZinbMethod(base.MultiConditionMethod):
         for i, var in enumerate(self.interactions):
             vars2vals[var] = list(set(interactions[i]))
         varsByFileList = (
-            [conditions_by_file] + covariatesByFileList + interactionsByFileList
+            [conditions_by_wig_fingerprint] + covariatesByFileList + interactionsByFileList
         )
         for i, var in enumerate(vars):
             print("\nsamples for Condition/Covariate/Interaction: %s" % vars[i])
