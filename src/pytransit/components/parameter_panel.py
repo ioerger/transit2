@@ -151,10 +151,10 @@ def create_panel_area(_):
                 # panel.method_info_sizer.Add(
                 #     panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
                 # )
-                panel.method_instructions = wx.TextCtrl(universal.frame, size = wx.DefaultSize,
+                panel.method_instructions = wx.TextCtrl(gui.frame, size = wx.DefaultSize,
                          style = wx.TE_MULTILINE | wx.TE_READONLY)
-                panel.method_instructions.SetMinSize(wx.Size(int(universal.frame.GetSize()[0]*0.3), -1))
-                panel.method_instructions.SetValue(universal.frame.instructions_text)
+                panel.method_instructions.SetMinSize(wx.Size(int(gui.frame.GetSize()[0]*0.3), -1))
+                panel.method_instructions.SetValue(gui.frame.instructions_text)
                 panel.method_info_sizer.Add(
                      panel.method_instructions, 1, wx.ALL | wx.EXPAND, 5
                 )
