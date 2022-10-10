@@ -345,10 +345,10 @@ class Method:
             (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
                 self.inputs.combined_wig_params["combined_wig"]
             )
-            conditions_by_file, _, _, _ = tnseq_tools.read_samples_metadata(
+            conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.read_samples_metadata(
                 self.inputs.combined_wig_params["samples_metadata"]
             )
-            condition_names = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
+            condition_names = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
             datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
                 data, condition_names, self.inputs.combined_wig_params["conditions"],
             )
@@ -568,13 +568,13 @@ class Method:
 
         return data
 
-    def wigs_to_conditions(self, conditions_by_file, filenames_in_comb_wig):
+    def wigs_to_conditions(self, conditions_by_wig_fingerprint, filenames_in_comb_wig):
         """
             Returns list of conditions corresponding to given wigfiles.
             ({FileName: Condition}, [FileName]) -> [Condition]
             Condition :: [String]
         """
-        return [conditions_by_file.get(f, None) for f in filenames_in_comb_wig]
+        return [conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig]
 
     def filter_wigs_by_conditions(self, data, conditions, included_conditions):
         """

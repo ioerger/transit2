@@ -107,6 +107,7 @@ class Method:
         gui.conditions[0].name # string
         gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
         gui.combined_wigs # list of CombinedWig objects
+        gui.combined_wigs[0].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
         gui.combined_wigs[0].main_path
         gui.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
         gui.combined_wigs[0].samples # list of Wig objects
@@ -131,6 +132,9 @@ class Method:
         gui.combined_wigs[0].metadata.headers
         gui.combined_wigs[0].metadata.rows
         gui.combined_wigs[0].metadata.conditions
+        gui.combined_wigs[0].metadata.wig_ids
+        gui.combined_wigs[0].metadata.wig_fingerprints
+        gui.combined_wigs[0].metadata.with_only(condition_names=[], wig_fingerprints=[])
         gui.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
         gui.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
         gui.combined_wigs[0].metadata.id_for(wig_fingerprint)

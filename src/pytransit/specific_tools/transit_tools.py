@@ -705,26 +705,30 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         """)
         corrplot_r_function = globalenv["make_corrplot"]
     
-    means,genes,labels = calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions)
+    means, genes, headers = calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions)
 
-    hash, headers = {},labels
+    position_hash = {}
     for i, col in enumerate(headers):
-        hash[col] = FloatVector([x[i] for x in means])
-    df = DataFrame(hash)  
+        position_hash[col] = FloatVector([x[i] for x in means])
+    df = DataFrame(position_hash)  
 
     corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
 
 def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions):
-    logging.log("Reading combined_wig file")
-    sites, data, filenames_in_comb_wig = combined_wig.data
+    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
 
-    labels = [ combined_wig.metadata.id_for(x) for x in wig_fingerprints ]
+    labels = combined_wig.metadata.wig_ids
 
     # calculate gene means 
-    genes = tnseq_tools.Genes(wig_list=[],data=data,annotation=annotation_path,position=sites) #TRI normalization=nonorm?
+    genes = tnseq_tools.Genes(
+        wig_list=[],
+        data=data,
+        annotation=annotation_path,
+        position=sites
+    ) #TRI normalization=nonorm?
     means = []
     for gene in genes:
         if gene.n>=1:
@@ -732,22 +736,22 @@ def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditi
     means = numpy.vstack(means)
 
     if avg_by_conditions:
-        condition_per_wig = [
+        condition_per_wig_index = [
             combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerpint)[0] #FIXME: this is assuming there is only one condition per wig
                 for each_fingerprint in wig_fingerprints
         ]
         # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
-        conditions_array = numpy.array(condition_per_wig)
+        conditions_array = numpy.array(condition_per_wig_index)
 
         # make a reduced numpy array by average over replicates of each condition
         count_lists = []
-        for each_wig_condition_name in condition_per_wig:
+        for each_wig_condition_name in condition_per_wig_index:
             count_lists.append(
                 # pick columns corresponding to condition; avg across rows (genes)
                 numpy.mean(means[:,conditions_array==each_wig_condition_name],axis=1)
             )
         means = numpy.array(count_lists).transpose()
 
-        labels = condition_per_wig
+        labels = condition_per_wig_index
 
     return means, genes, labels
