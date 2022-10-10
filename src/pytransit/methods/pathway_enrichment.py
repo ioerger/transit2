@@ -27,7 +27,7 @@ from pytransit.components import file_display, results_area, parameter_panel, pa
 class Method:
     name = "Pathway Enrichment"
     identifier  = name.replace(" ", "")
-    cli_name    = identifier.lower() # is this available from the cli? --Jeff
+    cli_name    = identifier.lower()
     menu_name   = f"{identifier} - Perform {name} analysis"
     description = f"""Perform {name} analysis"""
     rows = []
@@ -90,16 +90,17 @@ class Method:
                 method_short_text=self.name,
                 method_long_text="",
                 method_descr="""
-                    Pathway Enrichment Method provides a method to identify enrichment of functionally-related genes among those that are conditionally 
+                    Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally 
                     essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step 
                     to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test 
-                    (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Method) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
+                    (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
                     test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
                     of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
                     enrichment.
-                """.replace("\n                    ","\n"),
+                """.replace("\n                    "," "),
                 method_specific_instructions="""
-                    1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select Input File button below
+                    1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select 
+                       Input File button below
                     2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
                        Select your own using the Select Custom Associations and Select Custom Pathways Buttons
                     3. Select Pathway Enrichement Method. 
@@ -281,9 +282,6 @@ class Method:
                 logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
             results_area.add(self.inputs.output_path)
         
-    # def write(self, msg):
-    #     self.output.write(msg + "\n")
-
     def read_resampling_file(self, filename):
         logging.log("Reading in Resampling File", filename)
         genes, hits, standardized_headers= [], [], []
@@ -335,7 +333,7 @@ class Method:
                 w = line.rstrip().split("\t")
                 pathways[w[0]] = w[1]
         return pathways
-     ############### GSEA ######################
+    ############### GSEA ######################
 
     def makeindex(self, lst):
         index = {}
@@ -604,10 +602,6 @@ class Method:
             for gene in genes:
                 genenames[gene[0]] = gene[1]
 
-            #header = "#pathway total_genes(M) genes_in_path(n) significant_genes(N) signif_genes_in_path(k) expected k+PC n_adj_by_PC enrichement pval qval description genes"
-            #print("\t".join(header.split()))
-            #self.rows.append(header.split())
-
             results.sort(key=lambda x: x[-2])  # pvals
             for res in results:
                 vals = res
@@ -616,14 +610,10 @@ class Method:
                 intersection = list(filter(lambda x: x in associations[term], hits))
                 intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
                 vals.append(" ".join(intersection))
-                #print("\t".join([str(x) for x in vals]))
                 self.rows.append(vals)
 
-            #results_area.add(self.inputs.output.name)
-            #self.finish()
         else:
             logging.log("The file you passed in has no hits to run Pathway Enrichment")
-        logging.log("Finished Pathway Enrichment Method")
 
     # ########## Ontologizer ###############
 
@@ -797,14 +787,7 @@ class Method:
                 round(qval, 6),
                 hits,
             ]
-            #print("\t".join([str(x) for x in vals]))
             self.rows.append(vals)
-
-        logging.log("Adding File: %s" % (self.inputs.output_path))
-        #results_area.add(self.output.name)
-        #self.finish()
-        logging.log("Finished Pathway Enrichment Method")
-    
 
 
 @transit_tools.ResultsFile
