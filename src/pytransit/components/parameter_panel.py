@@ -126,7 +126,7 @@ def create_panel_area(_):
                     style= wx.TE_MULTILINE | wx.TE_READONLY,
                 )
                 panel.method_instructions.SetMinSize(wx.Size(panel.max_width, -1))
-                panel.method_instructions.SetValue(gui.frame.instructions_text)
+                panel.method_instructions.SetValue(panel.initial_instructions_text)
                 panel.method_info_sizer.Add(
                      panel.method_instructions, 1, wx.ALL | wx.EXPAND, border=5
                 )
