@@ -2,7 +2,7 @@
 #yaml:
 #    console_command: |
 #        python3 './src/transit.py' 'normalize' './src/pytransit/data/111_cholesterol_glycerol_combined.cwig' './tests/cli_tests/normalize/0001_ttr.sh.1.result' '-n' 'TTR'
-#    time: 0.05405426025390625
+#    time: 0.05581808090209961
 #    normalization: TTR
 #    original_path: ./src/pytransit/data/111_cholesterol_glycerol_combined.cwig
 #    other_data: []

@@ -38,9 +38,10 @@ class Method:
         pathways_file = None,
         output_path= None,
         organism_pathway = None,
-        pval_col = None,
-        qval_col = None,
-        n_perm = None,
+        pval_col = -2,
+        qval_col = -1,
+        lfc_col = 6,
+        num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
     )
     
@@ -209,12 +210,12 @@ class Method:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            #pval_col = int(kwargs.get("Pval_col", "-2")),
-            #qval_col = int(kwargs.get("Qval_col", "-1")),
+            #pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
+            #qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SPLV"),
-            #lfc_col = int(kwargs.get("lfc_col", "6")),
-            enrichment_exponent = kwargs.get("p", "1"),
-            num_permutations = int(kwargs.get("Nperm", "10000")),
+            #lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
+            enrichment_exponent = int(kwargs.get("p", "1")),
+            num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
@@ -358,7 +359,7 @@ class Method:
         pairs = list(zip(Aranks, Ascores))
         pairs.sort()  # sort A by ranks
         Aranks, Ascores = [x[0] for x in pairs], [x[1] for x in pairs]
-        powers = [math.pow(abs(x), p) for x in Ascores]
+        powers = [math.pow(abs(float(x)), float(p)) for x in Ascores]
         NR = sum(powers)
         if NR == 0:
             return 0  # special case
@@ -400,7 +401,7 @@ class Method:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.inputs.n_perm, self.inputs.enrichment_exponent))
+        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.inputs.num_permutations, self.inputs.enrichment_exponent))
         # self.rows("# ranking genes by %s" % self.inputs.ranking)
         # self.rows("# total genes: %s, mean rank: %s" % (len(data), n2))
 
@@ -412,9 +413,9 @@ class Method:
             orf = w[0]
             if self.inputs.ranking == "SLPV":
                 # Pval_col = headers.index("p-value")
-                Pval = float(w[self.inputs.pval_col])
+                p_value = float(w[self.inputs.pval_col])
                 LFC = float(w[self.inputs.lfc_col])
-                SLPV = (-1 if LFC < 0 else 1) * math.log(Pval + 0.000001, 10)
+                SLPV = (-1 if LFC < 0 else 1) * math.log(p_value + 0.000001, 10)
                 pairs.append((orf, SLPV))
             elif self.inputs.ranking == "LFC":
                 # lfc_col = headers.index("log2FC")
@@ -434,7 +435,7 @@ class Method:
             orfs2score[orf] = score
             orfs2rank[orf] = i
 
-        n_perm = self.inputs.n_perm
+        num_permutations = self.inputs.num_permutations
         results, Total = [], len(terms)
         for i, term in enumerate(terms):
             sys.stdout.flush()
@@ -447,7 +448,7 @@ class Method:
                 orfs, orfs2rank, orfs2score, p=self.inputs.enrichment_exponent,
             )  # always positive, even if negative deviation, since I take abs
             higher = 0
-            for n in range(n_perm):
+            for n in range(num_permutations):
                 perm = random.sample(
                     allgenes, num_genes_in_pathway
                 )  # compare to enrichment score for random sets of genes of same size
@@ -703,12 +704,12 @@ class Method:
                             go2rvs[g] = []
                         go2rvs[g].append(rv)
 
-        logging.warning(
+        logging.warn(
             "GO terms with at least one ORF: %s" % len(go2rvs.keys())
         )  # what about between MIN and MAX?
         for go in go2rvs.keys():
             if go not in ontology:
-                logging.warning("not found: %s" % go)  # also indicate which gene?
+                logging.warn("not found: %s" % go)  # also indicate which gene?
 
         # could use class method, but would have to adapt it:
         # genes,hits,headers = self.read_resampling_file(self.inputs.resampling_file)
