@@ -366,8 +366,8 @@ class Method:
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
             
             if self.inputs.winz: logging.log("Winsorizing insertion counts")
-            conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
-            conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
+            conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
+            conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ]
             conditions_list = transit_tools.select_conditions(
                 conditions=conditions,
                 included_conditions=self.inputs.included_conditions,
@@ -375,7 +375,7 @@ class Method:
                 ordering_metadata=ordering_metadata,
             )
 
-            condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
+            condition_names = [conditions_by_wig_fingerprint[f] for f in filenames_in_comb_wig]
             # validate
             if self.inputs.refs and len(set(self.inputs.refs) - set(condition_names)) > 0:
                 logging.error(f"One of the reference conditions {self.inputs.refs} is not one of the available conditions: {misc.no_duplicates(condition_names)}")

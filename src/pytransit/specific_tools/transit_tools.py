@@ -705,49 +705,53 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         """)
         corrplot_r_function = globalenv["make_corrplot"]
     
-    logging.log("Reading combined_wig file")
-    sites, data, filenames_in_comb_wig = combined_wig.data
+    means, genes, headers = calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions)
+
+    position_hash = {}
+    for i, col in enumerate(headers):
+        position_hash[col] = FloatVector([x[i] for x in means])
+    df = DataFrame(position_hash)  
+
+    corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
+
+def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions):
+    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
 
-    labels = filenames_in_comb_wig
-    logging.log("data.shape="+str(data.shape)) #TRI could get rid of these eventually
+    labels = combined_wig.metadata.wig_ids
 
-    # calculate gene means #TRI I should put this in a separate function, which could be used by 'export gene_means'
-    #genes = tnseq_tools.get_gene_info(annotation_path)
-    #data = compute_gene_means(data,genes)
-    genes = tnseq_tools.Genes(wig_list=[],data=data,annotation=annotation_path,position=sites) # normalization=nonorm?
+    # calculate gene means 
+    genes = tnseq_tools.Genes(
+        wig_list=[],
+        data=data,
+        annotation=annotation_path,
+        position=sites
+    ) #TRI normalization=nonorm?
     means = []
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
     means = numpy.vstack(means)
-    logging.log("means.shape="+str(means.shape))
 
     if avg_by_conditions:
-        conditions_by_file = combined_wig.metadata.conditions_by_file
-        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
-        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
-        conditon_list = sorted(list(set(conditions))) # make unique
-        conditions_array = numpy.array(conditions)
+        condition_per_wig_index = [
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerpint)[0] #FIXME: this is assuming there is only one condition per wig
+                for each_fingerprint in wig_fingerprints
+        ]
+        # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
+        conditions_array = numpy.array(condition_per_wig_index)
 
         # make a reduced numpy array by average over replicates of each condition
         count_lists = []
-        for each_condition in conditon_list:
+        for each_wig_condition_name in condition_per_wig_index:
             count_lists.append(
                 # pick columns corresponding to condition; avg across rows (genes)
-                numpy.mean(means[:,conditions_array==each_condition], axis=1)
+                numpy.mean(means[:,conditions_array==each_wig_condition_name],axis=1)
             )
         means = numpy.array(count_lists).transpose()
 
-        labels = conditon_list
-    
-    logging.log("means.shape="+str(means.shape))
+        labels = condition_per_wig_index
 
-    hash, headers = {},labels
-    for i, col in enumerate(headers):
-        hash[col] = FloatVector([x[i] for x in means])
-    df = DataFrame(hash)  
-
-    corrplot_r_function(df, StrVector(headers), output_path) # pass in headers to put cols in order, since df comes from dict
+    return means, genes, labels

@@ -50,7 +50,7 @@ class Method:
         "-ranking",
         #"-LFC_col",
         "-p",
-        "-n_perm",
+        "-Nperm",
         "-PC"
     ]
 
@@ -58,7 +58,7 @@ class Method:
     #-Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
     #-LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
-    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-n_perm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
 
         Optional parameters:
         -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
@@ -66,7 +66,7 @@ class Method:
         for GSEA...
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
         -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-        -n_perm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
         for FET...
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
     """.replace("\n        ", "\n")
@@ -208,7 +208,7 @@ class Method:
             ranking = kwargs.get("ranking", "SPLV"),
             #LFC_col = int(kwargs.get("LFC_col", "6")),
             enrichment_exponent = kwargs.get("p", "1"),
-            num_permutations = int(kwargs.get("n_perm", "10000")),
+            num_permutations = int(kwargs.get("Nperm", "10000")),
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
@@ -397,7 +397,7 @@ class Method:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        # self.rows.append("# method=GSEA, n_perm=%d, p=%d" % (self.n_perm, self.p))
+        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.Nperm, self.p))
         # self.rows("# ranking genes by %s" % self.ranking)
         # self.rowst("# total genes: %s, mean rank: %s" % (len(data), n2))
 

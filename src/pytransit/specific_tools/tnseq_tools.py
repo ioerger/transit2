@@ -2,7 +2,7 @@ import sys
 import os
 import math
 import warnings
-from functools import total_ordering
+from functools import total_ordering, cached_property
 from collections import namedtuple
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
@@ -106,14 +106,16 @@ class Condition:
         return self.name == other.name
 
 class CombinedWigMetadata:
-    _CacheClass = named_list([ 'conditions_by_file','covariates_by_file_list','interactions_by_file_list','ordering_metadata',])
-    
     # can contain more data
     def __init__(self, path=None, rows=None, headers=None, comments=None):
-        self.path = path
-        self.headers = headers or []
-        self.rows = rows or []
+        self.path     = path
+        self.headers  = headers or []
+        self.rows     = rows or []
         self.comments = comments or []
+        self._conditions_by_wig_fingerprint        = None
+        self._covariates_by_wig_fingerprint_list   = None
+        self._interactions_by_wig_fingerprint_list = None
+        self._ordering_metadata                    = None
         if path:
             self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         self.conditions = no_duplicates(
@@ -125,10 +127,8 @@ class CombinedWigMetadata:
         self._cache_for_read = None
     
     def with_only(self, condition_names=None, wig_fingerprints=None):
-        print(f'''condition_names = {condition_names}''')
         from copy import deepcopy
         new_rows = []
-        not_filtering_by_condition = not condition_names
         for each_row in self.rows:
             if condition_names and each_row["Condition"] not in condition_names:
                 continue
@@ -136,7 +136,22 @@ class CombinedWigMetadata:
                 continue
             new_rows.append(deepcopy(each_row))
         
-        return CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
+        new_combined_wig = CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
+        
+        # 
+        # generate ordering_metadata, conditions_by_wig_fingerprint
+        # 
+        for row in new_rows:
+            wig_fingerprint = row["Filename"]
+            conditions_by_wig_fingerprint[wig_fingerprint] = row["Condition"] # FIXME: there can be more than one condition per wig_fingerprint
+            ordering_metadata["condition"].append(row["Condition"])
+        
+        self._conditions_by_wig_fingerprint        = conditions_by_wig_fingerprint
+        self._ordering_metadata                    = ordering_metadata
+        self._covariates_by_wig_fingerprint_list   = []
+        self._interactions_by_wig_fingerprint_list = []
+        
+        return new_combined_wig
     
     def condition_names_for(self, wig_fingerprint=None, id=None):
         conditions = []
@@ -163,10 +178,15 @@ class CombinedWigMetadata:
                     if each_row["Condition"] == condition
         ])
     
-    @property
+    @cached_property
     def wig_fingerprints(self):
         from pytransit.generic_tools import misc
         return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
+    
+    @cached_property
+    def wig_ids(self):
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([ each_row["Id"] for each_row in self.rows ])
     
     def __repr__(self):
         return f"""CWigMetadata(
@@ -175,116 +195,85 @@ class CombinedWigMetadata:
             conditions={indent(self.conditions, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
     
-    # 
-    # an "always filled" cache
-    # 
-    @property
-    def cache_for_read(self):
-        if not self._cache_for_read:
-            self._cache_for_read = self.read_condition_data(self.path)
-        return self._cache_for_read
-    @cache_for_read.setter
-    def cache_for_read(self, value):
-        self._cache_for_read = value
-    
     @classmethod
-    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[], condition_name="Condition"):
-        """
-        Filename -> ConditionMap
-        ConditionMap :: {Filename: Condition}, [{Filename: Covar}], [{Filename: Interaction}]
-        Condition :: String
-        Covar :: String
-        Interaction :: String
-        """
-        _cache_for_read = getattr(cls, "_cache_for_read", None)
-        if _cache_for_read:
-            return _cache_for_read
-        
-        conditions_by_file        = {}
-        covariates_by_file_list   = [{} for i in range(len(covars_to_read))]
-        interactions_by_file_list = [{} for i in range(len(interactions_to_read))]
-        headers_to_read           = [condition_name.lower(), "filename"]
+    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[]):
+        conditions_by_wig_fingerprint        = {}
+        covariates_by_wig_fingerprint_list   = [{} for _ in covars_to_read]
+        interactions_by_wig_fingerprint_list = [{} for _ in interactions_to_read]
         ordering_metadata         = {"condition": [], "interaction": []}
-        with open(path) as mfile:
-            lines = mfile.readlines()
-            head_indexes = [
-                i
-                for h in headers_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-            covar_indexes = [
-                i
-                for h in covars_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-            interaction_indexes = [
-                i
-                for h in interactions_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
+        with open(path) as file:
+            lines = file.readlines()
+            column_names              = lines[0].split()
+            column_names              = [ each.lower() for each in column_names ]
+            index_for_condition       = column_names.index("Condition".lower())
+            index_for_wig_fingerprint = column_names.index("Filename".lower())
+            covar_indexes             = [ column_names.index(each.lower()) for each in covars_to_read       ]
+            interaction_indexes       = [ column_names.index(each.lower()) for each in interactions_to_read ]
 
-            for line in lines[1:]:
-                if line[0] == "#":
+            for each_line in lines[1:]:
+                # skip comments
+                if each_line[0] == "#":
                     continue
-                vals = line.split()
-                [condition, wfile] = vals[head_indexes[0]], vals[head_indexes[1]]
-                conditions_by_file[wfile] = condition
+                row_as_list = each_line.split()
+                condition       = row_as_list[index_for_condition]
+                wig_fingerprint = row_as_list[index_for_wig_fingerprint]
+                
+                conditions_by_wig_fingerprint[wig_fingerprint] = condition
                 ordering_metadata["condition"].append(condition)
-                for i, c in enumerate(covars_to_read):
-                    covariates_by_file_list[i][wfile] = vals[covar_indexes[i]]
-                for i, c in enumerate(interactions_to_read):
-                    interactions_by_file_list[i][wfile] = vals[interaction_indexes[i]]
-
+                for index, each_covar_column_index in enumerate(covar_indexes):
+                    covariates_by_wig_fingerprint_list[index][wig_fingerprint] = row_as_list[each_covar_column_index]
+                for index, each_interaction_column_index in enumerate(interaction_indexes):
+                    interactions_by_wig_fingerprint_list[index][wig_fingerprint] = row_as_list[each_interaction_column_index]
+                    
+                    # TODO
                     # This makes sense only if there is only 1 interaction variable
                     # For multiple interaction vars, may have to rethink ordering.
-                    ordering_metadata["interaction"].append(vals[interaction_indexes[i]])
+                    ordering_metadata["interaction"].append(row_as_list[interaction_indexes[index]])
 
-        return cls._CacheClass([
-            conditions_by_file,
-            covariates_by_file_list,
-            interactions_by_file_list,
+        return (
+            conditions_by_wig_fingerprint,
+            covariates_by_wig_fingerprint_list,
+            interactions_by_wig_fingerprint_list,
             ordering_metadata,
-        ])
+        )
+    
     
     # 
-    # conditions_by_file
+    # conditions_by_wig_fingerprint
     # 
     @property
-    def conditions_by_file(self): return self.cache_for_read.conditions_by_file
-    @conditions_by_file.setter
-    def conditions_by_file(self, value):
-        self.cache_for_read.conditions_by_file = value
-    
+    def conditions_by_wig_fingerprint(self): 
+        if type(self._conditions_by_wig_fingerprint) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._conditions_by_wig_fingerprint
+            
     # 
-    # covariates_by_file_list
-    # 
-    @property
-    def covariates_by_file_list(self): return self.cache_for_read.covariates_by_file_list
-    @covariates_by_file_list.setter
-    def covariates_by_file_list(self, value):
-        self.cache_for_read.covariates_by_file_list = value
-    
-    # 
-    # interactions_by_file_list
+    # covariates_by_wig_fingerprint_list
     # 
     @property
-    def interactions_by_file_list(self): return self.cache_for_read.interactions_by_file_list
-    @interactions_by_file_list.setter
-    def interactions_by_file_list(self, value):
-        self.cache_for_read.interactions_by_file_list = value
-    
+    def covariates_by_wig_fingerprint_list(self): 
+        if type(self._covariates_by_wig_fingerprint_list) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._covariates_by_wig_fingerprint_list
+            
+    # 
+    # interactions_by_wig_fingerprint_list
+    # 
+    @property
+    def interactions_by_wig_fingerprint_list(self): 
+        if type(self._interactions_by_wig_fingerprint_list) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._interactions_by_wig_fingerprint_list
+            
     # 
     # ordering_metadata
     # 
     @property
-    def ordering_metadata(self): return self.cache_for_read.ordering_metadata
-    @ordering_metadata.setter
-    def ordering_metadata(self, value):
-        self.cache_for_read.ordering_metadata = value
-
+    def ordering_metadata(self): 
+        if type(self._ordering_metadata) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._ordering_metadata
+            
 class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
     @staticmethod
     def load(file_path):
@@ -298,7 +287,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
         import ez_yaml
         from pytransit.specific_tools import transit_tools
         
-        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
+        sites, counts_by_wig, files, extra_data = [], [], [], {}
         contained_yaml_data = False
         number_of_lines = line_count_of(file_path)
         with open(file_path) as f:
@@ -370,7 +359,7 @@ class CombinedWig:
         self.main_path     = main_path
         self.metadata_path = metadata_path
         self.metadata      = CombinedWigMetadata(self.metadata_path)
-        self.data          = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
+        self.as_tuple      = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
         self.rows          = []
         self.comments      = comments or []
         self.extra_data    = LazyDict(extra_data or {})
@@ -452,7 +441,7 @@ class CombinedWig:
         
         # extract only data relating to new_wig_fingerprints
         new_wig_fingerprints = self.metadata.wig_fingerprints
-        sites, counts_by_wig_array, old_wig_fingerprints = self.data
+        sites, counts_by_wig_array, old_wig_fingerprints = self.as_tuple
         new_counts_by_wig = numpy.zeros((len(new_wig_fingerprints), sites.shape[0], ))
         for index, each_fingerprint in enumerate(new_wig_fingerprints):
             old_index = old_wig_fingerprints.index(each_fingerprint)
@@ -460,7 +449,7 @@ class CombinedWig:
         
         removed_wig_fingerprints = set(old_wig_fingerprints) - set(new_wig_fingerprints)
         # create new data object
-        new_combined_wig.data = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
+        new_combined_wig.as_tuple = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
         
         # generate named lists for rows
         new_combined_wig.extra_data["wig_fingerprints"] = new_wig_fingerprints
