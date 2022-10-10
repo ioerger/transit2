@@ -2,7 +2,7 @@ import sys
 import os
 import math
 import warnings
-from functools import total_ordering
+from functools import total_ordering, cached_property
 from collections import namedtuple
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
@@ -112,10 +112,10 @@ class CombinedWigMetadata:
         self.headers  = headers or []
         self.rows     = rows or []
         self.comments = comments or []
-        self._conditions_by_wig_fingerprint      = None
-        self._covariates_by_wig_fingerprint_list = None
-        self._interactions_by_wig_fingerprint_list          = None
-        self._ordering_metadata                  = None
+        self._conditions_by_wig_fingerprint        = None
+        self._covariates_by_wig_fingerprint_list   = None
+        self._interactions_by_wig_fingerprint_list = None
+        self._ordering_metadata                    = None
         if path:
             self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         self.conditions = no_duplicates(
@@ -178,10 +178,15 @@ class CombinedWigMetadata:
                     if each_row["Condition"] == condition
         ])
     
-    @property
+    @cached_property
     def wig_fingerprints(self):
         from pytransit.generic_tools import misc
         return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
+    
+    @cached_property
+    def wig_ids(self):
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([ each_row["Id"] for each_row in self.rows ])
     
     def __repr__(self):
         return f"""CWigMetadata(
@@ -354,7 +359,7 @@ class CombinedWig:
         self.main_path     = main_path
         self.metadata_path = metadata_path
         self.metadata      = CombinedWigMetadata(self.metadata_path)
-        self.data          = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
+        self.as_tuple      = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
         self.rows          = []
         self.comments      = comments or []
         self.extra_data    = LazyDict(extra_data or {})
@@ -436,7 +441,7 @@ class CombinedWig:
         
         # extract only data relating to new_wig_fingerprints
         new_wig_fingerprints = self.metadata.wig_fingerprints
-        sites, counts_by_wig_array, old_wig_fingerprints = self.data
+        sites, counts_by_wig_array, old_wig_fingerprints = self.as_tuple
         new_counts_by_wig = numpy.zeros((len(new_wig_fingerprints), sites.shape[0], ))
         for index, each_fingerprint in enumerate(new_wig_fingerprints):
             old_index = old_wig_fingerprints.index(each_fingerprint)
@@ -444,7 +449,7 @@ class CombinedWig:
         
         removed_wig_fingerprints = set(old_wig_fingerprints) - set(new_wig_fingerprints)
         # create new data object
-        new_combined_wig.data = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
+        new_combined_wig.as_tuple = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
         
         # generate named lists for rows
         new_combined_wig.extra_data["wig_fingerprints"] = new_wig_fingerprints
