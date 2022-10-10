@@ -93,13 +93,16 @@ def create_sample_area(frame):
                 # 
                 # component
                 # 
+                size = (300, 40)
                 combined_wig_file_picker = GenBitmapTextButton(
                     frame,
                     1,
                     gui_tools.bit_map,
                     "Load Combined Wig and Metadata",
-                    size=wx.Size(300, 100),
+                    size=wx.Size(*size),
                 )
+                combined_wig_file_picker.SetMinSize(size)
+                combined_wig_file_picker.SetMaxSize(size)
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
                 
                 # 
@@ -140,12 +143,9 @@ def create_sample_area(frame):
                                     metadata_dialog.Destroy()
                             file_dialog.Destroy()
                             
-                            print(f"Loading paths:{cwig_paths}, {metadata_paths}")
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
-                samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.ALIGN_CENTER_VERTICAL, border=5)
-                # samples.wig_header_sizer.Add(combined_wig_file_picker)
-                # inner_sample_sizer.Add(combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+                samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.EXPAND, border=0)
                 
             outer_sample_sizer.add(
                 samples.wig_header_sizer,
@@ -197,6 +197,9 @@ def create_sample_area(frame):
                 
             )
     
+    samples.wig_header_sizer.Layout()
+    gui.frame.Layout()
+            
     # 
     # preload files if in debugging mode
     # 

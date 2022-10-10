@@ -148,3 +148,10 @@ class cli:
 
 if debugging_enabled:
     seed(0)
+
+debug_wx_python = False
+if debug_wx_python:
+    def _():
+        import wx.lib.inspection
+        wx.lib.inspection.InspectionTool().Show()
+    _()

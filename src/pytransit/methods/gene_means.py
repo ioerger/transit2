@@ -56,7 +56,7 @@ class Method:
             -cond   :=  Averages counts over replicates of each condition
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Pre Processing", menu_name)
+    @gui.add_menu("Pre-Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     

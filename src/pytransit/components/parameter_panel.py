@@ -183,9 +183,10 @@ def create_panel_area(_):
 
     panel.progress_sizer = progress_sizer
     panel.wx_panel.SetSizer(progress_sizer)
-    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented in or out)
+    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented-in or commented-out)
     panel.wx_panel.Layout()
     panel.wx_panel.SetupScrolling()
+    panel.wx_panel.Hide()
     
     panel.progress.SetRange(1000)
     panel.progress_label.Hide()
