@@ -3,12 +3,12 @@
 [pathway_enrichment:Run()] src/pytransit/data//sanger_roles.dat 
 [pathway_enrichment:read_resampling_file()] Reading in Resampling File tests/cli_tests/resampling/0001_basic.sh.1.result
 [pathway_enrichment:read_associations()] Reading in Associations File 
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 229, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 230, in Run
     self.GSEA()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 433, in GSEA
-    Nperm = self.inputs.Nperm
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 444, in GSEA
+    orfs, orfs2rank, orfs2score, p=self.p
 
-'LazyDict' object has no attribute 'Nperm'
+'Method' object has no attribute 'p'
 Traceback (most recent call last):
   File "/opt/homebrew/bin/transit", line 8, in <module>
     sys.exit(run_main())
@@ -16,10 +16,10 @@ Traceback (most recent call last):
     main(*args, **kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 150, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 214, in from_args
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 215, in from_args
     Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 229, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 230, in Run
     self.GSEA()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 433, in GSEA
-    Nperm = self.inputs.Nperm
-AttributeError: 'LazyDict' object has no attribute 'Nperm'
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 444, in GSEA
+    orfs, orfs2rank, orfs2score, p=self.p
+AttributeError: 'Method' object has no attribute 'p'

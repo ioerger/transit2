@@ -3965,9 +3965,9 @@ not found: GO:0070043
 not found: GO:0051205
 not found: GO:0004526
 not found: GO:0004549
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 231, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 232, in Run
     self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 733, in Ontologizer
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 734, in Ontologizer
     pval, qval = float(w[self.inputs.pval_col]), float(w[self.inputs.qval_col])
 
 list indices must be integers or slices, not NoneType
@@ -3978,10 +3978,10 @@ Traceback (most recent call last):
     main(*args, **kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 150, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 214, in from_args
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 215, in from_args
     Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 231, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 232, in Run
     self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 733, in Ontologizer
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 734, in Ontologizer
     pval, qval = float(w[self.inputs.pval_col]), float(w[self.inputs.qval_col])
 TypeError: list indices must be integers or slices, not NoneType

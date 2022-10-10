@@ -1,6 +1,6 @@
 #PathwayEnrichment
 #yaml:
-#    Console Command: |
+#    console_command: |
 #        transit 'pathwayenrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_COG_roles.dat' 'src/pytransit/data//COG_roles.dat' './tests/cli_tests/pathway_enrichment/0002_example.sh.1.result'
 #    parameters:
 #       method: FET
