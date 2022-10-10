@@ -582,7 +582,7 @@ class Method:
             file_kind=Method.identifier+"Genes",
             rows=genes_out_rows,
             column_names=output_df.columns,
-            extra_info=dict(
+            extra_data=dict(
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
@@ -591,14 +591,16 @@ class Method:
                     gumbel_results_file = self.inputs.gumbel_results_path,
                     normalization = self.inputs.normalization,
                 ),
-                time=(time.time() - self.start_time),
-                saturation= saturation,
-                ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
-                ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
-                GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
-                GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
-                NE=  str(assesment_cnt["NE"] ) + " non-essential",
-                U=   str(assesment_cnt["U"]  ) + " uncertain",
+                summary_info=dict(
+                    time=(time.time() - self.start_time),
+                    saturation= saturation,
+                    ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
+                    ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                    GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
+                    GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
+                    NE=  str(assesment_cnt["NE"] ) + " non-essential",
+                    U=   str(assesment_cnt["U"]  ) + " uncertain",
+                )
             ),
         )
         
@@ -613,7 +615,7 @@ class Method:
             file_kind=Method.identifier+"Sites",
             rows=sites_out_rows,
             column_names=ta_sites_df.columns,
-            extra_info=dict(
+            extra_data=dict(
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
@@ -622,15 +624,17 @@ class Method:
                     gumbel_results_file = self.inputs.gumbel_results_path,
                     normalization = self.inputs.normalization,
                 ),
-                time=(time.time() - self.start_time),
-                saturation = saturation,
+                summary_info=dict(
+                    time=(time.time() - self.start_time),
+                    saturation = saturation,
 
-                ES = str(assesment_cnt["ES"]) + " essential based on Gumbel",
-                ESB = str(assesment_cnt["ESB"]) + " essential based on Binomial",
-                GD = str(assesment_cnt["GD"]) +" Growth Defect",
-                GA = str(assesment_cnt["GA"]) +" Growth Advantage",
-                NE = str(assesment_cnt["NE"]) + " non-essential",
-                U = str(assesment_cnt["U"]) + " uncertain",        
+                    ES = str(assesment_cnt["ES"]) + " essential based on Gumbel",
+                    ESB = str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                    GD = str(assesment_cnt["GD"]) +" Growth Defect",
+                    GA = str(assesment_cnt["GA"]) +" Growth Advantage",
+                    NE = str(assesment_cnt["NE"]) + " non-essential",
+                    U = str(assesment_cnt["U"]) + " uncertain",    
+                )    
             ),
         )
 
@@ -670,28 +674,18 @@ class GenesFile:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="TTNFitness Summary",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                ).Show(),
+
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
             })
         )
-        
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
     
     def __str__(self):
@@ -772,27 +766,17 @@ class SitesFile:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="TTNFitness Summary",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                ).Show(),
             })
         )
-        
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
+
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
     
     def __str__(self):

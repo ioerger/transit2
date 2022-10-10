@@ -237,11 +237,12 @@ class Method:
             
                 #checking validation of inputs
             if self.inputs.method == "FET":
-                self.fisher_exact_test()
+                self.hit_summary = self.fisher_exact_test()
             elif self.inputs.method == "GSEA":
-                self.GSEA()
+                up,down = self.GSEA()
+                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
             elif self.inputs.method == "ONT":
-                self.Ontologizer()
+                self.hit_summary = self.Ontologizer()
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
@@ -275,18 +276,12 @@ class Method:
                     ],
                     extra_info=dict(
                         parameters=dict(
-                            #resampling_file = self.inputs.resampling_file,
-                            #associations_file = self.inputs.associations_file,
-                            #pathways_file = self.inputs.pathways_file,
-                            #output_path=self.inputs.output_path,
                             method = self.inputs.method,
-                            #pval_col = self.inputs.pval_col,
-                            #qval_col = self.inputs.qval_col,
                             ranking = self.inputs.ranking,
-                            #lfc_col = self.inputs.lfc_col,
                             enrichment_exponent = self.inputs.enrichment_exponent,
                             num_permutations = self.inputs.num_permutations,
                             pseudocount = self.inputs.pseudocount,
+                            hit_summary = self.hit_summary
                         ),
                     ),
                 )
@@ -489,19 +484,11 @@ class Method:
                 else:
                     down += 1
 
-        # self.rows.append(
-        #     "# significant pathways enriched for conditionally ESSENTIAL genes: %s (qval<0.05, mean_rank<%s) (includes genes that are MORE required in condition B than A)"
-        #     % (up, n2)
-        # )
         for term, mr, es, pval, qval in results:
             if qval < 0.05 and mr < n2:
                 self.rows.append(
                     "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
                 )
-        # self.rows.append(
-        #     "# significant pathways enriched for conditionally NON-ESSENTIAL genes: %s (qval<0.05, mean_rank>%s) (includes genes that are LESS required in condition B than A)"
-        #     % (down, n2)
-        # )
         # for term, mr, es, pval, qval in results:
         #     if qval < 0.05 and mr > n2:
         #         self.rows.append(
@@ -509,12 +496,6 @@ class Method:
         #         )
         # # self.rows.append("# pathways sorted by mean_rank")
 
-        # self.inputs.output.write(
-        #     "\t".join(
-        #         "#pathway description num_genes mean_rank GSEA_score pval qval genes".split()
-        #     )
-        #     + "\n"
-        # )
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
             rvinfo = [(x, genenames.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
@@ -526,9 +507,9 @@ class Method:
                 + ["%0.6f" % x for x in [es, pval, qval]]
                 + [rvs]
             )
-            #self.inputs.outputs.write("\t".join([str(x) for x in vals]) + "\n")
             self.rows.append(vals)
-        #self.inputs.outputs.close()
+
+        return up, down
 
     # ########## Fisher Exact Test ###############
 
@@ -619,6 +600,8 @@ class Method:
                 intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
                 vals.append(" ".join(intersection))
                 self.rows.append(vals)
+
+            return len([i for i in qvals if i<0.05])
 
         else:
             logging.log("The file you passed in has no hits to run Pathway Enrichment")
@@ -793,6 +776,7 @@ class Method:
                 hits,
             ]
             self.rows.append(vals)
+        return len([i for i in qvals if i<0.05])
 
 
 @transit_tools.ResultsFile
