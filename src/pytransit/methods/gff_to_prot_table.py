@@ -8,6 +8,15 @@ from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
+
+magic_number_nine  = 9 # FIXME
+magic_number_two   = 2
+magic_number_three = 3
+magic_number_four  = 4
+magic_number_one   = 1
+magic_number_six   = 6
+magic_number_eight = 6
+        
 @misc.singleton
 class Method:
     name = "gff_to_prot"
@@ -37,25 +46,25 @@ class Method:
         lines = gff_file.readlines()
         gff_file.close()
         logging.log("Converting annotation file from GFF3 format to prot_table format")
-
+        
         for i, line in enumerate(lines):
             line = line.strip()
             if len(line) == 0 or line.startswith("#"):
                 continue
             cols = line.split("\t")
-            if len(cols) < 9:
+            if len(cols) < magic_number_nine:
                 sys.stderr.write(("Ignoring invalid row with entries: {0}\n".format(cols)))
                 continue
-            if (cols[2]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
+            if (cols[magic_number_two]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
                 if "locus_tag" not in line:
                     print("warning: skipping lines that do not contain 'locus_tag'")
                     continue
-                start = int(cols[3])
-                end = int(cols[4])
-                strand = cols[6].strip()
-                size = int(abs(end - start + 1) / 3)  # includes stop codon
+                start = int(cols[magic_number_three])
+                end = int(cols[magic_number_four])
+                strand = cols[magic_number_six].strip()
+                size = int(abs(end - start + 1) / magic_number_three)  # includes stop codon
                 labels = {}
-                for pair in cols[8].split(";"):
+                for pair in cols[magic_number_eight].split(";"):
                     k, v = pair.split("=")
                     labels[k.strip()] = v.strip()
                 Rv = labels["locus_tag"].strip()  # error out if not found
@@ -73,11 +82,11 @@ class Method:
         labels = {}
         print(line)
         print(len(cols))
-        for pair in cols[8].split(";"):
+        for pair in cols[magic_number_eight].split(";"):
             k, v = pair.split("=")
             labels[k] = v
 
-        if (cols[2]) == "CDS" and labels["Parent"] == parent:
+        if (cols[magic_number_two]) == "CDS" and labels["Parent"] == parent:
             # return labels.get("Note", '-')
             return labels.get("product", "-")
         return "-"
@@ -110,12 +119,12 @@ def annotation_gff3_to_pt(event):
                         continue
                     tmp = line.strip().split("\t")
                     chr = tmp[0]
-                    type = tmp[2]
-                    start = int(tmp[3])
-                    end = int(tmp[4])
-                    length = ((end - start + 1) / 3) - 1
-                    strand = tmp[6]
-                    features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
+                    type = tmp[magic_number_two]
+                    start = int(tmp[magic_number_three])
+                    end = int(tmp[magic_number_four])
+                    length = ((end - start + 1) / magic_number_three) - 1
+                    strand = tmp[magic_number_six]
+                    features = dict([tuple(f.split("=")) for f in tmp[magic_number_eight].split(";")])
                     if "ID" not in features:
                         continue
                     orf = features["ID"]

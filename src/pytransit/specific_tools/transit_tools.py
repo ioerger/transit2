@@ -459,6 +459,7 @@ if True:
     def write_result(*, path, file_kind, extra_info, column_names, rows):
         assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
         
+        import datetime
         import ez_yaml
         import pytransit.generic_tools.csv as csv
         from pytransit.generic_tools.misc import indent, to_pure
@@ -475,6 +476,9 @@ if True:
             except Exception as error:
                 raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
         
+        now = str(datetime.datetime.now())
+        todays_date = now[: now.rfind(".")]
+        
         # 
         # write to file
         # 
@@ -485,6 +489,7 @@ if True:
             comments=[
                 file_kind, # identifier always comes first
                 f"yaml:",
+                f"    date: {todays_date}",
                 f"    console_command: |",
                 indent(console_tools.full_commandline_command, by="        "),
                 indent(yaml_string, by="    "),
