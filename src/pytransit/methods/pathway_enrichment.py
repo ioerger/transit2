@@ -47,10 +47,10 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        #"-Pval_col",
-        #"-Qval_col",
+        "-Pval_col",
+        "-Qval_col",
         "-ranking",
-        #"-LFC_col",
+        "-LFC_col",
         "-p",
         "-Nperm",
         "-PC"
@@ -149,6 +149,10 @@ class Method:
                 options= ["SPLV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
             )
+
+            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value="-2", tooltip_text="FIX ME")
+            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value="-1", tooltip_text="FIX ME")
+            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value="6", tooltip_text="FIX ME")
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
@@ -210,10 +214,10 @@ class Method:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            #pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
-            #qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
+            pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
+            qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SPLV"),
-            #lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
+            lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
             num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -298,9 +302,6 @@ class Method:
                     headers = line.split("\t")
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
-                        Method.inputs.pval_col = standardized_headers.index("P Value")
-                        Method.inputs.qval_col = standardized_headers.index("Adj P Value")
-                        Method.inputs.lfc_col = standardized_headers.index("Log 2 FC")
                     continue
                 w = line.rstrip().split("\t")
                 genes.append(w)
