@@ -34,7 +34,7 @@ class Method:
     # newer method
     # 
     menu_prefix = ("Pre-Processing", "Normalize Using")
-    @gui.add_menu(*menu_prefix, "TTR - FIXME what does this stand for")
+    @gui.add_menu(*menu_prefix, "Trimmed Total Reads")
     def menu_options(*args): Method.gui_normalize(kind="TTR")
     
     @gui.add_menu(*menu_prefix, "Non-Zero Mean")

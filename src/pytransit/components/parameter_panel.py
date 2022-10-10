@@ -120,17 +120,17 @@ def create_panel_area(_):
             # Instructions
             # 
             if True:
-                panel.method_instructions = wx.StaticText(
+                panel.method_instructions = wx.TextCtrl(
                     gui.frame,
-                    wx.ID_ANY,
-                    panel.initial_instructions_text,
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    0,
+                    size= wx.DefaultSize,
+                    style= wx.TE_MULTILINE | wx.TE_READONLY,
                 )
-                panel.method_instructions.Wrap(panel.max_width)
+                height = int(gui.height*0.21)
+                panel.method_instructions.SetMinSize(wx.Size(panel.max_width, height))
+                panel.method_instructions.SetMaxSize(wx.Size(panel.max_width, height))
+                panel.method_instructions.SetValue(panel.initial_instructions_text)
                 panel.method_info_sizer.Add(
-                    panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
+                     panel.method_instructions, 1, wx.ALL | wx.EXPAND, border=5
                 )
             
             panel.sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, border=0)
@@ -236,12 +236,7 @@ def set_instructions( method_short_text, method_long_text, method_descr, method_
         panel.method_name.SetLabel(method_long_text + "("+method_short_text+")")
         panel.method_name.Show()
         
-        # panel.method_description.SetLabel(method_descr)
-        # panel.method_description.Wrap(panel.max_width)
-        # panel.method_description.Show()
-        
         panel.method_instructions.SetLabel(method_specific_instructions)
-        panel.method_instructions.Wrap(panel.max_width)
         panel.method_instructions.Show()
 
 def progress_update(text, percent):

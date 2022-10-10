@@ -499,7 +499,7 @@ if True:
                     plt.show()
     
     def create_normalization_input(panel, sizer, default="TTR"):
-        from pytransit.methods.normalization import Method
+        from pytransit.methods.normalize import Method
         (
             label,
             normalization_wxobj,
