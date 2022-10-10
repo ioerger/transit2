@@ -128,10 +128,10 @@ class Method:
             # 
             # get wig files
             # 
-            combined_wig = gui.combined_wigs[0]
+            combined_wig = gui.combined_wigs[-1]
             Method.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
+            Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path 
 
 
             

@@ -98,8 +98,7 @@ def create_sample_area(frame):
                     1,
                     gui_tools.bit_map,
                     "Load Combined Wig and Metadata",
-                    size=wx.Size(-1, -1),
-                    
+                    size=wx.Size(300, 100),
                 )
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
                 
@@ -141,10 +140,12 @@ def create_sample_area(frame):
                                     metadata_dialog.Destroy()
                             file_dialog.Destroy()
                             
+                            print(f"Loading paths:{cwig_paths}, {metadata_paths}")
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
-                # samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=2, flag=wx.ALIGN_LEFT, border=5)
-                samples.wig_header_sizer.Add(combined_wig_file_picker)
+                samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.ALIGN_CENTER_VERTICAL, border=5)
+                # samples.wig_header_sizer.Add(combined_wig_file_picker)
+                # inner_sample_sizer.Add(combined_wig_file_picker, 1, wx.ALIGN_CENTER_VERTICAL, 5)
                 
             outer_sample_sizer.add(
                 samples.wig_header_sizer,
@@ -235,30 +236,35 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # add graphical entries for each condition
     # 
     if True:
-        for each_sample in gui.samples:
-            # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
-            samples.wig_table.add(dict(
-                # add hidden link to object
-                __wig_obj=each_sample,
-                # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                id=each_sample.id,
-                conditions=(",".join(each_sample.condition_names) or "[None]"),
-                density=round(each_sample.extra_data.density, 4),
-                total_insertions=round(each_sample.extra_data.sum),
-                non_zero_mean=round(each_sample.extra_data.non_zero_mean),
-                # # uncomment to add additional summary data
-                # non_zero_median=each_sample.extra_data.non_zero_median,
-                # count=each_sample.extra_data.count,
-                # mean=each_sample.extra_data.mean,
-                # max=each_sample.extra_data.max,
-                # skew=each_sample.extra_data.skew,
-                # kurtosis=each_sample.extra_data.kurtosis,
-            ))
-        
-        for each_condition in gui.conditions:
-            samples.conditions_table.add(dict(
-                name=each_condition.name,
-            ))
+        number_of_new_combined_wigs = len(cwig_paths)
+        if number_of_new_combined_wigs > 0:
+            from pytransit.generic_tools import misc
+            new_samples = misc.flatten_once([ each.samples for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+            for each_sample in new_samples:
+                # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
+                samples.wig_table.add(dict(
+                    # add hidden link to object
+                    __wig_obj=each_sample,
+                    # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                    id=each_sample.id,
+                    conditions=(",".join(each_sample.condition_names) or "[None]"),
+                    density=round(each_sample.extra_data.density, 4),
+                    total_insertions=round(each_sample.extra_data.sum),
+                    non_zero_mean=round(each_sample.extra_data.non_zero_mean),
+                    # # uncomment to add additional summary data
+                    # non_zero_median=each_sample.extra_data.non_zero_median,
+                    # count=each_sample.extra_data.count,
+                    # mean=each_sample.extra_data.mean,
+                    # max=each_sample.extra_data.max,
+                    # skew=each_sample.extra_data.skew,
+                    # kurtosis=each_sample.extra_data.kurtosis,
+                ))
+            
+            new_conditions = misc.flatten_once([ each.conditions for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+            for each_condition in new_conditions:
+                samples.conditions_table.add(dict(
+                    name=each_condition.name,
+                ))
 
 # should only be called/used by globals.py
 def get_selected_samples():

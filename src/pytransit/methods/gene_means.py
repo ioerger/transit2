@@ -77,7 +77,7 @@ class Method:
         # 
         # get annotation
         # 
-        Method.inputs.combined_wig = gui.combined_wigs[0]
+        Method.inputs.combined_wig = gui.combined_wigs[-1]
         Method.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(gui.annotation_path)
         

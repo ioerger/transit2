@@ -123,7 +123,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -158,7 +158,7 @@ class Method:
         if not Method.inputs.output_path:
             return None
         
-        Method.inputs.data_sources = [ gui.combined_wigs[0].main_path ]
+        Method.inputs.data_sources = [ gui.combined_wigs[-1].main_path ]
         
         # 
         # extract universal data

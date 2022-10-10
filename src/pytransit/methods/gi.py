@@ -139,9 +139,9 @@ class Method:
         # 
         # get wig files
         # 
-        wig_group = gui.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+        wig_group = gui.combined_wigs[-1] # assume there is only 1 (should check that it has beed defined)
         Method.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-        Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+        Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path # assume all samples are in the same metadata file
 
         # 
         # get annotation

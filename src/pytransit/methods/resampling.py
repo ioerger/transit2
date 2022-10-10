@@ -178,7 +178,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -209,8 +209,8 @@ class Method:
         # 
         # extract universal data
         # 
-        cwig_path     = gui.combined_wigs[0].main_path
-        metadata_path = gui.combined_wigs[0].metadata.path
+        cwig_path     = gui.combined_wigs[-1].main_path
+        metadata_path = gui.combined_wigs[-1].metadata.path
         
         Method.inputs.combined_wig_params = dict(
             combined_wig=cwig_path,

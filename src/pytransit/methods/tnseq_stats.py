@@ -72,7 +72,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         
         # 
