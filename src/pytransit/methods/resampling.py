@@ -342,7 +342,7 @@ class Method:
         # Combine 
         # 
         if self.inputs.combined_wig_params:
-            (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+            (position, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
                 self.inputs.combined_wig_params["combined_wig"]
             )
             conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.read_samples_metadata(

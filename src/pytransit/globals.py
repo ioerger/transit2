@@ -121,6 +121,10 @@ class gui:
     def add_wig_area_button(self, *args, **kwargs):
         from pytransit.components import samples_area
         return samples_area.add_wig_area_button(*args, **kwargs)
+    
+    def add_result(self, *args, **kwargs):
+        from pytransit.components import results_area
+        return results_area.add(*args, **kwargs)
 
 @singleton
 class cli:

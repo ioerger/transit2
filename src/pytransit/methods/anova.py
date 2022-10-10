@@ -360,7 +360,7 @@ class Method:
         # 
         logging.log("Getting Data")
         if True:
-            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
             
             logging.log(f"Normalizing using: {self.inputs.normalization}")
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)

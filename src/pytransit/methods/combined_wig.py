@@ -25,7 +25,7 @@ class Method:
         ctrldata=None,
         normalization=None,
         annotation_path=None,
-        output_path=None,
+        output_path="latest.comwig.csv",
         ref=None,
     )
     
@@ -188,7 +188,7 @@ class Method:
                     time=(time.time() - start_time),
                     normalization=self.inputs.normalization,
                     annotation=os.path.basename(self.inputs.annotation_path),
-                    # wig_fingerprints=wig_fingerprints,
+                    wig_fingerprints=wig_fingerprints,
                 ),
                 **extra_info,
                 "stats": dict(stats),

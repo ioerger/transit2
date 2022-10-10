@@ -190,7 +190,7 @@ class Method:
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
                 logging.log("Getting Data from %s" % self.inputs.combined_wig)
-                position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
 
                 metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
                 indexes = {}

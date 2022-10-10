@@ -154,7 +154,7 @@ class Method:
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
                 logging.log("Getting Data from %s" % self.inputs.combined_wig)
-                position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
 
                 metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
                 indexes = {}
@@ -622,12 +622,12 @@ class Method:
                 time=(time.time() - self.start_time),
                 saturation = saturation,
 
-                ES = str(assesment_cnt["ES"]) + " #essential based on Gumbel",
-                ESB = str(assesment_cnt["ESB"]) + " #essential based on Binomial",
-                GD = str(assesment_cnt["GD"]) +" #Growth Defect",
-                GA = str(assesment_cnt["GA"]) +" #Growth Advantage",
-                NE = str(assesment_cnt["NE"]) + " #non-essential",
-                U = str(assesment_cnt["U"]) + " #uncertain",        
+                ES = str(assesment_cnt["ES"]) + " essential based on Gumbel",
+                ESB = str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                GD = str(assesment_cnt["GD"]) +" Growth Defect",
+                GA = str(assesment_cnt["GA"]) +" Growth Advantage",
+                NE = str(assesment_cnt["NE"]) + " non-essential",
+                U = str(assesment_cnt["U"]) + " uncertain",        
             ),
         )
 

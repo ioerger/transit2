@@ -669,7 +669,7 @@ class ZinbMethod(base.MultiConditionMethod):
             )
 
         logging.log("Getting Data")
-        (sites, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+        (sites, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
             self.combined_wig
         )
 

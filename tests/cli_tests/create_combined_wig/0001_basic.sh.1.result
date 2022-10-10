@@ -2,7 +2,7 @@
 #yaml:
 #    console_command: |
 #        python3 './src/transit.py' 'export' 'combined_wig' 'src/pytransit/data/glycerol_H37Rv_rep1.wig,src/pytransit/data/glycerol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep3.wig,src/pytransit/data/cholesterol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep1.wig' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/create_combined_wig/0001_basic.sh.1.result'
-#    time: 1.8309860229492188
+#    time: 1.8488032817840576
 #    normalization: TTR
 #    annotation: H37Rv.prot_table
 #    normalization_factors:
@@ -19,7 +19,7 @@
 #       Cholesterol H37 Rv Rep2: 'density: 0.43891160109912203, mean_read: 171.39082981928374, non_zero_mean_read: 390.4905438591438, non_zero_median_read: 148, max_read: 704662, total_read: 12786612, skew: 105.78284470780147, kurtosis: 14216.199240166572, pickands_tail_index: 1.5293654939507282,'
 #       Cholesterol H37 Rv Rep1: 'density: 0.4394611621205013, mean_read: 139.58933024466356, non_zero_mean_read: 317.63746669014597, non_zero_median_read: 147, max_read: 125355, total_read: 10414061, skew: 54.83729352080048, kurtosis: 4237.703504066972, pickands_tail_index: 0.9729507859693783,'
 #    
-#TA Site Positions	Glycerol H37 Rv Rep1	Glycerol H37 Rv Rep2	Cholesterol H37 Rv Rep3	Cholesterol H37 Rv Rep2	Cholesterol H37 Rv Rep1	ORF	Gene Name
+#TA Site Position	Glycerol H37 Rv Rep1	Glycerol H37 Rv Rep2	Cholesterol H37 Rv Rep3	Cholesterol H37 Rv Rep2	Cholesterol H37 Rv Rep1	ORF	Gene Name
 60	0.0	0.0	0.0	0.0	0.0	Rv0001	dnaA
 72	0.0	0.0	0.0	0.0	0.0	Rv0001	dnaA
 102	0.0	0.0	0.0	0.0	0.0	Rv0001	dnaA

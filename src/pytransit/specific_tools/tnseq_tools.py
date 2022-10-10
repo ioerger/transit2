@@ -124,7 +124,6 @@ class CombinedWigMetadata:
             )
                 for each_row in self.rows
         )
-        self._cache_for_read = None
     
     def with_only(self, condition_names=None, wig_fingerprints=None):
         from copy import deepcopy
@@ -274,7 +273,7 @@ class CombinedWigMetadata:
             self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
         return self._ordering_metadata
             
-class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
+class CombinedWigData(named_list(['sites','counts_by_wig','wig_fingerprints',])):
     @staticmethod
     def load(file_path):
         """
@@ -355,7 +354,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
     PositionsAndReads = named_list(["read_counts", "positions"])
-    def __init__(self, *, main_path, metadata_path, comments=None, extra_data=None):
+    def __init__(self, *, main_path, metadata_path=None, comments=None, extra_data=None):
         self.main_path     = main_path
         self.metadata_path = metadata_path
         self.metadata      = CombinedWigMetadata(self.metadata_path)
@@ -661,7 +660,7 @@ class CombinedWig:
     
 # backwards compatibility
 read_samples_metadata = CombinedWigMetadata.read_condition_data
-read_combined_wig = CombinedWigData.load
+CombinedWigData.load = CombinedWigData.load
 
 def read_genes(fname, descriptions=False):
     """

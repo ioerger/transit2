@@ -22,9 +22,9 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
 class Method:
-    name = "gene_means"
-    identifier  = "GeneMeans"
-    cli_name    = name.lower()
+    name = "Gene Means"
+    identifier  = name.replace(" ", "")
+    cli_name    = identifier.lower()
     menu_name   = f"{name} - calculate mean counts at gene level"
     description = f"""Calculate mean counts at gene level."""
     
@@ -56,7 +56,7 @@ class Method:
             -cond   :=  Averages counts over replicates of each condition
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Method", menu_name)
+    @gui.add_menu("Pre Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
@@ -95,7 +95,7 @@ class Method:
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.txt,*.csv,*.dat,*.out)|*.txt;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.csv,*.txt,*.dat,*.out)|*.csv;*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
         if not Method.inputs.output_path:
@@ -172,7 +172,6 @@ class Method:
             ),
         )
         
-        logging.log(f"Adding File: {self.inputs.output_path}")
         results_area.add(self.inputs.output_path)
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
 
