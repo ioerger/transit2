@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    Console Command: |
+#    console_command: |
 #        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0002_normalize_flag.sh.1.result' '-n' 'TTR'
 #    parameters:
 #       conditions_list:

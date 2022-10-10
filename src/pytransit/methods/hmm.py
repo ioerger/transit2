@@ -15,7 +15,7 @@ import heapq
 import math
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.specific_tools.tnseq_tools import Wig
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -99,10 +99,10 @@ class Method:
                     The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other 
                     methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or 
                     growth defect regions), in addition to the more common categories of essential and non-essential.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
             # 
             # parameter inputs
@@ -635,7 +635,7 @@ class GeneFile:
     identifier = "HMM_Genes"
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Total Sites",
         "ES Count",

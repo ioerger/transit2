@@ -15,7 +15,7 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_to
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.generic_tools.csv as csv
 import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -78,10 +78,10 @@ class Method:
                     counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
 
                     Note: ZINB analysis requires R (statistical analysis software) to be installed on your system, along with the ‘pscl’ R package. See Installation Instructions.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()

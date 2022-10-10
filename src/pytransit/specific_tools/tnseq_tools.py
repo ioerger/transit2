@@ -109,11 +109,13 @@ class CombinedWigMetadata:
     _CacheClass = named_list([ 'conditions_by_file','covariates_by_file_list','interactions_by_file_list','ordering_metadata',])
     
     # can contain more data
-    def __init__(self, path):
+    def __init__(self, path=None, rows=None, headers=None, comments=None):
         self.path = path
-        self.headers = []
-        self.rows = []
-        self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
+        self.headers = headers or []
+        self.rows = rows or []
+        self.comments = comments or []
+        if path:
+            self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         self.conditions = no_duplicates(
             Condition(
                 name=each_row["Condition"],
@@ -122,7 +124,21 @@ class CombinedWigMetadata:
         )
         self._cache_for_read = None
     
-    def condition_names_for(self, wig_fingerprint=None, id=None):
+    def with_only(self, condition_names=None, wig_fingerprints=None):
+        print(f'''condition_names = {condition_names}''')
+        from copy import deepcopy
+        new_rows = []
+        not_filtering_by_condition = not condition_names
+        for each_row in self.rows:
+            if condition_names and each_row["Condition"] not in condition_names:
+                continue
+            if wig_fingerprints and each_row["Filename"] not in wig_fingerprints:
+                continue
+            new_rows.append(deepcopy(each_row))
+        
+        return CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
+    
+    def condition_names_for(self, *, wig_fingerprint=None, id=None):
         conditions = []
         if wig_fingerprint:
             for each_row in self.rows:
@@ -140,11 +156,17 @@ class CombinedWigMetadata:
                 return each_row["Id"]
     
     def fingerprints_for(self, condition):
-        return [
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([
             each_row["Filename"]
                 for each_row in self.rows
                     if each_row["Condition"] == condition
-        ]
+        ])
+    
+    @property
+    def wig_fingerprints(self):
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
     
     def __repr__(self):
         return f"""CWigMetadata(
@@ -276,7 +298,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
         import ez_yaml
         from pytransit.specific_tools import transit_tools
         
-        sites, counts_by_wig, files, extra_data = [], [], [], {}
+        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
         contained_yaml_data = False
         number_of_lines = line_count_of(file_path)
         with open(file_path) as f:
@@ -302,18 +324,18 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                         if len(yaml_string) > 0:
                             an_object = ez_yaml.to_object(string=yaml_string)
                             extra_data.update(an_object["extra_data"] or {})
-                            files += extra_data.get('files',[])
+                            wig_fingerprints += extra_data.get('wig_fingerprints',[])
                     # 
                     # handle older file method
                     # 
                     if line.startswith("#File: "):
-                        files.append(line.rstrip()[7:])  # allows for spaces in filenames
+                        wig_fingerprints.append(line.rstrip()[7:])  # allows for spaces in filenames
                         continue
             
             # 
             # handle body
             # 
-            counts_by_wig = [ [] for _ in files ]
+            counts_by_wig = [ [] for _ in wig_fingerprints ]
             for index, line in enumerate(lines):
                 if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
                     percent_done = round(index/number_of_lines * 100, ndigits=2)
@@ -326,8 +348,8 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                 #
                 # actual parsing
                 #
-                cols = line.split("\t")[0 : 1+len(files)]
-                cols = cols[: 1+len(files)]  # additional columns at end could contain gene info
+                cols = line.split("\t")[0 : 1+len(wig_fingerprints)]
+                cols = cols[: 1+len(wig_fingerprints)]  # additional columns at end could contain gene info
                 # Read in position as int, and readcounts as float
                 cols = [
                     int(each_t_iv) if index == 0 else float(each_t_iv)
@@ -339,7 +361,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                     counts_by_wig[index].append(count)
             logging.log(f"\rreading lines: 100%          ")
         
-        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
+        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints))
 
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
@@ -410,6 +432,70 @@ class CombinedWig:
                 )
         return counts_for_wig
     
+    def with_only(self, condition_names=None, wig_fingerprints=None):
+        import numpy
+        from copy import deepcopy
+        
+        # create a new shell
+        class A: pass
+        new_combined_wig = A()
+        new_combined_wig.__class__ = CombinedWig
+        
+        # copy the easy stuff
+        new_combined_wig.main_path     = None
+        new_combined_wig.metadata_path = None
+        new_combined_wig.comments      = self.comments
+        new_combined_wig.extra_data    = dict(self.extra_data)
+        new_combined_wig.rows          = []
+        new_combined_wig.samples       = []
+        new_combined_wig.metadata      = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
+        
+        # extract only data relating to new_wig_fingerprints
+        new_wig_fingerprints = self.metadata.wig_fingerprints
+        sites, counts_by_wig_array, old_wig_fingerprints = self.data
+        new_counts_by_wig = numpy.zeros((len(new_wig_fingerprints), sites.shape[0], ))
+        for index, each_fingerprint in enumerate(new_wig_fingerprints):
+            old_index = old_wig_fingerprints.index(each_fingerprint)
+            new_counts_by_wig[index,:] = counts_by_wig_array[old_index,:]
+        
+        removed_wig_fingerprints = set(old_wig_fingerprints) - set(new_wig_fingerprints)
+        # create new data object
+        new_combined_wig.data = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
+        
+        # generate named lists for rows
+        new_combined_wig.extra_data["wig_fingerprints"] = new_wig_fingerprints
+        wig_fingerprints = new_wig_fingerprints
+        CWigRow = named_list([ "position", *wig_fingerprints ])
+        for position, row in zip(sites, new_counts_by_wig.transpose()):
+            #
+            # extract
+            #
+            read_counts = row[ 0: len(wig_fingerprints) ]
+            other      = row[ len(wig_fingerprints) :  ] # often empty
+            
+            # force types
+            position   = int(position)
+            read_counts = [ float(each) for each in read_counts ]
+            
+            # save
+            new_combined_wig.rows.append(CWigRow([position]+read_counts+[each for each in other]))
+            
+        for column_index, wig_fingerprint in enumerate(new_combined_wig.wig_fingerprints):
+            new_combined_wig.samples.append(
+                Wig(
+                    rows=list(zip(new_combined_wig.positions, new_combined_wig.read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    fingerprint=wig_fingerprint,
+                    column_index=column_index,
+                    condition_names=new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
+            )
+        
+        return new_combined_wig
+        
     def wig_with_id(self, id):
         for each in self.samples:
             if each.id == id:
@@ -420,7 +506,7 @@ class CombinedWig:
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
         
-        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
+        sites, wig_fingerprints, extra_data = [], [], {}
         yaml_switch_is_on = False
         yaml_string = "extra_data:\n"
         for line in comments:
@@ -486,16 +572,11 @@ class CombinedWig:
             self.rows.append(CWigRow([position]+read_counts+other))
             
             sites.append(position)
-            for index, count in enumerate(read_counts):
-                if len(counts_by_wig) < index+1:
-                    counts_by_wig.append([])
-                counts_by_wig[index].append(count)
         
-        read_counts_by_wig_fingerprint = self.read_counts_by_wig_fingerprint
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(
-                    rows=list(zip(self.positions, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(self.positions, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
@@ -1755,7 +1836,7 @@ def get_gene_info_gff(path):
             if "ID" not in features:
                 continue
             orf = features["ID"]
-            name = features.get("Name", "-")
+            name = features.get("Name", features.get("Gene Name","-"))
             if name == "-":
                 name = features.get("name", "-")
 
@@ -2135,3 +2216,52 @@ def read_results_file(path):
         })
     
     return standardized_column_names, rows_of_dicts, extra_data, comments_string
+
+def filepaths_to_fingerprints(filepaths):
+    import os
+    from pytransit.generic_tools import misc
+    
+    filepaths = misc.no_duplicates(filepaths)
+    
+    # 
+    # Pascal Case of Basenames
+    # 
+    basenames     = [ os.path.basename(each) for each in filepaths ]
+    basenames     = [ each if not each.endswith(".wig") else each[:-4] for each in basenames ]
+    first_attempt = [ misc.pascal_case_with_spaces(each) for each in basenames ]
+    if misc.all_different(first_attempt):
+        return first_attempt
+    
+    # 
+    # Pascal Case of Dirnames
+    # 
+    dirnames = [ misc.pascal_case_with_spaces(os.path.dirname(each)) for each in filepaths ]
+    minimal_dirnames = misc.remove_common_prefix(dirnames)
+    fingerprints_base = [
+        f"{minimal_dirname}_{minimal_basename}".replace("/","_").replace("\\","_")
+            for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
+    ]
+    second_attempt = [ misc.pascal_case_with_spaces(each) for each in fingerprints_base ]
+    if misc.all_different(second_attempt):
+        return second_attempt
+    
+    # 
+    # Minimal simplified dirnames
+    # 
+    dirnames = [ os.path.dirname(each) for each in filepaths ]
+    minimal_dirnames = misc.remove_common_prefix(dirnames)
+    fingerprints_base = [
+        f"{minimal_dirname}_{basename}".replace("/","_").replace("\\","_")
+            for minimal_dirname, basename in zip(minimal_dirnames, basenames) 
+    ]
+    third_attempt = [ each for each in fingerprints_base ]
+    if misc.all_different(third_attempt):
+        return third_attempt
+    
+    # 
+    # Minimal dirnames
+    # 
+    return [
+        f"{minimal_dirname}/{minimal_basename}"
+            for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
+    ]

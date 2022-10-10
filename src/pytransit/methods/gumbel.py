@@ -34,7 +34,7 @@ class Method:
     transposons = ["himar1"]
     column_names = [
         "ORF", 
-        "Name", 
+        "Gene Name", 
         "Description", 
         "Number Of Insertions Within ORF",
         "Total Number Of TA Sites Within ORF", 
@@ -104,10 +104,10 @@ class Method:
                     The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
                     at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
                     the probability of this using a Bayesian model.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
                 
             self.value_getters = LazyDict()
@@ -431,11 +431,11 @@ class Method:
                 annotation_path=self.inputs.annotation_path,
                 time=(time.time() - self.start_time),
 
-                ES = str(calls.count("E")) + " #essential based on Gumbel",
-                ESB = str(calls.count("EB")) + " #essential based on Binomial",
-                NE = str(calls.count("NE")) + " #non-essential",
-                U = str(calls.count("U")) + " #uncertain",
-                S = str(calls.count("S")) +" #too-short",
+                ES = str(calls.count("E")) + " essential based on Gumbel",
+                ESB = str(calls.count("EB")) + " essential based on Binomial",
+                NE = str(calls.count("NE")) + " non-essential",
+                U = str(calls.count("U")) + " uncertain",
+                S = str(calls.count("S")) +" too-short",
             ),
         )
         

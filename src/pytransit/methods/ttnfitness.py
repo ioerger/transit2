@@ -72,10 +72,10 @@ class Method:
                     These insertion preferences are influenced by the nucleotide context of each TA site. The TTN-Fitness method uses a statistical model based on surrounding 
                     nucleotides to estimate the insertion bias of each site. Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio 
                     is 0 for ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()
@@ -297,7 +297,7 @@ class Method:
         ta_sites_df = pandas.DataFrame(
             {
                 "ORF": orf,
-                "Name": name,
+                "Gene Name": name,
                 "Coordinates": coords,
                 "Insertion Count": all_counts,
                 "Upstream TTN": upseq_list,
@@ -434,7 +434,7 @@ class Method:
             "Coordinates",
             "Insertion Count",
             "ORF",
-            "Name",
+            "Gene Name",
             "Local Average",
             "Upstream TTN",
             "Downstream TTN",
@@ -589,16 +589,13 @@ class Method:
                     normalization = self.inputs.normalization,
                 ),
                 time=(time.time() - self.start_time),
-                saturation = saturation,
-
-                ES = str(assesment_cnt["ES"]) + " #essential based on Gumbel",
-                ESB = str(assesment_cnt["ESB"]) + " #essential based on Binomial",
-                GD = str(assesment_cnt["GD"]) +" #Growth Defect",
-                GA = str(assesment_cnt["GA"]) +" #Growth Advantage",
-                NE = str(assesment_cnt["NE"]) + " #non-essential",
-                U = str(assesment_cnt["U"]) + " #uncertain",
-                
-                
+                saturation= saturation,
+                ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
+                ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
+                GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
+                NE=  str(assesment_cnt["NE"] ) + " non-essential",
+                U=   str(assesment_cnt["U"]  ) + " uncertain",
             ),
         )
         
@@ -646,7 +643,7 @@ class Method:
 class GenesFile:
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Total TA Site Count",
         "Count Of Sites With Insertions",
@@ -750,7 +747,7 @@ class SitesFile:
     column_names = [
         "Coordinates",
         "ORF",
-        "Name",
+        "Gene Name",
         "Upstream TTN",
         "Downstream TTN",
         "TTN Fitness Assessment",

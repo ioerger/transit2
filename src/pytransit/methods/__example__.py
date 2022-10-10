@@ -10,13 +10,13 @@ import heapq
 
 import numpy
 
+from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
-import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components import file_display, results_area, parameter_panel
+from pytransit.components import samples_area, results_area, parameter_panel, file_display
+
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.components.spreadsheet import SpreadSheet
 
 
@@ -51,6 +51,10 @@ class Method:
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
+    @gui.add_wig_area_dropdown_option(name=name)
+    def on_wig_option_click():
+        print("You clicked a dropdown option")
+    
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
@@ -62,6 +66,16 @@ class Method:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            set_instructions(
+                method_short_text=self.name,
+                method_long_text="",
+                method_descr="""
+                    HANDLE_THIS
+                """.replace("\n                    ","\n"),
+                method_specific_instructions="""
+                    HANDLE_THIS
+                """.replace("\n                    ","\n"),
+            )
             self.value_getters = LazyDict()
             # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
@@ -157,6 +171,7 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
 
         # save the data
         Method.inputs.update(dict(
@@ -231,7 +246,7 @@ class ResultFileType1:
         )
         
         # 
-        # get column names
+        # read in data
         # 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         self.values_for_result_table.update(self.extra_data.get("parameters", {}))

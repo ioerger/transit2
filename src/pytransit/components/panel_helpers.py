@@ -1,4 +1,4 @@
-from pytransit.specific_tools.transit_tools import wx, pub
+from pytransit.specific_tools.transit_tools import wx
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
@@ -16,14 +16,15 @@ if True:
             pass
         
         def __enter__(self):
-            self.wx_panel = wx.Panel(
+            self.wx_panel = wx.lib.scrolledpanel.ScrolledPanel(
                 gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
-                wx.DefaultSize,
-                #wx.Size(int(gui.frame.GetSize()[0]/2), wx.DefaultSize[1]),
+                # wx.DefaultSize,
+                wx.Size(int(gui.width/4), int(gui.height*0.35)),
                 wx.TAB_TRAVERSAL,
             )
+            # self.wx_panel.SetMaxSize((width + (width - width_2) + dx, -1)) # Trying to limit the width of our frame
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
             return (self.wx_panel, self.main_sizer)
         
@@ -40,6 +41,7 @@ if True:
                 self.wx_panel.SetSizer(self.main_sizer)
                 self.wx_panel.Layout()
                 self.main_sizer.Fit(self.wx_panel)
+                self.wx_panel.SetupScrolling()
                 gui.frame.Layout()
     
     def create_button(panel, sizer, *, label):
@@ -292,7 +294,7 @@ if True:
         if not label_size:
             label_size = default_label_size
         if not widget_size:
-            widget_size = (100, -1)
+            widget_size = default_widget_size
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
@@ -379,16 +381,20 @@ if True:
             
             return label, text_box, sizer
             
-    def create_check_box_getter(panel, sizer, label_text="", default_value=False, tooltip_text="", widget_size=None):
+    def create_check_box_getter(panel, sizer, *, label_text="", default_value=False, tooltip_text="", label_size=None, widget_size=None):
         from pytransit.components.icon import InfoIcon
         if not widget_size:
-            widget_size = (-1, -1)
+            widget_size = default_widget_size
+        if not label_size:
+            label_size = default_label_size
         
         inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        check_box   = wx.CheckBox(panel, label=label_text, size=widget_size)
-        
+        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
+        label.Wrap(-1)
+        check_box   = wx.CheckBox(panel, label="", size=widget_size)
         check_box.SetValue(default_value)
         
+        inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         inner_sizer.Add(check_box, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         inner_sizer.Add(
             InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
@@ -493,6 +499,7 @@ if True:
                     plt.show()
     
     def create_normalization_input(panel, sizer, default="TTR"):
+        from pytransit.methods.normalization import Method
         (
             label,
             normalization_wxobj,
@@ -500,15 +507,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Normalization: ",
-            options=[
-                "TTR",
-                "nzmean",
-                "totreads",
-                "zinfnb",
-                "quantile",
-                "betageom",
-                "nonorm",
-            ],
+            options=Method.options,
             tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -692,6 +691,24 @@ if True:
             default_value=default_value,
             tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
         )
+    
+    def create_selected_condition_names_input(panel, sizer, default_value=False):
+        check_box_getter = create_check_box_getter(panel, sizer,
+            label_text="Only Selected Conditions",
+            default_value=False,
+            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
+        )
+        def wrapper(*args, **kwargs):
+            is_checked = check_box_getter(*args, **kwargs)
+            if is_checked:
+                # defaults to all conditions if none were selected
+                condition_names = gui.selected_condition_names or [ each.name for each in gui.conditions ]
+            else:
+                condition_names = [ each.name for each in gui.conditions ]
+            
+            return condition_names
+            
+        return wrapper
     
     def create_run_button(panel, sizer, from_gui_function):
         run_button = wx.Button(

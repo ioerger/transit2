@@ -18,7 +18,7 @@ from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.specific_tools.tnseq_tools import Wig
 import pytransit
 import pytransit.components.file_display as file_display
@@ -41,7 +41,7 @@ class Method:
     
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Sites",
         "Mean Control",
@@ -149,10 +149,10 @@ class Method:
 
                     See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
                     catogory of genes or known biological pathway.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     FIXME
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()
@@ -212,7 +212,6 @@ class Method:
         cwig_path     = gui.combined_wigs[0].main_path
         metadata_path = gui.combined_wigs[0].metadata.path
         
-        from pytransit.components.samples_area import sample_table
         Method.inputs.combined_wig_params = dict(
             combined_wig=cwig_path,
             samples_metadata=metadata_path,
@@ -510,7 +509,7 @@ class Method:
                 rows=rows,
                 column_names=Method.column_names if not self.inputs.Z else [
                     "ORF",
-                    "Name",
+                    "Gene Name",
                     "Description",
                     "Sites",
                     "Mean Control",

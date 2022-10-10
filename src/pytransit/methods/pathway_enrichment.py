@@ -19,7 +19,7 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_to
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.generic_tools.csv as csv
 import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 
@@ -40,6 +40,7 @@ class Method:
         organism_pathway = None,
         pval_col = None,
         qval_col = None,
+        n_perm = None,
     )
     
     valid_cli_flags = [
@@ -49,7 +50,7 @@ class Method:
         "-ranking",
         #"-LFC_col",
         "-p",
-        "-Nperm",
+        "-n_perm",
         "-PC"
     ]
 
@@ -57,7 +58,7 @@ class Method:
     #-Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
     #-LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
-    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-n_perm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
 
         Optional parameters:
         -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
@@ -65,7 +66,7 @@ class Method:
         for GSEA...
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
         -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-        -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        -n_perm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
         for FET...
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
     """.replace("\n        ", "\n")
@@ -96,7 +97,7 @@ class Method:
                     test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
                     of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
                     enrichment.
-                """.replace("\n            ","\n"),
+                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select Input File button below
                     2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
@@ -105,7 +106,7 @@ class Method:
                         * Ontologizer is best suited for GO Terms
                     4. [Optional] Adjust parameters
                     5. Click Run
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n"),
             )
             self.value_getters = LazyDict()
 
@@ -207,7 +208,7 @@ class Method:
             ranking = kwargs.get("ranking", "SPLV"),
             #LFC_col = int(kwargs.get("LFC_col", "6")),
             enrichment_exponent = kwargs.get("p", "1"),
-            num_permutations = int(kwargs.get("Nperm", "10000")),
+            num_permutations = int(kwargs.get("n_perm", "10000")),
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
@@ -232,12 +233,6 @@ class Method:
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
-        
-        # 
-        # process data
-        # 
-        # if True:
-        #     rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
         
         # 
         # write output
@@ -402,7 +397,7 @@ class Method:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.Nperm, self.p))
+        # self.rows.append("# method=GSEA, n_perm=%d, p=%d" % (self.n_perm, self.p))
         # self.rows("# ranking genes by %s" % self.ranking)
         # self.rowst("# total genes: %s, mean rank: %s" % (len(data), n2))
 
@@ -436,7 +431,7 @@ class Method:
             orfs2score[orf] = score
             orfs2rank[orf] = i
 
-        Nperm = self.inputs.Nperm
+        n_perm = self.inputs.n_perm
         results, Total = [], len(terms)
         for i, term in enumerate(terms):
             sys.stdout.flush()
@@ -449,7 +444,7 @@ class Method:
                 orfs, orfs2rank, orfs2score, p=self.p
             )  # always positive, even if negative deviation, since I take abs
             higher = 0
-            for n in range(Nperm):
+            for n in range(n_perm):
                 perm = random.sample(
                     allgenes, num_genes_in_pathway
                 )  # compare to enrichment score for random sets of genes of same size
