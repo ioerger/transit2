@@ -2,9 +2,9 @@
 Traceback (most recent call last):
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 161, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 162, in run_main
     main(*args, **kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 150, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 151, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 183, in from_args
     console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
