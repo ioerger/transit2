@@ -148,6 +148,8 @@ class cli:
 
 if debugging_enabled:
     seed(0)
+    import numpy
+    numpy.random.seed(0)
 
 debug_wx_python = False
 if debug_wx_python:
