@@ -430,6 +430,7 @@ class Method:
         ##########################################################################################
         # Linear Regression
         gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="")
+        #gene_one_hot_encoded.replace(to_replace = 0, value = -1/(len(gene_one_hot_encoded.columns)-1), inplace=True)
         columns_to_drop = [
             "Coordinates",
             "Insertion Count",
@@ -444,6 +445,7 @@ class Method:
             [ "Actual LFC", "State",] + columns_to_drop,
             axis=1,
         )
+        #ttn_vectors.replace(to_replace = 0, value = 1/(len(ttn_vectors.columns)-2), inplace=True)
    
         old_Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
         Y = old_Y - numpy.mean(old_Y) #centering Y values so we can disregard constant
@@ -455,6 +457,7 @@ class Method:
             X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
             #X1 = sm.add_constant(X1)
             results1 = sm.OLS(Y, X1).fit()
+            print(results1.summary())
             filtered_ttn_data["M1 Pred Log Count"] = results1.predict(X1) 
             filtered_ttn_data["M1 Pred Log Count"] = filtered_ttn_data["M1 Pred Log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
             filtered_ttn_data["M1 Predicted Count"] = numpy.power(
