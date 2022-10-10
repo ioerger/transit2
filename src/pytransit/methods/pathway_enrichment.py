@@ -31,7 +31,7 @@ class Method:
     menu_name   = f"{identifier} - Perform {name} analysis"
     description = f"""Perform {name} analysis"""
     rows = []
-
+    
     inputs = LazyDict(
         resampling_file = None,
         associations_file = None,
@@ -222,6 +222,7 @@ class Method:
         Method.Run()
         
     def Run(self):
+        self.rows = []
         with gui_tools.nice_error_log:
             from pytransit.specific_tools import stat_tools
             logging.log(f"Starting {Method.identifier} analysis")
