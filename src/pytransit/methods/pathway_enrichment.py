@@ -41,6 +41,7 @@ class Method:
         pval_col = None,
         qval_col = None,
         n_perm = None,
+        enrichment_exponent = 0, # for GSEA
     )
     
     valid_cli_flags = [
@@ -115,23 +116,26 @@ class Method:
                 self.value_getters.reampling_file = panel_helpers.create_file_input(panel, main_sizer, 
                     button_label="Select Input File", 
                     tooltip_text="FIXME", popup_title="Select File with Hits",
-                    allowed_extensions='All files (*.*)|*.*')   
+                    allowed_extensions='All files (*.*)|*.*'
+                )
 
             self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Custom Associations File", 
                 tooltip_text="FIXME", popup_title="Select Associations File",
-                allowed_extensions='All files (*.*)|*.*')
+                allowed_extensions='All files (*.*)|*.*'
+            )
 
             self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Custom Pathways File", 
                 tooltip_text="FIXME", popup_title="Select Pathways File",
-                allowed_extensions='All files (*.*)|*.*')
+                allowed_extensions='All files (*.*)|*.*'
+            )
 
             self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select from Provided Files", 
                 tooltip_text="FIXME", 
-                popup_title="")
-
+                popup_title=""
+            )
     
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
@@ -142,7 +146,8 @@ class Method:
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Ranking",
                 options= ["SPLV", "LFC"],
-                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling")
+                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
+            )
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
@@ -207,7 +212,7 @@ class Method:
             #pval_col = int(kwargs.get("Pval_col", "-2")),
             #qval_col = int(kwargs.get("Qval_col", "-1")),
             ranking = kwargs.get("ranking", "SPLV"),
-            #LFC_col = int(kwargs.get("LFC_col", "6")),
+            #lfc_col = int(kwargs.get("lfc_col", "6")),
             enrichment_exponent = kwargs.get("p", "1"),
             num_permutations = int(kwargs.get("Nperm", "10000")),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -272,7 +277,7 @@ class Method:
                             #pval_col = self.inputs.pval_col,
                             #qval_col = self.inputs.qval_col,
                             ranking = self.inputs.ranking,
-                            #LFC_col = self.inputs.LFC_col,
+                            #lfc_col = self.inputs.lfc_col,
                             enrichment_exponent = self.inputs.enrichment_exponent,
                             num_permutations = self.inputs.num_permutations,
                             pseudocount = self.inputs.pseudocount,
@@ -293,7 +298,7 @@ class Method:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
                         Method.inputs.pval_col = standardized_headers.index("P Value")
                         Method.inputs.qval_col = standardized_headers.index("Adj P Value")
-                        Method.inputs.LFC_col = standardized_headers.index("Log 2 FC")
+                        Method.inputs.lfc_col = standardized_headers.index("Log 2 FC")
                     continue
                 w = line.rstrip().split("\t")
                 genes.append(w)
@@ -372,7 +377,7 @@ class Method:
         n2 = len(orfs2ranks.keys()) / 2
         return round(numpy.mean([orfs2ranks.get(x, n2) for x in A]), 1)
 
-    # during initialization, self.inputs.resampling_file etc have been set, and self.output has been opened
+    # during initialization, self.inputs.resampling_file etc have been set, and self.inputs.output_path has been opened
 
     def GSEA(self):
         from statsmodels.stats import multitest
@@ -395,9 +400,9 @@ class Method:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.Nperm, self.p))
-        # self.rows("# ranking genes by %s" % self.ranking)
-        # self.rowst("# total genes: %s, mean rank: %s" % (len(data), n2))
+        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.inputs.n_perm, self.inputs.enrichment_exponent))
+        # self.rows("# ranking genes by %s" % self.inputs.ranking)
+        # self.rows("# total genes: %s, mean rank: %s" % (len(data), n2))
 
         # rank by SLPV=sign(LFC)*log10(pval)
         # note: genes with lowest p-val AND negative LFC have highest scores (like positive correlation)
@@ -407,13 +412,13 @@ class Method:
             orf = w[0]
             if self.inputs.ranking == "SLPV":
                 # Pval_col = headers.index("p-value")
-                Pval = float(w[self.Pval_col])
-                LFC = float(w[self.LFC_col])
+                Pval = float(w[self.inputs.pval_col])
+                LFC = float(w[self.inputs.lfc_col])
                 SLPV = (-1 if LFC < 0 else 1) * math.log(Pval + 0.000001, 10)
                 pairs.append((orf, SLPV))
             elif self.inputs.ranking == "LFC":
-                # LFC_col = headers.index("log2FC")
-                LFC = float(w[self.LFC_col])
+                # lfc_col = headers.index("log2FC")
+                LFC = float(w[self.inputs.lfc_col])
                 pairs.append((orf, LFC))
 
         # pre-randomize ORFs, to avoid genome-position bias in case of ties in pvals (e.g. 1.0)
@@ -439,14 +444,14 @@ class Method:
                 continue  # skip pathways with less than 2 genes
             mr = self.mean_rank(orfs, orfs2rank)
             es = self.enrichment_score(
-                orfs, orfs2rank, orfs2score, p=self.p
+                orfs, orfs2rank, orfs2score, p=self.inputs.enrichment_exponent,
             )  # always positive, even if negative deviation, since I take abs
             higher = 0
             for n in range(n_perm):
                 perm = random.sample(
                     allgenes, num_genes_in_pathway
                 )  # compare to enrichment score for random sets of genes of same size
-                e2 = self.enrichment_score(perm, orfs2rank, orfs2score, p=self.p)
+                e2 = self.enrichment_score(perm, orfs2rank, orfs2score, p=self.inputs.enrichment_exponent)
                 if e2 > es:
                     higher += 1
                 if n > 100 and higher > 10:
@@ -537,7 +542,7 @@ class Method:
         
         genes, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
-        )  # use self.Qval_col to determine hits
+        )  # use self.inputs.qval_col to determine hits
         if len(hits) > 1:
 
             associations = self.read_associations(self.inputs.associations_file)
@@ -627,9 +632,6 @@ class Method:
         import scipy.stats
         from statsmodels.stats import multitest
         
-        def warning(s):
-            sys.stderr.write("%s\n" % s)  # use self.warning? prepend method name?
-
         # returns True if ch is a descendant of GO (as GO terms, like "GO:0006810")
 
         def descendant_of(ch, GO):
@@ -701,12 +703,12 @@ class Method:
                             go2rvs[g] = []
                         go2rvs[g].append(rv)
 
-        warning(
+        logging.warning(
             "GO terms with at least one ORF: %s" % len(go2rvs.keys())
         )  # what about between MIN and MAX?
         for go in go2rvs.keys():
             if go not in ontology:
-                warning("not found: %s" % go)  # also indicate which gene?
+                logging.warning("not found: %s" % go)  # also indicate which gene?
 
         # could use class method, but would have to adapt it:
         # genes,hits,headers = self.read_resampling_file(self.inputs.resampling_file)
