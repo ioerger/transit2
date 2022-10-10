@@ -82,8 +82,9 @@ def main(*args, **kwargs):
         # 
         # extract debug value
         # 
-        DEBUG = "--debug" in sys.argv
-        if DEBUG:
+        from pytransit import globals as transit_globals
+        transit_globals.debugging_enabled = "--debug" in sys.argv
+        if transit_globals.debugging_enabled:
             sys.argv.remove("--debug")
             kwargs.pop("-debug")
         
@@ -125,7 +126,7 @@ def main(*args, **kwargs):
             app = wx.App(False)
 
             # create an object of CalcFrame
-            frame = transit_gui.TnSeqFrame(None, DEBUG)
+            frame = transit_gui.TnSeqFrame(None)
             # show the frame
             frame.Show(True)
             frame.Maximize(True)

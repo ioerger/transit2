@@ -107,10 +107,7 @@ def annotation_gff3_to_pt(event):
             output_path = frame.SaveFile(default_dir, default_file)
             if not output_path:
                 return
-            if frame.verbose:
-                logging.log(
-                    "Converting annotation file from GFF3 format to prot_table format"
-                )
+            logging.log("Converting annotation file from GFF3 format to prot_table format")
 
             output = open(output_path, "w")
             with open(annotation_path) as file:
@@ -159,5 +156,4 @@ def annotation_gff3_to_pt(event):
                         )
                     )
             output.close()
-            if frame.verbose:
-                logging.log("Finished conversion")
+            logging.log("Finished conversion")
