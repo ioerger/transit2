@@ -92,7 +92,6 @@ class Method:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
-        from os.path import basename
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
         if True:
             # 
@@ -173,6 +172,7 @@ class Method:
         
         sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args, **kwargs: organism_pathway
+
     def define_panel(self,_=None):
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (panel, main_sizer):

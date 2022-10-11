@@ -87,13 +87,9 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text= "",
-                method_descr="""
-                    The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant 
-                    variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig 
-                    files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file 
-                    (which describes which samples/replicates belong to which experimental conditions).
-                """.replace("\n                    "," "),
                 method_specific_instructions="""
+                    The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
+
                     1. Ensure you have the annotation file ("prot table") that corresponds to the datasets to be analyzed.
                     
                     2. Select reference condition for the analysis

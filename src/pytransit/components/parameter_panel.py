@@ -120,17 +120,17 @@ def create_panel_area(_):
             # Instructions
             # 
             if True:
+                height = int(gui.height*0.21)
                 panel.method_instructions = wx.TextCtrl(
                     gui.frame,
-                    size= wx.DefaultSize,
-                    style= wx.TE_MULTILINE | wx.TE_READONLY,
+                    size= wx.Size(panel.max_width, height),
+                    style= wx.TE_MULTILINE | wx.TE_READONLY | wx.EXPAND,
                 )
-                height = int(gui.height*0.21)
                 panel.method_instructions.SetMinSize(wx.Size(panel.max_width, height))
                 panel.method_instructions.SetMaxSize(wx.Size(panel.max_width, height))
                 panel.method_instructions.SetValue(panel.initial_instructions_text)
                 panel.method_info_sizer.Add(
-                     panel.method_instructions, 1, wx.ALL | wx.EXPAND, border=5
+                    panel.method_instructions, 0, wx.ALL | wx.EXPAND, border=5
                 )
             
             panel.sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, border=0)
@@ -197,7 +197,6 @@ def create_panel_area(_):
 old_panel = None
 def set_panel(new_panel):
     with gui_tools.nice_error_log:
-        current_size = panel.wx_panel.GetSize()
         global old_panel
         if old_panel != None:
             old_panel.Hide()
@@ -208,7 +207,6 @@ def set_panel(new_panel):
         except Exception as error: print(error)
         
         panel.method_sizer.Add(new_panel, 1, wx.ALL|wx.EXPAND, gui_tools.default_padding)
-        #new_panel.SetSize(current_size[0],-1)
         new_panel.Show()
         panel.method_sizer.Add(
             panel.wx_panel,
@@ -228,7 +226,7 @@ def set_panel(new_panel):
         
         
 
-def set_instructions( method_short_text, method_long_text, method_descr, method_specific_instructions):
+def set_instructions( method_short_text, method_long_text,  method_specific_instructions, method_descr="",):
     with gui_tools.nice_error_log:
         panel.method_info_text.SetLabel("Instructions:")
         panel.method_info_text.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD))
@@ -237,7 +235,7 @@ def set_instructions( method_short_text, method_long_text, method_descr, method_
         panel.method_name.SetLabel(method_long_text + "("+method_short_text+")")
         panel.method_name.Show()
         
-        panel.method_instructions.SetLabel(method_specific_instructions)
+        panel.method_instructions.SetValue(method_specific_instructions)
         panel.method_instructions.Show()
 
 def progress_update(text, percent):
