@@ -449,6 +449,7 @@ class Method:
    
         old_Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
         Y = old_Y - numpy.mean(old_Y) #centering Y values so we can disregard constant
+        #Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
 
 
 
@@ -457,7 +458,15 @@ class Method:
             X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
             #X1 = sm.add_constant(X1)
             results1 = sm.OLS(Y, X1).fit()
-            print(results1.summary())
+            print(results1.params.index.values.tolist())
+            not_overlap =[]
+            for i in gene_one_hot_encoded.columns:
+                if i not in results1.params.index: not_overlap.append(i)
+            print("no overlap genes", not_overlap)
+            not_overlap =[]
+            for i in ttn_vectors.columns:
+                if i not in results1.params.index: not_overlap.append(i)
+            print("no overlap ttn", not_overlap)
             filtered_ttn_data["M1 Pred Log Count"] = results1.predict(X1) 
             filtered_ttn_data["M1 Pred Log Count"] = filtered_ttn_data["M1 Pred Log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
             filtered_ttn_data["M1 Predicted Count"] = numpy.power(
@@ -534,9 +543,9 @@ class Method:
                     m1_coef - statistics.median(models_df["M1 Coef"].values.tolist())
                 )
             else:
-                m1_coef = None
-                m1_adj_p_value = None
-                modified_m1 = None
+                m1_coef = ""
+                m1_adj_p_value = ""
+                modified_m1 = ""
 
             # States
             gumbel_bernoulli_call = gumbel_bernoulli_gene_calls[g]
@@ -582,7 +591,7 @@ class Method:
             file_kind=Method.identifier+"Genes",
             rows=genes_out_rows,
             column_names=output_df.columns,
-            extra_data=dict(
+            extra_info=dict(
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
@@ -615,7 +624,7 @@ class Method:
             file_kind=Method.identifier+"Sites",
             rows=sites_out_rows,
             column_names=ta_sites_df.columns,
-            extra_data=dict(
+            extra_info=dict(
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
