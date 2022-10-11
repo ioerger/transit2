@@ -64,25 +64,15 @@ if True:
 
     
 
-    def create_default_pathway_button(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
-        import csv
-        COG_orgs = []
-        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
-            reader_obj = csv.reader(file_obj)
-            for row in reader_obj:
-                COG_orgs.append(row[1])
+    def create_generic_button_to_popup(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
+        """
+        On click of a button, show popup with a dropdown and ok button
+        On "OK", it will return the value you pass in
+        """
 
-        """
-            Example:
-                file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
-                file_path_or_none = file_path_getter()
-        """
         from os.path import basename
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
         if True:
-            # 
-            # tooltip
-            # 
             if tooltip_text:
                 from pytransit.components.icon import InfoIcon
                 row_sizer.Add(
@@ -91,11 +81,10 @@ if True:
                     wx.ALIGN_CENTER_VERTICAL,
                     gui_tools.default_padding,
                 )
-            # 
-            # button
-            # 
+             
             if True:
-                popup_button = wx.Button(
+                # the button to click on in passed in panel to get a popup
+                click_button = wx.Button(
                     panel,
                     wx.ID_ANY,
                     button_label,
@@ -103,62 +92,34 @@ if True:
                     wx.DefaultSize,
                     0,
                 )
-                # whenever the button is clicked, popup
-                organism_pathway_text = None
-                organism_pathway = None
-                @gui_tools.bind_to(popup_button, wx.EVT_BUTTON)
+                results=None
+                @gui_tools.bind_to(click_button, wx.EVT_BUTTON)
                 def when_button_clicked(*args,**kwargs):
-                    nonlocal organism_pathway
+                    nonlocal results
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
                     popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     win.SetSizer(popup_sizer)
 
-                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
-                    popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
-                    popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    dropdown_label_text= wx.StaticText(win, wx.ID_ANY, label="Select One : ", style=wx.ALIGN_LEFT)
+                    popup_sizer.Add(dropdown_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    dropdown_selection = wx.ComboBox(win,choices = ["Yes", "No", "Maybe"])
+                    popup_sizer.Add(dropdown_selection, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
-                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
-                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
+                    ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+                    popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
 
                     win.Layout()
                     popup_sizer.Fit(win)
-                    selected_path = win.ShowModal()
-
-                    if selected_path == wx.ID_OK:
-                        pathway_type_selected = pathway_type.GetValue()
-
-                        if pathway_type_selected== "COG":
-                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))
-                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        else:
-                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
-                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
-                        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
-                        popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
-
-                        win.Layout()
-                        popup_sizer.Fit(win)
-                        res = win.ShowModal()
-                        if res == wx.ID_OK:
-                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
-                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
-                        win.Destroy()
-                    
-
-            row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
-            organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    res = win.ShowModal()
+                    if res == wx.ID_OK:
+                        results = dropdown_selection.GetValue()
+                    win.Destroy()
+        row_sizer.Add(click_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
         
         sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return lambda *args, **kwargs: organism_pathway
+        return lambda *args, **kwargs: results
 
+        return
 
 
     def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
