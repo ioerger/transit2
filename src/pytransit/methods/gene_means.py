@@ -24,7 +24,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 class Method:
     name = "Gene Means"
     identifier  = name.replace(" ", "")
-    cli_name    = identifier.lower()
+    cli_name    = name.replace(" ", "_").lower()
     menu_name   = f"{name} - calculate mean counts at gene level"
     description = f"""Calculate mean counts at gene level."""
     
