@@ -141,18 +141,18 @@ class Method:
 
                     if selected_path == wx.ID_OK:
                         pathway_type_selected = pathway_type.GetValue()
-
-                        if pathway_type_selected== "COG":
-                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))
-                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                        organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
+                        popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                        if pathway_type_selected== "COG":                           
+                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))               
+                        elif pathway_type_selected== "KEGG":
+                            organism = wx.ComboBox(win,choices = ["H37Rv"])
+                        elif pathway_type_selected== "Sanger":
+                            organism = wx.ComboBox(win,choices = ["H37Rv"])
                         else:
-                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
                             organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
-                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
+                        popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
                         ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
                         popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
 
@@ -201,7 +201,7 @@ class Method:
             self.value_getters = LazyDict()
 
             if Method.inputs.resampling_file == None:
-                self.value_getters.reampling_file = panel_helpers.create_file_input(panel, main_sizer, 
+                self.value_getters.resampling_file = panel_helpers.create_file_input(panel, main_sizer, 
                     button_label="Select Input File", 
                     tooltip_text="FIXME", popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*'
@@ -253,8 +253,13 @@ class Method:
         for each_key, each_getter in Method.value_getters.items():
             try:
                 Method.inputs[each_key] = each_getter()
+                print(each_key, each_getter())
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        print("----------------------------------------")
+        for key in Method.inputs:
+            print(key, Method.inputs[key])
+
 
         if Method.inputs.organism_pathway != None:
             organism,pathway = Method.inputs.organism_pathway.split("-")
@@ -271,6 +276,10 @@ class Method:
                 logging.log("Loading in H37Rv Associations for Sanger Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/sanger_roles.dat"
+            elif Method.inputs.organism_pathway =="H37Rv-KEGG":
+                logging.log("Loading in H37Rv Associations for KEGG Pathways")
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_KEGG_roles.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/KEGG_roles.txt"
             elif Method.inputs.organism_pathway =="H37Rv-GO":
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
@@ -317,9 +326,6 @@ class Method:
             from pytransit.specific_tools import stat_tools
             logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()
-
-            logging.log(Method.inputs.associations_file)
-            logging.log(Method.inputs.pathways_file)
             
                 #checking validation of inputs
             if self.inputs.method == "FET":
