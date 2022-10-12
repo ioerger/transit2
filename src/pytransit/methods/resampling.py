@@ -143,15 +143,12 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
-                    It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
-
-                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
-                    catogory of genes or known biological pathway.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+
+                See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
+                
+                FIXME
                 """.replace("\n                    ","\n"),
             )
 

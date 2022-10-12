@@ -95,12 +95,8 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text= "Hidden Markov Model",
-                method_descr="""
-                    The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other 
-                    methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or 
-                    growth defect regions), in addition to the more common categories of essential and non-essential.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
+                The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
                     FIXME
                 """.replace("\n                    ","\n"),
             )

@@ -100,12 +100,8 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
-                    at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
-                    the probability of this using a Bayesian model.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
+                The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
                     FIXME
                 """.replace("\n                    ","\n"),
             )
