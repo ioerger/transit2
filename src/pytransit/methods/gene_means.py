@@ -112,7 +112,7 @@ class Method:
         
         # save the flags
         Method.inputs.update(dict(
-            combined_wig=CombinedWig(
+            combined_wig=tnseq_tools.CombinedWig(
                 main_path=args[0],
                 metadata_path=args[1],
                 comments=None,
