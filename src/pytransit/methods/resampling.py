@@ -148,7 +148,17 @@ class Method:
 
                 See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
                 
-                FIXME
+                1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
+
+                2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
+
+                3.[Optional] Select/Adjust other parameters
+
+                4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+
+                5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
+
+                6. Click Run
                 """.replace("\n                    ","\n"),
             )
 

@@ -102,20 +102,7 @@ def create_panel_area(_):
                     panel.method_name, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
                 )
             
-            # 
-            # Description
-            # 
-            if True:
-
-                panel.method_description = wx.StaticText(
-                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
-                )
-                panel.method_description.Wrap(panel.max_width)
-                panel.method_description.Hide()
-                panel.method_info_sizer.Add(
-                    panel.method_description, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
-                )
-            
+           
             # 
             # Instructions
             # 
@@ -218,7 +205,7 @@ def set_panel(new_panel):
         panel.wx_panel.Layout()
         panel.method_sizer.Fit(panel.wx_panel)
         panel.method_sizer.Fit(new_panel)
-        new_panel.SetBackgroundColour(gui_tools.color.light_gray)
+        #new_panel.SetBackgroundColour(gui_tools.color.light_gray)
         old_panel = new_panel
         panel.progress_label.Show()
         panel.progress.Show()
@@ -226,7 +213,7 @@ def set_panel(new_panel):
         
         
 
-def set_instructions( method_short_text, method_long_text,  method_specific_instructions, method_descr="",):
+def set_instructions( method_short_text, method_long_text,  method_specific_instructions,):
     with gui_tools.nice_error_log:
         panel.method_info_text.SetLabel("Instructions:")
         panel.method_info_text.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD))

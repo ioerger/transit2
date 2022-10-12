@@ -185,11 +185,16 @@ class Method:
 
                     1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select 
                        Input File button below
-                    2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
-                       Select your own using the Select Custom Associations and Select Custom Pathways Buttons
+
+                    2. Add in Associaiton/Pathway Information
+                        a. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
+                        b. Select your own using the Select Custom Associations and Select Custom Pathways Buttons
+
                     3. Select Pathway Enrichement Method. 
                         * Ontologizer is best suited for GO Terms
+
                     4. [Optional] Adjust parameters
+                    
                     5. Click Run
                 """.replace("\n                    ","\n"),
             )

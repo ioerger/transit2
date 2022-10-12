@@ -111,7 +111,19 @@ class Method:
                 
                 By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
 
-                    FIXME
+                1.  Add an annotation file for the organism corresponding to the desired datasets
+
+                2.  Adding datasets grown under condition A
+                    a. Using the dropdown for Condition A1, select your control dataset for condition A
+                    b. Using the dropdown for Condition A2, select your experimental dataset for condition A
+
+                3.  Adding datasets grown under condition B
+                    a. Using the dropdown for Condition B1, select your control dataset for condition B
+                    b. Using the dropdown for Condition B2, select your experimental dataset for condition B
+
+                4. [Optional] Select the remaining parameters
+
+                5. Click Run
                 """.replace("\n                    ","\n"),
             )
 

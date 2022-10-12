@@ -72,7 +72,13 @@ class Method:
 
                 ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
 
-                    FIXME
+                1. Add an annotation file for the organism corresponding to the desired datasets
+
+                2. FIX ME
+
+                3. FIX ME
+
+                4. FIX ME
                 """.replace("\n                    ","\n"),
             )
 

@@ -64,7 +64,17 @@ class Method:
 
                 Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
 
-                    FIXME
+                1. Add an annotation file for the organism corresponding to the desired datasets
+
+                2. Of the Conditions in the Conditions pane, select one using the 'Condition to Analyze' dropdown
+
+                3. Use the 'Gumbel Results File' button to upload a file of the gumbel essentiallity calls for the genes using the condition selected in the "Condition to Analyze" dropdown
+
+                4. Use the 'Load Genome Sequence File' button to use the file dialog to upload a .fna file
+
+                5. [Optional] Select the default name of your output files. This will be generated in your local directory
+
+                6. Click Run
                 """.replace("\n                    ","\n"),
             )
 
