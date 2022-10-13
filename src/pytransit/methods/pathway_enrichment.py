@@ -249,16 +249,21 @@ class Method:
 
     @staticmethod
     def from_gui(frame):       
+        # 
+        # get annotation
+        # 
+        Method.inputs.annotation_path = gui.annotation_path
+        if not transit_tools.validate_annotation(Method.inputs.annotation_path):
+            return None
 
+        # 
+        # setup custom inputs
+        #        
         for each_key, each_getter in Method.value_getters.items():
             try:
                 Method.inputs[each_key] = each_getter()
-                print(each_key, each_getter())
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-        print("----------------------------------------")
-        for key in Method.inputs:
-            print(key, Method.inputs[key])
 
 
         if Method.inputs.organism_pathway != None:
@@ -293,6 +298,15 @@ class Method:
             default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
+
+
+        # 
+        # validate input files have been selected
+        # 
+        assert Method.inputs.resampling_file != None, "Please select a resampling file"
+        assert Method.inputs.associations_file != None, "Please select an associations file from the pre-provided options or upload your own"
+        assert Method.inputs.pathways_file != None, "Please select a pathways file from the pre-provided options or upload your own"
+
         return Method
 
     @staticmethod
@@ -327,7 +341,7 @@ class Method:
             logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()
             
-                #checking validation of inputs
+            #checking validation of inputs
             if self.inputs.method == "FET":
                 self.hit_summary = self.fisher_exact_test()
             elif self.inputs.method == "GSEA":

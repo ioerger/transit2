@@ -80,7 +80,7 @@ class Method:
 
             self.value_getters = LazyDict()
 
-            self.value_getters.condition = panel_helpers.create_condition_choice(panel, main_sizer, label_text="Condition to analyze:")
+            self.value_getters.condition = panel_helpers.create_condition_input(panel, main_sizer)
             self.value_getters.gumbel_results_path = panel_helpers.create_file_input(panel, main_sizer,
                 button_label="Gumbel results file",
                 default_file_name="glycerol_gumbel.out",
