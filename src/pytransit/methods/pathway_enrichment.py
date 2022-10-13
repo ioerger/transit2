@@ -27,7 +27,7 @@ from pytransit.components import file_display, results_area, parameter_panel, pa
 class Method:
     name = "Pathway Enrichment"
     identifier  = name.replace(" ", "")
-    cli_name    = identifier.lower()
+    cli_name    = name.replace(" ", "_").lower()
     menu_name   = f"{identifier} - Perform {name} analysis"
     description = f"""Perform {name} analysis"""
     rows = []

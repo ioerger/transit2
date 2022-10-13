@@ -746,8 +746,8 @@ def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditi
 
     if avg_by_conditions:
         condition_per_wig_index = [
-            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerpint)[0] #FIXME: this is assuming there is only one condition per wig
-                for each_fingerprint in wig_fingerprints
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
+                for each_fingerprint in combined_wig.wig_fingerprints
         ]
         # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
         conditions_array = numpy.array(condition_per_wig_index)
