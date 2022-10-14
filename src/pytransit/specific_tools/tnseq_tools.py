@@ -64,6 +64,7 @@ class Wig:
         return f"""Wig(
             fingerprint={self.fingerprint},
             column_index={self.column_index},
+            condition_names={self.condition_names},
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")

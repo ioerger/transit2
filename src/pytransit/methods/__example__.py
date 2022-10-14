@@ -103,9 +103,14 @@ class Method:
         gui.frame # self.wxobj equivalent
         gui.busy_running_method # Boolean, is true when any .Run() is started but not finished
         gui.annotation_path # string, may need to become a list of strings
+        gui.samples # list of Wig objects
         gui.conditions # list of Condition objects
+        gui.selected_samples # list of Wig objects
+        gui.selected_conditions # list of Condition objects
+        gui.selected_condition_names # list of strings
         gui.conditions[0].name # string
         gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
+        gui.wigs_in_selected_conditions # list of Wig objects
         gui.combined_wigs # list of CombinedWig objects
         gui.combined_wigs[-1].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
         gui.combined_wigs[-1].main_path

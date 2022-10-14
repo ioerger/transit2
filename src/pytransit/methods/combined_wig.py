@@ -239,3 +239,34 @@ class Method:
             rows=rows,
             sort_by=[]
         ).Show()
+    
+    @gui.add_condition_area_dropdown_option(name="Show Table")
+    @staticmethod
+    def click_show_table(event):
+        selected_wigs = gui.wigs_in_selected_conditions or gui.samples
+        
+        # 
+        # row data
+        # 
+        column_names = [ 
+            "TA Site Position",
+            *[
+                each.id 
+                    for each in selected_wigs
+            ] 
+        ]
+        ta_site_positions = selected_wigs[0].positions
+        rows = []
+        for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
+            rows.append({
+                column_name: cell_value
+                    for column_name, cell_value in zip(column_names, row_data)
+            })
+        
+        SpreadSheet(
+            title="Read Counts",
+            heading="",
+            column_names=column_names,
+            rows=rows,
+            sort_by=[]
+        ).Show()

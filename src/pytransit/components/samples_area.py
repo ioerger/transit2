@@ -329,7 +329,8 @@ def get_selected_samples():
     return [ each["__wig_obj"] for each in samples.wig_table.selected_rows ]
 
 def get_selected_condition_names():
-    return [ each["name"] for each in samples.conditions_table.selected_rows ]
+    selected_rows = samples.conditions_table.selected_rows
+    return no_duplicates([ each["name"] for each in samples.conditions_table.selected_rows ])
 
 # 
 # 

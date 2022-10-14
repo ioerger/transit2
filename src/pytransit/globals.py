@@ -82,6 +82,18 @@ class gui:
         from pytransit.components.samples_area import get_selected_condition_names
         return get_selected_condition_names()
     
+    @property
+    def selected_conditions(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        from pytransit.components.samples_area import get_selected_condition_names
+        names = get_selected_condition_names()
+        return [ each for each in self.conditions if each.name in names ]
+    
+    @property
+    def wigs_in_selected_conditions(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        selected_condition_names = set(self.selected_condition_names)
+        selected_wigs = [ each for each in self.samples if len(set(each.condition_names) & selected_condition_names) > 0 ]
+        return selected_wigs
+    
     def add_menu(self, *args):
         """
         Example:
