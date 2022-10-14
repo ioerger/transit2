@@ -13,11 +13,11 @@ root_folder       = path.join(path.dirname(__file__),"../../")
 # 
 # design
 # 
-# @cli.add_command("resampling")
-# 
-# @gui.add_menu("Analysis")
-# @gui.add_sample_button("Name")
-# @gui.add_results_button("Name")
+    # @cli.add_command("resampling")
+    # @gui.add_menu("Analysis")
+    # @gui.add_wig_area_dropdown_option("Name")
+    # @gui.add_condition_area_dropdown_option("Name")
+    # @gui.add_results_button("Name")
 
 # TODO:
     # Add CLI tests for
@@ -26,14 +26,13 @@ root_folder       = path.join(path.dirname(__file__),"../../")
         # loess.py
         # mean_counts.py
         # scatter_plot.py
+        # tnseq_stats.py
+        # gi.py
     # Add GUI pops for
         # gff_to_prot_table.py
         # igv.py
         # loess.py
         # mean_counts.py
-    # Add CLI tests for
-        # tnseq_stats.py
-        # gi.py
     # Standardize the transit_tools.write method
     # Flesh out zinb
     # Flesh out utest
@@ -117,6 +116,10 @@ class gui:
     def add_wig_area_dropdown_option(self, *args, **kwargs):
         from pytransit.components import samples_area
         return samples_area.add_wig_area_dropdown_option(*args, **kwargs)
+    
+    def add_condition_area_dropdown_option(self, *args, **kwargs):
+        from pytransit.components import samples_area
+        return samples_area.add_condition_area_dropdown_option(*args, **kwargs)
     
     def add_wig_area_button(self, *args, **kwargs):
         from pytransit.components import samples_area
