@@ -159,16 +159,6 @@ class Method:
                 skew=float(skew),
                 kurtosis=float(kurtosis),
                 pickands_tail_index=float(tnseq_stats.pickands_tail_index(wig_insertion_counts)),
-                
-                # density="%0.3f" % density,
-                # mean_read="%0.1f" % mean_read,
-                # non_zero_mean_read="%0.1f" % non_zero_mean_read,
-                # non_zero_median_read= 0 if numpy.isnan(non_zero_median_read) else int(non_zero_median_read),
-                # max_read=int(max_read),
-                # total_read=int(total_read),
-                # skew="%0.1f" % skew,
-                # kurtosis="%0.1f" % kurtosis,
-                # pickands_tail_index= "%0.3f" % tnseq_stats.pickands_tail_index(wig_insertion_counts),
             )).replace("\n", ", ").strip()
         
         #

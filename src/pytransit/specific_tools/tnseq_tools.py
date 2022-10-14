@@ -2211,6 +2211,8 @@ def read_results_file(path):
     return standardized_column_names, rows_of_dicts, extra_data, comments_string
 
 def filepaths_to_fingerprints(filepaths):
+    return filepaths
+    
     import os
     from pytransit.generic_tools import misc
     
