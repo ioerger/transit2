@@ -153,6 +153,10 @@ class CombinedWigMetadata:
         
         return new_combined_wig
     
+    @property
+    def condition_names(self, *, wig_fingerprint=None, id=None):
+        return no_duplicates([ each_row["Condition"] for each_row in self.rows ])
+    
     def condition_names_for(self, *, wig_fingerprint=None, id=None):
         conditions = []
         if wig_fingerprint:

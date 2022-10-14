@@ -137,6 +137,7 @@ class Method:
         gui.combined_wigs[-1].metadata.headers
         gui.combined_wigs[-1].metadata.rows
         gui.combined_wigs[-1].metadata.conditions
+        gui.combined_wigs[-1].metadata.condition_names
         gui.combined_wigs[-1].metadata.wig_ids
         gui.combined_wigs[-1].metadata.wig_fingerprints
         gui.combined_wigs[-1].metadata.with_only(condition_names=[], wig_fingerprints=[])

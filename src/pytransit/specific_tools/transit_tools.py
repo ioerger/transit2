@@ -745,22 +745,23 @@ def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditi
     means = numpy.vstack(means)
 
     if avg_by_conditions:
+        labels = combined_wig.metadata.condition_names
         condition_per_wig_index = [
             combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
                 for each_fingerprint in combined_wig.wig_fingerprints
         ]
         # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
         conditions_array = numpy.array(condition_per_wig_index)
-
+        
         # make a reduced numpy array by average over replicates of each condition
         count_lists = []
-        for each_wig_condition_name in condition_per_wig_index:
+        for each_condition_name in combined_wig.metadata.condition_names:
             count_lists.append(
                 # pick columns corresponding to condition; avg across rows (genes)
-                numpy.mean(means[:,conditions_array==each_wig_condition_name],axis=1)
+                numpy.mean(means[:,conditions_array==each_condition_name],axis=1)
             )
         means = numpy.array(count_lists).transpose()
 
-        labels = condition_per_wig_index
+        
 
     return means, genes, labels
