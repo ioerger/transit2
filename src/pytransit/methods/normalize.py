@@ -65,6 +65,7 @@ class Method:
         )
     
     @cli.add_command("normalize")
+    @cli.add_command("export", "norm")
     @staticmethod
     def from_args(args, kwargs):
         is_combined_wig = "c" in kwargs
@@ -182,30 +183,3 @@ class Method:
                 )
             gui.add_result(output_path)
             logging.log("Finished Normalization")
-
-    
-    # 
-    # older method
-    # 
-    # TODO: probably remove this
-    @cli.add_command("export", "norm")
-    @staticmethod
-    def from_export(args, kwargs):
-        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
-        Method.run_norm(
-            ctrldata=args[0].split(","),
-            annotation_path=args[1],
-            output_path=args[2],
-            normalization=kwargs.get("n", "TTR"),
-        )
-    
-    @staticmethod
-    def run_norm(ctrldata, annotation_path, output_path, normalization):
-        logging.log("Starting Normalization")
-        transit_tools.convert_to_combined_wig(
-            ctrldata,
-            annotation_path,
-            output_path,
-            normchoice=normalization,
-        )
-        logging.log("Finished Normalization")
