@@ -87,7 +87,7 @@ def clean_args(rawargs):
         count += 1
     
     # make the --name vs -name irrelevent 
-    for each_key, each_value in kwargs.items():
+    for each_key, each_value in list(kwargs.items()):
         if each_key.startswith("--"):
             kwargs[each_key[1:]] = each_value
             kwargs[each_key[2:]] = each_value

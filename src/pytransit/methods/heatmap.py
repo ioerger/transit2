@@ -108,21 +108,21 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)
         
-        self.inputs.filetype = None
+        Method.inputs.filetype = None
         if kwargs.get("anova", False):
-            self.inputs.filetype = "anova"
+            Method.inputs.filetype = "anova"
         elif kwargs.get("zinb", False):
-            self.inputs.filetype = "zinb"
+            Method.inputs.filetype = "zinb"
         else:
-            logging.error(f"requires --anova or --zinb argument, see usage string below.\n{self.usage_string}")
+            logging.error(f"requires --anova or --zinb argument, see usage string below.\n{Method.usage_string}")
         
-        self.inputs.input_path = args[0]
-        self.inputs.output_path = args[1]
-        self.inputs.adj_p_value = float(kwargs.get("qval", 0.05))
-        self.inputs.top_k = int(kwargs.get("topk", -1))
-        self.inputs.low_mean_filter = int(
+        Method.inputs.input_path = args[0]
+        Method.inputs.output_path = args[1]
+        Method.inputs.adj_p_value = float(kwargs.get("qval", 0.05))
+        Method.inputs.top_k = int(kwargs.get("topk", -1))
+        Method.inputs.low_mean_filter = int(
             kwargs.get("low_mean_filter", 5)
         )  # filter out genes with grandmean<5 by default
         
