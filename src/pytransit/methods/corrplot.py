@@ -37,11 +37,12 @@ class Method:
         normalization="TTR", #TRI hard-coded for now
     )
     
-    valid_cli_flags = [ #TRI - consider adding these flags?
+    valid_cli_flags = [
+        "--avg_by_conditions", # TODO: add a CLI test case (the dashes here might be off by one)
     ]
     # could add a flag for Adj P Value cutoff (or top n most signif genes)
 
-    #TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
+    # TODO: TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
     usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
     
@@ -81,7 +82,7 @@ class Method:
             annotation_path=gui.annotation_path,
             output_path=None,
             avg_by_conditions=False,
-            normalization="TTR", #TRI hard-coded for now
+            normalization=Method.inputs.normalization,
         ))
         
         # 

@@ -86,6 +86,18 @@ def clean_args(rawargs):
             args.append(rawargs[count])
         count += 1
     
+    # make the --name vs -name irrelevent 
+    for each_key, each_value in kwargs.items():
+        if each_key.startswith("--"):
+            kwargs[each_key[1:]] = each_value
+            kwargs[each_key[2:]] = each_value
+        elif each_key.startswith("-"):
+            kwargs[each_key[1:]] = each_value
+            kwargs["-"+each_key] = each_value
+        else:
+            kwargs["--"+each_key] = each_value
+            kwargs["-"+each_key] = each_value
+            
     return (args, kwargs)
 
 def handle_help_flag(kwargs, usage_string):
@@ -107,10 +119,22 @@ def enforce_number_of_args(args, usage_string, *, exactly=None, at_least=type(No
             exit(1)
 
 def handle_unrecognized_flags(flags, kwargs, usage_string):
-    for arg_name in kwargs.keys():
-        if arg_name not in flags and f"-{arg_name}" not in flags:
-            print(f"{arg_name} was not one of the available flags: {' '.join(flags)}")
-            raise Exception(f'''unrecognized flag: {arg_name}\n\n{usage_string}''')
+    possible_flags = list(flags)
+    for each_name in flags:
+        if each_name.startswith("--"):
+            possible_flags.append(each_name[1:])
+            possible_flags.append(each_name[2:])
+        elif each_name.startswith("-"):
+            possible_flags.append(each_name[1:])
+            possible_flags.append("-"+each_name)
+        else:
+            possible_flags.append("--"+each_name)
+            possible_flags.append("-"+each_name)
+    
+    for flag_string in kwargs.keys():
+        if flag_string not possible_flags:
+            print(f"{flag_string} was not one of the available flags: {' '.join(flags)}")
+            raise Exception(f'''unrecognized flag: {flag_string}\n\n{usage_string}''')
 
 def check_if_has_wx():
     """
