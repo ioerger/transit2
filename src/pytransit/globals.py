@@ -49,12 +49,19 @@ class gui:
     frame = None
     busy_running_method = False
 
-    annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
     combined_wigs = []
     
     menu_heirarchy = LazyDict({
         "Pre-Processing": {},
     })
+    
+    _annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/genomes/H37Rv_dev.prot_table"
+    @property
+    def annotation_path(self):
+        from pytransit.specific_tools import transit_tools
+        # validate it anytime the GUI tries to retrieve the annotation
+        transit_tools.validate_annotation(self._annotation_path)
+        return self._annotation_path
     
     @property
     def width(self):

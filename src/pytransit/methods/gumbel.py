@@ -141,9 +141,6 @@ class Method:
             # get annotation
             # 
             Method.inputs.annotation_path = gui.annotation_path
-            if not transit_tools.validate_annotation(Method.inputs.annotation_path):
-                return None
-
 
             for each_key, each_getter in Method.value_getters.items():
                 try:

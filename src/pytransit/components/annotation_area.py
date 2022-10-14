@@ -74,7 +74,7 @@ def create_annotation_area(frame):
             def annotation_file_func(event):
                 global annotation_data
                 annotation_data = event.GetPath()
-                gui.annotation_path = annotation_data
+                gui._annotation_path = annotation_data
 
         annotation_wrapper.Add(annot_sizer, 1, wx.EXPAND, 5)
     

@@ -253,8 +253,6 @@ class Method:
         # get annotation
         # 
         Method.inputs.annotation_path = gui.annotation_path
-        if not transit_tools.validate_annotation(Method.inputs.annotation_path):
-            return None
 
         # 
         # setup custom inputs

@@ -120,8 +120,7 @@ class Method:
         # 
         # get annotation
         # 
-        Method.inputs.annotation_path =gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
+        Method.inputs.annotation_path = gui.annotation_path
         Method.inputs.combined_wig = gui.combined_wigs[-1] #TRI what if not defined? fail gracefully?
         
         # 
