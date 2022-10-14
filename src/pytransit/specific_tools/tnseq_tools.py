@@ -2,7 +2,7 @@ import sys
 import os
 import math
 import warnings
-from functools import total_ordering #, cached_property
+from functools import total_ordering
 from collections import namedtuple
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
@@ -182,12 +182,12 @@ class CombinedWigMetadata:
                     if each_row["Condition"] == condition
         ])
     
-    #@cached_property
+    @property
     def wig_fingerprints(self):
         from pytransit.generic_tools import misc
         return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
     
-    #s@cached_property
+    @property
     def wig_ids(self):
         from pytransit.generic_tools import misc
         return misc.no_duplicates([ each_row["Id"] for each_row in self.rows ])
