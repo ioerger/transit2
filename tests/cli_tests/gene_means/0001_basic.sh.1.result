@@ -1,11 +1,11 @@
 #GeneMeans
 #yaml:
-#    date: 2022-10-12 08:17:32
+#    date: 2022-10-14 12:04:55
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'genemeans' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/gene_means/0001_basic.sh.1.result' '-cond'
-#    time: 5.19976019859314
+#        python3 './src/transit.py' 'gene_means' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/gene_means/0001_basic.sh.1.result' '-cond'
+#    time: 1.8378729820251465
 #    
 #ORF	Gene Name	Cholesterol	Cholesterol	Cholesterol	Glycerol	Glycerol
 Rv0001	dnaA	0.0	0.0	0.0	0.0	0.0

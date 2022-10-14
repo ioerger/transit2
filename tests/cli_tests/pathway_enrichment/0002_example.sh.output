@@ -1,6 +1,4 @@
 [pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
-[pathway_enrichment:Run()] src/pytransit/data//H37Rv_COG_roles.dat 
-[pathway_enrichment:Run()] src/pytransit/data//COG_roles.dat 
 [pathway_enrichment:read_resampling_file()] Reading in Resampling File tests/cli_tests/resampling/0001_basic.sh.1.result
 [pathway_enrichment:read_associations()] Reading in Associations File 
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0002_example.sh.1.result 
