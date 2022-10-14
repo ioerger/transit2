@@ -1,7 +1,24 @@
 #HMM_Genes
-#Console: python3 './tests/test_analysis_methods.py'#summary of gene calls: ES=0, GD=2, NE=4, GA=0, N/A=45
-#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)
-#ORF	Gene	Annotation	TAs	ES Sites	GD Sites	NE Sites	GA Sites	Saturation	Mean	Call
+#yaml:
+#    date: 2022-10-14 12:04:05
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './tests/test_analysis_methods.py'
+#    Summary Of Gene Calls:
+#       ES: 0
+#       GD: 2
+#       NE: 4
+#       GA: 0
+#       N/A: 45
+#    Naming Reference:
+#       ES: essential
+#       GD: insertions cause growth-defect
+#       NE: non-essential
+#       GA: insertions confer growth-advantage
+#       N/A: not analyzed (genes with 0 TA sites)
+#    
+#ORF	Gene Name	Description	Total Sites	ES Count	GD Count	NE Count	GA Count	Mean Insertions	Mean Reads	State Call
 Rv0244c	fadE5	PROBABLE ACYL-CoA DEHYDROGENASE FADE5 	23	0	0	23	0	0.2174	53.00	NE
 Rv0362	mgtE	POSSIBLE Mg2+ TRANSPORT TRANSMEMBRANE PROTEIN MGTE 	16	0	16	0	0	0.0625	5.00	GD
 Rv0450c	mmpL4	PROBABLE CONSERVED TRANSMEMBRANE TRANSPORT PROTEIN MMPL4 	84	24	34	26	0	0.1548	86.15	GD

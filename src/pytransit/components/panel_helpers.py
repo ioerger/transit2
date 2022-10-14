@@ -1,4 +1,4 @@
-from pytransit.specific_tools.transit_tools import wx, pub
+from pytransit.specific_tools.transit_tools import wx
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
@@ -16,14 +16,15 @@ if True:
             pass
         
         def __enter__(self):
-            self.wx_panel = wx.Panel(
+            self.wx_panel = wx.lib.scrolledpanel.ScrolledPanel(
                 gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
-                wx.DefaultSize,
-                #wx.Size(int(gui.frame.GetSize()[0]/2), wx.DefaultSize[1]),
+                # wx.DefaultSize,
+                wx.Size(int(gui.width/4), int(gui.height*0.35)),
                 wx.TAB_TRAVERSAL,
             )
+            # self.wx_panel.SetMaxSize((width + (width - width_2) + dx, -1)) # Trying to limit the width of our frame
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
             return (self.wx_panel, self.main_sizer)
         
@@ -40,6 +41,7 @@ if True:
                 self.wx_panel.SetSizer(self.main_sizer)
                 self.wx_panel.Layout()
                 self.main_sizer.Fit(self.wx_panel)
+                self.wx_panel.SetupScrolling()
                 gui.frame.Layout()
     
     def create_button(panel, sizer, *, label):
@@ -62,25 +64,15 @@ if True:
 
     
 
-    def create_default_pathway_button(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
-        import csv
-        COG_orgs = []
-        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
-            reader_obj = csv.reader(file_obj)
-            for row in reader_obj:
-                COG_orgs.append(row[1])
+    def create_generic_button_to_popup(panel, sizer, *, button_label, tooltip_text="", popup_title=""):
+        """
+        On click of a button, show popup with a dropdown and ok button
+        On "OK", it will return the value you pass in
+        """
 
-        """
-            Example:
-                file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
-                file_path_or_none = file_path_getter()
-        """
         from os.path import basename
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
         if True:
-            # 
-            # tooltip
-            # 
             if tooltip_text:
                 from pytransit.components.icon import InfoIcon
                 row_sizer.Add(
@@ -89,11 +81,10 @@ if True:
                     wx.ALIGN_CENTER_VERTICAL,
                     gui_tools.default_padding,
                 )
-            # 
-            # button
-            # 
+             
             if True:
-                popup_button = wx.Button(
+                # the button to click on in passed in panel to get a popup
+                click_button = wx.Button(
                     panel,
                     wx.ID_ANY,
                     button_label,
@@ -101,62 +92,34 @@ if True:
                     wx.DefaultSize,
                     0,
                 )
-                # whenever the button is clicked, popup
-                organism_pathway_text = None
-                organism_pathway = None
-                @gui_tools.bind_to(popup_button, wx.EVT_BUTTON)
+                results=None
+                @gui_tools.bind_to(click_button, wx.EVT_BUTTON)
                 def when_button_clicked(*args,**kwargs):
-                    nonlocal organism_pathway
+                    nonlocal results
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
                     popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     win.SetSizer(popup_sizer)
 
-                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
-                    popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
-                    popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    dropdown_label_text= wx.StaticText(win, wx.ID_ANY, label="Select One : ", style=wx.ALIGN_LEFT)
+                    popup_sizer.Add(dropdown_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    dropdown_selection = wx.ComboBox(win,choices = ["Yes", "No", "Maybe"])
+                    popup_sizer.Add(dropdown_selection, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
-                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
-                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
+                    ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+                    popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
 
                     win.Layout()
                     popup_sizer.Fit(win)
-                    selected_path = win.ShowModal()
-
-                    if selected_path == wx.ID_OK:
-                        pathway_type_selected = pathway_type.GetValue()
-
-                        if pathway_type_selected== "COG":
-                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))
-                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        else:
-                            organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                            popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
-                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
-                        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
-                        popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
-
-                        win.Layout()
-                        popup_sizer.Fit(win)
-                        res = win.ShowModal()
-                        if res == wx.ID_OK:
-                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
-                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
-                        win.Destroy()
-                    
-
-            row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
-            organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    res = win.ShowModal()
+                    if res == wx.ID_OK:
+                        results = dropdown_selection.GetValue()
+                    win.Destroy()
+        row_sizer.Add(click_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
         
         sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        return lambda *args, **kwargs: organism_pathway
+        return lambda *args, **kwargs: results
 
+        return
 
 
     def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
@@ -292,7 +255,7 @@ if True:
         if not label_size:
             label_size = default_label_size
         if not widget_size:
-            widget_size = (100, -1)
+            widget_size = default_widget_size
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
@@ -379,16 +342,20 @@ if True:
             
             return label, text_box, sizer
             
-    def create_check_box_getter(panel, sizer, label_text="", default_value=False, tooltip_text="", widget_size=None):
+    def create_check_box_getter(panel, sizer, *, label_text="", default_value=False, tooltip_text="", label_size=None, widget_size=None):
         from pytransit.components.icon import InfoIcon
         if not widget_size:
-            widget_size = (-1, -1)
+            widget_size = default_widget_size
+        if not label_size:
+            label_size = default_label_size
         
         inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        check_box   = wx.CheckBox(panel, label=label_text, size=widget_size)
-        
+        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
+        label.Wrap(-1)
+        check_box   = wx.CheckBox(panel, label="", size=widget_size)
         check_box.SetValue(default_value)
         
+        inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         inner_sizer.Add(check_box, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         inner_sizer.Add(
             InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
@@ -493,6 +460,7 @@ if True:
                     plt.show()
     
     def create_normalization_input(panel, sizer, default="TTR"):
+        from pytransit.methods.normalize import Method
         (
             label,
             normalization_wxobj,
@@ -500,15 +468,7 @@ if True:
         ) = define_choice_box(
             panel,
             label_text="Normalization: ",
-            options=[
-                "TTR",
-                "nzmean",
-                "totreads",
-                "zinfnb",
-                "quantile",
-                "betageom",
-                "nonorm",
-            ],
+            options=Method.options,
             tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
@@ -692,6 +652,24 @@ if True:
             default_value=default_value,
             tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
         )
+    
+    def create_selected_condition_names_input(panel, sizer, default_value=False):
+        check_box_getter = create_check_box_getter(panel, sizer,
+            label_text="Only Selected Conditions",
+            default_value=False,
+            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
+        )
+        def wrapper(*args, **kwargs):
+            is_checked = check_box_getter(*args, **kwargs)
+            if is_checked:
+                # defaults to all conditions if none were selected
+                condition_names = gui.selected_condition_names or [ each.name for each in gui.conditions ]
+            else:
+                condition_names = [ each.name for each in gui.conditions ]
+            
+            return condition_names
+            
+        return wrapper
     
     def create_run_button(panel, sizer, from_gui_function):
         run_button = wx.Button(

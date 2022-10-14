@@ -1,0 +1,35 @@
+#PathwayEnrichment
+#yaml:
+#    date: 2022-10-14 12:07:01
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        transit 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_COG_roles.dat' 'src/pytransit/data//COG_roles.dat' './tests/cli_tests/pathway_enrichment/0002_example.sh.1.result'
+#    parameters:
+#       method: FET
+#       ranking: SPLV
+#       enrichment_exponent: 1
+#       num_permutations: 10000
+#       pseudocount: 2
+#       hit_summary: 2
+#    
+#Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
+Q	3990	191	84	17	4.02	19	286	3.156	1.0658452775818067e-06	2.025106027405433e-05	Secondary metabolites biosynthesis, transport and catabolism	Rv0170/mce1B Rv1193/fadD36 Rv1432/- Rv2048c/pks12 Rv3494c/mce4F Rv3495c/lprN Rv3496c/mce4D Rv3497c/mce4C Rv3498c/mce4B Rv3499c/mce4A Rv3500c/yrbE4B Rv3501c/yrbE4A Rv3535c/- Rv3545c/cyp125 Rv3561/fadD3 Rv3824c/papA1 Rv3825c/pks2
+I	3990	180	84	14	3.79	16	275	2.763	4.106687258046705e-05	0.000390135289514437	Lipid transport and metabolism	Rv0244c/fadE5 Rv1428c/- Rv1627c/- Rv3540c/ltp2 Rv3543c/fadE29 Rv3544c/fadE28 Rv3546/fadA5 Rv3551/- Rv3556c/fadA6 Rv3560c/fadE30 Rv3563/fadE32 Rv3564/fadE33 Rv3570c/- Rv3573c/fadE34
+R	3990	511	84	15	10.76	17	606	1.332	0.07689175894739102	0.4256634841367251	General function prediction only	Rv0450c/mmpL4 Rv0693/pqqE Rv0805/- Rv1129c/- Rv1130/- Rv1183/mmpL10 Rv2942/mmpL7 Rv3502c/fabG Rv3526/- Rv3542c/- Rv3548c/- Rv3549c/- Rv3553/- Rv3559c/- Rv3569c/bphD
+P	3990	133	84	5	2.8	7	228	1.458	0.10480724439794864	0.4256634841367251	Inorganic ion transport and metabolism	Rv0362/mgtE Rv0390/- Rv1283c/oppB Rv2684/arsA Rv3200c/-
+C	3990	214	84	7	4.51	9	309	1.382	0.11201670635176976	0.4256634841367251	Energy production and conversion	Rv0694/lldD1 Rv0761c/adhB Rv0889c/citA Rv1131/gltA1 Rv3537/- Rv3571/hmp Rv3696c/glpK
+V	3990	49	84	2	1.03	4	144	1.32	0.1851603100994736	0.5054870653679818	Defense mechanisms	Rv2936/drrA Rv2938/drrC
+O	3990	88	84	3	1.85	5	183	1.299	0.1862320767145196	0.5054870653679818	Posttranslational modification, protein turnover, chaperones	Rv2462c/tig Rv3419c/gcp Rv3421c/-
+K	3990	199	84	5	4.19	7	294	1.131	0.27655887848816507	0.6568273364093921	Transcription	Rv1129c/- Rv1963c/mce3R Rv2506/- Rv3484/cpsA Rv3575c/-
+E	3990	178	84	4	3.75	6	273	1.043	0.35109364405374094	0.7411976930023421	Amino acid transport and metabolism	Rv0391/metZ Rv2569c/- Rv3534c/- Rv3568c/bphC
+U	3990	27	84	0	0.57	2	122	0.778	0.4773145604790977	0.8942585368747953	Intracellular trafficking, secretion, and vesicular transport	
+D	3990	43	84	0	0.91	2	138	0.687	0.5611175147855861	0.8942585368747953	Cell cycle control, cell division, chromosome partitioning	
+T	3990	93	84	1	1.96	3	188	0.758	0.5647948653946075	0.8942585368747953	Signal transduction mechanisms	Rv1626/-
+F	3990	64	84	0	1.35	2	159	0.597	0.6581882124952907	0.8994283324679194	Nucleotide transport and metabolism	
+G	3990	118	84	1	2.48	3	213	0.67	0.664590399789828	0.8994283324679194	Carbohydrate transport and metabolism	Rv0485/-
+H	3990	131	84	1	2.76	3	226	0.63	0.7100749993167785	0.8994283324679194	Coenzyme transport and metabolism	Rv1820/ilvG
+M	3990	111	84	0	2.34	2	206	0.461	0.8177818726766246	0.9711159738034918	Cell wall/membrane/envelope biogenesis	
+J	3990	160	84	0	3.37	2	255	0.372	0.9127437737280865	0.9817277423724662	Translation, ribosomal structure and biogenesis	
+L	3990	210	84	0	4.42	2	305	0.312	0.9614602564941301	0.9817277423724662	Replication, recombination and repair	
+S	3990	253	84	0	5.33	2	348	0.273	0.9817277423724662	0.9817277423724662	Function unknown	

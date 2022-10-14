@@ -3,8 +3,9 @@ import sys
 
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
+from pytransit.generic_tools import misc
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename, working_directory
 from pytransit.specific_tools import logging, gui_tools, transit_tools
 import pytransit.components.images as images
 import pytransit
@@ -13,13 +14,28 @@ from pytransit.components.generic.box import Column, Row
 from pytransit.components.generic.text import Text
 from pytransit.components.generic.button import Button
 from pytransit.components.generic.table import Table
-                
+
 # 
 # options window
 # 
-panel = LazyDict(
-    progress_sizer=None,
-)
+@misc.singleton
+class panel:
+    progress_sizer = None
+    
+    initial_instructions_text = """
+        1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
+        
+        2. Click "Load Combined Wig & Metadata", add both files
+        
+        3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
+        
+        4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
+    """.replace("\n        ","\n")
+    
+    @property
+    def max_width(self): # this is what the width SHOULD be, but wx does not always make it as such
+        return int(gui.width * 0.3)
+        
 def create_panel_area(_):
     panel.progress_percent = 0
     
@@ -56,7 +72,7 @@ def create_panel_area(_):
                 (100, 25),
                 wx.ALIGN_CENTRE,
             )
-            version_label.Wrap(-1)
+            version_label.Wrap(panel.max_width)
             version_label.SetFont(wx.Font(10, 74, 90, 92, False, "Sans"))
             version_label.SetLabel(pytransit.__version__)
             
@@ -74,80 +90,37 @@ def create_panel_area(_):
             panel.method_info_sizer = wx.StaticBoxSizer(panel.method_info_text, wx.VERTICAL)
             
             # 
-            # methodShortText
+            # Method Name
             # 
             if True:
-                panel.method_short_text = wx.StaticText(
+                panel.method_name = wx.StaticText(
                     gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
                 )
-                panel.method_short_text.Wrap(250)
-                panel.method_short_text.Hide()
+                panel.method_name.Wrap(panel.max_width)
+                panel.method_name.Hide()
                 panel.method_info_sizer.Add(
-                    panel.method_short_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                    panel.method_name, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
                 )
             
+           
             # 
-            # methodLongText
-            # 
-            if True:
-                panel.method_long_text = wx.StaticText(
-                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
-                )
-                panel.method_long_text.Wrap(250)
-                panel.method_long_text.Hide()
-                panel.method_info_sizer.Add(
-                    panel.method_long_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                )
-            
-            # 
-            # methodDescText
+            # Instructions
             # 
             if True:
-
-                panel.method_desc_text = wx.StaticText(
-                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
-                )
-                panel.method_desc_text.Wrap(250)
-                panel.method_desc_text.Hide()
-                panel.method_info_sizer.Add(
-                    panel.method_desc_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                )
-            
-            # 
-            # methodTnText
-            # 
-            if True:
-                panel.method_tn_text = wx.StaticText(
-                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
-                )
-                panel.method_tn_text.Wrap(250)
-
-                font = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
-                panel.method_tn_text.SetFont(font)
-                panel.method_tn_text.Hide()
-
-                panel.method_info_sizer.Add(
-                    panel.method_tn_text, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
-                )
-            
-            # 
-            # methodInstructions
-            # 
-            if True:
-                panel.method_instructions = wx.StaticText(
+                height = int(gui.height*0.21)
+                panel.method_instructions = wx.TextCtrl(
                     gui.frame,
-                    wx.ID_ANY,
-                    gui.frame.instructions_text,
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    0,
+                    size= wx.Size(panel.max_width, height),
+                    style= wx.TE_MULTILINE | wx.TE_READONLY | wx.EXPAND,
                 )
-                panel.method_instructions.Wrap(-1)
+                panel.method_instructions.SetMinSize(wx.Size(panel.max_width, height))
+                panel.method_instructions.SetMaxSize(wx.Size(panel.max_width, height))
+                panel.method_instructions.SetValue(panel.initial_instructions_text)
                 panel.method_info_sizer.Add(
-                    panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5
+                    panel.method_instructions, 0, wx.ALL | wx.EXPAND, border=5
                 )
             
-            panel.sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, 5)
+            panel.sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, border=0)
         
         # 
         # Method Options
@@ -155,16 +128,16 @@ def create_panel_area(_):
         if True:
             panel.method_sizer = wx.BoxSizer(wx.VERTICAL)
             
-        panel.sizer.Add(panel.method_sizer, 0, wx.EXPAND, 5)
+        panel.sizer.Add(panel.method_sizer, 0, wx.EXPAND, border=5)
 
     
     # progress
-    panel.progress_panel = wx.Panel(
+    panel.wx_panel = wx.lib.scrolledpanel.ScrolledPanel(
         gui.frame,
         wx.ID_ANY,
-        wx.DefaultPosition,
-        wx.DefaultSize,
-        wx.TAB_TRAVERSAL,
+        pos=wx.DefaultPosition,
+        size=wx.Size(panel.max_width, 100),
+        style=wx.TAB_TRAVERSAL,
     )
     if True:
         progress_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -174,31 +147,34 @@ def create_panel_area(_):
         # 
         if True:
             panel.progress_label = wx.StaticText(
-                panel.progress_panel,
+                panel.wx_panel,
                 wx.ID_ANY,
                 "Progress",
                 wx.DefaultPosition,
-                wx.DefaultSize,
+                wx.Size(-1, -1),
                 0,
             )
-            panel.progress_label.Wrap(-1)
+            panel.progress_label.Wrap(panel.max_width)
             progress_sizer.Add(panel.progress_label, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
         if True:
             panel.progress = wx.Gauge(
-                panel.progress_panel,
+                panel.wx_panel,
                 wx.ID_ANY,
                 20,
                 wx.DefaultPosition,
-                wx.Size(100, 10),
+                wx.Size(int(panel.max_width*0.7), 10),
                 wx.GA_HORIZONTAL | wx.GA_SMOOTH,
             )
             progress_sizer.Add(panel.progress, 0, wx.ALL | wx.EXPAND, 0)
 
     panel.progress_sizer = progress_sizer
-    panel.progress_panel.SetSizer(progress_sizer)
-    panel.progress_panel.SetMaxSize(wx.Size(200, 100))
-    panel.progress_panel.Layout()
+    panel.wx_panel.SetSizer(progress_sizer)
+    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented-in or commented-out)
+    panel.wx_panel.Layout()
+    panel.wx_panel.SetupScrolling()
+    panel.wx_panel.Hide()
+    
     panel.progress.SetRange(1000)
     panel.progress_label.Hide()
     panel.progress.Hide()
@@ -208,30 +184,28 @@ def create_panel_area(_):
 old_panel = None
 def set_panel(new_panel):
     with gui_tools.nice_error_log:
-        current_size = panel.progress_panel.GetSize()
         global old_panel
         if old_panel != None:
             old_panel.Hide()
         
-        try: panel.method_sizer.Detach(panel.progress_panel)
+        try: panel.method_sizer.Detach(panel.wx_panel)
         except Exception as error: print(error)
         try: panel.method_sizer.Detach(new_panel)
         except Exception as error: print(error)
         
         panel.method_sizer.Add(new_panel, 1, wx.ALL|wx.EXPAND, gui_tools.default_padding)
-        #new_panel.SetSize(current_size[0],-1)
         new_panel.Show()
         panel.method_sizer.Add(
-            panel.progress_panel,
+            panel.wx_panel,
             0,
             wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
             5,
         )
         
-        panel.progress_panel.Layout()
-        panel.method_sizer.Fit(panel.progress_panel)
+        panel.wx_panel.Layout()
+        panel.method_sizer.Fit(panel.wx_panel)
         panel.method_sizer.Fit(new_panel)
-        new_panel.SetBackgroundColour(gui_tools.color.light_gray)
+        #new_panel.SetBackgroundColour(gui_tools.color.light_gray)
         old_panel = new_panel
         panel.progress_label.Show()
         panel.progress.Show()
@@ -239,24 +213,16 @@ def set_panel(new_panel):
         
         
 
-def set_instructions( method_short_text, method_long_text, method_descr, method_specific_instructions):
+def set_instructions( method_short_text, method_long_text,  method_specific_instructions,):
     with gui_tools.nice_error_log:
-        panel.method_long_text.SetLabel(method_long_text)
-        panel.method_long_text.Show()
-
-        panel.method_short_text.SetLabel("("+method_short_text+")")
-        panel.method_short_text.Show()
-
-        panel.method_desc_text.SetLabel(method_descr)
-        panel.method_desc_text.Wrap(-1)
-        panel.method_desc_text.Show()
-
         panel.method_info_text.SetLabel("Instructions:")
         panel.method_info_text.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         panel.method_info_text.Show()
-
-        panel.method_instructions.SetLabel(method_specific_instructions)
-        panel.method_instructions.Wrap(-1)
+        
+        panel.method_name.SetLabel(method_long_text + "("+method_short_text+")")
+        panel.method_name.Show()
+        
+        panel.method_instructions.SetValue(method_specific_instructions)
         panel.method_instructions.Show()
 
 def progress_update(text, percent):

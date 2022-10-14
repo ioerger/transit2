@@ -1,7 +1,7 @@
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
 from pytransit.specific_tools import logging, gui_tools
 
 if HAS_WX:
@@ -84,7 +84,7 @@ class Box:
         self.wx_object.Add(
             wx_object,
             proportion,
-            flag=side | expand | horizontal_alignment,
+            flag=(side or 0) | (expand or 0) | (horizontal_alignment or 0),
             border=border,
         )
         return self

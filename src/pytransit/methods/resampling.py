@@ -18,7 +18,7 @@ from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.specific_tools.tnseq_tools import Wig
 import pytransit
 import pytransit.components.file_display as file_display
@@ -41,7 +41,7 @@ class Method:
     
     column_names = [
         "ORF",
-        "Name",
+        "Gene Name",
         "Description",
         "Sites",
         "Mean Control",
@@ -143,16 +143,23 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
-                    It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
-
-                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
-                    catogory of genes or known biological pathway.
-                """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIXME
-                """.replace("\n            ","\n")
+                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+
+                See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
+                
+                1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
+
+                2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
+
+                3.[Optional] Select/Adjust other parameters
+
+                4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+
+                5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
+
+                6. Click Run
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()
@@ -178,7 +185,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -209,10 +216,9 @@ class Method:
         # 
         # extract universal data
         # 
-        cwig_path     = gui.combined_wigs[0].main_path
-        metadata_path = gui.combined_wigs[0].metadata.path
+        cwig_path     = gui.combined_wigs[-1].main_path
+        metadata_path = gui.combined_wigs[-1].metadata.path
         
-        from pytransit.components.samples_area import sample_table
         Method.inputs.combined_wig_params = dict(
             combined_wig=cwig_path,
             samples_metadata=metadata_path,
@@ -343,13 +349,13 @@ class Method:
         # Combine 
         # 
         if self.inputs.combined_wig_params:
-            (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+            (position, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
                 self.inputs.combined_wig_params["combined_wig"]
             )
-            conditions_by_file, _, _, _ = tnseq_tools.read_samples_metadata(
+            conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.read_samples_metadata(
                 self.inputs.combined_wig_params["samples_metadata"]
             )
-            condition_names = self.wigs_to_conditions(conditions_by_file, filenames_in_comb_wig)
+            condition_names = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
             datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
                 data, condition_names, self.inputs.combined_wig_params["conditions"],
             )
@@ -510,7 +516,7 @@ class Method:
                 rows=rows,
                 column_names=Method.column_names if not self.inputs.Z else [
                     "ORF",
-                    "Name",
+                    "Gene Name",
                     "Description",
                     "Sites",
                     "Mean Control",
@@ -569,13 +575,13 @@ class Method:
 
         return data
 
-    def wigs_to_conditions(self, conditions_by_file, filenames_in_comb_wig):
+    def wigs_to_conditions(self, conditions_by_wig_fingerprint, filenames_in_comb_wig):
         """
             Returns list of conditions corresponding to given wigfiles.
             ({FileName: Condition}, [FileName]) -> [Condition]
             Condition :: [String]
         """
-        return [conditions_by_file.get(f, None) for f in filenames_in_comb_wig]
+        return [conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig]
 
     def filter_wigs_by_conditions(self, data, conditions, included_conditions):
         """

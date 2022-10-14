@@ -1,0 +1,3 @@
+[normalize:run_normalize()] Starting Normalization 
+[normalize:run_normalize()] normalization=betageom, counts_by_wig.shape=(1, 74605) 
+[normalize:run_normalize()] Finished Normalization 

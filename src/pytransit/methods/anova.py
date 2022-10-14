@@ -14,7 +14,7 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_to
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
@@ -25,7 +25,7 @@ class Method:
     name = "Anova"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Method of variance"
+    menu_name   = f"{name} - analysis of variance"
     description = """Perform Anova analysis"""
     
     transposons = ["himar1", "tn5"]
@@ -87,20 +87,19 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text= "",
-                method_descr="""
-                    The Anova (Method of variance) method is used to determine which genes exhibit statistically significant 
-                    variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig 
-                    files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file 
-                    (which describes which samples/replicates belong to which experimental conditions).
-                """.replace("\n            ","\n"),
                 method_specific_instructions="""
+                    The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
+
                     1. Ensure you have the annotation file ("prot table") that corresponds to the datasets to be analyzed.
+                    
                     2. Select reference condition for the analysis
-                    3. [Optional] Add in comma-seperated values of conditions to include and comma-seperated values of condtions to exclude. 
-                       If these values are not provided, all conditions in the Condtion Panel will be included
+                    
+                    3. [Optional] Add in comma-seperated values of conditions to include and comma-seperated values of condtions to exclude. If these values are not provided, all conditions in the Condtion Panel will be included
+                    
                     4. Adjust other parameters to your liking
+                    
                     5. Click Run
-                """.replace("\n            ","\n")
+                """.replace("\n                    ","\n")
             )
             # 
             # parameter inputs
@@ -112,27 +111,26 @@ class Method:
             # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
             # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
             # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-            self.value_getters = LazyDict()
-            if True:
-                self.value_getters.included_conditions    = panel_helpers.create_include_condition_list_input(panel, main_sizer)
-                self.value_getters.excluded_conditions    = panel_helpers.create_exclude_condition_list_input(panel, main_sizer)
-                self.value_getters.reference_condition    = panel_helpers.create_reference_condition_input(panel, main_sizer)
-                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-                self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-                self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
-                self.value_getters.alpha                  = panel_helpers.create_alpha_input(panel, main_sizer)
-                self.value_getters.winz                   = panel_helpers.create_winsorize_input(panel, main_sizer)
-                self.value_getters.refs                   = lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]
-                
-                panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+            self.value_getters = LazyDict(
+                included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
+                excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
+                reference_condition= panel_helpers.create_reference_condition_input(panel, main_sizer),
+                n_terminus=          panel_helpers.create_n_terminus_input(panel, main_sizer),
+                c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),
+                normalization=       panel_helpers.create_normalization_input(panel, main_sizer),
+                pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
+                alpha=               panel_helpers.create_alpha_input(panel, main_sizer),
+                winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
+                refs=                (lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]),
+            )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -150,6 +148,10 @@ class Method:
                 Method.inputs[each_key] = each_getter()
             except Exception as error:
                 raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        
+        assert not Method.inputs.refs or Method.inputs.refs[0] in Method.inputs.included_conditions, f"Ref Condition '{Method.inputs.refs[0]}' is not one of the selected conditions: {Method.inputs.included_conditions}"
+        assert len(Method.inputs.included_conditions) > 1, "please select more than one condition"
+        
         # 
         # save result files
         # 
@@ -354,14 +356,14 @@ class Method:
         # 
         logging.log("Getting Data")
         if True:
-            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
             
             logging.log(f"Normalizing using: {self.inputs.normalization}")
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
             
             if self.inputs.winz: logging.log("Winsorizing insertion counts")
-            conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
-            conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ]
+            conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
+            conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ]
             conditions_list = transit_tools.select_conditions(
                 conditions=conditions,
                 included_conditions=self.inputs.included_conditions,
@@ -369,7 +371,7 @@ class Method:
                 ordering_metadata=ordering_metadata,
             )
 
-            condition_names = [conditions_by_file[f] for f in filenames_in_comb_wig]
+            condition_names = [conditions_by_wig_fingerprint[f] for f in filenames_in_comb_wig]
             # validate
             if self.inputs.refs and len(set(self.inputs.refs) - set(condition_names)) > 0:
                 logging.error(f"One of the reference conditions {self.inputs.refs} is not one of the available conditions: {misc.no_duplicates(condition_names)}")

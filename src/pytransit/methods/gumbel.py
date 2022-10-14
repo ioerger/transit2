@@ -34,7 +34,7 @@ class Method:
     transposons = ["himar1"]
     column_names = [
         "ORF", 
-        "Name", 
+        "Gene Name", 
         "Description", 
         "Number Of Insertions Within ORF",
         "Total Number Of TA Sites Within ORF", 
@@ -100,19 +100,21 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
-                    at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
-                    the probability of this using a Bayesian model.
-                """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIXME
-                """.replace("\n            ","\n")
+                The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
+                    
+                1. Of the Conditions in the Conditions pane, select one using the 'Conditions' dropdown
+
+                2. [Optional] Select/Adjust values for the remaining parameters
+
+                3. Click Run
+                
+                """.replace("\n                    ","\n"),
             )
                 
             self.value_getters = LazyDict()
             
-            self.value_getters.condition       = panel_helpers.create_condition_choice(panel,main_sizer, label_text="Condition to analyze:")
+            self.value_getters.condition       = panel_helpers.create_condition_input(panel, main_sizer)
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer) # TTR 
             self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value=10000, tooltip_text="")
             self.value_getters.burnin          = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
@@ -128,10 +130,10 @@ class Method:
             # 
             # get wig files
             # 
-            combined_wig = gui.combined_wigs[0]
+            combined_wig = gui.combined_wigs[-1]
             Method.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
+            Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path 
 
 
             
@@ -139,7 +141,8 @@ class Method:
             # get annotation
             # 
             Method.inputs.annotation_path = gui.annotation_path
-            transit_tools.validate_annotation(Method.inputs.annotation_path)
+            if not transit_tools.validate_annotation(Method.inputs.annotation_path):
+                return None
 
 
             for each_key, each_getter in Method.value_getters.items():
@@ -152,6 +155,11 @@ class Method:
                 default_file_name=f"{Method.cli_name}_output.csv",
                 output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
             )
+
+            # 
+            # validate
+            # 
+            assert Method.inputs.condition != "[None]", "Please select a condition"
 
             #if not Method.inputs.output_path: return None ### why?
             return Method
@@ -190,7 +198,7 @@ class Method:
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
                 logging.log("Getting Data from %s" % self.inputs.combined_wig)
-                position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
 
                 metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
                 indexes = {}
@@ -431,11 +439,11 @@ class Method:
                 annotation_path=self.inputs.annotation_path,
                 time=(time.time() - self.start_time),
 
-                ES = str(calls.count("E")) + " #essential based on Gumbel",
-                ESB = str(calls.count("EB")) + " #essential based on Binomial",
-                NE = str(calls.count("NE")) + " #non-essential",
-                U = str(calls.count("U")) + " #uncertain",
-                S = str(calls.count("S")) +" #too-short",
+                ES = str(calls.count("E")) + " essential based on Gumbel",
+                ESB = str(calls.count("EB")) + " essential based on Binomial",
+                NE = str(calls.count("NE")) + " non-essential",
+                U = str(calls.count("U")) + " uncertain",
+                S = str(calls.count("S")) +" too-short",
             ),
         )
         

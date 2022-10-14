@@ -72,7 +72,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         
         # 
@@ -124,16 +124,11 @@ class Method:
         logging.log("Starting tnseq_stats analysis")
         start_time = time.time()
 
-        # if you want to see which samples were selected...
-        #from pytransit.components.samples_area import sample_table
-        #datasets_selected = [ each_row["path"] for each_row in sample_table.selected_rows ]
-        #for x in datasets_selected: print(str(x))
-
         # 
         # get data
         # 
         logging.log(f"Getting Data from {self.inputs.combined_wig}")
-        sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+        sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
         logging.log(f"Normalizing using: {self.inputs.normalization}")
         data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
             
@@ -147,6 +142,7 @@ class Method:
         # write output
         # 
         if True:
+            # FIXME: switch to transit_tools.write_result()
             # note: first comment line is filetype, last comment line is column headers
             file = sys.stdout # print to console if not output file defined
             if self.inputs.output_path != None:

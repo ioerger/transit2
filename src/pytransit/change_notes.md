@@ -1,4 +1,6 @@
 naming check:
+    - 'TA Sites', 'Coordinates', 'Sites'
+    - "Gene Name"
     - "LFC", "Log FC", "Log 2 FC"
     - "Non Insertions"
     - "GD Sites", "GD Counts", "GD" in HMM
@@ -11,7 +13,7 @@ TTN Fitness
         comlumn_names = [
             "Coordinates",
             "ORF",
-            "Name",
+            "Gene Name",
             "Upstream TTN",
             "Downstream TTN",
             "TTN Fitness Assessment",
@@ -22,7 +24,7 @@ TTN Fitness
     GenesFile:
         column_names = [
             "ORF",
-            "Name",
+            "Gene Name",
             "Description",
             "Total TA Site Count",
             "Count Of Sites With Insertions",
@@ -82,7 +84,7 @@ TTN Fitness
         "M1 Predicted Count"
         "Making Fitness Estimations"
         "Mean Insertion Count"
-        "Name"
+        "Gene Name"
         "NE"
         "nonorm"
         "Normalizing using: %s"
@@ -111,7 +113,7 @@ TTN Fitness
 Gumbel
     column_names = [
         "ORF", 
-        "Name", 
+        "Gene Name", 
         "Description", 
         "Number Of Insertions Within ORF",
         "Total Number Of TA Sites Within ORF", 
@@ -141,7 +143,7 @@ Gumbel
         "iN"
         "Length Of Maximum Run Of Non Insertions"
         "n"
-        "Name"
+        "Gene Name"
         "NE"
         "nonorm"
         "Normalizing using: %s"
@@ -215,7 +217,7 @@ HMM
         "Mean"
         "n"
         "N/A"
-        "Name"
+        "Gene Name"
         "NE Count"
         "NE Sites"
         "NE"
@@ -304,7 +306,7 @@ Pathway Enrichment strings that are possibly keys
 
 Anova Columns Names & Accessed Column Names
     "Rv",
-    "Gene",
+    "Gene Name",
     "TAs",
     *[ f"Mean {condition_name}" for condition_name in conditions_list ],
     *[  f"LFC {condition_name}" for condition_name in conditions_list ],
@@ -317,7 +319,7 @@ Anova Columns Names & Accessed Column Names
     
 Resampling Column Names & Accessed Columns Names
     "ORF",
-    "Name",
+    "Gene Name",
     "Description",
     "Sites",
     "Mean Control",
@@ -361,6 +363,10 @@ Tnseq Stats Column Names & Accessed Columns Names
     "Kurtosis",
     "Pickands Tail Index",
 
+Combined Wig Columns
+    "TA Site Position"
+    "ORF",
+    "Gene Name"
 
 
 some replacements that have already happened as CLI commands (for Jeff)
@@ -383,4 +389,5 @@ sd 'FIX ME'                                            'FIXME'                  
 sd 'sys.argv'                                          'console_tools.subcommand_prefix#FIXME'                                  src/methods/**/*.py
 sd '\bAnalysis\b'                                      'Method'                                                                 src/methods/**/*.py
 sd 'Method = GUI = Method'                             ''                                                                       src/**/*.py
+sd '\bresults_area.add\b'                              'gui.add_result'                                                         src/methods/**/*.py
 ```

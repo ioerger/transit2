@@ -15,7 +15,7 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_to
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.generic_tools.csv as csv
 import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -67,21 +67,19 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The ZINB (Zero-Inflated Negative Binomial) method is used to determine which genes exhibit statistically significant variability across multiple conditions, 
-                    in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others). Like ANOVA, the ZINB method takes 
-                    a combined_wig file (which combines multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which 
-                    experimental conditions).
-
-                    ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes 
-                    than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read 
-                    counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
-
-                    Note: ZINB analysis requires R (statistical analysis software) to be installed on your system, along with the ‘pscl’ R package. See Installation Instructions.
-                """.replace("\n            ","\n"),
                 method_specific_instructions="""
-                    FIXME
-                """.replace("\n            ","\n")
+                The ZINB (Zero-Inflated Negative Binomial) method is used to determine which genes exhibit statistically significant variability across multiple conditions, in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others). Like ANOVA, the ZINB method takes a combined_wig file (which combines multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
+
+                ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
+
+                1. Add an annotation file for the organism corresponding to the desired datasets
+
+                2. FIX ME
+
+                3. FIX ME
+
+                4. FIX ME
+                """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()
@@ -117,35 +115,35 @@ class Method:
         gui.conditions[0].name # string
         gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
         gui.combined_wigs # list of CombinedWig objects
-        gui.combined_wigs[0].main_path
-        gui.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
-        gui.combined_wigs[0].samples # list of Wig objects
-        gui.combined_wigs[0].samples[0].id # id from the metadata file
-        gui.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
-        gui.combined_wigs[0].samples[0].condition_names # a list of strings
-        gui.combined_wigs[0].samples[0].positions # list of ints
-        gui.combined_wigs[0].samples[0].insertion_counts # list of numbers
-        gui.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
-        gui.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
-        gui.combined_wigs[0].samples[0].extra_data.count
-        gui.combined_wigs[0].samples[0].extra_data.sum
-        gui.combined_wigs[0].samples[0].extra_data.non_zero_mean
-        gui.combined_wigs[0].samples[0].extra_data.non_zero_median
-        gui.combined_wigs[0].samples[0].extra_data.density
-        gui.combined_wigs[0].samples[0].extra_data.mean
-        gui.combined_wigs[0].samples[0].extra_data.max
-        gui.combined_wigs[0].samples[0].extra_data.skew
-        gui.combined_wigs[0].samples[0].extra_data.kurtosis
-        gui.combined_wigs[0].metadata # CombinedWigMetadata object
-        gui.combined_wigs[0].metadata.path
-        gui.combined_wigs[0].metadata.headers
-        gui.combined_wigs[0].metadata.rows
-        gui.combined_wigs[0].metadata.conditions
-        gui.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-        gui.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
-        gui.combined_wigs[0].metadata.id_for(wig_fingerprint)
-        gui.combined_wigs[0].metadata.fingerprints_for(condition_name)
-        gui.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        gui.combined_wigs[-1].main_path
+        gui.combined_wigs[-1].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
+        gui.combined_wigs[-1].samples # list of Wig objects
+        gui.combined_wigs[-1].samples[0].id # id from the metadata file
+        gui.combined_wigs[-1].samples[0].fingerprint # the "File" column from the metadata 
+        gui.combined_wigs[-1].samples[0].condition_names # a list of strings
+        gui.combined_wigs[-1].samples[0].positions # list of ints
+        gui.combined_wigs[-1].samples[0].insertion_counts # list of numbers
+        gui.combined_wigs[-1].samples[0].rows # each element is always [position_number, insertion_count]
+        gui.combined_wigs[-1].samples[0].column_index # int (column inside combined wig)
+        gui.combined_wigs[-1].samples[0].extra_data.count
+        gui.combined_wigs[-1].samples[0].extra_data.sum
+        gui.combined_wigs[-1].samples[0].extra_data.non_zero_mean
+        gui.combined_wigs[-1].samples[0].extra_data.non_zero_median
+        gui.combined_wigs[-1].samples[0].extra_data.density
+        gui.combined_wigs[-1].samples[0].extra_data.mean
+        gui.combined_wigs[-1].samples[0].extra_data.max
+        gui.combined_wigs[-1].samples[0].extra_data.skew
+        gui.combined_wigs[-1].samples[0].extra_data.kurtosis
+        gui.combined_wigs[-1].metadata # CombinedWigMetadata object
+        gui.combined_wigs[-1].metadata.path
+        gui.combined_wigs[-1].metadata.headers
+        gui.combined_wigs[-1].metadata.rows
+        gui.combined_wigs[-1].metadata.conditions
+        gui.combined_wigs[-1].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
+        gui.combined_wigs[-1].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        gui.combined_wigs[-1].metadata.id_for(wig_fingerprint)
+        gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
+        gui.combined_wigs[-1].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
         
         # 
         # get annotation

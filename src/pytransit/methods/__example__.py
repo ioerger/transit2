@@ -10,13 +10,13 @@ import heapq
 
 import numpy
 
+from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
-import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components import file_display, results_area, parameter_panel
+from pytransit.components import samples_area, results_area, parameter_panel, file_display
+
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.components.spreadsheet import SpreadSheet
 
 
@@ -51,6 +51,10 @@ class Method:
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
+    @gui.add_wig_area_dropdown_option(name=name)
+    def on_wig_option_click():
+        print("You clicked a dropdown option")
+    
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
@@ -62,6 +66,16 @@ class Method:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            set_instructions(
+                method_short_text=self.name,
+                method_long_text="",
+                method_descr="""
+                    HANDLE_THIS
+                """.replace("\n                    ","\n"),
+                method_specific_instructions="""
+                    HANDLE_THIS
+                """.replace("\n                    ","\n"),
+            )
             self.value_getters = LazyDict()
             # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
@@ -93,35 +107,39 @@ class Method:
         gui.conditions[0].name # string
         gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
         gui.combined_wigs # list of CombinedWig objects
-        gui.combined_wigs[0].main_path
-        gui.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
-        gui.combined_wigs[0].samples # list of Wig objects
-        gui.combined_wigs[0].samples[0].id # id from the metadata file
-        gui.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
-        gui.combined_wigs[0].samples[0].condition_names # a list of strings
-        gui.combined_wigs[0].samples[0].positions # list of ints
-        gui.combined_wigs[0].samples[0].insertion_counts # list of numbers
-        gui.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
-        gui.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
-        gui.combined_wigs[0].samples[0].extra_data.count
-        gui.combined_wigs[0].samples[0].extra_data.sum
-        gui.combined_wigs[0].samples[0].extra_data.non_zero_mean
-        gui.combined_wigs[0].samples[0].extra_data.non_zero_median
-        gui.combined_wigs[0].samples[0].extra_data.density
-        gui.combined_wigs[0].samples[0].extra_data.mean
-        gui.combined_wigs[0].samples[0].extra_data.max
-        gui.combined_wigs[0].samples[0].extra_data.skew
-        gui.combined_wigs[0].samples[0].extra_data.kurtosis
-        gui.combined_wigs[0].metadata # CombinedWigMetadata object
-        gui.combined_wigs[0].metadata.path
-        gui.combined_wigs[0].metadata.headers
-        gui.combined_wigs[0].metadata.rows
-        gui.combined_wigs[0].metadata.conditions
-        gui.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-        gui.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
-        gui.combined_wigs[0].metadata.id_for(wig_fingerprint)
-        gui.combined_wigs[0].metadata.fingerprints_for(condition_name)
-        gui.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        gui.combined_wigs[-1].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+        gui.combined_wigs[-1].main_path
+        gui.combined_wigs[-1].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
+        gui.combined_wigs[-1].samples # list of Wig objects
+        gui.combined_wigs[-1].samples[0].id # id from the metadata file
+        gui.combined_wigs[-1].samples[0].fingerprint # the "File" column from the metadata 
+        gui.combined_wigs[-1].samples[0].condition_names # a list of strings
+        gui.combined_wigs[-1].samples[0].positions # list of ints
+        gui.combined_wigs[-1].samples[0].insertion_counts # list of numbers
+        gui.combined_wigs[-1].samples[0].rows # each element is always [position_number, insertion_count]
+        gui.combined_wigs[-1].samples[0].column_index # int (column inside combined wig)
+        gui.combined_wigs[-1].samples[0].extra_data.count
+        gui.combined_wigs[-1].samples[0].extra_data.sum
+        gui.combined_wigs[-1].samples[0].extra_data.non_zero_mean
+        gui.combined_wigs[-1].samples[0].extra_data.non_zero_median
+        gui.combined_wigs[-1].samples[0].extra_data.density
+        gui.combined_wigs[-1].samples[0].extra_data.mean
+        gui.combined_wigs[-1].samples[0].extra_data.max
+        gui.combined_wigs[-1].samples[0].extra_data.skew
+        gui.combined_wigs[-1].samples[0].extra_data.kurtosis
+        gui.combined_wigs[-1].metadata # CombinedWigMetadata object
+        gui.combined_wigs[-1].metadata.path
+        gui.combined_wigs[-1].metadata.headers
+        gui.combined_wigs[-1].metadata.rows
+        gui.combined_wigs[-1].metadata.conditions
+        gui.combined_wigs[-1].metadata.wig_ids
+        gui.combined_wigs[-1].metadata.wig_fingerprints
+        gui.combined_wigs[-1].metadata.with_only(condition_names=[], wig_fingerprints=[])
+        gui.combined_wigs[-1].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
+        gui.combined_wigs[-1].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        gui.combined_wigs[-1].metadata.id_for(wig_fingerprint)
+        gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
+        gui.combined_wigs[-1].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
         
         # 
         # get annotation
@@ -157,6 +175,7 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
 
         # save the data
         Method.inputs.update(dict(
@@ -231,7 +250,7 @@ class ResultFileType1:
         )
         
         # 
-        # get column names
+        # read in data
         # 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         self.values_for_result_table.update(self.extra_data.get("parameters", {}))

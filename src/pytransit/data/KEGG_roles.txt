@@ -1,0 +1,50 @@
+path:mtu00400	Phenylalanine, tyrosine and tryptophan biosynthesis
+path:mtu00010	Glycolysis / Gluconeogenesis
+path:mtu00760	Nicotinate and nicotinamide metabolism
+path:mtu00361	Chlorocyclohexane and chlorobenzene degradation
+path:mtu00770	Pantothenate and CoA biosynthesis
+path:mtu00564	Glycerophospholipid metabolism
+path:mtu00362	Benzoate degradation
+path:mtu00270	Cysteine and methionine metabolism
+path:mtu00071	Fatty acid degradation
+path:mtu00500	Starch and sucrose metabolism
+path:mtu00061	Fatty acid biosynthesis
+path:mtu00920	Sulfur metabolism
+path:mtu00300	Lysine biosynthesis
+path:mtu00670	One carbon pool by folate
+path:mtu00260	Glycine, serine and threonine metabolism
+path:mtu00523	Polyketide sugar unit biosynthesis
+path:mtu00480	Glutathione metabolism
+path:mtu00330	Arginine and proline metabolism
+path:mtu00640	Propanoate metabolism
+path:mtu00052	Galactose metabolism
+path:mtu00250	Alanine, aspartate and glutamate metabolism
+path:mtu00520	Amino sugar and nucleotide sugar metabolism
+path:mtu00130	Ubiquinone and other terpenoid-quinone biosynthesis
+path:mtu00680	Methane metabolism
+path:mtu00910	Nitrogen metabolism
+path:mtu00521	Streptomycin biosynthesis
+path:mtu00290	Valine, leucine and isoleucine biosynthesis
+path:mtu00280	Valine, leucine and isoleucine degradation
+path:mtu00900	Terpenoid backbone biosynthesis
+path:mtu00860	Porphyrin metabolism
+path:mtu00040	Pentose and glucuronate interconversions
+path:mtu00240	Pyrimidine metabolism
+path:mtu00650	Butanoate metabolism
+path:mtu00030	Pentose phosphate pathway
+path:mtu00622	Xylene degradation
+path:mtu00780	Biotin metabolism
+path:mtu00541	O-Antigen nucleotide sugar biosynthesis
+path:mtu00190	Oxidative phosphorylation
+path:mtu00620	Pyruvate metabolism
+path:mtu00740	Riboflavin metabolism
+path:mtu00230	Purine metabolism
+path:mtu00220	Arginine biosynthesis
+path:mtu00750	Vitamin B6 metabolism
+path:mtu00630	Glyoxylate and dicarboxylate metabolism
+path:mtu00340	Histidine metabolism
+path:mtu00790	Folate biosynthesis
+path:mtu00380	Tryptophan metabolism
+path:mtu00430	Taurine and hypotaurine metabolism
+path:mtu00020	Citrate cycle (TCA cycle)
+path:mtu00785	Lipoic acid metabolism

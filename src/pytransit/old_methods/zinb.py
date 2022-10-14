@@ -21,6 +21,7 @@ long_name = "ZINB"
 short_desc = "Perform ZINB analysis"
 long_desc = """Perform ZINB analysis"""
 GENE = None
+DEBUG = True
 
 transposons = ["", ""]
 columns = []
@@ -96,14 +97,13 @@ class ZinbMethod(base.MultiConditionMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-        from pytransit.tools.transit_tools import DEBUG
+        global DEBUG
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
             print(ZinbMethod.usage_string)
             sys.exit(0)
 
         if kwargs.get("v", False):
-            global DEBUG
             DEBUG = True
 
         if kwargs.get("-gene", False):
@@ -461,7 +461,8 @@ class ZinbMethod(base.MultiConditionMethod):
             Interaction :: String
             Status :: String
         """
-        from pytransit.tools.transit_tools import DEBUG, DataFrame, IntVector, FloatVector, StrVector
+        global DEBUG
+        from pytransit.tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
         import statsmodels.stats.multitest
 
         count = 0
@@ -669,7 +670,7 @@ class ZinbMethod(base.MultiConditionMethod):
             )
 
         logging.log("Getting Data")
-        (sites, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+        (sites, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
             self.combined_wig
         )
 

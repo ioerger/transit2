@@ -10,30 +10,34 @@ import heapq
 
 import numpy
 
+from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
-import pytransit.generic_tools.misc as misc
-from pytransit.specific_tools.transit_tools import wx, pub, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components import file_display, results_area, parameter_panel
+from pytransit.components import samples_area, results_area, parameter_panel, file_display
+
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.components.spreadsheet import SpreadSheet
 
 
 @misc.singleton
 class Method:
-    name = "gene_means" # HANDLE_THIS
-    identifier  = name
-    cli_name    = name.lower()
+    name = "Gene Means"
+    identifier  = name.replace(" ", "")
+    cli_name    = name.replace(" ", "_").lower()
     menu_name   = f"{name} - calculate mean counts at gene level"
     description = f"""Calculate mean counts at gene level."""
     
     inputs = LazyDict(
-        output_path=None,
+        combined_wig=None,
+        metadata=None,
+        annotation_path=None,
         normalization="TTR",
-        n_terminus=0.0,
-        c_terminus=0.0,
-        condition_avg=False # unique to gene means
+        condition_avg=None,
+        output_path=None,
+        
+        n_terminus=0.0, # TODO: these don't seem to be used in the Run funciton --Jeff
+        c_terminus=0.0, # TODO: these don't seem to be used in the Run funciton --Jeff
     )
     
     valid_cli_flags = [
@@ -42,6 +46,7 @@ class Method:
         "-iC", # c_terminus
         "-cond" # averages counts over replicates of each condition
     ]
+    
     usage_string = f"""
         Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata> <prot_table> <output_file> [Optional Arguments]
         Optional Arguments:
@@ -51,7 +56,7 @@ class Method:
             -cond   :=  Averages counts over replicates of each condition
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Method", menu_name)
+    @gui.add_menu("Pre-Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
@@ -59,15 +64,6 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             self.value_getters = LazyDict()
-            # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(panel, main_sizer, label="")
-            # def when_button_clicked(event):
-            #     print("do stuff")
             
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
@@ -79,56 +75,11 @@ class Method:
     @staticmethod
     def from_gui(frame):
         # 
-        # global data
-        # 
-        # HANDLE_THIS
-        gui.is_active # false if using command line
-        gui.frame # self.wxobj equivalent
-        gui.busy_running_method # Boolean, is true when any .Run() is started but not finished
-        gui.annotation_path # string, may need to become a list of strings
-        gui.conditions # list of Condition objects
-        gui.conditions[0].name # string
-        gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
-        gui.combined_wigs # list of CombinedWig objects
-        gui.combined_wigs[0].main_path
-        gui.combined_wigs[0].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
-        gui.combined_wigs[0].samples # list of Wig objects
-        gui.combined_wigs[0].samples[0].id # id from the metadata file
-        gui.combined_wigs[0].samples[0].fingerprint # the "File" column from the metadata 
-        gui.combined_wigs[0].samples[0].condition_names # a list of strings
-        gui.combined_wigs[0].samples[0].positions # list of ints
-        gui.combined_wigs[0].samples[0].insertion_counts # list of numbers
-        gui.combined_wigs[0].samples[0].rows # each element is always [position_number, insertion_count]
-        gui.combined_wigs[0].samples[0].column_index # int (column inside combined wig)
-        gui.combined_wigs[0].samples[0].extra_data.count
-        gui.combined_wigs[0].samples[0].extra_data.sum
-        gui.combined_wigs[0].samples[0].extra_data.non_zero_mean
-        gui.combined_wigs[0].samples[0].extra_data.non_zero_median
-        gui.combined_wigs[0].samples[0].extra_data.density
-        gui.combined_wigs[0].samples[0].extra_data.mean
-        gui.combined_wigs[0].samples[0].extra_data.max
-        gui.combined_wigs[0].samples[0].extra_data.skew
-        gui.combined_wigs[0].samples[0].extra_data.kurtosis
-        gui.combined_wigs[0].metadata # CombinedWigMetadata object
-        gui.combined_wigs[0].metadata.path
-        gui.combined_wigs[0].metadata.headers
-        gui.combined_wigs[0].metadata.rows
-        gui.combined_wigs[0].metadata.conditions
-#        gui.combined_wigs[0].metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-#        gui.combined_wigs[0].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
-#        gui.combined_wigs[0].metadata.id_for(wig_fingerprint)
-#        gui.combined_wigs[0].metadata.fingerprints_for(condition_name)
-        gui.combined_wigs[0].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
-        
-        # 
         # get annotation
         # 
-        # HANDLE_THIS
-        Method.inputs.combined_wig = gui.combined_wigs[0].main_path
-        Method.inputs.metadata =  gui.combined_wigs[0].metadata.path
+        Method.inputs.combined_wig = gui.combined_wigs[-1]
         Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
-
+        transit_tools.validate_annotation(gui.annotation_path)
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value
@@ -144,7 +95,7 @@ class Method:
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.txt,*.csv,*.dat,*.out)|*.txt;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.csv,*.txt,*.dat,*.out)|*.csv;*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
         if not Method.inputs.output_path:
@@ -157,15 +108,18 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-
-        if len(args)!=4: logging.error(Method.usage_string)
-
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+        
         # save the flags
         Method.inputs.update(dict(
-            combined_wig = args[0],
-            metadata = args[1],
-            annotation_path = args[2],
-            output_path = args[3],
+            combined_wig=tnseq_tools.CombinedWig(
+                main_path=args[0],
+                metadata_path=args[1],
+                comments=None,
+                extra_data=None,
+            ),
+            annotation_path=args[2],
+            output_path=args[3],
             normalization=kwargs.get("n", Method.inputs.normalization),
             n_terminus=float(kwargs.get("iN", Method.inputs.n_terminus)),
             c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
@@ -182,43 +136,43 @@ class Method:
         # 
         # process data
         # 
-#        if True:
-#            rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
-
-
-        means,genes,labels = transit_tools.calc_gene_means(self.inputs.combined_wig , self.inputs.metadata , self.inputs.annotation_path , self.inputs.normalization , self.inputs.condition_avg) #TRI I should add -iC and -iN
+        means, genes, labels = transit_tools.calc_gene_means(
+            combined_wig=self.inputs.combined_wig,
+            annotation_path=self.inputs.annotation_path,
+            normalization=self.inputs.normalization,
+            avg_by_conditions=self.inputs.condition_avg,
+        ) #TRI I should add -iC and -iN
         
-        # 
+        #
         # write output
-        # 
-        if True:
-            # 
-            # write to file
-            # 
-            logging.log(f"Writing output file: {self.inputs.output_path}")
-
-            #transit_tools.write_result(
-            #    path=self.inputs.output_path, # path=None means write to STDOUT
-            #    file_kind=Method.identifier,
-            #    rows=means.tolist(),   ####TRI can't get this to work... (means is a numpy array)
-            #    column_names=labels,
-            #    extra_info=dict(
-            #        stats=dict(summary_info), # HANDLE_THIS
-            #        parameters=self.inputs,
-            #    ),
-            #)
-
-            output = open(self.inputs.output_path,"w")
-            output.write("#%s\n" % Method.identifier)
-            output.write("#parameters...\n")
-            output.write("#%s\n" % ('\t'.join(["orf","gene"]+labels)))
-            for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name]+["%0.1f" % x for x in means[i,:]])))
-            output.close()
-            
-        if gui.is_active:
-          logging.log(f"Adding File: {self.inputs.output_path}")
-          results_area.add(self.inputs.output_path)
-
+        #
+        rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name]+["%0.1f" % x for x in means[i,:]])))
+            [
+                genes[row_index].orf,
+                genes[row_index].name,
+                *[
+                    "%0.1f" % x 
+                        for x in means[row_index,:]
+                ]
+            ]
+                for row_index in range(means.shape[0])
+        ]
+        logging.log(f"Writing output file: {self.inputs.output_path}")
+        transit_tools.write_result(
+            path=self.inputs.output_path, # path=None means write to STDOUT
+            file_kind=Method.identifier,
+            column_names=[
+                "ORF",
+                "Gene Name",
+                *labels
+            ],
+            rows=rows,
+            extra_info=dict(
+                time=(time.time() - start_time),
+            ),
+        )
+        
+        results_area.add(self.inputs.output_path)
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
 
 @transit_tools.ResultsFile
@@ -241,31 +195,15 @@ class ResultFileType1:
                     heading=self.comments_string or misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[
-                        # HANDLE_THIS
-                    ],
+                    sort_by=[],
                 ).Show(),
             })
         )
         
         # 
-        # get column names
+        # get data
         # 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
-        
-        # 
-        # get summary stats
-        #
-        self.values_for_result_table.update({
-            # HANDLE_THIS (additional summary_info for results table)
-            # examples:
-                # f"Gene Count": len(self.rows),
-                # f"Adj P Value < {Method.significance_threshold}": len([
-                #     1 for each in self.rows
-                #         if each.get("Adj P Value", 0) < Method.significance_threshold 
-                # ]),
-        })
     
     def __str__(self):
         return f"""

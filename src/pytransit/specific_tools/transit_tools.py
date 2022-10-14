@@ -17,10 +17,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-DEBUG = False
-EOL = "\n"
-SEPARATOR = "\1"  # for making names that combine conditions and interactions; try not to use a char a user might have in a condition name
-
 import sys
 import os
 import math
@@ -40,6 +36,7 @@ try:
     import wx
     import wx.xrc
     import wx.adv
+    import wx.lib.scrolledpanel
     import wx.lib.mixins.listctrl as listmix
     from wx.lib.buttons import GenBitmapTextButton
     from pubsub import pub
@@ -99,22 +96,6 @@ def write_dat(path, heading, table, eol="\n"):
         outfile.write(string)
 
 if HAS_WX:
-    def subscribe(*args):
-        """
-        Summary:
-            The old style:
-                pub.subscribe(self.thing, "event_name")
-            
-            The new style enabled by this function:
-                @subscribe("event_name")
-                def thing(self, *args):
-                    pass
-        """
-        def decorator(function_being_wrapped):
-            pub.subscribe(function_being_wrapped, *args)
-            return function_being_wrapped
-        return decorator
-    
     class AssumeZerosDialog(wx.Dialog):
         def __init__(self, *args, **kw):
 
@@ -478,11 +459,14 @@ if True:
     def write_result(*, path, file_kind, extra_info, column_names, rows):
         assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
         
+        import datetime
         import ez_yaml
+        import pytransit
         import pytransit.generic_tools.csv as csv
-        from pytransit.generic_tools.misc import indent
+        from pytransit.globals import gui
+        from pytransit.generic_tools.misc import indent, to_pure
         ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
-        
+        ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
         extra_info = extra_info or {}
         
         yaml_string = ""
@@ -490,9 +474,12 @@ if True:
             yaml_string = ez_yaml.to_string(extra_info)
         except Exception as error:
             try:
-                yaml_string = ez_yaml.to_string(json.loads(json.dumps(extra_info)))
+                yaml_string = ez_yaml.to_string(to_pure(extra_info))
             except Exception as error:
                 raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
+        
+        now = str(datetime.datetime.now())
+        todays_date = now[: now.rfind(".")]
         
         # 
         # write to file
@@ -504,7 +491,10 @@ if True:
             comments=[
                 file_kind, # identifier always comes first
                 f"yaml:",
-                f"    Console Command: |",
+                f"    date: {todays_date}",
+                f"    transit_version: {pytransit.__version__}",
+                f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
+                f"    console_command: |",
                 indent(console_tools.full_commandline_command, by="        "),
                 indent(yaml_string, by="    "),
                 "\t".join(column_names) # column names always last
@@ -706,10 +696,8 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     
     return Wig.selected_as_gathered_data(wig_objects)
 
-#################################################
-
 corrplot_r_function = None
-def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, metadata, output_path):
+def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path):
     global corrplot_r_function
     import numpy
     # instantiate the corrplot_r_function if needed
@@ -726,51 +714,53 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         """)
         corrplot_r_function = globalenv["make_corrplot"]
     
-    means,genes,labels = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
+    means, genes, headers = calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions)
 
-    hash,headers = {},labels
+    position_hash = {}
     for i, col in enumerate(headers):
-        hash[col] = FloatVector([x[i] for x in means])
-    df = DataFrame(hash)  
+        position_hash[col] = FloatVector([x[i] for x in means])
+    df = DataFrame(position_hash)  
 
     corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
 
-#################################################
+def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions):
+    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
 
-# calc_gene_means() returns a numpy array, genes (for .orf and .id for rows), and list of column headers
+    logging.log(f"Normalizing using: {normalization}")
+    data, factors = norm_tools.normalize_data(data, normalization)
 
-def calc_gene_means(combined_wig , metadata , annotation_path , normalization , avg_by_conditions):
-        logging.log("Reading combined_wig file")
-        sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(combined_wig)
-    
-        logging.log(f"Normalizing using: {normalization}")
-        data, factors = norm_tools.normalize_data(data, normalization)
+    labels = combined_wig.metadata.wig_ids
 
-        info = tnseq_tools.CombinedWigMetadata(metadata)
-        labels = [info.id_for(x) for x in filenames_in_comb_wig]
-    
-        # calculate gene means 
-        genes = tnseq_tools.Genes(wig_list=[],data=data,annotation=annotation_path,position=sites) #TRI normalization=nonorm?
-        means = []
-        for gene in genes:
-            if gene.n>=1:
-                means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
-        means = numpy.vstack(means)
-    
-        if avg_by_conditions:
-            conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata)
-            conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
-            # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
-            condition_list = sorted(list(set(conditions))) # make unique
-            conditions_array = numpy.array(conditions)
-    
-            # make a reduced numpy array by average over replicates of each condition
-            count_lists = []
-            for each_condition in condition_list:
-                count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
-            means = numpy.array(count_lists).transpose()
-    
-            labels = condition_list
+    # calculate gene means 
+    genes = tnseq_tools.Genes(
+        wig_list=[],
+        data=data,
+        annotation=annotation_path,
+        position=sites
+    ) #TRI normalization=nonorm?
+    means = []
+    for gene in genes:
+        if gene.n>=1:
+            means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
+    means = numpy.vstack(means)
 
-        return means,genes,labels
+    if avg_by_conditions:
+        condition_per_wig_index = [
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
+                for each_fingerprint in combined_wig.wig_fingerprints
+        ]
+        # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
+        conditions_array = numpy.array(condition_per_wig_index)
 
+        # make a reduced numpy array by average over replicates of each condition
+        count_lists = []
+        for each_wig_condition_name in condition_per_wig_index:
+            count_lists.append(
+                # pick columns corresponding to condition; avg across rows (genes)
+                numpy.mean(means[:,conditions_array==each_wig_condition_name],axis=1)
+            )
+        means = numpy.array(count_lists).transpose()
+
+        labels = condition_per_wig_index
+
+    return means, genes, labels

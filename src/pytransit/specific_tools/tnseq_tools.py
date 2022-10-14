@@ -2,7 +2,7 @@ import sys
 import os
 import math
 import warnings
-from functools import total_ordering
+from functools import total_ordering #, cached_property
 from collections import namedtuple
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
@@ -106,23 +106,53 @@ class Condition:
         return self.name == other.name
 
 class CombinedWigMetadata:
-    _CacheClass = named_list([ 'conditions_by_file','covariates_by_file_list','interactions_by_file_list','ordering_metadata',])
-    
     # can contain more data
-    def __init__(self, path):
-        self.path = path
-        self.headers = []
-        self.rows = []
-        self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
+    def __init__(self, path=None, rows=None, headers=None, comments=None):
+        self.path     = path
+        self.headers  = headers or []
+        self.rows     = rows or []
+        self.comments = comments or []
+        self._conditions_by_wig_fingerprint        = None
+        self._covariates_by_wig_fingerprint_list   = None
+        self._interactions_by_wig_fingerprint_list = None
+        self._ordering_metadata                    = None
+        if path:
+            self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         self.conditions = no_duplicates(
             Condition(
                 name=each_row["Condition"],
             )
                 for each_row in self.rows
         )
-        self._cache_for_read = None
     
-    def condition_names_for(self, wig_fingerprint=None, id=None):
+    def with_only(self, condition_names=None, wig_fingerprints=None):
+        from copy import deepcopy
+        new_rows = []
+        for each_row in self.rows:
+            if condition_names and each_row["Condition"] not in condition_names:
+                continue
+            if wig_fingerprints and each_row["Filename"] not in wig_fingerprints:
+                continue
+            new_rows.append(deepcopy(each_row))
+        
+        new_combined_wig = CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
+        
+        # 
+        # generate ordering_metadata, conditions_by_wig_fingerprint
+        # 
+        for row in new_rows:
+            wig_fingerprint = row["Filename"]
+            conditions_by_wig_fingerprint[wig_fingerprint] = row["Condition"] # FIXME: there can be more than one condition per wig_fingerprint
+            ordering_metadata["condition"].append(row["Condition"])
+        
+        self._conditions_by_wig_fingerprint        = conditions_by_wig_fingerprint
+        self._ordering_metadata                    = ordering_metadata
+        self._covariates_by_wig_fingerprint_list   = []
+        self._interactions_by_wig_fingerprint_list = []
+        
+        return new_combined_wig
+    
+    def condition_names_for(self, *, wig_fingerprint=None, id=None):
         conditions = []
         if wig_fingerprint:
             for each_row in self.rows:
@@ -140,11 +170,22 @@ class CombinedWigMetadata:
                 return each_row["Id"]
     
     def fingerprints_for(self, condition):
-        return [
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([
             each_row["Filename"]
                 for each_row in self.rows
                     if each_row["Condition"] == condition
-        ]
+        ])
+    
+    #@cached_property
+    def wig_fingerprints(self):
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
+    
+    #s@cached_property
+    def wig_ids(self):
+        from pytransit.generic_tools import misc
+        return misc.no_duplicates([ each_row["Id"] for each_row in self.rows ])
     
     def __repr__(self):
         return f"""CWigMetadata(
@@ -153,117 +194,86 @@ class CombinedWigMetadata:
             conditions={indent(self.conditions, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
     
-    # 
-    # an "always filled" cache
-    # 
-    @property
-    def cache_for_read(self):
-        if not self._cache_for_read:
-            self._cache_for_read = self.read_condition_data(self.path)
-        return self._cache_for_read
-    @cache_for_read.setter
-    def cache_for_read(self, value):
-        self._cache_for_read = value
-    
     @classmethod
-    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[], condition_name="Condition"):
-        """
-        Filename -> ConditionMap
-        ConditionMap :: {Filename: Condition}, [{Filename: Covar}], [{Filename: Interaction}]
-        Condition :: String
-        Covar :: String
-        Interaction :: String
-        """
-        _cache_for_read = getattr(cls, "_cache_for_read", None)
-        if _cache_for_read:
-            return _cache_for_read
-        
-        conditions_by_file        = {}
-        covariates_by_file_list   = [{} for i in range(len(covars_to_read))]
-        interactions_by_file_list = [{} for i in range(len(interactions_to_read))]
-        headers_to_read           = [condition_name.lower(), "filename"]
+    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[]):
+        conditions_by_wig_fingerprint        = {}
+        covariates_by_wig_fingerprint_list   = [{} for _ in covars_to_read]
+        interactions_by_wig_fingerprint_list = [{} for _ in interactions_to_read]
         ordering_metadata         = {"condition": [], "interaction": []}
-        with open(path) as mfile:
-            lines = mfile.readlines()
-            head_indexes = [
-                i
-                for h in headers_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-            covar_indexes = [
-                i
-                for h in covars_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
-            interaction_indexes = [
-                i
-                for h in interactions_to_read
-                for i, c in enumerate(lines[0].split())
-                if c.lower() == h.lower()
-            ]
+        with open(path) as file:
+            lines = file.readlines()
+            column_names              = lines[0].split()
+            column_names              = [ each.lower() for each in column_names ]
+            index_for_condition       = column_names.index("Condition".lower())
+            index_for_wig_fingerprint = column_names.index("Filename".lower())
+            covar_indexes             = [ column_names.index(each.lower()) for each in covars_to_read       ]
+            interaction_indexes       = [ column_names.index(each.lower()) for each in interactions_to_read ]
 
-            for line in lines[1:]:
-                if line[0] == "#":
+            for each_line in lines[1:]:
+                # skip comments
+                if each_line[0] == "#":
                     continue
-                vals = line.split()
-                [condition, wfile] = vals[head_indexes[0]], vals[head_indexes[1]]
-                conditions_by_file[wfile] = condition
+                row_as_list = each_line.split()
+                condition       = row_as_list[index_for_condition]
+                wig_fingerprint = row_as_list[index_for_wig_fingerprint]
+                
+                conditions_by_wig_fingerprint[wig_fingerprint] = condition
                 ordering_metadata["condition"].append(condition)
-                for i, c in enumerate(covars_to_read):
-                    covariates_by_file_list[i][wfile] = vals[covar_indexes[i]]
-                for i, c in enumerate(interactions_to_read):
-                    interactions_by_file_list[i][wfile] = vals[interaction_indexes[i]]
-
+                for index, each_covar_column_index in enumerate(covar_indexes):
+                    covariates_by_wig_fingerprint_list[index][wig_fingerprint] = row_as_list[each_covar_column_index]
+                for index, each_interaction_column_index in enumerate(interaction_indexes):
+                    interactions_by_wig_fingerprint_list[index][wig_fingerprint] = row_as_list[each_interaction_column_index]
+                    
+                    # TODO
                     # This makes sense only if there is only 1 interaction variable
                     # For multiple interaction vars, may have to rethink ordering.
-                    ordering_metadata["interaction"].append(vals[interaction_indexes[i]])
+                    ordering_metadata["interaction"].append(row_as_list[interaction_indexes[index]])
 
-        return cls._CacheClass([
-            conditions_by_file,
-            covariates_by_file_list,
-            interactions_by_file_list,
+        return (
+            conditions_by_wig_fingerprint,
+            covariates_by_wig_fingerprint_list,
+            interactions_by_wig_fingerprint_list,
             ordering_metadata,
-        ])
+        )
+    
     
     # 
-    # conditions_by_file
+    # conditions_by_wig_fingerprint
     # 
     @property
-    def conditions_by_file(self): return self.cache_for_read.conditions_by_file
-    @conditions_by_file.setter
-    def conditions_by_file(self, value):
-        self.cache_for_read.conditions_by_file = value
-    
+    def conditions_by_wig_fingerprint(self): 
+        if type(self._conditions_by_wig_fingerprint) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._conditions_by_wig_fingerprint
+            
     # 
-    # covariates_by_file_list
-    # 
-    @property
-    def covariates_by_file_list(self): return self.cache_for_read.covariates_by_file_list
-    @covariates_by_file_list.setter
-    def covariates_by_file_list(self, value):
-        self.cache_for_read.covariates_by_file_list = value
-    
-    # 
-    # interactions_by_file_list
+    # covariates_by_wig_fingerprint_list
     # 
     @property
-    def interactions_by_file_list(self): return self.cache_for_read.interactions_by_file_list
-    @interactions_by_file_list.setter
-    def interactions_by_file_list(self, value):
-        self.cache_for_read.interactions_by_file_list = value
-    
+    def covariates_by_wig_fingerprint_list(self): 
+        if type(self._covariates_by_wig_fingerprint_list) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._covariates_by_wig_fingerprint_list
+            
+    # 
+    # interactions_by_wig_fingerprint_list
+    # 
+    @property
+    def interactions_by_wig_fingerprint_list(self): 
+        if type(self._interactions_by_wig_fingerprint_list) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._interactions_by_wig_fingerprint_list
+            
     # 
     # ordering_metadata
     # 
     @property
-    def ordering_metadata(self): return self.cache_for_read.ordering_metadata
-    @ordering_metadata.setter
-    def ordering_metadata(self, value):
-        self.cache_for_read.ordering_metadata = value
-
-class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
+    def ordering_metadata(self): 
+        if type(self._ordering_metadata) == type(None):
+            self._conditions_by_wig_fingerprint, self._covariates_by_wig_fingerprint_list, self._interactions_by_wig_fingerprint_list, self._ordering_metadata = self.read_condition_data(path=self.path)
+        return self._ordering_metadata
+            
+class CombinedWigData(named_list(['sites','counts_by_wig','wig_fingerprints',])):
     @staticmethod
     def load(file_path):
         """
@@ -276,7 +286,7 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
         import ez_yaml
         from pytransit.specific_tools import transit_tools
         
-        sites, counts_by_wig, files, extra_data = [], [], [], {}
+        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
         contained_yaml_data = False
         number_of_lines = line_count_of(file_path)
         with open(file_path) as f:
@@ -302,18 +312,18 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                         if len(yaml_string) > 0:
                             an_object = ez_yaml.to_object(string=yaml_string)
                             extra_data.update(an_object["extra_data"] or {})
-                            files += extra_data.get('files',[])
+                            wig_fingerprints += extra_data.get('wig_fingerprints',[])
                     # 
                     # handle older file method
                     # 
                     if line.startswith("#File: "):
-                        files.append(line.rstrip()[7:])  # allows for spaces in filenames
+                        wig_fingerprints.append(line.rstrip()[7:])  # allows for spaces in filenames
                         continue
             
             # 
             # handle body
             # 
-            counts_by_wig = [ [] for _ in files ]
+            counts_by_wig = [ [] for _ in wig_fingerprints ]
             for index, line in enumerate(lines):
                 if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
                     percent_done = round(index/number_of_lines * 100, ndigits=2)
@@ -326,8 +336,8 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                 #
                 # actual parsing
                 #
-                cols = line.split("\t")[0 : 1+len(files)]
-                cols = cols[: 1+len(files)]  # additional columns at end could contain gene info
+                cols = line.split("\t")[0 : 1+len(wig_fingerprints)]
+                cols = cols[: 1+len(wig_fingerprints)]  # additional columns at end could contain gene info
                 # Read in position as int, and readcounts as float
                 cols = [
                     int(each_t_iv) if index == 0 else float(each_t_iv)
@@ -339,16 +349,16 @@ class CombinedWigData(named_list(['sites','counts_by_wig','files',])):
                     counts_by_wig[index].append(count)
             logging.log(f"\rreading lines: 100%          ")
         
-        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), files))
+        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints))
 
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
     PositionsAndReads = named_list(["read_counts", "positions"])
-    def __init__(self, *, main_path, metadata_path, comments=None, extra_data=None):
+    def __init__(self, *, main_path, metadata_path=None, comments=None, extra_data=None):
         self.main_path     = main_path
         self.metadata_path = metadata_path
         self.metadata      = CombinedWigMetadata(self.metadata_path)
-        self.data          = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
+        self.as_tuple      = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
         self.rows          = []
         self.comments      = comments or []
         self.extra_data    = LazyDict(extra_data or {})
@@ -410,6 +420,70 @@ class CombinedWig:
                 )
         return counts_for_wig
     
+    def with_only(self, condition_names=None, wig_fingerprints=None):
+        import numpy
+        from copy import deepcopy
+        
+        # create a new shell
+        class A: pass
+        new_combined_wig = A()
+        new_combined_wig.__class__ = CombinedWig
+        
+        # copy the easy stuff
+        new_combined_wig.main_path     = None
+        new_combined_wig.metadata_path = None
+        new_combined_wig.comments      = self.comments
+        new_combined_wig.extra_data    = dict(self.extra_data)
+        new_combined_wig.rows          = []
+        new_combined_wig.samples       = []
+        new_combined_wig.metadata      = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
+        
+        # extract only data relating to new_wig_fingerprints
+        new_wig_fingerprints = self.metadata.wig_fingerprints
+        sites, counts_by_wig_array, old_wig_fingerprints = self.as_tuple
+        new_counts_by_wig = numpy.zeros((len(new_wig_fingerprints), sites.shape[0], ))
+        for index, each_fingerprint in enumerate(new_wig_fingerprints):
+            old_index = old_wig_fingerprints.index(each_fingerprint)
+            new_counts_by_wig[index,:] = counts_by_wig_array[old_index,:]
+        
+        removed_wig_fingerprints = set(old_wig_fingerprints) - set(new_wig_fingerprints)
+        # create new data object
+        new_combined_wig.as_tuple = CombinedWigData((sites, new_counts_by_wig, new_wig_fingerprints))
+        
+        # generate named lists for rows
+        new_combined_wig.extra_data["wig_fingerprints"] = new_wig_fingerprints
+        wig_fingerprints = new_wig_fingerprints
+        CWigRow = named_list([ "position", *wig_fingerprints ])
+        for position, row in zip(sites, new_counts_by_wig.transpose()):
+            #
+            # extract
+            #
+            read_counts = row[ 0: len(wig_fingerprints) ]
+            other      = row[ len(wig_fingerprints) :  ] # often empty
+            
+            # force types
+            position   = int(position)
+            read_counts = [ float(each) for each in read_counts ]
+            
+            # save
+            new_combined_wig.rows.append(CWigRow([position]+read_counts+[each for each in other]))
+            
+        for column_index, wig_fingerprint in enumerate(new_combined_wig.wig_fingerprints):
+            new_combined_wig.samples.append(
+                Wig(
+                    rows=list(zip(new_combined_wig.positions, new_combined_wig.read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    fingerprint=wig_fingerprint,
+                    column_index=column_index,
+                    condition_names=new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
+            )
+        
+        return new_combined_wig
+        
     def wig_with_id(self, id):
         for each in self.samples:
             if each.id == id:
@@ -420,7 +494,7 @@ class CombinedWig:
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
         
-        sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
+        sites, wig_fingerprints, extra_data = [], [], {}
         yaml_switch_is_on = False
         yaml_string = "extra_data:\n"
         for line in comments:
@@ -486,16 +560,11 @@ class CombinedWig:
             self.rows.append(CWigRow([position]+read_counts+other))
             
             sites.append(position)
-            for index, count in enumerate(read_counts):
-                if len(counts_by_wig) < index+1:
-                    counts_by_wig.append([])
-                counts_by_wig[index].append(count)
         
-        read_counts_by_wig_fingerprint = self.read_counts_by_wig_fingerprint
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(
-                    rows=list(zip(self.positions, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(self.positions, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
@@ -591,7 +660,7 @@ class CombinedWig:
     
 # backwards compatibility
 read_samples_metadata = CombinedWigMetadata.read_condition_data
-read_combined_wig = CombinedWigData.load
+CombinedWigData.load = CombinedWigData.load
 
 def read_genes(fname, descriptions=False):
     """
@@ -1755,7 +1824,7 @@ def get_gene_info_gff(path):
             if "ID" not in features:
                 continue
             orf = features["ID"]
-            name = features.get("Name", "-")
+            name = features.get("Name", features.get("Gene Name","-"))
             if name == "-":
                 name = features.get("name", "-")
 
@@ -2135,3 +2204,52 @@ def read_results_file(path):
         })
     
     return standardized_column_names, rows_of_dicts, extra_data, comments_string
+
+def filepaths_to_fingerprints(filepaths):
+    import os
+    from pytransit.generic_tools import misc
+    
+    filepaths = misc.no_duplicates(filepaths)
+    
+    # 
+    # Pascal Case of Basenames
+    # 
+    basenames     = [ os.path.basename(each) for each in filepaths ]
+    basenames     = [ each if not each.endswith(".wig") else each[:-4] for each in basenames ]
+    first_attempt = [ misc.pascal_case_with_spaces(each) for each in basenames ]
+    if misc.all_different(first_attempt):
+        return first_attempt
+    
+    # 
+    # Pascal Case of Dirnames
+    # 
+    dirnames = [ misc.pascal_case_with_spaces(os.path.dirname(each)) for each in filepaths ]
+    minimal_dirnames = misc.remove_common_prefix(dirnames)
+    fingerprints_base = [
+        f"{minimal_dirname}_{minimal_basename}".replace("/","_").replace("\\","_")
+            for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
+    ]
+    second_attempt = [ misc.pascal_case_with_spaces(each) for each in fingerprints_base ]
+    if misc.all_different(second_attempt):
+        return second_attempt
+    
+    # 
+    # Minimal simplified dirnames
+    # 
+    dirnames = [ os.path.dirname(each) for each in filepaths ]
+    minimal_dirnames = misc.remove_common_prefix(dirnames)
+    fingerprints_base = [
+        f"{minimal_dirname}_{basename}".replace("/","_").replace("\\","_")
+            for minimal_dirname, basename in zip(minimal_dirnames, basenames) 
+    ]
+    third_attempt = [ each for each in fingerprints_base ]
+    if misc.all_different(third_attempt):
+        return third_attempt
+    
+    # 
+    # Minimal dirnames
+    # 
+    return [
+        f"{minimal_dirname}/{minimal_basename}"
+            for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
+    ]

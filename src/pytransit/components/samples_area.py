@@ -4,7 +4,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import singleton, no_duplicates, flatten_once, human_readable_data
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename, working_directory
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename, working_directory
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools
 
 from pytransit.components.spreadsheet import SpreadSheet
@@ -14,17 +14,63 @@ from pytransit.components.generic.button import Button
 from pytransit.components.generic.table import Table
 
 # 
-# Samples
+# data shared between functions
 # 
-sample_table, conditions_table = None, None
-sample_button_creators = []
-def get_selected_samples():
-    return [ each["__wig_obj"] for each in sample_table.selected_rows ]
+samples = LazyDict(
+    wig_header_sizer=None,
+    wig_dropdown_wxobj=None,
+    wig_table=None,
+    dropdown_options={},
+    conditions_table=None,
+    sample_button_creators = {
+        # put "name": None here for buttons you want to be in a specific order
+        # "LOESS": None,
+    },
+)
 
+# 
+# 
+# internal tools 
+# 
+# 
+
+# 
+# for updating the dropdown options
+# 
+def update_sample_area_dropdown(new_choices):
+    with gui_tools.nice_error_log:
+        # hide the old one before showing the new one
+        if samples.wig_dropdown_wxobj != None:
+            samples.wig_dropdown_wxobj.Hide()
+        
+        # if not (None or empty)
+        if new_choices: 
+            new_choices = {
+                "[Select Tool]": lambda event: None, # always have a none option, and always make it the first option
+                **new_choices,
+            }
+            
+            samples.wig_dropdown_wxobj = wx.Choice(
+                gui.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                (120, -1),
+                list(new_choices.keys()),
+                0,
+            )
+            samples.wig_dropdown_wxobj.SetSelection(0)
+            samples.wig_header_sizer.Add(samples.wig_dropdown_wxobj, proportion=0, flag=wx.EXPAND, border=gui_tools.default_padding)
+            samples.wig_header_sizer.Layout()
+            gui.frame.Layout()
+            
+            @gui_tools.bind_to(samples.wig_dropdown_wxobj, wx.EVT_CHOICE)
+            def _(event):
+                choice = samples.wig_dropdown_wxobj.GetString(samples.wig_dropdown_wxobj.GetCurrentSelection())
+                # run the callback that corrisponds the the choice
+                new_choices[choice](event)
+
+# is only called in transit_gui.py
 def create_sample_area(frame):
-    global sample_table
-    global conditions_table
-    
     wx_object = None
     with Column() as outer_sample_sizer:
         wx_object = outer_sample_sizer.wx_object
@@ -38,7 +84,7 @@ def create_sample_area(frame):
         # box
         # 
         if True:
-            inner_sample_sizer = wx.BoxSizer(wx.HORIZONTAL)
+            samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
             
             # 
             # combined_wig_file_picker
@@ -47,14 +93,16 @@ def create_sample_area(frame):
                 # 
                 # component
                 # 
+                size = (300, 40)
                 combined_wig_file_picker = GenBitmapTextButton(
                     frame,
                     1,
                     gui_tools.bit_map,
                     "Load Combined Wig and Metadata",
-                    size=wx.Size(-1, -1),
-                    
+                    size=wx.Size(*size),
                 )
+                combined_wig_file_picker.SetMinSize(size)
+                combined_wig_file_picker.SetMaxSize(size)
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
                 
                 # 
@@ -97,33 +145,33 @@ def create_sample_area(frame):
                             
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
-                # inner_sample_sizer.Add(combined_wig_file_picker, proportion=2, flag=wx.ALIGN_LEFT, border=5)
-                inner_sample_sizer.Add(combined_wig_file_picker)
+                samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.EXPAND, border=0)
                 
             outer_sample_sizer.add(
-                inner_sample_sizer,
+                samples.wig_header_sizer,
                 expand=True,
                 proportion=0,
             )
         
         # 
-        # sample_table
+        # samples.wig_table
         # 
         with Table(
             max_size=(int(gui.width*0.7), 200)
-        ) as sample_table:
+        ) as samples.wig_table:
             # 
             # show wig-specific buttons
             # 
             show_table_button = None
-            @sample_table.events.on_select
+            @samples.wig_table.events.on_select
             def _(event):
-                for each in sample_button_creators:
+                update_sample_area_dropdown(samples.dropdown_options)
+                for each in samples.sample_button_creators.values():
                     with gui_tools.nice_error_log:
-                        each(sample_table, inner_sample_sizer)
+                        each(samples.wig_table, samples.wig_header_sizer)
             
             outer_sample_sizer.add(
-                sample_table.wx_object,
+                samples.wig_table.wx_object,
                 proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
@@ -136,19 +184,22 @@ def create_sample_area(frame):
         )
         
         # 
-        # conditions_table
+        # samples.conditions_table
         # 
         with Table(
            max_size=(int(gui.width*0.7), 200)
-        ) as conditions_table:
+        ) as samples.conditions_table:
             outer_sample_sizer.add(
-                conditions_table.wx_object,
+                samples.conditions_table.wx_object,
                 proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
                 
             )
     
+    samples.wig_header_sizer.Layout()
+    gui.frame.Layout()
+            
     # 
     # preload files if in debugging mode
     # 
@@ -188,216 +239,107 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # add graphical entries for each condition
     # 
     if True:
-        for each_sample in gui.samples:
-            # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
-            sample_table.add(dict(
-                # add hidden link to object
-                __wig_obj=each_sample,
-                # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                id=each_sample.id,
-                conditions=(",".join(each_sample.condition_names) or "[None]"),
-                density=round(each_sample.extra_data.density, 4),
-                total_insertions=round(each_sample.extra_data.sum),
-                non_zero_mean=round(each_sample.extra_data.non_zero_mean),
-                # # uncomment to add additional summary data
-                # non_zero_median=each_sample.extra_data.non_zero_median,
-                # count=each_sample.extra_data.count,
-                # mean=each_sample.extra_data.mean,
-                # max=each_sample.extra_data.max,
-                # skew=each_sample.extra_data.skew,
-                # kurtosis=each_sample.extra_data.kurtosis,
-            ))
-        
-        for each_condition in gui.conditions:
-            conditions_table.add(dict(
-                name=each_condition.name,
-            ))
+        number_of_new_combined_wigs = len(cwig_paths)
+        if number_of_new_combined_wigs > 0:
+            from pytransit.generic_tools import misc
+            new_samples = misc.flatten_once([ each.samples for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+            for each_sample in new_samples:
+                # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
+                samples.wig_table.add(dict(
+                    # add hidden link to object
+                    __wig_obj=each_sample,
+                    # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                    id=each_sample.id,
+                    conditions=(",".join(each_sample.condition_names) or "[None]"),
+                    density=round(each_sample.extra_data.density, 4),
+                    total_insertions=round(each_sample.extra_data.sum),
+                    non_zero_mean=round(each_sample.extra_data.non_zero_mean),
+                    # # uncomment to add additional summary data
+                    # non_zero_median=each_sample.extra_data.non_zero_median,
+                    # count=each_sample.extra_data.count,
+                    # mean=each_sample.extra_data.mean,
+                    # max=each_sample.extra_data.max,
+                    # skew=each_sample.extra_data.skew,
+                    # kurtosis=each_sample.extra_data.kurtosis,
+                ))
+            
+            new_conditions = misc.flatten_once([ each.conditions for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+            for each_condition in new_conditions:
+                samples.conditions_table.add(dict(
+                    name=each_condition.name,
+                ))
 
+# should only be called/used by globals.py
+def get_selected_samples():
+    return [ each["__wig_obj"] for each in samples.wig_table.selected_rows ]
+
+def get_selected_condition_names():
+    return [ each["name"] for each in samples.conditions_table.selected_rows ]
 
 # 
-# Buttons
 # 
-if True:
-    # Helper function for the button below
-    def create_sample_area_button(name, size=(150, -1)):
-        show_thing_button = None
-        def decorator(function_being_wrapped):
-            def create_show_thing_button(sample_table, inner_sample_sizer):
-                nonlocal show_thing_button
-                with gui_tools.nice_error_log:
-                    # hide an old button if it exists
-                    if show_thing_button != None:
-                        show_thing_button.Hide()
-                    
-                    show_thing_button = GenBitmapTextButton(
-                        gui.frame,
-                        1,
-                        gui_tools.bit_map,
-                        name,
-                        size=wx.Size(*size),
-                    )
-                    show_thing_button.SetBackgroundColour(gui_tools.color.light_blue)
-                    
-                    # 
-                    # callback
-                    # 
-                    @gui_tools.bind_to(show_thing_button, wx.EVT_BUTTON)
-                    def click_show_thing(event):
+# External tools
+# 
+# 
+
+# 
+# Let methods add dropdown options
+# 
+def add_wig_area_dropdown_option(name):
+    """
+    Example Usage:
+        @gui.add_wig_area_dropdown_option(name="Click Me", size=(120, -1))
+        def on_button_click(event):
+            print("Howdy")
+    """
+    def decorator(function_being_wrapped):
+        def wrapper(*args,**kwargs):
+            with gui_tools.nice_error_log:
+                return function_being_wrapped(*args, **kwargs)
+        samples.dropdown_options[name] = wrapper
+        return wrapper
+    return decorator
+
+# 
+# Let methods add Buttons
+# 
+def add_wig_area_button(name, size=(150, -1)):
+    """
+    Example Usage:
+        @samples_area.add_wig_area_button(name="Click Me", size=(120, -1))
+        def on_button_click(event):
+            print("Howdy")
+    """
+    show_thing_button = None
+    def decorator(function_being_wrapped):
+        def create_show_thing_button(wig_table, wig_header_sizer):
+            nonlocal show_thing_button
+            with gui_tools.nice_error_log:
+                # hide an old button if it exists
+                if show_thing_button != None:
+                    show_thing_button.Hide()
+                
+                show_thing_button = GenBitmapTextButton(
+                    gui.frame,
+                    1,
+                    gui_tools.bit_map,
+                    name,
+                    size=wx.Size(*size),
+                )
+                show_thing_button.SetBackgroundColour(gui_tools.color.light_blue)
+                
+                # 
+                # callback
+                # 
+                @gui_tools.bind_to(show_thing_button, wx.EVT_BUTTON)
+                def click_show_thing(event):
+                    with gui_tools.nice_error_log:
                         return function_being_wrapped(event)
-                
-                inner_sample_sizer.Add(show_thing_button)
-                inner_sample_sizer.Layout()
             
-            sample_button_creators.append(create_show_thing_button)
-            return create_show_thing_button
-        return decorator
-    
-    # 
-    # Show Table
-    # 
-    @create_sample_area_button(name="Show Table", size=(100, -1))
-    def click_show_table(event):
-        selected_wigs = gui.selected_samples or gui.samples
+            samples.wig_header_sizer.Add(show_thing_button)
+            samples.wig_header_sizer.Layout()
         
-        # 
-        # heading (only if single wig)
-        # 
-        heading = ""
-        if len(selected_wigs) == 1:
-            heading = human_readable_data(selected_wigs[0].extra_data)
-        
-        # 
-        # row data
-        # 
-        column_names = [ "positions",  *[ each.id for each in selected_wigs] ]
-        positions = selected_wigs[0].positions
-        rows = []
-        for row_data in zip(*([ positions ] + [ each.insertion_counts for each in selected_wigs ])):
-            rows.append({
-                column_name: cell_value
-                    for column_name, cell_value in zip(column_names, row_data)
-            })
-        
-        SpreadSheet(
-            title="Read Counts",
-            heading=heading,
-            column_names=column_names,
-            rows=rows,
-            sort_by=[]
-        ).Show()
-    
-    # 
-    # Track View
-    # 
-    @create_sample_area_button(name="Track View", size=(120, -1))
-    def click_show_track_view(event):
-        with gui_tools.nice_error_log:
-            import pytransit.components.trash as trash
-            annotation_path = gui.annotation_path
-            wig_ids = [ each_sample.id for each_sample in gui.selected_samples ]
+        samples.sample_button_creators[name] = create_show_thing_button
+        return create_show_thing_button
+    return decorator
 
-            if wig_ids and annotation_path:
-                if debugging_enabled:
-                    logging.log(
-                        "Visualizing counts for: %s"
-                        % ", ".join(wig_ids)
-                    )
-                view_window = trash.TrashFrame(gui.frame, wig_ids, annotation_path, gene="")
-                view_window.Show()
-            elif not wig_ids:
-                # NOTE: was a popup
-                logging.error("Error: No samples selected.")
-                return
-            else:
-                # NOTE: was a popup
-                logging.error("Error: No annotation file selected.")
-                return
-    
-    # 
-    # Scatter Plot
-    # 
-    @create_sample_area_button(name="Scatter Plot", size=(120, -1))
-    def create_show_scatter_plot_button(event):
-        with gui_tools.nice_error_log:
-            import numpy
-            import matplotlib
-            import matplotlib.pyplot as plt
-            from pytransit.specific_tools import stat_tools
-            selected_samples = gui.selected_samples
-            if len(selected_samples) == 2:
-                logging.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
-                from pytransit.specific_tools.transit_tools import gather_sample_data_for
-                data, position = gather_sample_data_for(selected_samples=True)
-                x = data[0, :]
-                y = data[1, :]
-
-                plt.plot(x, y, "bo")
-                plt.title("Scatter plot - Reads at TA sites")
-                plt.xlabel(selected_samples[0].id)
-                plt.ylabel(selected_samples[1].id)
-                plt.show()
-            else:
-                # NOTE: was a popup
-                logging.error(f"Select 2 samples (not {len(selected_samples)})")
-    
-    # 
-    # Quality Control
-    # 
-    @create_sample_area_button(name="Quality Control", size=(130,-1))
-    def click_show_quality_control(event):
-        with gui_tools.nice_error_log:
-            wig_ids = [ each_sample.id for each_sample in gui.selected_samples ] 
-            number_of_files = len(wig_ids)
-
-            if number_of_files <= 0:
-                raise Exception(f'''No Datasets selected, unable to run''')
-            else:
-                logging.log(f"Displaying results: {wig_ids}")
-                try:
-                    qc_window = qc_display.QualityControlFrame(gui.frame, wig_ids)
-                    qc_window.Show()
-                except Exception as error:
-                    raise Exception(f"Error occured displaying file: {error}")
-    
-    # 
-    # LOESS
-    # 
-    @create_sample_area_button(name="LOESS", size=(100,-1))
-    def click_show_loess(event):
-        with gui_tools.nice_error_log:
-            import numpy
-            import matplotlib
-            import matplotlib.pyplot as plt
-            from pytransit.specific_tools import stat_tools
-            from pytransit.globals import gui, cli, root_folder, debugging_enabled
-            from pytransit.specific_tools.tnseq_tools import Wig
-            
-            
-            # 
-            # get selection
-            # 
-            wig_objects = gui.selected_samples  or  gui.samples
-            
-            #
-            # get read_counts and positions
-            # 
-            read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
-            number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-            window = 100
-            for each_path_index in range(number_of_wigs):
-
-                number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                x_w = numpy.zeros(number_of_windows)
-                y_w = numpy.zeros(number_of_windows)
-                for window_index in range(number_of_windows):
-                    x_w[window_index] = window * window_index
-                    y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-                
-                y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                plt.plot(x_w, y_w, "g+")
-                plt.plot(x_w, y_smooth, "b-")
-                plt.xlabel("Genomic Position (TA sites)")
-                plt.ylabel("Reads per 100 insertion sites")
-                
-                plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-                plt.show()

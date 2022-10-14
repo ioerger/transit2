@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 
 from pytransit.specific_tools.gui_tools                   import bind_to, rgba, color
 from pytransit.specific_tools.norm_tools                  import methods as norm_methods
-from pytransit.specific_tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, pub, basename, subscribe
+from pytransit.specific_tools.transit_tools               import HAS_WX, wx, GenBitmapTextButton, basename
 from pytransit.components.generic.box            import Row, Column
 from pytransit.components.generic.frame          import InnerFrame
 from pytransit.components.generic.text           import Text
@@ -54,19 +54,11 @@ import pytransit
 import pytransit.components.parameter_panel as parameter_panel
 import pytransit.components.trash as trash
 import pytransit.components.file_display as file_display
-import pytransit.components.qc_display as qc_display
 import pytransit.components.images as images
 
 class TnSeqFrame(wx.Frame):
-    instructions_text = """
-        1. Choose the annotation file ("prot table") that corresponds to the datasets to be analyzed.
-        2. Add the desired Control and Experimental datasets.
-        3. (Optional) If you wish to visualize their read counts, select the desired datasets and click on the "View" button.
-        4. Select the desired analysis method from the dropdown menu on the top-right of the window, and follow its instructions.
-    """.replace("\n            ","\n")
-    
     # constructor
-    def __init__(self, parent, DEBUG=False):
+    def __init__(self, parent):
         # data accessable to all analysis methods
         gui.frame = self
         # connect to GUI tools (otherwise they will not function)
@@ -140,96 +132,33 @@ class TnSeqFrame(wx.Frame):
 
         self.Centre(wx.BOTH)
         self.SetIcon(images.transit_icon.GetIcon())
-
-        self.workdir = os.getcwd()
-        self.transposons = ["himar1", "tn5"]
-        self.verbose = True
         
         self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self.status_bar.SetStatusText("Welcome to TRANSIT")
         
-        pub.subscribe(self.save_histogram, "histogram")
         create_menu(self)
-        
-    def save_histogram(self, msg):
-        data, orf, path, delta = msg
-        n, bins, patches = plt.hist(data, density=1, facecolor="c", alpha=0.75, bins=100)
-        plt.xlabel("Delta Sum")
-        plt.ylabel("Probability")
-        plt.title("%s - Histogram of Delta Sum" % orf)
-        plt.axvline(delta, color="r", linestyle="dashed", linewidth=3)
-        plt.grid(True)
-        genePath = os.path.join(path, orf + ".png")
-        plt.savefig(genePath)
-        plt.clf()
 
-    def SaveFile(
-        self,
-        DIR=None,
-        FILE="",
-        WC='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
-    ):
-        """
-        Create and show the Save FileDialog
-        """
-        path = ""
-
-        if not DIR:
-            DIR = os.getcwd()
-
-        
-        dlg = wx.FileDialog(
-            self,
-            message="Save file as ...",
-            defaultDir=DIR,
-            defaultFile=FILE,
-            wildcard=WC,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+# 
+# PNG render options
+# 
+@transit_tools.ResultsFile
+class PngFile:
+    @staticmethod
+    def can_load(path):
+        return path.endswith(".png")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        from pytransit.specific_tools import gui_tools
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type="Image",
+            path=self.path,
+            # could potentially add file date here
+            
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Image": lambda *args: gui_tools.show_image(self.path),
+            })
         )
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            if self.verbose:
-                logging.log(
-                    "You chose the following output filename: %s" % path
-                )
-        dlg.Destroy()
-        return path
-
-    def OpenFile(self, DIR=".", FILE="", WC=""):
-        """
-        Create and show the Open FileDialog
-        """
-        path = ""
-        
-        dlg = wx.FileDialog(
-            self,
-            message="Save file as ...",
-            defaultDir=DIR,
-            defaultFile=FILE,
-            wildcard=WC,
-            style=wx.FD_OPEN,
-        )
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            if self.verbose:
-                logging.log("You chose the following file: %s" % path)
-        dlg.Destroy()
-        return path
-
-    def choose_normalization(self):
-        norm_methods_choices = sorted(norm_methods.keys())
-        dlg = wx.SingleChoiceDialog(
-            self,
-            "Choose how to normalize read-counts accross datasets.",
-            "Normalization Choice",
-            norm_methods_choices,
-            wx.CHOICEDLG_STYLE,
-        )
-
-        if dlg.ShowModal() == wx.ID_OK:
-            logging.log(
-                "Selected the '%s' normalization method" % dlg.GetStringSelection()
-            )
-
-        dlg.Destroy()
-        return dlg.GetStringSelection()
