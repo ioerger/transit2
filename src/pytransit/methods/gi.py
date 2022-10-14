@@ -104,18 +104,26 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text = self.description,
-                method_descr="""
-                    GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
-                    It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
-                    Provide replicates in each group as a comma-separated list of wig files.
-                    HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
-                    Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
-                    Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-                    By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-                    Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
+                
+                HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes. Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately). Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+                
+                By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+
+                1.  Add an annotation file for the organism corresponding to the desired datasets
+
+                2.  Adding datasets grown under condition A
+                    a. Using the dropdown for Condition A1, select your control dataset for condition A
+                    b. Using the dropdown for Condition A2, select your experimental dataset for condition A
+
+                3.  Adding datasets grown under condition B
+                    a. Using the dropdown for Condition B1, select your control dataset for condition B
+                    b. Using the dropdown for Condition B2, select your experimental dataset for condition B
+
+                4. [Optional] Select the remaining parameters
+
+                5. Click Run
                 """.replace("\n                    ","\n"),
             )
 

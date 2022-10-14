@@ -100,19 +100,21 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions 
-                    at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates 
-                    the probability of this using a Bayesian model.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
+                    
+                1. Of the Conditions in the Conditions pane, select one using the 'Conditions' dropdown
+
+                2. [Optional] Select/Adjust values for the remaining parameters
+
+                3. Click Run
+                
                 """.replace("\n                    ","\n"),
             )
                 
             self.value_getters = LazyDict()
             
-            self.value_getters.condition       = panel_helpers.create_condition_choice(panel,main_sizer, label_text="Condition to analyze:")
+            self.value_getters.condition       = panel_helpers.create_condition_input(panel, main_sizer)
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer) # TTR 
             self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value=10000, tooltip_text="")
             self.value_getters.burnin          = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
@@ -139,7 +141,8 @@ class Method:
             # get annotation
             # 
             Method.inputs.annotation_path = gui.annotation_path
-            transit_tools.validate_annotation(Method.inputs.annotation_path)
+            if not transit_tools.validate_annotation(Method.inputs.annotation_path):
+                return None
 
 
             for each_key, each_getter in Method.value_getters.items():
@@ -152,6 +155,11 @@ class Method:
                 default_file_name=f"{Method.cli_name}_output.csv",
                 output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
             )
+
+            # 
+            # validate
+            # 
+            assert Method.inputs.condition != "[None]", "Please select a condition"
 
             #if not Method.inputs.output_path: return None ### why?
             return Method

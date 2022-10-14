@@ -143,15 +143,22 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
-                    It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
-
-                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
-                    catogory of genes or known biological pathway.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+
+                See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
+                
+                1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
+
+                2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
+
+                3.[Optional] Select/Adjust other parameters
+
+                4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+
+                5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
+
+                6. Click Run
                 """.replace("\n                    ","\n"),
             )
 

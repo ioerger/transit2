@@ -47,10 +47,10 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        #"-Pval_col",
-        #"-Qval_col",
+        "-Pval_col",
+        "-Qval_col",
         "-ranking",
-        #"-LFC_col",
+        "-LFC_col",
         "-p",
         "-Nperm",
         "-PC"
@@ -85,36 +85,123 @@ class Method:
         self.inputs.resampling_file = results_file
         self.define_panel()
 
+    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
+        import csv
+        COG_orgs = []
+        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
+            reader_obj = csv.reader(file_obj)
+            for row in reader_obj:
+                COG_orgs.append(row[1])
+        row_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        if True:
+            # 
+            # tooltip
+            # 
+            if tooltip_text:
+                from pytransit.components.icon import InfoIcon
+                row_sizer.Add(
+                    InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
+                    0,
+                    wx.ALIGN_CENTER_VERTICAL,
+                    gui_tools.default_padding,
+                )
+            # 
+            # button
+            # 
+            if True:
+                popup_button = wx.Button(
+                    panel,
+                    wx.ID_ANY,
+                    button_label,
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    0,
+                )
+                # whenever the button is clicked, popup
+                organism_pathway_text = None
+                organism_pathway = None
+                @gui_tools.bind_to(popup_button, wx.EVT_BUTTON)
+                def when_button_clicked(*args,**kwargs):
+                    nonlocal organism_pathway
+                    win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
+                    popup_sizer = wx.BoxSizer(wx.VERTICAL)
+                    win.SetSizer(popup_sizer)
+
+                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
+                    popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
+                    popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+
+                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
+                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
+
+                    win.Layout()
+                    popup_sizer.Fit(win)
+                    selected_path = win.ShowModal()
+
+                    if selected_path == wx.ID_OK:
+                        pathway_type_selected = pathway_type.GetValue()
+                        organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
+                        popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                        if pathway_type_selected== "COG":                           
+                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))               
+                        elif pathway_type_selected== "KEGG":
+                            organism = wx.ComboBox(win,choices = ["H37Rv"])
+                        elif pathway_type_selected== "Sanger":
+                            organism = wx.ComboBox(win,choices = ["H37Rv"])
+                        else:
+                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
+
+                        popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+                        popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
+
+                        win.Layout()
+                        popup_sizer.Fit(win)
+                        res = win.ShowModal()
+                        if res == wx.ID_OK:
+                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
+                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
+                        win.Destroy()
+                    
+
+            row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+
+            organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
+            row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+        
+        sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args, **kwargs: organism_pathway
+
     def define_panel(self,_=None):
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally 
-                    essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step 
-                    to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test 
-                    (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. For Fisher’s exact 
-                    test, genes in the resampling output file with adjusted p-value < 0.05 are taken as hits, and evaluated for overlap with functional categories 
-                    of genes. The GSEA methods use the whole list of genes, ranked in order of statistical significance (without requiring a cutoff), to calculate
-                    enrichment.
-                """.replace("\n                    "," "),
                 method_specific_instructions="""
+                Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. 
+
+
                     1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select 
                        Input File button below
-                    2. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
-                       Select your own using the Select Custom Associations and Select Custom Pathways Buttons
+
+                    2. Add in Associaiton/Pathway Information
+                        a. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
+                        b. Select your own using the Select Custom Associations and Select Custom Pathways Buttons
+
                     3. Select Pathway Enrichement Method. 
                         * Ontologizer is best suited for GO Terms
+
                     4. [Optional] Adjust parameters
+                    
                     5. Click Run
                 """.replace("\n                    ","\n"),
             )
             self.value_getters = LazyDict()
 
             if Method.inputs.resampling_file == None:
-                self.value_getters.reampling_file = panel_helpers.create_file_input(panel, main_sizer, 
+                self.value_getters.resampling_file = panel_helpers.create_file_input(panel, main_sizer, 
                     button_label="Select Input File", 
                     tooltip_text="FIXME", popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*'
@@ -132,10 +219,9 @@ class Method:
                 allowed_extensions='All files (*.*)|*.*'
             )
 
-            self.value_getters.organism_pathway =  panel_helpers.create_default_pathway_button(panel, main_sizer, 
+            self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select from Provided Files", 
                 tooltip_text="FIXME", 
-                popup_title=""
             )
     
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
@@ -149,6 +235,10 @@ class Method:
                 options= ["SPLV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
             )
+
+            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value="-2", tooltip_text="FIX ME")
+            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value="-1", tooltip_text="FIX ME")
+            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value="6", tooltip_text="FIX ME")
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
@@ -159,12 +249,22 @@ class Method:
 
     @staticmethod
     def from_gui(frame):       
+        # 
+        # get annotation
+        # 
+        Method.inputs.annotation_path = gui.annotation_path
+        if not transit_tools.validate_annotation(Method.inputs.annotation_path):
+            return None
 
+        # 
+        # setup custom inputs
+        #        
         for each_key, each_getter in Method.value_getters.items():
             try:
                 Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+
 
         if Method.inputs.organism_pathway != None:
             organism,pathway = Method.inputs.organism_pathway.split("-")
@@ -181,6 +281,10 @@ class Method:
                 logging.log("Loading in H37Rv Associations for Sanger Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_sanger_roles.dat"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/sanger_roles.dat"
+            elif Method.inputs.organism_pathway =="H37Rv-KEGG":
+                logging.log("Loading in H37Rv Associations for KEGG Pathways")
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_KEGG_roles.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/KEGG_roles.txt"
             elif Method.inputs.organism_pathway =="H37Rv-GO":
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
@@ -194,6 +298,15 @@ class Method:
             default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
+
+
+        # 
+        # validate input files have been selected
+        # 
+        assert Method.inputs.resampling_file != None, "Please select a resampling file"
+        assert Method.inputs.associations_file != None, "Please select an associations file from the pre-provided options or upload your own"
+        assert Method.inputs.pathways_file != None, "Please select a pathways file from the pre-provided options or upload your own"
+
         return Method
 
     @staticmethod
@@ -210,10 +323,10 @@ class Method:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            #pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
-            #qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
+            pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
+            qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SPLV"),
-            #lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
+            lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
             num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -227,17 +340,15 @@ class Method:
             from pytransit.specific_tools import stat_tools
             logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()
-
-            logging.log(Method.inputs.associations_file)
-            logging.log(Method.inputs.pathways_file)
             
-                #checking validation of inputs
+            #checking validation of inputs
             if self.inputs.method == "FET":
-                self.fisher_exact_test()
+                self.hit_summary = self.fisher_exact_test()
             elif self.inputs.method == "GSEA":
-                self.GSEA()
+                up,down = self.GSEA()
+                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
             elif self.inputs.method == "ONT":
-                self.Ontologizer()
+                self.hit_summary = self.Ontologizer()
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
@@ -271,18 +382,12 @@ class Method:
                     ],
                     extra_info=dict(
                         parameters=dict(
-                            #resampling_file = self.inputs.resampling_file,
-                            #associations_file = self.inputs.associations_file,
-                            #pathways_file = self.inputs.pathways_file,
-                            #output_path=self.inputs.output_path,
                             method = self.inputs.method,
-                            #pval_col = self.inputs.pval_col,
-                            #qval_col = self.inputs.qval_col,
                             ranking = self.inputs.ranking,
-                            #lfc_col = self.inputs.lfc_col,
                             enrichment_exponent = self.inputs.enrichment_exponent,
                             num_permutations = self.inputs.num_permutations,
                             pseudocount = self.inputs.pseudocount,
+                            hit_summary = self.hit_summary
                         ),
                     ),
                 )
@@ -298,9 +403,6 @@ class Method:
                     headers = line.split("\t")
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
-                        Method.inputs.pval_col = standardized_headers.index("P Value")
-                        Method.inputs.qval_col = standardized_headers.index("Adj P Value")
-                        Method.inputs.lfc_col = standardized_headers.index("Log 2 FC")
                     continue
                 w = line.rstrip().split("\t")
                 genes.append(w)
@@ -488,19 +590,11 @@ class Method:
                 else:
                     down += 1
 
-        # self.rows.append(
-        #     "# significant pathways enriched for conditionally ESSENTIAL genes: %s (qval<0.05, mean_rank<%s) (includes genes that are MORE required in condition B than A)"
-        #     % (up, n2)
-        # )
         for term, mr, es, pval, qval in results:
             if qval < 0.05 and mr < n2:
                 self.rows.append(
                     "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
                 )
-        # self.rows.append(
-        #     "# significant pathways enriched for conditionally NON-ESSENTIAL genes: %s (qval<0.05, mean_rank>%s) (includes genes that are LESS required in condition B than A)"
-        #     % (down, n2)
-        # )
         # for term, mr, es, pval, qval in results:
         #     if qval < 0.05 and mr > n2:
         #         self.rows.append(
@@ -508,12 +602,6 @@ class Method:
         #         )
         # # self.rows.append("# pathways sorted by mean_rank")
 
-        # self.inputs.output.write(
-        #     "\t".join(
-        #         "#pathway description num_genes mean_rank GSEA_score pval qval genes".split()
-        #     )
-        #     + "\n"
-        # )
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
             rvinfo = [(x, genenames.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
@@ -525,9 +613,9 @@ class Method:
                 + ["%0.6f" % x for x in [es, pval, qval]]
                 + [rvs]
             )
-            #self.inputs.outputs.write("\t".join([str(x) for x in vals]) + "\n")
             self.rows.append(vals)
-        #self.inputs.outputs.close()
+
+        return up, down
 
     # ########## Fisher Exact Test ###############
 
@@ -618,6 +706,8 @@ class Method:
                 intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
                 vals.append(" ".join(intersection))
                 self.rows.append(vals)
+
+            return len([i for i in qvals if i<0.05])
 
         else:
             logging.log("The file you passed in has no hits to run Pathway Enrichment")
@@ -792,6 +882,7 @@ class Method:
                 hits,
             ]
             self.rows.append(vals)
+        return len([i for i in qvals if i<0.05])
 
 
 @transit_tools.ResultsFile
