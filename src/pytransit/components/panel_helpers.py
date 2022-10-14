@@ -687,11 +687,9 @@ if True:
         def run(*args):
             # a workaround for python WX somehow clicking the add files button every time the run method is called
             def run_wrapper():
-                gui.busy_running_method = True
-                try:
+                with gui_tools.nice_error_log:
+                    gui.busy_running_method = True
                     method_instance.Run()
-                except Exception as error:
-                    pass
                 gui.busy_running_method = False
                 
             import threading

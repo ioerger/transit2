@@ -132,7 +132,7 @@ def handle_unrecognized_flags(flags, kwargs, usage_string):
             possible_flags.append("-"+each_name)
     
     for flag_string in kwargs.keys():
-        if flag_string not possible_flags:
+        if flag_string not in possible_flags:
             print(f"{flag_string} was not one of the available flags: {' '.join(flags)}")
             raise Exception(f'''unrecognized flag: {flag_string}\n\n{usage_string}''')
 

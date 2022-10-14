@@ -70,37 +70,6 @@ class Method:
         Method.Run()
     
     # 
-    # Button method
-    # 
-    @gui.add_wig_area_dropdown_option(name=name)
-    def on_button_click(event):
-        transit_tools.require_r_to_be_installed()
-        
-        selected_wig_fingerprints = [ each.fingerprint for each in gui.selected_samples or gui.samples ]
-        Method.inputs.update(dict(
-            combined_wig=gui.combined_wigs[-1].with_only(wig_fingerprints=selected_wig_fingerprints),
-            annotation_path=gui.annotation_path,
-            output_path=None,
-            avg_by_conditions=False,
-            normalization=Method.inputs.normalization,
-        ))
-        
-        # 
-        # validate
-        # 
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
-        assert len(selected_wig_fingerprints), "Please load at least one combined wig file"
-        
-        # 
-        # Ask for inputs
-        # 
-        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"corrplot.png",
-            output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
-        )
-        Method.Run()
-    
-    # 
     # Panel method
     # 
     @gui.add_menu("Pre-Processing", menu_name)

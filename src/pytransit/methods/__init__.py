@@ -19,5 +19,4 @@ from .track_view         import *
 from .scatter_plot       import *
 from .quality_control    import *
 from .loess              import *
-
-# from .heat_map           import *
+from .heatmap            import *

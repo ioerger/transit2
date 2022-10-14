@@ -66,12 +66,9 @@ class Method:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
-            set_instructions(
+            parameter_panel.set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    HANDLE_THIS
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     HANDLE_THIS
                 """.replace("\n                    ","\n"),
