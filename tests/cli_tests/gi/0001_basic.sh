@@ -6,5 +6,4 @@ metadata="./src/pytransit/data/samples_metadata_cg.txt"
 comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 
 python3 ./src/transit.py gi \
-    
     "$result_file"
