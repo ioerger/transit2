@@ -733,7 +733,6 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
 
-    #combined_wig = tnseq_tools.CombinedWig(combined_wig_path)
     info = tnseq_tools.CombinedWigMetadata(metadata_path)
     labels = [info.id_for(x) for x in filenames_in_comb_wig]
 
@@ -767,7 +766,7 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
 
 # might not need to pass in metadata; calc_gene_means() gets it from tnseq_tools
 
-def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2):
+def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2, log_scale=True):
     means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
 
     #determine indexes for 2 samples by sample id (in metadata)
@@ -776,10 +775,16 @@ def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg
     i,j = headers.index(sample1),headers.index(sample2)
     if i==-1 or j==-1: logging.error("sample not found in combined_wig")
 
-    plt.scatter(numpy.log10(means[:,i]),numpy.log10(means[:,j]))
-    plt.xlabel("log10(%s)" % sample1)
-    plt.ylabel("log10(%s)" % sample2)
+    if log_scale: 
+      plt.scatter(numpy.log10(means[:,i]),numpy.log10(means[:,j]))
+      plt.xlabel("log10(%s)" % sample1)
+      plt.ylabel("log10(%s)" % sample2)
+    else:
+      plt.scatter(means[:,i],means[:,j])
+      plt.xlabel("%s" % sample1)
+      plt.ylabel("%s" % sample2)
     plt.title("scatter plot of mean insertion counts for each gene")
     plt.savefig(output_path)
+    plt.clf()
 
 

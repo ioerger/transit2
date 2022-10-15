@@ -37,12 +37,11 @@ class Method:
         c_terminus=0.0,
     )
     
-    valid_cli_flags = [ #TRI - consider adding these flags?
-    ]
+    valid_cli_flags = [ "log" ]
 
-    usage_string = f"""usage: {console_tools.subcommand_prefix} scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>"""
+    usage_string = f"""usage: {console_tools.subcommand_prefix} scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png> [-log]"""
     
-    @gui.add_menu("Method", menu_name)
+    @gui.add_menu("Pre-Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
@@ -50,7 +49,14 @@ class Method:
         from pytransit.components import panel_helpers
         self.value_getters = LazyDict()
         with panel_helpers.NewPanel() as (panel, main_sizer):
-            self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
+            #self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
+            self.value_getters.log_scale = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
+
+            # add normalization?
+           
+            # what if want to show scatterplot of 2 conditions?
+
+            #TRI add to Instructions: "select 2 samples from upper panel on left"
 
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
@@ -59,10 +65,10 @@ class Method:
         # 
         # get annotation
         # 
-        Method.inputs.annotation_path =gui.annotation_path
+        Method.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(Method.inputs.annotation_path)
-        Method.inputs.combined_wig =gui.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
-        Method.inputs.metadata =gui.combined_wigs[0].metadata.path
+        Method.inputs.combined_wig = gui.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
+        Method.inputs.metadata = gui.combined_wigs[0].metadata.path
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value
@@ -73,6 +79,16 @@ class Method:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         #logging.log("included_conditions", Method.inputs.included_conditions)
+
+
+        # determine which 2 samples were selected...
+        #TRI if 3 or more samples selected, show grid of scatterplots?
+        if (len(gui.selected_samples))<2: logging.error("need to select at least 2 samples for making scatter plot")
+        metadata = tnseq_tools.CombinedWigMetadata(Method.inputs.metadata)
+        fp1 = gui.selected_samples[0].fingerprint
+        Method.inputs.sample1 = metadata.id_for(fp1)
+        fp2 = gui.selected_samples[1].fingerprint
+        Method.inputs.sample2 = metadata.id_for(fp2)
         
         # 
         # ask for output path(s)
@@ -113,7 +129,8 @@ class Method:
             sample1 = sample1,
             sample2 = sample2,
             output_path = output_path,
-            normalization=kwargs.get("n", "TTR")
+            normalization = kwargs.get("n", "TTR"),
+            log_scale = "log" in kwargs # bool
         ))
         
         Method.Run()
@@ -134,6 +151,7 @@ class Method:
                 output_path=self.inputs.output_path,
                 sample1=self.inputs.sample1,
                 sample2=self.inputs.sample2,
+                log_scale = self.inputs.log_scale
             )
             
             if gui.is_active:
