@@ -121,18 +121,16 @@ class Method:
     ##################################################
 
     def Run(self):
-      print("here I am")
-      if False:
         with gui_tools.nice_error_log:
             logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()
             
-            self.make_scatterplot(
+            transit_tools.make_scatterplot(
                 combined_wig=self.inputs.combined_wig,
+                metadata=self.inputs.metadata,
                 normalization=self.inputs.normalization,
                 annotation_path=self.inputs.annotation_path,
-                avg_by_conditions=self.inputs.avg_by_conditions,
-                metadata=self.inputs.metadata,
+                avg_by_conditions=False, # self.inputs.avg_by_conditions, #TRI
                 output_path=self.inputs.output_path,
                 sample1=self.inputs.sample1,
                 sample2=self.inputs.sample2,

@@ -28,6 +28,7 @@ import numpy
 import scipy.optimize
 import scipy.stats
 import heapq
+import matplotlib.pyplot as plt
 
 # 
 # optional import: wx
@@ -696,8 +697,10 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     
     return Wig.selected_as_gathered_data(wig_objects)
 
+##########################################
+
 corrplot_r_function = None
-def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path):
+def make_corrplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path):
     global corrplot_r_function
     import numpy
     # instantiate the corrplot_r_function if needed
@@ -714,7 +717,7 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         """)
         corrplot_r_function = globalenv["make_corrplot"]
     
-    means, genes, headers = calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions)
+    means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
 
     position_hash = {}
     for i, col in enumerate(headers):
@@ -723,13 +726,18 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
 
     corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
 
-def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions):
-    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
+
+def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normalization, avg_by_conditions):
+    #sites, data, filenames_in_comb_wig = combined_wig.as_tuple # Jeff
+    #sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(combined_wig) # Tom
+    sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(combined_wig_path) # copied from anova
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
 
-    labels = combined_wig.metadata.wig_ids
+    #labels = combined_wig.metadata.wig_ids # Jeff
+    info = tnseq_tools.CombinedWigMetadata(metadata_path)
+    labels = [info.id_for(x) for x in filenames_in_comb_wig]
 
     # calculate gene means 
     genes = tnseq_tools.Genes(
@@ -764,3 +772,22 @@ def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditi
         labels = condition_per_wig_index
 
     return means, genes, labels
+
+# might not need to pass in metadata; calc_gene_means() gets it from tnseq_tools
+
+def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2):
+    means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
+
+    #determine indexes for 2 samples by sample id (in metadata)
+    # for now, assume avg_by_conditions=F so headers are Ids of each sample
+
+    i,j = headers.index(sample1),headers.index(sample2)
+    if i==-1 or j==-1: logging.error("sample not found in combined_wig")
+
+    plt.scatter(numpy.log10(means[:,i]),numpy.log10(means[:,j]))
+    plt.xlabel("log10(%s)" % sample1)
+    plt.ylabel("log10(%s)" % sample2)
+    plt.title("scatter plot of mean insertion counts for each gene")
+    plt.savefig(output_path)
+
+
