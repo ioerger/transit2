@@ -728,8 +728,8 @@ def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditi
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
-
-    labels = combined_wig.metadata.wig_ids
+    
+    labels = combined_wig.wig_ids
 
     # calculate gene means 
     genes = tnseq_tools.Genes(

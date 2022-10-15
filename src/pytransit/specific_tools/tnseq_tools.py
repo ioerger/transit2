@@ -387,13 +387,19 @@ class CombinedWig:
         return [ each.position for each in self.rows ]
     
     # 
-    # files
+    # files (same order as columns)
     # 
     @property
     def wig_fingerprints(self): return self.extra_data["wig_fingerprints"]
     @wig_fingerprints.setter
     def wig_fingerprints(self, value):
         self.extra_data["wig_fingerprints"] = value
+    # 
+    # wig_ids (same order as columns/wig_fingerprints)
+    # 
+    @property
+    def wig_ids(self):
+        return [ self.metadata.id_for(wig_fingerprint=each) for each in self.wig_fingerprints]
     
     # 
     # conditions
