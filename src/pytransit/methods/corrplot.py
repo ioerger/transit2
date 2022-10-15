@@ -78,7 +78,9 @@ class Method:
         
         selected_wig_fingerprints = [ each.fingerprint for each in gui.selected_samples or gui.samples ]
         Method.inputs.update(dict(
-            combined_wig=gui.combined_wigs[-1].with_only(wig_fingerprints=selected_wig_fingerprints),
+            #combined_wig=gui.combined_wigs[-1].with_only(wig_fingerprints=selected_wig_fingerprints),
+            combined_wig=gui.combined_wigs[-1].main_path,
+            metadata=gui.combined_wigs[-1].metadata_path,
             annotation_path=gui.annotation_path,
             output_path=None,
             avg_by_conditions=False,
@@ -123,7 +125,8 @@ class Method:
         # 
         Method.inputs.annotation_path =gui.annotation_path
         transit_tools.validate_annotation(Method.inputs.annotation_path)
-        Method.inputs.combined_wig = gui.combined_wigs[-1] #TRI what if not defined? fail gracefully?
+        Method.inputs.combined_wig = gui.combined_wigs[-1].main_path #TRI what if not defined? fail gracefully?
+        Method.inputs.metadata = gui.combined_wigs[-1].metadata_path
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value
