@@ -38,12 +38,11 @@ class Method:
     )
     
     valid_cli_flags = [ #TRI - consider adding these flags?
+      "avg_by_conditions"
     ]
     # could add a flag for Adj P Value cutoff (or top n most signif genes)
 
-    #TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
-    #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
-    usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
+    usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <metadata> <annotation_file> <output.png> [-avg_by_conditions]"""
     
     # 
     # CLI method
@@ -53,16 +52,18 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
         # save the data
         Method.inputs.update(dict(
-            combined_wig=tnseq_tools.CombinedWig(
-                main_path=args[0],
-                metadata_path=kwargs.get("avg_by_conditions",None),
-            ),
-            annotation_path=args[1],
-            output_path=args[2], # png file,
+            #combined_wig=tnseq_tools.CombinedWig(
+            #    main_path=args[0],
+            #    metadata_path=args[1]
+            #),
+            combined_wig = args[0],
+            metadata=args[1],
+            annotation_path=args[2],
+            output_path=args[3], # png file,
             avg_by_conditions="avg_by_conditions" in kwargs, # bool
         ))
         
@@ -157,6 +158,7 @@ class Method:
             
             transit_tools.make_corrplot(
                 combined_wig=self.inputs.combined_wig,
+                metadata=self.inputs.metadata,
                 normalization=self.inputs.normalization,
                 annotation_path=self.inputs.annotation_path,
                 avg_by_conditions=self.inputs.avg_by_conditions,

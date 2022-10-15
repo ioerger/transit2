@@ -728,14 +728,12 @@ def make_corrplot(combined_wig, metadata, normalization, annotation_path, avg_by
 
 
 def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normalization, avg_by_conditions):
-    #sites, data, filenames_in_comb_wig = combined_wig.as_tuple # Jeff
-    #sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(combined_wig) # Tom
-    sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(combined_wig_path) # copied from anova
+    sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(combined_wig_path)
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
 
-    #labels = combined_wig.metadata.wig_ids # Jeff
+    #combined_wig = tnseq_tools.CombinedWig(combined_wig_path)
     info = tnseq_tools.CombinedWigMetadata(metadata_path)
     labels = [info.id_for(x) for x in filenames_in_comb_wig]
 
@@ -753,23 +751,17 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
     means = numpy.vstack(means)
 
     if avg_by_conditions:
-        condition_per_wig_index = [
-            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
-                for each_fingerprint in combined_wig.wig_fingerprints
-        ]
-        # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
-        conditions_array = numpy.array(condition_per_wig_index)
+        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata_path)
+        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
+        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
+        condition_list = sorted(list(set(conditions))) # make unique
 
-        # make a reduced numpy array by average over replicates of each condition
+        conditions_array = numpy.array(conditions)
         count_lists = []
-        for each_wig_condition_name in condition_per_wig_index:
-            count_lists.append(
-                # pick columns corresponding to condition; avg across rows (genes)
-                numpy.mean(means[:,conditions_array==each_wig_condition_name],axis=1)
-            )
+        for each_condition in condition_list:
+           count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
         means = numpy.array(count_lists).transpose()
-
-        labels = condition_per_wig_index
+        labels = condition_list
 
     return means, genes, labels
 
