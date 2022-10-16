@@ -764,10 +764,18 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
 
     return means, genes, labels
 
-# might not need to pass in metadata; calc_gene_means() gets it from tnseq_tools
+# get rid of avg_by_conditions?
 
-def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2, log_scale=True):
-    means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
+def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2, gene_means=False, log_scale=False):
+
+    if gene_means: 
+      means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
+      counts = means
+    else:
+      sites, data, fingerprints = tnseq_tools.CombinedWigData.load(combined_wig)
+      info = tnseq_tools.CombinedWigMetadata(metadata)
+      headers = [info.id_for(x) for x in fingerprints]
+      counts = numpy.array(data).transpose()
 
     #determine indexes for 2 samples by sample id (in metadata)
     # for now, assume avg_by_conditions=F so headers are Ids of each sample
@@ -776,14 +784,15 @@ def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg
     if i==-1 or j==-1: logging.error("sample not found in combined_wig")
 
     if log_scale: 
-      plt.scatter(numpy.log10(means[:,i]),numpy.log10(means[:,j]))
+      plt.scatter(numpy.log10(counts[:,i]),numpy.log10(counts[:,j]))
       plt.xlabel("log10(%s)" % sample1)
       plt.ylabel("log10(%s)" % sample2)
     else:
-      plt.scatter(means[:,i],means[:,j])
+      plt.scatter(counts[:,i],counts[:,j])
       plt.xlabel("%s" % sample1)
       plt.ylabel("%s" % sample2)
-    plt.title("scatter plot of mean insertion counts for each gene")
+    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
+    else: plt.title("scatter plot of insertion counts at individual TA sites")
     plt.savefig(output_path)
     plt.clf()
 

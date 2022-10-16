@@ -37,9 +37,9 @@ class Method:
         c_terminus=0.0,
     )
     
-    valid_cli_flags = [ "log" ]
+    valid_cli_flags = [ "log", "genes" ]
 
-    usage_string = f"""usage: {console_tools.subcommand_prefix} scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png> [-log]"""
+    usage_string = f"""usage: {console_tools.subcommand_prefix} scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png> [-genes -log]"""
     
     @gui.add_menu("Pre-Processing", menu_name)
     def on_menu_click(event):
@@ -49,12 +49,19 @@ class Method:
         from pytransit.components import panel_helpers
         self.value_getters = LazyDict()
         with panel_helpers.NewPanel() as (panel, main_sizer):
-            #self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
+
+            sample_ids = [x.id for x in gui.samples]
+            self.value_getters.sample1 = panel_helpers.create_dropdown(panel,main_sizer, sample_ids, label_text="Sample 1:", tooltip_text="select first sample for scatterplot")
+
+            self.value_getters.sample2 = panel_helpers.create_dropdown(panel,main_sizer, sample_ids, label_text="Sample 2:", tooltip_text="select second sample for scatterplot")
+
+            self.value_getters.gene_means = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
+
             self.value_getters.log_scale = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
 
-            # add normalization?
+            # add normalization option? #TRI
            
-            # what if want to show scatterplot of 2 conditions?
+            # what if want to show scatterplot of 2 Conditions?
 
             #TRI add to Instructions: "select 2 samples from upper panel on left"
 
@@ -81,14 +88,15 @@ class Method:
         #logging.log("included_conditions", Method.inputs.included_conditions)
 
 
-        # determine which 2 samples were selected...
-        #TRI if 3 or more samples selected, show grid of scatterplots?
-        if (len(gui.selected_samples))<2: logging.error("need to select at least 2 samples for making scatter plot")
-        metadata = tnseq_tools.CombinedWigMetadata(Method.inputs.metadata)
-        fp1 = gui.selected_samples[0].fingerprint
-        Method.inputs.sample1 = metadata.id_for(fp1)
-        fp2 = gui.selected_samples[1].fingerprint
-        Method.inputs.sample2 = metadata.id_for(fp2)
+#        # determine which 2 samples were selected in samples area...
+#        #TRI if 3 or more samples selected, show grid of scatterplots?
+#        if (len(gui.selected_samples))<2: 
+#          logging.error("need to select at least 2 samples for making scatter plot")
+#        metadata = tnseq_tools.CombinedWigMetadata(Method.inputs.metadata)
+#        fp1 = gui.selected_samples[0].fingerprint
+#        Method.inputs.sample1 = metadata.id_for(fp1)
+#        fp2 = gui.selected_samples[1].fingerprint
+#        Method.inputs.sample2 = metadata.id_for(fp2)
         
         # 
         # ask for output path(s)
@@ -130,6 +138,7 @@ class Method:
             sample2 = sample2,
             output_path = output_path,
             normalization = kwargs.get("n", "TTR"),
+            gene_means = "means" in kwargs, # bool
             log_scale = "log" in kwargs # bool
         ))
         
@@ -151,6 +160,7 @@ class Method:
                 output_path=self.inputs.output_path,
                 sample1=self.inputs.sample1,
                 sample2=self.inputs.sample2,
+                gene_means = self.inputs.gene_means,
                 log_scale = self.inputs.log_scale
             )
             
