@@ -1,6 +1,6 @@
 #Gumbel
 #yaml:
-#    date: 2022-10-10 15:05:17
+#    date: 2022-10-14 12:05:56
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -15,16 +15,16 @@
 #       iN: 0.0
 #       iC: 0.0
 #    annotation_path: ./src/pytransit/genomes/H37Rv.prot_table
-#    time: 61.65486717224121
-#    ES: 554 essential based on Gumbel
-#    ESB: 120 essential based on Binomial
-#    NE: 2763 non-essential
-#    U: 302 uncertain
+#    time: 60.68773603439331
+#    ES: 553 essential based on Gumbel
+#    ESB: 121 essential based on Binomial
+#    NE: 2761 non-essential
+#    U: 304 uncertain
 #    S: 251 too-short
 #    
 #ORF	Gene Name	Description	Number Of Insertions Within ORF	Total Number Of TA Sites Within ORF	Length Of Maximum Run Of Non Insertions	Nucleotide Span For Maximum Run Of Non Insertions	Posterior Probability Of Essentiality	Essentiality Call
 Rv0001	dnaA	chromosomal replication initiation protein 	0	31	31	1365.00	1.0	EB
-Rv0002	dnaN	DNA polymerase III subunit beta 	0	31	31	1167.00	0.8	EB
+Rv0002	dnaN	DNA polymerase III subunit beta 	0	31	31	1167.00	0.7	EB
 Rv0003	recF	recombination protein F 	13	35	7	71.00	0.0	NE
 Rv0004	-	hypothetical protein Rv0004 	1	7	6	308.00	1.0	U
 Rv0005	gyrB	DNA gyrase subunit B 	2	42	40	1997.00	1.0	U
@@ -54,7 +54,7 @@ Rv0028	-	hypothetical protein Rv0028 	2	5	3	128.00	0.0	NE
 Rv0029	-	hypothetical protein Rv0029 	15	18	1	2.00	0.0	NE
 Rv0030	-	hypothetical protein Rv0030 	1	5	3	86.00	0.0	NE
 Rv0031	-	POSSIBLE REMNANT OF A TRANSPOSASE 	0	1	1	2.00	-1.0	S
-Rv0032	bioF2	POSSIBLE 8-AMINO-7-OXONONANOATE SYNTHASE BIOF2 (AONS) (8-AMINO-7-KETOPELARGONATE SYNTHASE) (7-KETO-8-AMINO-PELARGONIC ACID SYNTHETASE) (7-KAP SYNTHETASE) (L-ALANINE--PIMELYL CoA LIGASE) 	29	57	12	231.00	0.0	NE
+Rv0032	bioF2	POSSIBLE 8-AMINO-7-OXONONANOATE SYNTHASE BIOF2 (AONS) (8-AMINO-7-KETOPELARGONATE SYNTHASE) (7-KETO-8-AMINO-PELARGONIC ACID SYNTHETASE) (7-KAP SYNTHETASE) (L-ALANINE--PIMELYL CoA LIGASE) 	29	57	12	231.00	0.0	U
 Rv0033	acpA	PROBABLE ACYL CARRIER PROTEIN ACPA (ACP) 	3	3	0	0.00	-1.0	S
 Rv0034	-	hypothetical protein Rv0034 	4	5	1	2.00	-1.0	S
 Rv0035	fadD34	PROBABLE FATTY-ACID-CoA LIGASE FADD34 (FATTY-ACID-CoA SYNTHETASE) (FATTY-ACID-CoA SYNTHASE) 	22	25	1	2.00	0.0	NE
@@ -365,7 +365,7 @@ Rv0336	-	CONSERVED 13E12 REPEAT FAMILY PROTEIN 	17	18	1	2.00	0.0	NE
 Rv0337c	aspC	aminotransferase AlaT 	0	22	22	1166.00	1.0	E
 Rv0338c	-	PROBABLE IRON-SULFUR-BINDING REDUCTASE 	1	37	36	2394.00	1.0	E
 Rv0339c	-	POSSIBLE TRANSCRIPTIONAL REGULATORY PROTEIN 	19	30	2	174.00	0.0	NE
-Rv0340	-	hypothetical protein Rv0340 	1	5	3	357.00	0.5	U
+Rv0340	-	hypothetical protein Rv0340 	1	5	3	357.00	0.6	U
 Rv0341	iniB	ISONIAZID INDUCTIBLE GENE PROTEIN INIB 	10	19	4	194.00	0.0	NE
 Rv0342	iniA	ISONIAZID INDUCTIBLE GENE PROTEIN INIA 	21	27	3	47.00	0.0	NE
 Rv0343	iniC	ISONIAZID INDUCTIBLE GENE PROTEIN INIC 	10	13	1	2.00	0.0	NE
@@ -674,7 +674,7 @@ Rv0636	-	hypothetical protein Rv0636 	0	7	7	366.00	1.0	EB
 Rv0637	-	hypothetical protein Rv0637 	0	7	7	399.00	1.0	EB
 Rv0638	secE	preprotein translocase subunit SecE 	0	9	9	355.00	1.0	E
 Rv0639	nusG	transcription antitermination protein NusG 	0	12	12	568.00	1.0	E
-Rv0640	rplK	50S ribosomal protein L11 	0	5	5	268.00	1.0	EB
+Rv0640	rplK	50S ribosomal protein L11 	0	5	5	268.00	1.0	E
 Rv0641	rplA	50S ribosomal protein L1 	0	7	7	602.00	1.0	EB
 Rv0642c	mmaA4	METHOXY MYCOLIC ACID SYNTHASE 4 MMAA4 (METHYL MYCOLIC ACID SYNTHASE 4) (MMA4) (HYDROXY MYCOLIC ACID SYNTHASE) 	6	18	5	182.00	0.0	NE
 Rv0643c	mmaA3	METHOXY MYCOLIC ACID SYNTHASE 3 MMAA3 (METHYL MYCOLIC ACID SYNTHASE 3) (MMA3) (HYDROXY MYCOLIC ACID SYNTHASE) 	18	22	2	8.00	0.0	NE
@@ -1300,7 +1300,7 @@ Rv1253	deaD	PROBABLE COLD-SHOCK DEAD-BOX PROTEIN A HOMOLOG DEAD (ATP-dependent R
 Rv1254	-	PROBABLE ACYLTRANSFERASE 	1	26	25	911.00	1.0	U
 Rv1255c	-	PROBABLE TRANSCRIPTIONAL REGULATORY PROTEIN 	5	10	3	49.00	0.0	NE
 Rv1256c	cyp130	PROBA BLE CYTOCHROME P450 130 CYP130 	12	16	1	2.00	0.0	NE
-Rv1257c	-	PROBABLE OXIDOREDUCTASE 	10	16	3	307.00	0.1	U
+Rv1257c	-	PROBABLE OXIDOREDUCTASE 	10	16	3	307.00	0.0	U
 Rv1258c	-	PROBABLE CONSERVED INTEGRAL MEMBRANE TRANSPORT PROTEIN 	16	22	3	152.00	0.0	NE
 Rv1259	-	hypothetical protein Rv1259 	9	14	2	28.00	0.0	NE
 Rv1260	-	hypothetical protein Rv1260 	12	28	8	260.00	0.1	U
@@ -1369,8 +1369,8 @@ Rv1321	-	hypothetical protein Rv1321 	8	12	2	12.00	0.0	NE
 Rv1322	-	hypothetical protein Rv1322 	4	5	1	2.00	-1.0	S
 Rv1322A	-	hypothetical protein Rv1322A 	5	6	1	2.00	0.0	NE
 Rv1323	fadA4	acetyl-CoA acetyltransferase 	12	14	2	167.00	0.0	NE
-Rv1324	-	POSSIBLE THIOREDOXIN 	1	6	5	346.00	0.8	U
-Rv1325c	PE_PGRS24	PE-PGRS FAMILY PROTEIN 	6	10	4	773.00	0.3	U
+Rv1324	-	POSSIBLE THIOREDOXIN 	1	6	5	346.00	0.7	U
+Rv1325c	PE_PGRS24	PE-PGRS FAMILY PROTEIN 	6	10	4	773.00	0.4	U
 Rv1326c	glgB	glycogen branching enzyme 	0	42	42	1998.00	0.8	EB
 Rv1327c	glgE	PROBABLE GLUCANASE GLGE 	0	39	39	1981.00	1.0	E
 Rv1328	glgP	PROBABLE GLYCOGEN PHOSPHORYLASE GLGP 	24	45	4	91.00	0.0	NE
@@ -1406,7 +1406,7 @@ Rv1357c	-	hypothetical protein Rv1357c 	11	13	2	45.00	0.0	NE
 Rv1358	-	PROBABLE TRANSCRIPTIONAL REGULATORY PROTEIN 	44	73	6	95.00	0.0	NE
 Rv1359	-	PROBABLE TRANSCRIPTIONAL REGULATORY PROTEIN 	11	17	2	16.00	0.0	NE
 Rv1360	-	PROBABLE OXIDOREDUCTASE 	13	14	1	2.00	0.0	NE
-Rv1361c	PPE19	PPE FAMILY PROTEIN 	10	14	4	685.00	0.3	U
+Rv1361c	PPE19	PPE FAMILY PROTEIN 	10	14	4	685.00	0.4	U
 Rv1362c	-	POSSIBLE MEMBRANE PROTEIN 	12	14	1	2.00	0.0	NE
 Rv1363c	-	POSSIBLE MEMBRANE PROTEIN 	7	8	1	2.00	0.0	NE
 Rv1364c	-	hypothetical protein Rv1364c 	15	32	4	202.00	0.0	NE
@@ -1531,7 +1531,7 @@ Rv1481	-	PROBABLE MEMBRANE PROTEIN 	0	13	13	941.00	1.0	E
 Rv1482c	-	hypothetical protein Rv1482c 	9	14	2	36.00	0.0	NE
 Rv1483	fabG1	3-OXOACYL-	0	13	13	693.00	1.0	E
 Rv1484	inhA	enoyl-(acyl carrier protein) reductase 	0	9	9	741.00	1.0	E
-Rv1485	hemH	ferrochelatase 	0	25	25	917.00	1.0	E
+Rv1485	hemH	ferrochelatase 	0	25	25	917.00	1.0	EB
 Rv1486c	-	hypothetical protein Rv1486c 	8	8	0	0.00	0.0	NE
 Rv1487	-	hypothetical protein Rv1487 	1	3	2	91.00	0.0	NE
 Rv1488	-	POSSIBLE EXPORTED CONSERVED PROTEIN 	12	15	1	2.00	0.0	NE
@@ -1632,7 +1632,7 @@ Rv1578c	-	Probable phiRv1 phage protein 	1	4	3	150.00	0.2	U
 Rv1579c	-	Probable phiRv1 phage protein 	2	4	2	37.00	-1.0	S
 Rv1580c	-	Probable phiRv1 phage protein 	4	5	1	2.00	0.0	NE
 Rv1581c	-	Probable phiRv1 phage protein 	7	7	0	0.00	0.0	NE
-Rv1582c	-	Probable phiRv1 phage protein 	8	32	12	464.00	1.0	U
+Rv1582c	-	Probable phiRv1 phage protein 	8	32	12	464.00	1.0	E
 Rv1583c	-	Probable phiRv1 phage protein 	4	5	1	2.00	0.0	NE
 Rv1584c	-	Possible phiRv1 phage protein 	2	3	1	2.00	-1.0	S
 Rv1585c	-	Possible phage phiRv1 protein 	1	9	8	362.00	1.0	E
@@ -2480,7 +2480,7 @@ Rv2414c	-	hypothetical protein Rv2414c 	7	12	3	290.00	0.0	NE
 Rv2415c	-	hypothetical protein Rv2415c 	9	14	3	59.00	0.0	NE
 Rv2416c	eis	hypothetical protein Rv2416c 	11	28	4	141.00	0.0	NE
 Rv2417c	-	hypothetical protein Rv2417c 	6	12	4	108.00	0.0	NE
-Rv2418c	-	hypothetical protein Rv2418c 	4	21	9	286.00	0.9	U
+Rv2418c	-	hypothetical protein Rv2418c 	4	21	9	286.00	0.8	U
 Rv2419c	-	PROBABLE PHOSPHOGLYCERATE MUTASE (PHOSPHOGLYCEROMUTASE) 	4	7	2	97.00	0.0	NE
 Rv2420c	-	hypothetical protein Rv2420c 	1	5	2	204.00	0.0	NE
 Rv2421c	nadD	nicotinic acid mononucleotide adenyltransferase 	0	14	14	606.00	1.0	E
@@ -2594,7 +2594,7 @@ Rv2527	-	hypothetical protein Rv2527 	5	9	1	2.00	0.0	NE
 Rv2528c	mrr	PROBABLE RESTRICTION SYSTEM PROTEIN MRR 	5	10	3	221.00	0.0	NE
 Rv2529	-	hypothetical protein Rv2529 	10	16	5	152.00	0.0	NE
 Rv2530A	-	hypothetical protein Rv2530A 	3	5	2	40.00	-1.0	S
-Rv2530c	-	hypothetical protein Rv2530c 	1	3	2	159.00	0.0	NE
+Rv2530c	-	hypothetical protein Rv2530c 	1	3	2	159.00	0.0	U
 Rv2531c	-	PROBABLE AMINO ACID DECARBOXYLASE 	31	50	4	95.00	0.0	NE
 Rv2532c	-	hypothetical protein Rv2532c 	5	6	1	2.00	0.0	NE
 Rv2533c	nusB	transcription antitermination protein NusB 	0	4	4	250.00	1.0	EB
@@ -2656,7 +2656,7 @@ Rv2588c	yajC	preprotein translocase subunit YajC 	2	2	0	0.00	-1.0	S
 Rv2589	gabT	4-aminobutyrate aminotransferase 	18	22	2	22.00	0.0	NE
 Rv2590	fadD9	PROBABLE FATTY-ACID-CoA LIGASE FADD9 (FATTY-ACID-CoA SYNTHETASE) (FATTY-ACID-CoA SYNTHASE) 	53	62	1	2.00	0.0	NE
 Rv2591	PE_PGRS44	PE-PGRS FAMILY PROTEIN 	11	13	1	2.00	0.0	NE
-Rv2592c	ruvB	Holliday junction DNA helicase B 	0	8	8	846.00	1.0	E
+Rv2592c	ruvB	Holliday junction DNA helicase B 	0	8	8	846.00	1.0	EB
 Rv2593c	ruvA	Holliday junction DNA helicase motor protein 	1	6	3	222.00	0.0	NE
 Rv2594c	ruvC	Holliday junction resolvase 	0	6	6	493.00	1.0	EB
 Rv2595	-	hypothetical protein Rv2595 	0	0	0	0.00	-1.0	S
@@ -2884,9 +2884,9 @@ Rv2813	-	hypothetical protein Rv2813 	5	11	4	335.00	0.4	U
 Rv2814c	-	PROBABLE TRANSPOSASE 	23	25	1	2.00	0.0	NE
 Rv2815c	-	PROBABLE TRANSPOSASE 	4	4	0	0.00	0.0	NE
 Rv2816c	-	hypothetical protein Rv2816c 	4	14	5	35.00	0.0	NE
-Rv2817c	-	hypothetical protein Rv2817c 	5	21	9	411.00	0.9	U
+Rv2817c	-	hypothetical protein Rv2817c 	5	21	9	411.00	1.0	U
 Rv2818c	-	hypothetical protein Rv2818c 	16	27	4	124.00	0.0	NE
-Rv2819c	-	hypothetical protein Rv2819c 	8	23	7	581.00	0.8	U
+Rv2819c	-	hypothetical protein Rv2819c 	8	23	7	581.00	0.7	U
 Rv2820c	-	hypothetical protein Rv2820c 	12	19	4	148.00	0.0	NE
 Rv2821c	-	hypothetical protein Rv2821c 	10	13	2	45.00	0.0	NE
 Rv2822c	-	hypothetical protein Rv2822c 	10	13	1	2.00	0.0	NE
@@ -3184,7 +3184,7 @@ Rv3107c	agpS	POSSIBLE ALKYLDIHYDROXYACETONEPHOSPHATE SYNTHASE AGPS (ALKYL-DHAP S
 Rv3108	-	hypothetical protein Rv3108 	3	7	2	43.00	0.0	NE
 Rv3109	moaA1	PROBABLE MOLYBDENUM COFACTOR BIOSYNTHESIS PROTEIN A MOAA1 	7	41	14	369.00	1.0	E
 Rv3110	moaB1	PROBABLE PTERIN-4-ALPHA-CARBINOLAMINE DEHYDRATASE MOAB1 (PHS) (4-ALPHA-HYDROXY-TETRAHYDROPTERIN DEHYDRATASE) (PTERIN-4-A-CARBINOLAMINE DEHYDRATASE) (PHENYLALANINE HYDROXYLASE-STIMULATING PROTEIN) (PHS) (PTERIN CARBINOLAMINE DEHYDRATASE) (PCD) 	3	9	6	102.00	0.0	NE
-Rv3111	moaC	molybdenum cofactor biosynthesis protein C 	5	13	7	238.00	0.1	U
+Rv3111	moaC	molybdenum cofactor biosynthesis protein C 	5	13	7	238.00	0.0	U
 Rv3112	moaD1	PROBABLE MOLYBDENUM COFACTOR BIOSYNTHESIS PROTEIN D MOAD1 (MOLYBDOPTERIN CONVERTING FACTOR SMALL SUBUNIT) (MOLYBDOPTERIN 	0	7	7	235.00	1.0	E
 Rv3113	-	POSSIBLE PHOSPHATASE 	2	8	4	49.00	0.0	NE
 Rv3114	-	hypothetical protein Rv3114 	4	8	2	93.00	0.0	NE
@@ -3778,13 +3778,13 @@ Rv3691	-	hypothetical protein Rv3691 	13	15	2	42.00	0.0	NE
 Rv3692	moxR2	PROBABLE METHANOL DEHYDROGENASE TRANSCRIPTIONAL REGULATORY PROTEIN MOXR2 	11	15	2	18.00	0.0	NE
 Rv3693	-	POSSIBLE CONSERVED MEMBRANE PROTEIN 	7	16	4	128.00	0.0	NE
 Rv3694c	-	POSSIBLE CONSERVED TRANSMEMBRANE PROTEIN 	7	15	3	97.00	0.0	NE
-Rv3695	-	POSSIBLE CONSERVED MEMBRANE PROTEIN 	5	10	5	404.00	0.8	U
+Rv3695	-	POSSIBLE CONSERVED MEMBRANE PROTEIN 	5	10	5	404.00	0.7	U
 Rv3696c	glpK	glycerol kinase 	5	29	8	310.00	0.6	U
 Rv3697c	-	POSSIBLE CONSERVED MEMBRANE PROTEIN 	9	9	0	0.00	0.0	NE
 Rv3698	-	hypothetical protein Rv3698 	20	35	2	12.00	0.0	NE
 Rv3699	-	hypothetical protein Rv3699 	9	13	1	2.00	0.0	NE
 Rv3700c	-	hypothetical protein Rv3700c 	8	13	3	107.00	0.0	NE
-Rv3701c	-	hypothetical protein Rv3701c 	4	15	5	350.00	0.5	U
+Rv3701c	-	hypothetical protein Rv3701c 	4	15	5	350.00	0.6	U
 Rv3702c	-	hypothetical protein Rv3702c 	3	8	4	217.00	0.0	NE
 Rv3703c	-	hypothetical protein Rv3703c 	12	18	1	2.00	0.0	NE
 Rv3704c	gshA	GLUTAMATE--CYSTEINE LIGASE GSHA (GAMMA-GLUTAMYLCYSTEINE SYNTHETASE) (GAMMA-ECS) (GCS) (GAMMA-GLUTAMYL-L-CYSTEINE SYNTHETASE) 	12	14	1	2.00	0.0	NE
@@ -3876,7 +3876,7 @@ Rv3785	-	hypothetical protein Rv3785 	11	14	1	2.00	0.0	NE
 Rv3786c	-	hypothetical protein Rv3786c 	18	23	2	13.00	0.0	NE
 Rv3787c	-	hypothetical protein Rv3787c 	8	10	1	2.00	0.0	NE
 Rv3788	-	nucleoside diphosphate kinase regulator 	6	6	0	0.00	0.0	NE
-Rv3789	-	POSSIBLE CONSERVED INTEGRAL MEMBRANE PROTEIN 	1	8	7	270.00	1.0	E
+Rv3789	-	POSSIBLE CONSERVED INTEGRAL MEMBRANE PROTEIN 	1	8	7	270.00	1.0	U
 Rv3790	-	PROBABLE OXIDOREDUCTASE 	1	27	26	1324.00	1.0	E
 Rv3791	-	short chain dehydrogenase 	0	12	12	691.00	1.0	E
 Rv3792	-	PROBABLE CONSERVED TRANSMEMBRANE PROTEIN 	1	33	32	1733.00	1.0	E

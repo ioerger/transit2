@@ -24,7 +24,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 class Method:
     name = "Gene Means"
     identifier  = name.replace(" ", "")
-    cli_name    = identifier.lower()
+    cli_name    = name.replace(" ", "_").lower()
     menu_name   = f"{name} - calculate mean counts at gene level"
     description = f"""Calculate mean counts at gene level."""
     
@@ -112,7 +112,7 @@ class Method:
         
         # save the flags
         Method.inputs.update(dict(
-            combined_wig=CombinedWig(
+            combined_wig=tnseq_tools.CombinedWig(
                 main_path=args[0],
                 metadata_path=args[1],
                 comments=None,

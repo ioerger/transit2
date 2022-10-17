@@ -7,4 +7,4 @@ comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 DATA="src/pytransit/data/"
 
 # with COG categories
-transit pathwayenrichment "tests/cli_tests/resampling/0001_basic.sh.1.result" $DATA/H37Rv_COG_roles.dat $DATA/COG_roles.dat "$result_file"
+transit pathway_enrichment "tests/cli_tests/resampling/0001_basic.sh.1.result" $DATA/H37Rv_COG_roles.dat $DATA/COG_roles.dat "$result_file"
