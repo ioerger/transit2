@@ -9,6 +9,7 @@ import collections
 import heapq
 
 import numpy
+from statsmodels.stats import multitest
 
 from pytransit.specific_tools import logging, gui_tools
 from pytransit.specific_tools.transit_tools import wx
@@ -43,6 +44,7 @@ class Method:
         lfc_col = 6,
         num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
+        pseudocount = 2
     )
     
     valid_cli_flags = [
@@ -232,7 +234,7 @@ class Method:
 
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Ranking",
-                options= ["SPLV", "LFC"],
+                options= ["SLPV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
             )
 
@@ -240,7 +242,7 @@ class Method:
             self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="FIX ME")
             self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="FIX ME")
                 
-            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
             
@@ -295,7 +297,7 @@ class Method:
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.csv",
+            default_file_name=f"{Method.cli_name}_output.txt",
             output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
 
@@ -325,8 +327,8 @@ class Method:
             method = kwargs.get("M", "FET"),
             pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
             qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
-            ranking = kwargs.get("ranking", "SPLV"),
-            lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
+            ranking = kwargs.get("ranking", "SLPV"),
+            lfc_col = int(kwargs.get("LFC_col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
             num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -482,9 +484,8 @@ class Method:
         return round(numpy.mean([orfs2ranks.get(x, n2) for x in A]), 1)
 
     # during initialization, self.inputs.resampling_file etc have been set, and self.inputs.output_path has been opened
-
-    def GSEA(self):
-        from statsmodels.stats import multitest
+    
+    def GSEA(self):  
         data, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
         )  # hits are not used in GSEA()
@@ -504,10 +505,6 @@ class Method:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.inputs.num_permutations, self.inputs.enrichment_exponent))
-        # self.rows("# ranking genes by %s" % self.inputs.ranking)
-        # self.rows("# total genes: %s, mean rank: %s" % (len(data), n2))
-
         # rank by SLPV=sign(LFC)*log10(pval)
         # note: genes with lowest p-val AND negative LFC have highest scores (like positive correlation)
         # there could be lots of ties with pval=0 or 1, but so be it (there are probably fewer such ties than with Qvals) (randomize order below)
@@ -515,7 +512,6 @@ class Method:
         for w in data:
             orf = w[0]
             if self.inputs.ranking == "SLPV":
-                # Pval_col = headers.index("p-value")
                 p_value = float(w[self.inputs.pval_col])
                 LFC = float(w[self.inputs.lfc_col])
                 SLPV = (-1 if LFC < 0 else 1) * math.log(p_value + 0.000001, 10)
@@ -524,7 +520,6 @@ class Method:
                 # lfc_col = headers.index("log2FC")
                 LFC = float(w[self.inputs.lfc_col])
                 pairs.append((orf, LFC))
-
         # pre-randomize ORFs, to avoid genome-position bias in case of ties in pvals (e.g. 1.0)
         indexes = range(len(pairs))
         indexes = numpy.random.permutation(indexes).tolist()
@@ -537,7 +532,6 @@ class Method:
         for i, (orf, score) in enumerate(pairs):
             orfs2score[orf] = score
             orfs2rank[orf] = i
-
         num_permutations = self.inputs.num_permutations
         results, Total = [], len(terms)
         for i, term in enumerate(terms):
@@ -561,15 +555,15 @@ class Method:
                 if n > 100 and higher > 10:
                     break  # adaptive: can stop after seeing 10 events (permutations with higher ES)
             pval = higher / float(n)
-            vals = [
-                "#",
-                term,
-                num_genes_in_pathway,
-                mr,
-                es,
-                pval,
-                ontology.get(term, "?"),
-            ]
+            # vals = [
+            #     "#",
+            #     term,
+            #     #num_genes_in_pathway,
+            #     mr,
+            #     es,
+            #     pval,
+            #     ontology.get(term, "?"),
+            # ]
             # sys.stderr.write(' '.join([str(x) for x in vals])+'\n')
             percentage = (100.0 * i) / Total
             text = "Running Pathway Enrichment Method... %5.1f%%" % (percentage)
@@ -590,17 +584,15 @@ class Method:
                 else:
                     down += 1
 
-        for term, mr, es, pval, qval in results:
-            if qval < 0.05 and mr < n2:
-                self.rows.append(
-                    "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
+        for term,mr,es,pval,qval in results:
+            if qval<0.05 and mr<n2: 
+                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
                 )
-        # for term, mr, es, pval, qval in results:
-        #     if qval < 0.05 and mr > n2:
-        #         self.rows.append(
-        #             "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
-        #         )
-        # # self.rows.append("# pathways sorted by mean_rank")
+    
+        for term,mr,es,pval,qval in results:
+            if qval<0.05 and mr>n2: 
+                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
+                )
 
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
@@ -616,7 +608,8 @@ class Method:
             self.rows.append(vals)
 
         return up, down
-
+        
+    
     # ########## Fisher Exact Test ###############
 
     # HYPERGEOMETRIC
@@ -628,7 +621,7 @@ class Method:
 
     def fisher_exact_test(self):
         import scipy.stats
-        from statsmodels.stats import multitest
+        
         
         genes, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
@@ -722,7 +715,6 @@ class Method:
 
     def Ontologizer(self):
         import scipy.stats
-        from statsmodels.stats import multitest
         
         # returns True if ch is a descendant of GO (as GO terms, like "GO:0006810")
 
