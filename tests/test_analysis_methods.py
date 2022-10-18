@@ -239,16 +239,16 @@ class TestMethods(TransitTestCase):
     #     self.assertTrue(os.path.exists(output))
 
     # # FIXME: GI test is broken
-    # def test_GI(self):
-    #     #  usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
-    #     args = [ctrl_data_txt, exp_data_txt, ctrl_data_txt, exp_data_txt, small_annotation, output, "-s", "1000"]
-    #     try:
-    #         method_object = GIMethod.from_args(*console_tools.clean_args(args))
-    #     except Exception as error:
-    #             import traceback
-    #             traceback.print_exc()
-    #             print(f'''error = {error}''')
-    #     self.assertTrue(os.path.exists(output))
+    def test_GI(self):
+        #  usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
+        args = [KO_combined_wig, KO_samples_metadata,"H37Rv_day0","H37Rv_day32","Rv2680_day0","Rv2680_day32", annotation, output]
+        try:
+            method_object = GIMethod.from_args(*console_tools.clean_args(args))
+        except Exception as error:
+                import traceback
+                traceback.print_exc()
+                print(f'''error = {error}''')
+        self.assertTrue(os.path.exists(output))
 
 if __name__ == '__main__':
     unittest.main()
