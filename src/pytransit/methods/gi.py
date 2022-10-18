@@ -228,7 +228,7 @@ class Method:
         
     def Run(self):
         logging.log("Starting Genetic Interaction analysis")
-        start_time = time.time()
+        self.start_time = time.time()
 
         ##########################
         # get data
@@ -291,17 +291,18 @@ class Method:
         # note: first comment line is filetype, last comment line is column headers
 
         logging.log(f"Adding File: {self.inputs.output_path}")
-        results_area.add(self.inputs.output_path)
-
+        
         # will open and close file, or print to console
         self.print_gi_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
+        
 
         aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
         allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
         suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
         logging.log("Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s" % (aggra,allev,suppr))
-        logging.log("Time: %0.1fs\n" % (time.time() - start_time))
+        logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
         logging.log("Finished Genetic Interaction analysis")
+        results_area.add(self.inputs.output_path)
 
 
     def calc_gi(self, dataA1, dataA2, dataB1, dataB2, position): # position is vector of TAsite coords
@@ -608,7 +609,8 @@ class Method:
         aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
         allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
         suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
-        
+        print(type(aggra), type(allev), type(suppr))
+
         annot = {}
         for line in open(self.inputs.annotation_path):
             cells = line.rstrip().split('\t')
@@ -665,37 +667,37 @@ class Method:
                 f'{adjusted_label} Adj P Value',
                 'Type Of Interaction',
             ],
-            extra_info={
-                "time": (time.time() - start_time),
-                "Parameters": {
-                    "Normalization Of Counts": self.inputs.normalization,
-                    "Number Of Samples For Monte Carlo": self.inputs.samples,
-                    "Trimming Of TA Sites": {
-                        "N Terminus": f"{self.inputs.n_terminus}%",
-                        "C Terminus": f"{self.inputs.c_terminus}%",
-                    },
-                    "ROPE": f"{self.inputs.rope} (region of probable equivalence around 0)",
-                    "Method For Determining Significance": self.inputs.signif,
-                    "Annotation Path":                     self.inputs.annotation_path,
-                    "Output Path":                         self.inputs.output_path,
-                },
-                "Samples In 4 Conditions": {
-                    "Strain A Condition 1": "%s= %s" % (condA1, ','.join([str(x) for x in condA1samples])),
-                    "Strain A Condition 2": "%s= %s" % (condA2, ','.join([str(x) for x in condA2samples])),
-                    "Strain B Condition 1": "%s= %s" % (condB1, ','.join([str(x) for x in condB1samples])),
-                    "Strain B Condition 2": "%s= %s" % (condB2, ','.join([str(x) for x in condB2samples])),
-                },
-                "Significance Note": significance_note,
-                "Summary Of Genetic Interactions": {
-                    "Aggravating": aggra,
-                    "Alleviating": allev,
-                    "Suppressive": suppr,
-                },
-            },
+            extra_info=dict(
+                time = (time.time() - self.start_time),
+
+                Parameters= dict(
+                    Normalization_Of_Counts= self.inputs.normalization,
+                    Number_Of_Samples_For_Monte_Carlo =self.inputs.samples,
+                    Trimming_Of_TA_Sites = dict(
+                        N_Terminus = f"{self.inputs.n_terminus}%",
+                        C_Terminus = f"{self.inputs.c_terminus}%",
+                    ),
+                    ROPE = f"{self.inputs.rope} (region of probable equivalence around 0)",
+                    Method_For_Determining_Significance = self.inputs.signif,
+                    Annotation_Path =                     self.inputs.annotation_path,
+                    Output_Path=                         self.inputs.output_path,
+                ),
+                Samples_In_4_Conditions= dict(
+                    Strain_A_Condition_1= "%s= %s" % (condA1, ','.join([str(x) for x in condA1samples])),
+                    Strain_A_Condition_2= "%s= %s" % (condA2, ','.join([str(x) for x in condA2samples])),
+                    Strain_B_Condition_1= "%s= %s" % (condB1, ','.join([str(x) for x in condB1samples])),
+                    Strain_B_Condition_2= "%s= %s" % (condB2, ','.join([str(x) for x in condB2samples])),
+                ),
+                Significance_Note = significance_note,
+                Summary_Of_Genetic_Interactions = dict(
+                    Aggravating = aggra,
+                    Alleviating = allev,
+                    Suppressive = suppr,
+                ),
+            ),
         )
         
-        logging.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)                         
+        logging.log("Adding File: %s" % (self.output.name))                       
         logging.log("Finished Genetic Interactions Method")
 
     @staticmethod
@@ -725,28 +727,13 @@ class ResultFileType1:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Method.description,heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Method.description,heading="",column_names=self.column_names,rows=rows).Show(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load GI file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
-        
+        self.column_names, rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+       
     
     def __str__(self):
         return f"""

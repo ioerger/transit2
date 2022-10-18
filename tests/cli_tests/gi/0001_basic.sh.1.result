@@ -1,0 +1,30 @@
+#GI
+#yaml:
+#    date: 2022-10-18 15:05:14
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'gi' './src/pytransit/data/Subu_KO_combined_wig.txt' './src/pytransit/data/Subu_KO_metadata.txt' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './src/pytransit/genomes/H37Rv_dev.prot_table' './tests/cli_tests/gi/0001_basic.sh.1.result'
+#    time: 122.53855490684509
+#    Parameters:
+#       Normalization_Of_Counts: TTR
+#       Number_Of_Samples_For_Monte_Carlo: 10000
+#       Trimming_Of_TA_Sites:
+#          N_Terminus: 0.0%
+#          C_Terminus: 0.0%
+#       ROPE: 0.5 (region of probable equivalence around 0)
+#       Method_For_Determining_Significance: HDI
+#       Annotation_Path: ./src/pytransit/genomes/H37Rv_dev.prot_table
+#       Output_Path: ./tests/cli_tests/gi/0001_basic.sh.1.result
+#    Samples_In_4_Conditions:
+#       Strain_A_Condition_1: H37Rv_day0= H37Rv_day0_rep1,H37Rv_day0_rep2
+#       Strain_A_Condition_2: H37Rv_day32= H37Rv_day32_rep1,H37Rv_day32_rep2,H37Rv_day32_rep3
+#       Strain_B_Condition_1: Rv2680_day0= Rv2680_day0_rep1,Rv2680_day0_rep2
+#       Strain_B_Condition_2: Rv2680_day32= Rv2680_day32_rep1,Rv2680_day32_rep2,Rv2680_day32_rep3
+#    Significance_Note: Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE
+#    Summary_Of_Genetic_Interactions:
+#       Aggravating: 0
+#       Alleviating: 0
+#       Suppressive: 0
+#    
+#ORF	Gene	Annotation	TA Sites	A1 Mean Count	A2 Mean Count	B1 Mean Count	B2 Mean Count	Log FC Strain A	Log FC Strain B	Delta Log FC	Lower Bound Delta Log FC	Upper Bound Delta Log FC	Is HDI Outside ROPE	Probability Of Delta Log FC Being Within ROPE	un Adj P Value	Type Of Interaction
