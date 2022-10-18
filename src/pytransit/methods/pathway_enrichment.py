@@ -786,7 +786,6 @@ class Method:
                         if g not in go2rvs:
                             go2rvs[g] = []
                         go2rvs[g].append(rv)
-
         logging.warn(
             "GO terms with at least one ORF: %s" % len(go2rvs.keys())
         )  # what about between MIN and MAX?
@@ -812,11 +811,11 @@ class Method:
                     studyset.append(w[0])
             pvals.append((w[0], pval))
         pvals.sort(key=lambda x: x[1])
+        print(pvals)
         ranks = {}
         for i, (rv, pval) in enumerate(pvals):
             ranks[rv] = i + 1
         #self.rows.append("# number of resampling hits (qval<0.05): %s" % len(studyset))
-
         counts = []
         n, a = len(allorfs), len(studyset)
         for go in go2rvs.keys():
