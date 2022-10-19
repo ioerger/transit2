@@ -346,28 +346,8 @@ class Method:
             #checking validation of inputs
             if self.inputs.method == "FET":
                 self.hit_summary = self.fisher_exact_test()
-            elif self.inputs.method == "GSEA":
-                up,down = self.GSEA()
-                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
-            elif self.inputs.method == "ONT":
-                self.hit_summary = self.Ontologizer()
-            else:
-                self.inputs.method = "Not a valid method"
-                progress_update("Not a valid method", 100)
-        
-        # 
-        # write output
-        # 
-            if True:
-                logging.log(f"Adding File: {self.inputs.output_path}")
-                # 
-                # write to file
-                # 
-                transit_tools.write_result(
-                    path=self.inputs.output_path, # path=None means write to STDOUT
-                    file_kind=Method.identifier,
-                    rows=self.rows,
-                    column_names=[
+                file_output_type = Method.identifier+"FET"
+                file_columns = [
                         "Pathway",
                         "Total Genes", 
                         "Genes In Path",
@@ -381,20 +361,68 @@ class Method:
                         "Adj P Value", 
                         "Description", 
                         "Genes"
-                    ],
-                    extra_info=dict(
-                        parameters=dict(
-                            method = self.inputs.method,
-                            ranking = self.inputs.ranking,
-                            enrichment_exponent = self.inputs.enrichment_exponent,
-                            num_permutations = self.inputs.num_permutations,
-                            pseudocount = self.inputs.pseudocount,
-                            hit_summary = self.hit_summary
-                        ),
-                    ),
-                )
-                logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
-            results_area.add(self.inputs.output_path)
+                    ]
+            elif self.inputs.method == "GSEA":
+                up,down = self.GSEA()
+                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
+                file_output_type = Method.identifier+"GSEA"
+                file_columns = [
+                        "Pathway",
+                        "Pathway Description"
+                        "Genes in Path", 
+                        "Mean Rank",
+                        "Enrichment" , 
+                        "P Value", 
+                        "Adj P Value", 
+                        "Genes"
+                    ]
+            elif self.inputs.method == "ONT":
+                self.hit_summary = self.Ontologizer()
+                file_output_type = Method.identifier+"ONT"
+                file_columns = [
+                        "Pathway",
+                        "Total Genes", 
+                        "Genes In Path",
+                        "Significant Genes",
+                        "Significent Genes In Path",
+                        "Expected", 
+                        "K Plus PC",
+                        "Number Adjusted By PC",
+                        "Enrichment" , 
+                        "P Value", 
+                        "Adj P Value", 
+                        "Description", 
+                        "Genes"
+                    ]
+            else:
+                self.inputs.method = "Not a valid method"
+                progress_update("Not a valid method", 100)
+        
+        # 
+        # write output
+        # 
+        logging.log(f"Adding File: {self.inputs.output_path}")
+        # 
+        # write to file
+        # 
+        transit_tools.write_result(
+            path=self.inputs.output_path, # path=None means write to STDOUT
+            file_kind=file_output_type,
+            rows=self.rows,
+            column_names=file_columns,
+            extra_info=dict(
+                parameters=dict(
+                    method = self.inputs.method,
+                    ranking = self.inputs.ranking,
+                    enrichment_exponent = self.inputs.enrichment_exponent,
+                    num_permutations = self.inputs.num_permutations,
+                    pseudocount = self.inputs.pseudocount,
+                    hit_summary = self.hit_summary
+                ),
+            ),
+        )
+        logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
+        results_area.add(self.inputs.output_path)
         
     def read_resampling_file(self, filename):
         logging.log("Reading in Resampling File", filename)
@@ -436,6 +464,7 @@ class Method:
         return associations
 
     def read_pathways(self, filename):
+        logging.log("Reading in Pathways File")
         pathways = {}
         with open(filename) as file:
             for line in file:
@@ -486,6 +515,7 @@ class Method:
     # during initialization, self.inputs.resampling_file etc have been set, and self.inputs.output_path has been opened
     
     def GSEA(self):  
+        logging.log("Running GSEA")
         data, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
         )  # hits are not used in GSEA()
@@ -620,6 +650,7 @@ class Method:
     # k = number of hits in category (intersection)
 
     def fisher_exact_test(self):
+        logging.log("Running FET")
         import scipy.stats
         
         
@@ -700,6 +731,7 @@ class Method:
                 vals.append(" ".join(intersection))
                 self.rows.append(vals)
 
+            logging.log("Finishing up FET")
             return len([i for i in qvals if i<0.05])
 
         else:
@@ -876,22 +908,22 @@ class Method:
 
 
 @transit_tools.ResultsFile
-class ResultFileType1:
+class FETResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"FET")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier,
+            type=Method.identifier+"FET",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier,
+                    title=Method.identifier+"FET",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -912,3 +944,77 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
+@transit_tools.ResultsFile
+class GSEAResultsFile:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"GSEA")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Method.identifier+"GSEA",
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier+"GSEA",
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[
+                        "Adj P Value"
+                    ],
+                ).Show(),
+            })
+        )
+        
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+    
+    def __str__(self):
+        return f"""
+            File for {Method.identifier}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
+
+
+@transit_tools.ResultsFile
+class ONTResultsFile:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"ONT")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Method.identifier+"ONT",
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier+"ONT",
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[
+                        "Adj P Value"
+                    ],
+                ).Show(),
+            })
+        )
+        
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+    
+    def __str__(self):
+        return f"""
+            File for {Method.identifier}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
