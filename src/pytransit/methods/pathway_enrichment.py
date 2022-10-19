@@ -204,32 +204,35 @@ class Method:
 
             if Method.inputs.resampling_file == None:
                 self.value_getters.resampling_file = panel_helpers.create_file_input(panel, main_sizer, 
-                    button_label="Select Input File", 
-                    tooltip_text="FIXME", popup_title="Select File with Hits",
+                    button_label="Select Resampling File", 
+                    tooltip_text="The resampling file is the one obtained after using the resampling method in Transit. (It is a tab separated file with 11 columns.) GSEA method makes usage of the last column (adjusted P-value)", 
+                    popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*'
                 )
 
             self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Custom Associations File", 
-                tooltip_text="FIXME", popup_title="Select Associations File",
+                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines. It is OK if there are no associations listed for some genes. Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.", 
+                popup_title="Select Associations File",
                 allowed_extensions='All files (*.*)|*.*'
             )
 
             self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Custom Pathways File", 
-                tooltip_text="FIXME", popup_title="Select Pathways File",
+                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name.", 
+                popup_title="Select Pathways File",
                 allowed_extensions='All files (*.*)|*.*'
             )
 
             self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select from Provided Files", 
-                tooltip_text="FIXME", 
+                tooltip_text="We have a few Associaiton and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
             )
     
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
                 options= ["FET", "GSEA", "ONT"],
-                tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
+                tooltip_text = "Method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
@@ -238,12 +241,12 @@ class Method:
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
             )
 
-            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="FIX ME")
-            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="FIX ME")
-            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="FIX ME")
+            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="Column index with raw P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)")
+            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="Column index with adjusted P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)")
+            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
                 
-            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
-            self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
+            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)

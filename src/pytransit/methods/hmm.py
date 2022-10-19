@@ -111,7 +111,7 @@ class Method:
             self.value_getters = LazyDict()
             if True:
                 self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
+                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
                 self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
                 self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
                 self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
