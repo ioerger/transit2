@@ -29,8 +29,8 @@ class Method:
         output_file=None,
     )
     
+    @staticmethod
     @cli.add_command("convert", name.lower())
-    @classmethod
     def from_args(args, kwargs):
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=2)
 
