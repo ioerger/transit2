@@ -12,5 +12,5 @@ transit pathway_enrichment \
     $DATA/H37Rv_sanger_roles.dat \
     $DATA/sanger_roles.dat \
     "$result_file" \
-    --lfc_col 6 \
+    --LFC_col 6 \
     -M GSEA

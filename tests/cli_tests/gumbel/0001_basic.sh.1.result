@@ -1,6 +1,6 @@
 #Gumbel
 #yaml:
-#    date: 2022-10-14 12:05:56
+#    date: 2022-10-20 12:13:25
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -15,7 +15,7 @@
 #       iN: 0.0
 #       iC: 0.0
 #    annotation_path: ./src/pytransit/genomes/H37Rv.prot_table
-#    time: 60.68773603439331
+#    time: 61.523711919784546
 #    ES: 553 essential based on Gumbel
 #    ESB: 121 essential based on Binomial
 #    NE: 2761 non-essential
