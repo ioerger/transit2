@@ -15,6 +15,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 @misc.singleton
 class Method:
     identifier = "CombinedWig"
+    menu_name = "Combined Wig"
     usage_string = f"""
         {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
         
@@ -42,7 +43,42 @@ class Method:
         ))
         
         Method.Run()
-
+        
+    @gui.add_menu("Pre-Processing", "Export", menu_name)
+    def on_menu_click(event):
+        from pytransit.components import pop_up, panel_helpers
+        
+        @pop_up.create_pop_up(gui.frame, min_width=300)
+        def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
+            normalization_getter   = panel_helpers.create_normalization_input(pop_up_panel, sizer)
+            annotation_path_getter = panel_helpers.create_file_input(pop_up_panel, sizer, button_label="Select Annotation File", tooltip_text="", popup_title="Annotation File", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=refresh)
+            wig_paths_getter       = panel_helpers.create_multi_file_input(pop_up_panel, sizer, button_label="Select Wig Files", tooltip_text="", popup_title="Wig Files"      , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.csv,*.dat,*.out)|*.wig;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
+            
+            @panel_helpers.create_button(pop_up_panel, sizer, label="Export")
+            def when_button_clicked(event):
+                normalization = normalization_getter()
+                annotation_path = annotation_path_getter()
+                wig_paths = wig_paths_getter()
+                output_path = gui_tools.ask_for_output_file_path(
+                    default_file_name=f"recent_export.comwig.csv",
+                    output_extensions='Common output extensions (*.comwig.csv,*.csv,*.dat,*.out)|*.comwig.csv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                )
+                print(f'''wig_paths = {wig_paths}''')
+                
+                # TODO: add validation here
+                
+                Method.inputs.update(dict(
+                    ctrldata=wig_paths,
+                    annotation_path=annotation_path,
+                    output_path=output_path,
+                    normalization=normalization,
+                ))
+                
+                Method.Run()
+                logging.log(f"Finished ComWig Export: {output_path}")
+                close()
+       
+    
     def Run(self):
         logging.log("Starting Combined Wig Export")
         start_time = time.time()

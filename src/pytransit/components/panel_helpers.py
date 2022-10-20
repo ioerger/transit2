@@ -188,6 +188,67 @@ if True:
         sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args, **kwargs: the_file_path
     
+    def create_multi_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
+        """
+            Example:
+                file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
+                file_path_or_none = file_path_getter()
+        """
+        from os.path import basename
+        row_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        if True:
+            # 
+            # tooltip
+            # 
+            if tooltip_text:
+                from pytransit.components.icon import InfoIcon
+                row_sizer.Add(
+                    InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
+                    0,
+                    wx.ALIGN_CENTER_VERTICAL,
+                    gui_tools.default_padding,
+                )
+            
+            # 
+            # button
+            # 
+            if True:
+                add_file_button = wx.Button(
+                    panel,
+                    wx.ID_ANY,
+                    button_label,
+                    wx.DefaultPosition,
+                    wx.DefaultSize,
+                    0,
+                )
+                file_text = None
+                selected_paths = None
+                # whenever the button is clicked, set the file
+                @gui_tools.bind_to(add_file_button, wx.EVT_BUTTON)
+                def when_button_clicked(*args,**kwargs):
+                    nonlocal selected_paths
+                    with gui_tools.nice_error_log:
+                        # set the file path variable
+                        selected_paths = gui_tools.ask_for_files(
+                            message=popup_title,
+                            default_folder=default_folder,
+                            default_file_name=default_file_name,
+                            allowed_extensions=allowed_extensions,
+                        )
+                        names = "\n".join([ basename(each) for each in selected_paths ])
+                        file_text.SetLabel(names)
+                        after_select(*args)
+            row_sizer.Add(add_file_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+            
+            # 
+            # Text
+            # 
+            file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
+            row_sizer.Add(file_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+        
+        sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args, **kwargs: selected_paths
+    
     def create_persistent_file_input(panel, sizer, *, name, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
         """
             Example:
