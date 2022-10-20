@@ -1,8 +1,8 @@
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.universal_data import universal
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-import pytransit.tools.gui_tools as gui_tools
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
+from pytransit.generic_tools.named_list import named_list
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
+from pytransit.specific_tools import logging, gui_tools
 
 class Text:
     """
@@ -10,7 +10,7 @@ class Text:
             self.wx_object
     """
     def __init__(self, content, font_size=12, underline=False, bold=False, italic=False):
-        frame       = universal.frame
+        frame       = gui.frame
         wx_object = wx.StaticText( # not actually static btw
             frame,
             wx.ID_ANY,

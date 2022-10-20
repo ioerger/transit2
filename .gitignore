@@ -2,6 +2,7 @@
 # Custom
 # 
 .env
+src/pytransit/doc/*
 
 # 
 # standard

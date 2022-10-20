@@ -1,0 +1,3 @@
+Wrong number of arguments (2 != 3), see usage below
+
+usage:  transit  corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]

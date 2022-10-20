@@ -15,11 +15,15 @@ import numpy
 
 from transit_test import *
 
-import pytransit.tools.norm_tools as norm_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.stat_tools as stat_tools
-import pytransit.tools.transit_tools as transit_tools
+import pytransit.specific_tools.norm_tools as norm_tools
+import pytransit.specific_tools.tnseq_tools as tnseq_tools
+import pytransit.specific_tools.stat_tools as stat_tools
+import pytransit.specific_tools.transit_tools as transit_tools
 
+
+# fake setup for testing
+from pytransit.globals import gui
+gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
 
 class TestTnSeqTools(TransitTestCase):
     def test_read_data(self):
@@ -104,8 +108,8 @@ class TestTnSeqTools(TransitTestCase):
     def test_clean_args_flag_arguments_with_double_dash(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "--p", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
-        self.assertFalse("p" in kwargs)
-        self.assertFalse("--p" in kwargs)
+        self.assertTrue("p" in kwargs)
+        self.assertTrue("--p" in kwargs)
         self.assertTrue("-p" in kwargs)
 
 if __name__ == '__main__':

@@ -17,12 +17,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import wx
-
-    HAS_WX = True
-except Exception as e:
-    HAS_WX = False
+try: import wx
+except: pass
 
 import pytransit.components.view_trash as view_trash
 import pytransit.components.draw_trash as draw_trash
@@ -32,44 +28,9 @@ import ntpath
 import traceback
 from PIL import Image, ImageDraw, ImageFont
 
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.tools.tnseq_tools as tnseq_tools
-import pytransit.tools.norm_tools as norm_tools
+from pytransit.specific_tools import logging, transit_tools, tnseq_tools, norm_tools, gui_tools
 
 track_prefix = "[TrackView]"
-
-
-def WxBitmapToPilImage(myBitmap):
-    return WxImageToPilImage(WxBitmapToWxImage(myBitmap))
-
-
-def WxBitmapToWxImage(myBitmap):
-    return wx.ImageFromBitmap(myBitmap)
-
-
-# -----
-
-
-def PilImageToWxBitmap(myPilImage):
-    return WxImageToWxBitmap(PilImageToWxImage(myPilImage))
-
-
-def PilImageToWxImage(myPilImage):
-    myWxImage = wx.EmptyImage(myPilImage.size[0], myPilImage.size[1])
-    try:
-        myWxImage.SetData(myPilImage.convert("RGB").tostring())
-    except:
-        myWxImage.SetData(myPilImage.convert("RGB").tobytes())
-    return myWxImage
-
-
-def WxImageToWxBitmap(myWxImage):
-    return myWxImage.ConvertToBitmap()
-
-
-def fetch_name(filepath):
-    return os.path.splitext(ntpath.basename(filepath))[0]
-
 
 # inherit from the MainFrame created in wxFowmBuilder and create CalcFrame
 class TrashFrame(view_trash.MainFrame):
@@ -77,8 +38,8 @@ class TrashFrame(view_trash.MainFrame):
     def __init__(
         self,
         parent,
-        wig_ids=["H37Rv_Sassetti_glycerol.wig"],
-        annotation="H37Rv.prot_table",
+        wig_ids=["H37Rv_Sassetti_glycerol.wig"], # TODO: probably should remove these (I didnt add them) --Jeff
+        annotation="H37Rv.prot_table",           # TODO: probably should remove these (I didnt add them) --Jeff
         gene="",
         scale=None,
         feature_hashes=[],
@@ -91,9 +52,6 @@ class TrashFrame(view_trash.MainFrame):
         self.size = wx.Size(1500, 800)
         self.start = 1
         self.end = 10000
-
-        # self.orf2data = draw_trash.read_prot_table(annotation)
-        # self.hash = draw_trash.hash_prot_genes(annotation)
 
         self.orf2data = transit_tools.get_gene_info(annotation)
         self.hash = transit_tools.get_pos_hash(annotation)
@@ -111,8 +69,8 @@ class TrashFrame(view_trash.MainFrame):
         self.lowerid2id = dict([(x.lower(), x) for x in self.orf2data.keys()])
         self.labels = wig_ids + ["All"]
         
-        from pytransit.tools.transit_tools import gather_sample_data_for
-        self.data, self.position = gather_sample_data_for(selected_samples=True)
+        from pytransit.specific_tools.transit_tools import gather_sample_data_for
+        self.fulldata, self.position = gather_sample_data_for(selected_samples=True)
 
         # Save normalized data
         (self.fulldata_norm, self.factors) = norm_tools.normalize_data(
@@ -141,22 +99,12 @@ class TrashFrame(view_trash.MainFrame):
         self.Fit()
         self.datasetChoice.SetSelection(len(self.labels) - 1)
 
-    def track_message(self, text, time=3000):
-        transit_tools.log(text, track_prefix)
-        self.status_bar.SetStatusText(text)
-        if time > 0:
-            self.timer.Start(time)
-
     def updateFunc(self, event):
         try:
             self.DrawCanvas()
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             traceback.print_exc()
-
-    def clearStatus(self, event):
-        self.status_bar.SetStatusText("")
-        self.timer.Stop()
 
     def leftFunc(self, event):
         start = int(self.startText.GetValue())
@@ -217,10 +165,10 @@ class TrashFrame(view_trash.MainFrame):
             if dataset_ii == (len(self.labels) - 1):
                 maxVal = int(self.maxText.GetValue())
                 self.scale = [maxVal for _ in self.scale]
-                self.track_message("All Datasets scaled to %s" % (maxVal))
+                logging.log("All Datasets scaled to %s" % (maxVal))
             else:
                 self.scale[dataset_ii] = int(self.maxText.GetValue())
-                self.track_message(
+                logging.log(
                     "Dataset '%s' scaled to %s"
                     % (self.datasetChoice.GetString(dataset_ii), self.scale[dataset_ii])
                 )
@@ -231,12 +179,12 @@ class TrashFrame(view_trash.MainFrame):
             self.maxText.Enable(False)
             self.datasetChoice.Enable(False)
             self.globalScale = True
-            self.track_message("Scaling read-counts to local (Window) Maximum.")
+            logging.log("Scaling read-counts to local (Window) Maximum.")
         else:
             self.maxText.Enable(True)
             self.datasetChoice.Enable(True)
             self.globalScale = False
-            self.track_message("Scaling read-counts tracks individually.")
+            logging.log("Scaling read-counts tracks individually.")
         self.updateFunc(event)
 
     def datasetSelectFunc(self, event):
@@ -257,10 +205,10 @@ class TrashFrame(view_trash.MainFrame):
         output_path = self.SaveFile(DIR=".", FILE="reads_canvas.png")
         if output_path:
             finished_image.SaveFile(output_path, wx.BITMAP_TYPE_PNG)
-            self.track_message("Image saved to the following path: %s" % output_path)
+            logging.log("Image saved to the following path: %s" % output_path)
 
     def addFeatureFunc(self, event):
-        wc = u"Known Annotation Formats (*.prot_table,*.gff3,*.gff)|*.prot_table;*.gff3;*.gff;|\nProt Table (*.prot_table)|*.prot_table;|\nGFF3 (*.gff,*.gff3)|*.gff;*.gff3;|\nAll files (*.*)|*.*"
+        wc = "Known Annotation Formats (*.prot_table,*.gff3,*.gff)|*.prot_table;*.gff3;*.gff;|\nProt Table (*.prot_table)|*.prot_table;|\nGFF3 (*.gff,*.gff3)|*.gff;*.gff3;|\nAll files (*.*)|*.*"
         path = self.OpenFile(DIR=self.parent.workdir, FILE="", WC=wc)
         try:
             if path:
@@ -274,9 +222,9 @@ class TrashFrame(view_trash.MainFrame):
                 self.updateFunc(self.parent)
                 self.Fit()
             else:
-                self.track_message("No feature added")
+                logging.log("No feature added")
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             traceback.print_exc()
 
     def checkHMMFeature(self, path):
@@ -284,7 +232,7 @@ class TrashFrame(view_trash.MainFrame):
             if open(path).readline().startswith("#HMM - Sites"):
                 return True
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             return False
         return False
 
@@ -339,7 +287,7 @@ class TrashFrame(view_trash.MainFrame):
         )
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-            self.track_message("You added the following file: %s" % path)
+            logging.log("You added the following file: %s" % path)
         dlg.Destroy()
         return path
 
@@ -358,9 +306,9 @@ class TrashFrame(view_trash.MainFrame):
             combined_match += [gene_match_orf_w_c]
 
         if combined_match:
-            self.track_message("Genes matching query: %s" % ", ".join(combined_match))
+            logging.log("Genes matching query: %s" % ", ".join(combined_match))
         else:
-            self.track_message("No genes matching query!")
+            logging.log("No genes matching query!")
 
         if len(genes_match_name) == 1:  # Check if query is a name
             orf_match = genes_match_name[0]
@@ -387,7 +335,7 @@ class TrashFrame(view_trash.MainFrame):
             self.DrawCanvas()
 
         except Exception as e:
-            self.track_message("ERROR: %s" % e)
+            logging.log("ERROR: %s" % e)
             traceback.print_exc()
 
     def DrawCanvas(self):
@@ -408,7 +356,7 @@ class TrashFrame(view_trash.MainFrame):
                 end=self.end,
             )
             if not self.wasNorm:
-                self.track_message("Normalization factors: %s" % self.factors.flatten())
+                logging.log("Normalization factors: %s" % self.factors.flatten())
             self.wasNorm = True
         else:
             image_pil = draw_trash.draw_canvas(
@@ -426,7 +374,7 @@ class TrashFrame(view_trash.MainFrame):
             )
             self.wasNorm = False
 
-        image_wxImg = PilImageToWxImage(image_pil)
+        image_wxImg = gui_tools.pil_image_to_wx_image(image_pil)
         self.m_bitmap1.SetBitmap(wx.BitmapFromImage(image_wxImg))
         self.Refresh()
         image_pil = ""

@@ -1,8 +1,8 @@
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.universal_data import universal
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-import pytransit.tools.gui_tools as gui_tools
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
+from pytransit.generic_tools.named_list import named_list
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
+from pytransit.specific_tools import logging, gui_tools
 
 class Table:
     """
@@ -14,7 +14,7 @@ class Table:
             self.add(python_obj)
     """
     def __init__(self, initial_columns=None, column_width=None, max_size=(-1, 200)):
-        frame        = universal.frame
+        frame        = gui.frame
         column_width = column_width if column_width is not None else 100
         
         # 

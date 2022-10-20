@@ -14,6 +14,10 @@ from pytpp.tpp_tools import clean_args
 
 import pytpp.__main__
 
+# fake setup for testing
+from pytransit.globals import gui
+gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
+
 tppMain = pytpp.__main__.main
 
 def get_bwa():

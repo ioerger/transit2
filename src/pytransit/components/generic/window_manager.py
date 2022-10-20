@@ -1,8 +1,8 @@
-from pytransit.basics.lazy_dict import LazyDict, stringify, indent
-from pytransit.basics.named_list import named_list
-from pytransit.universal_data import universal
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub, basename
-import pytransit.tools.gui_tools as gui_tools
+from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
+from pytransit.generic_tools.named_list import named_list
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
+from pytransit.specific_tools import logging, gui_tools
 from pytransit.components.generic.box import Column
 
 class WindowManager:
@@ -13,7 +13,7 @@ class WindowManager:
     """
     def __init__(self, default_size=(-1, -1), scroll_rate=(5,5), min_size=None, max_size=None, children=None):
         wx_object = wx.ScrolledWindow(
-            universal.frame,
+            gui.frame,
             wx.ID_ANY,
             wx.DefaultPosition,
             wx.Size(*default_size),

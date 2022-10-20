@@ -3,11 +3,57 @@
 # no args
 if [ -z "$1" ]
 then
+    # 
+    # python code tests
+    # 
+    echo '#'
+    echo '# test_analysis_methods'
+    echo '#'
     python3 ./tests/test_analysis_methods.py
+    echo '#'
+    echo '# test_norm_methods'
+    echo '#'
     python3 ./tests/test_norm_methods.py
+    echo '#'
+    echo '# test_pytransit_tools'
+    echo '#'
     python3 ./tests/test_pytransit_tools.py
+    echo '#'
+    echo '# test_tpp'
+    echo '#'
     python3 ./tests/test_tpp.py
+    
+    
+    # 
+    # CLI tests
+    # 
+    
+    # this loop is so stupidly complicated because of many inherent-to-shell reasons, for example: https://stackoverflow.com/questions/13726764/while-loop-subshell-dilemma-in-bash
+    for_each_item_in="./tests/cli_tests/"; [ -z "$__NESTED_WHILE_COUNTER" ] && __NESTED_WHILE_COUNTER=0;__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER + 1))"; trap 'rm -rf "$__temp_var__temp_folder"' EXIT; __temp_var__temp_folder="$(mktemp -d)"; mkfifo "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER"; (find "$for_each_item_in" -maxdepth 1 ! -path "$for_each_item_in" -print0 2>/dev/null | sort -z > "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER" &); while read -d $'\0' each
+    do
+        each_folder="$each"
+        
+        # this loop is so stupidly complicated because of many inherent-to-shell reasons, for example: https://stackoverflow.com/questions/13726764/while-loop-subshell-dilemma-in-bash
+        for_each_item_in="$each_folder"; [ -z "$__NESTED_WHILE_COUNTER" ] && __NESTED_WHILE_COUNTER=0;__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER + 1))"; trap 'rm -rf "$__temp_var__temp_folder"' EXIT; __temp_var__temp_folder="$(mktemp -d)"; mkfifo "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER"; (find "$for_each_item_in" -maxdepth 1 ! -path "$for_each_item_in" -print0 2>/dev/null | sort -z > "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER" &); while read -d $'\0' each
+        do
+            if [ -x "$each" ]
+            then
+                # if name_of_command doesnt exist
+                if "$each" &> "$each.output"
+                then
+                    echo "    Passed: $each.output"
+                else
+                    echo "    FAILED: $each.output"
+                fi
+            fi
+        done < "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER";__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER - 1))"
+        
+    done < "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER";__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER - 1))"
+    
 else
+    # 
+    # specific CLI tests
+    # 
     test_folder="./tests/cli_tests/$1"
     if ! [ -d "$test_folder" ]
     then
@@ -20,8 +66,13 @@ else
         do
             if [ -x "$each" ]
             then
-                echo "    Running $each"
-                "$each" &> "$each.output"
+                # if name_of_command doesnt exist
+                if "$each" &> "$each.output"
+                then
+                    echo "    Passed: $each.output"
+                else
+                    echo "    FAILED: $each.output"
+                fi
             fi
         done < "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER";__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER - 1))"
     fi

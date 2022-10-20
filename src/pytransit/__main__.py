@@ -1,9 +1,72 @@
+#!/usr/bin/env python3
+import os
 import sys
 import traceback
 
-import pytransit.tools.console_tools as console_tools
-from pytransit.universal_data import universal
+from pytransit.specific_tools import console_tools, logging
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
+import pytransit.methods
 
+
+@cli.add_command("help")
+def help_command(args=[], kwargs={}):
+    from pytransit.generic_tools import misc, command_line
+    # 
+    # create available subcommand string
+    # 
+    if True:
+        subcommand_prefix      = console_tools.subcommand_prefix
+        
+        # convert to strings
+        subcommands_as_strings = [
+            " ".join(each_subcommand)
+                for each_subcommand in cli.subcommands.keys()
+        ]
+        # add color
+        subcommands_as_strings_with_color = [
+            command_line.color(each_subcommand_string+" ", foreground="bright_green")
+                for each_subcommand_string in subcommands_as_strings
+        ]
+        # add prefix
+        subcommands_as_strings_with_color = [
+            misc.indent(subcommand_prefix + each_subcommand_string)
+                for each_subcommand_string in subcommands_as_strings_with_color
+        ]
+        # combine
+        possible_commands = "\n".join(subcommands_as_strings_with_color)
+    
+    # 
+    # user directly asked for help
+    # 
+    if len(args) == 0:
+        logging.error(
+            f"""
+                The available subcommands are:\n{possible_commands}
+                
+                Run a subcommand with no arguments to get subcommand-specific usage/examples
+            """.replace("\n                ","\n"),
+            no_traceback=True,
+        )
+    # 
+    # user failed at something, and we are trying to help
+    # 
+    else:
+        length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
+        given_command                = " ".join(args[:length_of_longest_subcommand])
+        given_command_formatted      = subcommand_prefix + command_line.color(" ".join(args[:length_of_longest_subcommand])+" ", foreground="bright_red")
+        closest_match, *_            = misc.levenshtein_distance_sort(word=given_command, other_words=subcommands_as_strings)
+        closest_match_formatted      = subcommand_prefix + command_line.color(closest_match, foreground="bright_yellow")
+        logging.error(
+            f"""
+                I got this subcommand: {given_command_formatted}
+                Maybe you meant:       {closest_match_formatted}
+                
+                Here are all the available subcommands:\n{possible_commands}
+            """.replace("\n                ","\n"),
+            no_traceback=True,
+        )
+
+# this wrapper exist to help with test cases. Might be good to change the test cases to elimate the need for it
 def main(*args, **kwargs):
     # 
     # Check python version
@@ -13,14 +76,15 @@ def main(*args, **kwargs):
         sys.exit(0)
     
     # 
-    # parse args
+    # parse global args
     # 
     if True:
         # 
         # extract debug value
         # 
-        DEBUG = "--debug" in sys.argv
-        if DEBUG:
+        from pytransit import globals as transit_globals
+        transit_globals.debugging_enabled = "--debug" in sys.argv
+        if transit_globals.debugging_enabled:
             sys.argv.remove("--debug")
             kwargs.pop("-debug")
         
@@ -36,19 +100,19 @@ def main(*args, **kwargs):
         # help command
         # 
         if not args and ("h" in kwargs or "-help" in kwargs):
-            print_help()
+            help_command(args, kwargs)
             sys.exit(0)
-    
+
     # 
     # GUI Mode
     # 
     if not (args or kwargs):
-        universal.interface = "gui"
         # Tried GUI but no wxPython
         if not console_tools.check_if_has_wx():
             print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
             print("")
-            print_help()
+            print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
+            help_command(args, kwargs)
         # WX is available
         else:
             import matplotlib
@@ -62,7 +126,7 @@ def main(*args, **kwargs):
             app = wx.App(False)
 
             # create an object of CalcFrame
-            frame = transit_gui.TnSeqFrame(None, DEBUG)
+            frame = transit_gui.TnSeqFrame(None)
             # show the frame
             frame.Show(True)
             frame.Maximize(True)
@@ -73,107 +137,29 @@ def main(*args, **kwargs):
     # Console mode
     # 
     else:
-        universal.interface = "console"
         import matplotlib
-        from pytransit.methods.analysis import methods as analysis_methods
-        from pytransit.methods.export   import methods as export_methods
-        from pytransit.methods.convert  import methods as convert_methods
-        
-        def run(method, args):
-            setup_object = None
-            try:
-                setup_object = method.from_args(args, kwargs)
-            # dont show traceback for invalid argument errors
-            except console_tools.InvalidArgumentException as error:
-                print("Error: %s" % str(error))
-                print(method.usage_string)
-                sys.exit(1)
-            # show traceback and usage for all other kinds of errors
-            except Exception as error:
-                print("Error: %s" % str(error))
-                traceback.print_exc()
-                print(method.usage_string)
-                sys.exit(1)
-            
-            if setup_object:
-                setup_object.Run()
-                sys.exit(0)
-        
-        def check_if_missing(kind, selected_name, methods):
-            if selected_name not in methods:
-                print(f"Error: Need to specify the {kind} method.")
-                print(f"Please use one of the known methods (or see documentation to add a new one):")
-                for each_export_method in methods:
-                    print(f"\t - {each_export_method}")
-                print(f"Usage: python {sys.argv[0]} {kind} <method>")
-                sys.exit(1)
-        
         matplotlib.use("Agg")
-        method_name, *args = args
-        # 
-        # Analysis
-        # 
-        if method_name in analysis_methods:
-            run(
-                method=analysis_methods[method_name].method,
-                args=args,
-            )
         
         # 
-        # Export
+        # try to match longest sequence of arguments with a subcommand
         # 
-        if method_name.lower() == "export":
-            export_method_name = ""
-            if len(args) > 1:
-                export_method_name, *args = args
-            check_if_missing(kind="export", selected_name=export_method_name, methods=export_methods)
-            run(
-                method=export_methods[export_method_name].method,
-                args=args[1:],  # skip the first argument for some reason
-            )
+        length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
+        for each_length in reversed(range(1, length_of_longest_subcommand+1)):
+            subcommand, subcommand_args = tuple(args[:each_length]), args[each_length:]
+            if subcommand in cli.subcommands:
+                # if the subcommand exists, run it
+                cli.subcommands[subcommand](subcommand_args, kwargs)
+                exit(0)
+        
         # 
-        # Convert
+        # runtime only gets here if no subcommands were matched
         # 
-        elif method_name.lower() == "convert":
-            convert_method_name = ""
-            if len(args) > 1:
-                convert_method_name = args[1]
-            
-            check_if_missing(kind="convert", selected_name=convert_method_name, methods=convert_methods)
-            run(
-                method=export_methods[export_method_name].method,
-                args=args,
-            )
-        # 
-        # Error
-        # 
-        else:
-            print(f"Error: The '{method_name}' method is unknown.")
-            print("Please use one of the known methods (or see documentation to add a new one):")
-            for each_method_name in analysis_methods:
-                print("\t - %s" % each_method_name)
-            print(f"Usage: python {sys.argv[0]} <method>")
+        help_command(args, kwargs)
 
 def run_main():
-    from pytransit.tools.console_tools import clean_args
+    from pytransit.specific_tools.console_tools import clean_args
     (args, kwargs) = clean_args(sys.argv[1:])
     main(*args, **kwargs)
 
-def print_help():
-    from pytransit.methods.analysis import methods as analysis_methods
-    print("To run in Console Mode, try 'transit <method>' with one of the following methods:")
-    print("Analysis methods: ")
-    for each_analysis_method in analysis_methods:
-        ## TODO :: Move normalize to separate subcommand?
-        if each_analysis_method == "normalize":
-            continue
-        print(f"    - {each_analysis_method}")
-    print("Other methods: ")
-    print("    - normalize")
-    print("    - convert")
-    print("    - export")
-    print(f"Usage: python {sys.argv[0]} <method>")
-    print(f"Example: python {sys.argv[0]} normalize --help")
-        
 if __name__ == "__main__":
-    main()
+    run_main()

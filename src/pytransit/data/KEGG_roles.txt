@@ -1,0 +1,600 @@
+09101	Carbohydrate metabolism
+00010	Glycolysis / Gluconeogenesis [PATH:mtu00010]
+00020	Citrate cycle (TCA cycle) [PATH:mtu00020]
+00030	Pentose phosphate pathway [PATH:mtu00030]
+00040	Pentose and glucuronate interconversions [PATH:mtu00040]
+00051	Fructose and mannose metabolism [PATH:mtu00051]
+00052	Galactose metabolism [PATH:mtu00052]
+00053	Ascorbate and aldarate metabolism [PATH:mtu00053]
+00500	Starch and sucrose metabolism [PATH:mtu00500]
+00520	Amino sugar and nucleotide sugar metabolism [PATH:mtu00520]
+00620	Pyruvate metabolism [PATH:mtu00620]
+00630	Glyoxylate and dicarboxylate metabolism [PATH:mtu00630]
+00640	Propanoate metabolism [PATH:mtu00640]
+00650	Butanoate metabolism [PATH:mtu00650]
+00660	C5-Branched dibasic acid metabolism [PATH:mtu00660]
+00562	Inositol phosphate metabolism [PATH:mtu00562]
+09102	Energy metabolism
+00190	Oxidative phosphorylation [PATH:mtu00190]
+00195	Photosynthesis
+00196	Photosynthesis - antenna proteins
+00710	Carbon fixation in photosynthetic organisms
+00720	Carbon fixation pathways in prokaryotes
+00680	Methane metabolism [PATH:mtu00680]
+00910	Nitrogen metabolism [PATH:mtu00910]
+00920	Sulfur metabolism [PATH:mtu00920]
+09103	Lipid metabolism
+00061	Fatty acid biosynthesis [PATH:mtu00061]
+00062	Fatty acid elongation
+00071	Fatty acid degradation [PATH:mtu00071]
+00073	Cutin, suberine and wax biosynthesis
+00100	Steroid biosynthesis [PATH:mtu00100]
+00120	Primary bile acid biosynthesis
+00121	Secondary bile acid biosynthesis [PATH:mtu00121]
+00140	Steroid hormone biosynthesis
+00561	Glycerolipid metabolism [PATH:mtu00561]
+00564	Glycerophospholipid metabolism [PATH:mtu00564]
+00565	Ether lipid metabolism [PATH:mtu00565]
+00600	Sphingolipid metabolism [PATH:mtu00600]
+00590	Arachidonic acid metabolism
+00591	Linoleic acid metabolism
+00592	alpha-Linolenic acid metabolism [PATH:mtu00592]
+01040	Biosynthesis of unsaturated fatty acids [PATH:mtu01040]
+09104	Nucleotide metabolism
+00230	Purine metabolism [PATH:mtu00230]
+00240	Pyrimidine metabolism [PATH:mtu00240]
+09105	Amino acid metabolism
+00250	Alanine, aspartate and glutamate metabolism [PATH:mtu00250]
+00260	Glycine, serine and threonine metabolism [PATH:mtu00260]
+00270	Cysteine and methionine metabolism [PATH:mtu00270]
+00280	Valine, leucine and isoleucine degradation [PATH:mtu00280]
+00290	Valine, leucine and isoleucine biosynthesis [PATH:mtu00290]
+00300	Lysine biosynthesis [PATH:mtu00300]
+00310	Lysine degradation [PATH:mtu00310]
+00220	Arginine biosynthesis [PATH:mtu00220]
+00330	Arginine and proline metabolism [PATH:mtu00330]
+00340	Histidine metabolism [PATH:mtu00340]
+00350	Tyrosine metabolism [PATH:mtu00350]
+00360	Phenylalanine metabolism [PATH:mtu00360]
+00380	Tryptophan metabolism [PATH:mtu00380]
+00400	Phenylalanine, tyrosine and tryptophan biosynthesis [PATH:mtu00400]
+09106	Metabolism of other amino acids
+00410	beta-Alanine metabolism [PATH:mtu00410]
+00430	Taurine and hypotaurine metabolism [PATH:mtu00430]
+00440	Phosphonate and phosphinate metabolism
+00450	Selenocompound metabolism [PATH:mtu00450]
+00460	Cyanoamino acid metabolism [PATH:mtu00460]
+00470	D-Amino acid metabolism [PATH:mtu00470]
+00480	Glutathione metabolism [PATH:mtu00480]
+09107	Glycan biosynthesis and metabolism
+00510	N-Glycan biosynthesis
+00513	Various types of N-glycan biosynthesis
+00512	Mucin type O-glycan biosynthesis
+00515	Mannose type O-glycan biosynthesis [PATH:mtu00515]
+00514	Other types of O-glycan biosynthesis [PATH:mtu00514]
+00532	Glycosaminoglycan biosynthesis - chondroitin sulfate / dermatan sulfate
+00534	Glycosaminoglycan biosynthesis - heparan sulfate / heparin
+00533	Glycosaminoglycan biosynthesis - keratan sulfate
+00531	Glycosaminoglycan degradation
+00563	Glycosylphosphatidylinositol (GPI)-anchor biosynthesis
+00601	Glycosphingolipid biosynthesis - lacto and neolacto series
+00603	Glycosphingolipid biosynthesis - globo and isoglobo series
+00604	Glycosphingolipid biosynthesis - ganglio series
+00511	Other glycan degradation
+00540	Lipopolysaccharide biosynthesis [PATH:mtu00540]
+00542	O-Antigen repeat unit biosynthesis [PATH:mtu00542]
+00541	O-Antigen nucleotide sugar biosynthesis [PATH:mtu00541]
+00550	Peptidoglycan biosynthesis [PATH:mtu00550]
+00552	Teichoic acid biosynthesis [PATH:mtu00552]
+00571	Lipoarabinomannan (LAM) biosynthesis [PATH:mtu00571]
+00572	Arabinogalactan biosynthesis - Mycobacterium [PATH:mtu00572]
+00543	Exopolysaccharide biosynthesis [PATH:mtu00543]
+09108	Metabolism of cofactors and vitamins
+00730	Thiamine metabolism [PATH:mtu00730]
+00740	Riboflavin metabolism [PATH:mtu00740]
+00750	Vitamin B6 metabolism [PATH:mtu00750]
+00760	Nicotinate and nicotinamide metabolism [PATH:mtu00760]
+00770	Pantothenate and CoA biosynthesis [PATH:mtu00770]
+00780	Biotin metabolism [PATH:mtu00780]
+00785	Lipoic acid metabolism [PATH:mtu00785]
+00790	Folate biosynthesis [PATH:mtu00790]
+00670	One carbon pool by folate [PATH:mtu00670]
+00830	Retinol metabolism
+00860	Porphyrin metabolism [PATH:mtu00860]
+00130	Ubiquinone and other terpenoid-quinone biosynthesis [PATH:mtu00130]
+09109	Metabolism of terpenoids and polyketides
+00900	Terpenoid backbone biosynthesis [PATH:mtu00900]
+00902	Monoterpenoid biosynthesis
+00909	Sesquiterpenoid and triterpenoid biosynthesis
+00904	Diterpenoid biosynthesis
+00906	Carotenoid biosynthesis [PATH:mtu00906]
+00905	Brassinosteroid biosynthesis
+00981	Insect hormone biosynthesis
+00908	Zeatin biosynthesis
+00903	Limonene and pinene degradation [PATH:mtu00903]
+00281	Geraniol degradation [PATH:mtu00281]
+01052	Type I polyketide structures
+00522	Biosynthesis of 12-, 14- and 16-membered macrolides
+01051	Biosynthesis of ansamycins
+01059	Biosynthesis of enediyne antibiotics
+01056	Biosynthesis of type II polyketide backbone
+01057	Biosynthesis of type II polyketide products
+00253	Tetracycline biosynthesis
+00523	Polyketide sugar unit biosynthesis [PATH:mtu00523]
+01054	Nonribosomal peptide structures
+01053	Biosynthesis of siderophore group nonribosomal peptides [PATH:mtu01053]
+01055	Biosynthesis of vancomycin group antibiotics
+09110	Biosynthesis of other secondary metabolites
+00940	Phenylpropanoid biosynthesis
+00945	Stilbenoid, diarylheptanoid and gingerol biosynthesis
+00941	Flavonoid biosynthesis
+00944	Flavone and flavonol biosynthesis
+00942	Anthocyanin biosynthesis
+00943	Isoflavonoid biosynthesis
+00901	Indole alkaloid biosynthesis
+00403	Indole diterpene alkaloid biosynthesis
+00950	Isoquinoline alkaloid biosynthesis
+00960	Tropane, piperidine and pyridine alkaloid biosynthesis
+00996	Biosynthesis of various alkaloids
+00232	Caffeine metabolism
+00965	Betalain biosynthesis
+00966	Glucosinolate biosynthesis
+00402	Benzoxazinoid biosynthesis
+00311	Penicillin and cephalosporin biosynthesis [PATH:mtu00311]
+00332	Carbapenem biosynthesis [PATH:mtu00332]
+00261	Monobactam biosynthesis [PATH:mtu00261]
+00331	Clavulanic acid biosynthesis
+00521	Streptomycin biosynthesis [PATH:mtu00521]
+00524	Neomycin, kanamycin and gentamicin biosynthesis
+00525	Acarbose and validamycin biosynthesis [PATH:mtu00525]
+00401	Novobiocin biosynthesis [PATH:mtu00401]
+00404	Staurosporine biosynthesis
+00405	Phenazine biosynthesis
+00333	Prodigiosin biosynthesis
+00254	Aflatoxin biosynthesis
+00998	Biosynthesis of various antibiotics
+00999	Biosynthesis of various plant secondary metabolites [PATH:mtu00999]
+00997	Biosynthesis of various other secondary metabolites
+09111	Xenobiotics biodegradation and metabolism
+00362	Benzoate degradation [PATH:mtu00362]
+00627	Aminobenzoate degradation [PATH:mtu00627]
+00364	Fluorobenzoate degradation [PATH:mtu00364]
+00625	Chloroalkane and chloroalkene degradation [PATH:mtu00625]
+00361	Chlorocyclohexane and chlorobenzene degradation [PATH:mtu00361]
+00623	Toluene degradation [PATH:mtu00623]
+00622	Xylene degradation [PATH:mtu00622]
+00633	Nitrotoluene degradation
+00642	Ethylbenzene degradation
+00643	Styrene degradation [PATH:mtu00643]
+00791	Atrazine degradation
+00930	Caprolactam degradation [PATH:mtu00930]
+00363	Bisphenol degradation
+00621	Dioxin degradation [PATH:mtu00621]
+00626	Naphthalene degradation [PATH:mtu00626]
+00624	Polycyclic aromatic hydrocarbon degradation
+00365	Furfural degradation
+00984	Steroid degradation [PATH:mtu00984]
+00980	Metabolism of xenobiotics by cytochrome P450
+00982	Drug metabolism - cytochrome P450
+00983	Drug metabolism - other enzymes [PATH:mtu00983]
+09112	Not included in regular maps
+09113	Global maps only
+09121	Transcription
+03020	RNA polymerase [PATH:mtu03020]
+03022	Basal transcription factors
+03040	Spliceosome
+09122	Translation
+03010	Ribosome [PATH:mtu03010]
+00970	Aminoacyl-tRNA biosynthesis [PATH:mtu00970]
+03013	Nucleocytoplasmic transport
+03015	mRNA surveillance pathway
+03008	Ribosome biogenesis in eukaryotes
+09123	Folding, sorting and degradation
+03060	Protein export [PATH:mtu03060]
+04141	Protein processing in endoplasmic reticulum
+04130	SNARE interactions in vesicular transport
+04120	Ubiquitin mediated proteolysis
+04122	Sulfur relay system [PATH:mtu04122]
+03050	Proteasome [PATH:mtu03050]
+03018	RNA degradation [PATH:mtu03018]
+09124	Replication and repair
+03030	DNA replication [PATH:mtu03030]
+03410	Base excision repair [PATH:mtu03410]
+03420	Nucleotide excision repair [PATH:mtu03420]
+03430	Mismatch repair [PATH:mtu03430]
+03440	Homologous recombination [PATH:mtu03440]
+03450	Non-homologous end-joining [PATH:mtu03450]
+03460	Fanconi anemia pathway
+09125	Information processing in viruses
+03230	Viral genome structure
+03240	Viral replication
+03250	Viral life cycle - HIV-1 [PATH:mtu03250]
+03260	Virion - Human immunodeficiency virus
+03263	Virion - Enterovirus
+03264	Virion - Flavivirus
+03265	Virion - Lyssavirus
+03266	Virion - Herpesvirus
+03268	Virion - Orthopoxvirus
+09131	Membrane transport
+02010	ABC transporters [PATH:mtu02010]
+02060	Phosphotransferase system (PTS)
+03070	Bacterial secretion system [PATH:mtu03070]
+09132	Signal transduction
+02020	Two-component system [PATH:mtu02020]
+04010	MAPK signaling pathway
+04013	MAPK signaling pathway - fly
+04016	MAPK signaling pathway - plant
+04011	MAPK signaling pathway - yeast
+04012	ErbB signaling pathway
+04014	Ras signaling pathway
+04015	Rap1 signaling pathway
+04310	Wnt signaling pathway
+04330	Notch signaling pathway
+04340	Hedgehog signaling pathway
+04341	Hedgehog signaling pathway - fly
+04350	TGF-beta signaling pathway
+04390	Hippo signaling pathway
+04391	Hippo signaling pathway - fly
+04392	Hippo signaling pathway - multiple species
+04370	VEGF signaling pathway
+04371	Apelin signaling pathway
+04630	JAK-STAT signaling pathway
+04064	NF-kappa B signaling pathway
+04668	TNF signaling pathway
+04066	HIF-1 signaling pathway
+04068	FoxO signaling pathway
+04020	Calcium signaling pathway
+04070	Phosphatidylinositol signaling system
+04072	Phospholipase D signaling pathway
+04071	Sphingolipid signaling pathway
+04024	cAMP signaling pathway
+04022	cGMP-PKG signaling pathway
+04151	PI3K-Akt signaling pathway
+04152	AMPK signaling pathway
+04150	mTOR signaling pathway
+04075	Plant hormone signal transduction
+09133	Signaling molecules and interaction
+04080	Neuroactive ligand-receptor interaction
+04060	Cytokine-cytokine receptor interaction
+04061	Viral protein interaction with cytokine and cytokine receptor
+04512	ECM-receptor interaction
+04514	Cell adhesion molecules
+09141	Transport and catabolism
+04144	Endocytosis
+04145	Phagosome
+04142	Lysosome
+04146	Peroxisome
+04140	Autophagy - animal
+04138	Autophagy - yeast
+04136	Autophagy - other
+04137	Mitophagy - animal
+04139	Mitophagy - yeast
+09143	Cell growth and death
+04110	Cell cycle
+04111	Cell cycle - yeast
+04112	Cell cycle - Caulobacter
+04113	Meiosis - yeast
+04114	Oocyte meiosis
+04210	Apoptosis
+04214	Apoptosis - fly
+04215	Apoptosis - multiple species
+04216	Ferroptosis
+04217	Necroptosis
+04115	p53 signaling pathway
+04218	Cellular senescence
+09144	Cellular community - eukaryotes
+04510	Focal adhesion
+04520	Adherens junction
+04530	Tight junction
+04540	Gap junction
+04550	Signaling pathways regulating pluripotency of stem cells
+09145	Cellular community - prokaryotes
+02024	Quorum sensing [PATH:mtu02024]
+05111	Biofilm formation - Vibrio cholerae
+02025	Biofilm formation - Pseudomonas aeruginosa
+02026	Biofilm formation - Escherichia coli
+09142	Cell motility
+02030	Bacterial chemotaxis
+02040	Flagellar assembly
+04810	Regulation of actin cytoskeleton
+09151	Immune system
+04640	Hematopoietic cell lineage
+04610	Complement and coagulation cascades
+04611	Platelet activation
+04613	Neutrophil extracellular trap formation
+04620	Toll-like receptor signaling pathway
+04624	Toll and Imd signaling pathway
+04621	NOD-like receptor signaling pathway
+04622	RIG-I-like receptor signaling pathway
+04623	Cytosolic DNA-sensing pathway
+04625	C-type lectin receptor signaling pathway
+04650	Natural killer cell mediated cytotoxicity
+04612	Antigen processing and presentation
+04660	T cell receptor signaling pathway
+04658	Th1 and Th2 cell differentiation
+04659	Th17 cell differentiation
+04657	IL-17 signaling pathway
+04662	B cell receptor signaling pathway
+04664	Fc epsilon RI signaling pathway
+04666	Fc gamma R-mediated phagocytosis
+04670	Leukocyte transendothelial migration
+04672	Intestinal immune network for IgA production
+04062	Chemokine signaling pathway
+09152	Endocrine system
+04911	Insulin secretion
+04910	Insulin signaling pathway
+04922	Glucagon signaling pathway
+04923	Regulation of lipolysis in adipocytes
+04920	Adipocytokine signaling pathway
+03320	PPAR signaling pathway
+04929	GnRH secretion
+04912	GnRH signaling pathway
+04913	Ovarian steroidogenesis
+04915	Estrogen signaling pathway
+04914	Progesterone-mediated oocyte maturation
+04917	Prolactin signaling pathway
+04921	Oxytocin signaling pathway
+04926	Relaxin signaling pathway
+04935	Growth hormone synthesis, secretion and action
+04918	Thyroid hormone synthesis
+04919	Thyroid hormone signaling pathway
+04928	Parathyroid hormone synthesis, secretion and action
+04916	Melanogenesis
+04924	Renin secretion
+04614	Renin-angiotensin system
+04925	Aldosterone synthesis and secretion
+04927	Cortisol synthesis and secretion
+09153	Circulatory system
+04260	Cardiac muscle contraction
+04261	Adrenergic signaling in cardiomyocytes
+04270	Vascular smooth muscle contraction
+09154	Digestive system
+04970	Salivary secretion
+04971	Gastric acid secretion
+04972	Pancreatic secretion
+04976	Bile secretion
+04973	Carbohydrate digestion and absorption
+04974	Protein digestion and absorption
+04975	Fat digestion and absorption
+04979	Cholesterol metabolism
+04977	Vitamin digestion and absorption
+04978	Mineral absorption
+09155	Excretory system
+04962	Vasopressin-regulated water reabsorption
+04960	Aldosterone-regulated sodium reabsorption
+04961	Endocrine and other factor-regulated calcium reabsorption
+04964	Proximal tubule bicarbonate reclamation
+04966	Collecting duct acid secretion
+09156	Nervous system
+04724	Glutamatergic synapse
+04727	GABAergic synapse
+04725	Cholinergic synapse
+04728	Dopaminergic synapse
+04726	Serotonergic synapse
+04720	Long-term potentiation
+04730	Long-term depression
+04723	Retrograde endocannabinoid signaling
+04721	Synaptic vesicle cycle
+04722	Neurotrophin signaling pathway
+09157	Sensory system
+04744	Phototransduction
+04745	Phototransduction - fly
+04740	Olfactory transduction
+04742	Taste transduction
+04750	Inflammatory mediator regulation of TRP channels
+09158	Development and regeneration
+04320	Dorso-ventral axis formation
+04360	Axon guidance
+04361	Axon regeneration
+04380	Osteoclast differentiation
+09149	Aging
+04211	Longevity regulating pathway
+04212	Longevity regulating pathway - worm
+04213	Longevity regulating pathway - multiple species
+09159	Environmental adaptation
+04710	Circadian rhythm
+04713	Circadian entrainment
+04711	Circadian rhythm - fly
+04712	Circadian rhythm - plant
+04714	Thermogenesis
+04626	Plant-pathogen interaction
+09161	Cancer: overview
+05200	Pathways in cancer
+05202	Transcriptional misregulation in cancer
+05206	MicroRNAs in cancer
+05205	Proteoglycans in cancer
+05204	Chemical carcinogenesis - DNA adducts
+05207	Chemical carcinogenesis - receptor activation
+05208	Chemical carcinogenesis - reactive oxygen species
+05203	Viral carcinogenesis
+05230	Central carbon metabolism in cancer
+05231	Choline metabolism in cancer
+05235	PD-L1 expression and PD-1 checkpoint pathway in cancer
+09162	Cancer: specific types
+05210	Colorectal cancer
+05212	Pancreatic cancer
+05225	Hepatocellular carcinoma
+05226	Gastric cancer
+05214	Glioma
+05216	Thyroid cancer
+05221	Acute myeloid leukemia
+05220	Chronic myeloid leukemia
+05217	Basal cell carcinoma
+05218	Melanoma
+05211	Renal cell carcinoma
+05219	Bladder cancer
+05215	Prostate cancer
+05213	Endometrial cancer
+05224	Breast cancer
+05222	Small cell lung cancer
+05223	Non-small cell lung cancer
+09172	Infectious disease: viral
+05166	Human T-cell leukemia virus 1 infection
+05170	Human immunodeficiency virus 1 infection
+05161	Hepatitis B
+05160	Hepatitis C
+05171	Coronavirus disease - COVID-19
+05164	Influenza A
+05162	Measles
+05168	Herpes simplex virus 1 infection
+05163	Human cytomegalovirus infection
+05167	Kaposi sarcoma-associated herpesvirus infection
+05169	Epstein-Barr virus infection
+05165	Human papillomavirus infection
+09171	Infectious disease: bacterial
+05110	Vibrio cholerae infection
+05120	Epithelial cell signaling in Helicobacter pylori infection
+05130	Pathogenic Escherichia coli infection
+05132	Salmonella infection
+05131	Shigellosis
+05135	Yersinia infection
+05133	Pertussis
+05134	Legionellosis
+05150	Staphylococcus aureus infection
+05152	Tuberculosis [PATH:mtu05152]
+05100	Bacterial invasion of epithelial cells
+09174	Infectious disease: parasitic
+05146	Amoebiasis
+05144	Malaria
+05145	Toxoplasmosis
+05140	Leishmaniasis
+05142	Chagas disease
+05143	African trypanosomiasis
+09163	Immune disease
+05310	Asthma
+05322	Systemic lupus erythematosus
+05323	Rheumatoid arthritis
+05320	Autoimmune thyroid disease
+05321	Inflammatory bowel disease
+05330	Allograft rejection
+05332	Graft-versus-host disease
+05340	Primary immunodeficiency
+09164	Neurodegenerative disease
+05010	Alzheimer disease
+05012	Parkinson disease
+05014	Amyotrophic lateral sclerosis
+05016	Huntington disease
+05017	Spinocerebellar ataxia
+05020	Prion disease
+05022	Pathways of neurodegeneration - multiple diseases
+09165	Substance dependence
+05030	Cocaine addiction
+05031	Amphetamine addiction
+05032	Morphine addiction
+05033	Nicotine addiction
+05034	Alcoholism
+09166	Cardiovascular disease
+05417	Lipid and atherosclerosis
+05418	Fluid shear stress and atherosclerosis
+05410	Hypertrophic cardiomyopathy
+05412	Arrhythmogenic right ventricular cardiomyopathy
+05414	Dilated cardiomyopathy
+05415	Diabetic cardiomyopathy
+05416	Viral myocarditis
+09167	Endocrine and metabolic disease
+04930	Type II diabetes mellitus
+04940	Type I diabetes mellitus
+04950	Maturity onset diabetes of the young
+04936	Alcoholic liver disease
+04932	Non-alcoholic fatty liver disease
+04931	Insulin resistance
+04933	AGE-RAGE signaling pathway in diabetic complications
+04934	Cushing syndrome
+09175	Drug resistance: antimicrobial
+01501	beta-Lactam resistance [PATH:mtu01501]
+01502	Vancomycin resistance [PATH:mtu01502]
+01503	Cationic antimicrobial peptide (CAMP) resistance [PATH:mtu01503]
+09176	Drug resistance: antineoplastic
+01521	EGFR tyrosine kinase inhibitor resistance
+01524	Platinum drug resistance
+01523	Antifolate resistance
+01522	Endocrine resistance
+09181	Protein families: metabolism
+01000	Enzymes [BR:mtu01000]
+01001	Protein kinases [BR:mtu01001]
+01009	Protein phosphatases and associated proteins [BR:mtu01009]
+01002	Peptidases and inhibitors [BR:mtu01002]
+01003	Glycosyltransferases [BR:mtu01003]
+01005	Lipopolysaccharide biosynthesis proteins [BR:mtu01005]
+01011	Peptidoglycan biosynthesis and degradation proteins [BR:mtu01011]
+01004	Lipid biosynthesis proteins [BR:mtu01004]
+01008	Polyketide biosynthesis proteins [BR:mtu01008]
+01006	Prenyltransferases [BR:mtu01006]
+01007	Amino acid related enzymes [BR:mtu01007]
+00199	Cytochrome P450 [BR:mtu00199]
+00194	Photosynthesis proteins [BR:mtu00194]
+09182	Protein families: genetic information processing
+03000	Transcription factors [BR:mtu03000]
+03021	Transcription machinery [BR:mtu03021]
+03019	Messenger RNA biogenesis [BR:mtu03019]
+03041	Spliceosome
+03011	Ribosome [BR:mtu03011]
+03009	Ribosome biogenesis [BR:mtu03009]
+03016	Transfer RNA biogenesis [BR:mtu03016]
+03012	Translation factors [BR:mtu03012]
+03110	Chaperones and folding catalysts [BR:mtu03110]
+04131	Membrane trafficking [BR:mtu04131]
+04121	Ubiquitin system [BR:mtu04121]
+03051	Proteasome [BR:mtu03051]
+03032	DNA replication proteins [BR:mtu03032]
+03036	Chromosome and associated proteins [BR:mtu03036]
+03400	DNA repair and recombination proteins [BR:mtu03400]
+03029	Mitochondrial biogenesis [BR:mtu03029]
+09183	Protein families: signaling and cellular processes
+02000	Transporters [BR:mtu02000]
+02044	Secretion system [BR:mtu02044]
+02042	Bacterial toxins [BR:mtu02042]
+02022	Two-component system [BR:mtu02022]
+02035	Bacterial motility proteins [BR:mtu02035]
+03037	Cilium and associated proteins [BR:mtu03037]
+04812	Cytoskeleton proteins [BR:mtu04812]
+04147	Exosome [BR:mtu04147]
+02048	Prokaryotic defense system [BR:mtu02048]
+04030	G protein-coupled receptors
+04050	Cytokine receptors
+04054	Pattern recognition receptors
+03310	Nuclear receptors
+04040	Ion channels
+04031	GTP-binding proteins
+04052	Cytokines and growth factors
+04515	Cell adhesion molecules
+04090	CD molecules [BR:mtu04090]
+01504	Antimicrobial resistance genes [BR:mtu01504]
+00535	Proteoglycans
+00536	Glycosaminoglycan binding proteins [BR:mtu00536]
+00537	Glycosylphosphatidylinositol (GPI)-anchored proteins [BR:mtu00537]
+04091	Lectins
+04990	Domain-containing proteins not elsewhere classified
+09185	Viral protein families
+03200	Viral proteins
+03210	Viral fusion proteins
+09184	RNA family
+03100	Non-coding RNAs [BR:mtu03100]
+09191	Unclassified: metabolism
+99980	Enzymes with EC numbers
+99981	Carbohydrate metabolism
+99982	Energy metabolism
+99983	Lipid metabolism
+99984	Nucleotide metabolism
+99985	Amino acid metabolism
+99986	Glycan metabolism
+99987	Cofactor metabolism
+99988	Secondary metabolism
+99999	Others
+09192	Unclassified: genetic information processing
+99973	Transcription
+99974	Translation
+99975	Protein processing
+99976	Replication and repair
+99998	Others
+09193	Unclassified: signaling and cellular processes
+99977	Transport
+99978	Cell growth
+99993	Cell motility
+99995	Signaling proteins
+99992	Structural proteins
+99994	Others
+99979	Unclassified viral proteins
+09194	Poorly characterized
+99996	General function prediction only
+99997	Function unknown

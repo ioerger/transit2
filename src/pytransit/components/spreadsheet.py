@@ -1,11 +1,12 @@
-from pytransit.universal_data import universal
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
-if universal.interface == "gui":
+SpreadSheet = None
+TransitTable = None
+if gui.is_active:
     import wx.grid
 
-    import pytransit.tools.gui_tools as gui_tools
-    from pytransit.tools.transit_tools import wx
-    from pytransit.universal_data import universal
+    from pytransit.specific_tools import logging, gui_tools
+    from pytransit.specific_tools.transit_tools import wx
 
     class TransitTable(wx.grid.GridTableBase):
         """
@@ -82,8 +83,17 @@ if universal.interface == "gui":
         max_height = 800
         
         def __init__(self, title, heading, column_names, rows, sort_by=[]):
-            wx.Frame.__init__(self, universal.frame, size=(-1,-1))
-            self.parent = universal.frame
+            """
+            Arguments:
+                title: string
+                heading: string
+                column_names: list of strings
+                rows: list of dictionaries, keys=column names
+                sort_by: list of strings
+            """
+            
+            wx.Frame.__init__(self, gui.frame, size=(-1,-1))
+            self.parent = gui.frame
             self.col = 0
             self.row = 0
             
@@ -100,7 +110,7 @@ if universal.interface == "gui":
                 outer_box_sizer = wx.BoxSizer(wx.VERTICAL)
                 if True:
                     inner_box_sizer = wx.StaticBoxSizer(
-                        wx.StaticBox(self, wx.ID_ANY, u"Information"), wx.HORIZONTAL
+                        wx.StaticBox(self, wx.ID_ANY, "Information"), wx.HORIZONTAL
                     )
                     header_wxobj = wx.StaticText(self, wx.ID_ANY, self.heading, wx.DefaultPosition, wx.DefaultSize, 0)
                     header_wxobj.Wrap(-1)

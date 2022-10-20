@@ -148,11 +148,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    # 'pypubsub<4.0' and 'wxPython' are needed for GUI only, but go ahead and install them
-    # the reason for restriction on pypubsub is that version>=4.0 does not work with python2 - I can probably get rid of this restriction, since everybody must be using python3 by now
-<<<<<<< HEAD
-    install_requires=['setuptools', 'numpy~=1.16', 'scipy~=1.2', 'matplotlib~=3.0', 'pillow', 'scikit-learn', 'statsmodels~=0.9', 'pypubsub<4.0', 'wxPython', ],
-=======
+    # 'wxPython' is needed for GUI only, but go ahead and install them
     install_requires=[
         'setuptools',
         'numpy~=1.16',
@@ -161,11 +157,9 @@ setup(
         'pillow',
         'scikit-learn',
         'statsmodels~=0.9',
-        'pypubsub<4.0',
         'wxPython',
         'ez-yaml>=1.2.0',
     ],
->>>>>>> jeff/explore
 
     #dependency_links = [
     #	"git+https://github.com/wxWidgets/wxPython.git#egg=wxPython"
@@ -184,7 +178,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'pytransit': ['pytransit/data/*', 'pytransit/doc/*.*', 'pytransit/doc/images/*', 'pytransit/genomes/*']
+        'pytransit': ['pytransit/data/*', 'pytransit/doc/*.*', 'pytransit/doc/images/*', ]
     },
 
     #scripts=['src/tpp.py', 'src/transit.py'],

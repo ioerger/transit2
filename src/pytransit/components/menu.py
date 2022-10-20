@@ -1,31 +1,21 @@
 from collections import defaultdict
 from functools import partial
 
-import pytransit.tools.gui_tools as gui_tools
-import pytransit.tools.transit_tools as transit_tools
-import pytransit.components.qc_display as qc_display
-from pytransit.universal_data import SessionData, universal
+from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.globals import gui, cli, root_folder, debugging_enabled
 import pytransit
 
-method_wrap_width = 250
 selected_export_menu_item = None
-convert_menu_item = None
 documentation_url = "http://saclab.tamu.edu/essentiality/transit/transit.html"
-
-# sets:
-    # universal.selected_method
 
 def create_menu(frame):
     # must imported inside the function to avoid circular import
     import pytransit.components.parameter_panel as parameter_panel
-    from pytransit.methods.analysis   import methods as analysis_methods
-    from pytransit.methods.export     import methods as export_methods
-    from pytransit.methods.convert    import methods as convert_methods
-    from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+    from pytransit.specific_tools.transit_tools import wx
     
     global selected_export_menu_item
-    global convert_menu_item
     menu_bar = wx.MenuBar(0)
+    frame = gui.frame
     
     # 
     # File Menu
@@ -34,427 +24,51 @@ def create_menu(frame):
         file_menu = wx.Menu()
     
         # 
-        # Export Menu
-        # 
-        if True:
-            export_menu_item = wx.Menu()
-            
-            # 
-            # Selected Samples
-            # 
-            if True:
-                selected_export_menu_item = wx.Menu()
-                export_menu_item.AppendSubMenu(
-                    selected_export_menu_item, "Selected Samples"
-                )
-                
-                # 
-                # find export options
-                # 
-                def when_export_clicked(selected_name, event=None):
-                    with gui_tools.nice_error_log:
-                        if frame.verbose: transit_tools.log(f"Selected Export Method: {selected_name}")
-                        gui_tools.run_method_by_label(method_options=export_methods, method_label=selected_name)
-                
-                for name in export_methods:
-                    method = export_methods[name]
-                    method.gui.define_menu_item(frame, method.label)
-                    temp_menu_item = method.gui.menuitem
-                    selected_export_menu_item.Append(temp_menu_item)
-                    
-                    frame.Bind(
-                        wx.EVT_MENU,
-                        partial(when_export_clicked, method.label),
-                        temp_menu_item,
-                    )
-
-            file_menu.AppendSubMenu(export_menu_item, "Export")
-
-        # 
-        # Convert
-        # 
-        if True:
-            convert_menu_item = wx.Menu()
-            
-            # 
-            # prot_table to PTT
-            # 
-            annotation_convert_pt_to_ptt_menu = wx.MenuItem(
-                convert_menu_item,
-                wx.ID_ANY,
-                "prot_table to PTT",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            convert_menu_item.Append(annotation_convert_pt_to_ptt_menu)
-            def when_annotation_pt_to_ptt_clicked(event):
-                with gui_tools.nice_error_log:
-                    annotation_path = universal.session_data.annotation_path
-                    default_file = transit_tools.fetch_name(annotation_path) + ".ptt.table"
-                    # default_dir = os.path.dirname(os.path.realpath(__file__))
-                    default_dir = os.getcwd()
-
-                    if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
-                    else:
-
-                        output_path = frame.SaveFile(default_dir, default_file)
-                        if not output_path:
-                            return
-                        if frame.verbose:
-                            transit_tools.log(
-                                "Converting annotation file from prot_table format to PTT format"
-                            )
-                        from pytransit.tools.transit_tools import gather_sample_data_for
-                        data, position = gather_sample_data_for(selected_samples=True)
-                        orf2info = transit_tools.get_gene_info(annotation_path)
-                        hash = transit_tools.get_pos_hash(annotation_path)
-                        (orf2reads, orf2pos) = tnseq_tools.get_gene_reads(
-                            hash, data, position, orf2info
-                        )
-
-                        output = open(output_path, "w")
-                        output.write("geneID\tstart\tend\tstrand\tTA coordinates\n")
-                        with open(annotation_path) as file:
-                            for line in file:
-                                if line.startswith("#"):
-                                    continue
-                                tmp = line.strip().split("\t")
-                                orf = tmp[8]
-                                name = tmp[7]
-                                desc = tmp[0]
-                                start = int(tmp[1])
-                                end = int(tmp[2])
-                                strand = tmp[3]
-                                ta_str = "no TAs"
-                                if orf in orf2pos:
-                                    ta_str = "\t".join([str(int(ta)) for ta in orf2pos[orf]])
-                                output.write("%s\t%s\t%s\t%s\t%s\n" % (orf, start, end, strand, ta_str))
-                        output.close()
-                        if frame.verbose:
-                            transit_tools.log("Finished conversion")
-
-            frame.Bind(wx.EVT_MENU, when_annotation_pt_to_ptt_clicked, id=annotation_convert_pt_to_ptt_menu.GetId(),  )
-            
-            # 
-            # prot_table to GFF3
-            # 
-            annotation_convert_pt_to_gff3_menu = wx.MenuItem(
-                convert_menu_item,
-                wx.ID_ANY,
-                "prot_table to GFF3",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            convert_menu_item.Append(annotation_convert_pt_to_gff3_menu)
-            def when_annotation_pt_to_gff3_clicked(event):
-                with gui_tools.nice_error_log:
-                    annotation_path = universal.session_data.annotation_path
-                    default_file = transit_tools.fetch_name(annotation_path) + ".gff3"
-                    # default_dir = os.path.dirname(os.path.realpath(__file__))
-                    default_dir = os.getcwd()
-                    output_path = frame.SaveFile(default_dir, default_file)
-
-                    ORGANISM = transit_tools.fetch_name(annotation_path)
-                    if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
-
-                    elif output_path:
-                        if frame.verbose:
-                            transit_tools.log(
-                                "Converting annotation file from prot_table format to GFF3 format"
-                            )
-                        year = time.localtime().tm_year
-                        month = time.localtime().tm_mon
-                        day = time.localtime().tm_mday
-
-                        output = open(output_path, "w")
-                        output.write("##gff-version 3\n")
-                        output.write("##converted to IGV with TRANSIT.\n")
-                        output.write("##date %d-%d-%d\n" % (year, month, day))
-                        output.write("##Type DNA %s\n" % ORGANISM)
-
-                        with open(annotation_path) as file:
-                            for line in file:
-                                if line.startswith("#"):
-                                    continue
-                                tmp = line.strip().split("\t")
-                                desc = tmp[0]
-                                start = int(tmp[1])
-                                end = int(tmp[2])
-                                strand = tmp[3]
-                                length = tmp[4]
-                                name = tmp[7]
-                                orf = tmp[8]
-                                ID = name
-                                desc.replace("%", "%25").replace(";", "%3B").replace(
-                                    "=", "%3D"
-                                ).replace(",", "%2C")
-                                output.write(
-                                    "%s\tRefSeq\tgene\t%d\t%d\t.\t%s\t.\tID=%s;Name=%s;Alias=%s;locus_tag=%s;desc=%s\n"
-                                    % (ORGANISM, start, end, strand, orf, ID, orf, orf, desc)
-                                )
-
-                        output.close()
-                        if frame.verbose:
-                            transit_tools.log("Finished conversion")
-                            
-            frame.Bind(wx.EVT_MENU, when_annotation_pt_to_gff3_clicked, id=annotation_convert_pt_to_gff3_menu.GetId(), )
-
-            # 
-            # PTT to prot_table
-            # 
-            annotation_convert_ptt_to_pt = wx.MenuItem(
-                convert_menu_item,
-                wx.ID_ANY,
-                "PTT to prot_table",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            convert_menu_item.Append(annotation_convert_ptt_to_pt)
-            def when_annotation_ptt_to_pt_clicked(event):
-                with gui_tools.nice_error_log:
-                    
-                    annotation_path = universal.session_data.annotation_path
-                    default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
-                    # default_dir = os.path.dirname(os.path.realpath(__file__))
-                    default_dir = os.getcwd()
-
-                    if not annotation_path:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
-                    else:
-
-                        output_path = frame.SaveFile(default_dir, default_file)
-                        if not output_path:
-                            return
-                        if frame.verbose:
-                            transit_tools.log(
-                                "Converting annotation file from PTT format to prot_table format"
-                            )
-
-                        output = open(output_path, "w")
-                        with open(annotation_path) as file:
-                            for line in file:
-                                if line.startswith("#"):
-                                    continue
-                                if line.startswith("geneID"):
-                                    continue
-                                tmp = line.strip().split("\t")
-                                orf = tmp[0]
-                                if orf == "intergenic":
-                                    continue
-                                name = "-"
-                                desc = "-"
-                                start = int(tmp[1])
-                                end = int(tmp[2])
-                                length = ((end - start + 1) / 3) - 1
-                                strand = tmp[3]
-                                someID = "-"
-                                someID2 = "-"
-                                COG = "-"
-                                output.write(
-                                    "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                                    % (
-                                        desc,
-                                        start,
-                                        end,
-                                        strand,
-                                        length,
-                                        someID,
-                                        someID2,
-                                        name,
-                                        orf,
-                                        COG,
-                                    )
-                                )
-                        output.close()
-                        if frame.verbose:
-                            transit_tools.log("Finished conversion")
-
-            frame.Bind(wx.EVT_MENU, when_annotation_ptt_to_pt_clicked , id=annotation_convert_ptt_to_pt.GetId(),       )
-            
-            
-            # 
-            # find Convert options
-            # 
-            def when_convert_clicked(selected_name, event=None):
-                with gui_tools.nice_error_log:
-                    if frame.verbose: transit_tools.log(f"Selected Convert Method: {selected_name}")
-                    gui_tools.run_method_by_label(method_options=convert_methods, method_label=selected_name)
-
-            for name in convert_methods:
-                convert_methods[name].gui.define_menu_item(frame, convert_methods[name].label)
-                temp_menu_item = convert_methods[name].gui.menuitem
-                convert_menu_item.Append(temp_menu_item)
-
-                frame.Bind(
-                    wx.EVT_MENU,
-                    partial(when_convert_clicked, convert_methods[name].label),
-                    temp_menu_item,
-                )
-            
-            
-            file_menu.AppendSubMenu(convert_menu_item, "Convert")
-        
-        # 
         # Exit
         # 
         if True:
             exit_option = wx.MenuItem( file_menu, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL )
             file_menu.Append(exit_option)
             def when_exit_clicked(event):
-                if frame.verbose: transit_tools.log("Exiting Transit")
                 frame.Close()
             frame.Bind(wx.EVT_MENU, when_exit_clicked, id=exit_option.GetId())
         
         menu_bar.Append(file_menu, "&File")
     
     # 
-    # View Menu
+    # Automated menu creation
     # 
     if True:
-        view_menu_item = wx.Menu()
-        
-        # 
-        # Scatter Plot
-        # 
-        if True:
-            scatter_menu_item = wx.MenuItem(
-                view_menu_item,
-                wx.ID_ANY,
-                "&Scatter Plot",
-                wx.EmptyString,
-                wx.ITEM_NORMAL,
-            )
-            view_menu_item.Append(scatter_menu_item)
-            def when_scatter_plot_clicked(event):
-                with gui_tools.nice_error_log:
-                    import numpy
-                    import matplotlib
-                    import matplotlib.pyplot as plt
-                    import pytransit.tools.stat_tools as stat_tools
-                    selected_samples = universal.session_data.selected_samples
-                    if len(selected_samples) == 2:
-                        if frame.verbose: transit_tools.log( f"Showing scatter plot for: {[ each_sample.id for each_sample in selected_samples ]}")
-                        from pytransit.tools.transit_tools import gather_sample_data_for
-                        data, position = gather_sample_data_for(selected_samples=True)
-                        x = data[0, :]
-                        y = data[1, :]
-
-                        plt.plot(x, y, "bo")
-                        plt.title("Scatter plot - Reads at TA sites")
-                        plt.xlabel(selected_samples[0].id)
-                        plt.ylabel(selected_samples[1].id)
-                        plt.show()
-                    else:
-                        transit_tools.show_error_dialog("Please make sure only two samples are selected")
-            frame.Bind(wx.EVT_MENU, when_scatter_plot_clicked, id=scatter_menu_item.GetId() )
-
-        # 
-        # Track View
-        # 
-        if True:
-            track_view_option = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Track View", wx.EmptyString, wx.ITEM_NORMAL)
-            view_menu_item.Append(track_view_option)
-            def when_track_view_clicked(event, gene=""):
-                with gui_tools.nice_error_log:
-                    import pytransit.components.trash as trash
-                    annotation_path = universal.session_data.annotation_path
-                    wig_ids = [ each_sample.id for each_sample in universal.session_data.selected_samples ]
-
-                    if wig_ids and annotation_path:
-                        if frame.verbose:
-                            transit_tools.log(
-                                "Visualizing counts for: %s"
-                                % ", ".join(wig_ids)
-                            )
-                        view_window = trash.TrashFrame(frame, wig_ids, annotation_path, gene=gene)
-                        view_window.Show()
-                    elif not wig_ids:
-                        transit_tools.show_error_dialog("Error: No samples selected.")
-                        return
-                    else:
-                        transit_tools.show_error_dialog("Error: No annotation file selected.")
-                        return
-
-            frame.Bind(wx.EVT_MENU, when_track_view_clicked, id=track_view_option.GetId())
-        
-        # 
-        # Quality Control
-        # 
-        if True:
-            quality_control_option = wx.MenuItem(view_menu_item, wx.ID_ANY, "&Quality Control", wx.EmptyString, wx.ITEM_NORMAL )
-            view_menu_item.Append( quality_control_option )
-            def when_quality_control_clicked(event):
-                with gui_tools.nice_error_log:
-                    wig_ids = [ each_sample.id for each_sample in universal.session_data.selected_samples ] 
-                    number_of_files = len(wig_ids)
-
-                    if number_of_files <= 0:
-                        raise Exception(f'''No Datasets selected, unable to run''')
-                    else:
-                        transit_tools.log(f"Displaying results: {wig_ids}")
-                        try:
-                            qc_window = qc_display.QualityControlFrame(frame, wig_ids)
-                            qc_window.Show()
-                        except Exception as error:
-                            raise Exception(f"Error occured displaying file: {error}")
-                        
-            frame.Bind(wx.EVT_MENU, when_quality_control_clicked, id=quality_control_option.GetId())
-        
-        menu_bar.Append(view_menu_item, "&View")
-    
-    # 
-    # Analysis Menu
-    # 
-    if True:
-        analysis_menu = wx.Menu()
-        
-        # 
-        # Himar1 & Tn5
-        # 
-        if True:
-            himar1_menu = wx.Menu()
-            tn5_menu = wx.Menu()
-
-            # 
-            # generate methods
-            # 
-            method_names = sorted(analysis_methods.keys())
-            for name in method_names:
-                method = analysis_methods[name]
-                
-                def create_callback():
-                    # these vars need to be defined here because of how python scopes variables
-                    the_method = analysis_methods[name]
-                    the_full_name = analysis_methods[name].full_name
-                    def load_method_wrapper(event):
-                        universal.selected_method = the_method
-                        # hide all the other panel stuff
-                        for each_method_name in method_names:
-                            each_method = analysis_methods[each_method_name]
-                            if each_method.gui.panel:
-                                each_method.gui.panel.Hide()
-                        with gui_tools.nice_error_log:
-                            the_method.gui.define_panel(frame)
-                        return method_select_func(the_full_name, event)
-                    return load_method_wrapper
-                
-                menu_callback = create_callback()
-                
-                # 
-                # himar1 and tn5 menu children
-                # 
-                for method_name, parent_menu in [ ["himar1", himar1_menu], ["tn5", tn5_menu] ]:
-                    temp_menu_item = wx.MenuItem(parent_menu, wx.ID_ANY, method.full_name, wx.EmptyString, wx.ITEM_NORMAL)
-                    frame.Bind(wx.EVT_MENU, menu_callback, temp_menu_item)
-                    parent_menu.Append(temp_menu_item)
+        def recursive_create_sub_menu(remaining_hierarchy):
+            parent_menu = wx.Menu()
+            for each_name, each_sub_value in remaining_hierarchy.items():
+                # base-case option
+                if callable(each_sub_value):
+                    on_click_function = each_sub_value
+                    menu_item = wx.MenuItem(
+                        parent_menu,
+                        wx.ID_ANY,
+                        f"&{each_name}",
+                        wx.EmptyString,
+                        wx.ITEM_NORMAL,
+                    )
+                    parent_menu.Append(menu_item)
+                    frame.Bind(wx.EVT_MENU, on_click_function, id=menu_item.GetId())
+                # more heirarchy
+                elif isinstance(each_sub_value, dict):
+                    parent_menu.AppendSubMenu(
+                        recursive_create_sub_menu(each_sub_value),
+                        f"&{each_name}"
+                    )
             
-            analysis_menu.AppendSubMenu(himar1_menu, "&Himar1 Methods")
-            analysis_menu.AppendSubMenu(tn5_menu, "&Tn5 Methods")
+            return parent_menu
         
-        menu_bar.Append(analysis_menu, "&Analysis")
-
+        # top level menu items are an edgecase
+        for each_name, each_sub_value in gui.menu_heirarchy.items():
+            menu_bar.Append(
+                recursive_create_sub_menu(each_sub_value),
+                f"&{each_name}"
+            )
     # 
     # Help Menu
     # 
@@ -475,7 +89,7 @@ def create_menu(frame):
             help_menu.Append(documentation_option)
             def when_documentation_clicked(event):
                 with gui_tools.nice_error_log:
-                    from pytransit.basics.misc import open_url
+                    from pytransit.generic_tools.misc import open_url
                     open_url(documentation_url)
                     
             frame.Bind(wx.EVT_MENU, when_documentation_clicked, id=documentation_option.GetId())
@@ -538,135 +152,3 @@ def create_menu(frame):
             menu_bar.Append(help_menu, "&Help")
     
     frame.SetMenuBar(menu_bar)
-
-
-def method_select_func(selected_name, event):
-    import pytransit.components.parameter_panel as parameter_panel
-    from pytransit.components.parameter_panel import panel
-    
-    global method_wrap_width
-    
-    frame = universal.frame
-    parameter_panel.hide_all_options()
-    
-    # If empty is selected
-    if selected_name == "[Choose Method]":
-        panel.method_info_text.SetLabel("Instructions")
-        panel.method_instructions.Show()
-        panel.method_instructions.SetLabel(frame.instructions_text)
-        panel.method_instructions.Wrap(method_wrap_width)
-        panel.method_short_text.Hide()
-        panel.method_long_text.Hide()
-        panel.method_tn_text.Hide()
-        panel.method_desc_text.Hide()
-
-        panel.method_choice = ""
-    else:
-        panel.method_sizer_text.Show()
-        
-        from pytransit.methods.analysis import methods as analysis_methods
-        
-        matched_name = None
-        # Get selected Method and hide Others
-        for name in analysis_methods:
-            try: analysis_methods[name].gui.panel.Hide()
-            except Exception as error: pass
-            
-            if analysis_methods[name].full_name == selected_name:
-                matched_name = name
-        
-        if matched_name in analysis_methods:
-            name = matched_name
-            panel.method_info_text.SetLabel("%s" % analysis_methods[name].long_name)
-
-            # FIXME: re-enable this when positioning is fixed
-            # panel.method_tn_text.Show()
-            # panel.method_tn_text.SetLabel(analysis_methods[name].transposons_text)
-            # panel.method_tn_text.Wrap(method_wrap_width)
-
-            # panel.method_desc_text.Show()
-            # panel.method_desc_text.SetLabel(analysis_methods[name].long_desc)
-            # panel.method_desc_text.Wrap(method_wrap_width)
-            panel.method_instructions.SetLabel(" ")
-            try:
-                analysis_methods[name].gui.panel.Show()
-            except Exception as error:
-                pass
-            frame.status_bar.SetStatusText("[%s]" % analysis_methods[name].short_name)
-
-        parameter_panel.show_progress_section()
-        panel.method_choice = selected_name
-
-    frame.Layout()
-    if frame.verbose:
-        transit_tools.log("Selected Method: %s" % (selected_name))
-
-
-# UNUSED 
-def annotation_gff3_to_pt(event):
-    with gui_tools.nice_error_log:
-        annotation_path = universal.session_data.annotation_path
-        default_file = transit_tools.fetch_name(annotation_path) + ".prot_table"
-        # default_dir = os.path.dirname(os.path.realpath(__file__))
-        default_dir = os.getcwd()
-
-        if not annotation_path:
-            transit_tools.show_error_dialog("Error: No annotation file selected.")
-        else:
-            output_path = frame.SaveFile(default_dir, default_file)
-            if not output_path:
-                return
-            if frame.verbose:
-                transit_tools.log(
-                    "Converting annotation file from GFF3 format to prot_table format"
-                )
-
-            output = open(output_path, "w")
-            with open(annotation_path) as file:
-                for line in file:
-                    if line.startswith("#"):
-                        continue
-                    tmp = line.strip().split("\t")
-                    chr = tmp[0]
-                    type = tmp[2]
-                    start = int(tmp[3])
-                    end = int(tmp[4])
-                    length = ((end - start + 1) / 3) - 1
-                    strand = tmp[6]
-                    features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
-                    if "ID" not in features:
-                        continue
-                    orf = features["ID"]
-                    name = features.get("Name", "-")
-                    if name == "-":
-                        name = features.get("name", "-")
-
-                    desc = features.get("Description", "-")
-                    if desc == "-":
-                        desc = features.get("description", "-")
-                    if desc == "-":
-                        desc = features.get("Desc", "-")
-                    if desc == "-":
-                        desc = features.get("desc", "-")
-
-                    someID = "-"
-                    someID2 = "-"
-                    COG = "-"
-                    output.write(
-                        "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                        % (
-                            desc,
-                            start,
-                            end,
-                            strand,
-                            length,
-                            someID,
-                            someID2,
-                            name,
-                            orf,
-                            COG,
-                        )
-                    )
-            output.close()
-            if frame.verbose:
-                transit_tools.log("Finished conversion")
