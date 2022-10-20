@@ -483,6 +483,21 @@ if True:
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
+    def create_wig_choice(panel, sizer, *, label_text, tooltip_text="choose wig"):
+        wig_ids = [x.id for x in gui.samples]
+        (
+            label,
+            ref_wig_wxobj,
+            ref_wig_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text=label_text,
+            options=wig_ids,
+            tooltip_text=tooltip_text,
+        )
+        sizer.Add(ref_wig_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: gui.samples[wig_ids.index(ref_wig_wxobj.GetString(ref_wig_wxobj.GetCurrentSelection()))]
+    
     def create_condition_choice(panel, sizer, *, label_text, tooltip_text="choose condition"):
         (
             label,

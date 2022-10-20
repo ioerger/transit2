@@ -12,6 +12,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 class Method:
     name = "igv"
     description = "A method to export and normalized datasets in 'IGV' format."
+    menu_name = f"IGV - {description}"
     usage_string = f"""{console_tools.subcommand_prefix} export igv <comma-separated .wig files> <annotation .prot_table> <output file>"""
     
     inputs = LazyDict(
@@ -35,6 +36,41 @@ class Method:
         
         Method.Run()
 
+    @gui.add_menu("Pre-Processing", "Export", menu_name)
+    def on_menu_click(event):
+        from pytransit.components import pop_up
+        from pytransit.components import panel_helpers
+        
+        @pop_up.create_pop_up(gui.frame, min_width=300)
+        def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
+            # TODO: consider allowing selecting a wig-id from a dropdown
+            # wig_obj_getter         = panel_helpers.create_wig_choice(pop_up_panel, sizer, label_text="Select Wig Id")
+            normalization_getter   = panel_helpers.create_normalization_input(pop_up_panel, sizer)
+            wig_path_getter        = panel_helpers.create_file_input(pop_up_panel, sizer, button_label="Select Wig File",        tooltip_text="", popup_title="Wig File"       , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.csv,*.dat,*.out)|*.wig;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
+            annotation_path_getter = panel_helpers.create_file_input(pop_up_panel, sizer, button_label="Select Annotation File", tooltip_text="", popup_title="Annotation File", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=refresh)
+            
+            @panel_helpers.create_button(pop_up_panel, sizer, label="Export")
+            def when_button_clicked(event):
+                wig_path = wig_path_getter()
+                normalization = normalization_getter()
+                annotation_path = annotation_path_getter()
+                output_path = gui_tools.ask_for_output_file_path(
+                    default_file_name=f"recent_export.igv",
+                    output_extensions='Common output extensions (*.igv,*.csv,*.dat,*.out)|*.igv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                )
+                
+                # TODO: add validation here
+                
+                Method.inputs.update(dict(
+                    ctrldata=wig_path,
+                    annotation_path=annotation_path,
+                    output_file=open(output_path, "w"),
+                    normalization=normalization,
+                ))
+                
+                Method.Run()
+                logging.log(f"Finished IGV Export: {output_path}")
+    
     def Run(self):
         logging.log("Starting IGV Export")
         start_time = time.time()
