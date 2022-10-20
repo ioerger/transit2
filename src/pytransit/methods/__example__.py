@@ -83,6 +83,15 @@ class Method:
             # @panel_helpers.create_button(panel, main_sizer, label="")
             # def when_button_clicked(event):
             #     print("do stuff")
+            # @panel_helpers.create_button(panel, main_sizer, label="Show pop up")
+            # def when_button_clicked(event):
+            #     from pytransit.components import pop_up
+            #     @pop_up.create_pop_up(panel)
+            #     def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
+            # 
+            #         @panel_helpers.create_button(pop_up_panel, sizer, label="Click me for pop up")
+            #         def when_button_clicked(event):
+            #             print("do stuff")
             
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)

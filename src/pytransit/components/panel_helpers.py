@@ -45,6 +45,12 @@ if True:
                 gui.frame.Layout()
     
     def create_button(panel, sizer, *, label):
+        """
+        Example:
+            @panel_helpers.create_button(pop_up_panel, main_sizer, label="")
+            def when_button_clicked(event):
+                print("do stuff")
+        """
         run_button = wx.Button(
             panel,
             wx.ID_ANY,
