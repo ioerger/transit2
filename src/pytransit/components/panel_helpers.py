@@ -128,7 +128,7 @@ if True:
         return
 
 
-    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
+    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
         """
             Example:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
@@ -176,6 +176,7 @@ if True:
                             allowed_extensions=allowed_extensions,
                         )
                         file_text.SetLabel(basename(the_file_path or ""))
+                        after_select(*args)
             row_sizer.Add(add_file_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
             
             # 
