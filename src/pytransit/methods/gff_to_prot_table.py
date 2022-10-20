@@ -9,13 +9,14 @@ from pytransit.generic_tools import misc, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
-magic_number_nine  = 9 # FIXME
+# FIXME: add helpful error messages since GFF 
+magic_number_nine  = 9
 magic_number_two   = 2
 magic_number_three = 3
 magic_number_four  = 4
 magic_number_one   = 1
 magic_number_six   = 6
-magic_number_eight = 6
+magic_number_eight = 8
         
 @misc.singleton
 class Method:
