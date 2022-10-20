@@ -23,7 +23,7 @@ exp_data_txt = ",".join([exp_rep1, exp_rep2, exp_rep3])
 
 all_data_list = [ctrl_rep1, ctrl_rep2, exp_rep1, exp_rep2, exp_rep3]
 
-annotation = basedir + "/../src/pytransit/genomes/H37Rv.prot_table"
+annotation = basedir + "/../src/pytransit/data/genomes/H37Rv.prot_table"
 small_annotation = basedir + "/data/test.prot_table"
 output = basedir + "/testoutput.txt"
 hist_path = output.rsplit(".", 1)[0] + "_histograms"
@@ -35,7 +35,7 @@ reads1 = basedir + "/data/test.fastq"
 test_multicontig = basedir + "/data/test-multicontig.fna"
 test_multicontig_reads1 = basedir + "/data/test-multicontig-1.fastq"
 test_multicontig_reads2 = basedir + "/data/test-multicontig-2.fastq"
-h37fna = basedir + "/../src/pytransit/genomes/H37Rv.fna"
+h37fna = basedir + "/../src/pytransit/data/genomes/H37Rv.fna"
 
 
 class TransitTestCase(unittest.TestCase):

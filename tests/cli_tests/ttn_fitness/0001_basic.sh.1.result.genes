@@ -4,14 +4,14 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/genomes/H37Rv.prot_table' './src/pytransit/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
+#        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
 #    parameters:
 #       combined_wig: null
 #       wig_files:
 #       - ./src/pytransit/data/glycerol_H37Rv_rep1.wig
 #       - ./src/pytransit/data/glycerol_H37Rv_rep2.wig
 #       metadata: null
-#       annotation_path: ./src/pytransit/genomes/H37Rv.prot_table
+#       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #       gumbel_results_file: ./tests/cli_tests/gumbel/0001_basic.sh.1.result
 #       normalization: TTR
 #    summary_info:

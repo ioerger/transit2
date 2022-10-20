@@ -15,7 +15,7 @@
 #       site_restricted: true
 #    control_data: Cholesterol
 #    experimental_data: Glycerol
-#    annotation_path: /Users/jeffhykin/repos/transit/src/pytransit/genomes/H37Rv_dev.prot_table
+#    annotation_path: /Users/jeffhykin/repos/transit/src/pytransit/data/genomes/H37Rv_dev.prot_table
 #    time: 0.8853623867034912
 #    
 #ORF	Name	Description	Sites	Mean Control	Mean Experimental	Log 2 FC	Sum Control	Sum Experimental	Delta Mean	P Value	Adj P Value

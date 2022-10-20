@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    Console Command: python3 ./src/transit.py anova ./src/pytransit/data/cholesterol_glycerol_combined.dat ./src/pytransit/data/samples_metadata_cg.txt ./src/pytransit/genomes/H37Rv.prot_table ./src/pytransit/genomes/anova.test.dat -n TTR
+#    Console Command: python3 ./src/transit.py anova ./src/pytransit/data/cholesterol_glycerol_combined.dat ./src/pytransit/data/samples_metadata_cg.txt ./src/pytransit/data/genomes/H37Rv.prot_table ./src/pytransit/data/genomes/anova.test.dat -n TTR
 #    parameters:
 #       normalization: TTR
 #       trimming: 0.0/0.0 % (N/C)

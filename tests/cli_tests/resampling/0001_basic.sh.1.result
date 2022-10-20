@@ -4,7 +4,7 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'resampling' '-s' '1000' '-c' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' 'Glycerol' 'Cholesterol' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/resampling/0001_basic.sh.1.result'
+#        python3 './src/transit.py' 'resampling' '-s' '1000' '-c' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' 'Glycerol' 'Cholesterol' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/resampling/0001_basic.sh.1.result'
 #    parameters:
 #       samples: 1000
 #       norm: TTR
@@ -18,7 +18,7 @@
 #       site_restricted: false
 #    control_data: Glycerol
 #    experimental_data: Cholesterol
-#    annotation_path: ./src/pytransit/genomes/H37Rv.prot_table
+#    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #    time: 26.190972805023193
 #    
 #ORF	Gene Name	Description	Sites	Mean Control	Mean Experimental	Log 2 FC	Sum Control	Sum Experimental	Delta Mean	P Value	Adj P Value

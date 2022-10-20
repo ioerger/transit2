@@ -896,7 +896,7 @@ class Genes:
     :Example:
 
         >>> from pytransit.specific_tools import tnseq_tools
-        >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/genomes/H37Rv.prot_table", norm="TTR")
+        >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/data/genomes/H37Rv.prot_table", norm="TTR")
         >>> print(G)
         Genes Object (N=3990)
         >>> print(G.global_theta())
