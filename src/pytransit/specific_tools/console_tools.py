@@ -133,8 +133,9 @@ def handle_unrecognized_flags(flags, kwargs, usage_string):
     
     for flag_string in kwargs.keys():
         if flag_string not in possible_flags:
+            closest_match, *_            = misc.levenshtein_distance_sort(word=flag_string, other_words=possible_flags)
             print(f"{flag_string} was not one of the available flags: {' '.join(flags)}")
-            raise Exception(f'''unrecognized flag: {flag_string}\n\n{usage_string}''')
+            raise Exception(f'''unrecognized flag: {flag_string}\nMaybe you meant: {closest_match}\n\n{usage_string}''')
 
 def check_if_has_wx():
     """
