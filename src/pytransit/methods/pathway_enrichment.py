@@ -9,6 +9,7 @@ import collections
 import heapq
 
 import numpy
+from statsmodels.stats import multitest
 
 from pytransit.specific_tools import logging, gui_tools
 from pytransit.specific_tools.transit_tools import wx
@@ -43,6 +44,7 @@ class Method:
         lfc_col = 6,
         num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
+        pseudocount = 2
     )
     
     valid_cli_flags = [
@@ -202,46 +204,49 @@ class Method:
 
             if Method.inputs.resampling_file == None:
                 self.value_getters.resampling_file = panel_helpers.create_file_input(panel, main_sizer, 
-                    button_label="Select Input File", 
-                    tooltip_text="FIXME", popup_title="Select File with Hits",
+                    button_label="Select Resampling File", 
+                    tooltip_text="The resampling file is the one obtained after using the resampling method in Transit. (It is a tab separated file with 11 columns.) GSEA method makes usage of the last column (adjusted P-value)", 
+                    popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*'
                 )
 
             self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Custom Associations File", 
-                tooltip_text="FIXME", popup_title="Select Associations File",
+                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines. It is OK if there are no associations listed for some genes. Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.", 
+                popup_title="Select Associations File",
                 allowed_extensions='All files (*.*)|*.*'
             )
 
             self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
                 button_label="Select Custom Pathways File", 
-                tooltip_text="FIXME", popup_title="Select Pathways File",
+                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name.", 
+                popup_title="Select Pathways File",
                 allowed_extensions='All files (*.*)|*.*'
             )
 
             self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select from Provided Files", 
-                tooltip_text="FIXME", 
+                tooltip_text="We have a few Associaiton and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
             )
     
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
                 options= ["FET", "GSEA", "ONT"],
-                tooltip_text = "method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
+                tooltip_text = "Method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)"
             )
 
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Ranking",
-                options= ["SPLV", "LFC"],
+                options= ["SLPV", "LFC"],
                 tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
             )
 
-            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value="-2", tooltip_text="FIX ME")
-            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value="-1", tooltip_text="FIX ME")
-            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value="6", tooltip_text="FIX ME")
+            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="Column index with raw P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)")
+            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="Column index with adjusted P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)")
+            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
                 
-            self.value_getters.enrichment_exponent = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=1,      tooltip_text="exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
-            self.value_getters.num_permutations    = panel_helpers.create_text_box_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="number of permutations to simulate for null distribution to determine p-value")
+            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
@@ -293,7 +298,7 @@ class Method:
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.csv",
+            default_file_name=f"{Method.cli_name}_output.txt",
             output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
 
@@ -323,8 +328,8 @@ class Method:
             method = kwargs.get("M", "FET"),
             pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
             qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
-            ranking = kwargs.get("ranking", "SPLV"),
-            lfc_col = int(kwargs.get("lfc_col", Method.inputs.lfc_col)),
+            ranking = kwargs.get("ranking", "SLPV"),
+            lfc_col = int(kwargs.get("LFC_col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
             num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -342,28 +347,8 @@ class Method:
             #checking validation of inputs
             if self.inputs.method == "FET":
                 self.hit_summary = self.fisher_exact_test()
-            elif self.inputs.method == "GSEA":
-                up,down = self.GSEA()
-                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
-            elif self.inputs.method == "ONT":
-                self.hit_summary = self.Ontologizer()
-            else:
-                self.inputs.method = "Not a valid method"
-                progress_update("Not a valid method", 100)
-        
-        # 
-        # write output
-        # 
-            if True:
-                logging.log(f"Adding File: {self.inputs.output_path}")
-                # 
-                # write to file
-                # 
-                transit_tools.write_result(
-                    path=self.inputs.output_path, # path=None means write to STDOUT
-                    file_kind=Method.identifier,
-                    rows=self.rows,
-                    column_names=[
+                file_output_type = Method.identifier+"FET"
+                file_columns = [
                         "Pathway",
                         "Total Genes", 
                         "Genes In Path",
@@ -377,20 +362,68 @@ class Method:
                         "Adj P Value", 
                         "Description", 
                         "Genes"
-                    ],
-                    extra_info=dict(
-                        parameters=dict(
-                            method = self.inputs.method,
-                            ranking = self.inputs.ranking,
-                            enrichment_exponent = self.inputs.enrichment_exponent,
-                            num_permutations = self.inputs.num_permutations,
-                            pseudocount = self.inputs.pseudocount,
-                            hit_summary = self.hit_summary
-                        ),
-                    ),
-                )
-                logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
-            results_area.add(self.inputs.output_path)
+                    ]
+            elif self.inputs.method == "GSEA":
+                up,down = self.GSEA()
+                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
+                file_output_type = Method.identifier+"GSEA"
+                file_columns = [
+                        "Pathway",
+                        "Pathway Description"
+                        "Genes in Path", 
+                        "Mean Rank",
+                        "Enrichment" , 
+                        "P Value", 
+                        "Adj P Value", 
+                        "Genes"
+                    ]
+            elif self.inputs.method == "ONT":
+                self.hit_summary = self.Ontologizer()
+                file_output_type = Method.identifier+"ONT"
+                file_columns = [
+                        "Pathway",
+                        "Total Genes", 
+                        "Genes In Path",
+                        "Significant Genes",
+                        "Significent Genes In Path",
+                        "Expected", 
+                        "K Plus PC",
+                        "Number Adjusted By PC",
+                        "Enrichment" , 
+                        "P Value", 
+                        "Adj P Value", 
+                        "Description", 
+                        "Genes"
+                    ]
+            else:
+                self.inputs.method = "Not a valid method"
+                progress_update("Not a valid method", 100)
+        
+        # 
+        # write output
+        # 
+        logging.log(f"Adding File: {self.inputs.output_path}")
+        # 
+        # write to file
+        # 
+        transit_tools.write_result(
+            path=self.inputs.output_path, # path=None means write to STDOUT
+            file_kind=file_output_type,
+            rows=self.rows,
+            column_names=file_columns,
+            extra_info=dict(
+                parameters=dict(
+                    method = self.inputs.method,
+                    ranking = self.inputs.ranking,
+                    enrichment_exponent = self.inputs.enrichment_exponent,
+                    num_permutations = self.inputs.num_permutations,
+                    pseudocount = self.inputs.pseudocount,
+                    hit_summary = self.hit_summary
+                ),
+            ),
+        )
+        logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
+        results_area.add(self.inputs.output_path)
         
     def read_resampling_file(self, filename):
         logging.log("Reading in Resampling File", filename)
@@ -432,6 +465,7 @@ class Method:
         return associations
 
     def read_pathways(self, filename):
+        logging.log("Reading in Pathways File")
         pathways = {}
         with open(filename) as file:
             for line in file:
@@ -480,9 +514,9 @@ class Method:
         return round(numpy.mean([orfs2ranks.get(x, n2) for x in A]), 1)
 
     # during initialization, self.inputs.resampling_file etc have been set, and self.inputs.output_path has been opened
-
-    def GSEA(self):
-        from statsmodels.stats import multitest
+    
+    def GSEA(self):  
+        logging.log("Running GSEA")
         data, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
         )  # hits are not used in GSEA()
@@ -502,10 +536,6 @@ class Method:
         terms2orfs = associations
         allgenes = [x[0] for x in data]
 
-        # self.rows.append("# method=GSEA, Nperm=%d, p=%d" % (self.inputs.num_permutations, self.inputs.enrichment_exponent))
-        # self.rows("# ranking genes by %s" % self.inputs.ranking)
-        # self.rows("# total genes: %s, mean rank: %s" % (len(data), n2))
-
         # rank by SLPV=sign(LFC)*log10(pval)
         # note: genes with lowest p-val AND negative LFC have highest scores (like positive correlation)
         # there could be lots of ties with pval=0 or 1, but so be it (there are probably fewer such ties than with Qvals) (randomize order below)
@@ -513,7 +543,6 @@ class Method:
         for w in data:
             orf = w[0]
             if self.inputs.ranking == "SLPV":
-                # Pval_col = headers.index("p-value")
                 p_value = float(w[self.inputs.pval_col])
                 LFC = float(w[self.inputs.lfc_col])
                 SLPV = (-1 if LFC < 0 else 1) * math.log(p_value + 0.000001, 10)
@@ -522,7 +551,6 @@ class Method:
                 # lfc_col = headers.index("log2FC")
                 LFC = float(w[self.inputs.lfc_col])
                 pairs.append((orf, LFC))
-
         # pre-randomize ORFs, to avoid genome-position bias in case of ties in pvals (e.g. 1.0)
         indexes = range(len(pairs))
         indexes = numpy.random.permutation(indexes).tolist()
@@ -535,7 +563,6 @@ class Method:
         for i, (orf, score) in enumerate(pairs):
             orfs2score[orf] = score
             orfs2rank[orf] = i
-
         num_permutations = self.inputs.num_permutations
         results, Total = [], len(terms)
         for i, term in enumerate(terms):
@@ -559,15 +586,15 @@ class Method:
                 if n > 100 and higher > 10:
                     break  # adaptive: can stop after seeing 10 events (permutations with higher ES)
             pval = higher / float(n)
-            vals = [
-                "#",
-                term,
-                num_genes_in_pathway,
-                mr,
-                es,
-                pval,
-                ontology.get(term, "?"),
-            ]
+            # vals = [
+            #     "#",
+            #     term,
+            #     #num_genes_in_pathway,
+            #     mr,
+            #     es,
+            #     pval,
+            #     ontology.get(term, "?"),
+            # ]
             # sys.stderr.write(' '.join([str(x) for x in vals])+'\n')
             percentage = (100.0 * i) / Total
             text = "Running Pathway Enrichment Method... %5.1f%%" % (percentage)
@@ -588,17 +615,15 @@ class Method:
                 else:
                     down += 1
 
-        for term, mr, es, pval, qval in results:
-            if qval < 0.05 and mr < n2:
-                self.rows.append(
-                    "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
+        for term,mr,es,pval,qval in results:
+            if qval<0.05 and mr<n2: 
+                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
                 )
-        # for term, mr, es, pval, qval in results:
-        #     if qval < 0.05 and mr > n2:
-        #         self.rows.append(
-        #             "#   %s %s (mean_rank=%s)" % (term, ontology.get(term, "?"), mr)
-        #         )
-        # # self.rows.append("# pathways sorted by mean_rank")
+    
+        for term,mr,es,pval,qval in results:
+            if qval<0.05 and mr>n2: 
+                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
+                )
 
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
@@ -614,7 +639,8 @@ class Method:
             self.rows.append(vals)
 
         return up, down
-
+        
+    
     # ########## Fisher Exact Test ###############
 
     # HYPERGEOMETRIC
@@ -625,8 +651,9 @@ class Method:
     # k = number of hits in category (intersection)
 
     def fisher_exact_test(self):
+        logging.log("Running FET")
         import scipy.stats
-        from statsmodels.stats import multitest
+        
         
         genes, hits, headers = self.read_resampling_file(
             self.inputs.resampling_file
@@ -705,6 +732,7 @@ class Method:
                 vals.append(" ".join(intersection))
                 self.rows.append(vals)
 
+            logging.log("Finishing up FET")
             return len([i for i in qvals if i<0.05])
 
         else:
@@ -720,7 +748,6 @@ class Method:
 
     def Ontologizer(self):
         import scipy.stats
-        from statsmodels.stats import multitest
         
         # returns True if ch is a descendant of GO (as GO terms, like "GO:0006810")
 
@@ -792,7 +819,6 @@ class Method:
                         if g not in go2rvs:
                             go2rvs[g] = []
                         go2rvs[g].append(rv)
-
         logging.warn(
             "GO terms with at least one ORF: %s" % len(go2rvs.keys())
         )  # what about between MIN and MAX?
@@ -822,7 +848,6 @@ class Method:
         for i, (rv, pval) in enumerate(pvals):
             ranks[rv] = i + 1
         #self.rows.append("# number of resampling hits (qval<0.05): %s" % len(studyset))
-
         counts = []
         n, a = len(allorfs), len(studyset)
         for go in go2rvs.keys():
@@ -884,22 +909,22 @@ class Method:
 
 
 @transit_tools.ResultsFile
-class ResultFileType1:
+class FETResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier)
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"FET")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier,
+            type=Method.identifier+"FET",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier,
+                    title=Method.identifier+"FET",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -910,9 +935,6 @@ class ResultFileType1:
             })
         )
         
-        # 
-        # get column names
-        # 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         self.values_for_result_table.update(self.extra_data.get("parameters", {}))
     
@@ -923,3 +945,77 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
+@transit_tools.ResultsFile
+class GSEAResultsFile:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"GSEA")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Method.identifier+"GSEA",
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier+"GSEA",
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[
+                        "Adj P Value"
+                    ],
+                ).Show(),
+            })
+        )
+        
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+    
+    def __str__(self):
+        return f"""
+            File for {Method.identifier}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
+
+
+@transit_tools.ResultsFile
+class ONTResultsFile:
+    @staticmethod
+    def can_load(path):
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"ONT")
+    
+    def __init__(self, path=None):
+        self.wxobj = None
+        self.path  = path
+        self.values_for_result_table = LazyDict(
+            name=basename(self.path),
+            type=Method.identifier+"ONT",
+            path=self.path,
+            # anything with __ is not shown in the table
+            __dropdown_options=LazyDict({
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier+"ONT",
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                    sort_by=[
+                        "Adj P Value"
+                    ],
+                ).Show(),
+            })
+        )
+        
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+    
+    def __str__(self):
+        return f"""
+            File for {Method.identifier}
+                path: {self.path}
+                column_names: {self.column_names}
+        """.replace('\n            ','\n').strip()
