@@ -19,3 +19,4 @@ from .quality_control    import *
 from .loess              import *
 from .heatmap            import *
 from .combined_wig       import *
+from .utest              import *

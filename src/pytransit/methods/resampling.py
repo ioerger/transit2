@@ -810,7 +810,7 @@ class ResultFileType1:
         parameters = LazyDict(self.extra_data.get("parameters", {}))
         number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Method.significance_threshold ])
         self.values_for_result_table.update({
-            "": f"{number_of_significant} significant conditionally essential genes"
+            " ": f"{number_of_significant} significant conditionally essential genes"
         })
     
     def __str__(self):
