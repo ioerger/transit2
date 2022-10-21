@@ -288,10 +288,14 @@ class Method:
                 logging.log("Loading in H37Rv Associations for KEGG Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_KEGG_roles.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/KEGG_roles.txt"
-            elif Method.inputs.organism_pathway =="H37Rv-GO":
+            elif Method.inputs.organism_pathway =="H37Rv-GO" and Method.inputs.method == "FET":
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
+            elif Method.inputs.organism_pathway =="H37Rv-GO" and Method.inputs.method == "ONT":
+                logging.log("Loading in H37Rv Associations for GO Pathways")
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
             elif Method.inputs.organism_pathway =="Smeg-GO":
                 logging.log("Loading in Smeg Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
@@ -842,7 +846,7 @@ class Method:
                 pval, qval = float(w[self.inputs.pval_col]), float(w[self.inputs.qval_col])
                 if qval < 0.05:
                     studyset.append(w[0])
-            pvals.append((w[0], pval))
+                pvals.append((w[0], pval))
         pvals.sort(key=lambda x: x[1])
         ranks = {}
         for i, (rv, pval) in enumerate(pvals):
@@ -882,7 +886,6 @@ class Method:
 
         counts = [x + [y] for x, y in zip(counts, qvals)]
         counts.sort(key=lambda x: x[-1])
-
         for (go, n, m, p, q, a, b, npar, enrich, pval, qval) in counts:
             hits = filter(lambda x: x in go2rvs[go], studyset)
             hits = [(x, genes[x][1], ranks[x]) for x in hits]
