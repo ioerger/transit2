@@ -220,6 +220,7 @@ def pascal_case_with_spaces(string):
     return new_string
 
 def levenshtein_distance_sort(*, word, other_words):
+    word = word.lower()
     def levenshtein_distance(s1, s2):
         # https://stackoverflow.com/questions/2460177/edit-distance-in-python
         if len(s1) > len(s2):
