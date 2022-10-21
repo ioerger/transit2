@@ -56,6 +56,10 @@ except Exception as e:
 # optional import: R
 # 
 try:
+    import collections
+    import collections.abc
+    collections.Sized = collections.abc.Sized # Hack to get around python breaking backwards compatibility, that rpy2 uses
+    
     import rpy2.robjects
     from rpy2.robjects import (
         r,
