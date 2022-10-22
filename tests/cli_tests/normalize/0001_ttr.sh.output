@@ -1,3 +1,54 @@
 [normalize:run_normalize()] Starting Normalization 
 [normalize:run_normalize()] normalization=TTR, counts_by_wig.shape=(1, 74605) 
-[normalize:run_normalize()] Finished Normalization 
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/normalize.py", line 166, in run_normalize
+    transit_tools.write_result(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 487, in write_result
+    csv.write(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 215, in write
+    raise error
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 204, in write
+    row_string_escaped = tuple(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 205, in <genexpr>
+    element_to_string(each_cell)
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 166, in element_to_string
+    return json.dumps(element)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+
+Object of type int64 is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/sanjeevanichoudhery/Projects/transit/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 162, in run_main
+    main(*args, **kwargs)
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 151, in main
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/normalize.py", line 83, in from_args
+    Method.run_normalize(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/normalize.py", line 166, in run_normalize
+    transit_tools.write_result(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 487, in write_result
+    csv.write(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 215, in write
+    raise error
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 204, in write
+    row_string_escaped = tuple(
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 205, in <genexpr>
+    element_to_string(each_cell)
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/generic_tools/csv.py", line 166, in element_to_string
+    return json.dumps(element)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/opt/homebrew/Cellar/python@3.10/3.10.6_1/Frameworks/Python.framework/Versions/3.10/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type int64 is not JSON serializable

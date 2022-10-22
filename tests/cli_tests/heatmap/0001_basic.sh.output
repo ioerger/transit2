@@ -1,14 +1,14 @@
 Traceback (most recent call last):
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
+  File "/Users/sanjeevanichoudhery/Projects/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 162, in run_main
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 162, in run_main
     main(*args, **kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 151, in main
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 151, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 129, in from_args
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/heatmap.py", line 129, in from_args
     Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 132, in Run
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/heatmap.py", line 132, in Run
     transit_tools.require_r_to_be_installed()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/transit_tools.py", line 160, in require_r_to_be_installed
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 160, in require_r_to_be_installed
     raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
 Exception: Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/

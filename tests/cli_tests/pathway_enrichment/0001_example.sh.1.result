@@ -1,19 +1,11 @@
-#PathwayEnrichmentFET
-#yaml:
-#    date: 2022-10-20 12:14:31
-#    transit_version: v3.2.6
-#    app_or_command_line: command_line
-#    console_command: |
-#        transit 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_sanger_roles.dat' 'src/pytransit/data//sanger_roles.dat' './tests/cli_tests/pathway_enrichment/0001_example.sh.1.result'
-#    parameters:
-#       method: FET
-#       ranking: SLPV
-#       enrichment_exponent: 1
-#       num_permutations: 10000
-#       pseudocount: 2
-#       hit_summary: 6
-#    
-#Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
+# command: python3 /opt/homebrew/bin/transit pathway_enrichment tests/cli_tests/resampling/0001_basic.sh.1.result src/pytransit/data//H37Rv_sanger_roles.dat src/pytransit/data//sanger_roles.dat ./tests/cli_tests/pathway_enrichment/0001_example.sh.1.result
+# date: 2022-10-22 12:09:52
+# pathway method: FET
+# method=FET, PC=2
+# genes with associations=3906 out of 3990 total
+# significant genes (qval<0.05): 82
+# 119 out of 123 pathways have >=1 gene; max has 1066
+#pathway	total_genes(M)	genes_in_path(n)	significant_genes(N)	signif_genes_in_path(k)	expected	k+PC	n_adj_by_PC	enrichement	pval	qval	description	genes
 I	3990	1066	82	40	21.91	42	1163	1.757	6.631803421723002e-06	0.0007891846071850372	Small-molecule metabolism	Rv0244c/fadE5 Rv0245/- Rv0391/metZ Rv0485/- Rv0693/pqqE Rv0694/lldD1 Rv0761c/adhB Rv1129c/- Rv1131/gltA1 Rv1193/fadD36 Rv1432/- Rv1626/- Rv1627c/- Rv1820/ilvG Rv2048c/pks12 Rv2506/- Rv3502c/fabG Rv3526/- Rv3535c/- Rv3537/- Rv3543c/fadE29 Rv3544c/fadE28 Rv3546/fadA5 Rv3549c/- Rv3551/- Rv3553/- Rv3556c/fadA6 Rv3559c/- Rv3560c/fadE30 Rv3561/fadD3 Rv3563/fadE32 Rv3564/fadE33 Rv3568c/bphC Rv3570c/- Rv3571/hmp Rv3575c/- Rv3696c/glpK Rv3820c/papA2 Rv3824c/papA1 Rv3825c/pks2
 IV.A	3990	38	82	8	0.78	10	135	3.597	7.938439634732048e-05	0.0032047784874879156	Virulence	Rv0170/mce1B Rv3494c/mce4F Rv3496c/mce4D Rv3497c/mce4C Rv3498c/mce4B Rv3499c/mce4A Rv3500c/yrbE4B Rv3501c/yrbE4A
 I.B.7	3990	171	82	13	3.51	15	268	2.722	8.079273497868696e-05	0.0032047784874879156	Miscellaneous oxidoreductases and oxygenases	Rv0245/- Rv0761c/adhB Rv1432/- Rv3502c/fabG Rv3526/- Rv3535c/- Rv3537/- Rv3549c/- Rv3553/- Rv3559c/- Rv3568c/bphC Rv3570c/- Rv3571/hmp
