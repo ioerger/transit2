@@ -1,5 +1,5 @@
 # command: python3 /opt/homebrew/bin/transit pathway_enrichment tests/cli_tests/resampling/0001_basic.sh.1.result src/pytransit/data//H37Rv_COG_20_roles.txt src/pytransit/data//COG_20_roles.txt ./tests/cli_tests/pathway_enrichment/0002_example.sh.1.result
-# date: 2022-10-22 12:09:53
+# date: 2022-10-22 12:16:17
 # pathway method: FET
 # method=FET, PC=2
 # genes with associations=2782 out of 3990 total
