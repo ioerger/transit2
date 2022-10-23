@@ -902,14 +902,11 @@ class ZinbMethod(base.MultiConditionMethod):
         -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
         -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
         -PC <N>         := pseudocounts to use for calculating LFCs. Default: -PC 5
-        --condition     := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+        --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+        --condition     := alias for --group-by
         --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
         --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
         --prot_table <filename>           := for appending annotations of genes
         --gene <RV number or Gene name>   := Run method for one gene and print model output.
 
         """ % sys.argv[0]
-
-
-if __name__ == "__main__":
-    main()
