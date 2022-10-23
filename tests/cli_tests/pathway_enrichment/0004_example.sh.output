@@ -15856,4 +15856,4 @@ not found: GO:0004549
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.7sec 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.6sec 

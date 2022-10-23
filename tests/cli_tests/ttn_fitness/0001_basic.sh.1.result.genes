@@ -1,6 +1,6 @@
 #TTNFitnessGenes
 #yaml:
-#    date: 2022-10-20 12:19:09
+#    date: 2022-10-21 13:08:21
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -15,7 +15,7 @@
 #       gumbel_results_file: ./tests/cli_tests/gumbel/0001_basic.sh.1.result
 #       normalization: TTR
 #    summary_info:
-#       time: 235.31106400489807
+#       time: 540.4514062404633
 #       saturation: 0.5342776384918797
 #       ES: 173 essential based on Gumbel
 #       ESB: 501 essential based on Binomial
