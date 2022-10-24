@@ -121,14 +121,12 @@ class Method:
             c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
             condition_avg = "cond" in kwargs, # boolean
             ) )
-        # is this necessary? pass filenames to calc_gene_means()
         Method.inputs.update(dict(
             combined_wig=tnseq_tools.CombinedWig(
                 main_path=Method.inputs.combined_wig_path,
                 metadata_path=Method.inputs.metadata_path,
                 comments=None,
                 extra_data=None
-                # normalization? terminus trimming?
             ) ) ) 
         Method.Run()
         
@@ -143,6 +141,7 @@ class Method:
         means, genes, labels = transit_tools.calc_gene_means(
             combined_wig_path=self.inputs.combined_wig_path,
             metadata_path=self.inputs.metadata_path,
+            combined_wig = self.inputs.combined_wig,
             annotation_path=self.inputs.annotation_path,
             normalization=self.inputs.normalization,
             n_terminus=self.inputs.n_terminus,
