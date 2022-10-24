@@ -77,7 +77,7 @@ class Method:
         # 
         # get annotation
         # 
-        Method.inputs.combined_wig = gui.combined_wigs[-1]
+        Method.inputs.combined_wig = gui.combined_wigs[-1] # what if user wants to change normalization or terminus trimming?
         Method.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(gui.annotation_path)
         
@@ -121,7 +121,7 @@ class Method:
             c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
             condition_avg = "cond" in kwargs, # boolean
             ) )
-        # is this necessary? pass opened object or filenames to calc_gene_means()?
+        # is this necessary? pass filenames to calc_gene_means()
         Method.inputs.update(dict(
             combined_wig=tnseq_tools.CombinedWig(
                 main_path=Method.inputs.combined_wig_path,
@@ -148,7 +148,7 @@ class Method:
             n_terminus=self.inputs.n_terminus,
             c_terminus=self.inputs.c_terminus,
             avg_by_conditions=self.inputs.condition_avg,
-        ) #TRI I should add -iC and -iN
+        ) 
         
         #
         # write output
