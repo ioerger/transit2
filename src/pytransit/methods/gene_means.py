@@ -112,20 +112,24 @@ class Method:
         
         # save the flags
         Method.inputs.update(dict(
-            combined_wig=tnseq_tools.CombinedWig(
-                main_path=args[0],
-                metadata_path=args[1],
-                comments=None,
-                extra_data=None,
-            ),
+            combined_wig_path=args[0],
+            metadata_path=args[1],
             annotation_path=args[2],
             output_path=args[3],
             normalization=kwargs.get("n", Method.inputs.normalization),
             n_terminus=float(kwargs.get("iN", Method.inputs.n_terminus)),
             c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
-            condition_avg = "cond" in kwargs # boolean
-        ))
-
+            condition_avg = "cond" in kwargs, # boolean
+            ) )
+        # is this necessary? pass opened object or filenames to calc_gene_means()?
+        Method.inputs.update(dict(
+            combined_wig=tnseq_tools.CombinedWig(
+                main_path=Method.inputs.combined_wig_path,
+                metadata_path=Method.inputs.metadata_path,
+                comments=None,
+                extra_data=None
+                # normalization? terminus trimming?
+            ) ) ) 
         Method.Run()
         
     def Run(self):
@@ -137,9 +141,12 @@ class Method:
         # process data
         # 
         means, genes, labels = transit_tools.calc_gene_means(
-            combined_wig=self.inputs.combined_wig,
+            combined_wig_path=self.inputs.combined_wig_path,
+            metadata_path=self.inputs.metadata_path,
             annotation_path=self.inputs.annotation_path,
             normalization=self.inputs.normalization,
+            n_terminus=self.inputs.n_terminus,
+            c_terminus=self.inputs.c_terminus,
             avg_by_conditions=self.inputs.condition_avg,
         ) #TRI I should add -iC and -iN
         

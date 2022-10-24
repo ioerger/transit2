@@ -727,7 +727,7 @@ def make_corrplot(combined_wig, metadata, normalization, annotation_path, avg_by
     corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
 
 
-def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normalization, avg_by_conditions):
+def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False):
     sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(combined_wig_path)
 
     logging.log(f"Normalizing using: {normalization}")
@@ -741,8 +741,10 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
         wig_list=[],
         data=data,
         annotation=annotation_path,
-        position=sites
-    ) #TRI normalization=nonorm?
+        position=sites,
+        n_terminus=n_terminus,
+        c_terminus=c_terminus,
+    )
     means = []
     for gene in genes:
         if gene.n>=1:
