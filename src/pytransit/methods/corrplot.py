@@ -35,6 +35,8 @@ class Method:
         output_path=None,
         avg_by_conditions=False,
         normalization="TTR", #TRI hard-coded for now
+        n_terminus=0,
+        c_terminus=0,
     )
     
     valid_cli_flags = [
@@ -130,6 +132,8 @@ class Method:
                 annotation_path=self.inputs.annotation_path,
                 avg_by_conditions=self.inputs.avg_by_conditions,
                 output_path=self.inputs.output_path,
+                n_terminus=self.inputs.n_terminus,
+                c_terminus=self.inputs.c_terminus,
             )
             
             if gui.is_active:

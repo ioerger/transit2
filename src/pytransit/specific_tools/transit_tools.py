@@ -28,6 +28,7 @@ import numpy
 import scipy.optimize
 import scipy.stats
 import heapq
+import matplotlib.pyplot as plt
 
 # 
 # optional import: wx
@@ -56,14 +57,6 @@ except Exception as e:
 # optional import: R
 # 
 try:
-    import collections
-    
-    try:
-        import collections.abc
-        collections.Sized = collections.abc.Sized # Hack to get around python breaking backwards compatibility, that rpy2 uses
-    except ImportError as error:
-        pass
-    
     import rpy2.robjects
     from rpy2.robjects import (
         r,
@@ -704,8 +697,10 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     
     return Wig.selected_as_gathered_data(wig_objects)
 
+##########################################
+
 corrplot_r_function = None
-def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path):
+def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path, n_terminus=0, c_terminus=0):
     global corrplot_r_function
     import numpy
     # instantiate the corrplot_r_function if needed
@@ -722,7 +717,16 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
         """)
         corrplot_r_function = globalenv["make_corrplot"]
     
-    means, genes, headers = calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions)
+    # 
+    # avg by condition if needed
+    # 
+    if avg_by_conditions:
+        labels = combined_wig.metadata.condition_names
+        combined_wig = combined_wig.averaged_by_conditions
+    else:
+        labels = combined_wig.wig_ids
+    
+    means, genes = calc_gene_means(combined_wig, annotation_path, normalization, n_terminus=n_terminus, c_terminus=c_terminus)
 
     position_hash = {}
     for i, col in enumerate(headers):
@@ -731,45 +735,67 @@ def make_corrplot(combined_wig, normalization, annotation_path, avg_by_condition
 
     corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
 
-def calc_gene_means(combined_wig, annotation_path, normalization, avg_by_conditions):
+def calc_gene_means(combined_wig, annotation_path, normalization="TTR", n_terminus=0, c_terminus=0):
     sites, data, filenames_in_comb_wig = combined_wig.as_tuple
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
-    
-    labels = combined_wig.wig_ids
 
     # calculate gene means 
     genes = tnseq_tools.Genes(
         wig_list=[],
         data=data,
         annotation=annotation_path,
-        position=sites
-    ) #TRI normalization=nonorm?
+        position=sites,
+        n_terminus=n_terminus,
+        c_terminus=c_terminus,
+    )
     means = []
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
     means = numpy.vstack(means)
 
+    return means, genes
+
+# TODO: maybe get rid of avg_by_conditions?
+def make_scatterplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path, gene_means=False, log_scale=False, n_terminus=0, c_terminus=0):
+    # 
+    # avg by condition if needed
+    # 
     if avg_by_conditions:
         labels = combined_wig.metadata.condition_names
-        condition_per_wig_index = [
-            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
-                for each_fingerprint in combined_wig.wig_fingerprints
-        ]
-        # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
-        conditions_array = numpy.array(condition_per_wig_index)
-        
-        # make a reduced numpy array by average over replicates of each condition
-        count_lists = []
-        for each_condition_name in combined_wig.metadata.condition_names:
-            count_lists.append(
-                # pick columns corresponding to condition; avg across rows (genes)
-                numpy.mean(means[:,conditions_array==each_condition_name],axis=1)
-            )
-        means = numpy.array(count_lists).transpose()
-
-        
-
-    return means, genes, labels
+        combined_wig = combined_wig.averaged_by_conditions
+    else:
+        labels = combined_wig.wig_ids
+    
+    assert len(combined_wig.samples) == 2, "Tried to make a scatterplot but more than two samples (or conditions) were given"
+    
+    # 
+    # by gene or site
+    # 
+    if gene_means: 
+        means, genes = calc_gene_means(combined_wig, annotation_path, normalization, n_terminus=n_terminus, c_terminus=c_terminus)
+        counts = means
+    else:
+        sites, data, fingerprints = combined_wig.as_tuple
+        counts = numpy.array(data).transpose()
+    
+    # 
+    # plot
+    # 
+    sample1_name, sample2_name = labels
+    sample_1_counts = counts[:,0]
+    sample_2_counts = counts[:,1]
+    if log_scale:
+        plt.scatter(numpy.log10(sample_1_counts),numpy.log10(sample_2_counts))
+        plt.xlabel("log10(%s)" % sample1_name)
+        plt.ylabel("log10(%s)" % sample2_name)
+    else:
+        plt.scatter(sample_1_counts,sample_2_counts)
+        plt.xlabel("%s" % sample1_name)
+        plt.ylabel("%s" % sample2_name)
+    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
+    else: plt.title("scatter plot of insertion counts at individual TA sites")
+    plt.savefig(output_path)
+    plt.clf()

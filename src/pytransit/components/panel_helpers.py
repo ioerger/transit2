@@ -754,6 +754,43 @@ if True:
             
         return wrapper
     
+    def combined_wig_filtered_by_condition_input(panel, sizer, default_value=False):
+        check_box_getter = create_check_box_getter(panel, sizer,
+            label_text="Only Selected Conditions",
+            default_value=False,
+            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
+        )
+        def wrapper(*args, **kwargs):
+            is_checked = check_box_getter(*args, **kwargs)
+            if is_checked:
+                # defaults to all conditions if none were selected
+                condition_names = gui.selected_condition_names or [ each.name for each in gui.conditions ]
+            else:
+                condition_names = [ each.name for each in gui.conditions ]
+            
+            return gui.combined_wig[-1].with_only(self, condition_names=condition_names)
+            
+        return wrapper
+    
+    def combined_wig_filtered_by_sample_input(panel, sizer, default_value=False):
+        check_box_getter = create_check_box_getter(panel, sizer,
+            label_text="Only Selected Samples",
+            default_value=False,
+            tooltip_text="When checked, use the sample table (on the left) to select which samples to run this analysis on",
+        )
+        def wrapper(*args, **kwargs):
+            is_checked = check_box_getter(*args, **kwargs)
+            if is_checked:
+                # defaults to all samples if none were selected
+                selected_samples = gui.selected_samples or gui.samples
+                wig_fingerprints = [ each.fingerprint for each in selected_samples ]
+            else:
+                wig_fingerprints = [ each.fingerprint for each in gui.samples ]
+            
+            return gui.combined_wig[-1].with_only(self, wig_fingerprints=wig_fingerprints)
+            
+        return wrapper
+    
     def create_run_button(panel, sizer, from_gui_function):
         run_button = wx.Button(
             panel,

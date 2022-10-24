@@ -133,14 +133,21 @@ class Method:
         logging.log(f"Starting {Method.identifier} analysis")
         start_time = time.time()
         
+        if avg_by_conditions:
+            labels = combined_wig.metadata.condition_names
+            combined_wig = combined_wig.averaged_by_conditions
+        else:
+            labels = combined_wig.wig_ids
+        
         # 
         # process data
         # 
-        means, genes, labels = transit_tools.calc_gene_means(
+        means, genes = transit_tools.calc_gene_means(
             combined_wig=self.inputs.combined_wig,
             annotation_path=self.inputs.annotation_path,
             normalization=self.inputs.normalization,
-            avg_by_conditions=self.inputs.condition_avg,
+            n_terminus=self.inputs.n_terminus,
+            c_terminus=self.inputs.c_terminus,
         ) #TRI I should add -iC and -iN
         
         #

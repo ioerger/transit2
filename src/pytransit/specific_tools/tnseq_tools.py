@@ -31,6 +31,24 @@ except ImportError:
 #   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
 
 class Wig:
+    '''
+        self.id # id from the metadata file
+        self.fingerprint # the "File" column from the metadata 
+        self.condition_names # a list of strings
+        self.positions # list of ints
+        self.insertion_counts # list of numbers
+        self.rows # each element is always [position_number, insertion_count]
+        self.column_index # int (column inside combined wig)
+        self.extra_data.count
+        self.extra_data.sum
+        self.extra_data.non_zero_mean
+        self.extra_data.non_zero_median
+        self.extra_data.density
+        self.extra_data.mean
+        self.extra_data.max
+        self.extra_data.skew
+        self.extra_data.kurtosis
+    '''
     def __init__(self, *, rows=None, id=None, fingerprint=None, condition_names=tuple(), column_index=None, extra_data=None):
         from random import random
         
@@ -173,6 +191,11 @@ class CombinedWigMetadata:
         for each_row in self.rows:
             if each_row["Filename"] == wig_fingerprint:
                 return each_row["Id"]
+    
+    def fingerprint_for(self, wig_id=None):
+        for each_row in self.rows:
+            if each_row["Id"] == wig_id:
+                return each_row["Filename"]
     
     def fingerprints_for(self, condition):
         from pytransit.generic_tools import misc
@@ -358,6 +381,26 @@ class CombinedWigData(named_list(['sites','counts_by_wig','wig_fingerprints',]))
 
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
+    '''
+        self.as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+        self.main_path
+        self.metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
+        self.samples # list of Wig objects
+        self.metadata # CombinedWigMetadata object
+        self.metadata.path
+        self.metadata.headers
+        self.metadata.rows
+        self.metadata.conditions
+        self.metadata.condition_names
+        self.metadata.wig_ids
+        self.metadata.wig_fingerprints
+        self.metadata.with_only(condition_names=[], wig_fingerprints=[])
+        self.metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
+        self.metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        self.metadata.id_for(wig_fingerprint)
+        self.metadata.fingerprints_for(condition_name)
+        self.rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+    '''
     PositionsAndReads = named_list(["read_counts", "positions"])
     def __init__(self, *, main_path, metadata_path=None, comments=None, extra_data=None):
         self.main_path     = main_path
@@ -431,9 +474,13 @@ class CombinedWig:
                 )
         return counts_for_wig
     
-    def with_only(self, condition_names=None, wig_fingerprints=None):
+    def with_only(self, condition_names=None, wig_fingerprints=None, wig_ids=None):
         import numpy
         from copy import deepcopy
+        
+        wig_ids = wig_ids or []
+        wig_fingerprints = wig_fingerprints or []
+        wig_fingerprints = wig_fingerprints + [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
         
         # create a new shell
         class A: pass
@@ -494,6 +541,47 @@ class CombinedWig:
             )
         
         return new_combined_wig
+        
+    @property
+    def averaged_by_conditions(self):
+        new_wigs = []
+        new_read_counts = []
+        new_wig_fingerprints = []
+        for each_name in self.metadata.condition_names:
+            combined_reads_for_numpy = []
+            combined_id = ""
+            combined_fingerprint = ""
+            for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
+                condition_names = self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint)
+                if each_name in condition_names:
+                    combined_reads_for_numpy.append(self.read_counts_by_wig_fingerprint[wig_fingerprint])
+                    combined_id += self.metadata.id_for(wig_fingerprint=wig_fingerprint)
+                    combined_fingerprint += wig_fingerprint
+                    
+            import numpy
+            read_counts = numpy.array(combined_reads_for_numpy).mean(axis=0).tolist()
+            new_read_counts.append(read_counts)
+            new_wig_fingerprints.append(combined_fingerprint)
+            new_wigs.append(
+                Wig(
+                    rows=list(zip(self.positions, read_counts)),
+                    id=combined_id,
+                    fingerprint=combined_fingerprint,
+                    column_index=column_index,
+                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
+            )
+        
+        copy_of_self = self.with_only()
+        copy_of_self.as_tuple = CombinedWigData((sites, numpy.array(new_read_counts), new_wig_fingerprints))
+        copy_of_self.samples = new_wigs
+        # because metadata is no longer valid
+        del copy_of_self.metadata # TODO could make a pseudo-metadata
+        
+        return copy_of_self
         
     def wig_with_id(self, id):
         for each in self.samples:
