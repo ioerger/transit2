@@ -103,33 +103,33 @@ class HeatmapMethod(base.SingleConditionMethod):
     def from_args(self, args, kwargs):
         console_tools.enforce_number_of_args(args, self.usage_string, at_least=3)
 
-        self.filetype = None
+        self.inputs.filetype = None
         if kwargs.get("anova", False):
-            self.filetype = "anova"
+            self.inputs.filetype = "anova"
         elif kwargs.get("zinb", False):
-            self.filetype = "zinb"
+            self.inputs.filetype = "zinb"
         else:
             logging.error(f"requires --anova or --zinb argument, see usage string below.\n{self.usage_string}")
         
-        self.infile = args[0]
-        self.outfile = args[1]
-        self.qval = float(kwargs.get("qval", 0.05))
-        self.topk = int(kwargs.get("topk", -1))
-        self.low_mean_filter = int(
+        self.inputs.input_path = args[0]
+        self.inputs.output_path = args[1]
+        self.inputs.adj_p_value = float(kwargs.get("qval", 0.05))
+        self.inputs.top_k = int(kwargs.get("topk", -1))
+        self.inputs.low_mean_filter = int(
             kwargs.get("low_mean_filter", 5)
         )  # filter out genes with grandmean<5 by default
-        return self(self.infile, outfile=self.outfile)
+        return self(self.inputs.input_path, outfile=self.inputs.output_path)
 
     def Run(self):
         transit_tools.require_r_to_be_installed()
-        if self.filetype != "anova" and self.filetype != "zinb":
-            logging.error("filetype not recognized: %s" % self.filetype)
+        if self.inputs.filetype != "anova" and self.inputs.filetype != "zinb":
+            logging.error("filetype not recognized: %s" % self.inputs.filetype)
 
         headers = None
         data, hits = [], []
         n = -1  # number of conditions
 
-        with open(self.infile) as file:
+        with open(self.inputs.input_path) as file:
             for line in file:
                 w = line.rstrip().split("\t")
                 if line[0] == "#" or (
@@ -141,9 +141,9 @@ class HeatmapMethod(base.SingleConditionMethod):
                 if n == -1:
                     # ANOVA header line has names of conditions, organized as 3+2*n+3 (2 groups (means, LFCs) X n conditions)
                     # ZINB header line has names of conditions, organized as 3+4*n+3 (4 groups X n conditions)
-                    if self.filetype == "anova":
+                    if self.inputs.filetype == "anova":
                         n = int((len(w) - 6) / 2)
-                    elif self.filetype == "zinb":
+                    elif self.inputs.filetype == "zinb":
                         n = int((len(headers) - 6) / 4)
                     headers = headers[3 : 3 + n]
                     headers = [x.replace("Mean_", "") for x in headers]
@@ -160,11 +160,11 @@ class HeatmapMethod(base.SingleConditionMethod):
         data.sort(key=lambda x: x[-1])
         hits, LFCs = [], []
         for k, (w, means, lfcs, qval) in enumerate(data):
-            if (self.topk == -1 and qval < self.qval) or (
-                self.topk != -1 and k < self.topk
+            if (self.inputs.top_k == -1 and qval < self.inputs.adj_p_value) or (
+                self.inputs.top_k != -1 and k < self.inputs.top_k
             ):
                 mm = round(numpy.mean(means), 1)
-                if mm < self.low_mean_filter:
+                if mm < self.inputs.low_mean_filter:
                     print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
                 else:
                     hits.append(w)
@@ -178,7 +178,7 @@ class HeatmapMethod(base.SingleConditionMethod):
             hash[col] = FloatVector([x[i] for x in LFCs])
         df = DataFrame(hash)
         heatmapFunc = self.make_heatmapFunc()
-        heatmapFunc(df, StrVector(genenames), self.outfile)
+        heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
 
     def make_heatmapFunc(self):
         r(

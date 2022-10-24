@@ -38,8 +38,13 @@ then
         do
             if [ -x "$each" ]
             then
-                echo "    Running $each.output"
-                "$each" &> "$each.output"
+                # if name_of_command doesnt exist
+                if "$each" &> "$each.output"
+                then
+                    echo "    Passed: $each.output"
+                else
+                    echo "    FAILED: $each.output"
+                fi
             fi
         done < "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER";__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER - 1))"
         
@@ -61,8 +66,13 @@ else
         do
             if [ -x "$each" ]
             then
-                echo "    Running $each.output"
-                "$each" &> "$each.output"
+                # if name_of_command doesnt exist
+                if "$each" &> "$each.output"
+                then
+                    echo "    Passed: $each.output"
+                else
+                    echo "    FAILED: $each.output"
+                fi
             fi
         done < "$__temp_var__temp_folder/pipe_for_while_$__NESTED_WHILE_COUNTER";__NESTED_WHILE_COUNTER="$((__NESTED_WHILE_COUNTER - 1))"
     fi

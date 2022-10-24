@@ -2,7 +2,7 @@ import sys
 import os
 import math
 import warnings
-from functools import total_ordering #, cached_property
+from functools import total_ordering
 from collections import namedtuple
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
@@ -64,6 +64,7 @@ class Wig:
         return f"""Wig(
             fingerprint={self.fingerprint},
             column_index={self.column_index},
+            condition_names={self.condition_names},
             rows_shape=({len(self.rows)}, {len(self.rows[0])}),
             extra_data={indent(self.extra_data, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
@@ -152,6 +153,10 @@ class CombinedWigMetadata:
         
         return new_combined_wig
     
+    @property
+    def condition_names(self, *, wig_fingerprint=None, id=None):
+        return no_duplicates([ each_row["Condition"] for each_row in self.rows ])
+    
     def condition_names_for(self, *, wig_fingerprint=None, id=None):
         conditions = []
         if wig_fingerprint:
@@ -177,12 +182,12 @@ class CombinedWigMetadata:
                     if each_row["Condition"] == condition
         ])
     
-    #@cached_property
+    @property
     def wig_fingerprints(self):
         from pytransit.generic_tools import misc
         return misc.no_duplicates([ each_row["Filename"] for each_row in self.rows ])
     
-    #s@cached_property
+    @property
     def wig_ids(self):
         from pytransit.generic_tools import misc
         return misc.no_duplicates([ each_row["Id"] for each_row in self.rows ])
@@ -382,13 +387,19 @@ class CombinedWig:
         return [ each.position for each in self.rows ]
     
     # 
-    # files
+    # files (same order as columns)
     # 
     @property
     def wig_fingerprints(self): return self.extra_data["wig_fingerprints"]
     @wig_fingerprints.setter
     def wig_fingerprints(self, value):
         self.extra_data["wig_fingerprints"] = value
+    # 
+    # wig_ids (same order as columns/wig_fingerprints)
+    # 
+    @property
+    def wig_ids(self):
+        return [ self.metadata.id_for(wig_fingerprint=each) for each in self.wig_fingerprints]
     
     # 
     # conditions
@@ -885,7 +896,7 @@ class Genes:
     :Example:
 
         >>> from pytransit.specific_tools import tnseq_tools
-        >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/genomes/H37Rv.prot_table", norm="TTR")
+        >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/data/genomes/H37Rv.prot_table", norm="TTR")
         >>> print(G)
         Genes Object (N=3990)
         >>> print(G.global_theta())
@@ -2206,6 +2217,8 @@ def read_results_file(path):
     return standardized_column_names, rows_of_dicts, extra_data, comments_string
 
 def filepaths_to_fingerprints(filepaths):
+    return filepaths
+    
     import os
     from pytransit.generic_tools import misc
     

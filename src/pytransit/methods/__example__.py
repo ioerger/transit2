@@ -66,12 +66,9 @@ class Method:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
-            set_instructions(
+            parameter_panel.set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    HANDLE_THIS
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
                     HANDLE_THIS
                 """.replace("\n                    ","\n"),
@@ -86,6 +83,15 @@ class Method:
             # @panel_helpers.create_button(panel, main_sizer, label="")
             # def when_button_clicked(event):
             #     print("do stuff")
+            # @panel_helpers.create_button(panel, main_sizer, label="Show pop up")
+            # def when_button_clicked(event):
+            #     from pytransit.components import pop_up
+            #     @pop_up.create_pop_up(panel)
+            #     def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
+            # 
+            #         @panel_helpers.create_button(pop_up_panel, sizer, label="Click me for pop up")
+            #         def when_button_clicked(event):
+            #             print("do stuff")
             
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
@@ -103,9 +109,14 @@ class Method:
         gui.frame # self.wxobj equivalent
         gui.busy_running_method # Boolean, is true when any .Run() is started but not finished
         gui.annotation_path # string, may need to become a list of strings
+        gui.samples # list of Wig objects
         gui.conditions # list of Condition objects
+        gui.selected_samples # list of Wig objects
+        gui.selected_conditions # list of Condition objects
+        gui.selected_condition_names # list of strings
         gui.conditions[0].name # string
         gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
+        gui.wigs_in_selected_conditions # list of Wig objects
         gui.combined_wigs # list of CombinedWig objects
         gui.combined_wigs[-1].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
         gui.combined_wigs[-1].main_path
@@ -132,6 +143,7 @@ class Method:
         gui.combined_wigs[-1].metadata.headers
         gui.combined_wigs[-1].metadata.rows
         gui.combined_wigs[-1].metadata.conditions
+        gui.combined_wigs[-1].metadata.condition_names
         gui.combined_wigs[-1].metadata.wig_ids
         gui.combined_wigs[-1].metadata.wig_fingerprints
         gui.combined_wigs[-1].metadata.with_only(condition_names=[], wig_fingerprints=[])
@@ -146,7 +158,6 @@ class Method:
         # 
         # HANDLE_THIS
         Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value

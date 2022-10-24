@@ -1,10 +1,10 @@
 #Gumbel
 #yaml:
-#    date: 2022-10-14 12:05:56
+#    date: 2022-10-20 12:13:25
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'gumbel' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/gumbel/0001_basic.sh.1.result'
+#        python3 './src/transit.py' 'gumbel' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gumbel/0001_basic.sh.1.result'
 #    parameters:
 #       samples: 10000
 #       norm: TTR
@@ -14,8 +14,8 @@
 #       replicates: Sum
 #       iN: 0.0
 #       iC: 0.0
-#    annotation_path: ./src/pytransit/genomes/H37Rv.prot_table
-#    time: 60.68773603439331
+#    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
+#    time: 61.523711919784546
 #    ES: 553 essential based on Gumbel
 #    ESB: 121 essential based on Binomial
 #    NE: 2761 non-essential

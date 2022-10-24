@@ -142,20 +142,21 @@ class Method:
         # write output
         # 
         if True:
-            # FIXME: switch to transit_tools.write_result()
-            # note: first comment line is filetype, last comment line is column headers
-            file = sys.stdout # print to console if not output file defined
+            # 
+            # write to file
+            # 
+            transit_tools.write_result(
+                path=self.inputs.output_path, # path=None means write to STDOUT
+                file_kind=Method.identifier,
+                rows=[ list(row) for row in results ],
+                column_names=self.column_names,
+                extra_info=dict(
+                    parameters=dict(
+                        normalization=self.inputs.normalization,
+                    ),
+                ),
+            )
             if self.inputs.output_path != None:
-                file = open(self.inputs.output_path, "w")
-            file.write("#%s\n" % self.identifier)
-            file.write("#normalization: %s\n" % self.inputs.normalization)
-            file.write("#"+"\t".join(self.column_names)+"\n")
-
-            for vals in results:
-                file.write("\t".join([str(x) for x in vals]) + "\n")
-
-            if self.inputs.output_path != None:
-                file.close()
                 logging.log(f"Adding File: {self.inputs.output_path}")
                 results_area.add(self.inputs.output_path)
         

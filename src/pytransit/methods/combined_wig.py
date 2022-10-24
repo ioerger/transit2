@@ -159,16 +159,6 @@ class Method:
                 skew=float(skew),
                 kurtosis=float(kurtosis),
                 pickands_tail_index=float(tnseq_stats.pickands_tail_index(wig_insertion_counts)),
-                
-                # density="%0.3f" % density,
-                # mean_read="%0.1f" % mean_read,
-                # non_zero_mean_read="%0.1f" % non_zero_mean_read,
-                # non_zero_median_read= 0 if numpy.isnan(non_zero_median_read) else int(non_zero_median_read),
-                # max_read=int(max_read),
-                # total_read=int(total_read),
-                # skew="%0.1f" % skew,
-                # kurtosis="%0.1f" % kurtosis,
-                # pickands_tail_index= "%0.3f" % tnseq_stats.pickands_tail_index(wig_insertion_counts),
             )).replace("\n", ", ").strip()
         
         #
@@ -235,6 +225,37 @@ class Method:
         SpreadSheet(
             title="Read Counts",
             heading=heading,
+            column_names=column_names,
+            rows=rows,
+            sort_by=[]
+        ).Show()
+    
+    @gui.add_condition_area_dropdown_option(name="Show Table")
+    @staticmethod
+    def click_show_table(event):
+        selected_wigs = gui.wigs_in_selected_conditions or gui.samples
+        
+        # 
+        # row data
+        # 
+        column_names = [ 
+            "TA Site Position",
+            *[
+                each.id 
+                    for each in selected_wigs
+            ] 
+        ]
+        ta_site_positions = selected_wigs[0].positions
+        rows = []
+        for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
+            rows.append({
+                column_name: cell_value
+                    for column_name, cell_value in zip(column_names, row_data)
+            })
+        
+        SpreadSheet(
+            title="Read Counts",
+            heading="",
             column_names=column_names,
             rows=rows,
             sort_by=[]

@@ -170,7 +170,7 @@ class Method:
             column_names=[
                 "ORF",
                 "Gene Name",
-                *labels
+                *labels,
             ],
             rows=rows,
             extra_info=dict(

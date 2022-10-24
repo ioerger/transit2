@@ -736,6 +736,7 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
 
     info = tnseq_tools.CombinedWigMetadata(metadata_path)
     labels = [info.id_for(x) for x in filenames_in_comb_wig]
+    #labels = combined_wig.wig_ids #TRI
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
@@ -756,21 +757,39 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
     means = numpy.vstack(means)
 
     if avg_by_conditions:
-        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata_path)
-        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
-        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
-        condition_list = sorted(list(set(conditions))) # make unique
 
-        conditions_array = numpy.array(conditions)
+# Tom's way...
+#        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata_path)
+#        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
+#        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
+#        condition_list = sorted(list(set(conditions))) # make unique
+#
+#        conditions_array = numpy.array(conditions)
+#        count_lists = []
+#        for each_condition in condition_list:
+#           count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
+
+# Jeff's way...
+        labels = combined_wig.metadata.condition_names
+        condition_per_wig_index = [
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
+                for each_fingerprint in combined_wig.wig_fingerprints
+        ]
+        # TODO: maybe allow user to include/exclude conditions or put in specific order, like in anova? (using combined_wig.with_only(condition_names=[]))
+        conditions_array = numpy.array(condition_per_wig_index)
+        
+        # make a reduced numpy array by average over replicates of each condition
         count_lists = []
-        for each_condition in condition_list:
-           count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
+        for each_condition_name in combined_wig.metadata.condition_names:
+            count_lists.append(
+                # pick columns corresponding to condition; avg across rows (genes)
+                numpy.mean(means[:,conditions_array==each_condition_name],axis=1)
+            )
+
         means = numpy.array(count_lists).transpose()
-        labels = condition_list
+#        labels = condition_list
 
     return means, genes, labels
-
-# get rid of avg_by_conditions?
 
 def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2, gene_means=False, log_scale=False):
 
@@ -784,8 +803,6 @@ def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg
       counts = numpy.array(data).transpose()
 
     #determine indexes for 2 samples by sample id (in metadata)
-    # for now, assume avg_by_conditions=F so headers are Ids of each sample
-
     i,j = headers.index(sample1),headers.index(sample2)
     if i==-1 or j==-1: logging.error("sample not found in combined_wig")
 
@@ -801,5 +818,4 @@ def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg
     else: plt.title("scatter plot of insertion counts at individual TA sites")
     plt.savefig(output_path)
     plt.clf()
-
 

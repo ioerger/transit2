@@ -20,8 +20,11 @@ samples = LazyDict(
     wig_header_sizer=None,
     wig_dropdown_wxobj=None,
     wig_table=None,
-    dropdown_options={},
+    wig_dropdown_options={},
+    condition_header_sizer=None,
+    condition_dropdown_wxobj=None,
     conditions_table=None,
+    condition_dropdown_options={},
     sample_button_creators = {
         # put "name": None here for buttons you want to be in a specific order
         # "LOESS": None,
@@ -37,7 +40,7 @@ samples = LazyDict(
 # 
 # for updating the dropdown options
 # 
-def update_sample_area_dropdown(new_choices):
+def update_wig_area_dropdown(new_choices):
     with gui_tools.nice_error_log:
         # hide the old one before showing the new one
         if samples.wig_dropdown_wxobj != None:
@@ -66,6 +69,38 @@ def update_sample_area_dropdown(new_choices):
             @gui_tools.bind_to(samples.wig_dropdown_wxobj, wx.EVT_CHOICE)
             def _(event):
                 choice = samples.wig_dropdown_wxobj.GetString(samples.wig_dropdown_wxobj.GetCurrentSelection())
+                # run the callback that corrisponds the the choice
+                new_choices[choice](event)
+
+def update_condition_area_dropdown(new_choices):
+    with gui_tools.nice_error_log:
+        # hide the old one before showing the new one
+        if samples.condition_dropdown_wxobj != None:
+            samples.condition_dropdown_wxobj.Hide()
+        
+        # if not (None or empty)
+        if new_choices: 
+            new_choices = {
+                "[Select Tool]": lambda event: None, # always have a none option, and always make it the first option
+                **new_choices,
+            }
+            
+            samples.condition_dropdown_wxobj = wx.Choice(
+                gui.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                (120, -1),
+                list(new_choices.keys()),
+                0,
+            )
+            samples.condition_dropdown_wxobj.SetSelection(0)
+            samples.condition_header_sizer.Add(samples.condition_dropdown_wxobj, proportion=0, flag=wx.EXPAND, border=gui_tools.default_padding)
+            samples.condition_header_sizer.Layout()
+            gui.frame.Layout()
+            
+            @gui_tools.bind_to(samples.condition_dropdown_wxobj, wx.EVT_CHOICE)
+            def _(event):
+                choice = samples.condition_dropdown_wxobj.GetString(samples.condition_dropdown_wxobj.GetCurrentSelection())
                 # run the callback that corrisponds the the choice
                 new_choices[choice](event)
 
@@ -162,10 +197,9 @@ def create_sample_area(frame):
             # 
             # show wig-specific buttons
             # 
-            show_table_button = None
             @samples.wig_table.events.on_select
             def _(event):
-                update_sample_area_dropdown(samples.dropdown_options)
+                update_wig_area_dropdown(samples.wig_dropdown_options)
                 for each in samples.sample_button_creators.values():
                     with gui_tools.nice_error_log:
                         each(samples.wig_table, samples.wig_header_sizer)
@@ -180,7 +214,16 @@ def create_sample_area(frame):
         outer_sample_sizer.add(
             Text("Conditions"),
             proportion=0,
-            
+        )
+        
+        # 
+        # condition_header
+        #
+        samples.condition_header_sizer = wx.BoxSizer(wx.HORIZONTAL) 
+        outer_sample_sizer.add(
+            samples.condition_header_sizer,
+            expand=True,
+            proportion=0,
         )
         
         # 
@@ -189,6 +232,18 @@ def create_sample_area(frame):
         with Table(
            max_size=(int(gui.width*0.7), 200)
         ) as samples.conditions_table:
+        
+            # 
+            # show condition-specific buttons
+            # 
+            @samples.conditions_table.events.on_select
+            def _(event):
+                update_condition_area_dropdown(samples.condition_dropdown_options)
+                for each in samples.sample_button_creators.values():
+                    with gui_tools.nice_error_log:
+                        each(samples.conditions_table, samples.condition_header_sizer)
+                        
+            
             outer_sample_sizer.add(
                 samples.conditions_table.wx_object,
                 proportion=1, # 29 does something strange
@@ -274,7 +329,8 @@ def get_selected_samples():
     return [ each["__wig_obj"] for each in samples.wig_table.selected_rows ]
 
 def get_selected_condition_names():
-    return [ each["name"] for each in samples.conditions_table.selected_rows ]
+    selected_rows = samples.conditions_table.selected_rows
+    return no_duplicates([ each["name"] for each in samples.conditions_table.selected_rows ])
 
 # 
 # 
@@ -296,7 +352,22 @@ def add_wig_area_dropdown_option(name):
         def wrapper(*args,**kwargs):
             with gui_tools.nice_error_log:
                 return function_being_wrapped(*args, **kwargs)
-        samples.dropdown_options[name] = wrapper
+        samples.wig_dropdown_options[name] = wrapper
+        return wrapper
+    return decorator
+
+def add_condition_area_dropdown_option(name):
+    """
+    Example Usage:
+        @gui.add_condition_area_dropdown_option(name="Click Me", size=(120, -1))
+        def on_button_click(event):
+            print("Howdy")
+    """
+    def decorator(function_being_wrapped):
+        def wrapper(*args,**kwargs):
+            with gui_tools.nice_error_log:
+                return function_being_wrapped(*args, **kwargs)
+        samples.condition_dropdown_options[name] = wrapper
         return wrapper
     return decorator
 

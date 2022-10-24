@@ -37,10 +37,8 @@ class Method:
         normalization="TTR", #TRI hard-coded for now
     )
     
-    valid_cli_flags = [ #TRI - consider adding these flags?
-      "avg_by_conditions"
-    ]
-    # could add a flag for Adj P Value cutoff (or top n most signif genes)
+    valid_cli_flags = [ "avg_by_conditions" ]
+    #TRI - could add a flag for Adj P Value cutoff (or top n most signif genes)
 
     usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <metadata> <annotation_file> <output.png> [-avg_by_conditions]"""
     
@@ -70,39 +68,6 @@ class Method:
         Method.Run()
     
     # 
-    # Button method
-    # 
-    @gui.add_wig_area_dropdown_option(name=name)
-    def on_button_click(event):
-        transit_tools.require_r_to_be_installed()
-        
-        selected_wig_fingerprints = [ each.fingerprint for each in gui.selected_samples or gui.samples ]
-        Method.inputs.update(dict(
-            #combined_wig=gui.combined_wigs[-1].with_only(wig_fingerprints=selected_wig_fingerprints),
-            combined_wig=gui.combined_wigs[-1].main_path,
-            metadata=gui.combined_wigs[-1].metadata_path,
-            annotation_path=gui.annotation_path,
-            output_path=None,
-            avg_by_conditions=False,
-            normalization="TTR", #TRI hard-coded for now
-        ))
-        
-        # 
-        # validate
-        # 
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
-        assert len(selected_wig_fingerprints), "Please load at least one combined wig file"
-        
-        # 
-        # Ask for inputs
-        # 
-        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"corrplot.png",
-            output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
-        )
-        Method.Run()
-    
-    # 
     # Panel method
     # 
     @gui.add_menu("Pre-Processing", menu_name)
@@ -121,12 +86,12 @@ class Method:
     @staticmethod
     def from_gui(frame):
         # 
-        # get annotation
+        # get annotation and combined_wig
         # 
-        Method.inputs.annotation_path =gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
-        Method.inputs.combined_wig = gui.combined_wigs[-1].main_path #TRI what if not defined? fail gracefully?
-        Method.inputs.metadata = gui.combined_wigs[-1].metadata_path
+
+        Method.inputs.annotation_path = gui.annotation_path
+        Method.inputs.combined_wig = gui.combined_wigs[-1] #TRI what if not defined? fail gracefully?
+        #Method.inputs.metadata = gui.combined_wigs[-1].metadata_path
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value

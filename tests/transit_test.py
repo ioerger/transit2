@@ -13,6 +13,9 @@ samples_metadata = basedir + "/../src/pytransit/data/samples_metadata_cg.txt"
 samples_metadata_covariates = basedir + "/../src/pytransit/data/samples_metadata_cg_covar.txt"
 samples_metadata_interactions = basedir + "/../src/pytransit/data/samples_metadata_cg_interactions.txt"
 
+KO_combined_wig = basedir + "/../src/pytransit/data/Subu_KO_combined_wig.txt"
+KO_samples_metadata = basedir + "/../src/pytransit/data/Subu_KO_metadata.txt"
+
 exp_rep1 = basedir + "/../src/pytransit/data/cholesterol_H37Rv_rep1.wig"
 exp_rep2 = basedir + "/../src/pytransit/data/cholesterol_H37Rv_rep2.wig"
 exp_rep3 = basedir + "/../src/pytransit/data/cholesterol_H37Rv_rep3.wig"
@@ -20,7 +23,7 @@ exp_data_txt = ",".join([exp_rep1, exp_rep2, exp_rep3])
 
 all_data_list = [ctrl_rep1, ctrl_rep2, exp_rep1, exp_rep2, exp_rep3]
 
-annotation = basedir + "/../src/pytransit/genomes/H37Rv.prot_table"
+annotation = basedir + "/../src/pytransit/data/genomes/H37Rv.prot_table"
 small_annotation = basedir + "/data/test.prot_table"
 output = basedir + "/testoutput.txt"
 hist_path = output.rsplit(".", 1)[0] + "_histograms"
@@ -32,7 +35,7 @@ reads1 = basedir + "/data/test.fastq"
 test_multicontig = basedir + "/data/test-multicontig.fna"
 test_multicontig_reads1 = basedir + "/data/test-multicontig-1.fastq"
 test_multicontig_reads2 = basedir + "/data/test-multicontig-2.fastq"
-h37fna = basedir + "/../src/pytransit/genomes/H37Rv.fna"
+h37fna = basedir + "/../src/pytransit/data/genomes/H37Rv.fna"
 
 
 class TransitTestCase(unittest.TestCase):

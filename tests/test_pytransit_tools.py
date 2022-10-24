@@ -108,8 +108,8 @@ class TestTnSeqTools(TransitTestCase):
     def test_clean_args_flag_arguments_with_double_dash(self):
         TEST_RAWARGS = ["a", "b", "c", "-d", "1", "--p", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
-        self.assertFalse("p" in kwargs)
-        self.assertFalse("--p" in kwargs)
+        self.assertTrue("p" in kwargs)
+        self.assertTrue("--p" in kwargs)
         self.assertTrue("-p" in kwargs)
 
 if __name__ == '__main__':

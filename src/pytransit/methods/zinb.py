@@ -150,7 +150,6 @@ class Method:
         # 
         # HANDLE_THIS
         Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value

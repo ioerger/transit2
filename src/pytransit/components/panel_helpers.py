@@ -45,6 +45,12 @@ if True:
                 gui.frame.Layout()
     
     def create_button(panel, sizer, *, label):
+        """
+        Example:
+            @panel_helpers.create_button(pop_up_panel, main_sizer, label="")
+            def when_button_clicked(event):
+                print("do stuff")
+        """
         run_button = wx.Button(
             panel,
             wx.ID_ANY,
@@ -122,7 +128,7 @@ if True:
         return
 
 
-    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
+    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
         """
             Example:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
@@ -170,6 +176,7 @@ if True:
                             allowed_extensions=allowed_extensions,
                         )
                         file_text.SetLabel(basename(the_file_path or ""))
+                        after_select(*args)
             row_sizer.Add(add_file_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
             
             # 
@@ -476,6 +483,21 @@ if True:
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
+    def create_wig_choice(panel, sizer, *, label_text, tooltip_text="choose wig"):
+        wig_ids = [x.id for x in gui.samples]
+        (
+            label,
+            ref_wig_wxobj,
+            ref_wig_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text=label_text,
+            options=wig_ids,
+            tooltip_text=tooltip_text,
+        )
+        sizer.Add(ref_wig_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: gui.samples[wig_ids.index(ref_wig_wxobj.GetString(ref_wig_wxobj.GetCurrentSelection()))]
+    
     def create_condition_choice(panel, sizer, *, label_text, tooltip_text="choose condition"):
         (
             label,
@@ -701,11 +723,9 @@ if True:
         def run(*args):
             # a workaround for python WX somehow clicking the add files button every time the run method is called
             def run_wrapper():
-                gui.busy_running_method = True
-                try:
+                with gui_tools.nice_error_log:
+                    gui.busy_running_method = True
                     method_instance.Run()
-                except Exception as error:
-                    pass
                 gui.busy_running_method = False
                 
             import threading

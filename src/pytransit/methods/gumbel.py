@@ -116,11 +116,13 @@ class Method:
             
             self.value_getters.condition       = panel_helpers.create_condition_input(panel, main_sizer)
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer) # TTR 
-            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value=10000, tooltip_text="")
-            self.value_getters.burnin          = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Burnin")
-            self.value_getters.trim            = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="trim", default_value=1, tooltip_text="trim")
+            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value=10000, tooltip_text="The default setting is to run the simulation for 10,000 iterations. This is usually enough to assure convergence of the sampler and to provide accurate estimates of posterior probabilities. Less iterations may work, but at the risk of lower accuracy.")
+            self.value_getters.burnin          = panel_helpers.create_int_getter(panel, main_sizer, label_text="Burnin", default_value=500, tooltip_text="Because the MH sampler many not have stabilized in the first few iterations, a “burn-in” period is defined. Samples obtained in this “burn-in” period are discarded, and do not count towards estimates.")
+            self.value_getters.trim            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Trim", default_value=1, tooltip_text="The MH sampler produces Markov samples that are correlated. This parameter dictates how many samples must be attempted for every sampled obtained. Increasing this parameter will decrease the auto-correlation, at the cost of dramatically increasing the run-time. For most situations, this parameter should be left at the default of “1”.")
             self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.read_count      = panel_helpers.create_int_getter(panel, main_sizer, label_text="Minimum Read Count", default_value=1, tooltip_text="The minimum read count that is considered a true read. Because the Gumbel method depends on determining gaps of TA sites lacking insertions, it may be susceptible to spurious reads (e.g. errors). The default value of 1 will consider all reads as true reads. A value of 2, for example, will ignore read counts of 1."),
+            self.value_getters.replicates      = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Sum", "Mean", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
         
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
@@ -141,9 +143,6 @@ class Method:
             # get annotation
             # 
             Method.inputs.annotation_path = gui.annotation_path
-            if not transit_tools.validate_annotation(Method.inputs.annotation_path):
-                return None
-
 
             for each_key, each_getter in Method.value_getters.items():
                 try:
