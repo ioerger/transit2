@@ -1,0 +1,6 @@
+Id	Condition	Filename
+wt_150Fe	wt_150Fe	wt_150Fe
+wt_0Fe	wt_0Fe	wt_0Fe
+FxbA_0Fe	FxbA_0Fe	FxbA_0Fe
+MbtD_0Fe	MbtD_0Fe	MbtD_0Fe
+MbtDFxbA_3Fe	MbtDFxbA_3Fe	MbtDFxbA_3Fe
