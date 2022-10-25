@@ -707,6 +707,11 @@ class GenesFile:
 
     def graph_volcano_plot(self):
         with gui_tools.nice_error_log:
+            Method.inputs.volcano_output_path = gui_tools.ask_for_output_file_path(
+                default_file_name=f"volcano.png",
+                output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
+            )
+
             try: import matplotlib.pyplot as plt
             except:
                 print("Error: cannot do plots, no matplotlib")
@@ -743,9 +748,14 @@ class GenesFile:
             plt.legend()
             plt.xlabel("Gene Plus TTN M1 Coef")
             plt.ylabel("-Log Adj P Value (base 10)")
-            plt.suptitle("Volcano plot")
+            #plt.suptitle("Volcano plot")
             plt.title("Adjusted threshold (horizonal line): P-value=%1.8f\nVertical line set at Coef=0" % threshold)
-            plt.show()
+            #plt.show()
+            plt.savefig(Method.inputs.volcano_output_path, bbox_inches='tight')
+
+            if gui.is_active:
+                logging.log(f"Adding File: {Method.inputs.volcano_output_path}")
+                results_area.add(Method.inputs.volcano_output_path)
             
 
 @transit_tools.ResultsFile
