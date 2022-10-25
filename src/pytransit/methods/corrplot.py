@@ -54,16 +54,14 @@ class Method:
         
         # save the data
         Method.inputs.update(dict(
-            #combined_wig=tnseq_tools.CombinedWig(
-            #    main_path=args[0],
-            #    metadata_path=args[1]
-            #),
-            combined_wig = args[0],
-            metadata=args[1],
+            combined_wig_path = args[0],
+            metadata_path=args[1],
             annotation_path=args[2],
             output_path=args[3], # png file,
             avg_by_conditions="avg_by_conditions" in kwargs, # bool
-        ))
+            combined_wig=tnseq_tools.CombinedWig(main_path=args[0],metadata_path=args[1]) # read in combined_wig object
+            ),
+        )
         
         Method.Run()
     
@@ -91,7 +89,8 @@ class Method:
 
         Method.inputs.annotation_path = gui.annotation_path
         Method.inputs.combined_wig = gui.combined_wigs[-1] #TRI what if not defined? fail gracefully?
-        #Method.inputs.metadata = gui.combined_wigs[-1].metadata_path
+        Method.inputs.combined_wig_path = gui.combined_wigs[-1].main_path 
+        Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value
@@ -125,12 +124,13 @@ class Method:
             start_time = time.time()
             
             transit_tools.make_corrplot(
-                combined_wig=self.inputs.combined_wig,
-                metadata=self.inputs.metadata,
-                normalization=self.inputs.normalization,
+                combined_wig_path=self.inputs.combined_wig_path,
+                metadata_path=self.inputs.metadata_path,
                 annotation_path=self.inputs.annotation_path,
-                avg_by_conditions=self.inputs.avg_by_conditions,
                 output_path=self.inputs.output_path,
+                normalization=self.inputs.normalization,
+                avg_by_conditions=self.inputs.avg_by_conditions,
+                combined_wig=self.inputs.combined_wig, # object
             )
             
             if gui.is_active:

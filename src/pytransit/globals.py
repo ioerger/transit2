@@ -55,7 +55,9 @@ class gui:
         "Pre-Processing": {},
     })
     
-    _annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
+    #_annotation_path = "" if not debugging_enabled else f"{root_folder}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
+    _annotation_path = "" if not debugging_enabled else "H37Rv.prot_table"
+
     @property
     def annotation_path(self):
         from pytransit.specific_tools import transit_tools

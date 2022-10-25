@@ -700,7 +700,7 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
 ##########################################
 
 corrplot_r_function = None
-def make_corrplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path):
+def make_corrplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, normalization="TTR", avg_by_conditions=True, combined_wig=None):
     global corrplot_r_function
     import numpy
     # instantiate the corrplot_r_function if needed
@@ -717,7 +717,12 @@ def make_corrplot(combined_wig, metadata, normalization, annotation_path, avg_by
         """)
         corrplot_r_function = globalenv["make_corrplot"]
     
-    means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
+    means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
+                                            metadata_path = metadata_path, 
+                                            annotation_path = annotation_path, 
+                                            normalization = normalization, 
+                                            avg_by_conditions = avg_by_conditions,
+                                            combined_wig = combined_wig)
 
     position_hash = {}
     for i, col in enumerate(headers):
@@ -727,16 +732,55 @@ def make_corrplot(combined_wig, metadata, normalization, annotation_path, avg_by
     corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
 
 
-def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
-    if combined_wig==None:
-      sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(combined_wig_path)
-    else:
-      sites, data, filenames_in_comb_wig = combined_wig.as_table()
-      print("reusing combined_wig object")
+def make_scatterplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, sample1=None, sample2=None, normalization="TTR", avg_by_conditions=False, gene_means=False, log_scale=False, combined_wig=None):
 
-    info = tnseq_tools.CombinedWigMetadata(metadata_path)
-    labels = [info.id_for(x) for x in filenames_in_comb_wig]
-    #labels = combined_wig.wig_ids #TRI
+    if combined_wig==None: 
+      combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path)
+
+    if gene_means==False:   
+      sites, data, fingerprints = combined_wig.as_tuple # tnseq_tools.CombinedWigData.load(combined_wig_path)
+      metadata = combined_wig.metadata # tnseq_tools.CombinedWigMetadata(metadata_path)
+      headers = [metadata.id_for(x) for x in fingerprints] # could also use combined_wig.wig_ids?
+      counts = numpy.array(data).transpose()
+    else:
+      means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
+                                              metadata_path = metadata_path, 
+                                              annotation_path = annotation_path, 
+                                              normalization = normalization, 
+                                              avg_by_conditions = avg_by_conditions,
+                                              combined_wig = combined_wig)
+      counts = means
+
+    #determine indexes for 2 samples by sample id (in metadata)
+    i,j = headers.index(sample1),headers.index(sample2)
+    if i==-1 or j==-1: logging.error("sample not found in combined_wig")
+
+    if log_scale: 
+      plt.scatter(numpy.log10(counts[:,i]),numpy.log10(counts[:,j]))
+      plt.xlabel("log10(%s)" % sample1)
+      plt.ylabel("log10(%s)" % sample2)
+    else:
+      plt.scatter(counts[:,i],counts[:,j])
+      plt.xlabel("%s" % sample1)
+      plt.ylabel("%s" % sample2)
+    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
+    else: plt.title("scatter plot of insertion counts at individual TA sites")
+    plt.savefig(output_path)
+    plt.clf()
+
+
+# note: all args are named
+# user must provide either combined_wig objects, or filenames for combined_wig_path and metadata_path
+
+def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=None, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
+    if combined_wig==None: 
+      combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path)
+
+    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
+    metadata = combined_wig.metadata
+
+    #labels = [metadata.id_for(x) for x in filenames_in_comb_wig]
+    labels = combined_wig.wig_ids # should be in same order as columns in combined_wig file
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
@@ -790,32 +834,4 @@ def calc_gene_means(combined_wig_path, metadata_path, annotation_path, normaliza
 #        labels = condition_list
 
     return means, genes, labels
-
-def make_scatterplot(combined_wig, metadata, normalization, annotation_path, avg_by_conditions, output_path, sample1, sample2, gene_means=False, log_scale=False):
-
-    if gene_means: 
-      means, genes, headers = calc_gene_means(combined_wig, metadata, annotation_path, normalization, avg_by_conditions)
-      counts = means
-    else:
-      sites, data, fingerprints = tnseq_tools.CombinedWigData.load(combined_wig)
-      info = tnseq_tools.CombinedWigMetadata(metadata)
-      headers = [info.id_for(x) for x in fingerprints]
-      counts = numpy.array(data).transpose()
-
-    #determine indexes for 2 samples by sample id (in metadata)
-    i,j = headers.index(sample1),headers.index(sample2)
-    if i==-1 or j==-1: logging.error("sample not found in combined_wig")
-
-    if log_scale: 
-      plt.scatter(numpy.log10(counts[:,i]),numpy.log10(counts[:,j]))
-      plt.xlabel("log10(%s)" % sample1)
-      plt.ylabel("log10(%s)" % sample2)
-    else:
-      plt.scatter(counts[:,i],counts[:,j])
-      plt.xlabel("%s" % sample1)
-      plt.ylabel("%s" % sample2)
-    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
-    else: plt.title("scatter plot of insertion counts at individual TA sites")
-    plt.savefig(output_path)
-    plt.clf()
 

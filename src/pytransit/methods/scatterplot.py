@@ -60,9 +60,7 @@ class Method:
             self.value_getters.log_scale = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
 
             # add normalization option? #TRI
-           
             # what if want to show scatterplot of 2 Conditions?
-
             #TRI add to Instructions: "select 2 samples from upper panel on left"
 
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
@@ -74,8 +72,9 @@ class Method:
         # 
         Method.inputs.annotation_path = gui.annotation_path
         transit_tools.validate_annotation(Method.inputs.annotation_path)
-        Method.inputs.combined_wig = gui.combined_wigs[0].main_path #TRI what if not defined? fail gracefully?
-        Method.inputs.metadata = gui.combined_wigs[0].metadata.path
+        Method.inputs.combined_wig = gui.combined_wigs[0] #TRI what if not defined? fail gracefully?
+        Method.inputs.combined_wig_path = gui.combined_wigs[0].main_path 
+        Method.inputs.metadata_path = gui.combined_wigs[0].metadata.path
         
         # 
         # call all GUI getters, puts results into respective Method.inputs key-value
@@ -102,7 +101,7 @@ class Method:
         # ask for output path(s)
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"corrplot.png",
+            default_file_name=f"scatterplot.png",
             output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
         )
         Method.inputs.normalization = "TTR" #TRI I should add a dropdown for this, but hard-code it for now
@@ -122,24 +121,27 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
 
-        combined_wig    = args[0]
-        metadata        = args[1]
+        combined_wig_path = args[0]
+        metadata_path   = args[1]
         sample1         = args[2]
         sample2         = args[3]
         annotation_path = args[4]
         output_path     = args[5] # png file
 
+        combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path) # read in combined_wig object
+
         # save the data
         Method.inputs.update(dict(
-            combined_wig = combined_wig,
-            metadata = metadata,
+            combined_wig_path = combined_wig_path,
+            metadata_path = metadata_path,
             annotation_path = annotation_path,
+            output_path = output_path,
             sample1 = sample1,
             sample2 = sample2,
-            output_path = output_path,
             normalization = kwargs.get("n", "TTR"),
             gene_means = "means" in kwargs, # bool
-            log_scale = "log" in kwargs # bool
+            log_scale = "log" in kwargs, # bool
+            combined_wig = combined_wig,
         ))
         
         Method.Run()
@@ -152,16 +154,17 @@ class Method:
             start_time = time.time()
             
             transit_tools.make_scatterplot(
-                combined_wig=self.inputs.combined_wig,
-                metadata=self.inputs.metadata,
-                normalization=self.inputs.normalization,
+                combined_wig_path=self.inputs.combined_wig_path,
+                metadata_path=self.inputs.metadata_path,
                 annotation_path=self.inputs.annotation_path,
-                avg_by_conditions=False, # self.inputs.avg_by_conditions, #TRI
                 output_path=self.inputs.output_path,
                 sample1=self.inputs.sample1,
                 sample2=self.inputs.sample2,
+                normalization=self.inputs.normalization,
+                avg_by_conditions=False, # self.inputs.avg_by_conditions, #TRI not implemented yet
                 gene_means = self.inputs.gene_means,
-                log_scale = self.inputs.log_scale
+                log_scale = self.inputs.log_scale,
+                combined_wig = self.inputs.combined_wig # object
             )
             
             if gui.is_active:
