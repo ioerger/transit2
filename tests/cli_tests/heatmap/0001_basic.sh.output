@@ -1,14 +1,26 @@
 Traceback (most recent call last):
-  File "/Users/sanjeevanichoudhery/Projects/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 162, in run_main
-    main(*args, **kwargs)
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 151, in main
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/heatmap.py", line 129, in from_args
-    Method.Run()
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/heatmap.py", line 132, in Run
-    transit_tools.require_r_to_be_installed()
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 160, in require_r_to_be_installed
-    raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
-Exception: Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/
+  File "./src/transit.py", line 23, in <module>
+    import pytransit.__main__
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/__main__.py", line 8, in <module>
+    import pytransit.methods
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/__init__.py", line 1, in <module>
+    from .anova              import *
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/anova.py", line 13, in <module>
+    from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/gui_tools.py", line 5, in <module>
+    from pytransit.specific_tools.transit_tools import wx
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 28, in <module>
+    import scipy.optimize
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/optimize/__init__.py", line 387, in <module>
+    from .optimize import *
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/optimize/optimize.py", line 39, in <module>
+    from scipy.optimize._differentiable_functions import ScalarFunction, FD_METHODS
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/optimize/_differentiable_functions.py", line 4, in <module>
+    from ._hessian_update_strategy import HessianUpdateStrategy
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 955, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 674, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 779, in get_code
+  File "<frozen importlib._bootstrap_external>", line 487, in _compile_bytecode
+KeyboardInterrupt

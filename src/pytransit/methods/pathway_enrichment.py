@@ -257,8 +257,7 @@ class Method:
         # 
         # get annotation
         # 
-        Method.inputs.annotation_path = gui.annotation_path
-
+        #Method.inputs.annotation_path = gui.annotation_path
         # 
         # setup custom inputs
         #        
@@ -272,11 +271,15 @@ class Method:
         if Method.inputs.organism_pathway != None:
             organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG":
-                import requests
-                URL = "https://orca1.tamu.edu/essentiality/transit/COG2020/"+organism+"_COG_20_roles.associations.txt"
-                response = requests.get(URL)
-                open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb").write(response.content)
-
+                try:
+                    import requests
+                    URL = "https://orca1.tamu.edu/essentiality/transit/COG2020/"+organism+"_COG_20_roles.associations.txt"
+                    response = requests.get(URL)
+                    open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb").write(response.content)
+                except requests.exceptions.ConnectionError:
+                    logging.error("Please Connect to the Internet to get this COG files for "+organism)
+                    #sys.exit()
+                
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_20_roles.txt"
 

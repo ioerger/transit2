@@ -2,4 +2,4 @@
 [gene_means:Run()] Starting GeneMeans analysis 
 [transit_tools:calc_gene_means()] Normalizing using: TTR 
 [gene_means:Run()] Writing output file: ./tests/cli_tests/gene_means/0001_basic.sh.1.result 
-[gene_means:Run()] Finished GeneMeans analysis in 1.8sec 
+[gene_means:Run()] Finished GeneMeans analysis in 2.8sec 

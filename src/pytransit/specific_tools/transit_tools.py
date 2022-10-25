@@ -171,7 +171,7 @@ def dirname(filepath):
 def validate_annotation(annotation):
     if not annotation or not os.path.exists(annotation):
         # NOTE: returned false
-        logging.error("Error: No or Invalid annotation file selected!")
+        logging.error(f"Error: No or Invalid annotation file selected!{annotation}")
     return True
 
 def validate_control_datasets(ctrldata):

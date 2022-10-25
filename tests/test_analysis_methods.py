@@ -23,6 +23,7 @@ from pytransit.methods.anova  import Method as AnovaMethod
 from pytransit.methods.gumbel import Method as GumbelMethod
 from pytransit.methods.hmm    import Method as HMMMethod
 from pytransit.methods.zinb   import Method as ZinbMethod
+#from pytransit.methods.utest  import Method as UTestMethod
 
 # Comparative methods
 from pytransit.methods.resampling  import Method as ResamplingMethod
@@ -227,18 +228,17 @@ class TestMethods(TransitTestCase):
         genes_path = output.rsplit(".", 1)[0] + "_genes." + output.rsplit(".", 1)[1]
         self.assertTrue(os.path.exists(genes_path))
 
-    # # TODO: check if utest is needed
-    # def test_utest(self):
-    #     args = [ctrl_data_txt, exp_data_txt, small_annotation, output]
-    #     try:
-    #         method_object = UTestMethod.from_args(*console_tools.clean_args(args))
-    #     except Exception as error:
-    #             import traceback
-    #             traceback.print_exc()
-    #             print(f'''error = {error}''')
-    #     self.assertTrue(os.path.exists(output))
 
-    # # FIXME: GI test is broken
+    def test_utest(self):
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output]
+        try:
+            method_object = UTestMethod.from_args(*console_tools.clean_args(args))
+        except Exception as error:
+                import traceback
+                traceback.print_exc()
+                print(f'''error = {error}''')
+        self.assertTrue(os.path.exists(output))
+
     def test_GI(self):
         #  usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
         args = [KO_combined_wig, KO_samples_metadata,"H37Rv_day0","H37Rv_day32","Rv2680_day0","Rv2680_day32", small_annotation, output]

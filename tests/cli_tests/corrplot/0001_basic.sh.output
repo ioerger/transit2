@@ -1,2 +1,13 @@
-Error: R and rpy2 (~= 3.0) required to run corrplot.
-After installing R, you can install rpy2 using the command "pip install 'rpy2~=3.0'"
+[corrplot] Starting Corrplot
+Traceback (most recent call last):
+  File "/home/grads/s/schoudhery/.local/bin/transit", line 11, in <module>
+    sys.exit(run_main())
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/pytransit/__main__.py", line 43, in run_main
+    main(*args, **kwargs)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/pytransit/__main__.py", line 144, in main
+    methodobj.Run()
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/pytransit/analysis/corrplot.py", line 133, in Run
+    cnts = [float(x) for x in w[3:]]
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/pytransit/analysis/corrplot.py", line 133, in <listcomp>
+    cnts = [float(x) for x in w[3:]]
+ValueError: could not convert string to float: 'Rv0001 (dnaA)'

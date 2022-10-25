@@ -25,43 +25,51 @@
  Running GI Method...  31.4%   [gi:calc_gi()] analyzing Rv0016c (30.0% done) 
  Running GI Method...  33.3%   [gi:calc_gi()] analyzing Rv0017c (32.0% done) 
  Running GI Method...  35.3%   [gi:calc_gi()] analyzing Rv0018c (34.0% done) 
- Running GI Method...  37.3%   [gi:calc_gi()] analyzing Rv0019c (36.0% done) 
- Running GI Method...  39.2%   [gi:calc_gi()] analyzing Rv0020c (38.0% done) 
- Running GI Method...  41.2%   [gi:calc_gi()] analyzing Rv0021c (40.0% done) 
- Running GI Method...  43.1%   [gi:calc_gi()] analyzing Rv0022c (42.0% done) 
- Running GI Method...  45.1%   [gi:calc_gi()] analyzing Rv0023 (44.0% done) 
- Running GI Method...  47.1%   [gi:calc_gi()] analyzing Rv0024 (46.0% done) 
- Running GI Method...  49.0%   [gi:calc_gi()] analyzing Rv0025 (48.0% done) 
- Running GI Method...  51.0%   [gi:calc_gi()] analyzing Rv0026 (50.0% done) 
- Running GI Method...  52.9%   [gi:calc_gi()] analyzing Rv0027 (52.0% done) 
- Running GI Method...  54.9%   [gi:calc_gi()] analyzing Rv0028 (54.0% done) 
- Running GI Method...  56.9%   [gi:calc_gi()] analyzing Rv0029 (56.0% done) 
- Running GI Method...  58.8%   [gi:calc_gi()] analyzing Rv0030 (58.0% done) 
- Running GI Method...  60.8%   [gi:calc_gi()] analyzing Rv0031 (60.0% done) 
- Running GI Method...  62.7%   [gi:calc_gi()] analyzing Rv0032 (62.0% done) 
- Running GI Method...  64.7%   [gi:calc_gi()] analyzing Rv0033 (64.0% done) 
- Running GI Method...  66.7%   [gi:calc_gi()] analyzing Rv0034 (66.0% done) 
- Running GI Method...  68.6%   [gi:calc_gi()] analyzing Rv0035 (68.0% done) 
- Running GI Method...  70.6%   [gi:calc_gi()] analyzing Rv0036c (70.0% done) 
- Running GI Method...  72.5%   [gi:calc_gi()] analyzing Rv0037c (72.0% done) 
- Running GI Method...  74.5%   [gi:calc_gi()] analyzing Rv0038 (74.0% done) 
- Running GI Method...  76.5%   [gi:calc_gi()] analyzing Rv0039c (76.0% done) 
- Running GI Method...  78.4%   [gi:calc_gi()] analyzing Rv0040c (78.0% done) 
- Running GI Method...  80.4%   [gi:calc_gi()] analyzing Rv0041 (80.0% done) 
- Running GI Method...  82.4%   [gi:calc_gi()] analyzing Rv0042c (82.0% done) 
- Running GI Method...  84.3%   [gi:calc_gi()] analyzing Rv0043c (84.0% done) 
- Running GI Method...  86.3%   [gi:calc_gi()] analyzing Rv0044c (86.0% done) 
- Running GI Method...  88.2%   [gi:calc_gi()] analyzing Rv0045c (88.0% done) 
- Running GI Method...  90.2%   [gi:calc_gi()] analyzing Rv0046c (90.0% done) 
- Running GI Method...  92.2%   [gi:calc_gi()] analyzing Rv0047c (92.0% done) 
- Running GI Method...  94.1%   [gi:calc_gi()] analyzing Rv0048c (94.0% done) 
- Running GI Method...  96.1%   [gi:calc_gi()] analyzing Rv0049 (96.0% done) 
- Running GI Method...  98.0%   [gi:calc_gi()] analyzing Rv0050 (98.0% done) 
- Running GI Method... 100.0%   [gi:calc_gi()] analyzing Rv0051 (100.0% done) 
-[gi:Run()] Adding File: ./tests/cli_tests/gi/0001_basic.sh.1.result 
-[gi:print_gi_results()] Adding File: ./tests/cli_tests/gi/0001_basic.sh.1.result 
-[gi:print_gi_results()] Finished Genetic Interactions Method 
-[gi:Run()] Summary of genetic interactions: aggravating=0, alleviating=0, suppressive=0 
-[gi:Run()] Time: 1.5s
- 
-[gi:Run()] Finished Genetic Interaction analysis 
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 278, in Run
+    (results,adjusted_label) = self.calc_gi(dataA1,dataA2,dataB1,dataB2,sites)
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 404, in calc_gi
+    A1_data, self.inputs.samples, mu0_A1, s20_A1, k0, nu0
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/stat_tools.py", line 27, in sample_trunc_norm_post
+    a=trunc_a, b=trunc_b, loc=mun, scale=numpy.sqrt(s2_post / float(kn)), size=S
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_distn_infrastructure.py", line 1004, in rvs
+    vals = self._rvs(*args, size=size, random_state=random_state)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7685, in _rvs
+    out[idx] = self._rvs_scalar(it[0], it[1], numsamples, random_state).reshape(shp)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7701, in _rvs_scalar
+    x = self._ppf(U, a, b)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7578, in _ppf
+    return _truncnorm_ppf_scalar(q, a.item(), b.item())
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7426, in _truncnorm_ppf_scalar
+    np.place(out, cond_inner, _norm_ppf(qinner * nb + na * (1.0 - qinner)))
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/rpy2/rinterface.py", line 87, in _sigint_handler
+    raise KeyboardInterrupt()
+
+
+Traceback (most recent call last):
+  File "./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/__main__.py", line 162, in run_main
+    main(*args, **kwargs)
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/__main__.py", line 151, in main
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 226, in from_args
+    Method.Run()
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 278, in Run
+    (results,adjusted_label) = self.calc_gi(dataA1,dataA2,dataB1,dataB2,sites)
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 404, in calc_gi
+    A1_data, self.inputs.samples, mu0_A1, s20_A1, k0, nu0
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/stat_tools.py", line 27, in sample_trunc_norm_post
+    a=trunc_a, b=trunc_b, loc=mun, scale=numpy.sqrt(s2_post / float(kn)), size=S
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_distn_infrastructure.py", line 1004, in rvs
+    vals = self._rvs(*args, size=size, random_state=random_state)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7685, in _rvs
+    out[idx] = self._rvs_scalar(it[0], it[1], numsamples, random_state).reshape(shp)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7701, in _rvs_scalar
+    x = self._ppf(U, a, b)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7578, in _ppf
+    return _truncnorm_ppf_scalar(q, a.item(), b.item())
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7426, in _truncnorm_ppf_scalar
+    np.place(out, cond_inner, _norm_ppf(qinner * nb + na * (1.0 - qinner)))
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/rpy2/rinterface.py", line 87, in _sigint_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt

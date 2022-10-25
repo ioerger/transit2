@@ -662,7 +662,7 @@ if True:
             sizer,
             label_text="Alpha:",
             default_value=default_value,
-            tooltip_text="FIXME: needs summary",    
+            tooltip_text=" Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha). This is helpful because genes with very low counts are occasionally ranked as significant by traditional ANOVA, even though the apparent variability is probably due to noise. Setting alpha to a number like 1000 helps filter out these irrelevant genes by reducing their significance. If you want to emulate the standard ANOVA test, you can set alpha to 0.",    
         )
         return lambda *args: int(get_text())
     
@@ -731,7 +731,12 @@ if True:
             panel,
             label_text="Significance method: ",
             options=["HDI","prob","BFDR","FWER"],
-            tooltip_text="tooltip",  # FIXME: fill in explanation...
+            tooltip_text="""Evaluate these various methods for determining significance of interactions.The options are:
+            
+            --HDI: significant genes are those for which the HDI does not overlap the ROPE
+            --prob: significant genes are those with prob < 0.05, where ‘prob’ is probability that HDI overlaps the ROPE (default)
+            --BFDR: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the BFDR method
+            --FWER: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the FWER method""".replace("\n            ","\n"),
         )
         sizer.Add(signif_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         # return a value-getter
