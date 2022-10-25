@@ -1,17 +1,17 @@
--interactions was not one of the available flags: -n -iN -iC
+-include-conditions was not one of the available flags: -n -iN -iC
 Traceback (most recent call last):
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 162, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
     main(*args, **kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 151, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 180, in from_args
     console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/console_tools.py", line 139, in handle_unrecognized_flags
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/console_tools.py", line 160, in handle_unrecognized_flags
     raise Exception(f'''unrecognized flag: {flag_string}\nMaybe you meant: {closest_match}\n\n{usage_string}''')
-Exception: unrecognized flag: -interactions
-Maybe you meant: -n
+Exception: unrecognized flag: -include-conditions
+Maybe you meant: --n
 
 
 # HANDLE_THIS
