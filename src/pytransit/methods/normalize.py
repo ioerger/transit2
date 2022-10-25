@@ -54,7 +54,7 @@ class Method:
     
     # a helper for all the methods above
     def gui_normalize(self, kind):
-        # FIXME: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
+        # TODO: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
         return Method.run_normalize(
             combined_wig=gui.combined_wigs[-1],
             output_path=gui_tools.ask_for_output_file_path(

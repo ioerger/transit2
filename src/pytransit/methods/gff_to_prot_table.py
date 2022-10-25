@@ -9,7 +9,6 @@ from pytransit.generic_tools import misc, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
 
-# FIXME: add helpful error messages since GFF 
 magic_number_nine  = 9
 magic_number_two   = 2
 magic_number_three = 3

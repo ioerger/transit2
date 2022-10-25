@@ -270,7 +270,7 @@ def create_sample_area(frame):
 def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     """
         just a helper method
-        once the "FIXME: FOR DEBUGGING ONLY" is removed, this should 
+        once the "TODO: FOR DEBUGGING ONLY" is removed, this should 
         probably be inlined again for clarity (will only have one caller)
     """
     

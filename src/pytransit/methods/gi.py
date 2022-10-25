@@ -26,7 +26,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
-magical_number_eight = 8 # FIXME: please name this var with whatever the number is representing
+gene_name_index = 8 
 
 @misc.singleton
 class Method:
@@ -605,7 +605,7 @@ class Method:
         annot = {}
         for line in open(self.inputs.annotation_path):
             cells = line.rstrip().split('\t')
-            annot[cells[magical_number_eight]] = cells[0]
+            annot[cells[gene_name_index]] = cells[0]
         
         # 
         # format into rows

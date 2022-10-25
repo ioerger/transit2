@@ -206,7 +206,7 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.csv",
+            default_file_name=f"{Method.cli_name}_output.txt",
             output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
         if not Method.inputs.output_path:
@@ -825,7 +825,12 @@ class ResultFileType1:
             # are the selected rows correct ("log2FC", "Adj P Value")?
             # what is the q_value supposed to be?
             # why are some log2 and the other axis log10?
-        with gui_tools.nice_error_log:
+            with gui_tools.nice_error_log:
+                Method.inputs.volcano_output_path = gui_tools.ask_for_output_file_path(
+                default_file_name=f"volcano.png",
+                output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
+            )
+    
             try: import matplotlib.pyplot as plt
             except:
                 print("Error: cannot do plots, no matplotlib")
@@ -871,11 +876,16 @@ class ResultFileType1:
             # 
             # plot (log2_fc_values, log10_p_values, threshold)
             # 
-            plt.plot(log2_fc_values, log10_p_values, "bo")
+            plt.scatter(log2_fc_values, log10_p_values, marker=".")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")
             plt.ylabel("-Log P Value (base 10)")
             plt.suptitle("Resampling - Volcano plot")
             plt.title("Adjusted Threshold (red line): P Value=%1.8f" % threshold)
-            plt.show()
+            #plt.show()
+            plt.savefig(Method.inputs.volcano_output_path, bbox_inches='tight')
+
+            if gui.is_active:
+                logging.log(f"Adding File: {Method.inputs.volcano_output_path}")
+                results_area.add(Method.inputs.volcano_output_path)
 
