@@ -250,7 +250,7 @@ class Method:
                     for each in selected_wigs
             ] 
         ]
-        ta_site_positions = selected_wigs[0].positions
+        ta_site_positions = selected_wigs[0].ta_sites
         rows = []
         for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
             rows.append({
@@ -281,7 +281,7 @@ class Method:
                     for each in selected_wigs
             ] 
         ]
-        ta_site_positions = selected_wigs[0].positions
+        ta_site_positions = selected_wigs[0].ta_sites
         rows = []
         for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
             rows.append({

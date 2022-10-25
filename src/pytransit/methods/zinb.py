@@ -121,7 +121,7 @@ class Method:
         gui.combined_wigs[-1].samples[0].id # id from the metadata file
         gui.combined_wigs[-1].samples[0].fingerprint # the "File" column from the metadata 
         gui.combined_wigs[-1].samples[0].condition_names # a list of strings
-        gui.combined_wigs[-1].samples[0].positions # list of ints
+        gui.combined_wigs[-1].samples[0].ta_sites # list of ints
         gui.combined_wigs[-1].samples[0].insertion_counts # list of numbers
         gui.combined_wigs[-1].samples[0].rows # each element is always [position_number, insertion_count]
         gui.combined_wigs[-1].samples[0].column_index # int (column inside combined wig)

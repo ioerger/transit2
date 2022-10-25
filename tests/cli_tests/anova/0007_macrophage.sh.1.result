@@ -1,6 +1,10 @@
 #Anova
 #yaml:
-#    Console Command: python3 ./src/transit.py anova ./src/pytransit/data.ignore/macrophages.comwig ./src/pytransit/data.ignore/macrophages_metadata.txt ./src/pytransit/data/genomes/H37Rv.prot_table ./tests/cli_tests/anova/0007_macrophage.sh.1.result --ref Untreated --exclude-conditions Input -n nonorm
+#    date: 2022-10-25 11:30:11
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'anova' './src/pytransit/data.ignore/macrophages.comwig' './src/pytransit/data.ignore/macrophages_metadata.txt' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0007_macrophage.sh.1.result' '--ref' 'Untreated' '--exclude-conditions' 'Input' '-n' 'nonorm'
 #    parameters:
 #       conditions_list:
 #       - Untreated
@@ -16,7 +20,7 @@
 #       pseudocounts: 5
 #       alpha: 1000.0
 #    
-#Rv	Gene	TAs	Mean_Untreated	Mean_Tcell	Mean_Rapa	Mean_IL1	Mean_IFNg	Mean_GMCSF	Mean_IFNg-GMCSF	Mean_IFNab	LFC_Untreated	LFC_Tcell	LFC_Rapa	LFC_IL1	LFC_IFNg	LFC_GMCSF	LFC_IFNg-GMCSF	LFC_IFNab	MSR	MSE+alpha	Fstat	Pval	Padj	status
+#Rv	Gene	TAs	Mean Untreated	Mean Tcell	Mean Rapa	Mean IL1	Mean IFNg	Mean GMCSF	Mean IFNg-GMCSF	Mean IFNab	LFC Untreated	LFC Tcell	LFC Rapa	LFC IL1	LFC IFNg	LFC GMCSF	LFC IFNg-GMCSF	LFC IFNab	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
 Rv0001	dnaA	31	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.002949	1000.003869	0.000003	1.000000	1.000000	-
 Rv0002	dnaN	31	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions
 Rv0003	recF	35	1.37	0.55	1.00	1.45	1.59	1.43	1.63	1.98	0.000	-0.199	-0.087	0.017	0.049	0.013	0.057	0.132	26.315306	1012.389479	0.025993	0.999982	1.000000	-

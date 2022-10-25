@@ -68,6 +68,9 @@ def help_command(args=[], kwargs={}):
 
 # this wrapper exist to help with test cases. Might be good to change the test cases to elimate the need for it
 def main(*args, **kwargs):
+    from collections import defaultdict
+    kwargs = defaultdict(lambda :None, kwargs)
+    
     # 
     # Check python version
     # 

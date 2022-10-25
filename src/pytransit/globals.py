@@ -19,26 +19,7 @@ root_folder       = path.join(path.dirname(__file__),"../../")
     # @gui.add_condition_area_dropdown_option("Name")
     # @gui.add_results_button("Name")
 
-# TODO:
-    # Add CLI tests for
-        # gff_to_prot_table.py
-        # igv.py
-        # loess.py
-        # mean_counts.py
-        # scatter_plot.py
-        # tnseq_stats.py
-        # gi.py
-    # Add GUI pops for
-        # gff_to_prot_table.py
-        # igv.py
-        # loess.py
-        # mean_counts.py
-    # Standardize the transit_tools.write method
-    # Flesh out zinb
-    # Flesh out utest
-
 # tools to make
-    # popup tool for convert/export methods
     # a self-caching 'add file' button (remembers what files have been added)
     # a dynamically refreshing button area
     # a multi-select system
@@ -59,8 +40,10 @@ class gui:
     @property
     def annotation_path(self):
         from pytransit.specific_tools import transit_tools
+        import os
         # validate it anytime the GUI tries to retrieve the annotation
-        transit_tools.validate_annotation(self._annotation_path)
+        if not os.path.isfile(self._annotation_path):
+            logging.error(f"Error: Annotation doesn't seem to be a file:{self._annotation_path}")
         return self._annotation_path
     
     @property

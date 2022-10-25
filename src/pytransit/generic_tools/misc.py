@@ -299,7 +299,7 @@ def str_is_int(string):
 
 def str_is_float(string):
     try:
-        float(s)
+        float(string)
         return True
     except ValueError:
         return False

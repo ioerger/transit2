@@ -24,20 +24,11 @@ class Method:
     menu_name = name
     cli_name = name.replace(" ",'').lower()
     
-    # save the data
-    inputs = dict(
-        avg_by_conditions=False,
-        combined_wig=None,
-        annotation_path=None,
-        output_path=None,
-        normalization="TTR",
-        gene_means=False,
-        log_scale=False,
-        n_terminus=0,
-        c_terminus=0,
-    )
-    
-    valid_cli_flags = [ "log", "genes", "cond" ]
+    valid_cli_flags = [
+        "-log",
+        "-genes",
+        "-cond" 
+    ]
 
     usage_string = f"""
         usage:
@@ -45,85 +36,6 @@ class Method:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> -cond <condition1> <condition2> <annotation_file> <output.png> [-genes -log]
     """.replace("\n        ","\n     ")
     
-    @gui.add_menu("Pre-Processing", menu_name+" By Sample")
-    def on_menu_click(event):
-        from pytransit.components import panel_helpers
-        self.value_getters = LazyDict()
-        self.inputs.avg_by_conditions = False
-        with panel_helpers.NewPanel() as (panel, main_sizer):
-            sample_ids = [x.id for x in gui.samples]
-            self.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_sample_input(panel, main_sizer),
-            self.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
-            self.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
-            self.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            self.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
-
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
-    
-    @gui.add_menu("Pre-Processing", menu_name+" By Condition")
-    def on_menu_click(event):
-        from pytransit.components import panel_helpers
-        self.value_getters = LazyDict()
-        self.inputs.avg_by_conditions = True
-        with panel_helpers.NewPanel() as (panel, main_sizer):
-            sample_ids = [x.id for x in gui.samples]
-            self.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_condition_input(panel, main_sizer),
-            self.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
-            self.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
-            self.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            self.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
-
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
-    
-    @staticmethod
-    def from_gui(frame):
-        # 
-        # get annotation
-        # 
-        Method.inputs.annotation_path = gui.annotation_path
-        
-        # 
-        # call all GUI getters, puts results into respective Method.inputs key-value
-        # 
-        for each_key, each_getter in Method.value_getters.items():
-            try:
-                Method.inputs[each_key] = each_getter()
-            except Exception as error:
-                logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-
-        #        # determine which 2 samples were selected in samples area...
-        #        #TRI if 3 or more samples selected, show grid of scatterplots?
-        #        if (len(gui.selected_samples))<2: 
-        #          logging.error("need to select at least 2 samples for making scatter plot")
-        #        metadata = tnseq_tools.CombinedWigMetadata(Method.inputs.metadata)
-        #        fp1 = gui.selected_samples[0].fingerprint
-        #        Method.inputs.sample1 = metadata.id_for(fp1)
-        #        fp2 = gui.selected_samples[1].fingerprint
-        #        Method.inputs.sample2 = metadata.id_for(fp2)
-        
-        # if plotting samples, (for now) only allow two samples
-        if not self.inputs.avg_by_conditions:
-            assert len(self.inputs.combined_wig.samples) == 2, "Please select only two samples on the left"
-        else:
-            assert len(self.inputs.combined_wig.condition_names) == 2, "Please select only two conditions on the left"
-        
-        # 
-        # ask for output path(s)
-        # 
-        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"corrplot.png",
-            output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
-        )
-        Method.inputs.normalization = "TTR" #TRI I should add a dropdown for this, but hard-code it for now
-        # if user didn't select an output path
-        if not Method.inputs.output_path:
-            return None
-
-        return Method
-
-
     # usage: scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>
     @staticmethod
     @cli.add_command(cli_name)
@@ -153,34 +65,130 @@ class Method:
             combined_wig = combined_wig.with_only(wig_ids=[sample_or_condition1, sample_or_condition2])
         
         # save the data
-        Method.inputs.update(dict(
-            combined_wig = combined_wig,
-            annotation_path = annotation_path,
-            output_path = output_path,
-            normalization = kwargs.get("n", Method.inputs.normalization),
-            gene_means = "genes" in kwargs, # bool
-            log_scale = "log" in kwargs # bool
-        ))
-        
-        Method.Run()
-    
-    def Run(self):
-        logging.log(f"Starting {Method.identifier} analysis")
-        start_time = time.time()
-        
-        transit_tools.make_scatterplot(
-            combined_wig=self.inputs.combined_wig,
-            normalization=self.inputs.normalization,
-            annotation_path=self.inputs.annotation_path,
-            avg_by_conditions=self.inputs.avg_by_conditions,
-            output_path=self.inputs.output_path,
-            gene_means = self.inputs.gene_means,
-            n_terminus=self.inputs.n_terminus,
-            c_terminus = self.inputs.c_terminus,
-            log_scale = self.inputs.log_scale
+        Method.output(
+            combined_wig=combined_wig,
+            annotation_path=annotation_path,
+            output_path=output_path,
+            normalization=kwargs["n"],
+            gene_means="genes" in kwargs, # bool
+            log_scale="log" in kwargs # bool
         )
         
-        if gui.is_active:
-            logging.log(f"Adding File: {self.inputs.output_path}")
-            results_area.add(self.inputs.output_path)
-        logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
+    @gui.add_menu("Pre-Processing", menu_name+" By Sample")
+    def on_menu_click(event):
+        from pytransit.components import panel_helpers
+        self.value_getters = LazyDict()
+        self.by_condition = False
+        with panel_helpers.NewPanel() as (panel, main_sizer):
+            sample_ids = [x.id for x in gui.samples]
+            self.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_sample_input(panel, main_sizer),
+            self.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
+            self.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
+            self.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
+
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+    
+    @gui.add_menu("Pre-Processing", menu_name+" By Condition")
+    def on_menu_click(event):
+        from pytransit.components import panel_helpers
+        self.value_getters = LazyDict()
+        self.by_condition = True
+        with panel_helpers.NewPanel() as (panel, main_sizer):
+            sample_ids = [x.id for x in gui.samples]
+            self.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_condition_input(panel, main_sizer),
+            self.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
+            self.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
+            self.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
+
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+    
+    @staticmethod
+    def from_gui(frame):
+        arguments = LazyDict()
+        
+        # 
+        # get global data
+        # 
+        arguments.combined_wig = gui.combined_wigs[-1]
+        
+        # 
+        # call all GUI getters, puts results into respective arguments
+        # 
+        for each_key, each_getter in Method.value_getters.items():
+            try:
+                arguments[each_key] = each_getter()
+            except Exception as error:
+                logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+
+        # if plotting samples, (for now) only allow two samples
+        # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
+        if not self.by_condition:
+            assert len(arguments.combined_wig.samples) == 2, "Please select only two samples on the left"
+        else:
+            assert len(arguments.combined_wig.condition_names) == 2, "Please select only two conditions on the left"
+        arguments.avg_by_conditions = self.by_condition
+        
+        # 
+        # ask for output path(s)
+        # 
+        arguments.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"corrplot.png",
+            output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
+        )
+        arguments.normalization = "TTR" #TRI I should add a dropdown for this, but hard-code it for now
+        # if user didn't select an output path
+        if not arguments.output_path:
+            return None
+
+        Method.output(**arguments)
+
+    @staticmethod
+    def output(*, combined_wig, output_path, normalization=None, avg_by_conditions=None, gene_means=None, log_scale=None, n_terminus=None, c_terminus=None, disable_logging=False):
+        # Defaults (even if argument directly provided as None)
+        normalization     = normalization     if normalization     is not None else "TTR"
+        avg_by_conditions = avg_by_conditions if avg_by_conditions is not None else False
+        gene_means        = gene_means        if gene_means        is not None else False
+        log_scale         = log_scale         if log_scale         is not None else False
+        n_terminus        = n_terminus        if n_terminus        is not None else 0.0
+        c_terminus        = c_terminus        if c_terminus        is not None else 0.0
+        
+        # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
+        if not avg_by_conditions: assert len(combined_wig.samples) == 2, "Please use combined_wig.with_only(wig_ids=[ID1, ID2]) before calling scatter plot"
+        else: assert len(combined_wig.condition_names) == 2, "Please use combined_wig.with_only(condition_names=[NAME1, NAME2]) before calling scatter plot"
+        
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
+            # 
+            # by gene or site
+            # 
+            if gene_means: 
+                means, genes, labels = calc_gene_means(combined_wig, normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+                counts = means
+            else:
+                # average conditions if needed
+                if avg_by_conditions:
+                    combined_wig = combined_wig.averaged(by_conditions=True)
+                counts = combined_wig.read_counts_array
+                labels = combined_wig.wig_ids # wig_ids will be equivlent to condition names when averaged by conditions
+            
+            # 
+            # plot
+            # 
+            sample1_name, sample2_name = labels
+            sample_1_counts = counts[:,0]
+            sample_2_counts = counts[:,1]
+            if log_scale:
+                plt.scatter(numpy.log10(sample_1_counts),numpy.log10(sample_2_counts))
+                plt.xlabel("log10(%s)" % sample1_name)
+                plt.ylabel("log10(%s)" % sample2_name)
+            else:
+                plt.scatter(sample_1_counts,sample_2_counts)
+                plt.xlabel("%s" % sample1_name)
+                plt.ylabel("%s" % sample2_name)
+            if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
+            else: plt.title("scatter plot of insertion counts at individual TA sites")
+            plt.savefig(output_path)
+            plt.clf()

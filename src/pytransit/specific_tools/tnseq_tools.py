@@ -35,7 +35,7 @@ class Wig:
         self.id # id from the metadata file
         self.fingerprint # the "File" column from the metadata 
         self.condition_names # a list of strings
-        self.positions # list of ints
+        self.ta_sites # list of ints
         self.insertion_counts # list of numbers
         self.rows # each element is always [position_number, insertion_count]
         self.column_index # int (column inside combined wig)
@@ -61,7 +61,7 @@ class Wig:
         self.id              = id or f"{basename(fingerprint)}_" + (f"{random()}".replace(".", ""))[0:4]
         # TODO: use super_hash instead of random so the id's dont change with every run
         
-        self.positions        = [ each[0] for each in self.rows ]
+        self.ta_sites         = [ each[0] for each in self.rows ]
         self.insertion_counts = [ each[1] for each in self.rows ]
         
         self.extra_data = LazyDict(extra_data)
@@ -103,7 +103,7 @@ class Wig:
             return numpy.zeros((0,0)), numpy.array([])
         
         # get positions
-        positions = wig_objects[0].positions
+        positions = wig_objects[0].ta_sites
         read_counts_per_wig = [ each_wig.insertion_counts for each_wig in wig_objects ]
         return numpy.array(read_counts_per_wig), numpy.array(positions)
 
@@ -138,7 +138,7 @@ class CombinedWigMetadata:
         if path:
             self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
         
-        self.covariate_names = [ each for each in headers if each not in [ "Condition", "Filename", "Id" ] ]
+        self.covariate_names = [ each for each in self.headers if each not in [ "Condition", "Filename", "Id" ] ]
         if not path:
             # 
             # generate ordering_metadata, conditions_by_wig_fingerprint
@@ -147,7 +147,7 @@ class CombinedWigMetadata:
             self._interactions_by_wig_fingerprint_list = []
             self._conditions_by_wig_fingerprint        = {}
             self._ordering_metadata                    = { "condition": [] }
-            for row in new_rows:
+            for row in self.rows:
                 wig_fingerprint = row["Filename"]
                 condition_name  = row["Condition"]
                 self._conditions_by_wig_fingerprint[wig_fingerprint] = condition_name # FIXME: there can be more than one condition per wig_fingerprint
@@ -390,6 +390,7 @@ class CombinedWig:
         self.rows             # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
         self.wig_ids          # same order as columns/wig_fingerprints
         self.wig_fingerprints # same order as #File: columns
+        self.read_counts_array[row_index, wig_index]
         self.main_path
         self.metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
         self.samples # list of Wig objects
@@ -433,8 +434,8 @@ class CombinedWig:
     # positions
     # 
     @property
-    def positions(self):
-        return [ each.position for each in self.rows ]
+    def ta_sites(self):
+        return self.as_tuple.sites
     
     # 
     # files (same order as columns)
@@ -463,10 +464,7 @@ class CombinedWig:
     # 
     @property
     def read_counts_array(self):
-        return [
-            each_row[1:len(self.wig_fingerprints)] 
-                for each_row in self.rows 
-        ]
+        return self.as_tuple.counts_by_wig.transpose()
     
     # 
     # read_counts_wig
@@ -538,7 +536,7 @@ class CombinedWig:
         for column_index, wig_fingerprint in enumerate(new_combined_wig.wig_fingerprints):
             new_combined_wig.samples.append(
                 Wig(
-                    rows=list(zip(new_combined_wig.positions, new_combined_wig.read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(new_combined_wig.ta_sites, new_combined_wig.read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
@@ -574,7 +572,7 @@ class CombinedWig:
                     new_read_counts.append(read_counts)
                     new_wigs.append(
                         Wig(
-                            rows=list(zip(self.positions, read_counts)),
+                            rows=list(zip(self.ta_sites, read_counts)),
                             id=each_condition_name,
                             fingerprint=each_condition_name,
                             column_index=len(new_wigs),
@@ -687,7 +685,7 @@ class CombinedWig:
                     new_read_counts.append(read_counts)
                     new_wigs.append(
                         Wig(
-                            rows=list(zip(self.positions, read_counts)),
+                            rows=list(zip(self.ta_sites, read_counts)),
                             id=each_condition_name,
                             fingerprint=each_condition_name,
                             column_index=len(new_wigs),
@@ -795,7 +793,7 @@ class CombinedWig:
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(
-                    rows=list(zip(self.positions, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    rows=list(zip(self.ta_sites, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
                     id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
@@ -1801,120 +1799,6 @@ def get_wig_stats(path):
     (data, position) = CombinedWig.gather_wig_data([path])
     reads = data[0]
     return get_data_stats(reads)
-
-def get_extended_pos_hash_pt(path, N=None):
-    hash = {}
-    maxcoord = float("-inf")
-    data = []
-    with open(path) as file:
-        for line in file:
-            if line.startswith("#"):
-                continue
-            tmp = line.split("\t")
-            orf = tmp[8]
-            start = int(tmp[1])
-            end = int(tmp[2])
-            maxcoord = max(maxcoord, start, end)
-            data.append((orf, start, end))
-
-    genome_start = 1
-    if N:
-        genome_end = maxcoord
-    else:
-        genome_end = N
-
-    for i, (orf, start, end) in enumerate(data):
-        if genome_start > start:
-            genome_start = start
-
-        prev_orf = ""
-        if i > 0:
-            prev_orf = data[i - 1][0]
-
-        next_orf = ""
-        if i < len(data) - 1:
-            next_orf = data[i + 1][0]
-
-        for pos in range(genome_start, end + 1):
-            if pos not in hash:
-                hash[pos] = {"current": [], "prev": [], "next": []}
-
-            hash[pos]["prev"].append(prev_orf)
-
-            if pos >= start:
-                hash[pos]["next"].append(next_orf)
-                hash[pos]["current"].append(orf)
-            else:
-                hash[pos]["next"].append(orf)
-        genome_start = end + 1
-
-    if N:
-        for pos in range(maxcoord, genome_end + 1):
-            if pos not in hash:
-                hash[pos] = {"current": [], "prev": [], "next": []}
-            hash[pos]["prev"].append(prev_orf)
-    return hash
-
-
-def get_extended_pos_hash_gff(path, N=None):
-    hash = {}
-    maxcoord = float("-inf")
-    data = []
-    with open(path) as file:
-        for line in file:
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            features = dict([tuple(f.split("=")) for f in tmp[8].split(";")])
-            if "ID" not in features:
-                continue
-            orf = features["ID"]
-            chr = tmp[0]
-            type = tmp[2]
-            start = int(tmp[3])
-            end = int(tmp[4])
-            maxcoord = max(maxcoord, start, end)
-            data.append((orf, start, end))
-
-    genome_start = 1
-    if N:
-        genome_end = maxcoord
-    else:
-        genome_end = N
-
-    for i, (orf, start, end) in enumerate(data):
-
-        if genome_start > start:
-            genome_start = start
-
-        prev_orf = ""
-        if i > 0:
-            prev_orf = data[i - 1][0]
-
-        next_orf = ""
-        if i < len(data) - 1:
-            next_orf = data[i + 1][0]
-
-        for pos in range(genome_start, end + 1):
-            if pos not in hash:
-                hash[pos] = {"current": [], "prev": [], "next": []}
-
-            hash[pos]["prev"].append(prev_orf)
-
-            if pos >= start:
-                hash[pos]["next"].append(next_orf)
-                hash[pos]["current"].append(orf)
-            else:
-                hash[pos]["next"].append(orf)
-        genome_start = end + 1
-
-    if N:
-        for pos in range(maxcoord, genome_end + 1):
-            if pos not in hash:
-                hash[pos] = {"current": [], "prev": [], "next": []}
-            hash[pos]["prev"].append(prev_orf)
-    return hash
-
 
 def get_pos_hash_pt(path):
     """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.

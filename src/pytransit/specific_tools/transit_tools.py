@@ -45,7 +45,7 @@ try:
     WX_VERSION = int(wx.version()[0])
     HAS_WX = True
 
-except Exception as e:
+except ModuleNotFoundError as e:
     HAS_WX = False
     WX_VERSION = 0
     wx                  = None
@@ -68,7 +68,7 @@ try:
         packages as rpackages,
     )
     HAS_R = True
-except Exception as e:
+except ModuleNotFoundError as e:
     HAS_R = False
     r = None
     DataFrame   = None
@@ -86,15 +86,6 @@ from pytransit.specific_tools import logging, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools.named_list import named_list
 from pytransit.specific_tools.console_tools import clean_args
-
-def write_dat(path, heading, table, eol="\n"):
-    if len(heading) != 0:
-        heading = "#" + heading
-    heading = heading.replace("\n", "\n#")
-    body = eol.join([ "\t".join(each_row) for each_row in table ])
-    string = heading + eol + body
-    with open(path, 'w') as outfile:
-        outfile.write(string)
 
 if HAS_WX:
     class AssumeZerosDialog(wx.Dialog):
@@ -169,44 +160,6 @@ def basename(filepath):
 def dirname(filepath):
     return os.path.dirname(os.path.abspath(filepath))
 
-def validate_annotation(annotation):
-    if not annotation or not os.path.exists(annotation):
-        # NOTE: returned false
-        logging.error("Error: No or Invalid annotation file selected!")
-    return True
-
-def validate_control_datasets(ctrldata):
-    if len(ctrldata) == 0:
-        # NOTE: returned false
-        logging.error("Error: No control datasets selected!")
-    return True
-
-def validate_both_datasets(ctrldata, expdata):
-    if len(ctrldata) == 0 and len(expdata) == 0:
-        # NOTE: returned false
-        logging.error("Error: No datasets selected!")
-    elif len(ctrldata) == 0:
-        # NOTE: returned false
-        logging.error("Error: No control datasets selected!")
-    elif len(expdata) == 0:
-        # NOTE: returned false
-        logging.error("Error: No experimental datasets selected!")
-    else:
-        return True
-
-def validate_transposons_used(datasets, transposons, just_warn=True):
-    # Check if transposon type is okay.
-    unknown = tnseq_tools.get_unknown_file_types(datasets, transposons)
-    if unknown:
-        if just_warn:
-            # NOTE: asked user a question
-            logging.warn(f"Warning: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: {','.join(unknown)}")
-            return True
-        else:
-            # NOTE: returned false
-            logging.error(f"Error: Some of the selected datasets look like they were created using transposons that this method was not intended to work with: {','.join(unknown)}.")
-    return True
-
 def validate_wig_format(wig_list):
     # Check if the .wig files include zeros or not
     status = 0
@@ -264,21 +217,6 @@ def get_pos_hash(path):
     else:
         return tnseq_tools.get_pos_hash_pt(path)
 
-def get_extended_pos_hash(path):
-    """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.
-
-    Arguments:
-        path (str): Path to annotation in .prot_table or GFF3 format.
-
-    Returns:
-        dict: Dictionary of position to list of genes that share that position.
-    """
-    filename, file_extension = os.path.splitext(path)
-    if file_extension.lower() in [".gff", ".gff3"]:
-        return tnseq_tools.get_extended_pos_hash_gff(path)
-    else:
-        return tnseq_tools.get_extended_pos_hash_pt(path)
-
 def get_gene_info(path):
     """Returns a dictionary that maps gene id to gene information.
     
@@ -299,63 +237,6 @@ def get_gene_info(path):
         return tnseq_tools.get_gene_info_gff(path)
     else:
         return tnseq_tools.get_gene_info_pt(path)
-
-def convert_to_combined_wig(dataset_list, annotation_path, outputPath, normchoice="nonorm"):
-    """Normalizes the input datasets and outputs the result in CombinedWig format.
-    
-    Arguments:
-        dataset_list (list): List of paths to datasets in .wig format
-        annotation_path (str): Path to annotation in .prot_table or GFF3 format.
-        outputPath (str): Desired output path.
-        normchoice (str): Choice for normalization method.
-            
-    """
-
-    (fulldata, position) = tnseq_tools.CombinedWig.gather_wig_data(dataset_list)
-    (fulldata, factors) = norm_tools.normalize_data(
-        fulldata, normchoice, dataset_list, annotation_path
-    )
-    position = position.astype(int)
-
-    hash = get_pos_hash(annotation_path)
-    rv2info = get_gene_info(annotation_path)
-
-    output = open(outputPath, "w")
-    output.write("#Converted to CombinedWig with TRANSIT.\n")
-    if normchoice != "nonorm":
-        output.write("#Reads normalized using '%s'\n" % normchoice)
-        if type(factors[0]) == type(0.0):
-            output.write(
-                "#Normalization Factors: %s\n"
-                % "\t".join(["%s" % f for f in factors.flatten()])
-            )
-        else:
-            output.write(
-                "#Normalization Factors: %s\n"
-                % " ".join([",".join(["%s" % bx for bx in b]) for b in factors])
-            )
-
-    (K, N) = fulldata.shape
-    output.write("#Files:\n")
-    for f in dataset_list:
-        output.write("#%s\n" % f)
-
-    for i, pos in enumerate(position):
-        # output.write("%-10d %s  %s\n" % (position[i], "".join(["%7.1f" % c for c in fulldata[:,i]]),",".join(["%s (%s)" % (orf,rv2info.get(orf,["-"])[0]) for orf in hash.get(position[i], [])])   ))
-        output.write(
-            "%d\t%s\t%s\n"
-            % (
-                position[i],
-                "\t".join(["%1.1f" % c for c in fulldata[:, i]]),
-                ",".join(
-                    [
-                        "%s (%s)" % (orf, rv2info.get(orf, ["-"])[0])
-                        for orf in hash.get(position[i], [])
-                    ]
-                ),
-            )
-        )
-    output.close()
 
 def get_validated_data(wig_list):
     """ Returns a tuple of (data, position) containing a matrix of raw read-counts
@@ -394,25 +275,34 @@ def get_validated_data(wig_list):
 
 import time
 class TimerAndOutputs(object):
-    def __init__(self, method_name, output_paths=[]):
+    def __init__(self, method_name, output_paths=[], disable=False):
         self.method_name = method_name
         self.output_paths = output_paths
+        self.disable = disable
     
     def __enter__(self):
-        logging.log(f"Starting {self.method_name} analysis")
+        if not self.disable:
+            logging.log(f"Starting {self.method_name} analysis")
         self.start_time = time.time()
+        return self
     
     def __exit__(self, _, error, traceback):
-        duration = time.time() - start_time
+        from pytransit.globals import gui
+        from pytransit.components import results_area
         if error is None:
             if gui.is_active:
                 for each in self.output_paths:
-                    logging.log(f"Adding File: {each}")
+                    if not self.disable:
+                        logging.log(f"Adding File: {each}")
                     results_area.add(each)
-            logging.log(f"Finished {self.method_name} analysis in {duration:0.1f}sec")
+            if not self.disable:
+                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
         else:
-            # error cleanup HERE
             raise error
+    
+    @property
+    def duration_in_seconds(self):
+        return time.time() - self.start_time
 
 def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
@@ -595,30 +485,7 @@ def select_conditions(conditions, included_conditions, excluded_conditions, orde
     
     return conditions_list
 
-def filter_wigs_by_conditions2(data, conditions, conditionsList, covariates=[], interactions=[]):
-    """
-        Filters conditions that are excluded/included.
-        ([[Wigdata]], [Condition], [[Covar]], [Condition], [Condition]) -> Tuple([[Wigdata]], [Condition])
-    """
-    d_filtered, cond_filtered, filtered_indexes = [], [], []
-
-    for i, c in enumerate(conditions):
-        if (c != unknown_cond_flag) and (c in conditionsList):
-            d_filtered.append(data[i])
-            cond_filtered.append(conditions[i])
-            filtered_indexes.append(i)
-
-    covariates_filtered = [[c[i] for i in filtered_indexes] for c in covariates]
-    interactions_filtered = [[c[i] for i in filtered_indexes] for c in interactions]
-
-    return (
-        numpy.array(d_filtered),
-        numpy.array(cond_filtered),
-        numpy.array(covariates_filtered),
-        numpy.array(interactions_filtered),
-    )
-
-def filter_wigs_by_conditions3(
+def filter_wigs_by_conditions2(
     data,
     file_names,
     condition_names,
@@ -681,20 +548,6 @@ def get_samples_metadata(metadata):
                     data[header[i]].append(w[i])
     return data
 
-def winsorize(counts):
-    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
-    unique_counts = numpy.unique(numpy.concatenate(counts))
-    if len(unique_counts) < 2:
-        return counts
-    else:
-        n, n_minus_1 = unique_counts[
-            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
-        ]
-        result = [
-            [n_minus_1 if count == n else count for count in wig] for wig in counts
-        ]
-        return numpy.array(result)
-
 def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None, selected_samples=False):
     from pytransit.globals import gui, cli, root_folder, debugging_enabled
     from pytransit.specific_tools.tnseq_tools import Wig
@@ -721,103 +574,60 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
 
 ##########################################
 
-corrplot_r_function = None
-def make_corrplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path, n_terminus=0, c_terminus=0):
-    global corrplot_r_function
-    import numpy
-    # instantiate the corrplot_r_function if needed
-    if not corrplot_r_function:
-        require_r_to_be_installed()
-        r(""" # R function...
-            make_corrplot = function(means,headers,outfilename) { 
-                means = means[,headers] # put cols in correct order
-                suppressMessages(require(corrplot))
-                png(outfilename)
-                corrplot(cor(means))
-                dev.off()
-            }
-        """)
-        corrplot_r_function = globalenv["make_corrplot"]
-    
-    # 
-    # avg by condition if needed
-    # 
-    if avg_by_conditions:
-        labels = combined_wig.metadata.condition_names
-        combined_wig = combined_wig.averaged_by_conditions
+def winsorize(counts):
+    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+    unique_counts = numpy.unique(numpy.concatenate(counts))
+    if len(unique_counts) < 2:
+        return counts
     else:
-        labels = combined_wig.wig_ids
+        n, n_minus_1 = unique_counts[
+            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+        ]
+        result = [
+            [n_minus_1 if count == n else count for count in wig] for wig in counts
+        ]
+        return numpy.array(result)
+
+def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
+    assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
     
-    means, genes = calc_gene_means(combined_wig, annotation_path, normalization, n_terminus=n_terminus, c_terminus=c_terminus)
-
-    position_hash = {}
-    for i, col in enumerate(headers):
-        position_hash[col] = FloatVector([x[i] for x in means])
-    df = DataFrame(position_hash)  
-
-    corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
-
-def calc_gene_means(combined_wig, annotation_path, normalization="TTR", n_terminus=0, c_terminus=0):
     sites, data, filenames_in_comb_wig = combined_wig.as_tuple
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
-
+    
     # calculate gene means 
     genes = tnseq_tools.Genes(
         wig_list=[],
         data=data,
-        annotation=annotation_path,
+        annotation=combined_wig.annotation_path,
         position=sites,
         n_terminus=n_terminus,
         c_terminus=c_terminus,
     )
+    
     means = []
+    labels = combined_wig.wig_ids
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
     means = numpy.vstack(means)
-
-    return means, genes
-
-# TODO: maybe get rid of avg_by_conditions?
-def make_scatterplot(combined_wig, normalization, annotation_path, avg_by_conditions, output_path, gene_means=False, log_scale=False, n_terminus=0, c_terminus=0):
-    # 
-    # avg by condition if needed
-    # 
+    
     if avg_by_conditions:
         labels = combined_wig.metadata.condition_names
-        combined_wig = combined_wig.averaged_by_conditions
-    else:
-        labels = combined_wig.wig_ids
+        condition_per_wig_index = [
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
+                for each_fingerprint in combined_wig.wig_fingerprints
+        ]
+        conditions_array = numpy.array(condition_per_wig_index)
+        
+        # make a reduced numpy array by average over replicates of each condition
+        count_lists = []
+        for each_condition_name in combined_wig.metadata.condition_names:
+            count_lists.append(
+                # pick columns corresponding to condition; avg across rows (genes)
+                numpy.mean(means[:,conditions_array==each_condition_name],axis=1) # TODO: isn't this an issue taking a mean of means? --Jeff
+            )
+        means = numpy.array(count_lists).transpose()
     
-    assert len(combined_wig.samples) == 2, "Tried to make a scatterplot but more than two samples (or conditions) were given"
-    
-    # 
-    # by gene or site
-    # 
-    if gene_means: 
-        means, genes = calc_gene_means(combined_wig, annotation_path, normalization, n_terminus=n_terminus, c_terminus=c_terminus)
-        counts = means
-    else:
-        sites, data, fingerprints = combined_wig.as_tuple
-        counts = numpy.array(data).transpose()
-    
-    # 
-    # plot
-    # 
-    sample1_name, sample2_name = labels
-    sample_1_counts = counts[:,0]
-    sample_2_counts = counts[:,1]
-    if log_scale:
-        plt.scatter(numpy.log10(sample_1_counts),numpy.log10(sample_2_counts))
-        plt.xlabel("log10(%s)" % sample1_name)
-        plt.ylabel("log10(%s)" % sample2_name)
-    else:
-        plt.scatter(sample_1_counts,sample_2_counts)
-        plt.xlabel("%s" % sample1_name)
-        plt.ylabel("%s" % sample2_name)
-    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
-    else: plt.title("scatter plot of insertion counts at individual TA sites")
-    plt.savefig(output_path)
-    plt.clf()
+    return means, genes, labels

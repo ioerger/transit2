@@ -29,22 +29,15 @@ class Method:
     
     transposons = [ "himar1" ] # not sure if this is right -- Jeff
     
-    inputs = LazyDict(
-        combined_wig=None,
-        annotation_path=None,
-        output_path=None,
-        avg_by_conditions=False,
-        normalization="TTR", #TRI hard-coded for now
-        n_terminus=0,
-        c_terminus=0,
-    )
-    
     valid_cli_flags = [
-        "--avg_by_conditions", # TODO: add a CLI test case (the dashes here might be off by one)
+        "-n",  # normalization
+        "--avg_by_conditions",
+        "-iN", # n_terminus
+        "-iC", # c_terminus
+        # could add a flag for Adj P Value cutoff (or top n most signif genes)
     ]
-    # could add a flag for Adj P Value cutoff (or top n most signif genes)
 
-    # TODO: TRI - should drop anova and zinb inputs, and instead take combined_wig or gene_means file (from export)
+    # TODO: TRI - should drop anova and zinb defaults, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
     usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
     
@@ -58,18 +51,20 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
         
-        # save the data
-        Method.inputs.update(dict(
+        # map data to the core function
+        Method.output(
             combined_wig=tnseq_tools.CombinedWig(
                 main_path=args[0],
                 metadata_path=kwargs.get("avg_by_conditions",None),
+                annotation_path=args[1],
             ),
-            annotation_path=args[1],
-            output_path=args[2], # png file,
+            normalization=kwargs["n"],
+            n_terminus=kwargs["iN"],
+            c_terminus=kwargs["iC"],
             avg_by_conditions="avg_by_conditions" in kwargs, # bool
-        ))
-        
-        Method.Run()
+            output_path=args[2],
+            disable_logging=False,
+        )
     
     # 
     # Panel method
@@ -89,55 +84,69 @@ class Method:
             
     @staticmethod
     def from_gui(frame):
-        # 
-        # get annotation
-        # 
-        Method.inputs.annotation_path = gui.annotation_path
-        Method.inputs.combined_wig = gui.combined_wigs[-1] #TRI what if not defined? fail gracefully?
+        arguments = LazyDict()
         
         # 
-        # call all GUI getters, puts results into respective Method.inputs key-value
+        # get global data
+        # 
+        arguments.combined_wig = gui.combined_wigs[-1] #TRI what if not defined? fail gracefully?
+        
+        # 
+        # call all GUI getters, puts results into respective Method.defaults key-value
         # 
         for each_key, each_getter in Method.value_getters.items():
             try:
-                Method.inputs[each_key] = each_getter()
+                arguments[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
         # 
         # ask for output path(s)
         # 
-        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+        arguments.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"corrplot.png",
             output_extensions='PNG file (*.png)|*.png;|\nAll files (*.*)|*.*',
         )
         
         # if user didn't select an output path
-        if not Method.inputs.output_path:
+        if not arguments.output_path:
             return None
-
-        return Method
-    
-    # 
-    # Run
-    # 
-    def Run(self):
-        with gui_tools.nice_error_log:
-            logging.log(f"Starting {Method.identifier} analysis")
-            start_time = time.time()
-            
-            transit_tools.make_corrplot(
-                combined_wig=self.inputs.combined_wig,
-                normalization=self.inputs.normalization,
-                annotation_path=self.inputs.annotation_path,
-                avg_by_conditions=self.inputs.avg_by_conditions,
-                output_path=self.inputs.output_path,
-                n_terminus=self.inputs.n_terminus,
-                c_terminus=self.inputs.c_terminus,
-            )
-            
-            if gui.is_active:
-                logging.log(f"Adding File: {self.inputs.output_path}")
-                results_area.add(self.inputs.output_path)
-            logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
         
+        # run the core function directly
+        Method.output(**arguments)
+    
+    corrplot_r_function = None    
+    @staticmethod
+    def output(*, combined_wig, normalization=None, avg_by_conditions=None, output_path=None, n_terminus=None, c_terminus=None, disable_logging=False):
+        # Defaults (even if argument directly provided as None)
+        normalization     = normalization     if normalization     is not None else "TTR"
+        avg_by_conditions = avg_by_conditions if avg_by_conditions is not None else False
+        output_path       = output_path       if output_path       is not None else None
+        n_terminus        = n_terminus        if n_terminus        is not None else 0.0
+        c_terminus        = c_terminus        if c_terminus        is not None else 0.0
+        
+        from pytransit.methods.gene_means import Method as GeneMeansMethod
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging,):
+            import numpy
+            # instantiate the corrplot_r_function if needed
+            if not Method.corrplot_r_function:
+                require_r_to_be_installed()
+                r(""" # R function...
+                    make_corrplot = function(means,headers,outfilename) { 
+                        means = means[,headers] # put cols in correct order
+                        suppressMessages(require(corrplot))
+                        png(outfilename)
+                        corrplot(cor(means))
+                        dev.off()
+                    }
+                """)
+                Method.corrplot_r_function = globalenv["make_corrplot"]
+            
+            _, (means, genes, labels) = GeneMeansMethod.calculate(combined_wig, normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+
+            position_hash = {}
+            for i, col in enumerate(headers):
+                position_hash[col] = FloatVector([x[i] for x in means])
+            df = DataFrame(position_hash)  
+            
+            Method.corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict

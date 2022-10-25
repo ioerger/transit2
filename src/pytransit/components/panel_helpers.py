@@ -736,10 +736,10 @@ if True:
             tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
         )
     
-    def create_selected_condition_names_input(panel, sizer, default_value=False):
+    def create_selected_condition_names_input(panel, sizer, default_value=True):
         check_box_getter = create_check_box_getter(panel, sizer,
             label_text="Only Selected Conditions",
-            default_value=False,
+            default_value=default_value,
             tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
         )
         def wrapper(*args, **kwargs):
@@ -754,10 +754,10 @@ if True:
             
         return wrapper
     
-    def combined_wig_filtered_by_condition_input(panel, sizer, default_value=False):
+    def combined_wig_filtered_by_condition_input(panel, sizer, default_value=True):
         check_box_getter = create_check_box_getter(panel, sizer,
             label_text="Only Selected Conditions",
-            default_value=False,
+            default_value=default_value,
             tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
         )
         def wrapper(*args, **kwargs):
@@ -775,7 +775,7 @@ if True:
     def combined_wig_filtered_by_sample_input(panel, sizer, default_value=False):
         check_box_getter = create_check_box_getter(panel, sizer,
             label_text="Only Selected Samples",
-            default_value=False,
+            default_value=default_value,
             tooltip_text="When checked, use the sample table (on the left) to select which samples to run this analysis on",
         )
         def wrapper(*args, **kwargs):
@@ -808,17 +808,16 @@ if True:
             # a workaround for python WX somehow clicking the add files button every time the run method is called
             def run_wrapper():
                 with gui_tools.nice_error_log:
+                    method_instance = from_gui_function(gui.frame)
                     gui.busy_running_method = True
-                    method_instance.Run()
+                    if hasattr(method_instance, 'Run'):
+                        method_instance.Run()
                 gui.busy_running_method = False
                 
             import threading
-            with gui_tools.nice_error_log:
-                method_instance = from_gui_function(gui.frame)
-                if method_instance:
-                    thread = threading.Thread(target=run_wrapper())
-                    thread.setDaemon(True)
-                    thread.start()
+            thread = threading.Thread(target=run_wrapper())
+            thread.setDaemon(True)
+            thread.start()
                     
     def create_significance_choice_box(panel, sizer, default="HDI"):
         (

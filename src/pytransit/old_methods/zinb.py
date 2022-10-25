@@ -720,7 +720,7 @@ class ZinbMethod(base.MultiConditionMethod):
             conditions,
             covariates,
             interactions,
-        ) = self.filter_wigs_by_conditions3(
+        ) = self.filter_wigs_by_conditions2(
             data,
             fileNames,
             conditionNames,  # original Condition column in samples metadata file

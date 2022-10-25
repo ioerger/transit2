@@ -157,6 +157,9 @@ def add(path):
             if result_object:
                 values_for_result_table = result_object.values_for_result_table
             
-            print(f'''result_object = {result_object}''')
-            print(f'''values_for_result_table = {values_for_result_table}''')
+            if debugging_enabled:
+                print(LazyDict(
+                    result_object=str(result_object),
+                    values_for_result_table=values_for_result_table,
+                ))
             results.table.add(values_for_result_table)

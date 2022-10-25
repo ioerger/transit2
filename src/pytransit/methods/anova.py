@@ -382,7 +382,7 @@ class Method:
                 conditions,
                 _,
                 _,
-            ) = transit_tools.filter_wigs_by_conditions3(
+            ) = transit_tools.filter_wigs_by_conditions2(
                 data,
                 file_names=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
                 condition_names=condition_names, # original Condition column in samples metadata file

@@ -28,14 +28,6 @@ class Method:
     menu_name   = f"{name} - Perform {name} analysis"
     description = f"""Perform {name} analysis"""
     
-    inputs = LazyDict(
-        output_path=None,
-        normalization="TTR",
-        n_terminus=0.0,
-        c_terminus=0.0,
-        # HANDLE_THIS
-    )
-    
     valid_cli_flags = [
         "-n",  # normalization
         "-iN", # n_terminus
@@ -50,6 +42,22 @@ class Method:
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
+    
+    @staticmethod
+    @cli.add_command(cli_name)
+    def from_args(args, kwargs):
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+
+        # save the data
+        Method.output(
+            output_path=args[0],
+            normalization=kwargs["n"],
+            n_terminus=kwargs["iN"],
+            c_terminus=kwargs["iC"],
+            # HANDLE_THIS
+        )
     
     @gui.add_wig_area_dropdown_option(name=name)
     def on_wig_option_click():
@@ -101,13 +109,15 @@ class Method:
             
     @staticmethod
     def from_gui(frame):
+        arguments = LazyDict()
+        
         # 
         # global data
         # 
         # HANDLE_THIS
         gui.is_active # false if using command line
         gui.frame # self.wxobj equivalent
-        gui.busy_running_method # Boolean, is true when any .Run() is started but not finished
+        gui.busy_running_method # Boolean, is true when any run-button function is started but not finished
         gui.annotation_path # string, may need to become a list of strings
         gui.samples # list of Wig objects
         gui.conditions # list of Condition objects
@@ -123,7 +133,9 @@ class Method:
         gui.combined_wigs[-1].wig_ids          # same order as columns/wig_fingerprints
         gui.combined_wigs[-1].wig_fingerprints # same order as #File: columns
         gui.combined_wigs[-1].conditions       # list of condition objects
-        gui.combined_wigs[-1].read_counts_by_wig_fingerprint
+        gui.combined_wigs[-1].ta_sites
+        gui.combined_wigs[-1].read_counts_array[row_index, wig_index]
+        gui.combined_wigs[-1].read_counts_by_wig_fingerprint[wig_index, row_index]
         gui.combined_wigs[-1].with_only(condition_names=[], wig_fingerprints=[], wig_ids=[]) # returns a copy that has columns/rows filtered out
         gui.combined_wigs[-1].main_path
         gui.combined_wigs[-1].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
@@ -131,7 +143,7 @@ class Method:
         gui.combined_wigs[-1].samples[0].id # id from the metadata file
         gui.combined_wigs[-1].samples[0].fingerprint # the "File" column from the metadata 
         gui.combined_wigs[-1].samples[0].condition_names # a list of strings
-        gui.combined_wigs[-1].samples[0].positions # list of ints
+        gui.combined_wigs[-1].samples[0].ta_sites # list of ints
         gui.combined_wigs[-1].samples[0].insertion_counts # list of numbers
         gui.combined_wigs[-1].samples[0].rows # each element is always [position_number, insertion_count]
         gui.combined_wigs[-1].samples[0].column_index # int (column inside combined wig)
@@ -162,82 +174,69 @@ class Method:
         # get annotation
         # 
         # HANDLE_THIS
-        Method.inputs.annotation_path = gui.annotation_path
+        arguments.annotation_path = gui.annotation_path
         
         # 
-        # call all GUI getters, puts results into respective Method.inputs key-value
+        # call all GUI getters, puts results into respective arguments key-value
         # 
         for each_key, each_getter in Method.value_getters.items():
             try:
-                Method.inputs[each_key] = each_getter()
+                arguments[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
         # 
         # ask for output path(s)
         # 
-        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+        arguments.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.csv",
             output_extensions='Common output extensions (*.txt,*.csv,*.dat,*.out)|*.txt;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
-        if not Method.inputs.output_path:
+        if not arguments.output_path:
             return None
 
-        return Method
+        Method.output(**arguments)
 
     @staticmethod
-    @cli.add_command(cli_name)
-    def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Method.usage_string)
-        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
-
-        # save the data
-        Method.inputs.update(dict(
-            output_path=args[0],
-            normalization=kwargs.get("n", Method.inputs.normalization),
-            n_terminus=float(kwargs.get("iN", Method.inputs.n_terminus)),
-            c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
-            # HANDLE_THIS
-        ))
+    def output(*, combined_wig, output_path, normalization=None, n_terminus=None, c_terminus=None, disable_logging=False):
+        # Defaults (even if argument directly provided as None)
+        normalization     = normalization     if normalization     is not None else "TTR"
+        n_terminus        = n_terminus        if n_terminus        is not None else 0.0
+        c_terminus        = c_terminus        if c_terminus        is not None else 0.0
         
-        Method.Run()
-        
-    def Run(self):
-        from pytransit.specific_tools import stat_tools
-        logging.log(f"Starting {Method.identifier} analysis")
-        start_time = time.time()
-        
-        # 
-        # process data
-        # 
-        if True:
-            rows, summary_info = stat_tools.{analysis_name}(**self.inputs) # HANDLE_THIS
-        
-        # 
-        # write output
-        # 
-        if True:
-            logging.log(f"Adding File: {self.inputs.output_path}")
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
-            # write to file
+            # process data
             # 
-            transit_tools.write_result(
-                path=self.inputs.output_path, # path=None means write to STDOUT
-                file_kind=Method.identifier,
-                rows=rows,
-                column_names=[
-                    # HANDLE_THIS
-                ],
-                extra_info=dict(
-                    stats=dict(summary_info), # HANDLE_THIS
-                    parameters=self.inputs,
-                ),
-            )
-            logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
-        results_area.add(self.inputs.output_path)
-
+            if True:
+                rows, summary_info = compute stuff here # HANDLE_THIS
+            
+            # 
+            # write output
+            # 
+            if True:
+                logging.log(f"Adding File: {output_path}")
+                # 
+                # write to file
+                # 
+                transit_tools.write_result(
+                    path=output_path, # path=None means write to STDOUT
+                    file_kind=Method.identifier,
+                    rows=rows,
+                    column_names=[
+                        # HANDLE_THIS
+                    ],
+                    extra_info=dict(
+                        stats=dict(summary_info), # HANDLE_THIS
+                        parameters=dict(
+                            normalization=normalization,
+                            n_terminus=n_terminus,
+                            c_terminus=c_terminus,
+                        ),
+                    ),
+                )
+            
 @transit_tools.ResultsFile
 class ResultFileType1:
     @staticmethod

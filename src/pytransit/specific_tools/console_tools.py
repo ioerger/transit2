@@ -50,9 +50,10 @@ def clean_args(rawargs):
 
     """
     from pytransit.generic_tools import misc
+    from collections import defaultdict
     
     args = []
-    kwargs = {}
+    kwargs = defaultdict(lambda *args: None)
     count = 0
     # Loop through list of arguments
     while count < len(rawargs):
@@ -92,16 +93,17 @@ def clean_args(rawargs):
     # 
     # convert number arguments to be numbers
     # 
-    for each_index, each_value in list(args):
+    for each_index, each_value in enumerate(list(args)):
         if misc.str_is_int(each_value):
             args[each_index] = int(each_value)
         if misc.str_is_float(each_value):
             args[each_index] = float(each_value)
     for each_key, each_value in kwargs.items():
-        if misc.str_is_int(each_value):
-            kwargs[each_key] = int(each_value)
-        if misc.str_is_float(each_value):
-            kwargs[each_key] = float(each_value)
+        if isinstance(each_value, str):
+            if misc.str_is_int(each_value):
+                kwargs[each_key] = int(each_value)
+            if misc.str_is_float(each_value):
+                kwargs[each_key] = float(each_value)
     
     # 
     # make the --name vs -name irrelevent 
