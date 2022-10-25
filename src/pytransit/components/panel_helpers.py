@@ -736,7 +736,7 @@ if True:
             tooltip_text="Winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers).",    
         )
     
-    def create_selected_condition_names_input(panel, sizer, default_value=True):
+    def create_selected_condition_names_input(panel, sizer, default_value=False):
         check_box_getter = create_check_box_getter(panel, sizer,
             label_text="Only Selected Conditions",
             default_value=default_value,
@@ -768,11 +768,11 @@ if True:
             else:
                 condition_names = [ each.name for each in gui.conditions ]
             
-            return gui.combined_wig[-1].with_only(self, condition_names=condition_names)
+            return gui.combined_wigs[-1].with_only(condition_names=condition_names)
             
         return wrapper
     
-    def combined_wig_filtered_by_sample_input(panel, sizer, default_value=False):
+    def combined_wig_filtered_by_sample_input(panel, sizer, default_value=True):
         check_box_getter = create_check_box_getter(panel, sizer,
             label_text="Only Selected Samples",
             default_value=default_value,
@@ -787,7 +787,7 @@ if True:
             else:
                 wig_fingerprints = [ each.fingerprint for each in gui.samples ]
             
-            return gui.combined_wig[-1].with_only(self, wig_fingerprints=wig_fingerprints)
+            return gui.combined_wigs[-1].with_only(wig_fingerprints=wig_fingerprints)
             
         return wrapper
     

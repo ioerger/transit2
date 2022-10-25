@@ -65,6 +65,7 @@ def error(*args, no_traceback=False, **kwargs):
             
             if gui.is_active:
                 set_status(last_line)
+                raise TransitError(error_message)
             else:
                 exit(1)
 

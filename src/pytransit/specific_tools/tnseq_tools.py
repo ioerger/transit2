@@ -458,6 +458,9 @@ class CombinedWig:
     @property
     def conditions(self):
         return self.metadata.conditions
+    @property
+    def condition_names(self):
+        return self.metadata.condition_names
     
     # 
     # read_counts_array
@@ -485,7 +488,7 @@ class CombinedWig:
         
         wig_ids = wig_ids or []
         wig_fingerprints = wig_fingerprints or []
-        wig_fingerprints = wig_fingerprints + [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
+        new_wig_fingerprints = wig_fingerprints + [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
         
         # create a new shell
         class CombinedWigHelper(CombinedWig):
@@ -504,7 +507,6 @@ class CombinedWig:
         new_combined_wig.metadata        = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
         
         # extract only data relating to new_wig_fingerprints
-        new_wig_fingerprints = self.metadata.wig_fingerprints
         sites, counts_by_wig_array, old_wig_fingerprints = self.as_tuple
         new_counts_by_wig = numpy.zeros((len(new_wig_fingerprints), sites.shape[0], ))
         for index, each_fingerprint in enumerate(new_wig_fingerprints):
@@ -701,7 +703,7 @@ class CombinedWig:
             copy_of_self.samples = new_wigs
             copy_of_self.rows = numpy.hstack(( self.as_tuple.sites, copy_of_self.as_tuple.counts_by_wig.transpose() ))
             copy_of_self.metadata = CombinedWigMetadata(
-                headers=headers,
+                headers=["Id", "Condition", "Filename"],
                 comments=self.metadata.comments,
                 rows=[
                     { "Id": each_name, "Condition": each_name, "Filename": each_name }
