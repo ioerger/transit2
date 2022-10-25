@@ -284,6 +284,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 tnseq_tools.CombinedWig(
                     main_path=each_cwig_path,
                     metadata_path=each_metadata_path,
+                    annotation_path=gui.annotation_path,
                 )
             )
     

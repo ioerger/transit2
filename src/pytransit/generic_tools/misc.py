@@ -286,3 +286,10 @@ def remove_common_prefix(list_of_strings):
             break
     
     return [ each[longest_common_path_length:] for each_path in list_of_strings ]
+
+def merge_dicts(*args, **kwargs):
+    new_dict = {}
+    for each in args:
+        new_dict.update(each)
+    new_dict.update(kwargs)
+    return new_dict

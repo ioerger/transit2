@@ -21,6 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 @misc.singleton
 class Method:
     name = "Scatter Plot"
+    menu_name = name
     cli_name = name.replace(" ",'').lower()
     
     # save the data

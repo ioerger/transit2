@@ -137,6 +137,22 @@ class CombinedWigMetadata:
         self._ordering_metadata                    = None
         if path:
             self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
+        
+        self.covariate_names = [ each for each in headers if each not in [ "Condition", "Filename", "Id" ] ]
+        if not path:
+            # 
+            # generate ordering_metadata, conditions_by_wig_fingerprint
+            # 
+            self._covariates_by_wig_fingerprint_list   = []
+            self._interactions_by_wig_fingerprint_list = []
+            self._conditions_by_wig_fingerprint        = {}
+            self._ordering_metadata                    = { "condition": [] }
+            for row in new_rows:
+                wig_fingerprint = row["Filename"]
+                condition_name  = row["Condition"]
+                self._conditions_by_wig_fingerprint[wig_fingerprint] = condition_name # FIXME: there can be more than one condition per wig_fingerprint
+                self._ordering_metadata["condition"].append(condition_name)
+                
         self.conditions = no_duplicates(
             Condition(
                 name=each_row["Condition"],
@@ -154,22 +170,10 @@ class CombinedWigMetadata:
                 continue
             new_rows.append(deepcopy(each_row))
         
-        new_combined_wig = CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
-        
-        # 
-        # generate ordering_metadata, conditions_by_wig_fingerprint
-        # 
-        for row in new_rows:
-            wig_fingerprint = row["Filename"]
-            conditions_by_wig_fingerprint[wig_fingerprint] = row["Condition"] # FIXME: there can be more than one condition per wig_fingerprint
-            ordering_metadata["condition"].append(row["Condition"])
-        
-        self._conditions_by_wig_fingerprint        = conditions_by_wig_fingerprint
-        self._ordering_metadata                    = ordering_metadata
-        self._covariates_by_wig_fingerprint_list   = []
-        self._interactions_by_wig_fingerprint_list = []
-        
-        return new_combined_wig
+        return CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
+    
+    def column(self, column_name):
+        return [ each[column_name] for each in rows ]
     
     @property
     def condition_names(self, *, wig_fingerprint=None, id=None):
@@ -382,7 +386,10 @@ class CombinedWigData(named_list(['sites','counts_by_wig','wig_fingerprints',]))
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
     '''
-        self.as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+        self.as_tuple         # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+        self.rows             # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        self.wig_ids          # same order as columns/wig_fingerprints
+        self.wig_fingerprints # same order as #File: columns
         self.main_path
         self.metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
         self.samples # list of Wig objects
@@ -399,18 +406,18 @@ class CombinedWig:
         self.metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
         self.metadata.id_for(wig_fingerprint)
         self.metadata.fingerprints_for(condition_name)
-        self.rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
     '''
     PositionsAndReads = named_list(["read_counts", "positions"])
-    def __init__(self, *, main_path, metadata_path=None, comments=None, extra_data=None):
-        self.main_path     = main_path
-        self.metadata_path = metadata_path
-        self.metadata      = CombinedWigMetadata(self.metadata_path)
-        self.as_tuple      = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
-        self.rows          = []
-        self.comments      = comments or []
-        self.extra_data    = LazyDict(extra_data or {})
-        self.samples       = []
+    def __init__(self, *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None):
+        self.main_path       = main_path
+        self.metadata_path   = metadata_path
+        self.annotation_path = annotation_path
+        self.metadata        = CombinedWigMetadata(self.metadata_path)
+        self.as_tuple        = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
+        self.rows            = []
+        self.comments        = comments or []
+        self.extra_data      = LazyDict(extra_data or {})
+        self.samples         = []
         self._load_main_path()
     
     def __repr__(self):
@@ -483,18 +490,20 @@ class CombinedWig:
         wig_fingerprints = wig_fingerprints + [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
         
         # create a new shell
-        class A: pass
-        new_combined_wig = A()
-        new_combined_wig.__class__ = CombinedWig
+        class CombinedWigHelper(CombinedWig):
+            def __init__(*args): pass # only difference it disabling the init 
+        
+        new_combined_wig = CombinedWigHelper()
         
         # copy the easy stuff
-        new_combined_wig.main_path     = None
-        new_combined_wig.metadata_path = None
-        new_combined_wig.comments      = self.comments
-        new_combined_wig.extra_data    = dict(self.extra_data)
-        new_combined_wig.rows          = []
-        new_combined_wig.samples       = []
-        new_combined_wig.metadata      = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
+        new_combined_wig.main_path       = None
+        new_combined_wig.metadata_path   = None
+        new_combined_wig.annotation_path = self.annotation_path
+        new_combined_wig.comments        = self.comments
+        new_combined_wig.extra_data      = dict(self.extra_data)
+        new_combined_wig.rows            = []
+        new_combined_wig.samples         = []
+        new_combined_wig.metadata        = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
         
         # extract only data relating to new_wig_fingerprints
         new_wig_fingerprints = self.metadata.wig_fingerprints
@@ -542,46 +551,169 @@ class CombinedWig:
         
         return new_combined_wig
         
-    @property
-    def averaged_by_conditions(self):
-        new_wigs = []
-        new_read_counts = []
-        new_wig_fingerprints = []
-        for each_name in self.metadata.condition_names:
-            combined_reads_for_numpy = []
-            combined_id = ""
-            combined_fingerprint = ""
-            for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
-                condition_names = self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint)
-                if each_name in condition_names:
-                    combined_reads_for_numpy.append(self.read_counts_by_wig_fingerprint[wig_fingerprint])
-                    combined_id += self.metadata.id_for(wig_fingerprint=wig_fingerprint)
-                    combined_fingerprint += wig_fingerprint
-                    
-            import numpy
-            read_counts = numpy.array(combined_reads_for_numpy).mean(axis=0).tolist()
-            new_read_counts.append(read_counts)
-            new_wig_fingerprints.append(combined_fingerprint)
-            new_wigs.append(
-                Wig(
-                    rows=list(zip(self.positions, read_counts)),
-                    id=combined_id,
-                    fingerprint=combined_fingerprint,
-                    column_index=column_index,
-                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
-                    extra_data=LazyDict(
-                        is_part_of_cwig=True,
-                    ),
-                )
+    def summed(self, *, by_conditions=False):
+        if by_conditions:
+            new_wigs = []
+            new_read_counts = []
+            condition_names = tuple(self.metadata.condition_names)
+            for each_condition_name in condition_names:
+                combined_reads_for_numpy = []
+                
+                # 
+                # find all the related wigs (overlaps are possible)
+                # 
+                for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
+                    if each_condition_name in self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint):
+                        combined_reads_for_numpy.append(self.read_counts_by_wig_fingerprint[wig_fingerprint])
+                # 
+                # Create new Wig objects and read counts
+                # 
+                import numpy
+                if len(combined_reads_for_numpy) > 0:
+                    read_counts = numpy.array(combined_reads_for_numpy).sum(axis=0).tolist()
+                    new_read_counts.append(read_counts)
+                    new_wigs.append(
+                        Wig(
+                            rows=list(zip(self.positions, read_counts)),
+                            id=each_condition_name,
+                            fingerprint=each_condition_name,
+                            column_index=len(new_wigs),
+                            condition_names=[each_condition_name],
+                            extra_data=LazyDict(
+                                is_part_of_cwig=True,
+                            ),
+                        )
+                    )
+            
+            copy_of_self = self.with_only()
+            copy_of_self.as_tuple = CombinedWigData((self.as_tuple.sites, numpy.array(new_read_counts), condition_names))
+            copy_of_self.samples = new_wigs
+            copy_of_self.rows = numpy.hstack(( self.as_tuple.sites, copy_of_self.as_tuple.counts_by_wig.transpose() ))
+            copy_of_self.metadata = CombinedWigMetadata(
+                headers=headers,
+                rows=[
+                    { "Id": each_name, "Condition": each_name, "Filename": each_name }
+                        for each_name in condition_names
+                ],
+                comments=self.metadata.comments,
+            )
+            
+            return copy_of_self
+        
+        return self
+    
+    def averaged(self, by_genes=False, by_conditions=False, n_terminus=0, c_terminus=0):
+        # 
+        # averaged by genes only
+        # 
+        if by_genes and not by_conditions:
+            genes = tnseq_tools.Genes(
+                wig_list=[],
+                data=self.as_tuple.counts_by_wig,
+                annotation=self.annotation_path,
+                position=self.as_tuple.sites,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
+            )
+            new_read_counts = numpy.vstack(each.reads for each in genes)
+            
+            # wrap inside a CombinedWig to regain helper methods
+            copy_of_self = self.with_only()
+            copy_of_self.as_tuple = CombinedWigData((self.as_tuple.sites, numpy.array(new_read_counts), condition_names))
+            copy_of_self.is_by_genes = True
+            # TODO: copy_of_self.samples = new_wigs
+            return copy_of_self
+        
+        # 
+        # averaged by both
+        # 
+        # both is not as straightforward as applying both operations because of the Simpsons Paradox
+        if by_conditions and by_genes: 
+            condition_names = tuple(self.metadata.condition_names)
+            count_per_condition = [ len(self.metadata.fingerprints_for(each_name)) for each_name in condition_names ]
+            
+            summed_by_condition = self.summed(by_conditions=True)
+            genes = tnseq_tools.Genes(
+                wig_list=[],
+                data=summed_by_condition.as_tuple.counts_by_wig,
+                annotation=summed_by_condition.annotation_path,
+                position=summed_by_condition.as_tuple.sites,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
+            )
+            reads_of_first_gene = numpy.array(next(iter(genes)).reads)
+            assert reads_of_first_gene.shape[1] == len(condition_names), f"columns=condition names but, {len(condition_names)} != 2nd dim of: {reads_of_first_gene.shape}"
+            
+            new_read_counts = numpy.vstack(numpy.array(each.reads).mean(axis=1) for each in genes)
+            # divide the sums so that it becomes an average
+            for condition_index, number_of_samples_in_condition in enumerate(count_per_condition):
+                new_read_counts[:,condition_index] = new_read_counts[:,condition_index] / number_of_samples_in_condition
+            
+            copy_of_self = self.with_only()
+            copy_of_self.is_by_genes = True
+            copy_of_self.as_tuple = CombinedWigData((self.as_tuple.sites, numpy.array(new_read_counts), condition_names))
+            # TODO: copy_of_self.samples = new_wigs
+            copy_of_self.metadata = CombinedWigMetadata(
+                headers=headers,
+                rows=[
+                    { "Id": each_name, "Condition": each_name, "Filename": each_name }
+                        for each_name in condition_names
+                ],
+                comments=self.metadata.comments,
             )
         
-        copy_of_self = self.with_only()
-        copy_of_self.as_tuple = CombinedWigData((sites, numpy.array(new_read_counts), new_wig_fingerprints))
-        copy_of_self.samples = new_wigs
-        # because metadata is no longer valid
-        del copy_of_self.metadata # TODO could make a pseudo-metadata
+        # 
+        # by conditions only
+        # 
+        if by_conditions and not by_genes: # redundant if statement check for clarity     
+            new_wigs = []
+            new_read_counts = []
+            condition_names = tuple(self.metadata.condition_names)
+            for each_condition_name in condition_names:
+                combined_reads_for_numpy = []
+                
+                # 
+                # find all the related wigs (overlaps are possible)
+                # 
+                for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
+                    if each_condition_name in self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint):
+                        combined_reads_for_numpy.append(self.read_counts_by_wig_fingerprint[wig_fingerprint])
+                # 
+                # Create new Wig objects and read counts
+                # 
+                import numpy
+                if len(combined_reads_for_numpy) > 0:
+                    read_counts = numpy.array(combined_reads_for_numpy).sum(axis=0).tolist()
+                    new_read_counts.append(read_counts)
+                    new_wigs.append(
+                        Wig(
+                            rows=list(zip(self.positions, read_counts)),
+                            id=each_condition_name,
+                            fingerprint=each_condition_name,
+                            column_index=len(new_wigs),
+                            condition_names=[each_condition_name],
+                            extra_data=LazyDict(
+                                is_part_of_cwig=True,
+                            ),
+                        )
+                    )
+            
+            copy_of_self = self.with_only()
+            copy_of_self.as_tuple = CombinedWigData((self.as_tuple.sites, numpy.array(new_read_counts), condition_names))
+            copy_of_self.samples = new_wigs
+            copy_of_self.rows = numpy.hstack(( self.as_tuple.sites, copy_of_self.as_tuple.counts_by_wig.transpose() ))
+            copy_of_self.metadata = CombinedWigMetadata(
+                headers=headers,
+                comments=self.metadata.comments,
+                rows=[
+                    { "Id": each_name, "Condition": each_name, "Filename": each_name }
+                        for each_name in condition_names
+                ],
+            )
+            
+            return copy_of_self
         
-        return copy_of_self
+        return self
         
     def wig_with_id(self, id):
         for each in self.samples:
@@ -1113,10 +1245,10 @@ class Genes:
         self.c_terminus = c_terminus
         self.include_nc = include_nc
 
-        isProt = True
+        is_prot = True
         filename, file_extension = os.path.splitext(self.annotation)
         if file_extension.lower() in [".gff", ".gff3"]:
-            isProt = False
+            is_prot = False
 
         self.orf2index = {}
         self.genes = []
@@ -1184,7 +1316,7 @@ class Genes:
                     continue
                 tmp = line.split("\t")
 
-                if isProt:
+                if is_prot:
                     gene = tmp[8].strip()
                     name, desc, start, end, strand = orf2info.get(gene, ["", "", 0, 0, "+"])
                 else:

@@ -119,6 +119,12 @@ class Method:
         gui.wigs_in_selected_conditions # list of Wig objects
         gui.combined_wigs # list of CombinedWig objects
         gui.combined_wigs[-1].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+        gui.combined_wigs[-1].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+        gui.combined_wigs[-1].wig_ids          # same order as columns/wig_fingerprints
+        gui.combined_wigs[-1].wig_fingerprints # same order as #File: columns
+        gui.combined_wigs[-1].conditions       # list of condition objects
+        gui.combined_wigs[-1].read_counts_by_wig_fingerprint
+        gui.combined_wigs[-1].with_only(condition_names=[], wig_fingerprints=[], wig_ids=[]) # returns a copy that has columns/rows filtered out
         gui.combined_wigs[-1].main_path
         gui.combined_wigs[-1].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
         gui.combined_wigs[-1].samples # list of Wig objects
@@ -151,7 +157,6 @@ class Method:
         gui.combined_wigs[-1].metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
         gui.combined_wigs[-1].metadata.id_for(wig_fingerprint)
         gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
-        gui.combined_wigs[-1].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
         
         # 
         # get annotation
