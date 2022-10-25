@@ -214,7 +214,7 @@ class UTestMethod(base.DualConditionMethod):
         annotation_path,
         output_file,
         normalization="TTR",
-        includeZeros=False,
+        include_zeros=False,
         replicates="Sum",
         LOESS=False,
         ignore_codon=True,
@@ -241,7 +241,7 @@ class UTestMethod(base.DualConditionMethod):
             wxobj=wxobj,
         )
 
-        self.includeZeros = includeZeros
+        self.include_zeros = include_zeros
 
     @classmethod
     def from_gui(self, wxobj):
@@ -269,7 +269,7 @@ class UTestMethod(base.DualConditionMethod):
         )
         replicates = None
 
-        includeZeros = wxobj.utestZeroCheckBox.GetValue()
+        include_zeros = wxobj.utestZeroCheckBox.GetValue()
 
         n_terminus = float(wxobj.globalNTerminusText.GetValue())
         c_terminus = float(wxobj.globalCTerminusText.GetValue())
@@ -277,7 +277,7 @@ class UTestMethod(base.DualConditionMethod):
 
         # Get output path
         defaultFileName = "utest_%s_output" % (normalization)
-        if includeZeros:
+        if include_zeros:
             defaultFileName += "_iz"
         defaultFileName += ".dat"
 
@@ -293,7 +293,7 @@ class UTestMethod(base.DualConditionMethod):
             annotation_path,
             output_file,
             normalization,
-            includeZeros,
+            include_zeros,
             replicates,
             LOESS,
             ignore_codon,
@@ -312,7 +312,7 @@ class UTestMethod(base.DualConditionMethod):
         output_file = open(output_path, "w")
 
         normalization = kwargs.get("n", "TTR")
-        includeZeros = kwargs.get("iz", False)
+        include_zeros = kwargs.get("iz", False)
         replicates = None
 
         LOESS = kwargs.get("l", False)
@@ -326,7 +326,7 @@ class UTestMethod(base.DualConditionMethod):
             annotation_path,
             output_file,
             normalization,
-            includeZeros,
+            include_zeros,
             replicates,
             LOESS,
             ignore_codon,
@@ -391,7 +391,7 @@ class UTestMethod(base.DualConditionMethod):
                 )
             else:
 
-                if not self.includeZeros:
+                if not self.include_zeros:
                     ii = numpy.sum(gene.reads, 0) > 0
                 else:
                     ii = numpy.ones(gene.n) == 1
@@ -424,7 +424,7 @@ class UTestMethod(base.DualConditionMethod):
                 except:
                     log2FC = 0.0
 
-            # ["Orf","Name","Desc","Sites","Mean Ctrl","Mean Exp","log2FC", "U-Statistic","P Value","Adj P value"]
+            # ["Orf","Name","Desc","Sites","Mean Ctrl","Mean Exp","log2FC", "U Statistic","P Value","Adj P Value"]
 
             data.append(
                 [
@@ -450,72 +450,62 @@ class UTestMethod(base.DualConditionMethod):
         logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
-
-        self.output.write("#utest\n")
-        if self.wxobj:
-            members = sorted(
-                [
-                    attr
-                    for attr in dir(self)
-                    if not callable(getattr(self, attr)) and not attr.startswith("__")
-                ]
-            )
-            memberstr = ""
-            for m in members:
-                memberstr += "%s = %s, " % (m, getattr(self, m))
-            self.output.write(
-                "#GUI with: norm=%s, includeZeros=%s, output=%s\n"
-                % (
-                    self.normalization,
-                    self.includeZeros,
-                    self.output.name.encode("utf-8"),
+        
+        with open(self.inputs.output_path) as self.output:
+            self.output.write("#utest\n")
+            if self.wxobj:
+                members = sorted(
+                    [
+                        attr
+                        for attr in dir(self)
+                        if not callable(getattr(self, attr)) and not attr.startswith("__")
+                    ]
                 )
-            )
-        else:
-            self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
-        self.output.write(
-            "#Control Data: %s\n" % (",".join(self.ctrldata).encode("utf-8"))
-        )
-        self.output.write(
-            "#Experimental Data: %s\n" % (",".join(self.expdata).encode("utf-8"))
-        )
-        self.output.write(
-            "#Annotation path: %s\n" % (self.annotation_path.encode("utf-8"))
-        )
-        self.output.write("#Time: %s\n" % (time.time() - start_time))
-        self.output.write("#%s\n" % "\t".join(columns))
-
-        for i, row in enumerate(data):
-            (orf, name, desc, n, mean1, mean2, log2FC, u_stat, pval_2tail) = row
-            self.output.write(
-                "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.2f\t%1.5f\t%1.5f\n"
-                % (
-                    orf,
-                    name,
-                    desc,
-                    n,
-                    mean1,
-                    mean2,
-                    log2FC,
-                    u_stat,
-                    pval_2tail,
-                    qval[i],
+                memberstr = ""
+                for m in members:
+                    memberstr += "%s = %s, " % (m, getattr(self, m))
+                self.output.write(
+                    "#GUI with: norm=%s, include_zeros=%s, output=%s\n"
+                    % (
+                        self.normalization,
+                        self.include_zeros,
+                        self.output_path.encode("utf-8"),
+                    )
                 )
+            else:
+                self.output.write("#Console: python3 %s\n" % " ".join(sys.argv))
+            self.output.write(
+                "#Control Data: %s\n" % (",".join(self.ctrldata).encode("utf-8"))
             )
-        self.output.close()
+            self.output.write(
+                "#Experimental Data: %s\n" % (",".join(self.expdata).encode("utf-8"))
+            )
+            self.output.write(
+                "#Annotation path: %s\n" % (self.annotation_path.encode("utf-8"))
+            )
+            self.output.write("#Time: %s\n" % (time.time() - start_time))
+            self.output.write("#%s\n" % "\t".join(columns))
 
-        logging.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)
+            for i, row in enumerate(data):
+                (orf, name, desc, n, mean1, mean2, log2FC, u_stat, pval_2tail) = row
+                self.output.write(
+                    "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.2f\t%1.5f\t%1.5f\n"
+                    % (
+                        orf,
+                        name,
+                        desc,
+                        n,
+                        mean1,
+                        mean2,
+                        log2FC,
+                        u_stat,
+                        pval_2tail,
+                        qval[i],
+                    )
+                )
+            self.output.close()
+
+        logging.log("Adding File: %s" % (self.output_path))
+        results_area.add(self.output_path)
         self.finish()
         logging.log("Finished Mann-Whitney U-test Method")
-
-    usage_string = """python3 %s utest <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-
-        Optional Arguments:
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -iz             :=  Include rows with zero accross conditions.
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
-        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
-        """ % sys.argv[0]
-

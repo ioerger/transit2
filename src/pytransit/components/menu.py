@@ -30,7 +30,6 @@ def create_menu(frame):
             exit_option = wx.MenuItem( file_menu, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL )
             file_menu.Append(exit_option)
             def when_exit_clicked(event):
-                if frame.verbose: logging.log("Exiting Transit")
                 frame.Close()
             frame.Bind(wx.EVT_MENU, when_exit_clicked, id=exit_option.GetId())
         

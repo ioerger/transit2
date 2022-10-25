@@ -21,6 +21,7 @@ long_name = "ZINB"
 short_desc = "Perform ZINB analysis"
 long_desc = """Perform ZINB analysis"""
 GENE = None
+DEBUG = True
 
 transposons = ["", ""]
 columns = []
@@ -96,14 +97,13 @@ class ZinbMethod(base.MultiConditionMethod):
 
     @classmethod
     def from_args(self, args, kwargs):
-        from pytransit.tools.transit_tools import DEBUG
+        global DEBUG
 
         if kwargs.get("-help", False) or kwargs.get("h", False):
             print(ZinbMethod.usage_string)
             sys.exit(0)
 
         if kwargs.get("v", False):
-            global DEBUG
             DEBUG = True
 
         if kwargs.get("-gene", False):
@@ -461,7 +461,8 @@ class ZinbMethod(base.MultiConditionMethod):
             Interaction :: String
             Status :: String
         """
-        from pytransit.tools.transit_tools import DEBUG, DataFrame, IntVector, FloatVector, StrVector
+        global DEBUG
+        from pytransit.tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
         import statsmodels.stats.multitest
 
         count = 0
@@ -669,7 +670,7 @@ class ZinbMethod(base.MultiConditionMethod):
             )
 
         logging.log("Getting Data")
-        (sites, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+        (sites, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
             self.combined_wig
         )
 
@@ -719,7 +720,7 @@ class ZinbMethod(base.MultiConditionMethod):
             conditions,
             covariates,
             interactions,
-        ) = self.filter_wigs_by_conditions3(
+        ) = self.filter_wigs_by_conditions2(
             data,
             fileNames,
             conditionNames,  # original Condition column in samples metadata file
@@ -901,14 +902,11 @@ class ZinbMethod(base.MultiConditionMethod):
         -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
         -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
         -PC <N>         := pseudocounts to use for calculating LFCs. Default: -PC 5
-        --condition     := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+        --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+        --condition     := alias for --group-by
         --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
         --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
         --prot_table <filename>           := for appending annotations of genes
         --gene <RV number or Gene name>   := Run method for one gene and print model output.
 
         """ % sys.argv[0]
-
-
-if __name__ == "__main__":
-    main()

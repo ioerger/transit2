@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
+    main(*args, **kwargs)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/normalize.py", line 75, in from_args
+    combined_wig = tnseq_tools.CombinedWig(main_path=infile_path)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/tnseq_tools.py", line 416, in __init__
+    self.metadata        = CombinedWigMetadata(self.metadata_path)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/tnseq_tools.py", line 150, in __init__
+    for row in new_rows:
+NameError: name 'new_rows' is not defined

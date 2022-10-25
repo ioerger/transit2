@@ -1,7 +1,24 @@
 #HMM_Genes
-#Console: python3 './src/transit.py' 'hmm' 'src/pytransit/data/cholesterol_H37Rv_rep3.wig,src/pytransit/data/cholesterol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep1.wig' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/hmm/0001_basic.sh.1.result'#summary of gene calls: ES=636, GD=211, NE=3056, GA=81, N/A=6
-#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)
-#ORF	Gene	Annotation	TAs	ES Sites	GD Sites	NE Sites	GA Sites	Saturation	Mean	Call
+#yaml:
+#    date: 2022-10-25 11:26:44
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'hmm' 'src/pytransit/data/cholesterol_H37Rv_rep3.wig,src/pytransit/data/cholesterol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/hmm/0001_basic.sh.1.result'
+#    Summary Of Gene Calls:
+#       ES: 636
+#       GD: 211
+#       NE: 3056
+#       GA: 81
+#       N/A: 6
+#    Naming Reference:
+#       ES: essential
+#       GD: insertions cause growth-defect
+#       NE: non-essential
+#       GA: insertions confer growth-advantage
+#       N/A: not analyzed (genes with 0 TA sites)
+#    
+#ORF	Gene Name	Description	Total Sites	ES Count	GD Count	NE Count	GA Count	Mean Insertions	Mean Reads	State Call
 Rv0001	dnaA	chromosomal replication initiation protein 	32	32	0	0	0	0.0000	0.00	ES
 Rv0002	dnaN	DNA polymerase III subunit beta 	31	31	0	0	0	0.0000	0.00	ES
 Rv0003	recF	recombination protein F 	35	5	0	30	0	0.2857	75.90	NE

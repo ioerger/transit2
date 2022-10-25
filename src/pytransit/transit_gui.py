@@ -58,7 +58,7 @@ import pytransit.components.images as images
 
 class TnSeqFrame(wx.Frame):
     # constructor
-    def __init__(self, parent, DEBUG=False):
+    def __init__(self, parent):
         # data accessable to all analysis methods
         gui.frame = self
         # connect to GUI tools (otherwise they will not function)
@@ -132,10 +132,6 @@ class TnSeqFrame(wx.Frame):
 
         self.Centre(wx.BOTH)
         self.SetIcon(images.transit_icon.GetIcon())
-
-        self.workdir = os.getcwd()
-        self.transposons = ["himar1", "tn5"]
-        self.verbose = True
         
         self.status_bar = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self.status_bar.SetStatusText("Welcome to TRANSIT")

@@ -23,11 +23,6 @@ from pytransit.components.spreadsheet import SpreadSheet
 class Method:
     name = "Quality Control"
     
-    # TODO: confirm menu option not needed
-    # @gui.add_menu("Pre-Processing", name)
-    # def on_menu_click(event):
-    #     pass
-    
     # 
     # Quality Control
     # 

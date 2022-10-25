@@ -49,8 +49,11 @@ def clean_args(rawargs):
                 their values.
 
     """
+    from pytransit.generic_tools import misc
+    from collections import defaultdict
+    
     args = []
-    kwargs = {}
+    kwargs = defaultdict(lambda *args: None)
     count = 0
     # Loop through list of arguments
     while count < len(rawargs):
@@ -86,6 +89,36 @@ def clean_args(rawargs):
             args.append(rawargs[count])
         count += 1
     
+    
+    # 
+    # convert number arguments to be numbers
+    # 
+    for each_index, each_value in enumerate(list(args)):
+        if misc.str_is_int(each_value):
+            args[each_index] = int(each_value)
+        if misc.str_is_float(each_value):
+            args[each_index] = float(each_value)
+    for each_key, each_value in kwargs.items():
+        if isinstance(each_value, str):
+            if misc.str_is_int(each_value):
+                kwargs[each_key] = int(each_value)
+            if misc.str_is_float(each_value):
+                kwargs[each_key] = float(each_value)
+    
+    # 
+    # make the --name vs -name irrelevent 
+    # 
+    for each_key, each_value in list(kwargs.items()):
+        if each_key.startswith("--"):
+            kwargs[each_key[1:]] = each_value
+            kwargs[each_key[2:]] = each_value
+        elif each_key.startswith("-"):
+            kwargs[each_key[1:]] = each_value
+            kwargs["-"+each_key] = each_value
+        else:
+            kwargs["--"+each_key] = each_value
+            kwargs["-"+each_key] = each_value
+            
     return (args, kwargs)
 
 def handle_help_flag(kwargs, usage_string):
@@ -107,10 +140,24 @@ def enforce_number_of_args(args, usage_string, *, exactly=None, at_least=type(No
             exit(1)
 
 def handle_unrecognized_flags(flags, kwargs, usage_string):
-    for arg_name in kwargs.keys():
-        if arg_name not in flags and f"-{arg_name}" not in flags:
-            print(f"{arg_name} was not one of the available flags: {' '.join(flags)}")
-            raise Exception(f'''unrecognized flag: {arg_name}\n\n{usage_string}''')
+    possible_flags = list(flags)
+    for each_name in flags:
+        if each_name.startswith("--"):
+            possible_flags.append(each_name[1:])
+            possible_flags.append(each_name[2:])
+        elif each_name.startswith("-"):
+            possible_flags.append(each_name[1:])
+            possible_flags.append("-"+each_name)
+        else:
+            possible_flags.append("--"+each_name)
+            possible_flags.append("-"+each_name)
+    
+    for flag_string in kwargs.keys():
+        if flag_string not in possible_flags:
+            from pytransit.generic_tools import misc
+            closest_match, *_ = misc.levenshtein_distance_sort(word=flag_string, other_words=possible_flags)
+            print(f"{flag_string} was not one of the available flags: {' '.join(flags)}")
+            raise Exception(f'''unrecognized flag: {flag_string}\nMaybe you meant: {closest_match}\n\n{usage_string}''')
 
 def check_if_has_wx():
     """

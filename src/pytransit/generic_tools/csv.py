@@ -198,14 +198,17 @@ def write(path=None, *, rows=tuple(), column_names=tuple(), seperator=",", eol="
         # rows
         # 
         for each_row in rows:
-            row_string_escaped = tuple(
-                element_to_string(each_cell)
-                    for each_cell in each_row 
-            )
-            line = seperator.join(row_string_escaped)+eol
-            the_file.write(
-                seperator.join(row_string_escaped)+eol
-            )
+            if isinstance(each_row, str):
+                the_file.write(each_row+eol)
+            else:
+                row_string_escaped = tuple(
+                    element_to_string(each_cell)
+                        for each_cell in each_row 
+                )
+                line = seperator.join(row_string_escaped)+eol
+                the_file.write(
+                    seperator.join(row_string_escaped)+eol
+                )
     except Exception as error:
         # make sure to close the file
         close_file()

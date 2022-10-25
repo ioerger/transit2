@@ -20,8 +20,11 @@ samples = LazyDict(
     wig_header_sizer=None,
     wig_dropdown_wxobj=None,
     wig_table=None,
-    dropdown_options={},
+    wig_dropdown_options={},
+    condition_header_sizer=None,
+    condition_dropdown_wxobj=None,
     conditions_table=None,
+    condition_dropdown_options={},
     sample_button_creators = {
         # put "name": None here for buttons you want to be in a specific order
         # "LOESS": None,
@@ -37,7 +40,7 @@ samples = LazyDict(
 # 
 # for updating the dropdown options
 # 
-def update_sample_area_dropdown(new_choices):
+def update_wig_area_dropdown(new_choices):
     with gui_tools.nice_error_log:
         # hide the old one before showing the new one
         if samples.wig_dropdown_wxobj != None:
@@ -69,6 +72,38 @@ def update_sample_area_dropdown(new_choices):
                 # run the callback that corrisponds the the choice
                 new_choices[choice](event)
 
+def update_condition_area_dropdown(new_choices):
+    with gui_tools.nice_error_log:
+        # hide the old one before showing the new one
+        if samples.condition_dropdown_wxobj != None:
+            samples.condition_dropdown_wxobj.Hide()
+        
+        # if not (None or empty)
+        if new_choices: 
+            new_choices = {
+                "[Select Tool]": lambda event: None, # always have a none option, and always make it the first option
+                **new_choices,
+            }
+            
+            samples.condition_dropdown_wxobj = wx.Choice(
+                gui.frame,
+                wx.ID_ANY,
+                wx.DefaultPosition,
+                (120, -1),
+                list(new_choices.keys()),
+                0,
+            )
+            samples.condition_dropdown_wxobj.SetSelection(0)
+            samples.condition_header_sizer.Add(samples.condition_dropdown_wxobj, proportion=0, flag=wx.EXPAND, border=gui_tools.default_padding)
+            samples.condition_header_sizer.Layout()
+            gui.frame.Layout()
+            
+            @gui_tools.bind_to(samples.condition_dropdown_wxobj, wx.EVT_CHOICE)
+            def _(event):
+                choice = samples.condition_dropdown_wxobj.GetString(samples.condition_dropdown_wxobj.GetCurrentSelection())
+                # run the callback that corrisponds the the choice
+                new_choices[choice](event)
+
 # is only called in transit_gui.py
 def create_sample_area(frame):
     wx_object = None
@@ -93,14 +128,16 @@ def create_sample_area(frame):
                 # 
                 # component
                 # 
+                size = (300, 40)
                 combined_wig_file_picker = GenBitmapTextButton(
                     frame,
                     1,
                     gui_tools.bit_map,
                     "Load Combined Wig and Metadata",
-                    size=wx.Size(-1, -1),
-                    
+                    size=wx.Size(*size),
                 )
+                combined_wig_file_picker.SetMinSize(size)
+                combined_wig_file_picker.SetMaxSize(size)
                 combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
                 
                 # 
@@ -143,8 +180,7 @@ def create_sample_area(frame):
                             
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
                 
-                # samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=2, flag=wx.ALIGN_LEFT, border=5)
-                samples.wig_header_sizer.Add(combined_wig_file_picker)
+                samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.EXPAND, border=0)
                 
             outer_sample_sizer.add(
                 samples.wig_header_sizer,
@@ -161,10 +197,9 @@ def create_sample_area(frame):
             # 
             # show wig-specific buttons
             # 
-            show_table_button = None
             @samples.wig_table.events.on_select
             def _(event):
-                update_sample_area_dropdown(samples.dropdown_options)
+                update_wig_area_dropdown(samples.wig_dropdown_options)
                 for each in samples.sample_button_creators.values():
                     with gui_tools.nice_error_log:
                         each(samples.wig_table, samples.wig_header_sizer)
@@ -179,7 +214,16 @@ def create_sample_area(frame):
         outer_sample_sizer.add(
             Text("Conditions"),
             proportion=0,
-            
+        )
+        
+        # 
+        # condition_header
+        #
+        samples.condition_header_sizer = wx.BoxSizer(wx.HORIZONTAL) 
+        outer_sample_sizer.add(
+            samples.condition_header_sizer,
+            expand=True,
+            proportion=0,
         )
         
         # 
@@ -188,6 +232,18 @@ def create_sample_area(frame):
         with Table(
            max_size=(int(gui.width*0.7), 200)
         ) as samples.conditions_table:
+        
+            # 
+            # show condition-specific buttons
+            # 
+            @samples.conditions_table.events.on_select
+            def _(event):
+                update_condition_area_dropdown(samples.condition_dropdown_options)
+                for each in samples.sample_button_creators.values():
+                    with gui_tools.nice_error_log:
+                        each(samples.conditions_table, samples.condition_header_sizer)
+                        
+            
             outer_sample_sizer.add(
                 samples.conditions_table.wx_object,
                 proportion=1, # 29 does something strange
@@ -196,6 +252,9 @@ def create_sample_area(frame):
                 
             )
     
+    samples.wig_header_sizer.Layout()
+    gui.frame.Layout()
+            
     # 
     # preload files if in debugging mode
     # 
@@ -225,6 +284,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                 tnseq_tools.CombinedWig(
                     main_path=each_cwig_path,
                     metadata_path=each_metadata_path,
+                    annotation_path=gui.annotation_path,
                 )
             )
     
@@ -235,37 +295,43 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
     # add graphical entries for each condition
     # 
     if True:
-        for each_sample in gui.samples:
-            # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
-            samples.wig_table.add(dict(
-                # add hidden link to object
-                __wig_obj=each_sample,
-                # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                id=each_sample.id,
-                conditions=(",".join(each_sample.condition_names) or "[None]"),
-                density=round(each_sample.extra_data.density, 4),
-                total_insertions=round(each_sample.extra_data.sum),
-                non_zero_mean=round(each_sample.extra_data.non_zero_mean),
-                # # uncomment to add additional summary data
-                # non_zero_median=each_sample.extra_data.non_zero_median,
-                # count=each_sample.extra_data.count,
-                # mean=each_sample.extra_data.mean,
-                # max=each_sample.extra_data.max,
-                # skew=each_sample.extra_data.skew,
-                # kurtosis=each_sample.extra_data.kurtosis,
-            ))
-        
-        for each_condition in gui.conditions:
-            samples.conditions_table.add(dict(
-                name=each_condition.name,
-            ))
+        number_of_new_combined_wigs = len(cwig_paths)
+        if number_of_new_combined_wigs > 0:
+            from pytransit.generic_tools import misc
+            new_samples = misc.flatten_once([ each.samples for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+            for each_sample in new_samples:
+                # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
+                samples.wig_table.add(dict(
+                    # add hidden link to object
+                    __wig_obj=each_sample,
+                    # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                    id=each_sample.id,
+                    conditions=(",".join(each_sample.condition_names) or "[None]"),
+                    density=round(each_sample.extra_data.density, 4),
+                    total_insertions=round(each_sample.extra_data.sum),
+                    non_zero_mean=round(each_sample.extra_data.non_zero_mean),
+                    # # uncomment to add additional summary data
+                    # non_zero_median=each_sample.extra_data.non_zero_median,
+                    # count=each_sample.extra_data.count,
+                    # mean=each_sample.extra_data.mean,
+                    # max=each_sample.extra_data.max,
+                    # skew=each_sample.extra_data.skew,
+                    # kurtosis=each_sample.extra_data.kurtosis,
+                ))
+            
+            new_conditions = misc.flatten_once([ each.conditions for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+            for each_condition in new_conditions:
+                samples.conditions_table.add(dict(
+                    name=each_condition.name,
+                ))
 
 # should only be called/used by globals.py
 def get_selected_samples():
     return [ each["__wig_obj"] for each in samples.wig_table.selected_rows ]
 
 def get_selected_condition_names():
-    return [ each["name"] for each in samples.conditions_table.selected_rows ]
+    selected_rows = samples.conditions_table.selected_rows
+    return no_duplicates([ each["name"] for each in samples.conditions_table.selected_rows ])
 
 # 
 # 
@@ -287,7 +353,22 @@ def add_wig_area_dropdown_option(name):
         def wrapper(*args,**kwargs):
             with gui_tools.nice_error_log:
                 return function_being_wrapped(*args, **kwargs)
-        samples.dropdown_options[name] = wrapper
+        samples.wig_dropdown_options[name] = wrapper
+        return wrapper
+    return decorator
+
+def add_condition_area_dropdown_option(name):
+    """
+    Example Usage:
+        @gui.add_condition_area_dropdown_option(name="Click Me", size=(120, -1))
+        def on_button_click(event):
+            print("Howdy")
+    """
+    def decorator(function_being_wrapped):
+        def wrapper(*args,**kwargs):
+            with gui_tools.nice_error_log:
+                return function_being_wrapped(*args, **kwargs)
+        samples.condition_dropdown_options[name] = wrapper
         return wrapper
     return decorator
 

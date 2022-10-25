@@ -143,15 +143,22 @@ class Method:
             set_instructions(
                 method_short_text=self.name,
                 method_long_text="",
-                method_descr="""
-                    The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. 
-                    It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
-
-                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional 
-                    catogory of genes or known biological pathway.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+
+                See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
+                
+                1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
+
+                2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
+
+                3.[Optional] Select/Adjust other parameters
+
+                4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+
+                5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
+
+                6. Click Run
                 """.replace("\n                    ","\n"),
             )
 
@@ -178,7 +185,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -186,7 +193,6 @@ class Method:
         # get annotation
         # 
         Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # setup custom inputs
@@ -209,8 +215,8 @@ class Method:
         # 
         # extract universal data
         # 
-        cwig_path     = gui.combined_wigs[0].main_path
-        metadata_path = gui.combined_wigs[0].metadata.path
+        cwig_path     = gui.combined_wigs[-1].main_path
+        metadata_path = gui.combined_wigs[-1].metadata.path
         
         Method.inputs.combined_wig_params = dict(
             combined_wig=cwig_path,
@@ -342,7 +348,7 @@ class Method:
         # Combine 
         # 
         if self.inputs.combined_wig_params:
-            (position, data, filenames_in_comb_wig) = tnseq_tools.read_combined_wig(
+            (position, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
                 self.inputs.combined_wig_params["combined_wig"]
             )
             conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.read_samples_metadata(
@@ -804,7 +810,7 @@ class ResultFileType1:
         parameters = LazyDict(self.extra_data.get("parameters", {}))
         number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Method.significance_threshold ])
         self.values_for_result_table.update({
-            "": f"{number_of_significant} significant conditionally essential genes"
+            " ": f"{number_of_significant} significant conditionally essential genes"
         })
     
     def __str__(self):

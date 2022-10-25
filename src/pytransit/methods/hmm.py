@@ -95,13 +95,14 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text= "Hidden Markov Model",
-                method_descr="""
-                    The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other 
-                    methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or 
-                    growth defect regions), in addition to the more common categories of essential and non-essential.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
+                
+                1. Select a condition from the conditions panel
+
+                2. [Optional] Select/Adjust other parameters
+
+                3. Click Run
                 """.replace("\n                    ","\n"),
             )
             # 
@@ -110,7 +111,7 @@ class Method:
             self.value_getters = LazyDict()
             if True:
                 self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
+                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
                 self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
                 self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
                 self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
@@ -123,7 +124,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -131,8 +132,6 @@ class Method:
         # get annotation
         # 
         Method.inputs.annotation_path = gui.annotation_path
-        if not transit_tools.validate_annotation(Method.inputs.annotation_path):
-            return None
         
         # 
         # setup custom inputs
@@ -158,7 +157,7 @@ class Method:
         if not Method.inputs.output_path:
             return None
         
-        Method.inputs.data_sources = [ gui.combined_wigs[0].main_path ]
+        Method.inputs.data_sources = [ gui.combined_wigs[-1].main_path ]
         
         # 
         # extract universal data
@@ -331,7 +330,6 @@ class Method:
                     rows=rows,
                     column_names=SitesFile.column_names,
                     extra_info=dict(
-                        gui_or_cli=("gui" if gui.is_active else "cli"),
                         stats=dict(
                             mean=float(numpy.average(reads_nz)),
                             median=float(numpy.median(reads_nz)),
@@ -504,11 +502,13 @@ class Method:
         return sum([1 for rd in non_ess_reads if rd >= 1]) / float(len(non_ess_reads))
 
     def post_process_genes(self, data, position, states, output_path):
-        logging.log("starting next step")
-        with open(output_path, "w") as output:
+        # 
+        # organize data
+        # 
+        if True:
             pos2state = dict([(position[t], states[t]) for t in range(len(states))])
             theta = numpy.mean(data > 0)
-            G = tnseq_tools.Genes(
+            genes = tnseq_tools.Genes(
                 tnseq_tools.CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
                 self.inputs.annotation_path,
                 data=data,
@@ -519,69 +519,88 @@ class Method:
             )
 
             num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
-            output.write(f"#{GeneFile.identifier}\n")
 
-            lines, counts = [], {}
-            for gene in G:
-                reads_nz = [c for c in gene.reads.flatten() if c > 0]
+            rows = []
+            gene_calls = {
+                "ES":0,
+                "GD":0,
+                "NE":0,
+                "GA":0,
+                "N/A":0
+            }
+            for each_gene in genes:
+                reads_nz = [c for c in each_gene.reads.flatten() if c > 0]
                 avg_read_nz = 0
                 if len(reads_nz) > 0:
                     avg_read_nz = numpy.average(reads_nz)
 
                 # State
-                genestates = [pos2state[p] for p in gene.position]
+                gene_states = [pos2state[p] for p in each_gene.position]
                 statedist = {}
-                for st in genestates:
+                for st in gene_states:
                     if st not in statedist:
                         statedist[st] = 0
                     statedist[st] += 1
 
-                # State counts
+                # State gene_calls
                 n0 = statedist.get(0, 0)
                 n1 = statedist.get(1, 0)
                 n2 = statedist.get(2, 0)
                 n3 = statedist.get(3, 0)
 
-                if gene.n > 0:
+                if each_gene.n > 0:
                     # this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive
-                    # E = tnseq_tools.expected_runs(gene.n,   1.0 - theta)
-                    # V = tnseq_tools.variance_run(gene.n,   1.0 - theta)
-                    if n0 == gene.n:
-                        S = "ES"
-                    # elif n0 >= int(E+(3*math.sqrt(V))): S = "ES"
+                    # E = tnseq_tools.expected_runs(each_gene.n,   1.0 - theta)
+                    # V = tnseq_tools.variance_run(each_gene.n,   1.0 - theta)
+                    if n0 == each_gene.n:
+                        gene_category = "ES"
+                    # elif n0 >= int(E+(3*math.sqrt(V))): gene_category = "ES"
                     else:
                         temp = max([(statedist.get(s, 0), s) for s in [0, 1, 2, 3]])[1]
-                        S = num2label[temp]
+                        gene_category = num2label[temp]
                 else:
                     E = 0.0
                     V = 0.0
-                    S = "N/A"
-                lines.append(
-                    "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%1.4f\t%1.2f\t%s\n"
-                    % (
-                        gene.orf,
-                        gene.name,
-                        gene.desc,
-                        gene.n,
+                    gene_category = "N/A"
+                
+                
+                rows.append(
+                    (
+                        each_gene.orf,
+                        each_gene.name,
+                        each_gene.desc,
+                        each_gene.n,
                         n0,
                         n1,
                         n2,
                         n3,
-                        gene.theta(),
-                        avg_read_nz,
-                        S,
+                        "%1.4f" % each_gene.theta(),
+                        "%1.2f" % avg_read_nz,
+                        gene_category,
                     )
                 )
-                if S not in counts:
-                    counts[S] = 0
-                counts[S] += 1
-            
-            output.write(f"#Console: {console_tools.full_commandline_command}")
-            output.write("#summary of gene calls: ES=%s, GD=%s, NE=%s, GA=%s, N/A=%s\n"% tuple([counts.get(x, 0) for x in "ES GD NE GA N/A".split()]))
-            output.write("#key: ES=essential, GD=insertions cause growth-defect, NE=non-essential, GA=insertions confer growth-advantage, N/A=not analyzed (genes with 0 TA sites)\n")
-            output.write("#"+"\t".join(self.column_names)+"\n" )
-            for line in lines:
-                output.write(line)
+                if gene_category not in gene_calls:
+                    gene_calls[gene_category] = 0
+                gene_calls[gene_category] += 1
+        # 
+        # Write data
+        # 
+        transit_tools.write_result(
+            path=output_path, # path=None means write to STDOUT
+            file_kind=GeneFile.identifier,
+            rows=rows,
+            column_names=GeneFile.column_names,
+            extra_info={
+                "Summary Of Gene Calls": gene_calls,
+                "Naming Reference": {
+                    "ES": "essential",
+                    "GD": "insertions cause growth-defect",
+                    "NE": "non-essential",
+                    "GA": "insertions confer growth-advantage",
+                    "N/A": "not analyzed (genes with 0 TA sites)",
+                },
+            },
+        )
 
 @transit_tools.ResultsFile
 class SitesFile:

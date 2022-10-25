@@ -87,13 +87,9 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text= "",
-                method_descr="""
-                    The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant 
-                    variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig 
-                    files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file 
-                    (which describes which samples/replicates belong to which experimental conditions).
-                """.replace("\n                    "," "),
                 method_specific_instructions="""
+                    The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
+
                     1. Ensure you have the annotation file ("prot table") that corresponds to the datasets to be analyzed.
                     
                     2. Select reference condition for the analysis
@@ -134,7 +130,7 @@ class Method:
         # 
         # get wig files
         # 
-        combined_wig = gui.combined_wigs[0]
+        combined_wig = gui.combined_wigs[-1]
         Method.inputs.combined_wig = combined_wig.main_path
         Method.inputs.metadata     = combined_wig.metadata.path
         
@@ -142,7 +138,6 @@ class Method:
         # get annotation
         # 
         Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # setup custom inputs
@@ -360,7 +355,7 @@ class Method:
         # 
         logging.log("Getting Data")
         if True:
-            sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
             
             logging.log(f"Normalizing using: {self.inputs.normalization}")
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
@@ -387,7 +382,7 @@ class Method:
                 conditions,
                 _,
                 _,
-            ) = transit_tools.filter_wigs_by_conditions3(
+            ) = transit_tools.filter_wigs_by_conditions2(
                 data,
                 file_names=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
                 condition_names=condition_names, # original Condition column in samples metadata file

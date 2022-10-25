@@ -364,7 +364,7 @@ Tnseq Stats Column Names & Accessed Columns Names
     "Pickands Tail Index",
 
 Combined Wig Columns
-    "TA Site Positions"
+    "TA Site Position"
     "ORF",
     "Gene Name"
 
@@ -389,4 +389,5 @@ sd 'FIX ME'                                            'FIXME'                  
 sd 'sys.argv'                                          'console_tools.subcommand_prefix#FIXME'                                  src/methods/**/*.py
 sd '\bAnalysis\b'                                      'Method'                                                                 src/methods/**/*.py
 sd 'Method = GUI = Method'                             ''                                                                       src/**/*.py
+sd '\bresults_area.add\b'                              'gui.add_result'                                                         src/methods/**/*.py
 ```

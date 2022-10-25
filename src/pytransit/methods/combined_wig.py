@@ -15,6 +15,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 @misc.singleton
 class Method:
     identifier = "CombinedWig"
+    menu_name = "Combined Wig"
     usage_string = f"""
         {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
         
@@ -25,7 +26,7 @@ class Method:
         ctrldata=None,
         normalization=None,
         annotation_path=None,
-        output_path=None,
+        output_path="latest.comwig.csv",
         ref=None,
     )
     
@@ -42,7 +43,42 @@ class Method:
         ))
         
         Method.Run()
-
+        
+    @gui.add_menu("Pre-Processing", "Export", menu_name)
+    def on_menu_click(event):
+        from pytransit.components import pop_up, panel_helpers
+        
+        @pop_up.create_pop_up(gui.frame, min_width=300)
+        def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
+            normalization_getter   = panel_helpers.create_normalization_input(pop_up_panel, sizer)
+            annotation_path_getter = panel_helpers.create_file_input(pop_up_panel, sizer, button_label="Select Annotation File", tooltip_text="", popup_title="Annotation File", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=refresh)
+            wig_paths_getter       = panel_helpers.create_multi_file_input(pop_up_panel, sizer, button_label="Select Wig Files", tooltip_text="", popup_title="Wig Files"      , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.csv,*.dat,*.out)|*.wig;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
+            
+            @panel_helpers.create_button(pop_up_panel, sizer, label="Export")
+            def when_button_clicked(event):
+                normalization = normalization_getter()
+                annotation_path = annotation_path_getter()
+                wig_paths = wig_paths_getter()
+                output_path = gui_tools.ask_for_output_file_path(
+                    default_file_name=f"recent_export.comwig.csv",
+                    output_extensions='Common output extensions (*.comwig.csv,*.csv,*.dat,*.out)|*.comwig.csv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                )
+                print(f'''wig_paths = {wig_paths}''')
+                
+                # TODO: add validation here
+                
+                Method.inputs.update(dict(
+                    ctrldata=wig_paths,
+                    annotation_path=annotation_path,
+                    output_path=output_path,
+                    normalization=normalization,
+                ))
+                
+                Method.Run()
+                logging.log(f"Finished ComWig Export: {output_path}")
+                close()
+       
+    
     def Run(self):
         logging.log("Starting Combined Wig Export")
         start_time = time.time()
@@ -146,8 +182,9 @@ class Method:
             ) = tnseq_tools.get_data_stats(wig_insertion_counts)
             
             import ez_yaml
+            import sys
             ez_yaml.yaml.version = None
-            ez_yaml.yaml.width = 4096*100 
+            ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
             stats[each_wig_fingerprint] = ez_yaml.to_string(dict(
                 density=float(density),
                 mean_read=float(mean_read),
@@ -158,16 +195,6 @@ class Method:
                 skew=float(skew),
                 kurtosis=float(kurtosis),
                 pickands_tail_index=float(tnseq_stats.pickands_tail_index(wig_insertion_counts)),
-                
-                # density="%0.3f" % density,
-                # mean_read="%0.1f" % mean_read,
-                # non_zero_mean_read="%0.1f" % non_zero_mean_read,
-                # non_zero_median_read= 0 if numpy.isnan(non_zero_median_read) else int(non_zero_median_read),
-                # max_read=int(max_read),
-                # total_read=int(total_read),
-                # skew="%0.1f" % skew,
-                # kurtosis="%0.1f" % kurtosis,
-                # pickands_tail_index= "%0.3f" % tnseq_stats.pickands_tail_index(wig_insertion_counts),
             )).replace("\n", ", ").strip()
         
         #
@@ -178,7 +205,7 @@ class Method:
             file_kind=Method.identifier,
             rows=rows,
             column_names=[
-                "TA Site Positions",
+                "TA Site Position",
                 *wig_fingerprints,
                 "ORF",
                 "Gene Name"
@@ -188,7 +215,7 @@ class Method:
                     time=(time.time() - start_time),
                     normalization=self.inputs.normalization,
                     annotation=os.path.basename(self.inputs.annotation_path),
-                    # wig_fingerprints=wig_fingerprints,
+                    wig_fingerprints=wig_fingerprints,
                 ),
                 **extra_info,
                 "stats": dict(stats),
@@ -216,10 +243,16 @@ class Method:
         # 
         # row data
         # 
-        column_names = [ "ta_site_positionss",  *[ each.id for each in selected_wigs] ]
-        ta_site_positionss = selected_wigs[0].ta_site_positionss
+        column_names = [ 
+            "TA Site Position",
+            *[
+                each.id 
+                    for each in selected_wigs
+            ] 
+        ]
+        ta_site_positions = selected_wigs[0].ta_sites
         rows = []
-        for row_data in zip(*([ ta_site_positionss ] + [ each.insertion_counts for each in selected_wigs ])):
+        for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
             rows.append({
                 column_name: cell_value
                     for column_name, cell_value in zip(column_names, row_data)
@@ -228,6 +261,37 @@ class Method:
         SpreadSheet(
             title="Read Counts",
             heading=heading,
+            column_names=column_names,
+            rows=rows,
+            sort_by=[]
+        ).Show()
+    
+    @gui.add_condition_area_dropdown_option(name="Show Table")
+    @staticmethod
+    def click_show_table(event):
+        selected_wigs = gui.wigs_in_selected_conditions or gui.samples
+        
+        # 
+        # row data
+        # 
+        column_names = [ 
+            "TA Site Position",
+            *[
+                each.id 
+                    for each in selected_wigs
+            ] 
+        ]
+        ta_site_positions = selected_wigs[0].ta_sites
+        rows = []
+        for row_data in zip(*([ ta_site_positions ] + [ each.insertion_counts for each in selected_wigs ])):
+            rows.append({
+                column_name: cell_value
+                    for column_name, cell_value in zip(column_names, row_data)
+            })
+        
+        SpreadSheet(
+            title="Read Counts",
+            heading="",
             column_names=column_names,
             rows=rows,
             sort_by=[]

@@ -59,28 +59,28 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text="",
-                method_descr="""
-                    TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at 
-                    TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
-
-                    Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) 
-                    from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant 
-                    has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. 
-                    Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of 
-                    the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
-
-                    These insertion preferences are influenced by the nucleotide context of each TA site. The TTN-Fitness method uses a statistical model based on surrounding 
-                    nucleotides to estimate the insertion bias of each site. Then, it corrects for this to compute an overall fitness level as a Fitness Ratio, where the ratio 
-                    is 0 for ES genes, 1 for typical NE genes, between 0 and 1 for GD genes and above 1 for GA genes.
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
+
+                Typically with individual TnSeq datasets, Gumbel and HMM are the methods used for evaluating essentiality. Gumbel distinguishes between ES (essential) from NE (non-essential). HMM adds the GD (growth-defect; suppressed counts; mutant has reduced fitness) and GA (growth advantage; inflated counts; mutant has selective advantage) categories. Quantifying the magnitude of the fitness defect is risky because the counts at individual TA sites can be noisy. Sometimes the counts at a TA site in a gene can span a wide range of very low to very high counts. The TTN-Fitness gives a more fine-grained analysis of the degree of fitness effect by taking into account the insertion preferences of the Himar1 transposon.
+
+                1. Add an annotation file for the organism corresponding to the desired datasets
+
+                2. Of the Conditions in the Conditions pane, select one using the 'Condition to Analyze' dropdown
+
+                3. Use the 'Gumbel Results File' button to upload a file of the gumbel essentiallity calls for the genes using the condition selected in the "Condition to Analyze" dropdown
+
+                4. Use the 'Load Genome Sequence File' button to use the file dialog to upload a .fna file
+
+                5. [Optional] Select the default name of your output files. This will be generated in your local directory
+
+                6. Click Run
                 """.replace("\n                    ","\n"),
             )
 
             self.value_getters = LazyDict()
 
-            self.value_getters.condition = panel_helpers.create_condition_choice(panel, main_sizer, label_text="Condition to analyze:")
+            self.value_getters.condition = panel_helpers.create_condition_input(panel, main_sizer)
             self.value_getters.gumbel_results_path = panel_helpers.create_file_input(panel, main_sizer,
                 button_label="Gumbel results file",
                 default_file_name="glycerol_gumbel.out",
@@ -107,10 +107,10 @@ class Method:
     @staticmethod
     def from_gui(frame):
         with gui_tools.nice_error_log:
-            combined_wig = gui.combined_wigs[0]
+            combined_wig = gui.combined_wigs[-1]
             Method.inputs.combined_wig = combined_wig.main_path
             # assume all samples are in the same metadata file
-            Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path 
+            Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path 
             Method.inputs.annotation_path = gui.annotation_path
 
             # 
@@ -154,7 +154,7 @@ class Method:
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
                 logging.log("Getting Data from %s" % self.inputs.combined_wig)
-                position, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
+                position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
 
                 metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
                 indexes = {}
@@ -430,6 +430,7 @@ class Method:
         ##########################################################################################
         # Linear Regression
         gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="")
+        #gene_one_hot_encoded.replace(to_replace = 0, value = -1/(len(gene_one_hot_encoded.columns)-1), inplace=True)
         columns_to_drop = [
             "Coordinates",
             "Insertion Count",
@@ -444,9 +445,11 @@ class Method:
             [ "Actual LFC", "State",] + columns_to_drop,
             axis=1,
         )
+        #ttn_vectors.replace(to_replace = 0, value = 1/(len(ttn_vectors.columns)-2), inplace=True)
    
         old_Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
         Y = old_Y - numpy.mean(old_Y) #centering Y values so we can disregard constant
+        #Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
 
 
 
@@ -455,6 +458,15 @@ class Method:
             X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
             #X1 = sm.add_constant(X1)
             results1 = sm.OLS(Y, X1).fit()
+            print(results1.params.index.values.tolist())
+            not_overlap =[]
+            for i in gene_one_hot_encoded.columns:
+                if i not in results1.params.index: not_overlap.append(i)
+            print("no overlap genes", not_overlap)
+            not_overlap =[]
+            for i in ttn_vectors.columns:
+                if i not in results1.params.index: not_overlap.append(i)
+            print("no overlap ttn", not_overlap)
             filtered_ttn_data["M1 Pred Log Count"] = results1.predict(X1) 
             filtered_ttn_data["M1 Pred Log Count"] = filtered_ttn_data["M1 Pred Log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
             filtered_ttn_data["M1 Predicted Count"] = numpy.power(
@@ -531,9 +543,9 @@ class Method:
                     m1_coef - statistics.median(models_df["M1 Coef"].values.tolist())
                 )
             else:
-                m1_coef = None
-                m1_adj_p_value = None
-                modified_m1 = None
+                m1_coef = ""
+                m1_adj_p_value = ""
+                modified_m1 = ""
 
             # States
             gumbel_bernoulli_call = gumbel_bernoulli_gene_calls[g]
@@ -588,14 +600,16 @@ class Method:
                     gumbel_results_file = self.inputs.gumbel_results_path,
                     normalization = self.inputs.normalization,
                 ),
-                time=(time.time() - self.start_time),
-                saturation= saturation,
-                ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
-                ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
-                GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
-                GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
-                NE=  str(assesment_cnt["NE"] ) + " non-essential",
-                U=   str(assesment_cnt["U"]  ) + " uncertain",
+                summary_info=dict(
+                    time=(time.time() - self.start_time),
+                    saturation= saturation,
+                    ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
+                    ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                    GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
+                    GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
+                    NE=  str(assesment_cnt["NE"] ) + " non-essential",
+                    U=   str(assesment_cnt["U"]  ) + " uncertain",
+                )
             ),
         )
         
@@ -619,15 +633,17 @@ class Method:
                     gumbel_results_file = self.inputs.gumbel_results_path,
                     normalization = self.inputs.normalization,
                 ),
-                time=(time.time() - self.start_time),
-                saturation = saturation,
+                summary_info=dict(
+                    time=(time.time() - self.start_time),
+                    saturation = saturation,
 
-                ES = str(assesment_cnt["ES"]) + " #essential based on Gumbel",
-                ESB = str(assesment_cnt["ESB"]) + " #essential based on Binomial",
-                GD = str(assesment_cnt["GD"]) +" #Growth Defect",
-                GA = str(assesment_cnt["GA"]) +" #Growth Advantage",
-                NE = str(assesment_cnt["NE"]) + " #non-essential",
-                U = str(assesment_cnt["U"]) + " #uncertain",        
+                    ES = str(assesment_cnt["ES"]) + " essential based on Gumbel",
+                    ESB = str(assesment_cnt["ESB"]) + " essential based on Binomial",
+                    GD = str(assesment_cnt["GD"]) +" Growth Defect",
+                    GA = str(assesment_cnt["GA"]) +" Growth Advantage",
+                    NE = str(assesment_cnt["NE"]) + " non-essential",
+                    U = str(assesment_cnt["U"]) + " uncertain",    
+                )    
             ),
         )
 
@@ -667,28 +683,18 @@ class GenesFile:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="TTNFitness Summary",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                ).Show(),
+
                 "Display Volcano Plot": lambda *args: self.graph_volcano_plot(),
             })
         )
-        
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
     
     def __str__(self):
@@ -769,27 +775,17 @@ class SitesFile:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title="TTNFitness Summary",heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.identifier,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows,
+                ).Show(),
             })
         )
-        
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
+
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
     
     def __str__(self):

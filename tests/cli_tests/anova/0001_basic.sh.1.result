@@ -1,7 +1,10 @@
 #Anova
 #yaml:
-#    Console Command: |
-#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0001_basic.sh.1.result'
+#    date: 2022-10-25 11:29:53
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0001_basic.sh.1.result'
 #    parameters:
 #       conditions_list:
 #       - Cholesterol

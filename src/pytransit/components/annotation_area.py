@@ -74,7 +74,9 @@ def create_annotation_area(frame):
             def annotation_file_func(event):
                 global annotation_data
                 annotation_data = event.GetPath()
-                gui.annotation_path = annotation_data
+                gui._annotation_path = annotation_data
+                for each_combined_wig in gui.combined_wigs:
+                    each_combined_wig.annotation_path = gui.annotation_path # TODO: this will probably change in the future to allow each combined_wig to have its own annotation_path
 
         annotation_wrapper.Add(annot_sizer, 1, wx.EXPAND, 5)
     

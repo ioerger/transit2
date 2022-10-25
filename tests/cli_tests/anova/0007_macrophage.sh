@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.result"
-annotation="./src/pytransit/genomes/H37Rv.prot_table"
+annotation="./src/pytransit/data/genomes/H37Rv.prot_table"
 metadata="./src/pytransit/data/samples_metadata_cg.txt"
 comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 
@@ -11,7 +11,7 @@ then
     python3 ./src/transit.py anova \
         ./src/pytransit/data.ignore/macrophages.comwig \
         ./src/pytransit/data.ignore/macrophages_metadata.txt \
-        ./src/pytransit/genomes/H37Rv.prot_table \
+        ./src/pytransit/data/genomes/H37Rv.prot_table \
         "$result_file" \
         --ref Untreated \
         --exclude-conditions Input \

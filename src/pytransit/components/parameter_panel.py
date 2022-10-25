@@ -5,7 +5,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools import misc
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename, working_directory
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
 from pytransit.specific_tools import logging, gui_tools, transit_tools
 import pytransit.components.images as images
 import pytransit
@@ -102,35 +102,22 @@ def create_panel_area(_):
                     panel.method_name, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
                 )
             
-            # 
-            # Description
-            # 
-            if True:
-
-                panel.method_description = wx.StaticText(
-                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
-                )
-                panel.method_description.Wrap(panel.max_width)
-                panel.method_description.Hide()
-                panel.method_info_sizer.Add(
-                    panel.method_description, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
-                )
-            
+           
             # 
             # Instructions
             # 
             if True:
-                panel.method_instructions = wx.StaticText(
+                height = int(gui.height*0.21)
+                panel.method_instructions = wx.TextCtrl(
                     gui.frame,
-                    wx.ID_ANY,
-                    panel.initial_instructions_text,
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    0,
+                    size= wx.Size(panel.max_width, height),
+                    style= wx.TE_MULTILINE | wx.TE_READONLY | wx.EXPAND,
                 )
-                panel.method_instructions.Wrap(panel.max_width)
+                panel.method_instructions.SetMinSize(wx.Size(panel.max_width, height))
+                panel.method_instructions.SetMaxSize(wx.Size(panel.max_width, height))
+                panel.method_instructions.SetValue(panel.initial_instructions_text)
                 panel.method_info_sizer.Add(
-                    panel.method_instructions, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
+                    panel.method_instructions, 0, wx.ALL | wx.EXPAND, border=5
                 )
             
             panel.sizer.Add(panel.method_info_sizer, 0, wx.ALL | wx.EXPAND, border=0)
@@ -183,9 +170,10 @@ def create_panel_area(_):
 
     panel.progress_sizer = progress_sizer
     panel.wx_panel.SetSizer(progress_sizer)
-    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented in or out)
+    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented-in or commented-out)
     panel.wx_panel.Layout()
     panel.wx_panel.SetupScrolling()
+    panel.wx_panel.Hide()
     
     panel.progress.SetRange(1000)
     panel.progress_label.Hide()
@@ -196,7 +184,6 @@ def create_panel_area(_):
 old_panel = None
 def set_panel(new_panel):
     with gui_tools.nice_error_log:
-        current_size = panel.wx_panel.GetSize()
         global old_panel
         if old_panel != None:
             old_panel.Hide()
@@ -207,7 +194,6 @@ def set_panel(new_panel):
         except Exception as error: print(error)
         
         panel.method_sizer.Add(new_panel, 1, wx.ALL|wx.EXPAND, gui_tools.default_padding)
-        #new_panel.SetSize(current_size[0],-1)
         new_panel.Show()
         panel.method_sizer.Add(
             panel.wx_panel,
@@ -219,7 +205,7 @@ def set_panel(new_panel):
         panel.wx_panel.Layout()
         panel.method_sizer.Fit(panel.wx_panel)
         panel.method_sizer.Fit(new_panel)
-        new_panel.SetBackgroundColour(gui_tools.color.light_gray)
+        #new_panel.SetBackgroundColour(gui_tools.color.light_gray)
         old_panel = new_panel
         panel.progress_label.Show()
         panel.progress.Show()
@@ -227,7 +213,7 @@ def set_panel(new_panel):
         
         
 
-def set_instructions( method_short_text, method_long_text, method_descr, method_specific_instructions):
+def set_instructions( method_short_text, method_long_text,  method_specific_instructions,):
     with gui_tools.nice_error_log:
         panel.method_info_text.SetLabel("Instructions:")
         panel.method_info_text.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD))
@@ -236,12 +222,7 @@ def set_instructions( method_short_text, method_long_text, method_descr, method_
         panel.method_name.SetLabel(method_long_text + "("+method_short_text+")")
         panel.method_name.Show()
         
-        # panel.method_description.SetLabel(method_descr)
-        # panel.method_description.Wrap(panel.max_width)
-        # panel.method_description.Show()
-        
-        panel.method_instructions.SetLabel(method_specific_instructions)
-        panel.method_instructions.Wrap(panel.max_width)
+        panel.method_instructions.SetValue(method_specific_instructions)
         panel.method_instructions.Show()
 
 def progress_update(text, percent):

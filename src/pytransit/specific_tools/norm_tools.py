@@ -237,7 +237,7 @@ class EmpHistNorm(NormMethod):
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                    [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
-            >>> factors = norm_tools.emphist_factors(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/genomes/H37Rv.prot_table")
+            >>> factors = norm_tools.emphist_factors(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/data/genomes/H37Rv.prot_table")
             >>> print(factors)
             array([[ 1.        ],
                    [ 0.63464722]])

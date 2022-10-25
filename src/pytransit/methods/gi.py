@@ -26,6 +26,8 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
+magical_number_eight = 8 # FIXME: please name this var with whatever the number is representing
+
 @misc.singleton
 class Method:
     name = "Genetic Interaction"
@@ -34,6 +36,8 @@ class Method:
     menu_name   = f"{identifier} - Genetic Interaction analysis"
     description = """Genetic Interaction analysis"""
     transposons = [ "himar1" ]
+    
+    significance_threshold = 0.05
     
     inputs = LazyDict(
           combined_wig=None,
@@ -81,9 +85,9 @@ class Method:
         -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
         --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
         -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
-        -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
-        -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
-        -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05
+        -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<{significance_threshold} (no adjustment)
+        -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<{significance_threshold}
+        -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<{significance_threshold}
     """
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -100,18 +104,26 @@ class Method:
             set_instructions(
                 method_short_text= self.name,
                 method_long_text = self.description,
-                method_descr="""
-                    GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
-                    It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
-                    Provide replicates in each group as a comma-separated list of wig files.
-                    HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
-                    Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
-                    Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-                    By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-                    Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
-                """.replace("\n                    ","\n"),
                 method_specific_instructions="""
-                    FIXME
+                GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
+                
+                HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes. Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately). Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+                
+                By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+
+                1.  Add an annotation file for the organism corresponding to the desired datasets
+
+                2.  Adding datasets grown under condition A
+                    a. Using the dropdown for Condition A1, select your control dataset for condition A
+                    b. Using the dropdown for Condition A2, select your experimental dataset for condition A
+
+                3.  Adding datasets grown under condition B
+                    a. Using the dropdown for Condition B1, select your control dataset for condition B
+                    b. Using the dropdown for Condition B2, select your experimental dataset for condition B
+
+                4. [Optional] Select the remaining parameters
+
+                5. Click Run
                 """.replace("\n                    ","\n"),
             )
 
@@ -135,15 +147,14 @@ class Method:
         # 
         # get wig files
         # 
-        wig_group = gui.combined_wigs[0] # assume there is only 1 (should check that it has beed defined)
+        wig_group = gui.combined_wigs[-1] # assume there is only 1 (should check that it has beed defined)
         Method.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
-        Method.inputs.metadata_path = gui.combined_wigs[0].metadata_path # assume all samples are in the same metadata file
+        Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path # assume all samples are in the same metadata file
 
         # 
         # get annotation
         # 
         Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(Method.inputs.annotation_path)
         
         # 
         # setup custom inputs
@@ -215,84 +226,78 @@ class Method:
         Method.Run()
         
     def Run(self):
-        logging.log("Starting Genetic Interaction analysis")
-        start_time = time.time()
+        with gui_tools.nice_error_log:
+            logging.log("Starting Genetic Interaction analysis")
+            self.start_time = time.time()
 
-        ##########################
-        # get data
+            ##########################
+            # get data
 
-        logging.log("Getting Data")
-        sites, data, filenames_in_comb_wig = tnseq_tools.read_combined_wig(self.inputs.combined_wig)
-        logging.log(f"Normalizing using: {self.inputs.normalization}")
-        data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+            logging.log("Getting Data")
+            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
+            logging.log(f"Normalizing using: {self.inputs.normalization}")
+            data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+
+            # is it better to read the metadata directly, rather than pulling from samples_table, to accommodate console mode?
+            metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
+
+
+            ##########################
+            # process data
+            # 
+            # note: self.inputs.condA1 = self.value_getters.condA1()
+            logging.log("processing data")
+            # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
+
+            indexes = {}
+            for i,row in enumerate(metadata.rows): 
+                cond = row["Condition"] # "condition" for samples_table
+                if cond not in indexes: indexes[cond] = []
+                indexes[cond].append(i) 
+            condA1 = self.inputs.condA1
+            condA2 = self.inputs.condA2
+            condB1 = self.inputs.condB1
+            condB2 = self.inputs.condB2
+
+            if condA1 not in indexes or len(indexes[condA1])==0: logging.error("no samples found for condition %s" % condA1)
+            if condA2 not in indexes or len(indexes[condA2])==0: logging.error("no samples found for condition %s" % condA2)
+            if condB1 not in indexes or len(indexes[condB1])==0: logging.error("no samples found for condition %s" % condB1)
+            if condB2 not in indexes or len(indexes[condB2])==0: logging.error("no samples found for condition %s" % condB2)
+
+            logging.log("condA1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA1])))
+            logging.log("condA2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA2])))
+            logging.log("condB1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB1])))
+            logging.log("condB2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB2])))
+
+            dataA1 = data[indexes[condA1]] # select datasets (rows)
+            dataA2 = data[indexes[condA2]]
+            dataB1 = data[indexes[condB1]]
+            dataB2 = data[indexes[condB2]]
+
+            # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
+            (results,adjusted_label) = self.calc_gi(dataA1,dataA2,dataB1,dataB2,sites)
+
+            ######################
+            # write output
+            # 
+            # note: first comment line is filetype, last comment line is column headers
+
+            logging.log(f"Adding File: {self.inputs.output_path}")
             
-        # # Do LOESS correction if specified
-        # if self.LOESS:
-        #   logging.log("Performing LOESS Correction")
-        #   for j in range(K):
-        #     data[j] = stat_tools.loess_correction(position, data[j])
+            # will open and close file, or print to console
+            self.print_gi_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
+            
 
-        # is it better to read the metadata directly, rather than pulling from samples_table, to accommodate console mode?
-        metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-        #for sample in metadata.rows:
-        #  print("%s\t%s" % (sample["Id"],sample["Condition"]))
-
-
-        ##########################
-        # process data
-        # 
-        # note: self.inputs.condA1 = self.value_getters.condA1()
-        logging.log("processing data")
-        # get 4 lists of indexes into data (extract columns for 4 conds in comwig)
-
-        indexes = {}
-        for i,row in enumerate(metadata.rows): 
-            cond = row["Condition"] # "condition" for samples_table
-            if cond not in indexes: indexes[cond] = []
-            indexes[cond].append(i) 
-        condA1 = self.inputs.condA1
-        condA2 = self.inputs.condA2
-        condB1 = self.inputs.condB1
-        condB2 = self.inputs.condB2
-
-        if condA1 not in indexes or len(indexes[condA1])==0: logging.error("no samples found for condition %s" % condA1)
-        if condA2 not in indexes or len(indexes[condA2])==0: logging.error("no samples found for condition %s" % condA2)
-        if condB1 not in indexes or len(indexes[condB1])==0: logging.error("no samples found for condition %s" % condB1)
-        if condB2 not in indexes or len(indexes[condB2])==0: logging.error("no samples found for condition %s" % condB2)
-
-        logging.log("condA1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA1])))
-        logging.log("condA2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condA2])))
-        logging.log("condB1=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB1])))
-        logging.log("condB2=%s, samples=%s" % (condA1,','.join([str(x["Id"]) for x in metadata.rows if x["Condition"]==condB2])))
-
-        dataA1 = data[indexes[condA1]] # select datasets (rows)
-        dataA2 = data[indexes[condA2]]
-        dataB1 = data[indexes[condB1]]
-        dataB2 = data[indexes[condB2]]
-
-        # results: 1 row for each gene; adjusted_label - just a string that gets printed in the header
-        (results,adjusted_label) = self.calc_GI(dataA1,dataA2,dataB1,dataB2,sites)
-
-        ######################
-        # write output
-        # 
-        # note: first comment line is filetype, last comment line is column headers
-
-        logging.log(f"Adding File: {self.inputs.output_path}")
-        results_area.add(self.inputs.output_path)
-
-        # will open and close file, or print to console
-        self.print_GI_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
-
-        aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
-        allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
-        suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
-        logging.log("Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s" % (aggra,allev,suppr))
-        logging.log("Time: %0.1fs\n" % (time.time() - start_time))
-        logging.log("Finished Genetic Interaction analysis")
+            aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
+            allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
+            suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
+            logging.log("Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s" % (aggra,allev,suppr))
+            logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
+            logging.log("Finished Genetic Interaction analysis")
+            results_area.add(self.inputs.output_path)
 
 
-    def calc_GI(self,dataA1,dataA2,dataB1,dataB2,position): # position is vector of TAsite coords
+    def calc_gi(self, dataA1, dataA2, dataB1, dataB2, position): # position is vector of TAsite coords
         from pytransit.specific_tools import stat_tools
         
         # Get Gene objects for each condition
@@ -418,7 +423,7 @@ class Method:
                 logFC_B_post = numpy.log2(muB2_post / muB1_post)
                 delta_logFC_post = logFC_B_post - logFC_A_post
 
-                alpha = 0.05
+                alpha = Method.significance_threshold # TODO: not sure if these two are equivlent by coincidence or by nature
 
                 # Get Bounds of the HDI
                 l_logFC_A, u_logFC_A = stat_tools.hdi_from_mcmc(logFC_A_post, 1 - alpha)
@@ -502,7 +507,7 @@ class Method:
             )
 
             percentage = (100.0 * (count + 1) / N)
-            progress_update(f"Running Anova Method... {percentage:5.1f}%", percentage)
+            progress_update(f"Running GI Method... {percentage:5.1f}%", percentage)
 
             logging.log(
                 "analyzing %s (%1.1f%% done)" % (gene.orf, 100.0 * count / (N - 1))
@@ -563,7 +568,7 @@ class Method:
                 mean_delta_logFC, mean_logFC_B, mean_logFC_A
             )
             type_of_interaction = "No Interaction"
-            if self.inputs.signif in "prob BFDR FWER" and adjusted_prob[i] < 0.05:
+            if self.inputs.signif in "prob BFDR FWER" and adjusted_prob[i] < Method.significance_threshold:
                 type_of_interaction = interaction
             if self.inputs.signif == "HDI" and not_HDI_overlap_bit:
                 type_of_interaction = interaction
@@ -577,112 +582,113 @@ class Method:
 
         return extended_results, adjusted_label # results: one row for each gene
 
-    def print_GI_results(self,results,adjusted_label,condA1,condA2,condB1,condB2,metadata): 
-
-        self.output = sys.stdout # print to console if not output file defined
-        if self.inputs.output_path != None:
-            self.output = open(self.inputs.output_path, "w")
-        self.output.write("#%s\n" % self.identifier)
-
-        if not gui.is_active:
-            self.output.write(f"#Console: {console_tools.full_commandline_command}")
-
-        now = str(datetime.datetime.now())
-        now = now[: now.rfind(".")]
-        self.output.write("#Date: " + now + "\n")
-        # self.output.write("#Runtime: %s s\n" % (time.time() - start_time))
-
-        self.output.write("#Parameters:\n")
-        self.output.write("# normalization of counts=%s\n" % (self.inputs.normalization))
-        self.output.write("# num samples for Monte Carlo=%s\n" % (self.inputs.samples))
-        self.output.write("# trimming of TA sites: Nterm=%s%%, Cterm=%s%%\n" % (self.inputs.n_terminus,self.inputs.c_terminus))
-        self.output.write("# ROPE=%s (region of probable equivalence around 0)\n" % (self.inputs.rope))
-        self.output.write("# method for determining significance=%s\n" % (self.inputs.signif))
-        self.output.write("# annotation path: %s\n" % (self.inputs.annotation_path.encode("utf-8")))
-        self.output.write("# output path: %s\n" % (self.inputs.output_path))
-
+    def print_gi_results(self,results,adjusted_label,condA1,condA2,condB1,condB2,metadata): 
+        # 
+        # computation
+        # 
         condA1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA1]
         condA2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condA2]
         condB1samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB1]
         condB2samples = [x["Id"] for x in metadata.rows if x["Condition"]==condB2]
-
-        self.output.write("#Samples in 4 conditions:\n")
-        self.output.write("# A1 (Strain A, Condition 1): %s: %s\n" % (condA1,','.join([str(x) for x in condA1samples])))
-        self.output.write("# A2 (Strain A, Condition 2): %s: %s\n" % (condA2,','.join([str(x) for x in condA2samples])))
-        self.output.write("# B1 (Strain B, Condition 1): %s: %s\n" % (condB1,','.join([str(x) for x in condB1samples])))
-        self.output.write("# B2 (Strain B, Condition 2): %s: %s\n" % (condB2,','.join([str(x) for x in condB2samples])))
+        
         if self.inputs.signif == "HDI":
-            self.output.write("#Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE\n")
+            significance_note = "Significant interactions are those genes whose delta-logFC HDI does not overlap the ROPE"
         elif self.inputs.signif in "prob BDFR FWER":
-            self.output.write("#Significant interactions are those whose %s-adjusted probability of the delta-logFC falling within ROPE is < 0.05.\n" % (adjusted_label))
-
+            significance_note = f"Significant interactions are those whose {adjusted_label}-adjusted probability of the delta-logFC falling within ROPE is < {Method.significance_threshold}."
+        else:
+            significance_note = None
+        
         aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
         allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
         suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
-        self.output.write("#Summary of genetic interactions: aggravating=%s, alleviating=%s, suppressive=%s\n" % (aggra,allev,suppr))
 
-        # Write column names (redundant with self.columns)
-        column_names = [
-            'ORF',
-            'Gene',
-            'Annotation',
-            'TA Sites',
-            'A1 Mean Count',
-            'A2 Mean Count',
-            'B1 Mean Count',
-            'B2 Mean Count',
-            'Log FC Strain A',
-            'Log FC Strain B',
-            'Delta Log FC',
-            'Lower Bound Delta Log FC',
-            'Upper Bound Delta Log FC',
-            'Is HDI Outside ROPE',
-            'Probability Of Delta Log FC Being Within ROPE',
-            f'{adjusted_label} Adj P Value',
-            'Type Of Interaction'
-        ]
-        self.output.write(
-            "#"+"\t".join(column_names)+"\n"
-        )
-    
         annot = {}
         for line in open(self.inputs.annotation_path):
-          w = line.rstrip().split('\t')
-          annot[w[8]] = w[0]
-
-        # Write gene results
-        for i, new_row in enumerate(results):
-            (
+            cells = line.rstrip().split('\t')
+            annot[cells[magical_number_eight]] = cells[0]
+        
+        # 
+        # format into rows
+        # 
+        rows = []        
+        for orf, name, n, mean_mu_a1_post, mean_mu_a2_post, mean_mu_b1_post, mean_mu_b2_post, mean_log_fc_a, mean_log_fc_b, mean_delta_log_fc, l_delta_log_fc, u_delta_log_fc, not_hdi_overlap_bit, prob_rope, adjusted_prob, type_of_interaction in results:
+            rows.append([
                 orf,
                 name,
-                n,
-                mean_muA1_post,
-                mean_muA2_post,
-                mean_muB1_post,
-                mean_muB2_post,
-                mean_logFC_A,
-                mean_logFC_B,
-                mean_delta_logFC,
-                l_delta_logFC,
-                u_delta_logFC,
-                not_HDI_overlap_bit,
-                probROPE,
-                adjusted_prob,
-                type_of_interaction,
-            ) = new_row
+                annot[orf],
+                "%d" % n,
+                "%1.2f" % mean_mu_a1_post,
+                "%1.2f" % mean_mu_a2_post,
+                "%1.2f" % mean_mu_b1_post,
+                "%1.2f" % mean_mu_b2_post,
+                "%1.2f" % mean_log_fc_a,
+                "%1.2f" % mean_log_fc_b,
+                "%1.2f" % mean_delta_log_fc,
+                "%1.2f" % l_delta_log_fc,
+                "%1.2f" % u_delta_log_fc,
+                str(not_hdi_overlap_bit),
+                "%1.8f" % prob_rope,
+                "%1.8f" % adjusted_prob,
+                str(type_of_interaction),
+            ])
+        
+        # 
+        # actual write
+        # 
+        transit_tools.write_result(
+            path=self.inputs.output_path,
+            file_kind=Method.identifier,
+            rows=rows,
+            column_names=[
+                'ORF',
+                'Gene',
+                'Annotation',
+                'TA Sites',
+                'A1 Mean Count',
+                'A2 Mean Count',
+                'B1 Mean Count',
+                'B2 Mean Count',
+                'Log FC Strain A',
+                'Log FC Strain B',
+                'Delta Log FC',
+                'Lower Bound Delta Log FC',
+                'Upper Bound Delta Log FC',
+                'Is HDI Outside ROPE',
+                'Probability Of Delta Log FC Being Within ROPE',
+                str(adjusted_label)+ ' Adj P Value',
+                'Type Of Interaction',
+            ],
+            extra_info=dict(
+                time = (time.time() - self.start_time),
 
-            orf = new_row[0]
-            descr = annot[orf]
-            new_row = tuple(list(new_row[:2])+[descr]+list(new_row[2:]))
-
-            self.output.write(
-                "%s\t%s\t%s\t%d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%s\t%1.8f\t%1.8f\t%s\n"
-                % new_row
-            )
-
-        if self.inputs.output_path != None: self.output.close() # otherwise, it is sys.stdout
-        logging.log("Adding File: %s" % (self.output.name))
-        results_area.add(self.output.name)                         
+                Parameters= dict(
+                    Normalization_Of_Counts= self.inputs.normalization,
+                    Number_Of_Samples_For_Monte_Carlo = str(self.inputs.samples),
+                    Trimming_Of_TA_Sites = dict(
+                        N_Terminus = str(self.inputs.n_terminus),
+                        C_Terminus = str(self.inputs.c_terminus),
+                    ),
+                    ROPE = str(self.inputs.rope)+" (region of probable equivalence around 0)",
+                    Method_For_Determining_Significance = str(self.inputs.signif),
+                    Annotation_Path = self.inputs.annotation_path,
+                    Output_Path = self.inputs.output_path,
+                ),
+                Samples_In_4_Conditions= dict(
+                    Strain_A_Condition_1= str(condA1)+" = " +','.join([str(x) for x in condA1samples]),
+                    Strain_A_Condition_2= str(condA2)+" = " +','.join([str(x) for x in condA2samples]),
+                    Strain_B_Condition_1= str(condB1)+" = " + ','.join([str(x) for x in condB1samples]),
+                    Strain_B_Condition_2= str(condB2)+" = " + ','.join([str(x) for x in condB2samples]),
+                ),
+                Significance_Note = significance_note,
+                Summary_Of_Genetic_Interactions = dict(
+                    Aggravating = str(aggra),
+                    Alleviating = str(allev),
+                    Suppressive = str(suppr),
+                ),
+            ),
+        )
+        
+        logging.log("Adding File: %s" % (self.inputs.output_path))                       
         logging.log("Finished Genetic Interactions Method")
 
     @staticmethod
@@ -712,28 +718,17 @@ class ResultFileType1:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Method.description,heading="",column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(
+                    title=Method.description,
+                    heading=misc.human_readable_data(self.extra_data),
+                    column_names=self.column_names,
+                    rows=self.rows).Show(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load GI file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
-        
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        self.values_for_result_table.update(self.extra_data.get("Summary_Of_Genetic_Interactions", {}))
+       
     
     def __str__(self):
         return f"""
