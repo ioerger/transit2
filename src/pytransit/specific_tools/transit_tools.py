@@ -392,6 +392,28 @@ def get_validated_data(wig_list):
     else:
         return tnseq_tools.CombinedWig.gather_wig_data([])
 
+import time
+class TimerAndOutputs(object):
+    def __init__(self, method_name, output_paths=[]):
+        self.method_name = method_name
+        self.output_paths = output_paths
+    
+    def __enter__(self):
+        logging.log(f"Starting {self.method_name} analysis")
+        self.start_time = time.time()
+    
+    def __exit__(self, _, error, traceback):
+        duration = time.time() - start_time
+        if error is None:
+            if gui.is_active:
+                for each in self.output_paths:
+                    logging.log(f"Adding File: {each}")
+                    results_area.add(each)
+            logging.log(f"Finished {self.method_name} analysis in {duration:0.1f}sec")
+        else:
+            # error cleanup HERE
+            raise error
+
 def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
 if HAS_R:
