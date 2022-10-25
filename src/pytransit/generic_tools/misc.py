@@ -293,3 +293,13 @@ def merge_dicts(*args, **kwargs):
         new_dict.update(each)
     new_dict.update(kwargs)
     return new_dict
+
+def str_is_int(string):
+    return string.lstrip('+-').isdigit()
+
+def str_is_float(string):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False

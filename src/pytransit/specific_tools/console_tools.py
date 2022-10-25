@@ -49,6 +49,8 @@ def clean_args(rawargs):
                 their values.
 
     """
+    from pytransit.generic_tools import misc
+    
     args = []
     kwargs = {}
     count = 0
@@ -86,7 +88,24 @@ def clean_args(rawargs):
             args.append(rawargs[count])
         count += 1
     
+    
+    # 
+    # convert number arguments to be numbers
+    # 
+    for each_index, each_value in list(args):
+        if misc.str_is_int(each_value):
+            args[each_index] = int(each_value)
+        if misc.str_is_float(each_value):
+            args[each_index] = float(each_value)
+    for each_key, each_value in kwargs.items():
+        if misc.str_is_int(each_value):
+            kwargs[each_key] = int(each_value)
+        if misc.str_is_float(each_value):
+            kwargs[each_key] = float(each_value)
+    
+    # 
     # make the --name vs -name irrelevent 
+    # 
     for each_key, each_value in list(kwargs.items()):
         if each_key.startswith("--"):
             kwargs[each_key[1:]] = each_value
