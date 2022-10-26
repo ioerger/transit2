@@ -2255,7 +2255,7 @@ def get_genes_in_range(pos_hash, start, end):
 
     return list(sorted(genes))
 
-def rv_site_indexes_map(genes, ta_site)index_map, n_terminus=0.0, c_terminus=0.0):
+def rv_site_indexes_map(genes, ta_site_index_map, n_terminus=0.0, c_terminus=0.0):
     """
     ([Gene], {TAsite: Siteindex}) -> {Rv: Siteindex}
     """
@@ -2270,8 +2270,8 @@ def rv_site_indexes_map(genes, ta_site)index_map, n_terminus=0.0, c_terminus=0.0
                 continue
             if (co - start) / float(end - start) > ((100 - c_terminus) / 100.0):
                 continue
-            if co in ta_site)index_map:
-                site_indexes.append(ta_site)index_map[co])
+            if co in ta_site_index_map:
+                site_indexes.append(ta_site_index_map[co])
         rv_site_indexes_map[gene["rv"]] = site_indexes
     return rv_site_indexes_map
 
