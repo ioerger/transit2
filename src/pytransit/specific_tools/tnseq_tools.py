@@ -2255,13 +2255,13 @@ def get_genes_in_range(pos_hash, start, end):
 
     return list(sorted(genes))
 
-def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
+def rv_site_indexes_map(genes, ta_site)index_map, n_terminus=0.0, c_terminus=0.0):
     """
     ([Gene], {TAsite: Siteindex}) -> {Rv: Siteindex}
     """
     rv_site_indexes_map = {}
     for g, gene in enumerate(genes):
-        siteindexes = []
+        site_indexes = []
         start = gene["start"] if gene["strand"] == "+" else gene["start"] + 3
         end = gene["end"] - 3 if gene["strand"] == "+" else gene["end"]
         for i in range(start, end + 1):
@@ -2270,9 +2270,9 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 continue
             if (co - start) / float(end - start) > ((100 - c_terminus) / 100.0):
                 continue
-            if co in TASiteindexMap:
-                siteindexes.append(TASiteindexMap[co])
-        rv_site_indexes_map[gene["rv"]] = siteindexes
+            if co in ta_site)index_map:
+                site_indexes.append(ta_site)index_map[co])
+        rv_site_indexes_map[gene["rv"]] = site_indexes
     return rv_site_indexes_map
 
 def extract_yaml_data(comment_lines):
