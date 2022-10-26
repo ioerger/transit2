@@ -130,8 +130,8 @@ class Method:
             import numpy
             # instantiate the corrplot_r_function if needed
             if not Method.corrplot_r_function:
-                require_r_to_be_installed()
-                r(""" # R function...
+                transit_tools.require_r_to_be_installed()
+                transit_tools.r(""" # R function...
                     make_corrplot = function(means,headers,outfilename) { 
                         means = means[,headers] # put cols in correct order
                         suppressMessages(require(corrplot))
@@ -140,13 +140,13 @@ class Method:
                         dev.off()
                     }
                 """)
-                Method.corrplot_r_function = globalenv["make_corrplot"]
+                Method.corrplot_r_function = transit_tools.globalenv["make_corrplot"]
             
-            _, (means, genes, labels) = GeneMeansMethod.calculate(combined_wig, normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+            _, (means, genes, labels) = GeneMeansMethod.calculate(combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
 
             position_hash = {}
-            for i, col in enumerate(headers):
+            for i, col in enumerate(labels):
                 position_hash[col] = FloatVector([x[i] for x in means])
             df = DataFrame(position_hash)  
             
-            Method.corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
+            Method.corrplot_r_function(df, labels, output_path ) # pass in headers to put cols in order, since df comes from dict
