@@ -4,7 +4,7 @@ import os
 import time
 
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.specific_tools.transit_tools import ProtTable
+from pytransit.specific_tools.tnseq_tools import ProtTable
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled

@@ -25,6 +25,8 @@ def log(message, *args, **kwargs):
     if file_name[len(file_name)-3:len(file_name)] == ".py":
         file_name = file_name[0:len(file_name)-3]
     
+    prefix = f"[{file_name}:{caller_name}()]"
+    message = message.replace("\n", f"\n{prefix}")
     print(f'[{file_name}:{caller_name}()]', message, flush=True, **kwargs)
     if gui.is_active:
         set_status(message)

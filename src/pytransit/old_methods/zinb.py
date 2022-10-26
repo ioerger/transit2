@@ -124,7 +124,7 @@ class Method(base.MultiConditionMethod):
 
         # check for unrecognized flags
         flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --condition --covars --interactions --gene --ref --prot_table -winz".split()
-        from pytransit.tools import console_tools
+        from pytransit.specific_tools import console_tools
         console_tools.handle_unrecognized_flags(
             flags,
             kwargs,
@@ -166,20 +166,6 @@ class Method(base.MultiConditionMethod):
             nz_mean.append(numpy.mean(wig[numpy.nonzero(wig)]))
         return [numpy.array(logit_zero_perc), numpy.array(nz_mean)]
 
-    def group_by_condition(self, wig_list, conditions):
-        """
-            Returns array of datasets, where each dataset corresponds to one condition.
-            ([[Wigdata]], [Condition]) -> [[DataForCondition]]
-            Wigdata :: [Number]
-            Condition :: String
-            DataForCondition :: [Number]
-        """
-        countsByCondition = collections.defaultdict(lambda: [])
-        for i, c in enumerate(conditions):
-            countsByCondition[c].append(wig_list[i])
-
-        return [numpy.array(v).flatten() for v in countsByCondition.values()]
-
     @staticmethod
     def melt_data(
         readCountsForRv,
@@ -203,7 +189,7 @@ class Method(base.MultiConditionMethod):
     
     @staticmethod
     def def_r_zinb_signif():
-        from pytransit.tools.transit_tools import r, globalenv
+        from pytransit.specific_tools.transit_tools import r, globalenv
         r(
             """
             zinb_signif = function(df,
@@ -323,7 +309,7 @@ class Method(base.MultiConditionMethod):
                 Status :: String
             """
             global DEBUG
-            from pytransit.tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
+            from pytransit.specific_tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
             import statsmodels.stats.multitest
 
             count = 0
@@ -485,7 +471,7 @@ class Method(base.MultiConditionMethod):
 
     def Run(self):
         transit_tools.require_r_to_be_installed()
-        from pytransit.tools.transit_tools import EOL, SEPARATOR, rpackages
+        from pytransit.specific_tools.transit_tools import EOL, SEPARATOR, rpackages
         logging.log("Starting ZINB analysis")
         start_time = time.time()
         packnames = ("MASS", "pscl")

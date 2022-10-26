@@ -2,7 +2,7 @@ from pytransit.components.parameter_panel import panel, progress_update
 import pytransit.components.results_area as results_area
 import sys
 
-from pytransit.tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
+from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, pub
 
 
 import os
@@ -14,11 +14,11 @@ import scipy.stats
 import datetime
 
 from pytransit.old_methods import analysis_base as base
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-from pytransit.tools import stat_tools
-from pytransit.tools import logging
+from pytransit.specific_tools import transit_tools
+from pytransit.specific_tools import tnseq_tools
+from pytransit.specific_tools import norm_tools
+from pytransit.specific_tools import stat_tools
+from pytransit.specific_tools import logging
 
 # method_name = "example"
 

@@ -1,23 +1,19 @@
--condition was not one of the available flags: -n -iN -iC
-Traceback (most recent call last):
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
-    main(*args, **kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 180, in from_args
-    console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/console_tools.py", line 160, in handle_unrecognized_flags
-    raise Exception(f'''unrecognized flag: {flag_string}\nMaybe you meant: {closest_match}\n\n{usage_string}''')
-Exception: unrecognized flag: -condition
-Maybe you meant: -n
+Wrong number of arguments (3 != 4), see usage below
 
-
-# HANDLE_THIS
-Usage:  python3 ./src/transit.py  zinb [Optional Arguments]
+ python3 ./src/transit.py  zinb <combined wig file> <samples_metadata file> <annotation .prot_table_path> <output file> [Optional Arguments]
 Optional Arguments:
     -n <string>         :=  Normalization method. Default: -n TTR
-    -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-    -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+    --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
+    --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
+    --ref <cond>    := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+    -iN <float>     := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
+    -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
+    -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+    -PC <N>         := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
+    --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+    --condition     := alias for --group-by
+    --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
+    --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
+    --prot_table_path <filename>           := for appending annotations of genes
+    --gene <RV number or Gene name>   := Run method for one gene and print model output.
     

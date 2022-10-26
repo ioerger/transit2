@@ -30,6 +30,10 @@ import scipy.stats
 import heapq
 import matplotlib.pyplot as plt
 
+
+SEPARATOR = "," # TODO remove this
+EOL = "\n" # TODO remove this
+
 # 
 # optional import: wx
 # 
@@ -246,18 +250,19 @@ def get_gene_info(path):
     else:
         return tnseq_tools.get_gene_info_pt(path)
 
-def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples):
+def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples, enable_logging=False):
     '''
         pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)
         recursive: keep calling till vars reduced to empty
     '''
+    from pytransit.generic_tools import misc
     
     if len(vars) == 0:
         s = "%s=%s" % (pairs[0][0], pairs[0][1])
         for i in range(1, len(pairs)):
             s += " & %s=%s" % (pairs[i][0], pairs[i][1])
         s += ": %s" % len(samples)
-        print(s)
+        enable_logging and logging.log(s)
         if len(samples) == 0:
             return True
     else:
@@ -667,10 +672,11 @@ def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, 
         Condition :: String
         Interaction :: String
     """
-    from pytransit.tools.transit_tools import SEPARATOR, stats_for_gene
+    from pytransit.specific_tools.transit_tools import SEPARATOR, stats_for_gene
     
     ## Group wigfiles by (interaction, condition) pair
     ## {'<interaction>_<condition>': [Wigindexes]}
+    import collections
     group_wig_index_map = collections.defaultdict(lambda: [])
     for condition_index, condition_for_wig in enumerate(conditions):
         if len(interactions) > 0:
@@ -680,12 +686,12 @@ def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, 
         else:
             group_name = condition_for_wig
             group_wig_index_map[group_name].append(condition_index)
-
+    
     stats_by_rv = {}
     for gene in genes:
-        Rv = gene["rv"]
-        stats_by_rv[Rv] = stats_for_gene(
-            rv_site_indexes_map[Rv], group_wig_index_map, data, winz,
+        gene_name = gene["rv"]
+        stats_by_rv[gene_name] = stats_for_gene(
+            rv_site_indexes_map[gene_name], group_wig_index_map, data, winz,
         )
 
     #TODO: Any ordering to follow?

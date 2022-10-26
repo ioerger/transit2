@@ -16,7 +16,8 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, ProtTable, EOL, SEPARATOR, rpackages
+from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
+from pytransit.specific_tools.tnseq_tools import ProtTable
 from pytransit.components.spreadsheet import SpreadSheet
 
 cli_args = LazyDict(
@@ -284,7 +285,7 @@ class Method:
         n_terminus          = n_terminus          if n_terminus          is not None else 5.0
         c_terminus          = c_terminus          if c_terminus          is not None else 5.0
         
-        transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
+        # transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ]) # FIXME: uncomment this
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
             # process data
@@ -391,7 +392,7 @@ class Method:
                         covariates=covariates_from_comwig,
                         interactions=interactions_from_wigs,
                     )
-                    wig_fingerprint_set = misc.no_duplicates(wig_fingerprints)
+                    wig_fingerprint_set = set(wig_fingerprints)
 
                     # show the samples associated with each condition (and covariates or interactions, if defined), and count samples in each cross-product of vars
                     selected_metadata_headers = misc.no_duplicates([group_by] + covars + interactions)
@@ -410,12 +411,12 @@ class Method:
                         for each_metadata_value, each_wig_fingerprints in value_to_wig_fingerprints.items():
                             samples = list(wig_fingerprint_set.intersection(set(each_wig_fingerprints)))
                             if each_metadata_value in headers_to_vals.get(each_selected_header, []):
-                                logging.log("%s: %s" % (each_metadata_value, " ".join(samples)))
+                                logging.log("        %s: %s" % (each_metadata_value, " ".join(samples)))
                     
                     logging.log("\nsamples in cross-product:")
-                    any_empty = transit_tools.expand_var([], selected_metadata_headers, metadata_header_index_to_mapping_of_value_to_wig_fingerprints, headers_to_vals, set(wig_fingerprint_set))
+                    any_empty = transit_tools.expand_var([], selected_metadata_headers, metadata_header_index_to_mapping_of_value_to_wig_fingerprints, headers_to_vals, set(wig_fingerprint_set), enable_logging=(not disable_logging))
                     if any_empty:
-                        logger.warn("ZINB requires samples in all combinations of conditions; the fact that one is empty could result in Model Errors")
+                        logging.warn("ZINB requires samples in all combinations of conditions; the fact that one is empty could result in Model Errors")
                 
                 # 
                 # process gene data 
@@ -498,7 +499,7 @@ class Method:
                         "Rv Gene TAs".split()
                         + list(map(lambda v: "Mean_" + v, headers_stat_group_names))
                         + lfc_names
-                        + list(map(lambda v: "NZmean_" + v, headers_stat_group_names))
+                        + list(map(lambda v: "non_zero_mean_" + v, headers_stat_group_names))
                         + list(map(lambda v: "NZperc_" + v, headers_stat_group_names))
                         + "pval padj".split()
                         + ["status"]
@@ -599,7 +600,7 @@ class Method:
             Interaction :: String
             Status :: String
         """
-        from pytransit.tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
+        from pytransit.specific_tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
         import statsmodels.stats.multitest
 
         count = 0
@@ -628,8 +629,8 @@ class Method:
             comp1b += "+" + C
             comp0a += "+" + C
             comp0b += "+" + C
-        zinb_mod1 = "cnt~%s+offset(log(NZmean))|%s+offset(logitZperc)" % (comp1a, comp1b)
-        zinb_mod0 = "cnt~%s+offset(log(NZmean))|%s+offset(logitZperc)" % (comp0a, comp0b)
+        zinb_mod1 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logitZperc)" % (comp1a, comp1b)
+        zinb_mod0 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logitZperc)" % (comp0a, comp0b)
 
         nb_mod1 = "cnt~%s" % (comp1a)
         nb_mod0 = "cnt~%s" % (comp0a)
@@ -667,36 +668,35 @@ class Method:
                 norm_data = list(
                     map(lambda wigData: wigData[rv_site_indexes_map[gene_name]], data)
                 )
+                
                 if winz:
                     norm_data = tnseq_tools.winsorize(norm_data)
                 (
-                    [
-                        readCounts,
-                        condition,
-                        covarsData,
-                        interactionsData,
-                        NZmean,
-                        logitZPerc,
-                    ]
+                    read_counts,
+                    condition,
+                    covars_data,
+                    interactions_data,
+                    non_zero_mean,
+                    logit_z_perc,
                 ) = Method.melt_data(
-                    readCountsForRv=norm_data,
+                    read_counts_for_rv=norm_data,
                     conditions=filtered_conditions_from_comwig,
                     covariates=filtered_covariates_from_comwig,
                     interactions=interactions_from_wigs,
                     non_zero_mean_by_replicate=non_zero_mean_by_replicate,
                     log_z_perc_by_replicate=log_z_perc_by_replicate,
                 )
-                if numpy.sum(readCounts) == 0:
+                if numpy.sum(read_counts) == 0:
                     status.append(
                         "pan-essential (no counts in all conditions) - not analyzed"
                     )
                     p_values.append(1)
                 else:
                     df_args = {
-                        "cnt": IntVector(readCounts),
+                        "cnt": IntVector(read_counts),
                         "cond": to_r_float_or_str_vec(condition),
-                        "NZmean": FloatVector(NZmean),
-                        "logitZperc": FloatVector(logitZPerc),
+                        "non_zero_mean": FloatVector(non_zero_mean),
+                        "logitZperc": FloatVector(logit_z_perc),
                     }
                     ## Add columns for covariates and interactions if they exist.
                     df_args.update(
@@ -704,7 +704,7 @@ class Method:
                             map(
                                 lambda t_ic: (
                                     t_ic[1],
-                                    to_r_float_or_str_vec(covarsData[t_ic[0]]),
+                                    to_r_float_or_str_vec(covars_data[t_ic[0]]),
                                 ),
                                 enumerate(covars),
                             )
@@ -715,7 +715,7 @@ class Method:
                             map(
                                 lambda t_ic: (
                                     t_ic[1],
-                                    to_r_float_or_str_vec(interactionsData[t_ic[0]]),
+                                    to_r_float_or_str_vec(interactions_data[t_ic[0]]),
                                 ),
                                 enumerate(interactions),
                             )
@@ -723,16 +723,16 @@ class Method:
                     )
 
                     melted = DataFrame(df_args)
-                    # r_args = [IntVector(readCounts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(NZmean), FloatVector(logitZPerc)] + [True]
-                    debugFlag = True if debugging_enabled or cli_args.gene else False
+                    # r_args = [IntVector(read_counts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(non_zero_mean), FloatVector(logit_z_perc)] + [True]
+                    debugging = debugging_enabled or cli_args.gene
                     pval, msg = r_zinb_signif(
-                        melted, zinb_mod1, zinb_mod0, nb_mod1, nb_mod0, debugFlag
+                        melted, zinb_mod1, zinb_mod0, nb_mod1, nb_mod0, debugging
                     )
                     status.append(msg)
                     p_values.append(float(pval))
                 if debugging_enabled or cli_args.gene:
                     logging.log(
-                        "Pval for Gene {0}: {1}, status: {2}".format(
+                        "P Value for Gene {0}: {1}, status: {2}".format(
                             gene_name, p_values[-1], status[-1]
                         )
                     )
@@ -743,7 +743,7 @@ class Method:
             # Update progress
             percentage = (100.0 * count / len(genes))
             text = "Running ZINB Method... %5.1f%%" % percentage
-            progress_update(text, percentage)
+            parameter_panel.progress_update(text, percentage)
 
         p_values = numpy.array(p_values)
         mask = numpy.isfinite(p_values)
@@ -756,7 +756,137 @@ class Method:
         
         return gene_name_to_p_value, gene_name_to_adj_p_value, status_map
 
+    @staticmethod
+    def global_stats_for_rep(data):
+        """
+        Returns the logit zero percentage and nz_mean for each replicate.
+            [[WigData]] -> [[Number] ,[Number]]
+        note: these are not winsorized even if temp.winz==True
+        """
 
+        logit_zero_perc = []
+        nz_mean = []
+        for wig in data:
+            zero_perc = (wig.size - numpy.count_nonzero(wig)) / float(wig.size)
+            logit_zero_perc.append(numpy.log(zero_perc / (1 - zero_perc)))
+            nz_mean.append(numpy.mean(wig[numpy.nonzero(wig)]))
+        return [numpy.array(logit_zero_perc), numpy.array(nz_mean)]
+
+    @staticmethod
+    def melt_data(
+        read_counts_for_rv,
+        conditions,
+        covariates,
+        interactions,
+        non_zero_mean_by_replicate,
+        log_z_perc_by_replicate,
+    ):
+        rv_sites_length = len(read_counts_for_rv[0])
+        repeat_and_flatten = lambda xs: numpy.repeat(xs, rv_sites_length)
+
+        return [
+            numpy.concatenate(read_counts_for_rv).astype(int),
+            repeat_and_flatten(conditions),
+            list(map(repeat_and_flatten, covariates)),
+            list(map(repeat_and_flatten, interactions)),
+            repeat_and_flatten(non_zero_mean_by_replicate),
+            repeat_and_flatten(log_z_perc_by_replicate),
+        ]
+    
+    @staticmethod
+    def def_r_zinb_signif():
+        if not HAS_R: return lambda *args, **kwargs: Exception("You're getting this if debugging is on and you dont have R")
+        from pytransit.specific_tools.transit_tools import r, globalenv
+        r(
+            """
+            zinb_signif = function(df,
+                zinbMod1,
+                zinbMod0,
+                nbMod1,
+                nbMod0, DEBUG = F) {
+              suppressMessages(require(pscl))
+              suppressMessages(require(MASS))
+              melted = df
+
+              # filter out genes that have low saturation across all conditions, since pscl sometimes does not fit params well (resulting in large negative intercepts and high std errors)
+              NZpercs = aggregate(melted$cnt,by=list(melted$cond),FUN=function(x) { sum(x>0)/length(x) })
+              if (max(NZpercs$x)<0.15) { return(c(pval=1,status="low saturation (<15%) across all conditions (pan-growth-defect) - not analyzed")) }
+
+              sums = aggregate(melted$cnt,by=list(melted$cond),FUN=sum)
+              # to avoid model failing due to singular condition, add fake counts of 1 to all conds if any cond is all 0s
+              if (0 %in% sums[,2]) {
+                # print("adding pseudocounts")
+                for (i in 1:length(sums[,1])) {
+                  subset = melted[melted$cond==sums[i,1],]
+                  newvec = subset[1,]
+                  newvec$cnt = 1 # note: non_zero_mean and NZperc are copied from last dataset in condition
+                  #newvec$cnt = as.integer(mean(subset$cnt))+1 # add the mean for each condition as a pseudocount
+                  melted = rbind(melted,newvec) }
+              }
+              status = "-"
+              minCount = min(melted$cnt)
+              f1 = ""
+              mod1 = tryCatch(
+                {
+                  if (minCount == 0) {
+                    f1 = zinbMod1
+                    mod = zeroinfl(as.formula(zinbMod1),data=melted,dist="negbin")
+                    coeffs = summary(mod)$coefficients
+                    # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
+                    #if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod1' }
+                    mod
+                  } else {
+                    f1 = nbMod1
+                    glm.nb(as.formula(nbMod1),data=melted)
+                  }
+                },
+                error=function(err) {
+                  status <<- err$message
+                  return(NULL)
+                })
+              f0 = ""
+              mod0 = tryCatch( # null model, independent of conditions
+                {
+                  if (minCount == 0) {
+                    f0 = zinbMod0
+                    mod = zeroinfl(as.formula(zinbMod0),data=melted,dist="negbin")
+                    coeffs = summary(mod)$coefficients
+                    # [,1] is col of parms, [,2] is col of stderrs, assume Intercept is always first
+                    #if (coeffs$count[,2][1]>0.5) { status = 'warning: high stderr on Intercept for mod0' }
+                    mod
+                  } else {
+                    f0 = nbMod0
+                    glm.nb(as.formula(nbMod0),data=melted)
+                  }
+                },
+                error=function(err) {
+                  status <<- err$message
+                  return(NULL)
+                })
+              if (DEBUG) {
+                  print("Model 1:")
+                  print(f1)
+                  print(summary(mod1))
+                  print("Model 0:")
+                  print(f0)
+                  print(summary(mod0))
+              }
+
+              if (is.null(mod1) | is.null(mod0)) { return (c(1, paste0("Model Error. ", status))) }
+              if ((minCount == 0) && (sum(is.na(coef(summary(mod1))$count[,4]))>0)) { return(c(1, "Has Coefs, but Pvals are NAs (model failure)")) } # rare failure mode - has coefs, but pvals are NA
+              df1 = attr(logLik(mod1),"df"); df0 = attr(logLik(mod0),"df") # should be (2*ngroups+1)-3
+              if (DEBUG) print(sprintf("delta_log_likelihood=%f",logLik(mod1)-logLik(mod0)))
+              pval = pchisq(2*(logLik(mod1)-logLik(mod0)),df=df1-df0,lower.tail=F) # alternatively, could use lrtest()
+              # this gives same answer, but I would need to extract the Pvalue...
+              #require(lmtest)
+              #print(lrtest(mod1,mod0))
+              return (c(pval, status))
+            }
+        """
+        )
+
+        return globalenv["zinb_signif"]
+        
 @transit_tools.ResultsFile
 class ResultFileType1:
     @staticmethod
