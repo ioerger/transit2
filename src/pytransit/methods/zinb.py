@@ -48,14 +48,6 @@ class Method:
         "--prot_table_path",
         "--gene",
     ]
-    usage_string = f"""
-        # HANDLE_THIS
-        Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments]
-        Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-    """.replace("\n        ", "\n")
     
     usage_string = f"""{console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table_path> <output file> [Optional Arguments]
         Optional Arguments:
@@ -430,8 +422,10 @@ class Method:
                     rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(genes, ta_site_index_map, n_terminus=n_terminus, c_terminus=c_terminus)
                     stats_by_rv, stat_group_names = transit_tools.get_stats_by_rv(data, rv_site_indexes_map, genes, filtered_conditions_from_comwig, interactions_from_wigs, winz)
                     log_z_perc_by_replicate, non_zero_mean_by_replicate = Method.global_stats_for_rep(data)
-                
-                
+            # 
+            # Main computation
+            # 
+            if True:
                 logging.log("Running ZINB")
                 gene_name_to_p_value, gene_name_to_adj_p_value, run_status = Method.calculate(
                     group_by=group_by,
@@ -485,92 +479,130 @@ class Method:
 
                 ordered_stat_group_names = sorted(stat_group_names, key=functools.cmp_to_key(order_stats))
                 headers_stat_group_names = [ x.replace(SEPARATOR, "_") for x in ordered_stat_group_names ]
+            
+            # 
+            # create column_names, rows, extra_info
+            # 
+            if True:
+                only_have_one_lfc_column = len(ordered_stat_group_names) == 2
+                have_gene_name_column = gene_name_to_description != None
+                # 
+                # rows
+                #
+                rows = [] 
+                for gene in genes:
+                    gene_name = gene["rv"]
+                    means_per_group = [
+                        stats_by_rv[gene_name]["mean"][group]
+                            for group in ordered_stat_group_names
+                    ]
+                    if only_have_one_lfc_column:
+                        # TODO: still need to adapt this to use --ref if defined
+                        log_fold_changes = [
+                            numpy.math.log(
+                                (means_per_group[1] + pseudocount) / (means_per_group[0] + pseudocount),
+                                2
+                            ) 
+                        ]  
+                    else:
+                        if len(refs) == 0:
+                            grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
+                        else:
+                            grand_means = numpy.mean(
+                                [stats_by_rv[gene_name]["mean"][group] for group in refs]
+                            )
+                        log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
+                    
+                    row = [
+                        gene_name,
+                        gene["gene"],
+                        str(len(rv_site_indexes_map[gene_name])),
+                        *[
+                            "%0.1f" % stats_by_rv[gene_name]["mean"][each_group]
+                                for each_group in ordered_stat_group_names
+                        ],
+                        *[
+                            "%0.3f" % each_lfc
+                                for each_lfc in log_fold_changes
+                        ],
+                        *[
+                            "%0.1f" % stats_by_rv[gene_name]["nz_mean"][each_group]
+                                for each_group in ordered_stat_group_names
+                        ],
+                        *[
+                            "%0.2f" % stats_by_rv[gene_name]["nz_perc"][each_group]
+                                for each_group in ordered_stat_group_names
+                        ],
+                        gene_name_to_p_value[gene_name],
+                        gene_name_to_adj_p_value[gene_name],
+                        run_status[gene_name],
+                    ]
+                    
+                    if have_gene_name_column:
+                        gene_name = gene_name_to_description.get(gene_name, "?")
+                        row.append(gene_name)
+                    
+                    rows.append(row)
+                # 
+                # column_names
+                # 
+                if only_have_one_lfc_column:
+                    lfc_names = [ "Log 2 FC" ]
+                else:
+                    lfc_names = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
+                
+                column_names = [
+                    "Rv",
+                    "Gene",
+                    "TA Sites",
+                    *[
+                        "Mean "+each_name
+                            for each_name in headers_stat_group_names
+                    ],
+                    *lfc_names,
+                    *[
+                        "Non Zero Mean "+each_name
+                            for each_name in headers_stat_group_names
+                    ],
+                    *[
+                        "Non Zero Percentage "+each_name
+                            for each_name in headers_stat_group_names
+                    ],
+                    "P Value",
+                    "Adj P Value",
+                    "Status",
+                ]
+                if have_gene_name_column:
+                    column_names.append("Gene Name")
+                
+                # 
+                # extra_info
+                # 
+                extra_info = LazyDict(
+                    files=dict(
+                        combined_wig=combined_wig_path,
+                        annotation_path=annotation_path,
+                        prot_table=prot_table_path,
+                    ),
+                    parameters=dict(
+                        normalization=normalization,
+                        n_terminus=n_terminus,
+                        c_terminus=c_terminus,
+                        pseudocount=pseudocount
+                    )
+                )
+            
             # 
             # write output
             # 
-            if True:
-                logging.log(f"Adding File: {output_path}")
-                with open(output_path, "w") as file:
-                    if len(headers_stat_group_names) == 2:
-                        lfc_names = ["LFC"]
-                    else:
-                        lfc_names = list(map(lambda v: "LFC_" + v, headers_stat_group_names))
-                    head = (
-                        "Rv Gene TAs".split()
-                        + list(map(lambda v: "Mean_" + v, headers_stat_group_names))
-                        + lfc_names
-                        + list(map(lambda v: "non_zero_mean_" + v, headers_stat_group_names))
-                        + list(map(lambda v: "NZperc_" + v, headers_stat_group_names))
-                        + "pval padj".split()
-                        + ["status"]
-                    )
-
-                    file.write("#Console: python3 %s\n" % " ".join(sys.argv))
-                    file.write(
-                        "#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n"
-                        % (normalization, n_terminus, c_terminus, pseudocount)
-                    )
-                    if gene_name_to_description != None:
-                        head.append("annotation")
-                    file.write("#" + "\t".join(head) + EOL)
-                    for gene in genes:
-                        gene_name = gene["rv"]
-                        means = [
-                            stats_by_rv[gene_name]["mean"][group]
-                                for group in ordered_stat_group_names
-                        ]
-                        if len(means) == 2:
-                            # TODO: still need to adapt this to use --ref if defined
-                            log_fold_changes = [ numpy.math.log((means[1] + pseudocount) / (means[0] + pseudocount), 2) ]  
-                        else:
-                            if len(refs) == 0:
-                                m = numpy.mean(means)  # grand mean across all conditions
-                            else:
-                                m = numpy.mean(
-                                    [stats_by_rv[gene_name]["mean"][group] for group in refs]
-                                )
-                            log_fold_changes = [numpy.math.log((x + pseudocount) / (m + pseudocount), 2) for x in means]
-                        vals = (
-                            [gene_name, gene["gene"], str(len(rv_site_indexes_map[gene_name]))]
-                            + [
-                                "%0.1f" % stats_by_rv[gene_name]["mean"][group]
-                                for group in ordered_stat_group_names
-                            ]
-                            + ["%0.3f" % x for x in log_fold_changes]
-                            + [
-                                "%0.1f" % stats_by_rv[gene_name]["nz_mean"][group]
-                                for group in ordered_stat_group_names
-                            ]
-                            + [
-                                "%0.2f" % stats_by_rv[gene_name]["nz_perc"][group]
-                                for group in ordered_stat_group_names
-                            ]
-                            + ["%f" % x for x in [gene_name_to_p_value[gene_name], gene_name_to_adj_p_value[gene_name]]]
-                        ) + [run_status[gene_name]]
-                        if gene_name_to_description != None:
-                            vals.append(gene_name_to_description.get(gene_name, "?"))
-                        file.write("\t".join(vals) + EOL)
-                
-                # 
-                # write to file
-                # 
-                # TODO:
-                # transit_tools.write_result(
-                #     path=output_path, # path=None means write to STDOUT
-                #     file_kind=Method.identifier,
-                #     rows=rows,
-                #     column_names=[
-                #         # HANDLE_THIS
-                #     ],
-                #     extra_info=dict(
-                #         stats=dict(summary_info), # HANDLE_THIS
-                #         parameters=dict(
-                #             normalization=normalization,
-                #             n_terminus=n_terminus,
-                #             c_terminus=c_terminus,
-                #         ),
-                #     ),
-                # )
+            logging.log(f"Adding File: {output_path}")
+            transit_tools.write_result(
+                path=output_path, # path=None means write to STDOUT
+                file_kind=Method.identifier,
+                rows=rows,
+                column_names=column_names,
+                extra_info=extra_info,
+            )
             
     @staticmethod
     def calculate(
