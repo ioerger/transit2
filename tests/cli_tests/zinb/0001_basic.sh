@@ -2,8 +2,8 @@
 
 result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.result"
 annotation="./src/pytransit/data/genomes/mc2_155_tamu.prot_table"
-metadata="./src/pytransit/data/Harman_metadata_v3.txt"
-comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
+metadata="./src/pytransit/data/Harman_metadata_v3.ignore.txt"
+comwig="./src/pytransit/data/Harman_combined_wig_smeg_BGC.ignore.txt"
 
 
 # Strains: "DKO" "rel" "WT" "x5849"
@@ -17,7 +17,7 @@ comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 
 # asking about "KO_REL" condition
 python3 ./src/transit.py zinb \
-    "$combined_wig_metadata_v3" \
+    "$comwig" \
     "$metadata" \
     "$annotation" \
     "$result_file" \
