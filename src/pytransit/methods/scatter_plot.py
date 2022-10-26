@@ -75,7 +75,7 @@ class Method:
             log_scale="log" in kwargs # bool
         )
         
-    @gui.add_menu("Pre-Processing", menu_name+" By Sample")
+    @gui.add_menu("Pre-Processing", menu_name, "By Sample")
     def on_menu_click(event):
         from pytransit.components import panel_helpers
         Method.value_getters = LazyDict()
@@ -91,7 +91,7 @@ class Method:
 
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
     
-    @gui.add_menu("Pre-Processing", menu_name+" By Condition")
+    @gui.add_menu("Pre-Processing", menu_name, "By Condition")
     def on_menu_click(event):
         from pytransit.components import panel_helpers
         Method.value_getters = LazyDict()
