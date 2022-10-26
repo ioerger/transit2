@@ -58,8 +58,8 @@ class Method:
         return Method.run_normalize(
             combined_wig=gui.combined_wigs[-1],
             output_path=gui_tools.ask_for_output_file_path(
-                default_file_name=f"{Method.name}_output.csv".lower(),
-                output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+                default_file_name=f"{Method.name}_output.tsv".lower(),
+                output_extensions='Common output extensions (*.csv,*.tsv,*.dat,*.txt,*.out)|*.csv;*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
             ),
             normalization=kind,
         )

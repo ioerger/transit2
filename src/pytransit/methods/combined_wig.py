@@ -26,7 +26,7 @@ class Method:
         ctrldata=None,
         normalization=None,
         annotation_path=None,
-        output_path="latest.comwig.csv",
+        output_path="latest.comwig.tsv",
         ref=None,
     )
     
@@ -60,8 +60,8 @@ class Method:
                 annotation_path = annotation_path_getter()
                 wig_paths = wig_paths_getter()
                 output_path = gui_tools.ask_for_output_file_path(
-                    default_file_name=f"recent_export.comwig.csv",
-                    output_extensions='Common output extensions (*.comwig.csv,*.csv,*.dat,*.out)|*.comwig.csv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                    default_file_name=f"recent_export.comwig.tsv",
+                    output_extensions='Common output extensions (*.comwig.tsv,*.csv,*.tsv,*.dat,*.out)|*.comwig.csv;*.csv;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
                 print(f'''wig_paths = {wig_paths}''')
                 
