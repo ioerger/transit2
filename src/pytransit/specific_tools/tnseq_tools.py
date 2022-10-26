@@ -413,7 +413,7 @@ class CombinedWig:
         self.main_path       = main_path
         self.metadata_path   = metadata_path
         self.annotation_path = annotation_path
-        self.metadata        = CombinedWigMetadata(self.metadata_path)
+        self.metadata        = CombinedWigMetadata(self.metadata_path) if self.metadata_path else None
         self.as_tuple        = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
         self.rows            = []
         self.comments        = comments or []
@@ -548,6 +548,8 @@ class CombinedWig:
                     ),
                 )
             )
+        
+        
         
         return new_combined_wig
         
@@ -796,10 +798,10 @@ class CombinedWig:
             self.samples.append(
                 Wig(
                     rows=list(zip(self.ta_sites, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
-                    id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    id=self.metadata.id_for(wig_fingerprint=wig_fingerprint) if self.metadata else None,
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
-                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint) if self.metadata else None,
                     extra_data=LazyDict(
                         is_part_of_cwig=True,
                     ),
