@@ -601,6 +601,20 @@ if True:
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
+    def create_dropdown(panel, sizer, items, label_text="choose", tooltip_text="choose item"):
+        (
+            label,
+            ref_dropdown_wxobj,
+            ref_dropdown_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text=label_text,
+            options=items,
+            tooltip_text=tooltip_text,
+        )
+        sizer.Add(ref_dropdown_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        return lambda *args: ref_dropdown_wxobj.GetString(ref_dropdown_wxobj.GetCurrentSelection())
+    
     def create_include_condition_list_input(panel, sizer):
         (
             _,

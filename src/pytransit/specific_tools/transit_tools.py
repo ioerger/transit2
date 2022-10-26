@@ -574,38 +574,129 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
 
 ##########################################
 
-def winsorize(counts):
-    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
-    unique_counts = numpy.unique(numpy.concatenate(counts))
-    if len(unique_counts) < 2:
-        return counts
-    else:
-        n, n_minus_1 = unique_counts[
-            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
-        ]
-        result = [
-            [n_minus_1 if count == n else count for count in wig] for wig in counts
-        ]
-        return numpy.array(result)
+corrplot_r_function = None
+def make_corrplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, normalization="TTR", avg_by_conditions=True, combined_wig=None):
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
 
-def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
-    assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
+
+    means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
+                                             metadata_path = metadata_path, 
+                                             annotation_path = annotation_path, 
+                                             normalization = normalization, 
+                                             avg_by_conditions = avg_by_conditions,
+                                             combined_wig = combined_wig)
+    position_hash = {}
+    for i, col in enumerate(headers):
+        position_hash[col] = FloatVector([x[i] for x in means])
+    df = pd.DataFrame.from_dict(position_hash, orient="columns")  
+
+    logging.log("Creating the Correlation Plot")
+    corr = df[headers].corr()
+    mask = np.triu(np.ones_like(corr, dtype=bool))
+    #f, ax = plt.subplots(figsize=(11, 9))
+    plt.figure()
+    sns.heatmap(corr, mask=mask, cmap=sns.color_palette("bwr", as_cmap=True),  square=True, linewidths=.5, cbar_kws={"shrink": .5})
+    if avg_by_conditions == False:
+        plt.title("Correlations of Genes in Samples")
+    else:
+        plt.title("Correlations of Genes in Conditions")
+    plt.savefig(output_path, bbox_inches='tight')
     
+    # global corrplot_r_function
+    # import numpy
+    # # instantiate the corrplot_r_function if needed
+    # if not corrplot_r_function:
+    #     require_r_to_be_installed()
+    #     r(""" # R function...
+    #         make_corrplot = function(means,headers,outfilename) { 
+    #             means = means[,headers] # put cols in correct order
+    #             suppressMessages(require(corrplot))
+    #             png(outfilename)
+    #             corrplot(cor(means))
+    #             dev.off()
+    #         }
+    #     """)
+    #     corrplot_r_function = globalenv["make_corrplot"]
+    
+    # means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
+    #                                         metadata_path = metadata_path, 
+    #                                         annotation_path = annotation_path, 
+    #                                         normalization = normalization, 
+    #                                         avg_by_conditions = avg_by_conditions,
+    #                                         combined_wig = combined_wig)
+
+    # position_hash = {}
+    # for i, col in enumerate(headers):
+    #     position_hash[col] = FloatVector([x[i] for x in means])
+    # df = DataFrame(position_hash)  
+
+    # corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
+
+
+def make_scatterplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, sample1=None, sample2=None, normalization="TTR", avg_by_conditions=False, gene_means=False, log_scale=False, combined_wig=None):
+
+    if combined_wig==None: 
+      combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path)
+
+    if gene_means==False:   
+      sites, data, fingerprints = combined_wig.as_tuple # tnseq_tools.CombinedWigData.load(combined_wig_path)
+      metadata = combined_wig.metadata # tnseq_tools.CombinedWigMetadata(metadata_path)
+      headers = [metadata.id_for(x) for x in fingerprints] # could also use combined_wig.wig_ids?
+      counts = numpy.array(data).transpose()
+    else:
+      means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
+                                              metadata_path = metadata_path, 
+                                              annotation_path = annotation_path, 
+                                              normalization = normalization, 
+                                              avg_by_conditions = avg_by_conditions,
+                                              combined_wig = combined_wig)
+      counts = means
+
+    #determine indexes for 2 samples by sample id (in metadata)
+    i,j = headers.index(sample1),headers.index(sample2)
+    if i==-1 or j==-1: logging.error("sample not found in combined_wig")
+
+    if log_scale: 
+      plt.scatter(numpy.log10(counts[:,i]),numpy.log10(counts[:,j]))
+      plt.xlabel("log10(%s)" % sample1)
+      plt.ylabel("log10(%s)" % sample2)
+    else:
+      plt.scatter(counts[:,i],counts[:,j])
+      plt.xlabel("%s" % sample1)
+      plt.ylabel("%s" % sample2)
+    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
+    else: plt.title("scatter plot of insertion counts at individual TA sites")
+    plt.savefig(output_path)
+    plt.clf()
+
+
+# note: all args are named
+# user must provide either combined_wig objects, or filenames for combined_wig_path and metadata_path
+
+def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=None, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
+    if combined_wig==None: 
+      combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path)
+
     sites, data, filenames_in_comb_wig = combined_wig.as_tuple
+    metadata = combined_wig.metadata
+
+    #labels = [metadata.id_for(x) for x in filenames_in_comb_wig]
+    labels = combined_wig.wig_ids # should be in same order as columns in combined_wig file
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
-    
     # calculate gene means 
     genes = tnseq_tools.Genes(
         wig_list=[],
         data=data,
-        annotation=combined_wig.annotation_path,
+        annotation=annotation_path,
         position=sites,
         n_terminus=n_terminus,
         c_terminus=c_terminus,
     )
-    
     means = []
     labels = combined_wig.wig_ids
     for gene in genes:
@@ -614,6 +705,19 @@ def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", 
     means = numpy.vstack(means)
     
     if avg_by_conditions:
+
+# Tom's way...
+#        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata_path)
+#        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
+#        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
+#        condition_list = sorted(list(set(conditions))) # make unique
+#
+#        conditions_array = numpy.array(conditions)
+#        count_lists = []
+#        for each_condition in condition_list:
+#           count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
+
+# Jeff's way...
         labels = combined_wig.metadata.condition_names
         condition_per_wig_index = [
             combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
@@ -628,6 +732,9 @@ def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", 
                 # pick columns corresponding to condition; avg across rows (genes)
                 numpy.mean(means[:,conditions_array==each_condition_name],axis=1) # TODO: isn't this an issue taking a mean of means? --Jeff
             )
+
         means = numpy.array(count_lists).transpose()
-    
+#        labels = condition_list
+
     return means, genes, labels
+
