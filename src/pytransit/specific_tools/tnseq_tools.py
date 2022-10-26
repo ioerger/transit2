@@ -8,8 +8,8 @@ from os.path import isabs, isfile, isdir, join, dirname, basename, exists, split
 
 import numpy
 import scipy.stats
+from pytransit.generic_tools import csv, misc
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify
-import pytransit.generic_tools.csv as csv
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces
 from pytransit.specific_tools import logging
@@ -2372,3 +2372,14 @@ def filepaths_to_fingerprints(filepaths):
         f"{minimal_dirname}/{minimal_basename}"
             for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
     ]
+
+@misc.singleton
+class ProtTable:
+    gene_name_index    = 8
+    
+    magic_number_one   = 1
+    magic_number_two   = 2
+    magic_number_three = 3
+    magic_number_four  = 4
+    magic_number_six   = 6
+    magic_number_nine  = 9
