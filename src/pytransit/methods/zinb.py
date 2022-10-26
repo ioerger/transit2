@@ -476,7 +476,8 @@ class Method:
                             "interaction"
                         ].index(i2)
                     return cond_diff
-
+                
+                import functools
                 ordered_stat_group_names = sorted(stat_group_names, key=functools.cmp_to_key(order_stats))
                 headers_stat_group_names = [ x.replace(SEPARATOR, "_") for x in ordered_stat_group_names ]
             
@@ -578,7 +579,7 @@ class Method:
                 # 
                 # extra_info
                 # 
-                extra_info = LazyDict(
+                extra_info = dict(
                     files=dict(
                         combined_wig=combined_wig_path,
                         annotation_path=annotation_path,
@@ -661,8 +662,8 @@ class Method:
             comp1b += "+" + C
             comp0a += "+" + C
             comp0b += "+" + C
-        zinb_mod1 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logitZperc)" % (comp1a, comp1b)
-        zinb_mod0 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logitZperc)" % (comp0a, comp0b)
+        zinb_mod1 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp1a, comp1b)
+        zinb_mod0 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp0a, comp0b)
 
         nb_mod1 = "cnt~%s" % (comp1a)
         nb_mod0 = "cnt~%s" % (comp0a)
@@ -728,7 +729,7 @@ class Method:
                         "cnt": IntVector(read_counts),
                         "cond": to_r_float_or_str_vec(condition),
                         "non_zero_mean": FloatVector(non_zero_mean),
-                        "logitZperc": FloatVector(logit_z_perc),
+                        "logit_z_perc": FloatVector(logit_z_perc),
                     }
                     ## Add columns for covariates and interactions if they exist.
                     df_args.update(
@@ -831,11 +832,15 @@ class Method:
         from pytransit.specific_tools.transit_tools import r, globalenv
         r(
             """
-            zinb_signif = function(df,
+            zinb_signif = function(
+                df,
                 zinbMod1,
                 zinbMod0,
                 nbMod1,
-                nbMod0, DEBUG = F) {
+                nbMod0,
+                DEBUG = F
+            ) {
+              print("Starting ZINB in R")
               suppressMessages(require(pscl))
               suppressMessages(require(MASS))
               melted = df
@@ -912,6 +917,7 @@ class Method:
               # this gives same answer, but I would need to extract the Pvalue...
               #require(lmtest)
               #print(lrtest(mod1,mod0))
+              print("Finished ZINB in R")
               return (c(pval, status))
             }
         """
