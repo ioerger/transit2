@@ -361,7 +361,7 @@ class Method:
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
             
             if self.inputs.winz: logging.log("Winsorizing insertion counts")
-            conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(self.inputs.metadata)
+            conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.CombinedWigMetadata.read_condition_data(self.inputs.metadata)
             conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ]
             conditions_list = transit_tools.select_conditions(
                 conditions=conditions,
@@ -384,7 +384,7 @@ class Method:
                 _,
             ) = transit_tools.filter_wigs_by_conditions2(
                 data,
-                file_names=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
+                wig_fingerprints=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
                 condition_names=condition_names, # original Condition column in samples metadata file
                 included_cond=self.inputs.included_conditions,
                 excluded_cond=self.inputs.excluded_conditions,

@@ -147,9 +147,17 @@ if HAS_WX:
 
 working_directory = os.getcwd()
 
-def require_r_to_be_installed():
+def require_r_to_be_installed(required_r_packages=[]):
     if not HAS_R:
         raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
+    
+    if required_r_packages:
+        missing_packages = [x for x in required_r_packages if not rpackages.isinstalled(x)]
+        if len(missing_packages) > 0:
+            logging.error(
+                "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
+                % ({"0": '"{0}"'.format('", "'.join(missing_packages))})
+            )
 
 def fetch_name(filepath):
     return os.path.splitext(ntpath.basename(filepath))[0]
@@ -237,6 +245,36 @@ def get_gene_info(path):
         return tnseq_tools.get_gene_info_gff(path)
     else:
         return tnseq_tools.get_gene_info_pt(path)
+
+def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples):
+    '''
+        pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)
+        recursive: keep calling till vars reduced to empty
+    '''
+    
+    if len(vars) == 0:
+        s = "%s=%s" % (pairs[0][0], pairs[0][1])
+        for i in range(1, len(pairs)):
+            s += " & %s=%s" % (pairs[i][0], pairs[i][1])
+        s += ": %s" % len(samples)
+        print(s)
+        if len(samples) == 0:
+            return True
+    else:
+        var, vals_dict = vars[0], vars_by_file_list[0]
+        inv = misc.invert_dict(vals_dict)
+        any_empty = False
+        for val in vars_to_vals[var]:
+            subset = samples.intersection(set(inv[val]))
+            res = expand_var(
+                pairs + [(var, val)],
+                vars[1:],
+                vars_by_file_list[1:],
+                vars_to_vals,
+                subset,
+            )
+            any_empty = any_empty or res
+        return any_empty
 
 def get_validated_data(wig_list):
     """ Returns a tuple of (data, position) containing a matrix of raw read-counts
@@ -415,7 +453,7 @@ if True:
             rows=rows,
         )
 
-# input: conditions are per wig; orderingMetdata comes from tnseq_tools.read_samples_metadata()
+# input: conditions are per wig; orderingMetdata comes from tnseq_tools.CombinedWigMetadata.read_condition_data()
 # output: conditionsList is selected subset of conditions (unique, in preferred order)
 def filter_wigs_by_conditions(
     data,
@@ -487,7 +525,7 @@ def select_conditions(conditions, included_conditions, excluded_conditions, orde
 
 def filter_wigs_by_conditions2(
     data,
-    file_names,
+    wig_fingerprints,
     condition_names,
     included_cond,
     excluded_cond,
@@ -513,7 +551,7 @@ def filter_wigs_by_conditions2(
             len(included_cond) == 0 or condition_names[i] in included_cond
         ) and condition_names[i] not in excluded_cond:
             d_filtered.append(data[i])
-            file_names_filtered.append(file_names[i])
+            file_names_filtered.append(wig_fingerprints[i])
             cond_names_filtered.append(condition_names[i])
             cond_filtered.append(conditions[i])
             filtered_indexes.append(i)
@@ -531,10 +569,10 @@ def filter_wigs_by_conditions2(
     )
 
 # return a hash table of parallel lists, indexed by column header
-def get_samples_metadata(metadata):
+def get_samples_metadata(metadata_path):
     data = {}
     header = None
-    with open(metadata) as file:
+    with open(metadata_path) as file:
         for line in file:
             if line[0] == "#":
                 continue
@@ -587,6 +625,72 @@ def winsorize(counts):
             [n_minus_1 if count == n else count for count in wig] for wig in counts
         ]
         return numpy.array(result)
+
+def stats_for_gene(site_indexes, group_wig_index_map, data, winz):
+    """
+        Returns a dictionary of {Group: {Mean, NzMean, NzPerc}}
+        ([SiteIndex], [Condition], [WigData]) -> [{Condition: Number}]
+        SiteIndex :: Number
+        WigData :: [Number]
+        Group :: String (combination of '<interaction>_<condition>')
+    """
+    nonzero = lambda xs: xs[numpy.nonzero(xs)]
+    nzperc = lambda xs: numpy.count_nonzero(xs) / float(xs.size)
+
+    means = {}
+    nz_means = {}
+    nz_percs = {}
+
+    for (group, wig_indexes) in group_wig_index_map.items():
+        if len(site_indexes) == 0:  # If no TA sites, write 0
+            means[group] = 0
+            nz_means[group] = 0
+            nz_percs[group] = 0
+        else:
+            arr = data[wig_indexes][:, site_indexes]
+            if winz:
+                arr = tnseq_tools.winsorize(arr)
+            means[group] = numpy.mean(arr) if len(arr) > 0 else 0
+            nonzero_arr = nonzero(arr)
+            nz_means[group] = numpy.mean(nonzero_arr) if len(nonzero_arr) > 0 else 0
+            nz_percs[group] = nzperc(arr)
+
+    return {"mean": means, "nz_mean": nz_means, "nz_perc": nz_percs}
+
+def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, winz):
+    """
+        Returns Dictionary of Stats by condition for each Rv
+        ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition], [Interaction]) -> {Rv: {Condition: Number}}
+        Wigdata :: [Number]
+        SiteIndex :: Number
+        Gene :: {start, end, rv, gene, strand}
+        Condition :: String
+        Interaction :: String
+    """
+    from pytransit.tools.transit_tools import SEPARATOR, stats_for_gene
+    
+    ## Group wigfiles by (interaction, condition) pair
+    ## {'<interaction>_<condition>': [Wigindexes]}
+    group_wig_index_map = collections.defaultdict(lambda: [])
+    for condition_index, condition_for_wig in enumerate(conditions):
+        if len(interactions) > 0:
+            for interaction in interactions:
+                group_name = condition_for_wig + SEPARATOR + interaction[condition_index]
+                group_wig_index_map[group_name].append(condition_index)
+        else:
+            group_name = condition_for_wig
+            group_wig_index_map[group_name].append(condition_index)
+
+    stats_by_rv = {}
+    for gene in genes:
+        Rv = gene["rv"]
+        stats_by_rv[Rv] = stats_for_gene(
+            rv_site_indexes_map[Rv], group_wig_index_map, data, winz,
+        )
+
+    #TODO: Any ordering to follow?
+    stat_group_names = group_wig_index_map.keys()
+    return stats_by_rv, stat_group_names
 
 def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
     assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"

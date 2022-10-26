@@ -84,7 +84,7 @@ def clean_args(rawargs):
             # Else it's a flag but without arguments/values so assign it True
             else:
                 kwargs[kwarg_name] = True
-        # Else, it's probably a positional arguement without flags
+        # Else, it's probably a positional argument without flags
         else:
             args.append(rawargs[count])
         count += 1
@@ -173,3 +173,9 @@ def check_if_has_wx():
             check_if_has_wx.cache = False
     cache = check_if_has_wx.cache
     return cache
+
+def string_arg_to_list(argument):
+    if isinstance(argument, str):
+        return argument.split(",")
+    else:
+        return None

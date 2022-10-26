@@ -226,8 +226,8 @@ class CombinedWigMetadata:
             conditions={indent(self.conditions, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
     
-    @classmethod
-    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[]):
+    @staticmethod
+    def read_condition_data(path, covars_to_read=[], interactions_to_read=[]):
         conditions_by_wig_fingerprint        = {}
         covariates_by_wig_fingerprint_list   = [{} for _ in covars_to_read]
         interactions_by_wig_fingerprint_list = [{} for _ in interactions_to_read]
@@ -889,28 +889,25 @@ class CombinedWig:
         
         return CombinedWig.PositionsAndReads((data_per_path, position_per_line))
     
-# backwards compatibility
-read_samples_metadata = CombinedWigMetadata.read_condition_data
-CombinedWigData.load = CombinedWigData.load
-
 def read_genes(fname, descriptions=False):
     """
       (Filename, Options) -> [Gene]
       Gene :: {start, end, rv, gene, strand}
     """
+    from pytransit.specific_tools.tnseq_tools import ProtTable
     genes = []
     with open(fname) as file:
         for line in file:
-            w = line.rstrip().split("\t")
+            row = line.rstrip().split("\t")
             data = {
-                "start": int(w[1]),
-                "end": int(w[2]),
-                "rv": w[8],
-                "gene": w[7],
-                "strand": w[3],
+                "start" : int(row[ProtTable.index_of_gene_start]),
+                "end"   : int(row[ProtTable.index_of_gene_end]),
+                "rv"    : row[ProtTable.gene_name_index],
+                "gene"  : row[ProtTable.magic_number_seven],
+                "strand": row[ProtTable.index_of_gene_strand],
             }
             if descriptions == True:
-                data.append(w[0])
+                data.append(row[ProtTable.gene_description_index])
             genes.append(data)
     return genes
 
@@ -2375,11 +2372,13 @@ def filepaths_to_fingerprints(filepaths):
 
 @misc.singleton
 class ProtTable:
-    gene_name_index    = 8
+    gene_description_index = 0
+    gene_name_index        = 8
     
-    magic_number_one   = 1
-    magic_number_two   = 2
-    magic_number_three = 3
+    index_of_gene_start   = 1
+    index_of_gene_end   = 2
+    index_of_gene_strand = 3
     magic_number_four  = 4
     magic_number_six   = 6
+    magic_number_seven = 7
     magic_number_nine  = 9

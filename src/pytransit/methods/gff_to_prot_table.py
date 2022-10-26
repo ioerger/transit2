@@ -76,14 +76,14 @@ class Method:
             if len(cols) < ProtTable.magic_number_nine:
                 sys.stderr.write(("Ignoring invalid row with entries: {0}\n".format(cols)))
                 continue
-            if (cols[ProtTable.magic_number_two]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
+            if (cols[ProtTable.index_of_gene_end]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
                 if "locus_tag" not in line:
                     print("warning: skipping lines that do not contain 'locus_tag'")
                     continue
-                start = int(cols[ProtTable.magic_number_three])
+                start = int(cols[ProtTable.index_of_gene_strand])
                 end = int(cols[ProtTable.magic_number_four])
                 strand = cols[ProtTable.magic_number_six].strip()
-                size = int(abs(end - start + 1) / ProtTable.magic_number_three)  # includes stop codon
+                size = int(abs(end - start + 1) / ProtTable.index_of_gene_strand)  # includes stop codon
                 labels = {}
                 for pair in cols[ProtTable.gene_name_index].split(";"):
                     k, v = pair.split("=")
@@ -107,7 +107,7 @@ class Method:
             k, v = pair.split("=")
             labels[k] = v
 
-        if (cols[ProtTable.magic_number_two]) == "CDS" and labels["Parent"] == parent:
+        if (cols[ProtTable.index_of_gene_end]) == "CDS" and labels["Parent"] == parent:
             # return labels.get("Note", '-')
             return labels.get("product", "-")
         return "-"
@@ -137,10 +137,10 @@ def annotation_gff3_to_pt(event):
                         continue
                     tmp = line.strip().split("\t")
                     chr = tmp[0]
-                    type = tmp[ProtTable.magic_number_two]
-                    start = int(tmp[ProtTable.magic_number_three])
+                    type = tmp[ProtTable.index_of_gene_end]
+                    start = int(tmp[ProtTable.index_of_gene_strand])
                     end = int(tmp[ProtTable.magic_number_four])
-                    length = ((end - start + 1) / ProtTable.magic_number_three) - 1
+                    length = ((end - start + 1) / ProtTable.index_of_gene_strand) - 1
                     strand = tmp[ProtTable.magic_number_six]
                     features = dict([tuple(f.split("=")) for f in tmp[ProtTable.gene_name_index].split(";")])
                     if "ID" not in features:
