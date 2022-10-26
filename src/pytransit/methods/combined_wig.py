@@ -26,7 +26,7 @@ class Method:
         ctrldata=None,
         normalization=None,
         annotation_path=None,
-        output_path="latest.comwig.csv",
+        output_path="latest.comwig.tsv",
         ref=None,
     )
     
@@ -52,7 +52,7 @@ class Method:
         def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
             normalization_getter   = panel_helpers.create_normalization_input(pop_up_panel, sizer)
             annotation_path_getter = panel_helpers.create_file_input(pop_up_panel, sizer, button_label="Select Annotation File", tooltip_text="", popup_title="Annotation File", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=refresh)
-            wig_paths_getter       = panel_helpers.create_multi_file_input(pop_up_panel, sizer, button_label="Select Wig Files", tooltip_text="", popup_title="Wig Files"      , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.csv,*.dat,*.out)|*.wig;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
+            wig_paths_getter       = panel_helpers.create_multi_file_input(pop_up_panel, sizer, button_label="Select Wig Files", tooltip_text="", popup_title="Wig Files"      , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.tsv,*.dat,*.out)|*.wig;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
             
             @panel_helpers.create_button(pop_up_panel, sizer, label="Export")
             def when_button_clicked(event):
@@ -60,8 +60,8 @@ class Method:
                 annotation_path = annotation_path_getter()
                 wig_paths = wig_paths_getter()
                 output_path = gui_tools.ask_for_output_file_path(
-                    default_file_name=f"recent_export.comwig.csv",
-                    output_extensions='Common output extensions (*.comwig.csv,*.csv,*.dat,*.out)|*.comwig.csv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                    default_file_name=f"recent_export.comwig.tsv",
+                    output_extensions='Common output extensions (*.comwig.tsv,*.tsv,*.dat,*.out)|*.comwig.tsv;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
                 print(f'''wig_paths = {wig_paths}''')
                 

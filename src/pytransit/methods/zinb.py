@@ -234,8 +234,8 @@ class Method:
         # ask for output path(s)
         # 
         arguments.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.txt,*.csv,*.dat,*.out)|*.txt;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions='Common output extensions (*.txt,*.tsv,*.dat,*.out)|*.txt;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
         if not arguments.output_path:
@@ -262,7 +262,7 @@ class Method:
         n_terminus=None,
         c_terminus=None,
         disable_logging=False,
-    ):
+    ): # output()
         # Defaults (even if argument directly provided as None)
         prot_table_path     = prot_table_path     if prot_table_path     is not None else None
         group_by            = group_by            if group_by            is not None else "Condition"

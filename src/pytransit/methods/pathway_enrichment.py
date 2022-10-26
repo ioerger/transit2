@@ -18,7 +18,7 @@ from pytransit.components.parameter_panel import panel,progress_update, set_inst
 
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
+import pytransit.generic_tools.tsv as csv
 import pytransit.generic_tools.misc as misc
 from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -90,7 +90,7 @@ class Method:
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
         import csv
         COG_orgs = []
-        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
+        with open(root_folder+"src/pytransit/data/cog-20.org.tsv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
@@ -306,7 +306,7 @@ class Method:
 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.txt",
-            output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
 
 
