@@ -50,6 +50,13 @@ def ask_for_files(
         default_file_name="",
         allowed_extensions='All files (*.*)|*.*',
     ):
+        if isinstance(allowed_extensions, list):
+            string = 'Common extensions '
+            string += "(" + ",".join([ f"*.{each}" for each in allowed_extensions]) + ")|"
+            string += "".join([ f"*.{each};" for each in allowed_extensions]) + "|"
+            string += "\nAll files (*.*)|*.*"
+            allowed_extensions = string
+        
         import os
         output = []
         file_dialog = wx.FileDialog(
@@ -72,6 +79,12 @@ def ask_for_file(
         default_file_name="",
         allowed_extensions='All files (*.*)|*.*',
     ):
+        if isinstance(allowed_extensions, list):
+            string = 'Common extensions '
+            string += "(" + ",".join([ f"*.{each}" for each in allowed_extensions]) + ")|"
+            string += "".join([ f"*.{each};" for each in allowed_extensions]) + "|"
+            string += "\nAll files (*.*)|*.*"
+            allowed_extensions = string
         
         path = None
         file_dialog = wx.FileDialog(
@@ -95,7 +108,13 @@ def ask_for_output_file_path(
         path = None
         if not default_folder:
             default_folder = os.getcwd()
-
+        
+        if isinstance(output_extensions, list):
+            string = 'Common output extensions '
+            string += "(" + ",".join([ f"*.{each}" for each in output_extensions]) + ")|"
+            string += "".join([ f"*.{each};" for each in output_extensions]) + "|"
+            string += "\nAll files (*.*)|*.*"
+            output_extensions = string
         
         file_dialog = wx.FileDialog(
             gui.frame,

@@ -151,6 +151,125 @@ if HAS_WX:
 
 working_directory = os.getcwd()
 
+# 
+# Results read/write
+# 
+if True:
+    result_output_extensions = 'Common output extensions (*.tsv,*.csv,*.dat,*.txt,*.out)|*.tsv;*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*'
+    result_file_classes = []
+    def ResultsFile(a_class):
+        """
+        @ResultsFile
+        class File:
+            @staticmethod
+            def can_load(args):
+                return False
+        """
+        if not callable(getattr(a_class, "can_load", None)):
+            raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
+        
+        result_file_classes.append(a_class)
+        return a_class
+    
+    def file_starts_with(path, identifier):
+        with open(path) as in_file:
+            for line in in_file:
+                if line.startswith(identifier):
+                    return True
+                break
+        return False
+    
+    def read_result(path):
+        result_object = None
+        for FileClass in result_file_classes:
+            loadable = None
+            try:
+                loadable = FileClass.can_load(path)
+            except Exception as error:
+                print(error)
+            if loadable:
+                result_object = FileClass(path=path)
+        
+        return result_object
+
+    def write_result(*, path, file_kind, extra_info, column_names, rows):
+        assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
+        
+        import datetime
+        import ez_yaml
+        import pytransit
+        import pytransit.generic_tools.csv as csv
+        from pytransit.globals import gui
+        from pytransit.generic_tools.misc import indent, to_pure
+        ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
+        ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
+        extra_info = extra_info or {}
+        
+        yaml_string = ""
+        try:
+            yaml_string = ez_yaml.to_string(extra_info)
+        except Exception as error:
+            try:
+                yaml_string = ez_yaml.to_string(to_pure(extra_info))
+            except Exception as error:
+                raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
+        
+        now = str(datetime.datetime.now())
+        todays_date = now[: now.rfind(".")]
+        
+        # 
+        # write to file
+        # 
+        csv.write(
+            path=path,
+            seperator="\t",
+            comment_symbol="#",
+            comments=[
+                file_kind, # identifier always comes first
+                f"yaml:",
+                f"    date: {todays_date}",
+                f"    transit_version: {pytransit.__version__}",
+                f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
+                f"    console_command: |",
+                indent(console_tools.full_commandline_command, by="        "),
+                indent(yaml_string, by="    "),
+                "\t".join(column_names) # column names always last
+            ],
+            rows=rows,
+        )
+
+import time
+class TimerAndOutputs(object):
+    def __init__(self, method_name, output_paths=[], disable=False):
+        self.method_name = method_name
+        self.output_paths = output_paths
+        self.disable = disable
+    
+    def __enter__(self):
+        if not self.disable:
+            logging.log(f"Starting {self.method_name} analysis")
+        self.start_time = time.time()
+        return self
+    
+    def __exit__(self, _, error, traceback):
+        from pytransit.globals import gui
+        from pytransit.components import results_area
+        if error is None:
+            if gui.is_active:
+                for each in self.output_paths:
+                    if not self.disable:
+                        logging.log(f"Adding File: {each}")
+                    results_area.add(each)
+            if not self.disable:
+                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
+        else:
+            raise error
+    
+    @property
+    def duration_in_seconds(self):
+        return time.time() - self.start_time
+
+
 def require_r_to_be_installed(required_r_packages=[]):
     if not HAS_R:
         raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
@@ -316,37 +435,6 @@ def get_validated_data(wig_list):
     else:
         return tnseq_tools.CombinedWig.gather_wig_data([])
 
-import time
-class TimerAndOutputs(object):
-    def __init__(self, method_name, output_paths=[], disable=False):
-        self.method_name = method_name
-        self.output_paths = output_paths
-        self.disable = disable
-    
-    def __enter__(self):
-        if not self.disable:
-            logging.log(f"Starting {self.method_name} analysis")
-        self.start_time = time.time()
-        return self
-    
-    def __exit__(self, _, error, traceback):
-        from pytransit.globals import gui
-        from pytransit.components import results_area
-        if error is None:
-            if gui.is_active:
-                for each in self.output_paths:
-                    if not self.disable:
-                        logging.log(f"Adding File: {each}")
-                    results_area.add(each)
-            if not self.disable:
-                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
-        else:
-            raise error
-    
-    @property
-    def duration_in_seconds(self):
-        return time.time() - self.start_time
-
 def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
 if HAS_R:
@@ -371,92 +459,6 @@ if HAS_R:
         }
     """.replace("    \n", "\n"))
     r_heatmap_func = globalenv["make_heatmap"]
-
-# 
-# Results read/write
-# 
-if True:
-    result_file_classes = []
-    def ResultsFile(a_class):
-        """
-        @ResultsFile
-        class File:
-            @staticmethod
-            def can_load(args):
-                return False
-        """
-        if not callable(getattr(a_class, "can_load", None)):
-            raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
-        
-        result_file_classes.append(a_class)
-        return a_class
-    
-    def file_starts_with(path, identifier):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith(identifier):
-                    return True
-                break
-        return False
-    
-    def read_result(path):
-        result_object = None
-        for FileClass in result_file_classes:
-            loadable = None
-            try:
-                loadable = FileClass.can_load(path)
-            except Exception as error:
-                print(error)
-            if loadable:
-                result_object = FileClass(path=path)
-        
-        return result_object
-
-    def write_result(*, path, file_kind, extra_info, column_names, rows):
-        assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
-        
-        import datetime
-        import ez_yaml
-        import pytransit
-        import pytransit.generic_tools.csv as csv
-        from pytransit.globals import gui
-        from pytransit.generic_tools.misc import indent, to_pure
-        ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
-        ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
-        extra_info = extra_info or {}
-        
-        yaml_string = ""
-        try:
-            yaml_string = ez_yaml.to_string(extra_info)
-        except Exception as error:
-            try:
-                yaml_string = ez_yaml.to_string(to_pure(extra_info))
-            except Exception as error:
-                raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
-        
-        now = str(datetime.datetime.now())
-        todays_date = now[: now.rfind(".")]
-        
-        # 
-        # write to file
-        # 
-        csv.write(
-            path=path,
-            seperator="\t",
-            comment_symbol="#",
-            comments=[
-                file_kind, # identifier always comes first
-                f"yaml:",
-                f"    date: {todays_date}",
-                f"    transit_version: {pytransit.__version__}",
-                f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
-                f"    console_command: |",
-                indent(console_tools.full_commandline_command, by="        "),
-                indent(yaml_string, by="    "),
-                "\t".join(column_names) # column names always last
-            ],
-            rows=rows,
-        )
 
 # input: conditions are per wig; orderingMetdata comes from tnseq_tools.CombinedWigMetadata.read_condition_data()
 # output: conditionsList is selected subset of conditions (unique, in preferred order)

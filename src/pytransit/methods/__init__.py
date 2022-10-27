@@ -1,4 +1,6 @@
 from .anova              import *
+from .corrplot           import *
+from .scatterplot        import *
 from .gi                 import *
 from .gumbel             import *
 from .hmm                import *

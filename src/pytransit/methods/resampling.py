@@ -206,8 +206,8 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.txt",
-            output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions=transit_tools.result_output_extensions,
         )
         if not Method.inputs.output_path:
             return None
