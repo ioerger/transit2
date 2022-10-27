@@ -88,9 +88,7 @@ class Method:
         # 
         # get global data
         # 
-        Method.inputs.combined_wig = gui.combined_wigs[-1] # what if user wants to change normalization or terminus trimming?
-        Method.inputs.annotation_path = gui.annotation_path
-        transit_tools.validate_annotation(gui.annotation_path)
+        arguments.combined_wig = gui.combined_wigs[-1]
         
         # 
         # call all GUI getters, puts results into respective key in arguments
@@ -115,50 +113,20 @@ class Method:
         Method.output(**arguments)
     
     @staticmethod
-    @cli.add_command(cli_name)
-    def from_args(args, kwargs):
-        console_tools.handle_help_flag(kwargs, Method.usage_string)
-        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
-        
-        # save the flags
-        Method.inputs.update(dict(
-            combined_wig_path=args[0],
-            metadata_path=args[1],
-            annotation_path=args[2],
-            output_path=args[3],
-            normalization=kwargs.get("n", Method.inputs.normalization),
-            n_terminus=float(kwargs.get("iN", Method.inputs.n_terminus)),
-            c_terminus=float(kwargs.get("iC", Method.inputs.c_terminus)),
-            condition_avg = "cond" in kwargs, # boolean
-            ) )
-        Method.inputs.update(dict(
-            combined_wig=tnseq_tools.CombinedWig(
-                main_path=Method.inputs.combined_wig_path,
-                metadata_path=Method.inputs.metadata_path,
-                comments=None,
-                extra_data=None
-            ) ) ) 
-        Method.Run()
-        
-    def Run(self):
-        from pytransit.specific_tools import stat_tools
-        logging.log(f"Starting {Method.identifier} analysis")
-        start_time = time.time()
-        
-        # 
-        # process data
-        # 
+    def calculate(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
         means, genes, labels = transit_tools.calc_gene_means(
-            combined_wig_path=self.inputs.combined_wig_path,
-            metadata_path=self.inputs.metadata_path,
-            combined_wig = self.inputs.combined_wig,
-            annotation_path=self.inputs.annotation_path,
-            normalization=self.inputs.normalization,
-            n_terminus=self.inputs.n_terminus,
-            c_terminus=self.inputs.c_terminus,
-            avg_by_conditions=self.inputs.condition_avg,
-        ) 
+            combined_wig=combined_wig,
+            avg_by_conditions=avg_by_conditions,
+            normalization=normalization,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
+        )
+        
+        column_names = [
+            "ORF",
+            "Gene Name",
+            *labels,
+        ]
         
         rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name]+["%0.1f" % x for x in means[i,:]])))
             [
