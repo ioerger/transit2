@@ -64,9 +64,9 @@ class Method:
             normalization=kind,
         )
     
+    @staticmethod
     @cli.add_command("normalize")
     @cli.add_command("export", "norm")
-    @staticmethod
     def from_args(args, kwargs):
         is_combined_wig = "c" in kwargs
         if is_combined_wig:

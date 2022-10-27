@@ -30,8 +30,8 @@ class Method:
         ref=None,
     )
     
-    @cli.add_command("export", "combined_wig")
     @staticmethod
+    @cli.add_command("export", "combined_wig")
     def from_args(args, kwargs):
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
@@ -228,8 +228,8 @@ class Method:
     # 
     # Samples-area button
     # 
-    @gui.add_wig_area_dropdown_option(name="Show Table")
     @staticmethod
+    @gui.add_wig_area_dropdown_option(name="Show Table")
     def click_show_table(event):
         selected_wigs = gui.selected_samples or gui.samples
         
@@ -266,8 +266,8 @@ class Method:
             sort_by=[]
         ).Show()
     
-    @gui.add_condition_area_dropdown_option(name="Show Table")
     @staticmethod
+    @gui.add_condition_area_dropdown_option(name="Show Table")
     def click_show_table(event):
         selected_wigs = gui.wigs_in_selected_conditions or gui.samples
         

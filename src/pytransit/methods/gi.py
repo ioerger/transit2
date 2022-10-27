@@ -603,7 +603,7 @@ class Method:
         annot = {}
         for line in open(self.inputs.annotation_path):
             cells = line.rstrip().split('\t')
-            gene_name = cells[transit_tools.ProtTable.gene_name_index]
+            gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
             annot[gene_name] = cells[0]
         
         # 

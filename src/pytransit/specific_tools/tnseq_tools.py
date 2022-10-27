@@ -232,6 +232,8 @@ class CombinedWigMetadata:
         covariates_by_wig_fingerprint_list   = [{} for _ in covars_to_read]
         interactions_by_wig_fingerprint_list = [{} for _ in interactions_to_read]
         ordering_metadata         = {"condition": [], "interaction": []}
+        covars_to_read = [ each.lower() for each in covars_to_read ]
+        interactions_to_read = [ each.lower() for each in interactions_to_read ]
         with open(path) as file:
             lines = file.readlines()
             column_names              = lines[0].split()
@@ -239,9 +241,11 @@ class CombinedWigMetadata:
             index_for_condition       = column_names.index("Condition".lower())
             index_for_wig_fingerprint = column_names.index("Filename".lower())
             # validate
+            print(f'''covars_to_read = {covars_to_read}''')
             for each in covars_to_read:
                 if each not in column_names:
                     raise Exception(f'''Tried to select {each} as a covariate, but the available covariates are: {column_names}''')
+            print(f'''interactions_to_read = {interactions_to_read}''')
             for each in interactions_to_read:
                 if each not in column_names:
                     raise Exception(f'''Tried to select {each} as an interaction, but the available interactions are: {column_names}''')
