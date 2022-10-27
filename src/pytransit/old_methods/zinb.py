@@ -8,11 +8,9 @@ import heapq
 import numpy
 
 from pytransit.old_methods import analysis_base as base
-from pytransit.tools.transit_tools import HAS_R
-from pytransit.tools import transit_tools
-from pytransit.tools import tnseq_tools
-from pytransit.tools import norm_tools
-from pytransit.tools import logging
+from pytransit.specific_tools.transit_tools import HAS_R
+from pytransit.specific_tools import transit_tools, tnseq_tools, norm_tools, logging
+from pytransit.generic_tools import misc
 
 ############# GUI ELEMENTS ##################
 
@@ -38,24 +36,13 @@ def main():
     print("ZINB example")
 
 
-class ZinbMethod(base.MultiConditionMethod):
+class Method(base.MultiConditionMethod):
     """
     Zinb
     """
 
     def __init__(
         self,
-        combined_wig,
-        metadata,
-        annotation,
-        normalization,
-        output_file,
-        excluded_conditions=[],
-        included_conditions=[],
-        winz=False,
-        n_terminus=5.0,
-        c_terminus=5.0,
-        condition="Condition",
         covars=[],
         interactions=[],
         pseudocount=1,
@@ -68,10 +55,10 @@ class ZinbMethod(base.MultiConditionMethod):
             long_name,
             short_desc,
             long_desc,
-            combined_wig,
-            metadata,
-            annotation,
-            output_file,
+            combined_wig_path,
+            metadata_path,
+            annotation_path,
+            output_path,
             normalization=normalization,
             excluded_conditions=excluded_conditions,
             included_conditions=included_conditions,
@@ -81,19 +68,19 @@ class ZinbMethod(base.MultiConditionMethod):
         self.winz = winz
         self.covars = covars
         self.interactions = interactions
-        self.condition = condition
+        self.group_by = group_by
         self.pseudocount = pseudocount
         self.refs = refs
 
         if prot_table == None:
-            self.prot_table = None
+            self.gene_name_to_description = None
         else:
-            self.prot_table = {}
+            self.gene_name_to_description = {}
             with open(prot_table) as file:
                 for line in file:
                     w = line.rstrip().split("\t")
                     rv, descr = w[8], w[0]
-                    self.prot_table[rv] = descr
+                    self.gene_name_to_description[rv] = descr
 
     @classmethod
     def from_args(self, args, kwargs):
@@ -110,15 +97,15 @@ class ZinbMethod(base.MultiConditionMethod):
             global GENE
             GENE = kwargs.get("-gene", None)
 
-        combined_wig = args[0]
-        metadata = args[1]
-        annotation = args[2]
-        output_file = args[3]
+        combined_wig_path = args[0]
+        metadata_path = args[1]
+        annotation_path = args[2]
+        output_path = args[3]
         normalization = kwargs.get("n", "TTR")
         n_terminus = float(kwargs.get("iN", 5.0))
         c_terminus = float(kwargs.get("iC", 5.0))
         pseudocount = float(kwargs.get("PC", 5.0))
-        condition = kwargs.get("-condition", "Condition")
+        group_by = kwargs.get("-group-by", kwargs["-condition"])
         covars = list(filter(None, kwargs.get("-covars", "").split(",")))
         interactions = list(filter(None, kwargs.get("-interactions", "").split(",")))
         refs = kwargs.get(
@@ -137,7 +124,7 @@ class ZinbMethod(base.MultiConditionMethod):
 
         # check for unrecognized flags
         flags = "-n --exclude-conditions --include-conditions -iN -iC -PC --condition --covars --interactions --gene --ref --prot_table -winz".split()
-        from pytransit.tools import console_tools
+        from pytransit.specific_tools import console_tools
         console_tools.handle_unrecognized_flags(
             flags,
             kwargs,
@@ -145,11 +132,11 @@ class ZinbMethod(base.MultiConditionMethod):
         )
 
         return self(
-            combined_wig,
-            metadata,
-            annotation,
+            combined_wig_path,
+            metadata_path,
+            annotation_path,
             normalization,
-            output_file,
+            output_path,
             excluded_conditions,
             included_conditions,
             winz,
@@ -163,120 +150,8 @@ class ZinbMethod(base.MultiConditionMethod):
             prot_table=prot_table,
         )
 
-    def wigs_to_conditions(self, conditions_by_wig_fingerprint, filenames_in_comb_wig):
-        """
-            Returns list of conditions corresponding to given wigfiles.
-            ({FileName: Condition}, [FileName]) -> [Condition]
-            Condition :: [String]
-        """
-        return [
-            conditions_by_wig_fingerprint.get(f, self.unknown_cond_flag) for f in filenames_in_comb_wig
-        ]
-
-    # the following 2 functions seem redundant and could be merged...
-
-    def wigs_to_covariates(self, covariatesMap, filenames_in_comb_wig):
-        """
-            Returns list of covariate lists. Each covariate list consists of covariates corresponding to given wigfiles.
-            ([{FileName: Covar}], [FileName]) -> [[Covar]]
-            Covar :: String
-        """
-        try:
-            return [
-                [covarsByFile.get(f, "?") for f in filenames_in_comb_wig]
-                for covarsByFile in covariatesMap
-            ]
-        except KeyError:
-            for f in filenames_in_comb_wig:
-                if f not in covariatesMap[0]:
-                    print(f)
-            logging.error("Error: Covariates not found for sample:")
-
-    def wigs_to_interactions(self, interactionsMap, filenames_in_comb_wig):
-        """
-            Returns list of interaction lists. Each interaction list consists of covariates corresponding to given wigfiles.
-            ([{FileName: Interaction}], [FileName]) -> [[Interaction]]
-            Interaction :: String
-        """
-        try:
-            return [
-                [covarsByFile.get(f, "?") for f in filenames_in_comb_wig]
-                for covarsByFile in interactionsMap
-            ]
-        except KeyError:
-            for f in filenames_in_comb_wig:
-                if f not in interactionsMap[0]:
-                    print(f)
-            logging.error("Error: Interaction var not found for sample")
-
-    def stats_for_gene(self, siteIndexes, groupWigIndexMap, data):
-        """
-            Returns a dictionary of {Group: {Mean, NzMean, NzPerc}}
-            ([SiteIndex], [Condition], [WigData]) -> [{Condition: Number}]
-            SiteIndex :: Number
-            WigData :: [Number]
-            Group :: String (combination of '<interaction>_<condition>')
-        """
-        nonzero = lambda xs: xs[numpy.nonzero(xs)]
-        nzperc = lambda xs: numpy.count_nonzero(xs) / float(xs.size)
-
-        means = {}
-        nz_means = {}
-        nz_percs = {}
-
-        for (group, wigIndexes) in groupWigIndexMap.items():
-            if len(siteIndexes) == 0:  # If no TA sites, write 0
-                means[group] = 0
-                nz_means[group] = 0
-                nz_percs[group] = 0
-            else:
-                arr = data[wigIndexes][:, siteIndexes]
-                if self.winz:
-                    arr = self.winsorize(arr)
-                means[group] = numpy.mean(arr) if len(arr) > 0 else 0
-                nonzero_arr = nonzero(arr)
-                nz_means[group] = numpy.mean(nonzero_arr) if len(nonzero_arr) > 0 else 0
-                nz_percs[group] = nzperc(arr)
-
-        return {"mean": means, "nz_mean": nz_means, "nz_perc": nz_percs}
-
-    def stats_by_rv(self, data, rv_site_indexes_map, genes, conditions, interactions):
-        """
-            Returns Dictionary of Stats by condition for each Rv
-            ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition], [Interaction]) -> {Rv: {Condition: Number}}
-            Wigdata :: [Number]
-            SiteIndex :: Number
-            Gene :: {start, end, rv, gene, strand}
-            Condition :: String
-            Interaction :: String
-        """
-        
-        from pytransit.tools.transit_tools import SEPARATOR
-        
-        ## Group wigfiles by (interaction, condition) pair
-        ## {'<interaction>_<condition>': [Wigindexes]}
-        groupWigIndexMap = collections.defaultdict(lambda: [])
-        for i, conditionForWig in enumerate(conditions):
-            if len(interactions) > 0:
-                for interaction in interactions:
-                    groupName = conditionForWig + SEPARATOR + interaction[i]
-                    groupWigIndexMap[groupName].append(i)
-            else:
-                groupName = conditionForWig
-                groupWigIndexMap[groupName].append(i)
-
-        statsByRv = {}
-        for gene in genes:
-            Rv = gene["rv"]
-            statsByRv[Rv] = self.stats_for_gene(
-                rv_site_indexes_map[Rv], groupWigIndexMap, data
-            )
-
-        ## TODO :: Any ordering to follow?
-        statGroupNames = groupWigIndexMap.keys()
-        return statsByRv, statGroupNames
-
-    def global_stats_for_rep(self, data):
+    @staticmethod
+    def global_stats_for_rep(data):
         """
         Returns the logit zero percentage and nz_mean for each replicate.
             [[WigData]] -> [[Number] ,[Number]]
@@ -291,28 +166,14 @@ class ZinbMethod(base.MultiConditionMethod):
             nz_mean.append(numpy.mean(wig[numpy.nonzero(wig)]))
         return [numpy.array(logit_zero_perc), numpy.array(nz_mean)]
 
-    def group_by_condition(self, wig_list, conditions):
-        """
-            Returns array of datasets, where each dataset corresponds to one condition.
-            ([[Wigdata]], [Condition]) -> [[DataForCondition]]
-            Wigdata :: [Number]
-            Condition :: String
-            DataForCondition :: [Number]
-        """
-        countsByCondition = collections.defaultdict(lambda: [])
-        for i, c in enumerate(conditions):
-            countsByCondition[c].append(wig_list[i])
-
-        return [numpy.array(v).flatten() for v in countsByCondition.values()]
-
+    @staticmethod
     def melt_data(
-        self,
         readCountsForRv,
         conditions,
         covariates,
         interactions,
-        NZMeanByRep,
-        LogZPercByRep,
+        non_zero_mean_by_replicate,
+        log_z_perc_by_replicate,
     ):
         rvSitesLength = len(readCountsForRv[0])
         repeatAndFlatten = lambda xs: numpy.repeat(xs, rvSitesLength)
@@ -322,12 +183,13 @@ class ZinbMethod(base.MultiConditionMethod):
             repeatAndFlatten(conditions),
             list(map(repeatAndFlatten, covariates)),
             list(map(repeatAndFlatten, interactions)),
-            repeatAndFlatten(NZMeanByRep),
-            repeatAndFlatten(LogZPercByRep),
+            repeatAndFlatten(non_zero_mean_by_replicate),
+            repeatAndFlatten(log_z_perc_by_replicate),
         ]
-
-    def def_r_zinb_signif(self):
-        from pytransit.tools.transit_tools import r, globalenv
+    
+    @staticmethod
+    def def_r_zinb_signif():
+        from pytransit.specific_tools.transit_tools import r, globalenv
         r(
             """
             zinb_signif = function(df,
@@ -417,248 +279,199 @@ class ZinbMethod(base.MultiConditionMethod):
         )
 
         return globalenv["zinb_signif"]
+    
+    @staticmethod
+    def calculate(
+            *,
+            group_by,
+            interactions,
+            covars,
+            winz,
+            
+            data,
+            genes,
+            non_zero_mean_by_replicate,
+            log_z_perc_by_replicate,
+            rv_site_indexes_map,
+            filtered_conditions_from_comwig,
+            filtered_covariates_from_comwig,
+            interactions_from_wigs,
+        ):
+            """
+                Runs Zinb for each gene across conditions and returns p and q values
+                ([[Wigdata]], [Gene], [Number], [Number], {Rv: [SiteIndex]}, [Condition], [Covar], [Interaction]) -> Tuple([Number], [Number], [Status])
+                Wigdata :: [Number]
+                Gene :: {start, end, rv, gene, strand}
+                SiteIndex: Integer
+                Condition :: String
+                Covar :: String
+                Interaction :: String
+                Status :: String
+            """
+            global DEBUG
+            from pytransit.specific_tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
+            import statsmodels.stats.multitest
 
-    def winsorize(self, counts):
-        # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
-        unique_counts = numpy.unique(numpy.concatenate(counts))
-        if len(unique_counts) < 2:
-            return counts
-        else:
-            n, n_minus_1 = unique_counts[
-                heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
-            ]
-            result = [
-                [n_minus_1 if count == n else count for count in wig] for wig in counts
-            ]
-            return numpy.array(result)
+            count = 0
+            
+            pvals, Rvs, status = [], [], []
+            r_zinb_signif = Method.def_r_zinb_signif()
+            logging.log("Running analysis...")
+            if winz:
+                logging.log("Winsorizing insertion count data")
 
-    def is_number(self, s):
-        try:
-            float(s)
-            return True
-        except ValueError:
-            return False
+            logging.log(f"Grouping by: {group_by}")
 
-    def run_zinb(
-        self,
-        data,
-        genes,
-        NZMeanByRep,
-        LogZPercByRep,
-        rv_site_indexes_map,
-        conditions,
-        covariates,
-        interactions,
-    ):
-        """
-            Runs Zinb for each gene across conditions and returns p and q values
-            ([[Wigdata]], [Gene], [Number], [Number], {Rv: [SiteIndex]}, [Condition], [Covar], [Interaction]) -> Tuple([Number], [Number], [Status])
-            Wigdata :: [Number]
-            Gene :: {start, end, rv, gene, strand}
-            SiteIndex: Integer
-            Condition :: String
-            Covar :: String
-            Interaction :: String
-            Status :: String
-        """
-        global DEBUG
-        from pytransit.tools.transit_tools import DataFrame, IntVector, FloatVector, StrVector
-        import statsmodels.stats.multitest
+            comp1a = "1+cond"
+            comp1b = "1+cond"
 
-        count = 0
-        
-        pvals, Rvs, status = [], [], []
-        r_zinb_signif = self.def_r_zinb_signif()
-        logging.log("Running analysis...")
-        if self.winz:
-            logging.log("Winsorizing insertion count data")
+            # include cond in mod0 only if testing interactions
+            comp0a = "1" if len(interactions) == 0 else "1+cond"
+            comp0b = "1" if len(interactions) == 0 else "1+cond"
+            for I in interactions:
+                comp1a += "*" + I
+                comp1b += "*" + I
+                comp0a += "+" + I
+                comp0b += "+" + I
+            for C in covars:
+                comp1a += "+" + C
+                comp1b += "+" + C
+                comp0a += "+" + C
+                comp0b += "+" + C
+            zinbMod1 = "cnt~%s+offset(log(NZmean))|%s+offset(logitZperc)" % (comp1a, comp1b)
+            zinbMod0 = "cnt~%s+offset(log(NZmean))|%s+offset(logitZperc)" % (comp0a, comp0b)
 
-        logging.log("Condition: %s" % self.condition)
+            nbMod1 = "cnt~%s" % (comp1a)
+            nbMod0 = "cnt~%s" % (comp0a)
+            toRFloatOrStrVec = (
+                lambda xs: FloatVector([float(x) for x in xs])
+                if misc.str_is_float(xs[0])
+                else StrVector(xs)
+            )
 
-        comp1a = "1+cond"
-        comp1b = "1+cond"
+            for gene in genes:
+                count += 1
+                Rv = gene["rv"]
+                ## Single gene case for debugging
+                if GENE:
+                    Rv = None
+                    if GENE in rv_site_indexes_map:
+                        Rv = GENE
+                    else:
+                        for g in genes:
+                            if g["gene"] == GENE:
+                                Rv = g["rv"]
+                                break
+                    if not Rv:
+                        logging.error("Cannot find gene: {0}".format(GENE))
 
-        # include cond in mod0 only if testing interactions
-        comp0a = "1" if len(self.interactions) == 0 else "1+cond"
-        comp0b = "1" if len(self.interactions) == 0 else "1+cond"
-        for I in self.interactions:
-            comp1a += "*" + I
-            comp1b += "*" + I
-            comp0a += "+" + I
-            comp0b += "+" + I
-        for C in self.covars:
-            comp1a += "+" + C
-            comp1b += "+" + C
-            comp0a += "+" + C
-            comp0b += "+" + C
-        zinbMod1 = "cnt~%s+offset(log(NZmean))|%s+offset(logitZperc)" % (comp1a, comp1b)
-        zinbMod0 = "cnt~%s+offset(log(NZmean))|%s+offset(logitZperc)" % (comp0a, comp0b)
+                if DEBUG:
+                    logging.log("======================================================================")
+                    logging.log(gene["rv"] + " " + gene["gene"])
 
-        nbMod1 = "cnt~%s" % (comp1a)
-        nbMod0 = "cnt~%s" % (comp0a)
-        toRFloatOrStrVec = (
-            lambda xs: FloatVector([float(x) for x in xs])
-            if self.is_number(xs[0])
-            else StrVector(xs)
-        )
-
-        for gene in genes:
-            count += 1
-            Rv = gene["rv"]
-            ## Single gene case for debugging
-            if GENE:
-                Rv = None
-                if GENE in rv_site_indexes_map:
-                    Rv = GENE
-                else:
-                    for g in genes:
-                        if g["gene"] == GENE:
-                            Rv = g["rv"]
-                            break
-                if not Rv:
-                    logging.error("Cannot find gene: {0}".format(GENE))
-
-            if DEBUG:
-                logging.log("======================================================================")
-                logging.log(gene["rv"] + " " + gene["gene"])
-
-            if len(rv_site_indexes_map[Rv]) <= 1:
-                status.append("TA sites <= 1, not analyzed")
-                pvals.append(1)
-            else:
-                norm_data = list(
-                    map(lambda wigData: wigData[rv_site_indexes_map[Rv]], data)
-                )
-                if self.winz:
-                    norm_data = self.winsorize(norm_data)
-                (
-                    [
-                        readCounts,
-                        condition,
-                        covarsData,
-                        interactionsData,
-                        NZmean,
-                        logitZPerc,
-                    ]
-                ) = self.melt_data(
-                    norm_data,
-                    conditions,
-                    covariates,
-                    interactions,
-                    NZMeanByRep,
-                    LogZPercByRep,
-                )
-                if numpy.sum(readCounts) == 0:
-                    status.append(
-                        "pan-essential (no counts in all conditions) - not analyzed"
-                    )
+                if len(rv_site_indexes_map[Rv]) <= 1:
+                    status.append("TA sites <= 1, not analyzed")
                     pvals.append(1)
                 else:
-                    df_args = {
-                        "cnt": IntVector(readCounts),
-                        "cond": toRFloatOrStrVec(condition),
-                        "NZmean": FloatVector(NZmean),
-                        "logitZperc": FloatVector(logitZPerc),
-                    }
-                    ## Add columns for covariates and interactions if they exist.
-                    df_args.update(
-                        list(
-                            map(
-                                lambda t_ic: (
-                                    t_ic[1],
-                                    toRFloatOrStrVec(covarsData[t_ic[0]]),
-                                ),
-                                enumerate(self.covars),
+                    norm_data = list(
+                        map(lambda wigData: wigData[rv_site_indexes_map[Rv]], data)
+                    )
+                    if winz:
+                        norm_data = tnseq_tools.winsorize(norm_data)
+                    (
+                        [
+                            readCounts,
+                            condition,
+                            covarsData,
+                            interactionsData,
+                            NZmean,
+                            logitZPerc,
+                        ]
+                    ) = Method.melt_data(
+                        readCountsForRv=norm_data,
+                        conditions=filtered_conditions_from_comwig,
+                        covariates=filtered_covariates_from_comwig,
+                        interactions=interactions_from_wigs,
+                        non_zero_mean_by_replicate=non_zero_mean_by_replicate,
+                        log_z_perc_by_replicate=log_z_perc_by_replicate,
+                    )
+                    if numpy.sum(readCounts) == 0:
+                        status.append(
+                            "pan-essential (no counts in all conditions) - not analyzed"
+                        )
+                        pvals.append(1)
+                    else:
+                        df_args = {
+                            "cnt": IntVector(readCounts),
+                            "cond": toRFloatOrStrVec(condition),
+                            "NZmean": FloatVector(NZmean),
+                            "logitZperc": FloatVector(logitZPerc),
+                        }
+                        ## Add columns for covariates and interactions if they exist.
+                        df_args.update(
+                            list(
+                                map(
+                                    lambda t_ic: (
+                                        t_ic[1],
+                                        toRFloatOrStrVec(covarsData[t_ic[0]]),
+                                    ),
+                                    enumerate(covars),
+                                )
                             )
                         )
-                    )
-                    df_args.update(
-                        list(
-                            map(
-                                lambda t_ic: (
-                                    t_ic[1],
-                                    toRFloatOrStrVec(interactionsData[t_ic[0]]),
-                                ),
-                                enumerate(self.interactions),
+                        df_args.update(
+                            list(
+                                map(
+                                    lambda t_ic: (
+                                        t_ic[1],
+                                        toRFloatOrStrVec(interactionsData[t_ic[0]]),
+                                    ),
+                                    enumerate(interactions),
+                                )
                             )
                         )
-                    )
 
-                    melted = DataFrame(df_args)
-                    # r_args = [IntVector(readCounts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(NZmean), FloatVector(logitZPerc)] + [True]
-                    debugFlag = True if DEBUG or GENE else False
-                    pval, msg = r_zinb_signif(
-                        melted, zinbMod1, zinbMod0, nbMod1, nbMod0, debugFlag
-                    )
-                    status.append(msg)
-                    pvals.append(float(pval))
-                if DEBUG or GENE:
-                    logging.log(
-                        "Pval for Gene {0}: {1}, status: {2}".format(
-                            Rv, pvals[-1], status[-1]
+                        melted = DataFrame(df_args)
+                        # r_args = [IntVector(readCounts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(NZmean), FloatVector(logitZPerc)] + [True]
+                        debugFlag = True if DEBUG or GENE else False
+                        pval, msg = r_zinb_signif(
+                            melted, zinbMod1, zinbMod0, nbMod1, nbMod0, debugFlag
                         )
-                    )
-                if GENE:
-                    logging.log("Ran for single gene. Exiting...")
-                    sys.exit(0)
-            Rvs.append(Rv)
-            # Update progress
-            percentage = (100.0 * count / len(genes))
-            text = "Running ZINB Method... %5.1f%%" % percentage
-            progress_update(text, percentage)
+                        status.append(msg)
+                        pvals.append(float(pval))
+                    if DEBUG or GENE:
+                        logging.log(
+                            "Pval for Gene {0}: {1}, status: {2}".format(
+                                Rv, pvals[-1], status[-1]
+                            )
+                        )
+                    if GENE:
+                        logging.log("Ran for single gene. Exiting...")
+                        sys.exit(0)
+                Rvs.append(Rv)
+                # Update progress
+                percentage = (100.0 * count / len(genes))
+                text = "Running ZINB Method... %5.1f%%" % percentage
+                progress_update(text, percentage)
 
-        pvals = numpy.array(pvals)
-        mask = numpy.isfinite(pvals)
-        qvals = numpy.full(pvals.shape, numpy.nan)
-        qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals)[
-            1
-        ]  # BH, alpha=0.05
+            pvals = numpy.array(pvals)
+            mask = numpy.isfinite(pvals)
+            qvals = numpy.full(pvals.shape, numpy.nan)
+            qvals[mask] = statsmodels.stats.multitest.fdrcorrection(pvals)[
+                1
+            ]  # BH, alpha=0.05
 
-        p, q, statusMap = {}, {}, {}
-        for i, rv in enumerate(Rvs):
-            p[rv], q[rv], statusMap[rv] = pvals[i], qvals[i], status[i]
+            p, q, statusMap = {}, {}, {}
+            for i, rv in enumerate(Rvs):
+                p[rv], q[rv], statusMap[rv] = pvals[i], qvals[i], status[i]
         return (p, q, statusMap)
-
-    # from {key->value} return {value->[keys]}
-    def invertDict(self, d):
-        e = {}
-        for k, v in d.items():
-            if v not in e:
-                e[v] = []
-            e[v].append(k)
-        return e
 
     # pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)
     # recursive: keep calling till vars reduced to empty
 
-    def expandVar(self, pairs, vars, varsByFileList, vars2vals, samples):
-        if len(vars) == 0:
-            s = "%s=%s" % (pairs[0][0], pairs[0][1])
-            for i in range(1, len(pairs)):
-                s += " & %s=%s" % (pairs[i][0], pairs[i][1])
-            s += ": %s" % len(samples)
-            print(s)
-            if len(samples) == 0:
-                return True
-        else:
-            var, valsDict = vars[0], varsByFileList[0]
-            inv = self.invertDict(valsDict)
-            any_empty = False
-            for val in vars2vals[var]:
-                subset = samples.intersection(set(inv[val]))
-                res = self.expandVar(
-                    pairs + [(var, val)],
-                    vars[1:],
-                    varsByFileList[1:],
-                    vars2vals,
-                    subset,
-                )
-                any_empty = any_empty or res
-            return any_empty
-
     def Run(self):
         transit_tools.require_r_to_be_installed()
-        from pytransit.tools.transit_tools import EOL, SEPARATOR, rpackages
+        from pytransit.specific_tools.transit_tools import EOL, SEPARATOR, rpackages
         logging.log("Starting ZINB analysis")
         start_time = time.time()
         packnames = ("MASS", "pscl")
@@ -668,16 +481,16 @@ class ZinbMethod(base.MultiConditionMethod):
                 "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
                 % ({"0": '"{0}"'.format('", "'.join(r_packages_needed))})
             )
-
+    
         logging.log("Getting Data")
         (sites, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
-            self.combined_wig
+            self.combined_wig_path
         )
 
         logging.log("Normalizing using: %s" % self.normalization)
         (data, factors) = norm_tools.normalize_data(data, self.normalization)
 
-        condition_name = self.condition
+        condition_name = self.group_by
         # if a covar is not found, this crashes; check for it?
         # read it first with no condition specified, to get original Condition names
         (
@@ -685,28 +498,52 @@ class ZinbMethod(base.MultiConditionMethod):
             covariatesByFileList1,
             interactionsByFileList1,
             orderingMetadata1,
-        ) = tnseq_tools.read_samples_metadata(
-            self.metadata, self.covars, self.interactions
+        ) = tnseq_tools.CombinedWigMetadata.read_condition_data(
+            self.metadata_path, self.covars, self.interactions
         )  # without specifiying condition
         (
             conditions_by_wig_fingerprint,
             covariatesByFileList,
             interactionsByFileList,
             orderingMetadata,
-        ) = tnseq_tools.read_samples_metadata(
-            self.metadata, self.covars, self.interactions, condition_name=condition_name
+        ) = tnseq_tools.CombinedWigMetadata.read_condition_data(
+            self.metadata_path, self.covars, self.interactions, condition_name=condition_name
         )
-
+        
+        # 
         ## [Condition] in the order of files in combined wig
-        conditions = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
+        # 
+        conditions_from_comwig = [
+            conditions_by_file.get(f, "FLAG-UNMAPPED-CONDITION-IN-WIG") for f in filenames_in_comb_wig
+        ]
+        # 
         ## [Covariate] in the order of files in combined wig
-        covariates = self.wigs_to_covariates(covariatesByFileList, filenames_in_comb_wig)
+        # 
+        try:
+            covariates_from_comwig = [
+                [covarsByFile.get(f, "?") for f in filenames_in_comb_wig]
+                for covarsByFile in covariatesByFileList
+            ]
+        except KeyError:
+            for f in filenames_in_comb_wig:
+                if f not in covariatesByFileList[0]:
+                    print(f)
+            logging.error("Error: Covariates not found for sample:")
+        # 
         ## [Interaction] in the order of files in combined wig
-        interactions = self.wigs_to_interactions(
-            interactionsByFileList, filenames_in_comb_wig
-        )
+        # 
+        try:
+            interactions_from_wigs = [
+                [covarsByFile.get(f, "?") for f in filenames_in_comb_wig]
+                for covarsByFile in interactionsByFileList
+            ]
+        except KeyError:
+            for f in filenames_in_comb_wig:
+                if f not in interactionsByFileList[0]:
+                    print(f)
+            logging.error("Error: Interaction var not found for sample")
 
-        metadata = self.get_samples_metadata()
+        metadata = transit_tools.get_samples_metadata(metadata_path)
         conditionNames = metadata[
             "Condition"
         ]  # original Condition names for each sample, as ordered list
@@ -717,44 +554,43 @@ class ZinbMethod(base.MultiConditionMethod):
             data,
             fileNames,
             conditionNames,
-            conditions,
-            covariates,
-            interactions,
-        ) = self.filter_wigs_by_conditions2(
+            filtered_conditions_from_comwig,
+            filtered_covariates_from_comwig,
+            interactions_from_wigs,
+        ) = transit_tools.filter_wigs_by_conditions2(
             data,
-            fileNames,
-            conditionNames,  # original Condition column in samples metadata file
-            self.included_conditions,
-            self.excluded_conditions,
-            conditions=conditions,  # user might have specified a column other than Condition
-            covariates=covariates,
-            interactions=interactions,
+            wig_fingerprints=fileNames,
+            condition_names=conditionNames,  # original Condition column in samples metadata file
+            included_cond=self.included_conditions,
+            excluded_cond=self.excluded_conditions,
+            conditions=conditions_from_comwig,  # user might have specified a column other than Condition
+            covariates=covariates_from_comwig,
+            interactions=interactions_from_wigs,
         )
-        conditionsList = list(set(conditions))  # unique condition labels, filtered
         samples_used = set(fileNames)
 
         # show the samples associated with each condition (and covariates or interactions, if defined), and count samples in each cross-product of vars
 
         vars = [condition_name] + self.covars + self.interactions
         vars2vals = {}
-        vars2vals[condition_name] = list(set(conditions))
+        vars2vals[condition_name] = misc.no_duplicates(filtered_conditions_from_comwig)
         for i, var in enumerate(self.covars):
-            vars2vals[var] = list(set(covariates[i]))
+            vars2vals[var] = misc.no_duplicates(filtered_covariates_from_comwig[i])
         for i, var in enumerate(self.interactions):
-            vars2vals[var] = list(set(interactions[i]))
+            vars2vals[var] = list(set(interactions_from_wigs[i]))
         varsByFileList = (
             [conditions_by_wig_fingerprint] + covariatesByFileList + interactionsByFileList
         )
         for i, var in enumerate(vars):
             print("\nsamples for Condition/Covariate/Interaction: %s" % vars[i])
-            filesByVar = self.invertDict(varsByFileList[i])
+            filesByVar = misc.invert_dict(varsByFileList[i])
             for k, v in filesByVar.items():
                 samples = list(samples_used.intersection(set(v)))
                 if k in vars2vals.get(var, []):
                     print("%s: %s" % (k, " ".join(samples)))
         pairs = []
         print("\nsamples in cross-product:")
-        any_empty = self.expandVar(
+        any_empty = transit_tools.expand_var(
             [], vars, varsByFileList, vars2vals, set(samples_used)
         )
         if any_empty:
@@ -764,28 +600,32 @@ class ZinbMethod(base.MultiConditionMethod):
 
         genes = tnseq_tools.read_genes(self.annotation_path)
 
-        TASiteindexMap = {TA: i for i, TA in enumerate(sites)}
-        rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
-            genes, TASiteindexMap, n_terminus=self.n_terminus, c_terminus=self.c_terminus
+        ta_site_index_map = {TA: i for i, TA in enumerate(sites)}
+        rv_site_indexes_map = tnseq_tools.rv_site_indexes_map(
+            genes, ta_site_index_map, n_terminus=self.n_terminus, c_terminus=self.c_terminus
         )
-        statsByRv, statGroupNames = self.stats_by_rv(
-            data, rv_site_indexes_map, genes, conditions, interactions
+        stats_by_rv, stat_group_names = transit_tools.get_stats_by_rv(
+            data, rv_site_indexes_map, genes, filtered_conditions_from_comwig, interactions_from_wigs, self.winz
         )
-        LogZPercByRep, NZMeanByRep = self.global_stats_for_rep(data)
+        log_z_perc_by_replicate, non_zero_mean_by_replicate = Method.global_stats_for_rep(data)
 
         logging.log("Running ZINB")
-        pvals, qvals, run_status = self.run_zinb(
-            data,
-            genes,
-            NZMeanByRep,
-            LogZPercByRep,
-            rv_site_indexes_map,
-            conditions,
-            covariates,
-            interactions,
+        pvals, qvals, run_status = Method.calculate(
+            group_by=self.group_by,
+            interactions=self.interactions,
+            covars=self.covars,
+            winz=self.winz,
+            data=data,
+            genes=genes,
+            non_zero_mean_by_replicate=non_zero_mean_by_replicate,
+            log_z_perc_by_replicate=log_z_perc_by_replicate,
+            rv_site_indexes_map=rv_site_indexes_map,
+            filtered_conditions_from_comwig=filtered_conditions_from_comwig,
+            filtered_covariates_from_comwig=filtered_covariates_from_comwig,
+            interactions_from_wigs=interactions_from_wigs,
         )
 
-        def orderStats(x, y):
+        def order_stats(x, y):
             ic1 = x.split(SEPARATOR)
             ic2 = y.split(SEPARATOR)
             c1, i1 = (ic1[0], ic1[1]) if len(ic1) > 1 else (ic1[0], None)
@@ -796,7 +636,7 @@ class ZinbMethod(base.MultiConditionMethod):
             # otherwise don't try to order them this way because it gets too complicated
             # possibly should require --covars and --interactions to be unspecified too
             if (
-                self.condition == "Condition"
+                self.group_by == "Condition"
                 and len(self.included_conditions) > 0
                 and len(self.excluded_conditions) == 0
             ):
@@ -821,14 +661,14 @@ class ZinbMethod(base.MultiConditionMethod):
             return condDiff
 
         orderedStatGroupNames = sorted(
-            statGroupNames, key=functools.cmp_to_key(orderStats)
+            stat_group_names, key=functools.cmp_to_key(order_stats)
         )
         headersStatGroupNames = [
             x.replace(SEPARATOR, "_") for x in orderedStatGroupNames
         ]
 
-        logging.log("Adding File: %s" % (self.output))
-        file = open(self.output, "w")
+        logging.log("Adding File: %s" % (self.output_path))
+        file = open(self.output_path, "w")
         if len(headersStatGroupNames) == 2:
             lfcNames = ["LFC"]
         else:
@@ -848,12 +688,12 @@ class ZinbMethod(base.MultiConditionMethod):
             "#parameters: normalization=%s, trimming=%s/%s%% (N/C), pseudocounts=%s\n"
             % (self.normalization, self.n_terminus, self.c_terminus, self.pseudocount)
         )
-        if self.prot_table != None:
+        if self.gene_name_to_description != None:
             head.append("annotation")
         file.write("#" + "\t".join(head) + EOL)
         for gene in genes:
             Rv = gene["rv"]
-            means = [statsByRv[Rv]["mean"][group] for group in orderedStatGroupNames]
+            means = [stats_by_rv[Rv]["mean"][group] for group in orderedStatGroupNames]
             pseudocount = self.pseudocount
             if len(means) == 2:
                 LFCs = [
@@ -864,49 +704,31 @@ class ZinbMethod(base.MultiConditionMethod):
                     m = numpy.mean(means)  # grand mean across all conditions
                 else:
                     m = numpy.mean(
-                        [statsByRv[Rv]["mean"][group] for group in self.refs]
+                        [stats_by_rv[Rv]["mean"][group] for group in self.refs]
                     )
                 LFCs = [numpy.math.log((x + pseudocount) / (m + pseudocount), 2) for x in means]
             vals = (
                 [Rv, gene["gene"], str(len(rv_site_indexes_map[Rv]))]
                 + [
-                    "%0.1f" % statsByRv[Rv]["mean"][group]
+                    "%0.1f" % stats_by_rv[Rv]["mean"][group]
                     for group in orderedStatGroupNames
                 ]
                 + ["%0.3f" % x for x in LFCs]
                 + [
-                    "%0.1f" % statsByRv[Rv]["nz_mean"][group]
+                    "%0.1f" % stats_by_rv[Rv]["nz_mean"][group]
                     for group in orderedStatGroupNames
                 ]
                 + [
-                    "%0.2f" % statsByRv[Rv]["nz_perc"][group]
+                    "%0.2f" % stats_by_rv[Rv]["nz_perc"][group]
                     for group in orderedStatGroupNames
                 ]
                 + ["%f" % x for x in [pvals[Rv], qvals[Rv]]]
             ) + [run_status[Rv]]
-            if self.prot_table != None:
-                vals.append(self.prot_table.get(Rv, "?"))
+            if self.gene_name_to_description != None:
+                vals.append(self.gene_name_to_description.get(Rv, "?"))
             file.write("\t".join(vals) + EOL)
         file.close()
         logging.log("Finished Zinb analysis")
         logging.log("Time: %0.1fs\n" % (time.time() - start_time))
 
-    usage_string = """python3 %s zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
-
-        Optional Arguments:
-        -n <string>         :=  Normalization method. Default: -n TTR
-        --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
-        --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
-        --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-        -iN <float>     := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
-        -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
-        -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-        -PC <N>         := pseudocounts to use for calculating LFCs. Default: -PC 5
-        --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-        --condition     := alias for --group-by
-        --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
-        --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
-        --prot_table <filename>           := for appending annotations of genes
-        --gene <RV number or Gene name>   := Run method for one gene and print model output.
-
-        """ % sys.argv[0]
+ZinbMethod = Method

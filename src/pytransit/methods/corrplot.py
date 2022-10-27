@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, r, basename, HAS_R, FloatVector, DataFrame, StrVector, globalenv
 from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
@@ -39,7 +39,7 @@ class Method:
 
     # TODO: TRI - should drop anova and zinb defaults, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
-    usage_string = f"""usage: {console_tools.subcommand_prefix} corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
+    usage_string = f"""usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
     
     # 
     # CLI method
@@ -130,7 +130,7 @@ class Method:
             import numpy
             # instantiate the corrplot_r_function if needed
             if not Method.corrplot_r_function:
-                require_r_to_be_installed()
+                transit_tools.require_r_to_be_installed()
                 r(""" # R function...
                     make_corrplot = function(means,headers,outfilename) { 
                         means = means[,headers] # put cols in correct order
@@ -142,11 +142,12 @@ class Method:
                 """)
                 Method.corrplot_r_function = globalenv["make_corrplot"]
             
-            _, (means, genes, labels) = GeneMeansMethod.calculate(combined_wig, normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
-
+            _, (means, genes, labels) = GeneMeansMethod.calculate(combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+            print(f'''GeneMeansMethod.calculate: labels = {labels}''')
+            
             position_hash = {}
-            for i, col in enumerate(headers):
+            for i, col in enumerate(labels):
                 position_hash[col] = FloatVector([x[i] for x in means])
             df = DataFrame(position_hash)  
             
-            Method.corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
+            Method.corrplot_r_function(df, StrVector(labels), output_path ) # pass in headers to put cols in order, since df comes from dict

@@ -26,8 +26,6 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
-magical_number_eight = 8 # FIXME: please name this var with whatever the number is representing
-
 @misc.singleton
 class Method:
     name = "Genetic Interaction"
@@ -605,7 +603,8 @@ class Method:
         annot = {}
         for line in open(self.inputs.annotation_path):
             cells = line.rstrip().split('\t')
-            annot[cells[magical_number_eight]] = cells[0]
+            gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
+            annot[gene_name] = cells[0]
         
         # 
         # format into rows

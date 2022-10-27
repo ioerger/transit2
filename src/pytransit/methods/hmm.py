@@ -21,7 +21,7 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_to
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-import pytransit.generic_tools.csv as csv
+from pytransit.generic_tools import csv
 import pytransit.components.file_display as file_display
 import pytransit.components.samples_area as samples_area
 import pytransit.components.results_area as results_area
@@ -151,8 +151,8 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
         if not Method.inputs.output_path:
             return None

@@ -83,7 +83,7 @@ def count_hits(path):
                 hits+=1
     return hits
 
-# for ANOVA output; assume last 3 columns are pval, qval, and status # FIXME
+# for ANOVA output; assume last 3 columns are pval, qval, and status
 def significant_pvals_qvals(fname, pcol=-2, qcol=-1):
     pvals, qvals = [], []
     with open(fname) as file:

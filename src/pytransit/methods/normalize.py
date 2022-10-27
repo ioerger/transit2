@@ -54,19 +54,19 @@ class Method:
     
     # a helper for all the methods above
     def gui_normalize(self, kind):
-        # FIXME: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
+        # TODO: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
         return Method.run_normalize(
             combined_wig=gui.combined_wigs[-1],
             output_path=gui_tools.ask_for_output_file_path(
-                default_file_name=f"{Method.name}_output.csv".lower(),
-                output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+                default_file_name=f"{Method.name}_output.tsv".lower(),
+                output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
             ),
             normalization=kind,
         )
     
+    @staticmethod
     @cli.add_command("normalize")
     @cli.add_command("export", "norm")
-    @staticmethod
     def from_args(args, kwargs):
         is_combined_wig = "c" in kwargs
         if is_combined_wig:

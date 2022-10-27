@@ -18,8 +18,7 @@ from pytransit.components.parameter_panel import panel,progress_update, set_inst
 
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
-import pytransit.generic_tools.misc as misc
+from pytransit.generic_tools import csv, misc
 from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
@@ -90,7 +89,7 @@ class Method:
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
         import csv
         COG_orgs = []
-        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
+        with open(root_folder+"src/pytransit/data/cog-20.org.tsv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
@@ -257,8 +256,7 @@ class Method:
         # 
         # get annotation
         # 
-        Method.inputs.annotation_path = gui.annotation_path
-
+        #Method.inputs.annotation_path = gui.annotation_path
         # 
         # setup custom inputs
         #        
@@ -272,11 +270,15 @@ class Method:
         if Method.inputs.organism_pathway != None:
             organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG":
-                import requests
-                URL = "https://orca1.tamu.edu/essentiality/transit/COG2020/"+organism+"_COG_20_roles.associations.txt"
-                response = requests.get(URL)
-                open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb").write(response.content)
-
+                try:
+                    import requests
+                    URL = "https://orca1.tamu.edu/essentiality/transit/COG2020/"+organism+"_COG_20_roles.associations.txt"
+                    response = requests.get(URL)
+                    open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb").write(response.content)
+                except requests.exceptions.ConnectionError:
+                    logging.error("Please Connect to the Internet to get this COG files for "+organism)
+                    #sys.exit()
+                
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/COG_20_roles.txt"
 
@@ -288,10 +290,14 @@ class Method:
                 logging.log("Loading in H37Rv Associations for KEGG Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_KEGG_roles.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/KEGG_roles.txt"
-            elif Method.inputs.organism_pathway =="H37Rv-GO":
+            elif Method.inputs.organism_pathway =="H37Rv-GO" and Method.inputs.method == "FET":
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
+            elif Method.inputs.organism_pathway =="H37Rv-GO" and Method.inputs.method == "ONT":
+                logging.log("Loading in H37Rv Associations for GO Pathways")
+                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
             elif Method.inputs.organism_pathway =="Smeg-GO":
                 logging.log("Loading in Smeg Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
@@ -299,7 +305,7 @@ class Method:
 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.txt",
-            output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
 
 
@@ -842,7 +848,7 @@ class Method:
                 pval, qval = float(w[self.inputs.pval_col]), float(w[self.inputs.qval_col])
                 if qval < 0.05:
                     studyset.append(w[0])
-            pvals.append((w[0], pval))
+                pvals.append((w[0], pval))
         pvals.sort(key=lambda x: x[1])
         ranks = {}
         for i, (rv, pval) in enumerate(pvals):
@@ -882,7 +888,6 @@ class Method:
 
         counts = [x + [y] for x, y in zip(counts, qvals)]
         counts.sort(key=lambda x: x[-1])
-
         for (go, n, m, p, q, a, b, npar, enrich, pval, qval) in counts:
             hits = filter(lambda x: x in go2rvs[go], studyset)
             hits = [(x, genes[x][1], ranks[x]) for x in hits]

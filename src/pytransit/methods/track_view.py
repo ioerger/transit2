@@ -12,8 +12,7 @@ import numpy
 
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
-import pytransit.generic_tools.csv as csv
-import pytransit.generic_tools.misc as misc
+from pytransit.generic_tools import csv, misc
 from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, file_display, results_area, parameter_panel
@@ -26,8 +25,8 @@ class Method:
     # 
     # Track View
     # 
-    @gui.add_wig_area_dropdown_option(name=name)
     @staticmethod
+    @gui.add_wig_area_dropdown_option(name=name)
     def click_show_track_view(event):
         with gui_tools.nice_error_log:
             import pytransit.components.trash as trash

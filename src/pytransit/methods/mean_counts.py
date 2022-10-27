@@ -22,8 +22,8 @@ class Method:
         output_file=None,
     )
     
-    @cli.add_command("export", name.lower())
     @staticmethod
+    @cli.add_command("export", name.lower())
     def from_args(args, kwargs):
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
@@ -59,6 +59,8 @@ class Method:
 
         logging.log("Normalizing")
         # FIXME: switch to transit_tools.write_result()
+
+        
         self.inputs.output_file.write("#Summarized to Mean Gene Counts with TRANSIT.\n")
         if self.inputs.normalization != "nonorm":
             self.inputs.output_file.write("#Reads normalized using '%s'\n" % self.inputs.normalization)

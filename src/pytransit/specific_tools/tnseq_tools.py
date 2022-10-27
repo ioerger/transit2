@@ -8,8 +8,8 @@ from os.path import isabs, isfile, isdir, join, dirname, basename, exists, split
 
 import numpy
 import scipy.stats
+from pytransit.generic_tools import csv, misc
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify
-import pytransit.generic_tools.csv as csv
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces
 from pytransit.specific_tools import logging
@@ -241,18 +241,29 @@ class CombinedWigMetadata:
             conditions={indent(self.conditions, by="            ", ignore_first=True)},
         )""".replace("\n        ", "\n")
     
-    @classmethod
-    def read_condition_data(cls, path, covars_to_read=[], interactions_to_read=[]):
+    @staticmethod
+    def read_condition_data(path, covars_to_read=[], interactions_to_read=[]):
         conditions_by_wig_fingerprint        = {}
         covariates_by_wig_fingerprint_list   = [{} for _ in covars_to_read]
         interactions_by_wig_fingerprint_list = [{} for _ in interactions_to_read]
         ordering_metadata         = {"condition": [], "interaction": []}
+        covars_to_read = [ each.lower() for each in covars_to_read ]
+        interactions_to_read = [ each.lower() for each in interactions_to_read ]
         with open(path) as file:
             lines = file.readlines()
             column_names              = lines[0].split()
             column_names              = [ each.lower() for each in column_names ]
             index_for_condition       = column_names.index("Condition".lower())
             index_for_wig_fingerprint = column_names.index("Filename".lower())
+            # validate
+            print(f'''covars_to_read = {covars_to_read}''')
+            for each in covars_to_read:
+                if each not in column_names:
+                    raise Exception(f'''Tried to select {each} as a covariate, but the available covariates are: {column_names}''')
+            print(f'''interactions_to_read = {interactions_to_read}''')
+            for each in interactions_to_read:
+                if each not in column_names:
+                    raise Exception(f'''Tried to select {each} as an interaction, but the available interactions are: {column_names}''')
             covar_indexes             = [ column_names.index(each.lower()) for each in covars_to_read       ]
             interaction_indexes       = [ column_names.index(each.lower()) for each in interactions_to_read ]
 
@@ -429,7 +440,7 @@ class CombinedWig:
         self.main_path       = main_path
         self.metadata_path   = metadata_path
         self.annotation_path = annotation_path
-        self.metadata        = CombinedWigMetadata(self.metadata_path)
+        self.metadata        = CombinedWigMetadata(self.metadata_path) if self.metadata_path else None
         self.as_tuple        = CombinedWigData.load(self.main_path) # for backwards compatibility (otherwise just used self.rows and helper methods)
         self.rows            = []
         self.comments        = comments or []
@@ -564,6 +575,8 @@ class CombinedWig:
                     ),
                 )
             )
+        
+        
         
         return new_combined_wig
         
@@ -812,10 +825,10 @@ class CombinedWig:
             self.samples.append(
                 Wig(
                     rows=list(zip(self.ta_sites, self.read_counts_by_wig_fingerprint[wig_fingerprint])),
-                    id=self.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    id=self.metadata.id_for(wig_fingerprint=wig_fingerprint) if self.metadata else None,
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
-                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    condition_names=self.metadata.condition_names_for(wig_fingerprint=wig_fingerprint) if self.metadata else None,
                     extra_data=LazyDict(
                         is_part_of_cwig=True,
                     ),
@@ -905,28 +918,25 @@ class CombinedWig:
         
         return CombinedWig.PositionsAndReads((data_per_path, position_per_line))
     
-# backwards compatibility
-read_samples_metadata = CombinedWigMetadata.read_condition_data
-CombinedWigData.load = CombinedWigData.load
-
 def read_genes(fname, descriptions=False):
     """
       (Filename, Options) -> [Gene]
       Gene :: {start, end, rv, gene, strand}
     """
+    from pytransit.specific_tools.tnseq_tools import ProtTable
     genes = []
     with open(fname) as file:
         for line in file:
-            w = line.rstrip().split("\t")
+            row = line.rstrip().split("\t")
             data = {
-                "start": int(w[1]),
-                "end": int(w[2]),
-                "rv": w[8],
-                "gene": w[7],
-                "strand": w[3],
+                "start" : int(row[ProtTable.index_of_gene_start]),
+                "end"   : int(row[ProtTable.index_of_gene_end]),
+                "rv"    : row[ProtTable.gene_name_index],
+                "gene"  : row[ProtTable.magic_number_seven],
+                "strand": row[ProtTable.index_of_gene_strand],
             }
             if descriptions == True:
-                data.append(w[0])
+                data.append(row[ProtTable.gene_description_index])
             genes.append(data)
     return genes
 
@@ -2265,13 +2275,13 @@ def get_genes_in_range(pos_hash, start, end):
 
     return list(sorted(genes))
 
-def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
+def rv_site_indexes_map(genes, ta_site_index_map, n_terminus=0.0, c_terminus=0.0):
     """
     ([Gene], {TAsite: Siteindex}) -> {Rv: Siteindex}
     """
     rv_site_indexes_map = {}
     for g, gene in enumerate(genes):
-        siteindexes = []
+        site_indexes = []
         start = gene["start"] if gene["strand"] == "+" else gene["start"] + 3
         end = gene["end"] - 3 if gene["strand"] == "+" else gene["end"]
         for i in range(start, end + 1):
@@ -2280,9 +2290,9 @@ def rv_siteindexes_map(genes, TASiteindexMap, n_terminus=0.0, c_terminus=0.0):
                 continue
             if (co - start) / float(end - start) > ((100 - c_terminus) / 100.0):
                 continue
-            if co in TASiteindexMap:
-                siteindexes.append(TASiteindexMap[co])
-        rv_site_indexes_map[gene["rv"]] = siteindexes
+            if co in ta_site_index_map:
+                site_indexes.append(ta_site_index_map[co])
+        rv_site_indexes_map[gene["rv"]] = site_indexes
     return rv_site_indexes_map
 
 def extract_yaml_data(comment_lines):
@@ -2388,3 +2398,16 @@ def filepaths_to_fingerprints(filepaths):
         f"{minimal_dirname}/{minimal_basename}"
             for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
     ]
+
+@misc.singleton
+class ProtTable:
+    gene_description_index = 0
+    gene_name_index        = 8
+    
+    index_of_gene_start   = 1
+    index_of_gene_end   = 2
+    index_of_gene_strand = 3
+    magic_number_four  = 4
+    magic_number_six   = 6
+    magic_number_seven = 7
+    magic_number_nine  = 9
