@@ -360,7 +360,7 @@ class Method:
                         each_ta_site: index
                             for index, each_ta_site in enumerate(sites) 
                     }
-                    rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(genes, ta_site_index_map, n_terminus=n_terminus, c_terminus=c_terminus)
+                    rv_site_indexes_map = tnseq_tools.rv_site_indexes_map(genes, ta_site_index_map, n_terminus=n_terminus, c_terminus=c_terminus)
                     stats_by_rv, stat_group_names = transit_tools.get_stats_by_rv(data, rv_site_indexes_map, genes, filtered_conditions_from_comwig, interactions_from_wigs, winz)
                     log_z_perc_by_replicate, non_zero_mean_by_replicate = Method.global_stats_for_rep(data)
             # 

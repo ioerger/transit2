@@ -400,7 +400,7 @@ class Method:
         if True:
             logging.log("processing data")
             TASiteindexMap = {ta: i for i, ta in enumerate(sites)}
-            rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
+            rv_site_indexes_map = tnseq_tools.rv_site_indexes_map(
                 genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
             )
             means_by_rv = self.means_by_rv(data, rv_site_indexes_map, genes, conditions)

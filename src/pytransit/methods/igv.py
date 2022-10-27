@@ -22,8 +22,8 @@ class Method:
         output_file=None,
     )
     
-    @cli.add_command("export", name.lower())
     @staticmethod
+    @cli.add_command("export", name.lower())
     def from_args(args, kwargs):
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
 

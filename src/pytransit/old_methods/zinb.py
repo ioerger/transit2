@@ -601,7 +601,7 @@ class Method(base.MultiConditionMethod):
         genes = tnseq_tools.read_genes(self.annotation_path)
 
         ta_site_index_map = {TA: i for i, TA in enumerate(sites)}
-        rv_site_indexes_map = tnseq_tools.rv_siteindexes_map(
+        rv_site_indexes_map = tnseq_tools.rv_site_indexes_map(
             genes, ta_site_index_map, n_terminus=self.n_terminus, c_terminus=self.c_terminus
         )
         stats_by_rv, stat_group_names = transit_tools.get_stats_by_rv(

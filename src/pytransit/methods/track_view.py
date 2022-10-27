@@ -25,8 +25,8 @@ class Method:
     # 
     # Track View
     # 
-    @gui.add_wig_area_dropdown_option(name=name)
     @staticmethod
+    @gui.add_wig_area_dropdown_option(name=name)
     def click_show_track_view(event):
         with gui_tools.nice_error_log:
             import pytransit.components.trash as trash

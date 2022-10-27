@@ -7,4 +7,4 @@ comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 DATA="src/pytransit/data/"
 
 # Ontologizer is a specialized method for GO terms
-transit pathway_enrichment "tests/cli_tests/resampling/0001_basic.sh.1.result" $DATA/H37Rv_GO_terms.txt $DATA/gene_ontology.1_2.3-11-18.obo "$result_file" -M ONT
+python3 ./src/transit.py pathway_enrichment "tests/cli_tests/resampling/0001_basic.sh.1.result" $DATA/H37Rv_GO_terms.txt $DATA/gene_ontology.1_2.3-11-18.obo "$result_file" -M ONT
