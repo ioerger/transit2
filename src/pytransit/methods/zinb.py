@@ -164,8 +164,8 @@ class Method:
         # ask for output path(s)
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.csv",
-            output_extensions='Common output extensions (*.csv,*.dat,*.txt,*.out)|*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions='Common output extensions (*.csv,*.tsv,*.dat,*.txt,*.out)|*.csv;*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
         if not Method.inputs.output_path:

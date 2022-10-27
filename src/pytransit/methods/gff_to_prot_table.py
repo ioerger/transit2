@@ -58,7 +58,7 @@ class Method:
                 # get output path
                 output_path = gui_tools.ask_for_output_file_path(
                     default_file_name=f"{name}.prot_table",
-                    output_extensions='Common output extensions (*.txt,*.csv,*.dat,*.out)|*.txt;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                    output_extensions='Common output extensions (*.txt,*.csv,*.tsv,*.dat,*.out)|*.txt;*.csv;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
                 Method.inputs.update(dict(
                     path_to_gff=path_to_gff,
