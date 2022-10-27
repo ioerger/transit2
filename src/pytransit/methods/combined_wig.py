@@ -61,7 +61,7 @@ class Method:
                 wig_paths = wig_paths_getter()
                 output_path = gui_tools.ask_for_output_file_path(
                     default_file_name=f"recent_export.comwig.tsv",
-                    output_extensions='Common output extensions (*.comwig.tsv,*.tsv,*.dat,*.out)|*.comwig.tsv;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                    output_extensions='Common output extensions (*.comwig.tsv,*.tsv,*.csv,*.dat,*.out)|*.comwig.tsv;*.tsv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
                 print(f'''wig_paths = {wig_paths}''')
                 

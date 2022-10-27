@@ -304,8 +304,8 @@ class Method:
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name=f"{Method.cli_name}_output.txt",
-            output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions=transit_tools.result_output_extensions,
         )
 
 

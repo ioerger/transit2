@@ -6,6 +6,7 @@ from pytransit.generic_tools import csv
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton
+from pytransit.specific_tools import logging
 
 debugging_enabled = True
 root_folder       = path.join(path.dirname(__file__),"../../")
@@ -36,7 +37,9 @@ class gui:
         "Pre-Processing": {},
     })
     
-    _annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
+    _annotation_path = "" if not debugging_enabled else f"{root_folder}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
+    #_annotation_path = "" if not debugging_enabled else "H37Rv.prot_table"
+
     @property
     def annotation_path(self):
         from pytransit.specific_tools import transit_tools

@@ -29,13 +29,16 @@ class Method:
     
     transposons = [ "himar1" ] # not sure if this is right -- Jeff
     
-    valid_cli_flags = [
-        "-n",  # normalization
-        "--avg_by_conditions",
-        "-iN", # n_terminus
-        "-iC", # c_terminus
-        # could add a flag for Adj P Value cutoff (or top n most signif genes)
-    ]
+    inputs = LazyDict(
+        combined_wig=None,
+        annotation_path=None,
+        output_path=None,
+        avg_by_conditions=False,
+        normalization="TTR", #TRI hard-coded for now
+    )
+    
+    valid_cli_flags = [ "avg_by_conditions" ]
+    #TRI - could add a flag for Adj P Value cutoff (or top n most signif genes)
 
     # TODO: TRI - should drop anova and zinb defaults, and instead take combined_wig or gene_means file (from export)
     #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
@@ -127,27 +130,26 @@ class Method:
         
         from pytransit.methods.gene_means import Method as GeneMeansMethod
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging,):
-            import numpy
-            # instantiate the corrplot_r_function if needed
-            if not Method.corrplot_r_function:
-                transit_tools.require_r_to_be_installed()
-                r(""" # R function...
-                    make_corrplot = function(means,headers,outfilename) { 
-                        means = means[,headers] # put cols in correct order
-                        suppressMessages(require(corrplot))
-                        png(outfilename)
-                        corrplot(cor(means))
-                        dev.off()
-                    }
-                """)
-                Method.corrplot_r_function = globalenv["make_corrplot"]
-            
-            _, (means, genes, labels) = GeneMeansMethod.calculate(combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
-            print(f'''GeneMeansMethod.calculate: labels = {labels}''')
+            import seaborn as sns
+            import matplotlib.pyplot as plt
+            import numpy as np
+            import pandas as pd
+
+            _, (means, genes, headers) = GeneMeansMethod.calculate(combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
             
             position_hash = {}
-            for i, col in enumerate(labels):
+            for i, col in enumerate(headers):
                 position_hash[col] = FloatVector([x[i] for x in means])
-            df = DataFrame(position_hash)  
-            
-            Method.corrplot_r_function(df, StrVector(labels), output_path ) # pass in headers to put cols in order, since df comes from dict
+            df = pd.DataFrame.from_dict(position_hash, orient="columns")  
+
+            logging.log("Creating the Correlation Plot")
+            corr = df[headers].corr()
+            mask = np.triu(np.ones_like(corr, dtype=bool))
+            #f, ax = plt.subplots(figsize=(11, 9))
+            plt.figure()
+            sns.heatmap(corr, mask=mask, cmap=sns.color_palette("bwr", as_cmap=True),  square=True, linewidths=.5, cbar_kws={"shrink": .5})
+            if avg_by_conditions == False:
+                plt.title("Correlations of Genes in Samples")
+            else:
+                plt.title("Correlations of Genes in Conditions")
+            plt.savefig(output_path, bbox_inches='tight')

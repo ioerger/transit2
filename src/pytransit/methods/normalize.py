@@ -54,12 +54,13 @@ class Method:
     
     # a helper for all the methods above
     def gui_normalize(self, kind):
+        from pytransit.specific_tools import transit_tools
         # TODO: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
         return Method.run_normalize(
             combined_wig=gui.combined_wigs[-1],
             output_path=gui_tools.ask_for_output_file_path(
                 default_file_name=f"{Method.name}_output.tsv".lower(),
-                output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+                output_extensions=transit_tools.result_output_extensions,
             ),
             normalization=kind,
         )
