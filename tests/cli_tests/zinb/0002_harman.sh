@@ -5,6 +5,7 @@ annotation="./src/pytransit/data/genomes/mc2_155_tamu.prot_table"
 metadata="./src/pytransit/data/Harman_metadata_v3.ignore.txt"
 comwig="./src/pytransit/data/Harman_combined_wig_smeg_BGC.ignore.txt"
 
+annotation="./src/pytransit/data/mc2_155_tamu.prot_table"
 
 # Strains: "DKO" "rel" "WT" "x5849"
 # Time Slices: 0days, 7days, 14days, 28days

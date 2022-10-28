@@ -75,7 +75,7 @@ class Method:
             log_scale="log" in kwargs # bool
         )
         
-    @gui.add_menu("Pre-Processing", menu_name, "By Sample")
+    @gui.add_menu("Pre-Processing", cli_name)
     def on_menu_click(event):
         from pytransit.components import panel_helpers
         Method.value_getters = LazyDict()
@@ -86,24 +86,6 @@ class Method:
             Method.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
             Method.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
             Method.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
-            Method.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            Method.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
-
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
-    
-    @gui.add_menu("Pre-Processing", menu_name, "By Condition")
-    def on_menu_click(event):
-        from pytransit.components import panel_helpers
-        Method.value_getters = LazyDict()
-        Method.by_condition = True
-        with panel_helpers.NewPanel() as (panel, main_sizer):
-            sample_ids = [x.id for x in gui.samples]
-            Method.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_condition_input(panel, main_sizer)
-            Method.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
-            Method.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
-            Method.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
-            Method.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            Method.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
 
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
     

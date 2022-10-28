@@ -74,7 +74,7 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
-        cli_args.gene = "-gene" in kwargs
+        cli_args.gene = kwargs["-gene"]
         
         # save the data
         Method.output(
@@ -256,17 +256,13 @@ class Method:
                 # process the metadata
                 # 
                 if True:
-                    # FIXME: it looks like something needs to be fixed here, but i need to look into it more --Jeff
-                    # original message:
-                    #    if a covar is not found, this crashes; check for it?
-                    #    read it first with no condition specified, to get original Condition names
                     (
                         conditions_by_wig_fingerprint,
                         covariates_by_wig_fingerprint_list,
                         interactions_by_wig_fingerprint_list,
                         ordering_metadata,
                     ) = tnseq_tools.CombinedWigMetadata.read_condition_data(
-                        metadata_path, covars, interactions, # condition_name=group_by # TODO: this wasnt an available argument 
+                        metadata_path, covars, interactions, column_name_for_condition=group_by,
                     )
                     
                     # 
@@ -605,8 +601,6 @@ class Method:
             comp0b += "+" + each_covariate
         zinb_mod1 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp1a, comp1b)
         zinb_mod0 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp0a, comp0b)
-        print(f''',zinb_mod1 = {zinb_mod1}''')
-        print(f''',zinb_mod0 = {zinb_mod0}''')
 
         nb_mod1 = "cnt~%s" % (comp1a)
         nb_mod0 = "cnt~%s" % (comp0a)
@@ -701,11 +695,6 @@ class Method:
                     melted = DataFrame(df_args)
                     # r_args = [IntVector(read_counts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(non_zero_mean), FloatVector(logit_z_perc)] + [True]
                     debugging = debugging_enabled or cli_args.gene
-                    print(f'''melted = {melted}''') # 
-                    print(f'''zinb_mod1 = {zinb_mod1}''')
-                    print(f'''zinb_mod0 = {zinb_mod0}''')
-                    print(f'''nb_mod1 = {nb_mod1}''')
-                    print(f'''nb_mod0 = {nb_mod0}''')
                     pval, msg = r_zinb_signif(
                         melted, zinb_mod1, zinb_mod0, nb_mod1, nb_mod0, debugging
                     )
@@ -788,7 +777,6 @@ class Method:
                 nbMod0,
                 DEBUG = F
             ) {
-              print("Starting ZINB in R")
               suppressMessages(require(pscl))
               suppressMessages(require(MASS))
               melted = df
@@ -865,7 +853,6 @@ class Method:
               # this gives same answer, but I would need to extract the Pvalue...
               #require(lmtest)
               #print(lrtest(mod1,mod0))
-              print("Finished ZINB in R")
               return (c(pval, status))
             }
         """
