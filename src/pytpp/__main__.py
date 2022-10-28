@@ -47,7 +47,7 @@ def main(*args, **kwargs):
         )
         sys.exit(0)
     vars = Globals()
-    # Check for arguements
+    # Check for arguments
     if not args and not kwargs and HAS_WX:
         app = wx.App(False)
         form = MyForm(vars)

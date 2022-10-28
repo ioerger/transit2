@@ -2,7 +2,7 @@ from random import random, seed
 from os import getcwd, path
 import sys
 
-import pytransit.generic_tools.csv as csv
+from pytransit.generic_tools import csv
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton

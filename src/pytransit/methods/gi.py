@@ -26,8 +26,6 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
-gene_name_index = 8 
-
 @misc.singleton
 class Method:
     name = "Genetic Interaction"
@@ -605,7 +603,8 @@ class Method:
         annot = {}
         for line in open(self.inputs.annotation_path):
             cells = line.rstrip().split('\t')
-            annot[cells[gene_name_index]] = cells[0]
+            gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
+            annot[gene_name] = cells[0]
         
         # 
         # format into rows

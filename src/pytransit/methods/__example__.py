@@ -128,17 +128,19 @@ class Method:
         gui.conditions[0].extra_data # dict (currently unused, but would show up as columns in the condition GUI table)
         gui.wigs_in_selected_conditions # list of Wig objects
         gui.combined_wigs # list of CombinedWig objects
-        gui.combined_wigs[-1].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+        gui.combined_wigs[-1].main_path
+        gui.combined_wigs[-1].metadata_path
+        gui.combined_wigs[-1].annotation_path
         gui.combined_wigs[-1].rows # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
-        gui.combined_wigs[-1].wig_ids          # same order as columns/wig_fingerprints
-        gui.combined_wigs[-1].wig_fingerprints # same order as #File: columns
-        gui.combined_wigs[-1].conditions       # list of condition objects
+        gui.combined_wigs[-1].as_tuple # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
         gui.combined_wigs[-1].ta_sites
         gui.combined_wigs[-1].read_counts_array[row_index, wig_index]
         gui.combined_wigs[-1].read_counts_by_wig_fingerprint[wig_index, row_index]
+        gui.combined_wigs[-1].wig_ids          # same order as columns/wig_fingerprints
+        gui.combined_wigs[-1].wig_fingerprints # same order as #File: columns
+        gui.combined_wigs[-1].condition_names  # list of condition strings
+        gui.combined_wigs[-1].conditions       # list of condition objects
         gui.combined_wigs[-1].with_only(condition_names=[], wig_fingerprints=[], wig_ids=[]) # returns a copy that has columns/rows filtered out
-        gui.combined_wigs[-1].main_path
-        gui.combined_wigs[-1].metadata_path # to get all these it would be [ each.metadata_path for each in gui.combined_wigs ]
         gui.combined_wigs[-1].samples # list of Wig objects
         gui.combined_wigs[-1].samples[0].id # id from the metadata file
         gui.combined_wigs[-1].samples[0].fingerprint # the "File" column from the metadata 
@@ -171,12 +173,6 @@ class Method:
         gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
         
         # 
-        # get annotation
-        # 
-        # HANDLE_THIS
-        arguments.annotation_path = gui.annotation_path
-        
-        # 
         # call all GUI getters, puts results into respective arguments key-value
         # 
         for each_key, each_getter in Method.value_getters.items():
@@ -190,7 +186,7 @@ class Method:
         # 
         arguments.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
-            output_extensions='Common output extensions (*.txt,*.csv,*.tsv,*.dat,*.out)|*.txt;*.csv;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
+            output_extensions='Common output extensions (*.tsv,*.dat,*.out)|*.txt;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
         if not arguments.output_path:

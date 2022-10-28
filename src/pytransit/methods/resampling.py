@@ -207,7 +207,7 @@ class Method:
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
-            output_extensions='Common output extensions (*.csv,*.tsv,*.dat,*.txt,*.out)|*.csv;*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+            output_extensions=transit_tools.result_output_extensions,
         )
         if not Method.inputs.output_path:
             return None
@@ -351,7 +351,7 @@ class Method:
             (position, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
                 self.inputs.combined_wig_params["combined_wig"]
             )
-            conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.read_samples_metadata(
+            conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.CombinedWigMetadata.read_condition_data(
                 self.inputs.combined_wig_params["samples_metadata"]
             )
             condition_names = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
