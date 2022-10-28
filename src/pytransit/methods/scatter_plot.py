@@ -143,7 +143,7 @@ class Method:
         Method.output(**arguments)
 
     @staticmethod
-    def output(*, combined_wig, output_path, normalization=None, avg_by_conditions=None, gene_means=None, log_scale=None, n_terminus=None, c_terminus=None, disable_logging=False):
+    def output(*, output_path, combined_wig_path=None, metadata_path=None, annotation_path=None, combined_wig=None, normalization=None, avg_by_conditions=None, gene_means=None, log_scale=None, n_terminus=None, c_terminus=None, disable_logging=False):
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         avg_by_conditions = avg_by_conditions if avg_by_conditions is not None else False
@@ -151,6 +151,9 @@ class Method:
         log_scale         = log_scale         if log_scale         is not None else False
         n_terminus        = n_terminus        if n_terminus        is not None else 0.0
         c_terminus        = c_terminus        if c_terminus        is not None else 0.0
+        
+        if combined_wig == None:
+            combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
         
         # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
         if not avg_by_conditions: assert len(combined_wig.samples) == 2, "Please use combined_wig.with_only(wig_ids=[ID1, ID2]) before calling scatter plot"

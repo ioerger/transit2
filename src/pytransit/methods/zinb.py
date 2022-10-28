@@ -591,20 +591,22 @@ class Method:
         comp1b = "1+cond"
 
         # include cond in mod0 only if testing interactions
-        comp0a = "1" if len(interactions) == 0 else "1+cond"
-        comp0b = "1" if len(interactions) == 0 else "1+cond"
-        for I in interactions:
-            comp1a += "*" + I
-            comp1b += "*" + I
-            comp0a += "+" + I
-            comp0b += "+" + I
-        for C in covars:
-            comp1a += "+" + C
-            comp1b += "+" + C
-            comp0a += "+" + C
-            comp0b += "+" + C
+        comp0a = "1" if len(interactions) == 0 else "1+cond" # >>> "1+cond"
+        comp0b = "1" if len(interactions) == 0 else "1+cond" # >>> "1+cond"
+        for each_interaction in interactions: # >>>  [ "KO_5849" ]
+            comp1a += "*" + each_interaction
+            comp1b += "*" + each_interaction
+            comp0a += "+" + each_interaction
+            comp0b += "+" + each_interaction
+        for each_covariate in covars: # >>> [ ]
+            comp1a += "+" + each_covariate
+            comp1b += "+" + each_covariate
+            comp0a += "+" + each_covariate
+            comp0b += "+" + each_covariate
         zinb_mod1 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp1a, comp1b)
         zinb_mod0 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp0a, comp0b)
+        print(f''',zinb_mod1 = {zinb_mod1}''')
+        print(f''',zinb_mod0 = {zinb_mod0}''')
 
         nb_mod1 = "cnt~%s" % (comp1a)
         nb_mod0 = "cnt~%s" % (comp0a)
@@ -699,6 +701,11 @@ class Method:
                     melted = DataFrame(df_args)
                     # r_args = [IntVector(read_counts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(non_zero_mean), FloatVector(logit_z_perc)] + [True]
                     debugging = debugging_enabled or cli_args.gene
+                    print(f'''melted = {melted}''') # 
+                    print(f'''zinb_mod1 = {zinb_mod1}''')
+                    print(f'''zinb_mod0 = {zinb_mod0}''')
+                    print(f'''nb_mod1 = {nb_mod1}''')
+                    print(f'''nb_mod0 = {nb_mod0}''')
                     pval, msg = r_zinb_signif(
                         melted, zinb_mod1, zinb_mod0, nb_mod1, nb_mod0, debugging
                     )

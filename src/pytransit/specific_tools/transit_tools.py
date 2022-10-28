@@ -700,9 +700,11 @@ def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, 
     stat_group_names = group_wig_index_map.keys()
     return stats_by_rv, stat_group_names
 
-def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
-    assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
+def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=None, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
+    if combined_wig==None: 
+        combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
     
+    assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
     sites, data, filenames_in_comb_wig = combined_wig.as_tuple
 
     logging.log(f"Normalizing using: {normalization}")
