@@ -54,7 +54,7 @@ class Method:
         avg_by_conditions = "cond" in kwargs
         
         combined_wig = tnseq_tools.CombinedWig(
-            main_path=combined_wig,
+            main_path=combined_wig_path,
             metadata_path=metadata_path,
         )
         # 
