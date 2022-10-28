@@ -6,7 +6,6 @@ from pytransit.generic_tools import csv
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton
-from pytransit.specific_tools import logging
 
 debugging_enabled = True
 root_folder       = path.join(path.dirname(__file__),"../../")
@@ -46,6 +45,7 @@ class gui:
         import os
         # validate it anytime the GUI tries to retrieve the annotation
         if not os.path.isfile(self._annotation_path):
+            from pytransit.specific_tools import logging
             logging.error(f"Error: Annotation doesn't seem to be a file:{self._annotation_path}")
         return self._annotation_path
     

@@ -1,35 +1,3 @@
-Traceback (most recent call last):
-  File "./src/transit.py", line 23, in <module>
-    import pytransit.__main__
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/__main__.py", line 8, in <module>
-    import pytransit.methods
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/__init__.py", line 1, in <module>
-    from .anova              import *
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/anova.py", line 13, in <module>
-    from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/gui_tools.py", line 5, in <module>
-    from pytransit.specific_tools.transit_tools import wx
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 28, in <module>
-    import scipy.optimize
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/optimize/__init__.py", line 387, in <module>
-    from .optimize import *
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/optimize/optimize.py", line 36, in <module>
-    from ._numdiff import approx_derivative
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/optimize/_numdiff.py", line 6, in <module>
-    from scipy.sparse.linalg import LinearOperator
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/sparse/linalg/__init__.py", line 111, in <module>
-    from .isolve import *
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/sparse/linalg/isolve/__init__.py", line 4, in <module>
-    from .iterative import *
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/sparse/linalg/isolve/iterative.py", line 13, in <module>
-    from scipy._lib._threadsafety import non_reentrant
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/_lib/_threadsafety.py", line 3, in <module>
-  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 951, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 894, in _find_spec
-  File "<frozen importlib._bootstrap_external>", line 1157, in find_spec
-  File "<frozen importlib._bootstrap_external>", line 1129, in _get_spec
-  File "<frozen importlib._bootstrap_external>", line 1268, in find_spec
-  File "<frozen importlib._bootstrap_external>", line 60, in _path_join
-  File "<frozen importlib._bootstrap_external>", line 60, in <listcomp>
-KeyboardInterrupt
+[normalize:run_normalize()] Starting Normalization 
+[normalize:run_normalize()] normalization=betageom, counts_by_wig.shape=(1, 74605) 
+[normalize:run_normalize()] Finished Normalization 

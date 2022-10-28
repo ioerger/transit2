@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.result"
+result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.ignore.result"
 annotation="./src/pytransit/data/genomes/mc2_155_tamu.prot_table"
 metadata="./src/pytransit/data/Harman_metadata_v3.ignore.txt"
 comwig="./src/pytransit/data/Harman_combined_wig_smeg_BGC.ignore.txt"

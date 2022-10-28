@@ -1,3 +1,15 @@
+R[write to console]: Error in heatmap.2(as.matrix(lfcs), col = colors, margin = c(12, 12),  : 
+  could not find function "heatmap.2"
+
+R[write to console]: In addition: 
+R[write to console]: Warning message:
+
+R[write to console]: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+R[write to console]: 
+ 
+R[write to console]:  there is no package called ‘gplots’
+
+heatmap based on 25 genes
 Traceback (most recent call last):
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
@@ -7,8 +19,16 @@ Traceback (most recent call last):
     cli.subcommands[subcommand](subcommand_args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 129, in from_args
     Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 132, in Run
-    transit_tools.require_r_to_be_installed()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/transit_tools.py", line 275, in require_r_to_be_installed
-    raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
-Exception: Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 189, in Run
+    heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/functions.py", line 203, in __call__
+    return (super(SignatureTranslatedFunction, self)
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/functions.py", line 126, in __call__
+    res = super(Function, self).__call__(*new_args, **new_kwargs)
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface_lib/conversion.py", line 45, in _
+    cdata = function(*args, **kwargs)
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface.py", line 815, in __call__
+    raise embedded.RRuntimeError(_rinterface._geterrmessage())
+rpy2.rinterface_lib.embedded.RRuntimeError: Error in heatmap.2(as.matrix(lfcs), col = colors, margin = c(12, 12),  : 
+  could not find function "heatmap.2"
+
