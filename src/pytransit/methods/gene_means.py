@@ -28,6 +28,18 @@ class Method:
     menu_name   = f"{name} - calculate mean counts at gene level"
     description = f"""Calculate mean counts at gene level."""
     
+    inputs = LazyDict(
+        combined_wig=None,
+        metadata=None,
+        annotation_path=None,
+        normalization="TTR",
+        condition_avg=None,
+        output_path=None,
+        
+        n_terminus=0.0, # TODO: these don't seem to be used in the Run funciton --Jeff
+        c_terminus=0.0, # TODO: these don't seem to be used in the Run funciton --Jeff
+    )
+    
     valid_cli_flags = [
         "-n",  # normalization
         "-iN", # n_terminus
@@ -78,25 +90,23 @@ class Method:
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.avg_by_conditions      = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Average counts over\nreplicates of each condition", default_value=False, tooltip_text="the output can contain gene means for each individual sample, or averaged by condition", widget_size=None)
+            self.value_getters.condition_avg          = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts over replicates of each condition", default_value=False, tooltip_text="the output can contain gene means for each individual sample, or averaged by condition", widget_size=None)
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):
-        arguments = LazyDict()
-        
         # 
-        # get global data
+        # get annotation
         # 
         arguments.combined_wig = gui.combined_wigs[-1]
         
         # 
-        # call all GUI getters, puts results into respective key in arguments
+        # call all GUI getters, puts results into respective Method.inputs key-value
         # 
         for each_key, each_getter in Method.value_getters.items():
             try:
-                arguments[each_key] = each_getter()
+                Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
@@ -108,11 +118,11 @@ class Method:
             output_extensions=transit_tools.result_output_extensions,
         )
         # if user didn't select an output path
-        if not arguments.output_path:
+        if not Method.inputs.output_path:
             return None
 
-        Method.output(**arguments)
-    
+        return Method
+
     @staticmethod
     def calculate(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
         means, genes, labels = transit_tools.calc_gene_means(
@@ -129,6 +139,9 @@ class Method:
             *labels,
         ]
         
+        #
+        # write output
+        #
         rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name]+["%0.1f" % x for x in means[i,:]])))
             [
                 genes[row_index].orf,
@@ -140,38 +153,24 @@ class Method:
             ]
                 for row_index in range(means.shape[0])
         ]
-        return (column_names, rows), (means, genes, labels)
-    
-    @staticmethod
-    def output(*, combined_wig, normalization=None, avg_by_conditions=None, output_path=None, n_terminus=None, c_terminus=None, disable_logging=False):
-        # Defaults (even if argument directly provided as None)
-        normalization     = normalization     if normalization     is not None else "TTR"
-        avg_by_conditions = avg_by_conditions if avg_by_conditions is not None else False
-        output_path       = output_path       if output_path       is not None else None
-        n_terminus        = n_terminus        if n_terminus        is not None else 0.0
-        c_terminus        = c_terminus        if c_terminus        is not None else 0.0
+        logging.log(f"Writing output file: {self.inputs.output_path}")
+        transit_tools.write_result(
+            path=self.inputs.output_path, # path=None means write to STDOUT
+            file_kind=Method.identifier,
+            column_names=[
+                "ORF",
+                "Gene Name",
+                *labels,
+            ],
+            rows=rows,
+            extra_info=dict(
+                time=(time.time() - start_time),
+            ),
+        )
         
-        from pytransit.specific_tools import stat_tools
-        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
-            (column_names, rows), (means, genes, labels) = Method.calculate(
-                combined_wig=combined_wig,
-                normalization=normalization,
-                avg_by_conditions=avg_by_conditions,
-                n_terminus=n_terminus,
-                c_terminus=c_terminus,
-            )
-            
-            logging.log(f"Writing output file: {output_path}")
-            transit_tools.write_result(
-                path=output_path, # path=None means write to STDOUT
-                file_kind=Method.identifier,
-                column_names=column_names,
-                rows=rows,
-                extra_info=dict(
-                    time=timer.duration_in_seconds,
-                ),
-            )
-        
+        results_area.add(self.inputs.output_path)
+        logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
+
 @transit_tools.ResultsFile
 class ResultFileType1:
     @staticmethod
