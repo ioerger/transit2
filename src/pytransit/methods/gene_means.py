@@ -46,6 +46,7 @@ class Method:
     
     @staticmethod
     @cli.add_command(cli_name)
+    @cli.add_command("export", "mean_counts")
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
