@@ -52,20 +52,20 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
-        
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+                
         # map data to the core function
         Method.output(
             combined_wig=tnseq_tools.CombinedWig(
                 main_path=args[0],
-                metadata_path=kwargs.get("avg_by_conditions",None),
-                annotation_path=args[1],
+                metadata_path=args[1],
+                annotation_path=args[2],
             ),
             normalization=kwargs["n"],
             n_terminus=kwargs["iN"],
             c_terminus=kwargs["iC"],
             avg_by_conditions="avg_by_conditions" in kwargs, # bool
-            output_path=args[2],
+            output_path=args[3],
             disable_logging=False,
         )
     

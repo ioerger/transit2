@@ -13,7 +13,6 @@ from .scatter_plot       import *
 from .corrplot           import *
 from .normalize          import *
 from .corrplot           import *
-from .mean_counts        import *
 from .gene_means         import *
 from .track_view         import *
 from .quality_control    import *

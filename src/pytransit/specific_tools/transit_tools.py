@@ -734,7 +734,11 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
     )
     
     means = []
-    labels = combined_wig.wig_fingerprints # NOTE: this would be wig_ids, but can't because the metadata is only guarenteed to exist if avg_by_conditions is true
+    if combined_wig.metadata_path:
+        labels = combined_wig.wig_ids
+    else:
+        labels = combined_wig.wig_fingerprints
+    
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
