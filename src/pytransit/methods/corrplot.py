@@ -120,13 +120,16 @@ class Method:
     
     corrplot_r_function = None    
     @staticmethod
-    def output(*, combined_wig, normalization=None, avg_by_conditions=None, output_path=None, n_terminus=None, c_terminus=None, disable_logging=False):
+    def output(*, combined_wig_path=None, metadata_path=None, annotation_path=None, combined_wig=None, normalization=None, avg_by_conditions=None, output_path=None, n_terminus=None, c_terminus=None, disable_logging=False):
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         avg_by_conditions = avg_by_conditions if avg_by_conditions is not None else False
         output_path       = output_path       if output_path       is not None else None
         n_terminus        = n_terminus        if n_terminus        is not None else 0.0
         c_terminus        = c_terminus        if c_terminus        is not None else 0.0
+        
+        if combined_wig == None:
+            combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path, annotation_path=annotation_path)
         
         from pytransit.methods.gene_means import Method as GeneMeansMethod
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging,):
