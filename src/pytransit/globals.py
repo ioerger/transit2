@@ -59,11 +59,13 @@ class gui:
         
     @property
     def conditions(self):
-        return no_duplicates(flatten_once(each_combined_wig.conditions for each_combined_wig in self.combined_wigs))
+        # only for latest combined wig
+        return self.combined_wigs[-1].conditions
             
     @property
     def samples(self):
-        return no_duplicates(flatten_once(each_combined_wig.samples for each_combined_wig in self.combined_wigs))
+        # only for latest combined wig
+        return self.combined_wigs[-1].samples
     
     @property
     def selected_samples(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
