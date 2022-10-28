@@ -30,8 +30,8 @@ class Method:
         ref=None,
     )
     
-    @cli.add_command("export", "combined_wig")
     @staticmethod
+    @cli.add_command("export", "combined_wig")
     def from_args(args, kwargs):
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
@@ -52,7 +52,7 @@ class Method:
         def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
             normalization_getter   = panel_helpers.create_normalization_input(pop_up_panel, sizer)
             annotation_path_getter = panel_helpers.create_file_input(pop_up_panel, sizer, button_label="Select Annotation File", tooltip_text="", popup_title="Annotation File", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=refresh)
-            wig_paths_getter       = panel_helpers.create_multi_file_input(pop_up_panel, sizer, button_label="Select Wig Files", tooltip_text="", popup_title="Wig Files"      , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.csv,*.dat,*.out)|*.wig;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
+            wig_paths_getter       = panel_helpers.create_multi_file_input(pop_up_panel, sizer, button_label="Select Wig Files", tooltip_text="", popup_title="Wig Files"      , default_folder=None, default_file_name="", allowed_extensions='Common output extensions (*.wig,*.tsv,*.dat,*.out)|*.wig;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*', after_select=refresh)
             
             @panel_helpers.create_button(pop_up_panel, sizer, label="Export")
             def when_button_clicked(event):
@@ -61,7 +61,7 @@ class Method:
                 wig_paths = wig_paths_getter()
                 output_path = gui_tools.ask_for_output_file_path(
                     default_file_name=f"recent_export.comwig.tsv",
-                    output_extensions='Common output extensions (*.comwig.tsv,*.csv,*.tsv,*.dat,*.out)|*.comwig.csv;*.csv;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
+                    output_extensions='Common output extensions (*.comwig.tsv,*.tsv,*.csv,*.dat,*.out)|*.comwig.tsv;*.tsv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
                 print(f'''wig_paths = {wig_paths}''')
                 
@@ -228,8 +228,8 @@ class Method:
     # 
     # Samples-area button
     # 
-    @gui.add_wig_area_dropdown_option(name="Show Table")
     @staticmethod
+    @gui.add_wig_area_dropdown_option(name="Show Table")
     def click_show_table(event):
         selected_wigs = gui.selected_samples or gui.samples
         
@@ -266,8 +266,8 @@ class Method:
             sort_by=[]
         ).Show()
     
-    @gui.add_condition_area_dropdown_option(name="Show Table")
     @staticmethod
+    @gui.add_condition_area_dropdown_option(name="Show Table")
     def click_show_table(event):
         selected_wigs = gui.wigs_in_selected_conditions or gui.samples
         

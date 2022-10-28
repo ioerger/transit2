@@ -30,6 +30,10 @@ import scipy.stats
 import heapq
 import matplotlib.pyplot as plt
 
+
+SEPARATOR = "," # TODO remove this
+EOL = "\n" # TODO remove this
+
 # 
 # optional import: wx
 # 
@@ -147,9 +151,136 @@ if HAS_WX:
 
 working_directory = os.getcwd()
 
-def require_r_to_be_installed():
+# 
+# Results read/write
+# 
+if True:
+    result_output_extensions = 'Common output extensions (*.tsv,*.csv,*.dat,*.txt,*.out)|*.tsv;*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*'
+    result_file_classes = []
+    def ResultsFile(a_class):
+        """
+        @ResultsFile
+        class File:
+            @staticmethod
+            def can_load(args):
+                return False
+        """
+        if not callable(getattr(a_class, "can_load", None)):
+            raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
+        
+        result_file_classes.append(a_class)
+        return a_class
+    
+    def file_starts_with(path, identifier):
+        with open(path) as in_file:
+            for line in in_file:
+                if line.startswith(identifier):
+                    return True
+                break
+        return False
+    
+    def read_result(path):
+        result_object = None
+        for FileClass in result_file_classes:
+            loadable = None
+            try:
+                loadable = FileClass.can_load(path)
+            except Exception as error:
+                print(error)
+            if loadable:
+                result_object = FileClass(path=path)
+        
+        return result_object
+
+    def write_result(*, path, file_kind, extra_info, column_names, rows):
+        assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
+        
+        import datetime
+        import ez_yaml
+        import pytransit
+        import pytransit.generic_tools.csv as csv
+        from pytransit.globals import gui
+        from pytransit.generic_tools.misc import indent, to_pure
+        ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
+        ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
+        extra_info = extra_info or {}
+        
+        yaml_string = ""
+        try:
+            yaml_string = ez_yaml.to_string(extra_info)
+        except Exception as error:
+            try:
+                yaml_string = ez_yaml.to_string(to_pure(extra_info))
+            except Exception as error:
+                raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
+        
+        now = str(datetime.datetime.now())
+        todays_date = now[: now.rfind(".")]
+        
+        # 
+        # write to file
+        # 
+        csv.write(
+            path=path,
+            seperator="\t",
+            comment_symbol="#",
+            comments=[
+                file_kind, # identifier always comes first
+                f"yaml:",
+                f"    date: {todays_date}",
+                f"    transit_version: {pytransit.__version__}",
+                f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
+                f"    console_command: |",
+                indent(console_tools.full_commandline_command, by="        "),
+                indent(yaml_string, by="    "),
+                "\t".join(column_names) # column names always last
+            ],
+            rows=rows,
+        )
+
+import time
+class TimerAndOutputs(object):
+    def __init__(self, method_name, output_paths=[], disable=False):
+        self.method_name = method_name
+        self.output_paths = output_paths
+        self.disable = disable
+    
+    def __enter__(self):
+        if not self.disable:
+            logging.log(f"Starting {self.method_name} analysis")
+        self.start_time = time.time()
+        return self
+    
+    def __exit__(self, _, error, traceback):
+        from pytransit.globals import gui
+        from pytransit.components import results_area
+        if error is None:
+            if gui.is_active:
+                for each in self.output_paths:
+                    if not self.disable:
+                        logging.log(f"Adding File: {each}")
+                    results_area.add(each)
+            if not self.disable:
+                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
+        else:
+            raise error
+    
+    @property
+    def duration_in_seconds(self):
+        return time.time() - self.start_time
+
+
+def require_r_to_be_installed(required_r_packages=[]):
     if not HAS_R:
         raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
+    
+    if required_r_packages:
+        missing_packages = [x for x in required_r_packages if not rpackages.isinstalled(x)]
+        if len(missing_packages) > 0:
+            logging.error(
+                "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
+                % ({"0": '"{0}"'.format('", "'.join(missing_packages))})
+            )
 
 def fetch_name(filepath):
     return os.path.splitext(ntpath.basename(filepath))[0]
@@ -238,6 +369,37 @@ def get_gene_info(path):
     else:
         return tnseq_tools.get_gene_info_pt(path)
 
+def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples, enable_logging=False):
+    '''
+        pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)
+        recursive: keep calling till vars reduced to empty
+    '''
+    from pytransit.generic_tools import misc
+    
+    if len(vars) == 0:
+        s = "%s=%s" % (pairs[0][0], pairs[0][1])
+        for i in range(1, len(pairs)):
+            s += " & %s=%s" % (pairs[i][0], pairs[i][1])
+        s += ": %s" % len(samples)
+        enable_logging and logging.log(s)
+        if len(samples) == 0:
+            return True
+    else:
+        var, vals_dict = vars[0], vars_by_file_list[0]
+        inv = misc.invert_dict(vals_dict)
+        any_empty = False
+        for val in vars_to_vals[var]:
+            subset = samples.intersection(set(inv[val]))
+            res = expand_var(
+                pairs + [(var, val)],
+                vars[1:],
+                vars_by_file_list[1:],
+                vars_to_vals,
+                subset,
+            )
+            any_empty = any_empty or res
+        return any_empty
+
 def get_validated_data(wig_list):
     """ Returns a tuple of (data, position) containing a matrix of raw read-counts
         , and list of coordinates. 
@@ -273,37 +435,6 @@ def get_validated_data(wig_list):
     else:
         return tnseq_tools.CombinedWig.gather_wig_data([])
 
-import time
-class TimerAndOutputs(object):
-    def __init__(self, method_name, output_paths=[], disable=False):
-        self.method_name = method_name
-        self.output_paths = output_paths
-        self.disable = disable
-    
-    def __enter__(self):
-        if not self.disable:
-            logging.log(f"Starting {self.method_name} analysis")
-        self.start_time = time.time()
-        return self
-    
-    def __exit__(self, _, error, traceback):
-        from pytransit.globals import gui
-        from pytransit.components import results_area
-        if error is None:
-            if gui.is_active:
-                for each in self.output_paths:
-                    if not self.disable:
-                        logging.log(f"Adding File: {each}")
-                    results_area.add(each)
-            if not self.disable:
-                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
-        else:
-            raise error
-    
-    @property
-    def duration_in_seconds(self):
-        return time.time() - self.start_time
-
 def r_heatmap_func(*args):
     raise Exception(f'''R is not installed, cannot create heatmap without R''')
 if HAS_R:
@@ -329,93 +460,7 @@ if HAS_R:
     """.replace("    \n", "\n"))
     r_heatmap_func = globalenv["make_heatmap"]
 
-# 
-# Results read/write
-# 
-if True:
-    result_file_classes = []
-    def ResultsFile(a_class):
-        """
-        @ResultsFile
-        class File:
-            @staticmethod
-            def can_load(args):
-                return False
-        """
-        if not callable(getattr(a_class, "can_load", None)):
-            raise Exception(f"""Everything that usese ResultsFile should have a can_load() static method, but {a_class} does not""")
-        
-        result_file_classes.append(a_class)
-        return a_class
-    
-    def file_starts_with(path, identifier):
-        with open(path) as in_file:
-            for line in in_file:
-                if line.startswith(identifier):
-                    return True
-                break
-        return False
-    
-    def read_result(path):
-        result_object = None
-        for FileClass in result_file_classes:
-            loadable = None
-            try:
-                loadable = FileClass.can_load(path)
-            except Exception as error:
-                print(error)
-            if loadable:
-                result_object = FileClass(path=path)
-        
-        return result_object
-
-    def write_result(*, path, file_kind, extra_info, column_names, rows):
-        assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
-        
-        import datetime
-        import ez_yaml
-        import pytransit
-        import pytransit.generic_tools.csv as csv
-        from pytransit.globals import gui
-        from pytransit.generic_tools.misc import indent, to_pure
-        ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
-        ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
-        extra_info = extra_info or {}
-        
-        yaml_string = ""
-        try:
-            yaml_string = ez_yaml.to_string(extra_info)
-        except Exception as error:
-            try:
-                yaml_string = ez_yaml.to_string(to_pure(extra_info))
-            except Exception as error:
-                raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
-        
-        now = str(datetime.datetime.now())
-        todays_date = now[: now.rfind(".")]
-        
-        # 
-        # write to file
-        # 
-        csv.write(
-            path=path,
-            seperator="\t",
-            comment_symbol="#",
-            comments=[
-                file_kind, # identifier always comes first
-                f"yaml:",
-                f"    date: {todays_date}",
-                f"    transit_version: {pytransit.__version__}",
-                f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
-                f"    console_command: |",
-                indent(console_tools.full_commandline_command, by="        "),
-                indent(yaml_string, by="    "),
-                "\t".join(column_names) # column names always last
-            ],
-            rows=rows,
-        )
-
-# input: conditions are per wig; orderingMetdata comes from tnseq_tools.read_samples_metadata()
+# input: conditions are per wig; orderingMetdata comes from tnseq_tools.CombinedWigMetadata.read_condition_data()
 # output: conditionsList is selected subset of conditions (unique, in preferred order)
 def filter_wigs_by_conditions(
     data,
@@ -487,7 +532,7 @@ def select_conditions(conditions, included_conditions, excluded_conditions, orde
 
 def filter_wigs_by_conditions2(
     data,
-    file_names,
+    wig_fingerprints,
     condition_names,
     included_cond,
     excluded_cond,
@@ -513,7 +558,7 @@ def filter_wigs_by_conditions2(
             len(included_cond) == 0 or condition_names[i] in included_cond
         ) and condition_names[i] not in excluded_cond:
             d_filtered.append(data[i])
-            file_names_filtered.append(file_names[i])
+            file_names_filtered.append(wig_fingerprints[i])
             cond_names_filtered.append(condition_names[i])
             cond_filtered.append(conditions[i])
             filtered_indexes.append(i)
@@ -531,10 +576,10 @@ def filter_wigs_by_conditions2(
     )
 
 # return a hash table of parallel lists, indexed by column header
-def get_samples_metadata(metadata):
+def get_samples_metadata(metadata_path):
     data = {}
     header = None
-    with open(metadata) as file:
+    with open(metadata_path) as file:
         for line in file:
             if line[0] == "#":
                 continue
@@ -587,149 +632,113 @@ def winsorize(counts):
         ]
         return numpy.array(result)
 
-def make_corrplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, normalization="TTR", avg_by_conditions=True, combined_wig=None):
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import pandas as pd
-
-
-    means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
-                                             metadata_path = metadata_path, 
-                                             annotation_path = annotation_path, 
-                                             normalization = normalization, 
-                                             avg_by_conditions = avg_by_conditions,
-                                             combined_wig = combined_wig)
-    position_hash = {}
-    for i, col in enumerate(headers):
-        position_hash[col] = FloatVector([x[i] for x in means])
-    df = pd.DataFrame.from_dict(position_hash, orient="columns")  
-
-    logging.log("Creating the Correlation Plot")
-    corr = df[headers].corr()
-    mask = np.triu(np.ones_like(corr, dtype=bool))
-    #f, ax = plt.subplots(figsize=(11, 9))
-    plt.figure()
-    sns.heatmap(corr, mask=mask, cmap=sns.color_palette("bwr", as_cmap=True),  square=True, linewidths=.5, cbar_kws={"shrink": .5})
-    if avg_by_conditions == False:
-        plt.title("Correlations of Genes in Samples")
+def winsorize(counts):
+    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+    unique_counts = numpy.unique(numpy.concatenate(counts))
+    if len(unique_counts) < 2:
+        return counts
     else:
-        plt.title("Correlations of Genes in Conditions")
-    plt.savefig(output_path, bbox_inches='tight')
+        n, n_minus_1 = unique_counts[
+            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+        ]
+        result = [
+            [n_minus_1 if count == n else count for count in wig] for wig in counts
+        ]
+        return numpy.array(result)
+
+def stats_for_gene(site_indexes, group_wig_index_map, data, winz):
+    """
+        Returns a dictionary of {Group: {Mean, NzMean, NzPerc}}
+        ([SiteIndex], [Condition], [WigData]) -> [{Condition: Number}]
+        SiteIndex :: Number
+        WigData :: [Number]
+        Group :: String (combination of '<interaction>_<condition>')
+    """
+    nonzero = lambda xs: xs[numpy.nonzero(xs)]
+    nzperc = lambda xs: numpy.count_nonzero(xs) / float(xs.size)
+
+    means = {}
+    nz_means = {}
+    nz_percs = {}
+
+    for (group, wig_indexes) in group_wig_index_map.items():
+        if len(site_indexes) == 0:  # If no TA sites, write 0
+            means[group] = 0
+            nz_means[group] = 0
+            nz_percs[group] = 0
+        else:
+            arr = data[wig_indexes][:, site_indexes]
+            if winz:
+                arr = tnseq_tools.winsorize(arr)
+            means[group] = numpy.mean(arr) if len(arr) > 0 else 0
+            nonzero_arr = nonzero(arr)
+            nz_means[group] = numpy.mean(nonzero_arr) if len(nonzero_arr) > 0 else 0
+            nz_percs[group] = nzperc(arr)
+
+    return {"mean": means, "nz_mean": nz_means, "nz_perc": nz_percs}
+
+def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, winz):
+    """
+        Returns Dictionary of Stats by condition for each Rv
+        ([[Wigdata]], {Rv: SiteIndex}, [Gene], [Condition], [Interaction]) -> {Rv: {Condition: Number}}
+        Wigdata :: [Number]
+        SiteIndex :: Number
+        Gene :: {start, end, rv, gene, strand}
+        Condition :: String
+        Interaction :: String
+    """
+    from pytransit.specific_tools.transit_tools import SEPARATOR, stats_for_gene
     
-    # global corrplot_r_function
-    # import numpy
-    # # instantiate the corrplot_r_function if needed
-    # if not corrplot_r_function:
-    #     require_r_to_be_installed()
-    #     r(""" # R function...
-    #         make_corrplot = function(means,headers,outfilename) { 
-    #             means = means[,headers] # put cols in correct order
-    #             suppressMessages(require(corrplot))
-    #             png(outfilename)
-    #             corrplot(cor(means))
-    #             dev.off()
-    #         }
-    #     """)
-    #     corrplot_r_function = globalenv["make_corrplot"]
+    ## Group wigfiles by (interaction, condition) pair
+    ## {'<interaction>_<condition>': [Wigindexes]}
+    import collections
+    group_wig_index_map = collections.defaultdict(lambda: [])
+    for condition_index, condition_for_wig in enumerate(conditions):
+        if len(interactions) > 0:
+            for interaction in interactions:
+                group_name = condition_for_wig + SEPARATOR + interaction[condition_index]
+                group_wig_index_map[group_name].append(condition_index)
+        else:
+            group_name = condition_for_wig
+            group_wig_index_map[group_name].append(condition_index)
     
-    # means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
-    #                                         metadata_path = metadata_path, 
-    #                                         annotation_path = annotation_path, 
-    #                                         normalization = normalization, 
-    #                                         avg_by_conditions = avg_by_conditions,
-    #                                         combined_wig = combined_wig)
+    stats_by_rv = {}
+    for gene in genes:
+        gene_name = gene["rv"]
+        stats_by_rv[gene_name] = stats_for_gene(
+            rv_site_indexes_map[gene_name], group_wig_index_map, data, winz,
+        )
 
-    # position_hash = {}
-    # for i, col in enumerate(headers):
-    #     position_hash[col] = FloatVector([x[i] for x in means])
-    # df = DataFrame(position_hash)  
+    #TODO: Any ordering to follow?
+    stat_group_names = group_wig_index_map.keys()
+    return stats_by_rv, stat_group_names
 
-    # corrplot_r_function(df, StrVector(headers), output_path ) # pass in headers to put cols in order, since df comes from dict
-
-
-def make_scatterplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, sample1=None, sample2=None, normalization="TTR", avg_by_conditions=False, gene_means=False, log_scale=False, combined_wig=None):
-
-    if combined_wig==None: 
-      combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path)
-
-    if gene_means==False:   
-      sites, data, fingerprints = combined_wig.as_tuple # tnseq_tools.CombinedWigData.load(combined_wig_path)
-      metadata = combined_wig.metadata # tnseq_tools.CombinedWigMetadata(metadata_path)
-      headers = [metadata.id_for(x) for x in fingerprints] # could also use combined_wig.wig_ids?
-      counts = numpy.array(data).transpose()
-    else:
-      means, genes, headers = calc_gene_means(combined_wig_path = combined_wig_path, 
-                                              metadata_path = metadata_path, 
-                                              annotation_path = annotation_path, 
-                                              normalization = normalization, 
-                                              avg_by_conditions = avg_by_conditions,
-                                              combined_wig = combined_wig)
-      counts = means
-
-    #determine indexes for 2 samples by sample id (in metadata)
-    i,j = headers.index(sample1),headers.index(sample2)
-    if i==-1 or j==-1: logging.error("sample not found in combined_wig")
-
-    if log_scale: 
-      plt.scatter(numpy.log10(counts[:,i]),numpy.log10(counts[:,j]))
-      plt.xlabel("log10(%s)" % sample1)
-      plt.ylabel("log10(%s)" % sample2)
-    else:
-      plt.scatter(counts[:,i],counts[:,j])
-      plt.xlabel("%s" % sample1)
-      plt.ylabel("%s" % sample2)
-    if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
-    else: plt.title("scatter plot of insertion counts at individual TA sites")
-    plt.savefig(output_path)
-    plt.clf()
-
-
-# note: all args are named
-# user must provide either combined_wig objects, or filenames for combined_wig_path and metadata_path
-
-def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=None, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
-    if combined_wig==None: 
-      combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path)
-
+def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
+    assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
+    
     sites, data, filenames_in_comb_wig = combined_wig.as_tuple
-    metadata = combined_wig.metadata
-
-    #labels = [metadata.id_for(x) for x in filenames_in_comb_wig]
-    labels = combined_wig.wig_ids # should be in same order as columns in combined_wig file
 
     logging.log(f"Normalizing using: {normalization}")
     data, factors = norm_tools.normalize_data(data, normalization)
+    
     # calculate gene means 
     genes = tnseq_tools.Genes(
         wig_list=[],
         data=data,
-        annotation=annotation_path,
+        annotation=combined_wig.annotation_path,
         position=sites,
         n_terminus=n_terminus,
         c_terminus=c_terminus,
     )
+    
     means = []
-    labels = combined_wig.wig_ids
+    labels = combined_wig.wig_fingerprints # NOTE: this would be wig_ids, but can't because the metadata is only guarenteed to exist if avg_by_conditions is true
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
     means = numpy.vstack(means)
     
     if avg_by_conditions:
-
-# Tom's way...
-#        conditions_by_file, _, _, ordering_metadata = tnseq_tools.read_samples_metadata(metadata_path)
-#        conditions = [ conditions_by_file.get(f, None) for f in filenames_in_comb_wig ] # list of condition names for each column in cwig file
-#        # allow user to include/exclude conditions or put in specific order, like in anova? (using filter_wigs_by_condition3)
-#        condition_list = sorted(list(set(conditions))) # make unique
-#
-#        conditions_array = numpy.array(conditions)
-#        count_lists = []
-#        for each_condition in condition_list:
-#           count_lists.append(numpy.mean(means[:,conditions_array==each_condition],axis=1)) # pick columns corresponding to condition; avg across rows (genes)
-
-# Jeff's way...
         labels = combined_wig.metadata.condition_names
         condition_per_wig_index = [
             combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
@@ -744,9 +753,6 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
                 # pick columns corresponding to condition; avg across rows (genes)
                 numpy.mean(means[:,conditions_array==each_condition_name],axis=1) # TODO: isn't this an issue taking a mean of means? --Jeff
             )
-
         means = numpy.array(count_lists).transpose()
-#        labels = condition_list
-
+    
     return means, genes, labels
-

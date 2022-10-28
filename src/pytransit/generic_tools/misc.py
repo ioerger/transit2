@@ -303,3 +303,11 @@ def str_is_float(string):
         return True
     except ValueError:
         return False
+
+def invert_dict(existing_dict):
+    new_dict = {}
+    for each_key, each_value in existing_dict.items():
+        if each_value not in new_dict:
+            new_dict[each_value] = []
+        new_dict[each_value].append(each_key)
+    return new_dict
