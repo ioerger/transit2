@@ -26,10 +26,11 @@
  Running GI Method...  33.3%   [gi:calc_gi()] analyzing Rv0017c (32.0% done) 
  Running GI Method...  35.3%   [gi:calc_gi()] analyzing Rv0018c (34.0% done) 
  Running GI Method...  37.3%   [gi:calc_gi()] analyzing Rv0019c (36.0% done) 
+ Running GI Method...  39.2%   [gi:calc_gi()] analyzing Rv0020c (38.0% done) 
   File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 278, in Run
     (results,adjusted_label) = self.calc_gi(dataA1,dataA2,dataB1,dataB2,sites)
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 413, in calc_gi
-    B2_data, self.inputs.samples, mu0_B2, s20_B2, k0, nu0
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 404, in calc_gi
+    A1_data, self.inputs.samples, mu0_A1, s20_A1, k0, nu0
   File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/stat_tools.py", line 27, in sample_trunc_norm_post
     a=trunc_a, b=trunc_b, loc=mun, scale=numpy.sqrt(s2_post / float(kn)), size=S
   File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_distn_infrastructure.py", line 1004, in rvs
@@ -38,15 +39,11 @@
     out[idx] = self._rvs_scalar(it[0], it[1], numsamples, random_state).reshape(shp)
   File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7701, in _rvs_scalar
     x = self._ppf(U, a, b)
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7578, in _ppf
-    return _truncnorm_ppf_scalar(q, a.item(), b.item())
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7411, in _truncnorm_ppf_scalar
-    if np.any(condle0):
-  File "<__array_function__ internals>", line 6, in any
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/numpy/core/fromnumeric.py", line 2330, in any
-    return _wrapreduction(a, np.logical_or, 'any', axis, None, out, keepdims=keepdims)
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/numpy/core/fromnumeric.py", line 87, in _wrapreduction
-    return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7576, in _ppf
+    a, b = np.atleast_1d(a), np.atleast_1d(b)
+  File "<__array_function__ internals>", line 6, in atleast_1d
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/numpy/core/shape_base.py", line 67, in atleast_1d
+    if ary.ndim == 0:
   File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/rpy2/rinterface.py", line 87, in _sigint_handler
     raise KeyboardInterrupt()
 
@@ -62,8 +59,8 @@ Traceback (most recent call last):
     Method.Run()
   File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 278, in Run
     (results,adjusted_label) = self.calc_gi(dataA1,dataA2,dataB1,dataB2,sites)
-  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 413, in calc_gi
-    B2_data, self.inputs.samples, mu0_B2, s20_B2, k0, nu0
+  File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/methods/gi.py", line 404, in calc_gi
+    A1_data, self.inputs.samples, mu0_A1, s20_A1, k0, nu0
   File "/home/grads/s/schoudhery/Projects/transit/src/pytransit/specific_tools/stat_tools.py", line 27, in sample_trunc_norm_post
     a=trunc_a, b=trunc_b, loc=mun, scale=numpy.sqrt(s2_post / float(kn)), size=S
   File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_distn_infrastructure.py", line 1004, in rvs
@@ -72,15 +69,11 @@ Traceback (most recent call last):
     out[idx] = self._rvs_scalar(it[0], it[1], numsamples, random_state).reshape(shp)
   File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7701, in _rvs_scalar
     x = self._ppf(U, a, b)
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7578, in _ppf
-    return _truncnorm_ppf_scalar(q, a.item(), b.item())
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7411, in _truncnorm_ppf_scalar
-    if np.any(condle0):
-  File "<__array_function__ internals>", line 6, in any
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/numpy/core/fromnumeric.py", line 2330, in any
-    return _wrapreduction(a, np.logical_or, 'any', axis, None, out, keepdims=keepdims)
-  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/numpy/core/fromnumeric.py", line 87, in _wrapreduction
-    return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/scipy/stats/_continuous_distns.py", line 7576, in _ppf
+    a, b = np.atleast_1d(a), np.atleast_1d(b)
+  File "<__array_function__ internals>", line 6, in atleast_1d
+  File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/numpy/core/shape_base.py", line 67, in atleast_1d
+    if ary.ndim == 0:
   File "/home/grads/s/schoudhery/.local/lib/python3.6/site-packages/rpy2/rinterface.py", line 87, in _sigint_handler
     raise KeyboardInterrupt()
 KeyboardInterrupt

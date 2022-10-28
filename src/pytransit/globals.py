@@ -6,7 +6,6 @@ import pytransit.generic_tools.csv as csv
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton
-from pytransit.specific_tools import logging
 
 debugging_enabled = True
 root_folder       = path.join(path.dirname(__file__),"../../")
@@ -20,7 +19,26 @@ root_folder       = path.join(path.dirname(__file__),"../../")
     # @gui.add_condition_area_dropdown_option("Name")
     # @gui.add_results_button("Name")
 
+# TODO:
+    # Add CLI tests for
+        # gff_to_prot_table.py
+        # igv.py
+        # loess.py
+        # mean_counts.py
+        # scatter_plot.py
+        # tnseq_stats.py
+        # gi.py
+    # Add GUI pops for
+        # gff_to_prot_table.py
+        # igv.py
+        # loess.py
+        # mean_counts.py
+    # Standardize the transit_tools.write method
+    # Flesh out zinb
+    # Flesh out utest
+
 # tools to make
+    # popup tool for convert/export methods
     # a self-caching 'add file' button (remembers what files have been added)
     # a dynamically refreshing button area
     # a multi-select system
@@ -37,16 +55,14 @@ class gui:
         "Pre-Processing": {},
     })
     
-    _annotation_path = "" if not debugging_enabled else f"{root_folder}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
-    #_annotation_path = "" if not debugging_enabled else "H37Rv.prot_table"
+    #_annotation_path = "" if not debugging_enabled else f"{root_folder}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
+    _annotation_path = "" if not debugging_enabled else "H37Rv.prot_table"
 
     @property
     def annotation_path(self):
         from pytransit.specific_tools import transit_tools
-        import os
         # validate it anytime the GUI tries to retrieve the annotation
-        if not os.path.isfile(self._annotation_path):
-            logging.error(f"Error: Annotation doesn't seem to be a file:{self._annotation_path}")
+        transit_tools.validate_annotation(self._annotation_path)
         return self._annotation_path
     
     @property

@@ -2,4 +2,4 @@
 [corrplot:Run()] Starting Corrplot analysis 
 [transit_tools:calc_gene_means()] Normalizing using: TTR 
 [transit_tools:make_corrplot()] Creating the Correlation Plot 
-[corrplot:Run()] Finished Corrplot analysis in 3.1sec 
+[corrplot:Run()] Finished Corrplot analysis in 3.3sec 
