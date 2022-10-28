@@ -494,7 +494,7 @@ class Method(base.MultiConditionMethod):
         # if a covar is not found, this crashes; check for it?
         # read it first with no condition specified, to get original Condition names
         (
-            conditions_by_file1,
+            conditions_by_wig_fingerprint1,
             covariatesByFileList1,
             interactionsByFileList1,
             orderingMetadata1,
@@ -502,7 +502,7 @@ class Method(base.MultiConditionMethod):
             self.metadata_path, self.covars, self.interactions
         )  # without specifiying condition
         (
-            conditions_by_file,
+            conditions_by_wig_fingerprint,
             covariatesByFileList,
             interactionsByFileList,
             orderingMetadata,
@@ -579,7 +579,7 @@ class Method(base.MultiConditionMethod):
         for i, var in enumerate(self.interactions):
             vars2vals[var] = list(set(interactions_from_wigs[i]))
         varsByFileList = (
-            [conditions_by_file] + covariatesByFileList + interactionsByFileList
+            [conditions_by_wig_fingerprint] + covariatesByFileList + interactionsByFileList
         )
         for i, var in enumerate(vars):
             print("\nsamples for Condition/Covariate/Interaction: %s" % vars[i])
