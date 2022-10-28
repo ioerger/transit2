@@ -573,8 +573,20 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     return Wig.selected_as_gathered_data(wig_objects)
 
 ##########################################
+def winsorize(counts):
+    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+    unique_counts = numpy.unique(numpy.concatenate(counts))
+    if len(unique_counts) < 2:
+        return counts
+    else:
+        n, n_minus_1 = unique_counts[
+            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+        ]
+        result = [
+            [n_minus_1 if count == n else count for count in wig] for wig in counts
+        ]
+        return numpy.array(result)
 
-corrplot_r_function = None
 def make_corrplot(combined_wig_path=None, metadata_path=None, annotation_path=None, output_path=None, normalization="TTR", avg_by_conditions=True, combined_wig=None):
     import seaborn as sns
     import matplotlib.pyplot as plt

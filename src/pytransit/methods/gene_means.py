@@ -28,13 +28,25 @@ class Method:
     menu_name   = f"{name} - calculate mean counts at gene level"
     description = f"""Calculate mean counts at gene level."""
     
+    inputs = LazyDict(
+        combined_wig=None,
+        metadata=None,
+        annotation_path=None,
+        normalization="TTR",
+        condition_avg=None,
+        output_path=None,
+        
+        n_terminus=0.0, # TODO: these don't seem to be used in the Run funciton --Jeff
+        c_terminus=0.0, # TODO: these don't seem to be used in the Run funciton --Jeff
+    )
+    
     valid_cli_flags = [
         "-n",  # normalization
         "-iN", # n_terminus
         "-iC", # c_terminus
         "-cond" # averages counts over replicates of each condition
     ]
-    
+
     usage_string = f"""
         Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata> <prot_table> <output_file> [Optional Arguments]
         Optional Arguments:

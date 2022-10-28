@@ -418,19 +418,19 @@ class ZinbMethod(base.MultiConditionMethod):
 
         return globalenv["zinb_signif"]
 
-    def winsorize(self, counts):
-        # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
-        unique_counts = numpy.unique(numpy.concatenate(counts))
-        if len(unique_counts) < 2:
-            return counts
-        else:
-            n, n_minus_1 = unique_counts[
-                heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
-            ]
-            result = [
-                [n_minus_1 if count == n else count for count in wig] for wig in counts
-            ]
-            return numpy.array(result)
+    # def winsorize(self, counts):
+    #     # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+    #     unique_counts = numpy.unique(numpy.concatenate(counts))
+    #     if len(unique_counts) < 2:
+    #         return counts
+    #     else:
+    #         n, n_minus_1 = unique_counts[
+    #             heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+    #         ]
+    #         result = [
+    #             [n_minus_1 if count == n else count for count in wig] for wig in counts
+    #         ]
+    #         return numpy.array(result)
 
     def is_number(self, s):
         try:
@@ -530,7 +530,7 @@ class ZinbMethod(base.MultiConditionMethod):
                     map(lambda wigData: wigData[rv_site_indexes_map[Rv]], data)
                 )
                 if self.winz:
-                    norm_data = self.winsorize(norm_data)
+                    norm_data = transit_tools.winsorize(norm_data)
                 (
                     [
                         readCounts,

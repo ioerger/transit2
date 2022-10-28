@@ -1,24 +1,2 @@
-Traceback (most recent call last):
-  File "/Users/sanjeevanichoudhery/Projects/transit/./src/transit.py", line 23, in <module>
-    import pytransit.__main__
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 8, in <module>
-    import pytransit.methods
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/__init__.py", line 1, in <module>
-    from .anova              import *
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/anova.py", line 13, in <module>
-    from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/gui_tools.py", line 5, in <module>
-    from pytransit.specific_tools.transit_tools import wx
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 60, in <module>
-    import rpy2.robjects
-  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/__init__.py", line 14, in <module>
-    import rpy2.rinterface as rinterface
-  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface.py", line 9, in <module>
-    import rpy2.rinterface_lib.na_values as na_values
-  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface_lib/na_values.py", line 5, in <module>
-    from . import sexp
-  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface_lib/sexp.py", line 245, in <module>
-    class SexpVector(Sexp, metaclass=abc.ABCMeta):
-  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface_lib/sexp.py", line 283, in SexpVector
-    collections.Sized]):
-AttributeError: module 'collections' has no attribute 'Sized'
+[gff_to_prot_table:Run()] Converting annotation file from GFF3 format to prot_table format 
+[gff_to_prot_table:Run()] Finished conversion 
