@@ -371,7 +371,8 @@ class Method:
                     ]
             elif self.inputs.method == "GSEA":
                 up,down = self.GSEA()
-                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
+                #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
+                self.hit_summary = str(up) + "for conditional ES Genes ; "+ str(down) + " for conditional NE Genes"
                 file_output_type = Method.identifier+"GSEA"
                 file_columns = [
                         "Pathway",
@@ -1016,8 +1017,11 @@ class ONTResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
-    
+        parameters = LazyDict(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        self.values_for_result_table.update({
+            " ": parameters.hit_summary
+        })
     def __str__(self):
         return f"""
             File for {Method.identifier}

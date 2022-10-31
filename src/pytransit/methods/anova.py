@@ -409,6 +409,7 @@ class Method:
             msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
                 data, genes, means_by_rv, rv_site_indexes_map, conditions
             )
+            self.hit_summary = f"{len([val for val in qvals if float(qvals[val])<0.05])} significant conditionally essential genes"
         
         # 
         # write output
@@ -469,6 +470,7 @@ class Method:
                         trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
                         pseudocounts=self.inputs.pseudocount,
                         alpha=self.inputs.alpha,
+                        hit_summary = self.hit_summary
                     ),
                 ),
             )
@@ -495,35 +497,11 @@ class File:
                 "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
-        
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load Anova file "{self.path}"''')
-        self.column_names = comments[-1].split("\t")
-        self.comments = "\n".join(comments)
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            self.rows.append({
-                each_column_name: each_cell
-                    for each_column_name, each_cell in zip(self.column_names, each_row)
-            })
-        
-        # 
-        # get summary stats
-        #
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        parameters = LazyDict(self.extra_data.get("parameters", {}))
         self.values_for_result_table.update({
             f"Gene Count": len(self.rows),
-            f"Adj P Value < {Method.significance_threshold}": len([
-                1 for each in self.rows
-                    if each.get("Adj P Value", 1) < Method.significance_threshold 
-            ]),
+            " ": parameters.hit_summary
         })
     
     def __str__(self):

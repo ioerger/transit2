@@ -135,11 +135,11 @@ class Method:
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
                 excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
-                group_by=            panel_helpers.create_choice_input(panel, main_sizer, label="Group By", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="FIXME"),
+                group_by=            panel_helpers.create_choice_input(panel, main_sizer, label="Group By", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="Column name (in samples_metadata) to use as the primary Condition being evaluated (to test for significant variability of insertions among conditions)."),
                 # FIXME: covars needs to be an empty list by default
-                covars=              panel_helpers.create_choice_input(panel, main_sizer, label="Covars", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="FIXME"), 
+                covars=              panel_helpers.create_choice_input(panel, main_sizer, label="Covars", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="Comma separated list of covariates (columns in metadata file) to include, for the analysis. If additional covariates distinguishing the samples are available, such as library, timepoint, or genotype, they may be “factored out” of the test of the primary condition. (variation due to covars is accounted for in the model, but not considered in evaluating the effect on variability due to the primary condition)"), 
                 # FIXME: interactions needs to be an empty list by default
-                interactions=        panel_helpers.create_choice_input(panel, main_sizer, label="Interactions", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="FIXME"), 
+                interactions=        panel_helpers.create_choice_input(panel, main_sizer, label="Interactions", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="Comma separated list of covariates (cols in metadata) to include, that interact with the condition for the analysis. (variation due to these variables is included in testing the effect of the main condition)"), 
                 refs=                panel_helpers.create_reference_condition_input(panel, main_sizer), # FIXME: currently returns a string, should return a list
                 n_terminus=          panel_helpers.create_n_terminus_input(panel, main_sizer),
                 c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),

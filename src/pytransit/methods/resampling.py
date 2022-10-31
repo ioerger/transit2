@@ -434,6 +434,9 @@ class Method:
                     )
         
         (data, qval) = self.run_resampling(g_ctrl, g_exp, do_library_resampling)
+
+        self.hit_summary= f"{len([val for val in qval if val<0.05])} significant conditionally essential genes"
+    
         # 
         # write output
         # 
@@ -540,6 +543,7 @@ class Method:
                         n_terminus=self.inputs.n_terminus,
                         c_terminus=self.inputs.c_terminus,
                         site_restricted=self.inputs.site_restricted,
+                        hit_summary = self.hit_summary
                     ),
                     control_data=(",".join(self.inputs.ctrldata)),
                     experimental_data=(",".join(self.inputs.expdata)),
@@ -808,9 +812,8 @@ class ResultFileType1:
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         parameters = LazyDict(self.extra_data.get("parameters", {}))
-        number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Method.significance_threshold ])
         self.values_for_result_table.update({
-            " ": f"{number_of_significant} significant conditionally essential genes"
+            " ": parameters.hit_summary
         })
     
     def __str__(self):
