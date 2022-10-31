@@ -98,8 +98,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                 The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
                     
@@ -435,11 +435,21 @@ class Method:
                 annotation_path=self.inputs.annotation_path,
                 time=(time.time() - self.start_time),
 
-                ES = str(calls.count("E")) + " essential based on Gumbel",
-                ESB = str(calls.count("EB")) + " essential based on Binomial",
-                NE = str(calls.count("NE")) + " non-essential",
-                U = str(calls.count("U")) + " uncertain",
-                S = str(calls.count("S")) +" too-short",
+                summary_info=dict(
+                    ES = str(calls.count("E")),
+                    ESB = str(calls.count("EB")),
+                    NE = str(calls.count("NE")),
+                    U = str(calls.count("U")),
+                    S = str(calls.count("S")),
+                ),
+
+                naming_reference = dict(
+                    ES = "Essential based on Gumbel",
+                    ESB = "Essential based on Binomial",
+                    NE = "Non-essential",
+                    U = "Uncertain",
+                    S = "Too-short",
+                ),
             ),
         )
         
@@ -543,20 +553,14 @@ class ResultFileType1:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Method.identifier,heading=self.comments,column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Method.identifier,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows).Show(),
             })
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        print(self.extra_data)
         #parameters = LazyDict(self.extra_data.get("parameters", {}))
-        self.values_for_result_table.update({
-            " ": self.extra_data["ES"] + " ES; " 
-                 +self.extra_data["ESB"] +" ESB; "
-                 +self.extra_data["NE"] + " NE; "
-                 +self.extra_data["U"]+ " U; "
-                 +self.extra_data["S"]+ " S"
-        })
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
+        
 
     def __str__(self):
         return f"""

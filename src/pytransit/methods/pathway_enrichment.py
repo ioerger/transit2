@@ -89,7 +89,7 @@ class Method:
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
         import csv
         COG_orgs = []
-        with open(root_folder+"src/pytransit/data/cog-20.org.tsv") as file_obj:
+        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
@@ -178,8 +178,8 @@ class Method:
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                 Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. 
 
@@ -352,7 +352,9 @@ class Method:
             
             #checking validation of inputs
             if self.inputs.method == "FET":
-                self.hit_summary = self.fisher_exact_test()
+                self.hit_summary = {
+                    "Hits":self.fisher_exact_test()
+                }
                 file_output_type = Method.identifier+"FET"
                 file_columns = [
                         "Pathway",
@@ -372,7 +374,10 @@ class Method:
             elif self.inputs.method == "GSEA":
                 up,down = self.GSEA()
                 #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
-                self.hit_summary = str(up) + "for conditional ES Genes ; "+ str(down) + " for conditional NE Genes"
+                self.hit_summary = {
+                    "Hits for conditional ES Genes" : up,
+                    "Hits for conditional NE Genes" : down,
+                }
                 file_output_type = Method.identifier+"GSEA"
                 file_columns = [
                         "Pathway",
@@ -385,7 +390,9 @@ class Method:
                         "Genes"
                     ]
             elif self.inputs.method == "ONT":
-                self.hit_summary = self.Ontologizer()
+                self.hit_summary = {
+                    "Hits":self.Ontologizer()
+                }
                 file_output_type = Method.identifier+"ONT"
                 file_columns = [
                         "Pathway",
@@ -425,8 +432,8 @@ class Method:
                     enrichment_exponent = self.inputs.enrichment_exponent,
                     num_permutations = self.inputs.num_permutations,
                     pseudocount = self.inputs.pseudocount,
-                    hit_summary = self.hit_summary
                 ),
+                summary_info = self.hit_summary
             ),
         )
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
@@ -1019,9 +1026,11 @@ class ONTResultsFile:
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         parameters = LazyDict(self.extra_data.get("parameters", {}))
         #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
-        self.values_for_result_table.update({
-            " ": parameters.hit_summary
-        })
+        # self.values_for_result_table.update({
+        #     " ": parameters.hit_summary
+        # })
+
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
     def __str__(self):
         return f"""
             File for {Method.identifier}

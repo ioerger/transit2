@@ -100,8 +100,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.name,
-                method_long_text = self.description,
+                title_text= self.name,
+                sub_text = self.description,
                 method_specific_instructions="""
                 GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
                 
@@ -726,7 +726,14 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        summary = self.extra_data["Summary_Of_Genetic_Interactions"]
+        # self.values_for_result_table.update({
+        #     " ": str(summary["Aggravating"]) + " Aggravating; " 
+        #         +str(summary["Alleviating"]) + " Alleviating; "
+        #         +str(summary["Suppressive"]) + " Suppressive; "
+        # })
         self.values_for_result_table.update(self.extra_data.get("Summary_Of_Genetic_Interactions", {}))
+        
        
     
     def __str__(self):

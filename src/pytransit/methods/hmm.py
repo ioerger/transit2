@@ -93,8 +93,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.name,
-                method_long_text= "Hidden Markov Model",
+                title_text= self.name,
+                sub_text= "Hidden Markov Model",
                 method_specific_instructions="""
                 The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
                 
@@ -110,9 +110,9 @@ class Method:
             # 
             self.value_getters = LazyDict()
             if True:
+                self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
                 self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
                 self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-                self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
                 self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
                 self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
                 self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
@@ -350,6 +350,8 @@ class Method:
                             annotation_path=self.inputs.annotation_path,
                             output_path=self.inputs.output_path,
                         ),
+
+
                     ),
                 )
                 logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
@@ -640,7 +642,8 @@ class SitesFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update({" ":""})
+            
     
     def __str__(self):
         return f"""
@@ -685,34 +688,18 @@ class GeneFile:
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[
-                        # HANDLE_THIS
+                        "ORF"
                     ],
                 ).Show(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        self.comments = "\n".join(comments)
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            self.rows.append({
-                each_column_name: each_cell
-                    for each_column_name, each_cell in zip(self.column_names, each_row)
-            })
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         
         # 
         # get summary stats
         #
-        self.values_for_result_table.update({
-            # HANDLE_THIS (additional summary_info for results table)
-        })
+        self.values_for_result_table.update(self.extra_data.get("Summary Of Gene Calls", {}))
     
     def __str__(self):
         return f"""

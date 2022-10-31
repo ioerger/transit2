@@ -94,10 +94,10 @@ def create_panel_area(_):
             # 
             if True:
                 panel.method_name = wx.StaticText(
-                    gui.frame, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0
+                    gui.frame, wx.ID_ANY, "  ", wx.DefaultPosition, wx.DefaultSize, 0
                 )
+                panel.method_name.Show()
                 panel.method_name.Wrap(panel.max_width)
-                panel.method_name.Hide()
                 panel.method_info_sizer.Add(
                     panel.method_name, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=0,
                 )
@@ -213,17 +213,22 @@ def set_panel(new_panel):
         
         
 
-def set_instructions( method_short_text, method_long_text,  method_specific_instructions,):
+def set_instructions( title_text, sub_text,  method_specific_instructions,):
     with gui_tools.nice_error_log:
-        panel.method_info_text.SetLabel("Instructions:")
-        panel.method_info_text.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        panel.method_info_text.SetLabel(title_text +" Instructions:")
+        panel.method_info_text.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         panel.method_info_text.Show()
         
-        panel.method_name.SetLabel(method_long_text + "("+method_short_text+")")
-        panel.method_name.Show()
+        panel.method_name.SetLabel("--"+sub_text+"--")
+        #panel.method_name.SetFont(wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        panel.method_name.Wrap(panel.max_width)
+        
         
         panel.method_instructions.SetValue(method_specific_instructions)
         panel.method_instructions.Show()
+
+        panel.wx_panel.Layout()
+        panel.method_sizer.Fit(panel.wx_panel)
 
 def progress_update(text, percent):
     string = f" {text}   \r"

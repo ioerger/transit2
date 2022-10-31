@@ -85,8 +85,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.name,
-                method_long_text= "",
+                title_text= self.name,
+                sub_text= "",
                 method_specific_instructions="""
                     The Anova (analysis of variance) method is used to determine which genes exhibit statistically significant variability of insertion counts across multiple conditions. Unlike other methods which take a comma-separated list of wig files as input, the method takes a combined_wig file (which combined multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
 
@@ -409,7 +409,7 @@ class Method:
             msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
                 data, genes, means_by_rv, rv_site_indexes_map, conditions
             )
-            self.hit_summary = f"{len([val for val in qvals if float(qvals[val])<0.05])} significant conditionally essential genes"
+            self.hit_summary =str(len([val for val in qvals if float(qvals[val])<0.05]))
         
         # 
         # write output
@@ -470,8 +470,11 @@ class Method:
                         trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
                         pseudocounts=self.inputs.pseudocount,
                         alpha=self.inputs.alpha,
-                        hit_summary = self.hit_summary
                     ),
+                    summary_info = dict(
+                        Hits=self.hit_summary,
+                    ),
+                   
                 ),
             )
             logging.log("Finished Anova analysis")
@@ -493,16 +496,12 @@ class File:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=self.comments,column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        parameters = LazyDict(self.extra_data.get("parameters", {}))
-        self.values_for_result_table.update({
-            f"Gene Count": len(self.rows),
-            " ": parameters.hit_summary
-        })
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
     
     def __str__(self):
         return f"""

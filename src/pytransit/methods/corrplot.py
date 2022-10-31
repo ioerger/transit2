@@ -78,8 +78,23 @@ class Method:
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
-        self.value_getters = LazyDict()
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            parameter_panel.set_instructions(
+                title_text= self.name,
+                sub_text= "",
+                method_specific_instructions="""
+                    A useful tool when evaluating the quality of a collection of TnSeq datasets is to make a correlation plot of the mean insertion counts (averaged at the gene-level) among samples.
+
+                    1. Ensure the correct annotation file has been loaded in 
+                    
+                    2. Select whether you would like to calculate the means across replicates within a condition
+
+                    3. Click Run
+                """.replace("\n                    ","\n")
+            )
+
+
+            self.value_getters = LazyDict()
             self.value_getters.avg_by_conditions = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts by condition", default_value=False, tooltip_text="correlations among conditions (where counts are averaged among replicates of each condition) versus all individual samples", widget_size=None)
             self.value_getters.normalization     = panel_helpers.create_normalization_input(panel, main_sizer)
 

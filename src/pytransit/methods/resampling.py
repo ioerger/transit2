@@ -141,8 +141,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                 The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
 
@@ -543,8 +543,11 @@ class Method:
                         n_terminus=self.inputs.n_terminus,
                         c_terminus=self.inputs.c_terminus,
                         site_restricted=self.inputs.site_restricted,
-                        hit_summary = self.hit_summary
                     ),
+                    summary_info = dict(
+                        Hits=self.hit_summary,
+                    ),
+
                     control_data=(",".join(self.inputs.ctrldata)),
                     experimental_data=(",".join(self.inputs.expdata)),
                     annotation_path=self.inputs.annotation_path,
@@ -811,10 +814,7 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        parameters = LazyDict(self.extra_data.get("parameters", {}))
-        self.values_for_result_table.update({
-            " ": parameters.hit_summary
-        })
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
     
     def __str__(self):
         return f"""

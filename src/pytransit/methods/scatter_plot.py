@@ -77,10 +77,31 @@ class Method:
         
     @gui.add_menu("Pre-Processing", cli_name)
     def on_menu_click(event):
+        Method.define_panel(event)
+    
+    def define_panel(self, _):
         from pytransit.components import panel_helpers
         Method.value_getters = LazyDict()
         Method.by_condition = False
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            parameter_panel.set_instructions(
+                title_text= self.name,
+                sub_text= "",
+                method_specific_instructions="""
+                    A useful tool to show a detailed correlation of counts between 2 datasets.
+
+                    1. Ensure the correct annotation file has been loaded in 
+
+                    2. Select exactly 2 samples from the sample pane
+                    
+                    3. Select whether you would like to calculate the mean insertion count within a gene prior to the plot generation
+
+                    4. [Optional] Select if you would like to have the plots be in log scale and/or normalized using a specific method
+
+                    5. Click Run
+                """.replace("\n                    ","\n")
+            )
+
             sample_ids = [x.id for x in gui.samples]
             Method.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_sample_input(panel, main_sizer)
             Method.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
