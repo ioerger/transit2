@@ -558,8 +558,9 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        #parameters = LazyDict(self.extra_data.get("parameters", {}))
-        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"Essentiality Calls": "; ".join(summary_str) })
         
 
     def __str__(self):

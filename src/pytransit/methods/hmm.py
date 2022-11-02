@@ -699,7 +699,9 @@ class GeneFile:
         # 
         # get summary stats
         #
-        self.values_for_result_table.update(self.extra_data.get("Summary Of Gene Calls", {}))
+        summary = self.extra_data.get("Summary Of Gene Calls", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())]  
+        self.values_for_result_table.update({"Essentiality Calls": "; ".join(summary_str) })
     
     def __str__(self):
         return f"""

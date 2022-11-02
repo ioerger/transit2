@@ -435,7 +435,7 @@ class Method:
         
         (data, qval) = self.run_resampling(g_ctrl, g_exp, do_library_resampling)
 
-        self.hit_summary= f"{len([val for val in qval if val<0.05])} significant conditionally essential genes"
+        self.hit_summary= f"{len([val for val in qval if val<0.05])}" #significant conditionally essential genes"
     
         # 
         # write output

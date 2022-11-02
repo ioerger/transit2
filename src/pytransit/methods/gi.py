@@ -167,8 +167,8 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="GI_test.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions=transit_tools.result_output_extensions,
         )
         if not Method.inputs.output_path:
             return None
@@ -727,12 +727,8 @@ class ResultFileType1:
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         summary = self.extra_data["Summary_Of_Genetic_Interactions"]
-        # self.values_for_result_table.update({
-        #     " ": str(summary["Aggravating"]) + " Aggravating; " 
-        #         +str(summary["Alleviating"]) + " Alleviating; "
-        #         +str(summary["Suppressive"]) + " Suppressive; "
-        # })
-        self.values_for_result_table.update(self.extra_data.get("Summary_Of_Genetic_Interactions", {}))
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"Genetic Interaction Summary": "; ".join(summary_str) })
         
        
     
