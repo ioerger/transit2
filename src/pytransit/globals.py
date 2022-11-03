@@ -135,6 +135,12 @@ class gui:
     def add_result(self, *args, **kwargs):
         from pytransit.components import results_area
         return results_area.add(*args, **kwargs)
+    
+    debug_wx_python = False
+    def debug_wx_if_needed(self):
+        if self.debug_wx_python:
+            import wx.lib.inspection
+            wx.lib.inspection.InspectionTool().Show()
 
 @singleton
 class cli:
@@ -160,10 +166,3 @@ if debugging_enabled:
     seed(0)
     import numpy
     numpy.random.seed(0)
-
-debug_wx_python = False
-if debug_wx_python:
-    def _():
-        import wx.lib.inspection
-        wx.lib.inspection.InspectionTool().Show()
-    _()

@@ -64,6 +64,8 @@ class TnSeqFrame(wx.Frame):
         # connect to GUI tools (otherwise they will not function)
         gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         
+        gui.debug_wx_if_needed()
+        
         with InnerFrame(parent, title="TRANSIT") as frame:
             
             with Row() as main_wrapper:
