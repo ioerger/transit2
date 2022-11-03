@@ -33,9 +33,10 @@ def bind_to(wx_python_obj, event, *args, **kwargs):
 def handle_traceback(traceback_obj):
     import traceback
     frame = gui.frame
-    print(''.join(traceback.format_tb(traceback_obj)))
+    error_message = ''.join(traceback.format_tb(traceback_obj))
+    print(error_message)
     if frame and hasattr(frame, "status_bar") and hasattr(frame.status_bar, "SetStatusText"):
-        frame.status_bar.SetStatusText("Error: "+str(error.args))
+        frame.status_bar.SetStatusText(error_message)
 
 def set_status(message):
     frame = gui.frame

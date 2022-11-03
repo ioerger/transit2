@@ -469,6 +469,37 @@ if True:
             tooltip_text=tooltip_text,
         )
         return lambda *args: int(get_text())        
+    
+    def create_multiselect_getter(panel, sizer, options, label_text=None, tooltip_text=None):
+        from pytransit.components import parameter_panel
+        from pytransit.components.generic.table import Table
+            
+        if label_text:
+            label = wx.StaticText(panel, wx.ID_ANY, label=label_text, style=wx.ALIGN_LEFT)
+            sizer.Add(label, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+        
+        if tooltip_text:
+            from pytransit.components.icon import InfoIcon
+            sizer.Add(
+                InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
+                0,
+                wx.ALIGN_CENTER,
+                gui_tools.default_padding,
+            )
+        
+        table = None
+        row_height_approximate = 25
+        with Table(frame=panel, min_size=(parameter_panel.panel.max_width*0.7, (len(options)+1)*row_height_approximate)) as table:
+            sizer.Add(
+                table.wx_object,
+                0,
+                wx.ALL | wx.ALIGN_CENTER,
+                gui_tools.default_padding
+            )
+            for each in options:
+                table.add(dict(option=each))
+        
+        return lambda *args: [ each["option"] for each in table.selected_rows ]
 
 # 
 # 
@@ -853,3 +884,5 @@ if True:
         # return a value-getter
         signif_wxobj.SetSelection(signif_wxobj.FindString(default))
         return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())
+    
+    

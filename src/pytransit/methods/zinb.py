@@ -126,20 +126,15 @@ class Method:
                     4. FIXME
                 """.replace("\n                    ","\n"),
             )
-            self.value_getters = LazyDict()
             try:
                 metadata_headers = gui.combined_wigs[-1].metadata.headers
             except Exception as error:
                 pass
+            metadata_headers = misc.no_duplicates(["Condition", *metadata_headers])
             
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
                 excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
-                group_by=            panel_helpers.create_choice_input(panel, main_sizer, label="Group By", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="FIXME"),
-                # FIXME: covars needs to be an empty list by default
-                covars=              panel_helpers.create_choice_input(panel, main_sizer, label="Covars", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="FIXME"), 
-                # FIXME: interactions needs to be an empty list by default
-                interactions=        panel_helpers.create_choice_input(panel, main_sizer, label="Interactions", options=["Condition", *metadata_headers], default_option="Condition", tooltip_text="FIXME"), 
                 refs=                panel_helpers.create_reference_condition_input(panel, main_sizer), # FIXME: currently returns a string, should return a list
                 n_terminus=          panel_helpers.create_n_terminus_input(panel, main_sizer),
                 c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),
@@ -148,6 +143,9 @@ class Method:
                 alpha=               panel_helpers.create_alpha_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
                 prot_table_path=     panel_helpers.create_file_input(panel, main_sizer, button_label="Add ProtTable (optional)", tooltip_text="FIXME", popup_title="ProtTable"),
+                group_by=            panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Group By",     options=metadata_headers, tooltip_text="FIXME"),
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars",       options=metadata_headers, tooltip_text="FIXME"), 
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="FIXME"), 
             )
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
@@ -170,6 +168,10 @@ class Method:
                 arguments[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
+        
+        # make sure refs is always a list
+        if isinstance(arguments.refs, str):
+            refs = [ arguments.refs ]
         
         # 
         # ask for output path(s)

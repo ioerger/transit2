@@ -13,8 +13,8 @@ class Table:
             self.length
             self.add(python_obj)
     """
-    def __init__(self, initial_columns=None, column_width=None, max_size=(-1, 200)):
-        frame        = gui.frame
+    def __init__(self, initial_columns=None, column_width=None, min_size=(1,1), max_size=(-1, -1), frame=None):
+        frame        = gui.frame if not frame else frame
         column_width = column_width if column_width is not None else 100
         
         # 
@@ -27,10 +27,12 @@ class Table:
             wx.DefaultSize,
             wx.LC_REPORT | wx.SUNKEN_BORDER,
         )
-        wx_object.SetMaxSize(wx.Size(*max_size))
-        wx_object.InsertColumn(0, "", width=0) # first one is some kind of special name. Were going to ignore it
-        
+        self.min_size = min_size
+        self.max_size = max_size
         self.wx_object = wx_object
+        
+        self.refresh_size()
+        self.wx_object.InsertColumn(0, "", width=0) # first one is some kind of special name. Were going to ignore it    
         self.events = LazyDict(
             on_select=lambda func: wx_object.Bind(wx.EVT_LIST_ITEM_SELECTED, func),
         )
@@ -46,7 +48,28 @@ class Table:
         # create the inital columns
         for each_key in self._state.initial_columns:
             self._key_to_column_index(each_key)
-        
+    
+    def refresh_size(self):
+        min_width, min_height = self.min_size
+        max_width, max_height = self.max_size
+        # set min size because pop_up_sizer.SetMinSize doesn't actually do its job
+        fitted_width, fitted_height = self.wx_object.GetSize()
+        if fitted_width  > max_width : fitted_width  = max_width
+        if fitted_height > max_height: fitted_height = max_height
+        if fitted_width  < min_width : fitted_width  = min_width
+        if fitted_height < min_height: fitted_height = min_height
+        self.wx_object.SetSize((
+            int(fitted_width),
+            int(fitted_height),
+        ))
+        self.wx_object.SetMinSize((
+            int(fitted_width),
+            int(fitted_height),
+        ))
+        self.wx_object.SetMaxSize((
+            int(fitted_width),
+            int(fitted_height),
+        ))
     
     def _key_to_column_index(self, key):
         if key not in self._state.key_to_column_index:
