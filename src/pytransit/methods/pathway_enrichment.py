@@ -381,10 +381,10 @@ class Method:
                 file_output_type = Method.identifier+"_GSEA"
                 file_columns = [
                         "Pathway",
-                        "Pathway Description"
+                        "Pathway Description",
                         "Genes in Path", 
                         "Mean Rank",
-                        "Enrichment" , 
+                        "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
                         "Genes"
