@@ -375,7 +375,7 @@ class Method:
                 up,down = self.GSEA()
                 #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
                 self.hit_summary = {
-                    "Hits": up + "conditional ES;"+down + "conditional NE",
+                    "Hits": str(up) + " conditional ES;"+str(down) + " conditional NE",
                 }
                 file_output_type = Method.identifier+"_GSEA"
                 file_columns = [
@@ -627,16 +627,6 @@ class Method:
                     up += 1
                 else:
                     down += 1
-
-        for term,mr,es,pval,qval in results:
-            if qval<0.05 and mr<n2: 
-                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
-                )
-    
-        for term,mr,es,pval,qval in results:
-            if qval<0.05 and mr>n2: 
-                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
-                )
 
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
