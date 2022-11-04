@@ -144,21 +144,21 @@ class Method:
                 method_short_text=self.name,
                 method_long_text="",
                 method_specific_instructions="""
-                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+                    The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
 
-                See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
-                
-                1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
+                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
+                    
+                    1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
 
-                2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
+                    2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
 
-                3.[Optional] Select/Adjust other parameters
+                    3.[Optional] Select/Adjust other parameters
 
-                4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+                    4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
 
-                5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
+                    5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
 
-                6. Click Run
+                    6. Click Run
                 """.replace("\n                    ","\n"),
             )
 
@@ -172,8 +172,7 @@ class Method:
             self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             self.value_getters.site_restricted        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
-            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            panel_helpers.create_preview_loess_button(panel, main_sizer) # TODO: change tooltip text that references this button, then remove this button
+            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             self.value_getters.adaptive                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros           = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")

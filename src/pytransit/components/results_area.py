@@ -17,6 +17,7 @@ results = LazyDict(
     header=None,
     table=None,
     file_action_choice_element=None,
+    dropdown_width=220,
 )
 def create_results_area(frame):
     results_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -129,7 +130,7 @@ def change_file_action_choices(new_choices):
                 gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
-                (120, -1),
+                (results.dropdown_width, -1),
                 list(new_choices.keys()),
                 0,
             )
