@@ -3,7 +3,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 default_padding = 30
-default_label_size = (200, -1)
+default_label_size = (220, -1)
 default_widget_size = (100, -1)
 
 # 
@@ -82,7 +82,7 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(run_button, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
+        sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         def decorator(func):
             @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
             def wrapper(*args,**kwargs):
@@ -186,7 +186,7 @@ if True:
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         return lambda *args, **kwargs: the_file_path
     
     def create_multi_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
@@ -235,7 +235,7 @@ if True:
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         return lambda *args, **kwargs: selected_paths
     
     def create_persistent_file_input(panel, sizer, *, name, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
@@ -283,7 +283,7 @@ if True:
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
             
-        sizer.Add(row_sizer, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         return lambda *args, **kwargs: the_file_path
    
     def define_choice_box(
@@ -789,8 +789,8 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(run_button, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
-        
+        sizer.Add(10,20) # vertical padding
+        sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):
