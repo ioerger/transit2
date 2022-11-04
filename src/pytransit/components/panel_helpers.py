@@ -708,7 +708,7 @@ if True:
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_input(panel, sizer, default_value="5"):
+    def create_pseudocount_input(panel, sizer, default_value="5", tooltip = "Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC."):
         # 
         # text input: Pseudocount
         # 
@@ -717,19 +717,10 @@ if True:
             sizer,
             label_text="Pseudocount:",
             default_value=default_value,
-            tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
+            tooltip_text= tooltip
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_input(panel, sizer, default_value="5"):
-        get_text = create_text_box_getter(
-            panel,
-            sizer,
-            label_text="Pseudocount:",
-            default_value=default_value,
-            tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
-        )
-        return lambda *args: int(get_text())
     
     def create_alpha_input(panel, sizer, default_value="1000"):
         get_text = create_text_box_getter(

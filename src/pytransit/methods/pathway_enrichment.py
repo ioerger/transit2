@@ -70,6 +70,7 @@ class Method:
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
         -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
         -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        
         for FET...
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
     """.replace("\n        ", "\n")
@@ -246,7 +247,7 @@ class Method:
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
-            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
+            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2, tooltip="Pseudo-counts used in calculating pathway enrichment. Useful to dampen the effects of small counts which may lead to deceptively high enrichment scores.")
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
 
