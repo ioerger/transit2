@@ -29,6 +29,9 @@ samples = LazyDict(
         # put "name": None here for buttons you want to be in a specific order
         # "LOESS": None,
     },
+    button_height=40,
+    load_button_width=350,
+    clear_button_width=80,
 )
 
 # 
@@ -124,12 +127,12 @@ def create_sample_area(frame):
                 # 
                 # component
                 # 
-                size = (300, 40)
+                size = (samples.load_button_width, samples.button_height)
                 combined_wig_file_picker = GenBitmapTextButton(
                     frame,
                     1,
                     gui_tools.bit_map,
-                    "Load Combined Wig and Metadata",
+                    "Load Combined Wig, Metadata, and Annotation",
                     size=wx.Size(*size),
                 )
                 combined_wig_file_picker.SetMinSize(size)
@@ -188,6 +191,35 @@ def create_sample_area(frame):
                             load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_paths)
                 
                 samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.EXPAND, border=0)
+                
+            # 
+            # combined_wig_file_picker
+            # 
+            if True:
+                # 
+                # component
+                # 
+                size = (samples.clear_button_width, samples.button_height)
+                combined_wig_clear_button = GenBitmapTextButton(
+                    frame,
+                    1,
+                    gui_tools.bit_map,
+                    "Clear",
+                    size=wx.Size(*size),
+                )
+                combined_wig_clear_button.SetMinSize(size)
+                combined_wig_clear_button.SetMaxSize(size)
+                combined_wig_clear_button.SetBackgroundColour(gui_tools.color.light_gray)
+                
+                # 
+                # callback
+                # 
+                @gui_tools.bind_to(combined_wig_clear_button, wx.EVT_BUTTON)
+                def load_combined_wig_clear_function(event):
+                    samples.wig_table.clear()
+                    gui.combined_wigs.clear()
+                
+                samples.wig_header_sizer.Add(combined_wig_clear_button, proportion=1, flag=wx.EXPAND, border=0)
                 
             outer_sample_sizer.add(
                 samples.wig_header_sizer,
