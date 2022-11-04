@@ -154,6 +154,8 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
+        # FIXME: create combined wig object with only relevent data
+        
         # save the data
         Method.inputs.update(dict(
             ctrldata = args[0].split(","),
@@ -175,39 +177,24 @@ class Method:
         from pytransit.specific_tools import stat_tools
         logging.log("Starting Mann-Whitney U-test Method")
         start_time = time.time()
-
-        k_ctrl = len(self.inputs.ctrldata)
-        k_exp = len(self.inputs.expdata)
-        # Get orf data
-        logging.log("Getting Data")
-        (data, position) = transit_tools.get_validated_data(
-            self.inputs.ctrldata + self.inputs.expdata,
-        )
-
-        (K, N) = data.shape
-
+        
+        number_of_control_wigs = 1 # TODO: check if this is right
+        
+        # 
+        # normalize
+        # 
         if self.inputs.normalization != "nonorm":
-            logging.log("Normalizing using: %s" % self.inputs.normalization)
-            (data, factors) = norm_tools.normalize_data(
-                data,
-                self.inputs.normalization,
-                self.inputs.ctrldata + self.inputs.expdata,
-                self.inputs.annotation_path,
-            )
-
+            logging.log(f"Normalizing with {self.inputs.normalization}")
+            combined_wig = combined_wig.normalized_with(self.inputs.normalization)
+        
         if self.inputs.LOESS:
             logging.log("Performing LOESS Correction")
-            for j in range(K):
-                data[j] = stat_tools.loess_correction(position, data[j])
+            combined_wig = combined_wig.with_loess_correction()
 
-        G = tnseq_tools.Genes(
-            self.inputs.ctrldata + self.inputs.expdata,
-            self.inputs.annotation_path,
+        G = combined_wig.get_genes(
             ignore_codon=self.inputs.ignore_codon,
             n_terminus=self.inputs.n_terminus,
             c_terminus=self.inputs.c_terminus,
-            data=data,
-            position=position,
         )
 
         # u-test
@@ -233,8 +220,8 @@ class Method:
                 else:
                     ii = numpy.ones(gene.n) == 1
 
-                data1 = gene.reads[:k_ctrl, ii].flatten()
-                data2 = gene.reads[k_ctrl:, ii].flatten()
+                data1 = gene.reads[:number_of_control_wigs, ii].flatten()
+                data2 = gene.reads[number_of_control_wigs:, ii].flatten()
                 try:
                     u_stat, pval_2tail = scipy.stats.mannwhitneyu(
                         data1, data2, alternative="two-sided"

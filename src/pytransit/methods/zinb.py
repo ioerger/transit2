@@ -135,7 +135,7 @@ class Method:
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
                 excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
-                refs=                panel_helpers.create_reference_condition_input(panel, main_sizer), # FIXME: currently returns a string, should return a list
+                refs=                panel_helpers.create_reference_condition_input(panel, main_sizer),
                 n_terminus=          panel_helpers.create_n_terminus_input(panel, main_sizer),
                 c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),
                 normalization=       panel_helpers.create_normalization_input(panel, main_sizer),

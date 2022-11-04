@@ -160,6 +160,13 @@ class CombinedWigMetadata:
                 for each_row in self.rows
         )
     
+    def copy(self):
+        from copy import deepcopy
+        new_rows = []
+        for each_row in self.rows:
+            new_rows.append(deepcopy(each_row))
+        return CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
+        
     def with_only(self, condition_names=None, wig_fingerprints=None):
         from copy import deepcopy
         new_rows = []
@@ -493,6 +500,47 @@ class CombinedWig:
                 )
         return counts_for_wig
     
+    def copy(self):
+        from copy import deepcopy
+        # create a new shell
+        class CombinedWigHelper(CombinedWig):
+            def __init__(*args): pass # only difference it disabling the init 
+        
+        new_combined_wig = CombinedWigHelper()
+        
+        # copy the easy stuff
+        new_combined_wig.main_path       = None
+        new_combined_wig.metadata_path   = None
+        new_combined_wig.annotation_path = self.annotation_path
+        new_combined_wig.comments        = list(self.comments)
+        new_combined_wig.extra_data      = deepcopy(self.extra_data)
+        new_combined_wig.rows            = []
+        new_combined_wig.samples         = []
+        new_combined_wig.metadata        = self.metadata.copy()
+        
+        new_combined_wig.as_tuple = CombinedWigData(deepcopy((*self.as_tuple)))
+        CWigRow = named_list([ "position", *new_combined_wig.wig_fingerprints ])
+        for each_row in self.rows:
+            new_combined_wig.rows.append(CWigRow(*each_row))
+        
+        read_counts_by_wig_fingerprint = new_combined_wig.read_counts_by_wig_fingerprint
+        for column_index, wig_fingerprint in enumerate(new_combined_wig.wig_fingerprints):
+            new_combined_wig.samples.append(
+                Wig(
+                    rows=list(zip(new_combined_wig.ta_sites, read_counts_by_wig_fingerprint[wig_fingerprint])),
+                    id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    fingerprint=wig_fingerprint,
+                    column_index=column_index,
+                    condition_names=new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    extra_data=LazyDict(
+                        is_part_of_cwig=True,
+                    ),
+                )
+            )
+        
+        return new_combined_wig
+        
+        
     def with_only(self, condition_names=None, wig_fingerprints=None, wig_ids=None):
         import numpy
         from copy import deepcopy
@@ -727,7 +775,48 @@ class CombinedWig:
             return copy_of_self
         
         return self
+    
+    def normalized_with(self, kind="TTR"):
+        from pytransit.specific_tools import norm_tools
+        new_combined_wig = self.copy()
+        (read_counts_per_wig, factors) = norm_tools.normalize_data(
+            new_combined_wig.ta_sites,
+            kind,
+            self.wig_fingerprints,
+            self.annotation_path,
+        )
+        new_combined_wig.as_tuple = CombinedWigData((self.as_tuple.sites, numpy.array(read_counts_per_wig), self.as_tuple.wig_fingerprints))
+        return new_combined_wig
+    
+    def with_loess_correction(self):
+        from pytransit.specific_tools import stat_tools
+        new_combined_wig = self.copy()
+        for wig_index, _ in range(new_combined_wig.as_tuple.counts_by_wig):
+            new_combined_wig.as_tuple.counts_by_wig[wig_index] = stat_tools.loess_correction(
+                new_combined_wig.ta_sites,
+                new_combined_wig.as_tuple.counts_by_wig[wig_index]
+            )
         
+        return new_combined_wig
+    
+    @property
+    def get_genes(self, ignore_codon=True, n_terminus=0.0, c_terminus=0.0, include_nc=False, norm="nonorm", reps="All", minread=1, genome="", transposon="himar1"):
+        return Genes(
+            self.wig_fingerprints,
+            self.annotation_path,
+            ignore_codon=ignore_codon,
+            n_terminus=n_terminus,
+            c_terminus=c_terminus,
+            data=self.as_tuple.counts_by_wig,
+            position=self.as_tuple.sites,
+            include_nc=include_nc,
+            norm=norm,
+            reps=reps,
+            minread=minread,
+            genome=genome,
+            transposon=transposon,
+        )
+    
     def wig_with_id(self, id):
         for each in self.samples:
             if each.id == id:
@@ -823,14 +912,13 @@ class CombinedWig:
     
     @staticmethod
     def gather_wig_data(list_of_paths):
-        """ Returns a tuple of (data, position) containing a matrix of raw read-counts
-            , and list of coordinates.
-
+        """ 
+    
         Arguments:
             wig_list (list): List of paths to wig files.
 
         Returns:
-            tuple: Two lists containing data and positions of the wig files given.
+            (read_counts, ta_site_positions)
 
         :Example:
 
