@@ -130,7 +130,7 @@ class Method:
                 metadata_headers = gui.combined_wigs[-1].metadata.headers
             except Exception as error:
                 pass
-            metadata_headers = misc.no_duplicates(["Condition", *metadata_headers])
+            metadata_headers = [ each for each in misc.no_duplicates(["Condition", *metadata_headers]) if each not in ["Id", "Filename"] ]
             
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
@@ -144,9 +144,9 @@ class Method:
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
                 prot_table_path=     panel_helpers.create_file_input(panel, main_sizer, button_label="Add ProtTable (optional)", tooltip_text="FIXME", popup_title="ProtTable"),
                 group_by=            panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Group By",     options=metadata_headers, tooltip_text="FIXME"),
-                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars",       options=metadata_headers, tooltip_text="FIXME"), 
-                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="FIXME"), 
-                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None)
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars",       options=metadata_headers, tooltip_text="FIXME"),
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="FIXME"),
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None),
             )
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
