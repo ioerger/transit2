@@ -25,6 +25,7 @@ def create_results_area(frame):
     # Box
     # 
     if True:
+        results_sizer.Add(10, 20) # spacer
         results_sizer.Add(
             wx.StaticText(
                 gui.frame,

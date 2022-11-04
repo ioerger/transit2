@@ -118,7 +118,6 @@ class Method:
         gui.is_active # false if using command line
         gui.frame # self.wxobj equivalent
         gui.busy_running_method # Boolean, is true when any run-button function is started but not finished
-        gui.annotation_path # string, may need to become a list of strings
         gui.samples # list of Wig objects
         gui.conditions # list of Condition objects
         gui.selected_samples # list of Wig objects

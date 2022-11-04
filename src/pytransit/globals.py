@@ -36,18 +36,17 @@ class gui:
         "Pre-Processing": {},
     })
     
-    _annotation_path = "" if not debugging_enabled else f"{root_folder}/src/pytransit/data/genomes/H37Rv.prot_table"
-    #_annotation_path = "" if not debugging_enabled else "H37Rv.prot_table"
 
     @property
     def annotation_path(self):
         from pytransit.specific_tools import transit_tools
         import os
+        _annotation_path = self.combined_wigs[-1].annotation_path
         # validate it anytime the GUI tries to retrieve the annotation
-        if not os.path.isfile(self._annotation_path):
+        if not os.path.isfile(_annotation_path):
             from pytransit.specific_tools import logging
-            logging.error(f"Error: Annotation doesn't seem to be a file:{self._annotation_path}")
-        return self._annotation_path
+            logging.error(f"Error: Annotation doesn't seem to be a file:{_annotation_path}")
+        return _annotation_path
     
     @property
     def width(self):

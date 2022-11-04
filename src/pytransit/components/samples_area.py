@@ -110,10 +110,6 @@ def create_sample_area(frame):
     with Column() as outer_sample_sizer:
         wx_object = outer_sample_sizer.wx_object
         
-        outer_sample_sizer.add(
-            Text("Samples"),
-            proportion=0,
-        )
         
         # 
         # box
@@ -152,11 +148,11 @@ def create_sample_area(frame):
                                 message="Choose a cwig file",
                                 defaultDir=working_directory,
                                 defaultFile="",
-                                # wildcard="Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                                 style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                             )
                             cwig_paths = []
                             metadata_paths = []
+                            annotation_paths = []
                             if file_dialog.ShowModal() == wx.ID_OK:
                                 cwig_paths = list(file_dialog.GetPaths())
                                 metadata_paths = []
@@ -166,7 +162,6 @@ def create_sample_area(frame):
                                         message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
                                         defaultDir=working_directory,
                                         defaultFile="",
-                                        # wildcard="Read Files (*.wig)|*.wig;|\nRead Files (*.txt)|*.txt;|\nRead Files (*.dat)|*.dat;|\nAll files (*.*)|*.*",
                                         style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
                                     )
                                     if metadata_dialog.ShowModal() == wx.ID_OK:
@@ -174,11 +169,23 @@ def create_sample_area(frame):
                                         metadata_paths.append(
                                             metadata_path
                                         )
+                                        annotation_dialog = wx.FileDialog(
+                                            frame,
+                                            message=f"\n\nPick the sample annotation\nfor {basename(fullpath)}\n\n",
+                                            defaultDir=working_directory,
+                                            defaultFile="",
+                                            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
+                                        )
+                                        if annotation_dialog.ShowModal() == wx.ID_OK:
+                                            annotation_path = annotation_dialog.GetPaths()[0]
+                                            annotation_paths.append(
+                                                annotation_path
+                                            )
                                     
-                                    metadata_dialog.Destroy()
+                                    annotation_dialog.Destroy()
                             file_dialog.Destroy()
                             
-                            load_combined_wigs_and_metadatas(cwig_paths, metadata_paths)
+                            load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_paths)
                 
                 samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.EXPAND, border=0)
                 
@@ -187,6 +194,15 @@ def create_sample_area(frame):
                 expand=True,
                 proportion=0,
             )
+        
+        outer_sample_sizer.wx_object.Add(10, 30)
+        # 
+        # text
+        # 
+        outer_sample_sizer.add(
+            Text("Samples"),
+            proportion=0,
+        )
         
         # 
         # samples.wig_table
@@ -265,30 +281,31 @@ def create_sample_area(frame):
         load_combined_wigs_and_metadatas(
             [f"{root_folder}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
             [f"{root_folder}/src/pytransit/data/222_samples_metadata_cg.txt"],
-            #["111_cholesterol_glycerol_combined.cwig"],
-            #["222_samples_metadata_cg.txt"],
+            [f"{root_folder}/src/pytransit/data/genomes/H37Rv.prot_table"],
         )
         
     return wx_object
     
-def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
+def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_paths):
     """
         just a helper method
         once the "TODO: FOR DEBUGGING ONLY" is removed, this should 
         probably be inlined again for clarity (will only have one caller)
     """
+    samples.wig_table.clear()
+    gui.combined_wigs.clear()
     
     # 
     # load the data from the files
     # 
-    for each_cwig_path, each_metadata_path in zip(cwig_paths, metadata_paths):
+    for each_cwig_path, each_metadata_path, each_annotation_path in zip(cwig_paths, metadata_paths, annotation_paths):
         logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
         with gui_tools.nice_error_log:
             gui.combined_wigs.append(
                 tnseq_tools.CombinedWig(
                     main_path=each_cwig_path,
                     metadata_path=each_metadata_path,
-                    annotation_path=gui.annotation_path,
+                    annotation_path=each_annotation_path,
                 )
             )
     
@@ -311,6 +328,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths):
                     # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
                     id=each_sample.id,
                     conditions=(",".join(each_sample.condition_names) or "[None]"),
+                    annotation=os.path.basename(gui.combined_wigs[-1].annotation_path),
                     density=round(each_sample.extra_data.density, 4),
                     total_insertions=round(each_sample.extra_data.sum),
                     non_zero_mean=round(each_sample.extra_data.non_zero_mean),

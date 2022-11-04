@@ -55,6 +55,11 @@ class Table:
         for each_key in self._state.initial_columns:
             self._key_to_column_index(each_key)
     
+    def clear(self):
+        self.wx_object.DeleteAllItems()
+        self._state.data_values.clear()
+        self._state.index = -1
+    
     _scrollbar_adjustment = 10
     @property
     def column_width(self):
