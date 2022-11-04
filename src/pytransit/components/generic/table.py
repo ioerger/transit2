@@ -38,7 +38,8 @@ class Table:
             key_to_column_index = {},
             max_size            = max_size,
             min_size            = min_size,
-            column_width_for    = defaultdict(lambda : column_width, column_widths or {}),
+            column_width        = column_width,
+            column_width_for    = defaultdict(lambda : self.column_width, column_widths or {}),
             initial_columns     = initial_columns or [],
             data_values         = [],
         )
@@ -48,11 +49,35 @@ class Table:
             on_select=lambda func: wx_object.Bind(wx.EVT_LIST_ITEM_SELECTED, func),
         )
         
+        self.refresh_size()
+        
         # create the inital columns
         for each_key in self._state.initial_columns:
             self._key_to_column_index(each_key)
+    
+    _scrollbar_adjustment = 10
+    @property
+    def column_width(self):
+        if isinstance(self._state.column_width, str) and self._state.column_width.endswith("%"):
+            percentage = float(self._state.column_width[0:-1])
+            width, _ = self.compute_size()
+            return int(width * (percentage/100)) - self._scrollbar_adjustment
+        return self._state.column_width
+    
+    def compute_size(self):
+        min_width, min_height = self._state.min_size
+        max_width, max_height = self._state.max_size
         
-        self.refresh_size()
+        if min_height < 1:
+            min_height = self.estimated_row_height * (len(self.rows) + 1)
+        
+        # set min size because pop_up_sizer.SetMinSize doesn't actually do its job
+        fitted_width, fitted_height = self.wx_object.GetSize()
+        if fitted_width  > max_width : fitted_width  = max_width
+        if fitted_height > max_height: fitted_height = max_height
+        if fitted_width  < min_width : fitted_width  = min_width
+        if fitted_height < min_height: fitted_height = min_height
+        return fitted_width, fitted_height
     
     def refresh_size(self):
         min_width, min_height = self._state.min_size
@@ -79,7 +104,7 @@ class Table:
             int(fitted_width),
             int(fitted_height),
         ))
-    
+        
     def _key_to_column_index(self, key):
         if key not in self._state.key_to_column_index:
             index = len(self._state.key_to_column_index)+1

@@ -433,7 +433,7 @@ if True:
         
         table = None
         row_height_approximate = 25
-        with Table(frame=panel, column_width=-1, min_size=(parameter_panel.panel.max_width*0.5, -1)) as table:
+        with Table(frame=panel, column_width="100%", min_size=(parameter_panel.panel.max_width*0.5, -1)) as table:
             sizer.Add(
                 table.wx_object,
                 0,
