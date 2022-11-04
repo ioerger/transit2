@@ -13,7 +13,7 @@ import numpy
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import calc_gene_means, wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -77,10 +77,31 @@ class Method:
         
     @gui.add_menu("Pre-Processing", cli_name)
     def on_menu_click(event):
+        Method.define_panel(event)
+    
+    def define_panel(self, _):
         from pytransit.components import panel_helpers
         Method.value_getters = LazyDict()
         Method.by_condition = False
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            parameter_panel.set_instructions(
+                title_text= self.name,
+                sub_text= "",
+                method_specific_instructions="""
+                    A useful tool to show a detailed correlation of counts between 2 datasets.
+
+                    1. Ensure the correct annotation file has been loaded in 
+
+                    2. Select exactly 2 samples from the sample pane
+                    
+                    3. Select whether you would like to calculate the mean insertion count within a gene prior to the plot generation
+
+                    4. [Optional] Select if you would like to have the plots be in log scale and/or normalized using a specific method
+
+                    5. Click Run
+                """.replace("\n                    ","\n")
+            )
+
             sample_ids = [x.id for x in gui.samples]
             Method.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_sample_input(panel, main_sizer)
             Method.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
@@ -105,9 +126,9 @@ class Method:
         # if plotting samples, (for now) only allow two samples
         # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
         if not Method.by_condition:
-            assert len(arguments.combined_wig.samples) == 2, "Please select only two samples on the left"
+            assert len(arguments.combined_wig.samples) >= 2, "Please select only two samples on the left"
         else:
-            assert len(arguments.combined_wig.condition_names) == 2, "Please select only two conditions on the left"
+            assert len(arguments.combined_wig.condition_names) >= 2, "Please select only two conditions on the left"
         arguments.avg_by_conditions = Method.by_condition
         
         # 
@@ -138,39 +159,41 @@ class Method:
             combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
         
         # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
-        if not avg_by_conditions: assert len(combined_wig.samples) == 2, "Please use combined_wig.with_only(wig_ids=[ID1, ID2]) before calling scatter plot"
-        else: assert len(combined_wig.condition_names) == 2, "Please use combined_wig.with_only(condition_names=[NAME1, NAME2]) before calling scatter plot"
+        #if not avg_by_conditions: assert len(combined_wig.samples) == 2, "Please use combined_wig.with_only(wig_ids=[ID1, ID2]) before calling scatter plot"
+        #else: assert len(combined_wig.condition_names) == 2, "Please use combined_wig.with_only(condition_names=[NAME1, NAME2]) before calling scatter plot"
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
             # by gene or site
             # 
             if gene_means: 
-                means, genes, labels = calc_gene_means(combined_wig, normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+                means, genes, labels = calc_gene_means(combined_wig=combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+                labels = combined_wig.wig_ids
                 counts = means
             else:
                 # average conditions if needed
                 if avg_by_conditions:
                     combined_wig = combined_wig.averaged(by_conditions=True)
+                print(combined_wig)
                 counts = combined_wig.read_counts_array
                 labels = combined_wig.wig_ids # wig_ids will be equivlent to condition names when averaged by conditions
             
             # 
             # plot
             # 
-            sample1_name, sample2_name = labels
-            sample_1_counts = counts[:,0]
-            sample_2_counts = counts[:,1]
+            import seaborn as sns
             import matplotlib.pyplot as plt
-            if log_scale:
-                plt.scatter(numpy.log10(sample_1_counts),numpy.log10(sample_2_counts))
-                plt.xlabel("log10(%s)" % sample1_name)
-                plt.ylabel("log10(%s)" % sample2_name)
-            else:
-                plt.scatter(sample_1_counts,sample_2_counts)
-                plt.xlabel("%s" % sample1_name)
-                plt.ylabel("%s" % sample2_name)
-            if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
-            else: plt.title("scatter plot of insertion counts at individual TA sites")
-            plt.savefig(output_path)
-            plt.clf()
+            import pandas as pd
+
+            counts_df = pd.DataFrame(counts, columns = labels)
+            plt.figure()
+            if log_scale:  g = sns.PairGrid(numpy.log10(counts_df))
+            else: g = sns.PairGrid(counts_df)
+            g.map(sns.scatterplot, s=10, alpha=.5)
+            
+            #if Method.by_condition: g.set(xlabel="Condition",y_label="Condition")
+            #else: g.set(xlabel="Sample Name",ylabel="Sample Name")
+
+            if gene_means: g.fig.suptitle("scatter plot of mean insertion counts for each gene")
+            else: g.fig.suptitle("scatter plot of insertion counts at individual TA sites")
+            plt.savefig(output_path, bbox_inches='tight', pad_inches = 0.5)

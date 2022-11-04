@@ -98,8 +98,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                 The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
                     
@@ -121,7 +121,7 @@ class Method:
             self.value_getters.trim            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Trim", default_value=1, tooltip_text="The MH sampler produces Markov samples that are correlated. This parameter dictates how many samples must be attempted for every sampled obtained. Increasing this parameter will decrease the auto-correlation, at the cost of dramatically increasing the run-time. For most situations, this parameter should be left at the default of “1”.")
             self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
-            self.value_getters.read_count      = panel_helpers.create_int_getter(panel, main_sizer, label_text="Minimum Read Count", default_value=1, tooltip_text="The minimum read count that is considered a true read. Because the Gumbel method depends on determining gaps of TA sites lacking insertions, it may be susceptible to spurious reads (e.g. errors). The default value of 1 will consider all reads as true reads. A value of 2, for example, will ignore read counts of 1."),
+            self.value_getters.read_count      = panel_helpers.create_int_getter(panel, main_sizer, label_text="Minimum Read Count", default_value=1, tooltip_text="The minimum read count that is considered a true read. Because the Gumbel method depends on determining gaps of TA sites lacking insertions, it may be susceptible to spurious reads (e.g. errors). The default value of 1 will consider all reads as true reads. A value of 2, for example, will ignore read counts of 1.")
             self.value_getters.replicates      = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Sum", "Mean", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
         
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
@@ -143,6 +143,8 @@ class Method:
             # get annotation
             # 
             Method.inputs.annotation_path = gui.annotation_path
+
+            print(Method.inputs)
 
             for each_key, each_getter in Method.value_getters.items():
                 try:
@@ -401,11 +403,6 @@ class Method:
                 call = "NE"
             else:
                 call = "S"
-
-            # data.append(
-            #     "%s\t%s\t%s\t%d\t%d\t%d\t%d\t%f\t%s\n"
-            #     % (g.orf, g.name, g.desc, g.k, g.n, g.r, g.s, zbar, call)
-            # )
             data.append([g.orf, g.name, g.desc, g.k, g.n, g.r, g.s, zbar, call])
             calls.append(call)
         data.sort()
@@ -438,11 +435,21 @@ class Method:
                 annotation_path=self.inputs.annotation_path,
                 time=(time.time() - self.start_time),
 
-                ES = str(calls.count("E")) + " essential based on Gumbel",
-                ESB = str(calls.count("EB")) + " essential based on Binomial",
-                NE = str(calls.count("NE")) + " non-essential",
-                U = str(calls.count("U")) + " uncertain",
-                S = str(calls.count("S")) +" too-short",
+                summary_info=dict(
+                    ES = str(calls.count("E")),
+                    ESB = str(calls.count("EB")),
+                    NE = str(calls.count("NE")),
+                    U = str(calls.count("U")),
+                    S = str(calls.count("S")),
+                ),
+
+                naming_reference = dict(
+                    ES = "Essential based on Gumbel",
+                    ESB = "Essential based on Binomial",
+                    NE = "Non-essential",
+                    U = "Uncertain",
+                    S = "Too-short",
+                ),
             ),
         )
         
@@ -546,30 +553,16 @@ class ResultFileType1:
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(title=Method.identifier,heading=self.comments,column_names=self.column_names,rows=self.rows).Show(),
+                "Display Table": lambda *args: SpreadSheet(title=Method.identifier,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows).Show(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        if len(comments) == 0:
-            raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while to load tnseq_stats file "{self.path}"''')
-        self.comments = "\n".join(comments)
-        self.column_names = comments[-1].split("\t")
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"Essentiality Calls": "; ".join(summary_str) })
         
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            row = {}
-            for each_column_name, each_cell in zip(self.column_names, each_row):
-               row[each_column_name] = each_cell
-            self.rows.append(row)
-        
-    
+
     def __str__(self):
         return f"""
             File for {Method.identifier}

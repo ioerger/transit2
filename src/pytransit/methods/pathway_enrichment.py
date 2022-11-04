@@ -70,6 +70,7 @@ class Method:
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
         -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
         -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        
         for FET...
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
     """.replace("\n        ", "\n")
@@ -89,7 +90,7 @@ class Method:
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
         import csv
         COG_orgs = []
-        with open(root_folder+"src/pytransit/data/cog-20.org.tsv") as file_obj:
+        with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
@@ -178,8 +179,8 @@ class Method:
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                 Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. 
 
@@ -246,7 +247,7 @@ class Method:
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
-            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
+            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2, tooltip="Pseudo-counts used in calculating pathway enrichment. Useful to dampen the effects of small counts which may lead to deceptively high enrichment scores.")
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
 
@@ -352,8 +353,10 @@ class Method:
             
             #checking validation of inputs
             if self.inputs.method == "FET":
-                self.hit_summary = self.fisher_exact_test()
-                file_output_type = Method.identifier+"FET"
+                self.hit_summary = {
+                    "Hits":self.fisher_exact_test()
+                }
+                file_output_type = Method.identifier+"_FET"
                 file_columns = [
                         "Pathway",
                         "Total Genes", 
@@ -371,21 +374,26 @@ class Method:
                     ]
             elif self.inputs.method == "GSEA":
                 up,down = self.GSEA()
-                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
-                file_output_type = Method.identifier+"GSEA"
+                #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
+                self.hit_summary = {
+                    "Hits": str(up) + " conditional ES;"+str(down) + " conditional NE",
+                }
+                file_output_type = Method.identifier+"_GSEA"
                 file_columns = [
                         "Pathway",
-                        "Pathway Description"
+                        "Pathway Description",
                         "Genes in Path", 
                         "Mean Rank",
-                        "Enrichment" , 
+                        "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
                         "Genes"
                     ]
             elif self.inputs.method == "ONT":
-                self.hit_summary = self.Ontologizer()
-                file_output_type = Method.identifier+"ONT"
+                self.hit_summary = {
+                    "Hits":self.Ontologizer()
+                }
+                file_output_type = Method.identifier+"_ONT"
                 file_columns = [
                         "Pathway",
                         "Total Genes", 
@@ -424,8 +432,8 @@ class Method:
                     enrichment_exponent = self.inputs.enrichment_exponent,
                     num_permutations = self.inputs.num_permutations,
                     pseudocount = self.inputs.pseudocount,
-                    hit_summary = self.hit_summary
                 ),
+                summary_info = self.hit_summary
             ),
         )
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
@@ -620,16 +628,6 @@ class Method:
                     up += 1
                 else:
                     down += 1
-
-        for term,mr,es,pval,qval in results:
-            if qval<0.05 and mr<n2: 
-                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
-                )
-    
-        for term,mr,es,pval,qval in results:
-            if qval<0.05 and mr>n2: 
-                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
-                )
 
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
@@ -917,19 +915,19 @@ class Method:
 class FETResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier+"FET")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"_FET")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier+"FET",
+            type=Method.identifier+"_FET",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier+"FET",
+                    title=Method.identifier+"_FET",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -941,7 +939,8 @@ class FETResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
     
     def __str__(self):
         return f"""
@@ -954,19 +953,19 @@ class FETResultsFile:
 class GSEAResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier+"GSEA")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"_GSEA")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier+"GSEA",
+            type=Method.identifier+"_GSEA",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier+"GSEA",
+                    title=Method.identifier+"_GSEA",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -978,7 +977,8 @@ class GSEAResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
     
     def __str__(self):
         return f"""
@@ -992,19 +992,19 @@ class GSEAResultsFile:
 class ONTResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier+"ONT")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"_ONT")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier+"ONT",
+            type=Method.identifier+"_ONT",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier+"ONT",
+                    title=Method.identifier+"_ONT",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -1016,8 +1016,8 @@ class ONTResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
-    
+
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
     def __str__(self):
         return f"""
             File for {Method.identifier}
