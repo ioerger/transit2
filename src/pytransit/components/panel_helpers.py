@@ -2,6 +2,7 @@ from pytransit.specific_tools.transit_tools import wx
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
+default_padding = 30
 default_label_size = (200, -1)
 default_widget_size = (100, -1)
 
@@ -49,14 +50,21 @@ if True:
         inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
         inner_sizer.Add(
             InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-            0,
-            wx.ALIGN_CENTER_VERTICAL,
-            gui_tools.default_padding,
+            proportion=0,
+            flag=wx.ALIGN_CENTER_VERTICAL,
+            border=gui_tools.default_padding,
         )
+        # a spacer because the border doesn't seem to actually work
+        inner_sizer.Add(10, default_padding)
         if label_text != None:
             label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, default_label_size, 0)
             label.Wrap(-1)
-            inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            inner_sizer.Add(
+                label,
+                proportion=0,
+                flag=wx.ALIGN_CENTER_VERTICAL,
+                border=gui_tools.default_padding,
+            )
         return inner_sizer
     
     def create_button(panel, sizer, *, label):
@@ -425,11 +433,11 @@ if True:
         
         table = None
         row_height_approximate = 25
-        with Table(frame=panel, min_size=(parameter_panel.panel.max_width*0.7, (len(options)+1)*row_height_approximate)) as table:
+        with Table(frame=panel, column_width=-1, min_size=(parameter_panel.panel.max_width*0.5, -1)) as table:
             sizer.Add(
                 table.wx_object,
                 0,
-                wx.ALIGN_LEFT,
+                wx.ALIGN_CENTER_HORIZONTAL,
                 gui_tools.default_padding
             )
             for each in options:

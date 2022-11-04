@@ -9,13 +9,17 @@ class Table:
         Overview:
             self.wx_object
             self.events.on_select   # decorator (use @)
-            self.selected           # list of wx objects, TODO: have it return the python_obj
+            self.selected
             self.length
             self.add(python_obj)
     """
-    def __init__(self, initial_columns=None, column_width=None, min_size=(1,1), max_size=(-1, -1), frame=None):
-        frame        = gui.frame if not frame else frame
-        column_width = column_width if column_width is not None else 100
+    estimated_row_height = 26 # TODO: this should probably be dynamically calculated somehow
+    
+    def __init__(self, initial_columns=None, column_width=None, column_widths=None, min_size=(1,1), max_size=(-1, -1), frame=None):
+        from collections import defaultdict
+        frame         = gui.frame if not frame else frame
+        column_width  = column_width if column_width is not None else -1
+        column_widths = column_widths or {}
         
         # 
         # wx_object
@@ -27,31 +31,36 @@ class Table:
             wx.DefaultSize,
             wx.LC_REPORT | wx.SUNKEN_BORDER,
         )
-        self.min_size = min_size
-        self.max_size = max_size
         self.wx_object = wx_object
+        # stuff that has no reactive getter/setters
+        self._state = LazyDict(
+            index               = -1,
+            key_to_column_index = {},
+            max_size            = max_size,
+            min_size            = min_size,
+            column_width_for    = defaultdict(lambda : column_width, column_widths or {}),
+            initial_columns     = initial_columns or [],
+            data_values         = [],
+        )
         
-        self.refresh_size()
         self.wx_object.InsertColumn(0, "", width=0) # first one is some kind of special name. Were going to ignore it    
         self.events = LazyDict(
             on_select=lambda func: wx_object.Bind(wx.EVT_LIST_ITEM_SELECTED, func),
         )
         
-        self._state = LazyDict(
-            index               = -1,
-            key_to_column_index = {},
-            column_width        = column_width,
-            initial_columns     = initial_columns or [],
-            data_values         = [],
-        )
-        
         # create the inital columns
         for each_key in self._state.initial_columns:
             self._key_to_column_index(each_key)
+        
+        self.refresh_size()
     
     def refresh_size(self):
-        min_width, min_height = self.min_size
-        max_width, max_height = self.max_size
+        min_width, min_height = self._state.min_size
+        max_width, max_height = self._state.max_size
+        
+        if min_height < 1:
+            min_height = self.estimated_row_height * (len(self.rows) + 1)
+        
         # set min size because pop_up_sizer.SetMinSize doesn't actually do its job
         fitted_width, fitted_height = self.wx_object.GetSize()
         if fitted_width  > max_width : fitted_width  = max_width
@@ -75,7 +84,7 @@ class Table:
         if key not in self._state.key_to_column_index:
             index = len(self._state.key_to_column_index)+1
             self._state.key_to_column_index[key] = index
-            self.wx_object.InsertColumn(index, key, width=self._state.column_width)
+            self.wx_object.InsertColumn(index, key, width=self._state.column_width_for[key])
             return index
         else:
             return self._state.key_to_column_index[key]
@@ -94,6 +103,7 @@ class Table:
             self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
         
         self._state.data_values.append(python_obj)
+        self.refresh_size()
     
     @property
     def length(self):

@@ -136,7 +136,7 @@ class gui:
         from pytransit.components import results_area
         return results_area.add(*args, **kwargs)
     
-    debug_wx_python = False
+    debug_wx_python = True
     def debug_wx_if_needed(self):
         if self.debug_wx_python:
             import wx.lib.inspection
