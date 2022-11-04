@@ -747,7 +747,7 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
     if avg_by_conditions:
         labels = combined_wig.metadata.condition_names
         condition_per_wig_index = [
-            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0]
                 for each_fingerprint in combined_wig.wig_fingerprints
         ]
         conditions_array = numpy.array(condition_per_wig_index)

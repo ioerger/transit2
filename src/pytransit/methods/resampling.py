@@ -80,7 +80,7 @@ class Method:
         normalization="TTR",
         samples=10000,
         adaptive=False,
-        include_zeros=True, # FIXME: include_zeros=False breaks resampling (even on master I believe)
+        include_zeros=True, # FIXME: include_zeros=False breaks resampling (even on master I believe), TODO: only remove if zeros if in both ctrl and experimental
         pseudocount=1,
         replicates="Sum",
         LOESS=False,

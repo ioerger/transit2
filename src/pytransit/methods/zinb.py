@@ -45,7 +45,7 @@ class Method:
         "--condition",
         "--covars",
         "--interactions",
-        "--prot_table_path",
+        "--append_gene_desc",
         "--gene",
     ]
     
@@ -63,7 +63,7 @@ class Method:
             --condition     := alias for --group-by
             --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
             --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
-            --prot_table_path <filename>           := for appending annotations of genes
+            --append_gene_desc                := the output file will have column for gene descriptions
             --gene <RV number or Gene name>   := Run method for one gene and print model output.
     """.replace("\n        ", "\n")
 
@@ -82,7 +82,7 @@ class Method:
             metadata_path = args[1],
             annotation_path = args[2],
             output_path = args[3],
-            prot_table_path=kwargs["prot_table"],
+            should_append_gene_descriptions="append_gene_desc" in kwargs,
             group_by=kwargs.get("-group-by", kwargs["-condition"]),
             covars=console_tools.string_arg_to_list(kwargs["-covars"]),
             interactions=console_tools.string_arg_to_list(kwargs["-interactions"]),
@@ -146,6 +146,7 @@ class Method:
                 group_by=            panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Group By",     options=metadata_headers, tooltip_text="FIXME"),
                 covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars",       options=metadata_headers, tooltip_text="FIXME"), 
                 interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="FIXME"), 
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None)
             )
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
@@ -192,7 +193,7 @@ class Method:
         metadata_path,
         annotation_path,
         output_path,
-        prot_table_path=None,
+        should_append_gene_descriptions=None,
         group_by=None,
         covars=None,
         interactions=None,
@@ -207,18 +208,18 @@ class Method:
         disable_logging=False,
     ): # output()
         # Defaults (even if argument directly provided as None)
-        prot_table_path     = prot_table_path     if prot_table_path     is not None else None
-        group_by            = group_by            if group_by            is not None else "Condition"
-        covars              = covars              if covars              is not None else []
-        interactions        = interactions        if interactions        is not None else []
-        refs                = refs                if refs                is not None else []
-        excluded_conditions = excluded_conditions if excluded_conditions is not None else []
-        included_conditions = included_conditions if included_conditions is not None else []
-        winz                = winz                if winz                is not None else False
-        pseudocount         = pseudocount         if pseudocount         is not None else 5.0 # TODO: check later to make sure this is the correct default --Jeff
-        normalization       = normalization       if normalization       is not None else "TTR"
-        n_terminus          = n_terminus          if n_terminus          is not None else 5.0
-        c_terminus          = c_terminus          if c_terminus          is not None else 5.0
+        should_append_gene_descriptions = should_append_gene_descriptions if should_append_gene_descriptions is not None else False
+        group_by                        = group_by                        if group_by                        is not None else "Condition"
+        covars                          = covars                          if covars                          is not None else []
+        interactions                    = interactions                    if interactions                    is not None else []
+        refs                            = refs                            if refs                            is not None else []
+        excluded_conditions             = excluded_conditions             if excluded_conditions             is not None else []
+        included_conditions             = included_conditions             if included_conditions             is not None else []
+        winz                            = winz                            if winz                            is not None else False
+        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 # TODO: check later to make sure this is the correct default --Jeff
+        normalization                   = normalization                   if normalization                   is not None else "TTR"
+        n_terminus                      = n_terminus                      if n_terminus                      is not None else 5.0
+        c_terminus                      = c_terminus                      if c_terminus                      is not None else 5.0
         
         # transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ]) # FIXME: uncomment this
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
@@ -230,9 +231,9 @@ class Method:
                 # create gene_name_to_description from prot_table
                 # 
                 gene_name_to_description = None
-                if prot_table_path != None:
+                if should_append_gene_descriptions: # TODO: could be treated as boolean flag to include gene descriptions
                     gene_name_to_description = {}
-                    with open(prot_table_path) as file:
+                    with open(annotation_path) as file:
                         for line in file:
                             row = line.rstrip().split("\t")
                             gene_name        = row[ProtTable.gene_name_index]

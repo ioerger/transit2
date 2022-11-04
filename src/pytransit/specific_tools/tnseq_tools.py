@@ -150,7 +150,7 @@ class CombinedWigMetadata:
             for row in self.rows:
                 wig_fingerprint = row["Filename"]
                 condition_name  = row["Condition"]
-                self._conditions_by_wig_fingerprint[wig_fingerprint] = condition_name # FIXME: there can be more than one condition per wig_fingerprint
+                self._conditions_by_wig_fingerprint[wig_fingerprint] = condition_name
                 self._ordering_metadata["condition"].append(condition_name)
                 
         self.conditions = no_duplicates(
