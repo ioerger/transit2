@@ -11,16 +11,12 @@ import heapq
 import collections
 import numpy
 
-import pandas
-import statsmodels.stats.multitest
-import statsmodels.api as sm
-
 from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools, logging
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, logging
 from pytransit.generic_tools import csv, misc, informative_iterator
 import pytransit.components.results_area as results_area
 
@@ -237,6 +233,7 @@ class Method:
         Returns:
             ta_sites_df, models_df, gene_obj_dict
         """
+        import pandas
         
         self.gumbel_estimations = gumbel_results_file
 
@@ -455,6 +452,8 @@ class Method:
 
         logging.log("\t + Fitting M1")
         if True: # NOTE: the block of code in this if statement is what takes up the bulk of the processing time (can't give good ETA/progress cause of this)
+            import statsmodels.stats.multitest
+            import statsmodels.api as sm
             X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
             #X1 = sm.add_constant(X1)
             results1 = sm.OLS(Y, X1).fit()
@@ -496,6 +495,7 @@ class Method:
         return (ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
     def write_ttnfitness_results(self, ta_sites_df, models_df, gene_obj_dict, filtered_ttn_data, gumbel_bernoulli_gene_calls, genes_output_path, sites_output_path):
+        import pandas
         genes_out_rows, sites_out_rows = [],[]
         logging.log("Writing To Output Files")
         # Write Models Information to CSV
@@ -703,6 +703,7 @@ class GenesFile:
 
 
     def graph_volcano_plot(self):
+        import pandas
         with gui_tools.nice_error_log:
             Method.inputs.volcano_output_path = gui_tools.ask_for_output_file_path(
                 default_file_name=f"volcano.png",
