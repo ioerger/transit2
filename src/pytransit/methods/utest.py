@@ -28,21 +28,6 @@ class Method:
     description = f"""Mann-Whitney U-test of conditional essentiality"""
     menu_name   = f"{name} - {description}"
     
-    
-    inputs = LazyDict(
-        ctrldata=None,
-        expdata=None,
-        annotation_path=None,
-        output_path=None,
-        normalization="TTR",
-        include_zeros=False,
-        LOESS=False,
-        ignore_codon=True,
-        n_terminus=0.0,
-        c_terminus=0.0,
-        significance_threshold=0.05,
-    )
-    
     column_names = [
         "Orf",
         "Name",
@@ -64,7 +49,7 @@ class Method:
         "-iC",
     ]
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined-wig-path> <metadata path> <annotation .prot_table or GFF3> <comma-separated wig_ids for control group> <comma-separated wig_ids experimental group> <output file> [Optional Arguments]
 
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
@@ -117,185 +102,189 @@ class Method:
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
-            
-    @staticmethod
+    
+    @staticmethod        
     def from_gui(frame):
-        # 
-        # get annotation
-        # 
-        Method.inputs.annotation_path = gui.annotation_path
+        arguments = LazyDict()
         
         # 
-        # call all GUI getters, puts results into respective Method.inputs key-value
+        # call all GUI getters, puts results into respective arguments key-value
         # 
         for each_key, each_getter in Method.value_getters.items():
             try:
-                Method.inputs[each_key] = each_getter()
+                arguments[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
         # 
         # ask for output path(s)
         # 
-        Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+        arguments.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
-            output_extensions=transit_tools.result_output_extensions,
+            output_extensions='Common output extensions (*.tsv,*.dat,*.out)|*.txt;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         # if user didn't select an output path
-        if not Method.inputs.output_path:
+        if not arguments.output_path:
             return None
 
-        return Method
+        Method.output(**arguments)
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
         
-        # FIXME: create combined wig object with only relevent data
-        
-        # save the data
-        Method.inputs.update(dict(
-            ctrldata = args[0].split(","),
-            expdata = args[1].split(","),
-            annotation_path = args[2],
-            output_path = args[3],
-            normalization = kwargs.get("n", "TTR"),
-            include_zeros = kwargs.get("iz", False),
-            LOESS = kwargs.get("l", False),
-            ignore_codon = True,
-            n_terminus = float(kwargs.get("iN", 0.00)),
-            c_terminus = float(kwargs.get("iC", 0.00)),
-        ))
-        
-        Method.Run()
+        Method.output(
+            combined_wig=tnseq_tools.CombinedWig(
+                main_path=args[0],
+                metadata_path=args[1],
+                annotation_path=args[2],
+            ),
+            control_ids=console_tools.string_arg_to_list(args[3]),
+            experimental_ids=console_tools.string_arg_to_list(args[4]),
+            output_path=args[5],
+            normalization=kwargs["n"],
+            n_terminus=kwargs["iN"],
+            c_terminus=kwargs["iC"],
+            include_zeros=kwargs["iz"],
+            LOESS="l" in kwargs,
+        )
     
-    def Run(self):
+    @staticmethod
+    def output(*, combined_wig, control_ids, experimental_ids, output_path, normalization=None, n_terminus=None, c_terminus=None, include_zeros=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
         import scipy.stats
         from pytransit.specific_tools import stat_tools
-        logging.log("Starting Mann-Whitney U-test Method")
-        start_time = time.time()
+        # Defaults (even if argument directly provided as None)
+        normalization          = normalization          if normalization          is not None else "TTR"
+        n_terminus             = n_terminus             if n_terminus             is not None else 0.0
+        c_terminus             = c_terminus             if c_terminus             is not None else 0.0
+        include_zeros          = include_zeros          if include_zeros          is not None else False
+        LOESS                  = LOESS                  if LOESS                  is not None else False
+        ignore_codon           = ignore_codon           if ignore_codon           is not None else True
+        significance_threshold = significance_threshold if significance_threshold is not None else 0.05
         
-        number_of_control_wigs = 1 # TODO: check if this is right
-        
-        # 
-        # normalize
-        # 
-        if self.inputs.normalization != "nonorm":
-            logging.log(f"Normalizing with {self.inputs.normalization}")
-            combined_wig = combined_wig.normalized_with(self.inputs.normalization)
-        
-        if self.inputs.LOESS:
-            logging.log("Performing LOESS Correction")
-            combined_wig = combined_wig.with_loess_correction()
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
+            number_of_control_wigs = 1 # TODO: check if this is right
+            # 
+            # restrict to relevent data
+            # 
+            combined_wig = combined_wig.with_only(wig_ids=control_ids+experimental_ids)
+            
+            # 
+            # normalize
+            # 
+            if normalization != "nonorm":
+                logging.log(f"Normalizing with {normalization}")
+                combined_wig = combined_wig.normalized_with(normalization)
+            
+            if LOESS:
+                logging.log("Performing LOESS Correction")
+                combined_wig = combined_wig.with_loess_correction()
 
-        G = combined_wig.get_genes(
-            ignore_codon=self.inputs.ignore_codon,
-            n_terminus=self.inputs.n_terminus,
-            c_terminus=self.inputs.c_terminus,
-        )
-
-        # u-test
-        data = []
-        N = len(G)
-        count = 0
-        
-        for gene in G:
-            count += 1
-            if gene.k == 0 or gene.n == 0:
-                (test_obs, mean1, mean2, log2_fc, u_stat, pval_2tail) = (
-                    0,
-                    0,
-                    0,
-                    0,
-                    0.0,
-                    1.00,
-                )
-            else:
-
-                if not self.inputs.include_zeros:
-                    ii = numpy.sum(gene.reads, 0) > 0
-                else:
-                    ii = numpy.ones(gene.n) == 1
-
-                data1 = gene.reads[:number_of_control_wigs, ii].flatten()
-                data2 = gene.reads[number_of_control_wigs:, ii].flatten()
-                try:
-                    u_stat, pval_2tail = scipy.stats.mannwhitneyu(
-                        data1, data2, alternative="two-sided"
-                    )
-                except ValueError as e:
-                    u_stat, pval_2tail = 0.0, 1.00
-
-                n1 = len(data1)
-                n2 = len(data2)
-
-                mean1 = 0
-                if n1 > 0:
-                    mean1 = numpy.mean(data1)
-                mean2 = 0
-                if n2 > 0:
-                    mean2 = numpy.mean(data2)
-
-                try:
-                    # Only adjust log2_fc if one of the means is zero
-                    if mean1 > 0 and mean2 > 0:
-                        log2_fc = math.log((mean2) / (mean1), 2)
-                    else:
-                        log2_fc = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
-                except:
-                    log2_fc = 0.0
-
-            data.append(
-                [
-                    gene.orf,
-                    gene.name,
-                    gene.desc,
-                    gene.n,
-                    mean1,
-                    mean2,
-                    log2_fc,
-                    u_stat,
-                    pval_2tail,
-                ]
+            G = combined_wig.get_genes(
+                ignore_codon=ignore_codon,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
             )
 
-            # Update Progress
-            percent = (100.0 * count / N)
-            text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
-            parameter_panel.progress_update(text, percent)
+            # u-test
+            data = []
+            N = len(G)
+            count = 0
+            
+            for gene in G:
+                count += 1
+                if gene.k == 0 or gene.n == 0:
+                    (test_obs, mean1, mean2, log2_fc, u_stat, pval_2tail) = (
+                        0,
+                        0,
+                        0,
+                        0,
+                        0.0,
+                        1.00,
+                    )
+                else:
 
-        logging.log("")  # Printing empty line to flush stdout
-        logging.log("Performing Benjamini-Hochberg Correction")
-        data.sort()
-        qval = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
-        
-        number_of_significant_genes = len([ 1 for each in qval if each > self.inputs.significance_threshold ])
-        
-        # 
-        # write output
-        # 
-        transit_tools.write_result(
-            path=self.inputs.output_path, # path=None means write to STDOUT
-            file_kind=Method.identifier,
-            rows=[
-                [*row, qval]
-                    for row, qval in zip(data, qval) 
-            ],
-            column_names=Method.column_names,
-            extra_info=dict(
-                stats=dict(
-                    number_of_significant_genes=number_of_significant_genes,
+                    if not include_zeros:
+                        ii = numpy.sum(gene.reads, 0) > 0
+                    else:
+                        ii = numpy.ones(gene.n) == 1
+
+                    data1 = gene.reads[:number_of_control_wigs, ii].flatten()
+                    data2 = gene.reads[number_of_control_wigs:, ii].flatten()
+                    try:
+                        u_stat, pval_2tail = scipy.stats.mannwhitneyu(
+                            data1, data2, alternative="two-sided"
+                        )
+                    except ValueError as e:
+                        u_stat, pval_2tail = 0.0, 1.00
+
+                    n1 = len(data1)
+                    n2 = len(data2)
+
+                    mean1 = 0
+                    if n1 > 0:
+                        mean1 = numpy.mean(data1)
+                    mean2 = 0
+                    if n2 > 0:
+                        mean2 = numpy.mean(data2)
+
+                    try:
+                        # Only adjust log2_fc if one of the means is zero
+                        if mean1 > 0 and mean2 > 0:
+                            log2_fc = math.log((mean2) / (mean1), 2)
+                        else:
+                            log2_fc = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
+                    except:
+                        log2_fc = 0.0
+
+                data.append(
+                    [
+                        gene.orf,
+                        gene.name,
+                        gene.desc,
+                        gene.n,
+                        mean1,
+                        mean2,
+                        log2_fc,
+                        u_stat,
+                        pval_2tail,
+                    ]
+                )
+
+                # Update Progress
+                percent = (100.0 * count / N)
+                text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
+                parameter_panel.progress_update(text, percent)
+
+            logging.log("")  # Printing empty line to flush stdout
+            logging.log("Performing Benjamini-Hochberg Correction")
+            data.sort()
+            qval = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
+            
+            number_of_significant_genes = len([ 1 for each in qval if each > significance_threshold ])
+            
+            # 
+            # write output
+            # 
+            transit_tools.write_result(
+                path=output_path, # path=None means write to STDOUT
+                file_kind=Method.identifier,
+                rows=[
+                    [*row, qval]
+                        for row, qval in zip(data, qval) 
+                ],
+                column_names=Method.column_names,
+                extra_info=dict(
+                    stats=dict(
+                        number_of_significant_genes=number_of_significant_genes,
+                    ),
+                    parameters={},
                 ),
-                parameters=self.inputs,
-            ),
-        )
+            )
 
-        logging.log("Adding File: %s" % (self.inputs.output_path))
-        results_area.add(self.inputs.output_path)
-        logging.log("Finished Mann-Whitney U-test Method")
 
 @transit_tools.ResultsFile
 class ResultFileType1:

@@ -513,25 +513,25 @@ class CombinedWig:
         new_combined_wig.metadata_path   = None
         new_combined_wig.annotation_path = self.annotation_path
         new_combined_wig.comments        = list(self.comments)
-        new_combined_wig.extra_data      = deepcopy(self.extra_data)
+        new_combined_wig.extra_data      = deepcopy(dict(self.extra_data))
         new_combined_wig.rows            = []
         new_combined_wig.samples         = []
-        new_combined_wig.metadata        = self.metadata.copy()
+        new_combined_wig.metadata        = self.metadata and self.metadata.copy()
         
-        new_combined_wig.as_tuple = CombinedWigData(deepcopy((*self.as_tuple)))
+        new_combined_wig.as_tuple = CombinedWigData(deepcopy(each) for each in self.as_tuple)
         CWigRow = named_list([ "position", *new_combined_wig.wig_fingerprints ])
         for each_row in self.rows:
-            new_combined_wig.rows.append(CWigRow(*each_row))
+            new_combined_wig.rows.append(CWigRow(each_row))
         
         read_counts_by_wig_fingerprint = new_combined_wig.read_counts_by_wig_fingerprint
         for column_index, wig_fingerprint in enumerate(new_combined_wig.wig_fingerprints):
             new_combined_wig.samples.append(
                 Wig(
                     rows=list(zip(new_combined_wig.ta_sites, read_counts_by_wig_fingerprint[wig_fingerprint])),
-                    id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    id=new_combined_wig.metadata and new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
-                    condition_names=new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    condition_names=new_combined_wig.metadata and new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
                     extra_data=LazyDict(
                         is_part_of_cwig=True,
                     ),
@@ -545,9 +545,14 @@ class CombinedWig:
         import numpy
         from copy import deepcopy
         
+        assert wig_ids == None or self.metadata != None, "Tried to filter by wig_ids, but the combined wig didnt have metadata attached (e.g. IDK what id's exist)"
+        
         wig_ids = wig_ids or []
         wig_fingerprints = wig_fingerprints or []
+        print(f'''self.metadata = {self.metadata}''')
+        print(f'''self.metadata.rows = {self.metadata.rows}''')
         new_wig_fingerprints = wig_fingerprints + [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
+        print(f'''new_wig_fingerprints = {new_wig_fingerprints}''')
         
         # create a new shell
         class CombinedWigHelper(CombinedWig):
@@ -560,10 +565,10 @@ class CombinedWig:
         new_combined_wig.metadata_path   = None
         new_combined_wig.annotation_path = self.annotation_path
         new_combined_wig.comments        = self.comments
-        new_combined_wig.extra_data      = dict(self.extra_data)
+        new_combined_wig.extra_data      = deepcopy(dict(self.extra_data))
         new_combined_wig.rows            = []
         new_combined_wig.samples         = []
-        new_combined_wig.metadata        = self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
+        new_combined_wig.metadata        = self.metadata and self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
         
         # extract only data relating to new_wig_fingerprints
         sites, counts_by_wig_array, old_wig_fingerprints = self.as_tuple
@@ -598,10 +603,10 @@ class CombinedWig:
             new_combined_wig.samples.append(
                 Wig(
                     rows=list(zip(new_combined_wig.ta_sites, new_combined_wig.read_counts_by_wig_fingerprint[wig_fingerprint])),
-                    id=new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
+                    id=new_combined_wig.metadata and new_combined_wig.metadata.id_for(wig_fingerprint=wig_fingerprint),
                     fingerprint=wig_fingerprint,
                     column_index=column_index,
-                    condition_names=new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
+                    condition_names=new_combined_wig.metadata and new_combined_wig.metadata.condition_names_for(wig_fingerprint=wig_fingerprint),
                     extra_data=LazyDict(
                         is_part_of_cwig=True,
                     ),
@@ -614,6 +619,7 @@ class CombinedWig:
         
     def summed(self, *, by_conditions=False):
         if by_conditions:
+            assert self.metadata != None, "Tried to sum by conditions, but the combined wig didnt have metadata attached (e.g. IDK what conditions exist)"
             new_wigs = []
             new_read_counts = []
             condition_names = tuple(self.metadata.condition_names)
@@ -780,7 +786,7 @@ class CombinedWig:
         from pytransit.specific_tools import norm_tools
         new_combined_wig = self.copy()
         (read_counts_per_wig, factors) = norm_tools.normalize_data(
-            new_combined_wig.ta_sites,
+            new_combined_wig.as_tuple.counts_by_wig,
             kind,
             self.wig_fingerprints,
             self.annotation_path,
@@ -799,7 +805,6 @@ class CombinedWig:
         
         return new_combined_wig
     
-    @property
     def get_genes(self, ignore_codon=True, n_terminus=0.0, c_terminus=0.0, include_nc=False, norm="nonorm", reps="All", minread=1, genome="", transposon="himar1"):
         return Genes(
             self.wig_fingerprints,
