@@ -87,7 +87,7 @@ class Method:
         self.inputs.resampling_file = results_file
         self.define_panel()
 
-    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
+    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
         import csv
         COG_orgs = []
         with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
@@ -129,46 +129,74 @@ class Method:
                     popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     win.SetSizer(popup_sizer)
 
-                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
-                    popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
+                    #pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select Pathway System : ", style=wx.ALIGN_LEFT)
+                    #popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    pathway_type = wx.ComboBox(win,choices = ["Select Pathway from DropDown","Sanger", "COG" ,"GO", "KEGG", "Upload my Own Pathway file"])
                     popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
-                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
-                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
-
                     win.Layout()
                     popup_sizer.Fit(win)
-                    selected_path = win.ShowModal()
+                    win.Show()
 
-                    if selected_path == wx.ID_OK:
-                        pathway_type_selected = pathway_type.GetValue()
-                        organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                        popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        if pathway_type_selected== "COG":                           
-                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))               
-                        elif pathway_type_selected== "KEGG":
-                            organism = wx.ComboBox(win,choices = ["H37Rv"])
-                        elif pathway_type_selected== "Sanger":
-                            organism = wx.ComboBox(win,choices = ["H37Rv"])
-                        else:
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
+                    @gui_tools.bind_to(pathway_type, wx.EVT_COMBOBOX)
+                    def onSelect(*args,**kwargs):
+                        nonlocal organism_pathway
+                        with gui_tools.nice_error_log:
+                            selected_path = pathway_type.GetStringSelection()
+                            logging.log("You selected "+selected_path + " Pathway")
+                            #organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
+                            #popup_sizer.Add(organism_label_text, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                            organism_pathway = selected_path
+                            if selected_path=="Select Pathway from DropDown": logging.log("Select a Valid Pathway")
+                            if selected_path == "COG": organism = wx.ComboBox(win,choices = ["Select Association from DropDown"]+sorted(COG_orgs)) 
+                            elif selected_path == "Sanger": organism = wx.ComboBox(win,choices = ["Select Association from DropDown","H37Rv"])
+                            elif selected_path == "KEGG": organism = wx.ComboBox(win,choices = ["Select Association from DropDown","H37Rv"])
+                            elif selected_path =="GO": organism = wx.ComboBox(win,choices = ["Select Association from DropDown","H37Rv", "Smeg"])
+                            else: #upload your own pathway file
+                                organism_pathway = "Custom"
+                                pathway_file_path = gui_tools.ask_for_file(
+                                    message="Select Pathways File",
+                                    default_folder=None,
+                                    default_file_name="",
+                                    allowed_extensions='All files (*.*)|*.*',
+                                )
+                                Method.inputs.pathways_file = pathway_file_path
+                                organism = wx.ComboBox(win,choices = ["Upload my Own Associations file"])
+                            popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                            win.Layout()
+                            popup_sizer.Fit(win)
+                            win.Show()
 
-                        popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                        @gui_tools.bind_to(organism, wx.EVT_COMBOBOX)
+                        def onSecondSelect(*args,**kwargs):
+                            nonlocal organism_pathway
+                            with gui_tools.nice_error_log:
+                                selected_org = organism.GetStringSelection()
+                                logging.log("You selected "+selected_org + " Associations")
+                                if selected_org=="Select Assocation from DropDown": logging.log("Select a Valid Association") 
+                                elif "Upload" in selected_org:
+                                    organism_pathway = organism_pathway+"-"+"Custom"
+                                    # set the file path variable
+                                    associations_file_path = gui_tools.ask_for_file(
+                                        message="Select Associations File",
+                                        default_folder=None,
+                                        default_file_name="",
+                                        allowed_extensions='All files (*.*)|*.*',
+                                    )
+                                    Method.inputs.associations_file = associations_file_path
+                                else:
+                                    organism_pathway = selected_org+"-"+organism_pathway
+
                         ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
                         popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
+
 
                         win.Layout()
                         popup_sizer.Fit(win)
                         res = win.ShowModal()
-                        if res == wx.ID_OK:
-                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
-                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
-                        win.Destroy()
-                    
+                        if res == wx.ID_OK:organism_pathway_text.SetLabel(basename(organism_pathway or ""))
+                        win.Destroy()                    
 
             row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
             organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
         
@@ -210,24 +238,26 @@ class Method:
                     allowed_extensions='All files (*.*)|*.*'
                 )
 
-            self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
-                button_label="Select Custom Associations File", 
-                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines. It is OK if there are no associations listed for some genes. Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.", 
-                popup_title="Select Associations File",
-                allowed_extensions='All files (*.*)|*.*'
-            )
-
-            self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
-                button_label="Select Custom Pathways File", 
-                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name.", 
-                popup_title="Select Pathways File",
-                allowed_extensions='All files (*.*)|*.*'
-            )
-
             self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
-                button_label="Select from Provided Files", 
+                button_label="Select Pathway system", 
                 tooltip_text="We have a few Associaiton and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
             )
+
+            # self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
+            #     button_label="Select Custom Associations File", 
+            #     tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines. It is OK if there are no associations listed for some genes. Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.", 
+            #     popup_title="Select Associations File",
+            #     allowed_extensions='All files (*.*)|*.*'
+            # )
+
+            # self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
+            #     button_label="Select Custom Pathways File", 
+            #     tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name.", 
+            #     popup_title="Select Pathways File",
+            #     allowed_extensions='All files (*.*)|*.*'
+            # )
+
+            
     
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
@@ -266,7 +296,6 @@ class Method:
                 Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-
 
         if Method.inputs.organism_pathway != None:
             organism,pathway = Method.inputs.organism_pathway.split("-")
