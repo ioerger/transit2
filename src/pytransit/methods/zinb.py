@@ -126,6 +126,7 @@ class Method:
                     4. FIXME
                 """.replace("\n                    ","\n"),
             )
+            metadata_headers = []
             try:
                 metadata_headers = gui.combined_wigs[-1].metadata.headers
             except Exception as error:
