@@ -73,7 +73,7 @@ class Method:
         if is_combined_wig:
             console_tools.enforce_number_of_args(args, Method.usage_string, at_least=1)
             infile_path = kwargs.get("c")
-            combined_wig = tnseq_tools.CombinedWig(main_path=infile_path)
+            combined_wig = tnseq_tools.CombinedWig.load(main_path=infile_path)
             output_path = args[0]  # if no arg give, could print to screen
         else:
             console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)

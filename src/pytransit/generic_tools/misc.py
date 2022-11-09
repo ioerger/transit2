@@ -311,3 +311,15 @@ def invert_dict(existing_dict):
             new_dict[each_value] = []
         new_dict[each_value].append(each_key)
     return new_dict
+    
+
+# a fallback function that just never caches anything
+def cache(*args, **kwargs):
+    def decorator_name(function_being_wrapped):
+        return function_being_wrapped
+    return decorator_name
+try:
+    import dill
+    from cool_cache import cache
+except ImportError as error:
+    pass

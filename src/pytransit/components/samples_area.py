@@ -324,8 +324,9 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
         once the "TODO: FOR DEBUGGING ONLY" is removed, this should 
         probably be inlined again for clarity (will only have one caller)
     """
-    samples.wig_table.clear()
-    gui.combined_wigs.clear()
+    if cwig_paths:
+        samples.wig_table.clear()
+        gui.combined_wigs.clear()
     
     # 
     # load the data from the files
@@ -334,7 +335,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
         logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
         with gui_tools.nice_error_log:
             gui.combined_wigs.append(
-                tnseq_tools.CombinedWig(
+                tnseq_tools.CombinedWig.load(
                     main_path=each_cwig_path,
                     metadata_path=each_metadata_path,
                     annotation_path=each_annotation_path,

@@ -22,12 +22,9 @@ import os
 import math
 import warnings
 import ntpath
-from typing import NamedTuple
+import heapq
 
 import numpy
-import scipy.optimize
-import scipy.stats
-import heapq
 import matplotlib.pyplot as plt
 
 
@@ -38,6 +35,7 @@ EOL = "\n" # TODO remove this
 # optional import: wx
 # 
 try:
+    print("attempting wx import")
     import wx
     import wx.xrc
     import wx.adv
@@ -61,6 +59,7 @@ except ModuleNotFoundError as e:
 # optional import: R
 # 
 try:
+    print("attempting R import")
     import rpy2.robjects
     from rpy2.robjects import (
         r,
@@ -72,6 +71,7 @@ try:
         packages as rpackages,
     )
     HAS_R = True
+    print("R imported")
 except ModuleNotFoundError as e:
     HAS_R = False
     r = None
@@ -715,7 +715,7 @@ def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, 
 
 def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=None, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
     if combined_wig==None: 
-        combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
+        combined_wig = tnseq_tools.CombinedWig.load(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
     
     assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
     sites, data, filenames_in_comb_wig = combined_wig.as_tuple

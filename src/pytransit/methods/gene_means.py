@@ -53,7 +53,7 @@ class Method:
         
         # save the flags
         Method.output(
-            combined_wig=tnseq_tools.CombinedWig(
+            combined_wig=tnseq_tools.CombinedWig.load(
                 main_path=args[0],
                 metadata_path=args[1],
                 annotation_path=args[2],

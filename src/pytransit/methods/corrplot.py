@@ -56,7 +56,7 @@ class Method:
                 
         # map data to the core function
         Method.output(
-            combined_wig=tnseq_tools.CombinedWig(
+            combined_wig=tnseq_tools.CombinedWig.load(
                 main_path=args[0],
                 metadata_path=args[1],
                 annotation_path=args[2],
@@ -144,7 +144,7 @@ class Method:
         c_terminus        = c_terminus        if c_terminus        is not None else 0.0
         
         if combined_wig == None:
-            combined_wig = tnseq_tools.CombinedWig(main_path=combined_wig_path,metadata_path=metadata_path, annotation_path=annotation_path)
+            combined_wig = tnseq_tools.CombinedWig.load(main_path=combined_wig_path,metadata_path=metadata_path, annotation_path=annotation_path)
         
         from pytransit.methods.gene_means import Method as GeneMeansMethod
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging,):
