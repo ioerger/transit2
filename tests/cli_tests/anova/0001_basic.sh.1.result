@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    date: 2022-10-28 18:16:01
+#    date: 2022-11-09 09:35:32
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -13,6 +13,8 @@
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
 #       alpha: 1000.0
+#    summary_info:
+#       Hits: '25'
 #    
 #Rv	Gene	TAs	Mean Cholesterol	Mean Glycerol	LFC Cholesterol	LFC Glycerol	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
 Rv0001	dnaA	31	0.00	0.00	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions

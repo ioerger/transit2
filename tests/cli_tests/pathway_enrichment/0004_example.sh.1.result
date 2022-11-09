@@ -1,6 +1,6 @@
-#PathwayEnrichmentONT
+#PathwayEnrichment_ONT
 #yaml:
-#    date: 2022-10-28 18:19:36
+#    date: 2022-11-09 09:45:03
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -11,7 +11,8 @@
 #       enrichment_exponent: 1
 #       num_permutations: 10000
 #       pseudocount: 2
-#       hit_summary: 25
+#    summary_info:
+#       Hits: 25
 #    
 #Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
 GO:0008202	steroid metabolic process	3990	40	82	13	1005	25	2	13.212	0.0	0.0	Rv1129c/-(14),Rv1130/-(15),Rv3526/-(46),Rv3537/-(49),Rv3543c/fadE29(52),Rv3544c/fadE28(53),Rv3545c/cyp125(54),Rv3546/fadA5(55),Rv3561/fadD3(62),Rv3568c/bphC(65),Rv3569c/bphD(66),Rv3570c/-(67),Rv3571/hmp(68)

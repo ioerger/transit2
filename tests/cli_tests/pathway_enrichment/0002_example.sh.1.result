@@ -1,6 +1,6 @@
-#PathwayEnrichmentFET
+#PathwayEnrichment_FET
 #yaml:
-#    date: 2022-10-28 18:19:17
+#    date: 2022-11-09 09:44:30
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -11,7 +11,8 @@
 #       enrichment_exponent: 1
 #       num_permutations: 10000
 #       pseudocount: 2
-#       hit_summary: 0
+#    summary_info:
+#       Hits: 0
 #    
 #Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
 COG1463	3990	23	82	7	0.47	9	120	3.644	0.0001427191817589806	0.06607898115440801	Cell wall/membrane/envelope biogenesis	Rv0170/mce1B Rv3494c/mce4F Rv3495c/lprN Rv3496c/mce4D Rv3497c/mce4C Rv3498c/mce4B Rv3499c/mce4A

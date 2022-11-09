@@ -1,6 +1,6 @@
 #Zinb
 #yaml:
-#    date: 2022-10-28 18:26:04
+#    date: 2022-11-09 09:48:10
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -8,12 +8,12 @@
 #    files:
 #       combined_wig: ./src/pytransit/data/111_cholesterol_glycerol_combined.cwig
 #       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
-#       prot_table: null
 #    parameters:
 #       normalization: TTR
 #       n_terminus: 5.0
 #       c_terminus: 5.0
 #       pseudocount: 5.0
+#       should_append_gene_descriptions: false
 #    
 #Rv	Gene	TA Sites	Mean Cholesterol	Mean Glycerol	Log 2 FC	Non Zero Mean Cholesterol	Non Zero Mean Glycerol	Non Zero Percentage Cholesterol	Non Zero Percentage Glycerol	P Value	Adj P Value	Status
 Rv0001	dnaA	29	0.0	0.0	0.000	0.0	0.0	0.00	0.00	1.0	1.0	pan-essential (no counts in all conditions) - not analyzed

@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    date: 2022-10-28 18:16:23
+#    date: 2022-11-09 09:36:36
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -19,6 +19,8 @@
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
 #       alpha: 1000.0
+#    summary_info:
+#       Hits: '443'
 #    
 #Rv	Gene	TAs	Mean Untreated	Mean Tcell	Mean Rapa	Mean IL1	Mean IFNg	Mean GMCSF	Mean IFNg-GMCSF	Mean IFNab	LFC Untreated	LFC Tcell	LFC Rapa	LFC IL1	LFC IFNg	LFC GMCSF	LFC IFNg-GMCSF	LFC IFNab	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
 Rv0001	dnaA	31	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.002949	1000.003869	0.000003	1.000000	1.000000	-

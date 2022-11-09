@@ -1,10 +1,12 @@
 #TTNFitnessGenes
 #yaml:
-#    date: 2022-10-28 18:25:06
+#    date: 2022-11-09 09:59:10
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
+#    time: 105.51534104347229
+#    saturation: 0.5342776384918797
 #    parameters:
 #       combined_wig: null
 #       wig_files:
@@ -15,14 +17,19 @@
 #       gumbel_results_file: ./tests/cli_tests/gumbel/0001_basic.sh.1.result
 #       normalization: TTR
 #    summary_info:
-#       time: 300.167307138443
-#       saturation: 0.5342776384918797
-#       ES: 173 essential based on Gumbel
-#       ESB: 501 essential based on Binomial
-#       GD: 351 Growth Defect
-#       GA: 206 Growth Advantage
-#       NE: 2672 non-essential
-#       U: 76 uncertain
+#       ES: '173'
+#       ESB: '501'
+#       GD: '351'
+#       GA: '206'
+#       NE: '2672'
+#       U: '76'
+#    naming_reference:
+#       ES: Essential based on Gumbel
+#       ESB: Essential based on Binomial
+#       NE: Non-essential
+#       U: Uncertain
+#       GD: Growth Defect
+#       GA: Growth Advantage
 #    
 #ORF	Gene Name	Description	Total TA Site Count	Count Of Sites With Insertions	Gene Saturation	Gene Plus TTN M1 Coef	Gene Plus TTN M1 Adj P Value	Mean Insertion Count	Fitness Ratio	TTN Fitness Assessment
 Rv0001	dnaA	chromosomal replication initiation protein 	31	0	0.0			0.0		ESB

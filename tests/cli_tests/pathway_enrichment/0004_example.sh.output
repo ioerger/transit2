@@ -1,19 +1,22 @@
+attempting wx import
+attempting R import
+R imported
 [pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:828: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:826: UserWarning: 
 GO terms with at least one ORF: 3963
 
   logging.warn(
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:833: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:831: UserWarning: 
 not found: GO:0030529
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:833: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:831: UserWarning: 
 not found: GO:0015197
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:833: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:831: UserWarning: 
 not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.4sec 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.2sec 

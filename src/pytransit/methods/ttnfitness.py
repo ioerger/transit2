@@ -18,8 +18,17 @@ from pytransit.components.parameter_panel import progress_update, set_instructio
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, logging
 from pytransit.generic_tools import csv, misc, informative_iterator
+from pytransit.generic_tools.misc import cache
 import pytransit.components.results_area as results_area
 
+@cache() # cache really only helps for testing, but it helps a lot for testing
+def slow_computation(gene_one_hot_encoded, ttn_vectors, Y):
+    import pandas
+    import statsmodels.stats.multitest
+    import statsmodels.api as sm
+    X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
+    #X1 = sm.add_constant(X1)
+    return X1, sm.OLS(Y, X1).fit()
 
 @misc.singleton
 class Method:
@@ -234,6 +243,8 @@ class Method:
             ta_sites_df, models_df, gene_obj_dict
         """
         import pandas
+        import statsmodels.stats.multitest
+        import statsmodels.api as sm
         
         self.gumbel_estimations = gumbel_results_file
 
@@ -452,11 +463,7 @@ class Method:
 
         logging.log("\t + Fitting M1")
         if True: # NOTE: the block of code in this if statement is what takes up the bulk of the processing time (can't give good ETA/progress cause of this)
-            import statsmodels.stats.multitest
-            import statsmodels.api as sm
-            X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
-            #X1 = sm.add_constant(X1)
-            results1 = sm.OLS(Y, X1).fit()
+            X1, results1 = slow_computation(gene_one_hot_encoded, ttn_vectors, Y) # is a function so that it can be cached
             not_overlap =[]
             for i in gene_one_hot_encoded.columns:
                 if i not in results1.params.index: not_overlap.append(i)

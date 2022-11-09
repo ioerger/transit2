@@ -1,6 +1,6 @@
 #Gumbel
 #yaml:
-#    date: 2022-10-28 18:18:01
+#    date: 2022-11-09 09:40:54
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -15,12 +15,19 @@
 #       iN: 0.0
 #       iC: 0.0
 #    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
-#    time: 65.09468412399292
-#    ES: 553 essential based on Gumbel
-#    ESB: 121 essential based on Binomial
-#    NE: 2761 non-essential
-#    U: 304 uncertain
-#    S: 251 too-short
+#    time: 61.0060019493103
+#    summary_info:
+#       ES: '553'
+#       ESB: '121'
+#       NE: '2761'
+#       U: '304'
+#       S: '251'
+#    naming_reference:
+#       ES: Essential based on Gumbel
+#       ESB: Essential based on Binomial
+#       NE: Non-essential
+#       U: Uncertain
+#       S: Too-short
 #    
 #ORF	Gene Name	Description	Number Of Insertions Within ORF	Total Number Of TA Sites Within ORF	Length Of Maximum Run Of Non Insertions	Nucleotide Span For Maximum Run Of Non Insertions	Posterior Probability Of Essentiality	Essentiality Call
 Rv0001	dnaA	chromosomal replication initiation protein 	0	31	31	1365.00	1.0	EB

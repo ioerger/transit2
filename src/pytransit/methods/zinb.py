@@ -143,7 +143,6 @@ class Method:
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
                 alpha=               panel_helpers.create_alpha_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
-                prot_table_path=     panel_helpers.create_file_input(panel, main_sizer, button_label="Add ProtTable (optional)", tooltip_text="FIXME", popup_title="ProtTable"),
                 group_by=            panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Group By",     options=metadata_headers, tooltip_text="Column name (in samples_metadata) to use as the primary Condition being evaluated (to test for significant variability of insertions among conditions)."),
                 covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars",       options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to include, for the analysis. If additional covariates distinguishing the samples are available, such as library, timepoint, or genotype, they may be “factored out” of the test of the primary condition. (variation due to covars is accounted for in the model, but not considered in evaluating the effect on variability due to the primary condition)"), 
                 interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="Select covariates (cols in metadata) to include, that interact with the condition for the analysis. (variation due to these variables is included in testing the effect of the main condition)"), 
@@ -524,13 +523,13 @@ class Method:
                     files=dict(
                         combined_wig=combined_wig_path,
                         annotation_path=annotation_path,
-                        prot_table=prot_table_path,
                     ),
                     parameters=dict(
                         normalization=normalization,
                         n_terminus=n_terminus,
                         c_terminus=c_terminus,
-                        pseudocount=pseudocount
+                        pseudocount=pseudocount,
+                        should_append_gene_descriptions=should_append_gene_descriptions,
                     )
                 )
             

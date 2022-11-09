@@ -1,6 +1,6 @@
-#PathwayEnrichmentGSEA
+#PathwayEnrichment_GSEA
 #yaml:
-#    date: 2022-10-28 18:19:33
+#    date: 2022-11-09 09:44:53
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -11,16 +11,10 @@
 #       enrichment_exponent: 1
 #       num_permutations: 10000
 #       pseudocount: 2
-#       hit_summary: '6 Siginificant Pathways for Conditional Essential Genes, 1 Siginificant Pathways for Conditional Non-Essential Genes, '
+#    summary_info:
+#       Hits: 6 conditional ES;1 conditional NE
 #    
-#Pathway	Pathway DescriptionGenes in Path	Mean Rank	Enrichment	P Value	Adj P Value	Genes
-#   I.B.8 ATP-proton motive force (mean_rank=1785.4)
-#   I.A.3 Fatty acids (mean_rank=1847.0)
-#   I.B Energy Metabolism (mean_rank=1889.7)
-#   I.A Degradation (mean_rank=1908.9)
-#   I.B.7 Miscellaneous oxidoreductases and oxygenases (mean_rank=1910.1)
-#   I Small-molecule metabolism (mean_rank=1918.0)
-#   IV.B.1.a IS6110 (mean_rank=3519.4)
+#Pathway	Pathway Description	Genes in Path	Mean Rank	Enrichment Score	P Value	Adj P Value	Genes
 III.A.5	Fatty acid transport	2	401.5	0.944638	0.054187	0.307061	Rv3540c/ltp2 (0) Rv2790c/ltp1 (803)
 IV.B.1.b	IS1081	6	730.3	0.720131	0.198020	0.654565	Rv2512c/- (501) Rv1199c/- (533) Rv2666/- (626) Rv3023c/- (754) Rv3115/- (848) Rv1047/- (1120)
 I.F.5	Miscellaneous nucleoside/nucleotide reactions	9	1145.1	0.791509	0.070513	0.364827	Rv2404c/lepA (141) Rv2344c/dgt (245) Rv2727c/miaA (293) Rv1712/cmk (717) Rv2583c/relA (834) Rv2445c/ndk (1861) Rv0733/adk (1957) Rv2440c/obgE (2122) Rv2364c/era (2136)

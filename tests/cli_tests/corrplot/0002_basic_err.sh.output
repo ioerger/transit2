@@ -1,3 +1,6 @@
+attempting wx import
+attempting R import
+R imported
 Wrong number of arguments (2 != 4), see usage below
 
 usage:  python3 ./src/transit.py  corrplot <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]
