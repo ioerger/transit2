@@ -87,13 +87,19 @@ class Method:
         self.inputs.resampling_file = results_file
         self.define_panel()
 
-    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
+    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
         import csv
         COG_orgs = []
         with open(root_folder+"src/pytransit/data/cog-20.org.csv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
+
+        path_to_assoc_dict={"Sanger":["H37Rv"], "COG": COG_orgs, "KEGG":["H37Rv"], "GO":["H37Rv", "Smeg"]}
+        assoc_to_path_dict={"H37Rv":["Sanger", "KEGG", "GO"]}
+        for org in COG_orgs:
+            assoc_to_path_dict[org]=["COG"]
+
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
         if True:
             # 
@@ -126,49 +132,101 @@ class Method:
                 def when_button_clicked(*args,**kwargs):
                     nonlocal organism_pathway
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
-                    popup_sizer = wx.BoxSizer(wx.VERTICAL)
+                    #popup_sizer = wx.BoxSizer(wx.VERTICAL)
+                    popup_sizer = wx.GridSizer(rows=3, cols=3, hgap=2, vgap=2) 
                     win.SetSizer(popup_sizer)
 
-                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
+                    
+                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.EXPAND)
                     popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
+                    pathway_type = wx.ComboBox(win)
+                    pathway_type.Clear()
+                    pathway_type.SetItems(list(path_to_assoc_dict.keys())+["Upload my Own Pathway file"])
                     popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    pathway_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND)
+                    popup_sizer.Add(pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
-                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
-                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
 
+                    associations_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Association : ", style=wx.EXPAND)
+                    popup_sizer.Add(associations_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    association_type = wx.ComboBox(win)
+                    association_type.Clear()
+                    association_type.SetItems(list(assoc_to_path_dict.keys())+["Upload my Own Associations file"])
+                    popup_sizer.Add(association_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    association_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND)
+                    popup_sizer.Add(association_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+          
+
+                    reset_btn = wx.Button(win, wx.ID_OK, label = "Reset Choices", size = (50,20), pos = (75,50))
+                    popup_sizer.Add(reset_btn,wx.EXPAND, gui_tools.default_padding)
+
+                    
+                    @gui_tools.bind_to(pathway_type, wx.EVT_COMBOBOX)
+                    def onPathwaySelect(*args,**kwargs):
+                        with gui_tools.nice_error_log:
+                            selected_path = pathway_type.GetStringSelection()
+                            logging.log("You selected "+selected_path + " Pathway")                               
+                            if "Upload" in selected_path: #upload your own pathway file
+                                pathway_text.SetLabel("Custom")
+                                association_type.SetItems(["Upload my Own Associations file"])
+
+                                pathway_file_path = gui_tools.ask_for_file(
+                                    message="Select Pathways File",
+                                    default_folder=None,
+                                    default_file_name="",
+                                    allowed_extensions='All files (*.*)|*.*',
+                                )
+                                Method.inputs.pathways_file = pathway_file_path
+                                pathway_text.SetLabel(pathway_file_path.split("/")[-1])
+                                association_type.SetItems(["Upload my Own Associations file"])
+
+                            else:
+                                pathway_text.SetLabel(selected_path)
+                                association_type.SetItems(path_to_assoc_dict[selected_path]+["Upload my Own Associations file"])
+
+                    @gui_tools.bind_to(association_type, wx.EVT_COMBOBOX)
+                    def onAssociationSelect(*args,**kwargs):
+
+                        with gui_tools.nice_error_log:
+                            selected_org = association_type.GetStringSelection()
+                            logging.log("You selected "+selected_org + " Associations")
+                            if "Upload" in selected_org:
+                                # set the file path variable
+                                associations_file_path = gui_tools.ask_for_file(
+                                    message="Select Associations File",
+                                    default_folder=None,
+                                    default_file_name="",
+                                    allowed_extensions='All files (*.*)|*.*',
+                                )
+                                Method.inputs.associations_file = associations_file_path
+                                association_text.SetLabel(associations_file_path.split("/")[-1])
+                                pathway_type.SetItems(["Upload my Own Associations file"])
+                            else:
+                                association_text.SetLabel(selected_org)
+                                pathway_type.SetItems(assoc_to_path_dict[selected_org]+["Upload my Own Pathways file"])
+                                    
+
+                    @gui_tools.bind_to(reset_btn, wx.EVT_BUTTON)
+                    def when_reset_button_clicked(*args,**kwargs):
+                        pathway_text.SetLabel("")
+                        pathway_type.Clear()
+                        pathway_type.SetItems(list(path_to_assoc_dict.keys())+["Upload my Own Pathway file"])
+                        association_text.SetLabel("")
+                        association_type.Clear()
+                        association_type.SetItems(list(assoc_to_path_dict.keys())+["Upload my Own Associations file"])                    
+                    
+                    ok_btn = wx.Button(win, wx.ID_OK, label = "Done")
+                    popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
                     win.Layout()
                     popup_sizer.Fit(win)
-                    selected_path = win.ShowModal()
-
-                    if selected_path == wx.ID_OK:
-                        pathway_type_selected = pathway_type.GetValue()
-                        organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                        popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        if pathway_type_selected== "COG":                           
-                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))               
-                        elif pathway_type_selected== "KEGG":
-                            organism = wx.ComboBox(win,choices = ["H37Rv"])
-                        elif pathway_type_selected== "Sanger":
-                            organism = wx.ComboBox(win,choices = ["H37Rv"])
-                        else:
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
-
-                        popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
-                        popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
-
-                        win.Layout()
-                        popup_sizer.Fit(win)
-                        res = win.ShowModal()
-                        if res == wx.ID_OK:
-                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
-                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
-                        win.Destroy()
+                    res = win.ShowModal()
                     
+                    if res == wx.ID_OK:
+                        organism_pathway = association_text.GetLabel() + "-" + pathway_text.GetLabel()
+                        organism_pathway_text.SetLabel(basename(organism_pathway or ""))
+                    win.Destroy()
 
             row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
             organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
         
@@ -210,25 +268,12 @@ class Method:
                     allowed_extensions='All files (*.*)|*.*'
                 )
 
-            self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
-                button_label="Select Custom Associations File", 
-                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines. It is OK if there are no associations listed for some genes. Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.", 
-                popup_title="Select Associations File",
-                allowed_extensions='All files (*.*)|*.*'
-            )
-
-            self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
-                button_label="Select Custom Pathways File", 
-                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name.", 
-                popup_title="Select Pathways File",
-                allowed_extensions='All files (*.*)|*.*'
-            )
-
             self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
-                button_label="Select from Provided Files", 
+                button_label="Select Pathway system", 
                 tooltip_text="We have a few Associaiton and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
             )
-    
+
+   
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
                 options= ["FET", "GSEA", "ONT"],
@@ -267,8 +312,7 @@ class Method:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-
-        if Method.inputs.organism_pathway != None:
+        if Method.inputs.organism_pathway != "-":
             organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG":
                 try:
@@ -303,7 +347,8 @@ class Method:
                 logging.log("Loading in Smeg Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
-
+        else:
+            logging.error("Select pathway and association files")
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
             output_extensions=transit_tools.result_output_extensions,
