@@ -326,6 +326,7 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
     """
     if cwig_paths:
         samples.wig_table.clear()
+        samples.conditions_table.clear()
         gui.combined_wigs.clear()
     
     # 
