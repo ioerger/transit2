@@ -1,14 +1,11 @@
 attempting wx import
 attempting R import
 R imported
-Traceback (most recent call last):
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 23, in <module>
-    import pytransit.__main__
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 8, in <module>
-    import pytransit.methods
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/__init__.py", line 8, in <module>
-    from .ttnfitness         import *
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/ttnfitness.py", line 25
-    def slow_computation(gene_one_hot_encoded, ttn_vectors)
-                                                           ^
-SyntaxError: expected ':'
+[pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
+[pathway_enrichment:fisher_exact_test()] Running FET 
+[pathway_enrichment:read_resampling_file()] Reading in Resampling File tests/cli_tests/resampling/0001_basic.sh.1.result
+[pathway_enrichment:read_associations()] Reading in Associations File 
+[pathway_enrichment:read_pathways()] Reading in Pathways File 
+[pathway_enrichment:fisher_exact_test()] Finishing up FET 
+[pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0001_example.sh.1.result 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.1sec 

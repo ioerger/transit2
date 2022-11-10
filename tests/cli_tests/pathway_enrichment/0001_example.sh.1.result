@@ -1,6 +1,6 @@
-#PathwayEnrichmentFET
+#PathwayEnrichment_FET
 #yaml:
-#    date: 2022-10-28 18:19:16
+#    date: 2022-11-10 10:28:27
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -11,7 +11,8 @@
 #       enrichment_exponent: 1
 #       num_permutations: 10000
 #       pseudocount: 2
-#       hit_summary: 6
+#    summary_info:
+#       Hits: 6
 #    
 #Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
 I	3990	1066	82	40	21.91	42	1163	1.757	6.631803421723002e-06	0.0007891846071850372	Small-molecule metabolism	Rv0244c/fadE5 Rv0245/- Rv0391/metZ Rv0485/- Rv0693/pqqE Rv0694/lldD1 Rv0761c/adhB Rv1129c/- Rv1131/gltA1 Rv1193/fadD36 Rv1432/- Rv1626/- Rv1627c/- Rv1820/ilvG Rv2048c/pks12 Rv2506/- Rv3502c/fabG Rv3526/- Rv3535c/- Rv3537/- Rv3543c/fadE29 Rv3544c/fadE28 Rv3546/fadA5 Rv3549c/- Rv3551/- Rv3553/- Rv3556c/fadA6 Rv3559c/- Rv3560c/fadE30 Rv3561/fadD3 Rv3563/fadE32 Rv3564/fadE33 Rv3568c/bphC Rv3570c/- Rv3571/hmp Rv3575c/- Rv3696c/glpK Rv3820c/papA2 Rv3824c/papA1 Rv3825c/pks2
