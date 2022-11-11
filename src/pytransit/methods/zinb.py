@@ -116,14 +116,6 @@ class Method:
                     The ZINB (Zero-Inflated Negative Binomial) method is used to determine which genes exhibit statistically significant variability across multiple conditions, in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others). Like ANOVA, the ZINB method takes a combined_wig file (which combines multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
                     
                     ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
-                    
-                    1. Add an annotation file for the organism corresponding to the desired datasets
-                    
-                    2. FIXME
-                    
-                    3. FIXME
-                    
-                    4. FIXME
                 """.replace("\n                    ","\n"),
             )
             metadata_headers = []
@@ -221,7 +213,7 @@ class Method:
         n_terminus                      = n_terminus                      if n_terminus                      is not None else 5.0
         c_terminus                      = c_terminus                      if c_terminus                      is not None else 5.0
         
-        # transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ]) # FIXME: uncomment this
+        transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
             # process data
