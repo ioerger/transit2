@@ -774,8 +774,7 @@ class Method:
             # Update progress
             percentage = (100.0 * count / control_group_size)
             if gui.is_active:
-                text = "Running Resampling Method... %5.1f%%" % percentage
-                parameter_panel.progress_update(text, percentage)
+                parameter_panel.progress_update(f"Running Resampling Method... {percentage:.2f}%", percentage)
 
         logging.log("")  # Printing empty line to flush stdout
         logging.log("Performing Benjamini-Hochberg Correction")
