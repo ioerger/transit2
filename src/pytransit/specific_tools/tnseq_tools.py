@@ -125,6 +125,7 @@ class Condition:
         return self.name == other.name
 
 class CombinedWigMetadata:
+    special_headers = [ "Condition", "Filename", "Id" ]
     # can contain more data
     def __init__(self, path=None, rows=None, headers=None, comments=None):
         self.path     = path
@@ -137,8 +138,12 @@ class CombinedWigMetadata:
         self._ordering_metadata                    = None
         if path:
             self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
+            if any([ each_special_header not in self.headers for each_special_header in CombinedWigMetadata.special_headers]):
+                logging.error(f'''
+                    For metdata file: {path}, I expected (at least) these headers: {CombinedWigMetadata.special_headers}, but got these headers: {self.headers}
+                ''')
         
-        self.covariate_names = [ each for each in self.headers if each not in [ "Condition", "Filename", "Id" ] ]
+        self.covariate_names = [ each for each in self.headers if each not in CombinedWigMetadata.special_headers ]
         if not path:
             # 
             # generate ordering_metadata, conditions_by_wig_fingerprint
@@ -152,7 +157,7 @@ class CombinedWigMetadata:
                 condition_name  = row["Condition"]
                 self._conditions_by_wig_fingerprint[wig_fingerprint] = condition_name
                 self._ordering_metadata["condition"].append(condition_name)
-                
+        
         self.conditions = no_duplicates(
             Condition(
                 name=each_row["Condition"],
@@ -324,7 +329,7 @@ class CombinedWigMetadata:
         return self._ordering_metadata
             
 class CombinedWigData(NamedListBase):
-    _names_to_index = { 'sites':0,'counts_by_wig':1,'wig_fingerprints':2, }
+    _names_to_index = {'sites':0,'counts_by_wig':1, 'wig_fingerprints':2 }
     @staticmethod
     @cache(watch_filepaths=lambda file_path: [file_path])
     def load(file_path):
@@ -555,12 +560,18 @@ class CombinedWig:
         
         assert wig_ids == None or self.metadata != None, "Tried to filter by wig_ids, but the combined wig didnt have metadata attached (e.g. IDK what id's exist)"
         
-        wig_ids = wig_ids or []
-        wig_fingerprints = wig_fingerprints or []
-        print(f'''self.metadata = {self.metadata}''')
-        print(f'''self.metadata.rows = {self.metadata.rows}''')
-        new_wig_fingerprints = wig_fingerprints + [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
-        print(f'''new_wig_fingerprints = {new_wig_fingerprints}''')
+        included_wig_fingerprints = self.wig_fingerprints
+        if wig_ids != None:
+            fingerprints_from_ids = [ self.metadata.fingerprint_for(each_id) for each_id in wig_ids ]
+            included_wig_fingerprints = [ each for each in included_wig_fingerprints if each in fingerprints_from_ids ]
+        if wig_fingerprints != None:
+            included_wig_fingerprints = [ each for each in included_wig_fingerprints if each in wig_fingerprints ]
+        if condition_names != None:
+            fingerprints_from_conditions = flatten_once([ self.metadata.fingerprints_for(each_name) for each_name in condition_names ])
+            included_wig_fingerprints = [ each for each in included_wig_fingerprints if each in fingerprints_from_conditions ]
+            
+        
+        new_wig_fingerprints = included_wig_fingerprints
         
         # create a new shell
         class CombinedWigHelper(CombinedWig):
@@ -576,7 +587,7 @@ class CombinedWig:
         new_combined_wig.extra_data      = deepcopy(dict(self.extra_data))
         new_combined_wig.rows            = []
         new_combined_wig.samples         = []
-        new_combined_wig.metadata        = self.metadata and self.metadata.with_only(condition_names=condition_names, wig_fingerprints=wig_fingerprints)
+        new_combined_wig.metadata        = self.metadata and self.metadata.with_only(condition_names=condition_names, wig_fingerprints=new_wig_fingerprints)
         
         # extract only data relating to new_wig_fingerprints
         sites, counts_by_wig_array, old_wig_fingerprints = self.as_tuple
@@ -591,14 +602,13 @@ class CombinedWig:
         
         # generate named lists for rows
         new_combined_wig.extra_data["wig_fingerprints"] = new_wig_fingerprints
-        wig_fingerprints = new_wig_fingerprints
-        new_combined_wig.CWigRow = named_list([ "position", *wig_fingerprints ])
+        new_combined_wig.CWigRow = named_list([ "position", *new_wig_fingerprints ])
         for position, row in zip(sites, new_counts_by_wig.transpose()):
             #
             # extract
             #
-            read_counts = row[ 0: len(wig_fingerprints) ]
-            other      = row[ len(wig_fingerprints) :  ] # often empty
+            read_counts = row[ 0: len(new_wig_fingerprints) ]
+            other      = row[ len(new_wig_fingerprints) :  ] # often empty
             
             # force types
             position   = int(position)

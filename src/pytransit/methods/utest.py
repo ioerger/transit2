@@ -49,7 +49,7 @@ class Method:
         "-iC",
     ]
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined-wig-path> <metadata path> <annotation .prot_table or GFF3> <comma-separated wig_ids for control group> <comma-separated wig_ids experimental group> <output file> [Optional Arguments]
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined-wig-path> <annotation .prot_table or GFF3> <metadata path> <condition name for control group> <condition name for experimental group> <output file> [Optional Arguments]
 
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
@@ -74,32 +74,17 @@ class Method:
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
-                    HANDLE_THIS
+                    This is a method for comparing datasets from a TnSeq library evaluated in two different conditions, analogous to resampling. This is a rank-based test on whether the level of insertions in a gene or chromosomal region are significantly higher or lower in one condition than the other. Effectively, the insertion counts at the TA sites in the region are pooled and sorted. Then the combined ranks of the counts in region A are compared to those in region B, and p-value is calculated that reflects whether there is a significant difference in the ranks. The advantage of this method is that it is less sensitive to outliers (a unusually high insertion count at just a single TA site). A reference for this method is (Santa Maria et al., 2014).
                 """.replace("\n                    ","\n"),
             )
             self.value_getters = LazyDict()
-            # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(panel, main_sizer, label="")
-            # def when_button_clicked(event):
-            #     print("do stuff")
-            # @panel_helpers.create_button(panel, main_sizer, label="Show pop up")
-            # def when_button_clicked(event):
-            #     from pytransit.components import pop_up
-            #     @pop_up.create_pop_up(panel)
-            #     def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
-            # 
-            #         @panel_helpers.create_button(pop_up_panel, sizer, label="Click me for pop up")
-            #         def when_button_clicked(event):
-            #             print("do stuff")
-            
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.control_condition        = panel_helpers.create_control_condition_input(panel, main_sizer)
+            self.value_getters.experimental_condition   = panel_helpers.create_experimental_condition_input(panel, main_sizer)
+            self.value_getters.n_terminus               = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus               = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.normalization            = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.include_zeros            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
+            self.value_getters.LOESS                    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
@@ -126,7 +111,8 @@ class Method:
         # if user didn't select an output path
         if not arguments.output_path:
             return None
-
+        
+        arguments.combined_wig = gui.combined_wigs[-1].with_only(condition_names=[ arguments.control_condition, arguments.experimental_condition ])
         Method.output(**arguments)
 
     @staticmethod
@@ -139,11 +125,11 @@ class Method:
         Method.output(
             combined_wig=tnseq_tools.CombinedWig.load(
                 main_path=args[0],
-                metadata_path=args[1],
-                annotation_path=args[2],
+                annotation_path=args[1],
+                metadata_path=args[2],
             ),
-            control_ids=console_tools.string_arg_to_list(args[3]),
-            experimental_ids=console_tools.string_arg_to_list(args[4]),
+            control_condition=args[3],
+            experimental_condition=args[4],
             output_path=args[5],
             normalization=kwargs["n"],
             n_terminus=kwargs["iN"],
@@ -153,7 +139,7 @@ class Method:
         )
     
     @staticmethod
-    def output(*, combined_wig, control_ids, experimental_ids, output_path, normalization=None, n_terminus=None, c_terminus=None, include_zeros=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
+    def output(*, combined_wig, control_condition, experimental_condition, output_path, normalization=None, n_terminus=None, c_terminus=None, include_zeros=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
         import scipy.stats
         from pytransit.specific_tools import stat_tools
         # Defaults (even if argument directly provided as None)
@@ -170,7 +156,7 @@ class Method:
             # 
             # restrict to relevent data
             # 
-            combined_wig = combined_wig.with_only(wig_ids=control_ids+experimental_ids)
+            combined_wig = combined_wig.with_only(condition_names=[ control_condition, experimental_condition ])
             
             # 
             # normalize
@@ -183,7 +169,7 @@ class Method:
                 logging.log("Performing LOESS Correction")
                 combined_wig = combined_wig.with_loess_correction()
 
-            G = combined_wig.get_genes(
+            genes = combined_wig.get_genes(
                 ignore_codon=ignore_codon,
                 n_terminus=n_terminus,
                 c_terminus=c_terminus,
@@ -191,22 +177,20 @@ class Method:
 
             # u-test
             data = []
-            N = len(G)
+            N = len(genes)
             count = 0
             
-            for gene in G:
+            for progress, gene in informative_iterator.ProgressBar(genes, title=f"Running {Method.name}"):
                 count += 1
                 if gene.k == 0 or gene.n == 0:
-                    (test_obs, mean1, mean2, log2_fc, u_stat, pval_2tail) = (
-                        0,
-                        0,
-                        0,
-                        0,
-                        0.0,
-                        1.00,
-                    )
+                    test_obs   = 0
+                    mean1      = 0
+                    mean2      = 0
+                    log2_fc    = 0
+                    u_stat     = 0.0
+                    pval_2tail = 1.0
                 else:
-
+                    # FIXME: needs same fix as resampling I believe
                     if not include_zeros:
                         ii = numpy.sum(gene.reads, 0) > 0
                     else:
@@ -256,8 +240,9 @@ class Method:
 
                 # Update Progress
                 percent = (100.0 * count / N)
-                text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
-                parameter_panel.progress_update(text, percent)
+                if gui.is_active:
+                    text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
+                    parameter_panel.progress_update(text, percent)
 
             logging.log("")  # Printing empty line to flush stdout
             logging.log("Performing Benjamini-Hochberg Correction")

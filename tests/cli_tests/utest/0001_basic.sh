@@ -8,11 +8,11 @@ wig1="src/pytransit/data/glycerol_H37Rv_rep1.wig"
 wig2="src/pytransit/data/cholesterol_H37Rv_rep1.wig"
 
 
-#  <combined-wig-path> <annotation .prot_table or GFF3> <comma-separated wig_ids for control group> <comma-separated wig_ids experimental group> <output file> [Optional Arguments]
+# <combined-wig-path> <annotation .prot_table or GFF3> <metadata path> <condition name for control group> <condition name for experimental group> <output file> [Optional Arguments]
 python3 ./src/transit.py "utest" \
     "$comwig" \
-    "$metadata" \
     "$annotation" \
-    "H37Rv_day32_rep1,H37Rv_day32_rep2" \
-    "H37Rv_day0_rep1,H37Rv_day0_rep2" \
+    "$metadata" \
+    "H37Rv_day0" \
+    "H37Rv_day32" \
     "$result_file"
