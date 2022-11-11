@@ -62,6 +62,7 @@ class Method:
                 default_file_name=f"{Method.name}_output.tsv".lower(),
                 output_extensions=transit_tools.result_output_extensions,
             ),
+            infile_path=gui.combined_wigs[-1],
             normalization=kind,
         )
     
@@ -89,7 +90,7 @@ class Method:
         )
 
     @staticmethod
-    def run_normalize(combined_wig, infile_path, output_path, normalization):
+    def run_normalize(combined_wig, output_path, normalization, infile_path=None):
         with gui_tools.nice_error_log:
             logging.log("Starting Normalization")
             start_time = time.time()
