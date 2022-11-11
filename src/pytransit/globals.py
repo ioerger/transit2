@@ -58,13 +58,17 @@ class gui:
         
     @property
     def conditions(self):
-        # only for latest combined wig
-        return self.combined_wigs[-1].conditions
+        if len(self.combined_wigs):
+            return self.combined_wigs[-1].conditions
+        else:
+            return []
             
     @property
     def samples(self):
-        # only for latest combined wig
-        return self.combined_wigs[-1].samples
+        if len(self.combined_wigs):
+            return self.combined_wigs[-1].samples
+        else:
+            return []
     
     @property
     def selected_samples(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
