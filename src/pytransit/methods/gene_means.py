@@ -72,6 +72,7 @@ class Method:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
@@ -79,7 +80,6 @@ class Method:
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             self.value_getters.avg_by_conditions      = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Average counts over\nreplicates of each condition", default_value=False, tooltip_text="the output can contain gene means for each individual sample, or averaged by condition", widget_size=None)
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):

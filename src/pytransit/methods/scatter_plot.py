@@ -103,12 +103,12 @@ class Method:
             )
 
             sample_ids = [x.id for x in gui.samples]
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
             Method.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_sample_input(panel, main_sizer)
             Method.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
             Method.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
             Method.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
 
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
     
     @staticmethod
     def from_gui(frame):

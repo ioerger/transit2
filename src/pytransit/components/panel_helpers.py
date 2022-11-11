@@ -780,8 +780,8 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(10,20) # vertical padding
         sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
+        sizer.Add(10,20) # vertical padding
         
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):

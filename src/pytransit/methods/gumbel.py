@@ -112,6 +112,7 @@ class Method:
                 """.replace("\n                    ","\n"),
             )
                 
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             
             self.value_getters.condition       = panel_helpers.create_condition_input(panel, main_sizer)
@@ -124,7 +125,6 @@ class Method:
             self.value_getters.read_count      = panel_helpers.create_int_getter(panel, main_sizer, label_text="Minimum Read Count", default_value=1, tooltip_text="The minimum read count that is considered a true read. Because the Gumbel method depends on determining gaps of TA sites lacking insertions, it may be susceptible to spurious reads (e.g. errors). The default value of 1 will consider all reads as true reads. A value of 2, for example, will ignore read counts of 1.")
             self.value_getters.replicates      = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Sum", "Mean", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
         
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
     @staticmethod
     def from_gui(frame):

@@ -77,6 +77,7 @@ class Method:
                     This is a method for comparing datasets from a TnSeq library evaluated in two different conditions, analogous to resampling. This is a rank-based test on whether the level of insertions in a gene or chromosomal region are significantly higher or lower in one condition than the other. Effectively, the insertion counts at the TA sites in the region are pooled and sorted. Then the combined ranks of the counts in region A are compared to those in region B, and p-value is calculated that reflects whether there is a significant difference in the ranks. The advantage of this method is that it is less sensitive to outliers (a unusually high insertion count at just a single TA site). A reference for this method is (Santa Maria et al., 2014).
                 """.replace("\n                    ","\n"),
             )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             self.value_getters.control_condition        = panel_helpers.create_control_condition_input(panel, main_sizer)
             self.value_getters.experimental_condition   = panel_helpers.create_experimental_condition_input(panel, main_sizer)
@@ -86,7 +87,6 @@ class Method:
             self.value_getters.include_zeros            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             self.value_getters.LOESS                    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
     @staticmethod        
     def from_gui(frame):

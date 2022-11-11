@@ -162,6 +162,7 @@ class Method:
                 """.replace("\n                    ","\n"),
             )
 
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             
             self.value_getters.ctrldata        = panel_helpers.create_control_condition_input(panel, main_sizer)
@@ -177,7 +178,6 @@ class Method:
             self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros   = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
         
     @staticmethod
     def from_gui(frame):

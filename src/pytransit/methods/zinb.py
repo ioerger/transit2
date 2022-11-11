@@ -125,6 +125,7 @@ class Method:
                 pass
             metadata_headers = [ each for each in misc.no_duplicates(["Condition", *metadata_headers]) if each not in ["Id", "Filename"] ]
             
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
                 excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
@@ -140,7 +141,6 @@ class Method:
                 interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="Select covariates (cols in metadata) to include, that interact with the condition for the analysis. (variation due to these variables is included in testing the effect of the main condition)"), 
                 should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None),
             )
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):

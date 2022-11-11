@@ -126,6 +126,7 @@ class Method:
             )
 
             # only need Norm selection and Run button        
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             self.value_getters.condA1        = panel_helpers.create_condition_input(panel,main_sizer, label_text="Condition A1:", tooltip_text="indicate condition representing 'strain A' in 'condition 1'")
             self.value_getters.condB1        = panel_helpers.create_condition_input(panel,main_sizer, label_text="Condition B1:", tooltip_text="indicate condition representing 'strain B' in 'condition 1'")
@@ -137,7 +138,6 @@ class Method:
             self.value_getters.samples       = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of samples",default_value=10000, tooltip_text="random trials in Monte Carlo simulation")
             self.value_getters.rope          = panel_helpers.create_float_getter(panel, main_sizer, label_text="ROPE"             ,default_value=0.5,   tooltip_text="Region of probable equivalence around 0")
             self.value_getters.signif        = panel_helpers.create_significance_choice_box(panel,main_sizer) # default is HDI
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
 
 
     @staticmethod

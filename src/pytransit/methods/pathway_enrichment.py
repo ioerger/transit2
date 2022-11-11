@@ -254,6 +254,7 @@ class Method:
                     5. Click Run
                 """.replace("\n                    ","\n"),
             )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
             self.value_getters = LazyDict()
 
             if Method.inputs.resampling_file == None:
@@ -290,7 +291,6 @@ class Method:
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2, tooltip="Pseudo-counts used in calculating pathway enrichment. Useful to dampen the effects of small counts which may lead to deceptively high enrichment scores.")
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
 
 
     @staticmethod

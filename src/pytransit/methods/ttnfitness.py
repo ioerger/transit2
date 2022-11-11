@@ -82,7 +82,7 @@ class Method:
                 6. Click Run
                 """.replace("\n                    ","\n"),
             )
-
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
 
             self.value_getters.condition = panel_helpers.create_condition_input(panel, main_sizer)
@@ -107,7 +107,6 @@ class Method:
             )
             self.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer, default=self.inputs.normalization) # TTR 
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
     @staticmethod
     def from_gui(frame):

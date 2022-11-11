@@ -108,16 +108,15 @@ class Method:
             # 
             # parameter inputs
             # 
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
-            if True:
-                self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
-                self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-                self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
                 
-                panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
         
     @staticmethod
     def from_gui(frame):

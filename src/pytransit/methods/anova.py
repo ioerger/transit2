@@ -111,6 +111,7 @@ class Method:
             # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
             # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
             # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
                 excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
@@ -123,7 +124,6 @@ class Method:
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
                 refs=                (lambda *args: [] if self.value_getters.reference_condition() == "[None]" else [ self.value_getters.reference_condition() ]),
             )
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):

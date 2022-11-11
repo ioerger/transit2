@@ -66,6 +66,7 @@ class Method:
                     Note: The heatmap command calls R, which must be installed on your system, and relies on the 'gplots' R package.
                 """.replace("\n                    ","\n"),
             )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
             self.value_getters = LazyDict()
             self.value_getters.input_path      = panel_helpers.create_file_input(  panel, main_sizer, button_label=f"Select {Method.inputs.filetype} file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
@@ -73,7 +74,6 @@ class Method:
             self.value_getters.top_k           = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Top K",           default_value=Method.inputs.top_k,           tooltip_text="Select top k genes ranked by significance (adjusted pval)")
             self.value_getters.low_mean_filter = panel_helpers.create_float_getter(panel, main_sizer, label_text="Low Mean Filter", default_value=Method.inputs.low_mean_filter, tooltip_text="Filter out genes with grand mean count (across all conditions) below this threshold (even if adjusted p-value < 0.05)")
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):
