@@ -19,12 +19,10 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, console_
 from pytransit.generic_tools import csv, misc
 import pytransit.components.results_area as results_area
 
-
-
 @misc.singleton
 class Method:
-    identifier  = "tnseq_stats"
-    cli_name    = identifier.lower()
+    identifier  = "Tnseq Stats"
+    cli_name    = identifier.replace(" ","_").lower()
     menu_name   = f"{identifier} - Analyze statistics of TnSeq datasets"
     description = """Analyze statistics of TnSeq datasets in combined_wig file"""
     

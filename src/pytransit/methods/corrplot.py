@@ -72,7 +72,7 @@ class Method:
     # 
     # Panel method
     # 
-    @gui.add_menu("Pre-Processing", menu_name)
+    @gui.add_menu("Pre-Processing", "Visuals", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     

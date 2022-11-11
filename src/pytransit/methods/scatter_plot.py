@@ -75,7 +75,7 @@ class Method:
             log_scale="log" in kwargs # bool
         )
         
-    @gui.add_menu("Pre-Processing", cli_name)
+    @gui.add_menu("Pre-Processing", "Visuals", cli_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
