@@ -1,4 +1,6 @@
 attempting wx import
+attempting R import
+R imported
 [transit_tools:__enter__()] Starting ScatterPlot analysis 
 [transit_tools:calc_gene_means()] Normalizing using: TTR 
-[transit_tools:__exit__()] Finished ScatterPlot analysis in 3.7sec 
+[transit_tools:__exit__()] Finished ScatterPlot analysis in 3.5sec 

@@ -1,13 +1,30 @@
+R[write to console]: 
+
 attempting wx import
 attempting R import
-R imported
-[anova:Run()] Starting Anova analysis 
-[anova:Run()] Getting Data 
-[anova:Run()] Normalizing using: TTR 
 Traceback (most recent call last):
-  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 64, in error
-    raise TransitError(error_message)
-pytransit.specific_tools.logging.TransitError: One of the reference conditions ['Untreated'] is not one of the available conditions: ['Cholesterol', 'Glycerol']
-
-covars_to_read = []
-interactions_to_read = []
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 23, in <module>
+    import pytransit.__main__
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 8, in <module>
+    import pytransit.methods
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/__init__.py", line 1, in <module>
+    from .anova              import *
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/anova.py", line 13, in <module>
+    from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/gui_tools.py", line 5, in <module>
+    from pytransit.specific_tools.transit_tools import wx
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/transit_tools.py", line 63, in <module>
+    import rpy2.robjects
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/__init__.py", line 19, in <module>
+    import rpy2.robjects.functions
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/functions.py", line 12, in <module>
+    from rpy2.robjects import help
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/help.py", line 45, in <module>
+    quiet_require('tools')
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/robjects/help.py", line 41, in quiet_require
+    ok = _eval(expr)
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface_lib/conversion.py", line 45, in _
+    cdata = function(*args, **kwargs)
+  File "/opt/homebrew/lib/python3.10/site-packages/rpy2/rinterface.py", line 815, in __call__
+    raise embedded.RRuntimeError(_rinterface._geterrmessage())
+rpy2.rinterface_lib.embedded.RRuntimeError

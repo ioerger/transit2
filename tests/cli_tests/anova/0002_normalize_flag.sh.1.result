@@ -1,10 +1,10 @@
 #Anova
 #yaml:
-#    date: 2022-11-11 11:58:57
+#    date: 2022-11-12 14:06:26
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0002_normalize_flag.sh.1.result' '-n' 'TTR'
+#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/samples_metadata_cg.txt' './tests/cli_tests/anova/0002_normalize_flag.sh.1.result' '-n' 'TTR'
 #    parameters:
 #       conditions_list:
 #       - Cholesterol
@@ -12,7 +12,7 @@
 #       normalization: TTR
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
-#       alpha: 1000.0
+#       alpha: 1000
 #    summary_info:
 #       Hits: '25'
 #    

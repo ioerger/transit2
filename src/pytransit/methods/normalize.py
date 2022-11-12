@@ -72,7 +72,7 @@ class Method:
     @cli.add_command("export", "norm")
     def from_args(args, kwargs):
         from pytransit.methods.combined_wig import Method as CombinedWigMethod
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=2)
         
         is_combined_wig = CombinedWigMethod.file_is_combined_wig(args[0])
         combined_wig = None

@@ -253,11 +253,9 @@ class CombinedWigMetadata:
             index_for_condition       = column_names.index(column_name_for_condition.lower())
             index_for_wig_fingerprint = column_names.index("Filename".lower())
             # validate
-            print(f'''covars_to_read = {covars_to_read}''')
             for each in covars_to_read:
                 if each not in column_names:
                     raise Exception(f'''Tried to select {each} as a covariate, but the available covariates are: {column_names}''')
-            print(f'''interactions_to_read = {interactions_to_read}''')
             for each in interactions_to_read:
                 if each not in column_names:
                     raise Exception(f'''Tried to select {each} as an interaction, but the available interactions are: {column_names}''')

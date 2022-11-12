@@ -7,6 +7,6 @@ comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 wig="./src/pytransit/data/111_cholesterol_glycerol_combined.cwig"
 
 python3 ./src/transit.py normalize \
-    -c "$comwig"\
+    "$comwig"\
     "$result_file" \
     -n TTR

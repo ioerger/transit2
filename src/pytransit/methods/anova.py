@@ -194,13 +194,13 @@ class Method:
             normalization=normalization,
             output_path=output_path,
             
-            excluded_conditions=excluded_conditions,
-            included_conditions=included_conditions,
+            excluded_conditions=excluded_conditions or [],
+            included_conditions=included_conditions or [],
             n_terminus=n_terminus,
             c_terminus=c_terminus,
             pseudocount=pseudocount,
             winz=winz,
-            refs=refs,
+            refs=refs or [],
             alpha=alpha,
         ))
         
@@ -365,7 +365,7 @@ class Method:
             conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.CombinedWigMetadata.read_condition_data(self.inputs.metadata)
             conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ]
             conditions_list = transit_tools.select_conditions(
-                conditions=conditions,
+                conditions=conditions or [],
                 included_conditions=self.inputs.included_conditions,
                 excluded_conditions=self.inputs.excluded_conditions,
                 ordering_metadata=ordering_metadata,

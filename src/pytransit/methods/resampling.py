@@ -265,8 +265,8 @@ class Method:
         annotation_path = annotation_paths[0]
         diff_strains = False
         annotation_path_exp = ""
-        if len(annot_paths) == 2:
-            annotation_path_exp = annot_paths[1]
+        if len(annotation_paths) == 2:
+            annotation_path_exp = annotation_paths[1]
             diff_strains = True
         if diff_strains and is_combined_wig:
             logging.error("Error: Cannot have combined wig and different annotation files.")
@@ -288,8 +288,8 @@ class Method:
         exp_lib_str = kwargs.get("exp_lib", "")
         
         Method.inputs.update(dict(
-            ctrldata=ctrldata,
-            expdata=expdata,
+            ctrldata=control_wigs or [ control_condition ],
+            expdata=experimental_wigs or [ experimental_condition ],
             output_path=output_path,
             normalization=normalization,
             samples=samples,

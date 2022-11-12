@@ -75,7 +75,14 @@ def clean_args(raw_args):
                     (which is just a flag, e.g. no value)
                     
                 ''')
-            if raw_args[0].startswith('-'):
+            
+            next_arg_is_possibly_negative_number = False
+            try:
+                float(raw_args[0])
+                next_arg_is_possibly_negative_number = True
+            except Exception as error: pass
+            
+            if raw_args[0].startswith('-') and not next_arg_is_possibly_negative_number:
                 raise Exception(f'''
                     
                     This argument: {next_raw_argument}

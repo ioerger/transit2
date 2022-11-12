@@ -1,3 +1,5 @@
 attempting wx import
+attempting R import
+R imported
 [transit_tools:__enter__()] Starting ScatterPlot analysis 
-[transit_tools:__exit__()] Finished ScatterPlot analysis in 0.6sec 
+[transit_tools:__exit__()] Finished ScatterPlot analysis in 0.5sec 
