@@ -1,0 +1,7 @@
+attempting wx import
+[transit_tools:__enter__()] Starting ScatterPlot analysis 
+[transit_tools:calc_gene_means()] Normalizing using: TTR 
+/opt/homebrew/lib/python3.10/site-packages/pandas/core/internals/blocks.py:352: RuntimeWarning: divide by zero encountered in log10
+  result = func(self.values, **kwargs)
+calc_gene_means: labels = ['src/pytransit/data/cholesterol_H37Rv_rep1.wig', 'src/pytransit/data/cholesterol_H37Rv_rep2.wig']
+[transit_tools:__exit__()] Finished ScatterPlot analysis in 3.6sec 

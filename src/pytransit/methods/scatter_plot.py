@@ -28,7 +28,8 @@ class Method:
     valid_cli_flags = [
         "--log",
         "--genes",
-        "--cond",
+        "-cond",
+        "-samp",
     ]
 
     usage_string = f"""
@@ -49,6 +50,7 @@ class Method:
         annotation_path        = args[1]
         metadata_path          = args[2]
         output_path            = args[3] # png file
+        avg_by_conditions = "cond" in kwargs
         condition_names = console_tools.string_arg_to_list(kwargs["cond"])
         sample_ids      = console_tools.string_arg_to_list(kwargs["samp"])
         
@@ -60,7 +62,6 @@ class Method:
         # 
         # filter either by condition or by sample
         # 
-        avg_by_conditions = "cond" in kwargs
         if avg_by_conditions:
             combined_wig = combined_wig.with_only(condition_names=condition_names)
         else:
@@ -165,17 +166,18 @@ class Method:
             # by gene or site
             # 
             if gene_means:
-                print(f'''combined_wig.as_tuple = {combined_wig.as_tuple}''')
                 means, genes, labels = calc_gene_means(combined_wig=combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
-                labels = combined_wig.wig_ids
                 counts = means
             else:
+                if combined_wig.metadata:
+                    labels = combined_wig.metadata.wig_ids
+                else:
+                    labels = combined_wig.wig_fingerprints
                 # average conditions if needed
                 if avg_by_conditions:
                     combined_wig = combined_wig.averaged(by_conditions=True)
-                print(combined_wig)
+                    labels = combined_wig.metadata.condition_names
                 counts = combined_wig.read_counts_array
-                labels = combined_wig.wig_ids # wig_ids will be equivlent to condition names when averaged by conditions
             
             # 
             # plot
@@ -183,8 +185,8 @@ class Method:
             import seaborn as sns
             import matplotlib.pyplot as plt
             import pandas as pd
-
-            counts_df = pd.DataFrame(counts, columns = labels)
+            
+            counts_df = pd.DataFrame(counts, columns=labels)
             plt.figure()
             if log_scale:  g = sns.PairGrid(numpy.log10(counts_df))
             else: g = sns.PairGrid(counts_df)

@@ -23,6 +23,7 @@ class InvalidArgumentException(Exception):
     def __init__(self, *args, **kwargs):
         super(InvalidArgumentException, self).__init__(*args, **kwargs)
 
+class RawKwargs: pass
 def clean_args(raw_args):
     """Returns a list and a dictionary with positional and keyword arguments.
 
@@ -54,6 +55,7 @@ def clean_args(raw_args):
     
     args = []
     kwargs = defaultdict(lambda *args: None)
+    kwargs[RawKwargs] = {}
     count = 0
     
     raw_args = list(raw_args)
@@ -85,12 +87,9 @@ def clean_args(raw_args):
                 ''')
             # consume the next element as the value
             kwargs[next_raw_argument] = raw_args.pop(0)
-            kwargs[next_raw_argument] = True
         # Else, it's a positional argument without flags
         else:
-            args.append(raw_args[count])
-        count += 1
-    
+            args.append(next_raw_argument)
     
     # 
     # convert number arguments to be numbers
@@ -100,6 +99,7 @@ def clean_args(raw_args):
             args[each_index] = int(each_value)
         if misc.str_is_float(each_value):
             args[each_index] = float(each_value)
+    kwargs[RawKwargs] = dict({**kwargs})
     for each_key, each_value in kwargs.items():
         if isinstance(each_value, str):
             if misc.str_is_int(each_value):
@@ -111,15 +111,16 @@ def clean_args(raw_args):
     # make the -name vs -name irrelevent 
     # 
     for each_key, each_value in list(kwargs.items()):
-        if each_key.startswith("--"):
-            kwargs[each_key[1:]] = each_value
-            kwargs[each_key[2:]] = each_value
-        elif each_key.startswith("-"):
-            kwargs[each_key[1:]] = each_value
-            kwargs["-"+each_key] = each_value
-        else:
-            kwargs["--"+each_key] = each_value
-            kwargs["-"+each_key] = each_value
+        if isinstance(each_key, str):
+            if each_key.startswith("--"):
+                kwargs[each_key[1:]] = each_value
+                kwargs[each_key[2:]] = each_value
+            elif each_key.startswith("-"):
+                kwargs[each_key[1:]] = each_value
+                kwargs["-"+each_key] = each_value
+            else:
+                kwargs["--"+each_key] = each_value
+                kwargs["-"+each_key] = each_value
             
     return (args, kwargs)
 
@@ -145,12 +146,15 @@ def handle_unrecognized_flags(flags, kwargs, usage_string):
     if any([ not each.startswith('-') for each in flags]):
         print(f'''usage_string = {usage_string}''')
         raise Exception(f'''Developer issue: {flags} contains elements that are missing the - or -- prefix''')
+    kwargs = kwargs[RawKwargs]
+    possible_flags = flags
     for flag_string in kwargs.keys():
-        if flag_string not in possible_flags:
-            from pytransit.generic_tools import misc
-            closest_match, *_ = misc.levenshtein_distance_sort(word=flag_string, other_words=possible_flags)
-            print(f"{flag_string} was not one of the available flags: {' '.join(flags)}")
-            raise Exception(f'''unrecognized flag: {flag_string}\nMaybe you meant: {closest_match}\n\n{usage_string}''')
+        if isinstance(flag_string, str):
+            if flag_string not in possible_flags:
+                from pytransit.generic_tools import misc
+                closest_match, *_ = misc.levenshtein_distance_sort(word=flag_string, other_words=possible_flags)
+                print(f"{flag_string} was not one of the available flags: {' '.join(flags)}")
+                raise Exception(f'''unrecognized flag: {flag_string}\nMaybe you meant: {closest_match}\n\n{usage_string}''')
 
 def check_if_has_wx():
     """

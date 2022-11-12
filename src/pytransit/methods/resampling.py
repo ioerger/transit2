@@ -69,6 +69,7 @@ class Method:
         "-exp_lib",
         "--winz",
         "--sr",
+        "--Z",
     ]
     
     inputs = LazyDict(
