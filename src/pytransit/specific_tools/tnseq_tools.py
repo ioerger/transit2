@@ -631,8 +631,23 @@ class CombinedWig:
                 )
             )
         
-        
-        
+        # Helpful check to prevent far down-the-line errors
+        if len(new_combined_wig.as_tuple.counts_by_wig) == 0:
+            if condition_names  == None: condition_names = "*All*"
+            if wig_fingerprints == None: wig_fingerprints = "*All*"
+            if wig_ids          == None: wig_ids = "*All*"
+            logging.error(f"""
+                when calling .with_only() these were the restrictions:
+                    condition_names={condition_names}
+                    wig_fingerprints={wig_fingerprints}
+                    wig_ids={wig_ids}
+                However these are the available values
+                    condition_names={self.metadata.condition_names}
+                    wig_fingerprints={self.wig_fingerprints}
+                    wig_ids={self.metadata.wig_ids}
+                So after performing a .with_only()
+                there are no samples in the resulting combined_wig
+            """)
         return new_combined_wig
         
     def summed(self, *, by_conditions=False):
