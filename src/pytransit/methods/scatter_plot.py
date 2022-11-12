@@ -43,7 +43,7 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
         combined_wig_path      = args[0]
         annotation_path        = args[1]
