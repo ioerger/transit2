@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
+from pytransit.specific_tools.transit_tools import wx, basename, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
 from pytransit.specific_tools.tnseq_tools import ProtTable
 from pytransit.components.spreadsheet import SpreadSheet
 
@@ -760,7 +760,6 @@ class Method:
     
     @staticmethod
     def def_r_zinb_signif():
-        if not HAS_R: return lambda *args, **kwargs: Exception("You're getting this if debugging is on and you dont have R")
         from pytransit.specific_tools.transit_tools import r, globalenv
         r(
             """

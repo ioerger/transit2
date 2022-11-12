@@ -9,12 +9,12 @@ covars_to_read = []
 interactions_to_read = ['ko_5849']
 [zinb:output()] 
 [zinb:output()] samples for Condition/Covariate/Interaction: KO_rel 
-[zinb:output()]         x: WT_D28_R3.wig 5849_D28_R1.wig 5849_D28_R2.wig WT_D28_R1.wig 5849_D28_R3.wig WT_D28_R2.wig 
-[zinb:output()]         KOrel: DKO_D28_R3.wig DKO_D28_R2.wig rel_D28_R2.wig rel_D28_R3.wig rel_D28_R1.wig DKO_D28_R1.wig 
+[zinb:output()]         x: WT_D28_R3.wig WT_D28_R2.wig 5849_D28_R2.wig 5849_D28_R3.wig 5849_D28_R1.wig WT_D28_R1.wig 
+[zinb:output()]         KOrel: DKO_D28_R1.wig DKO_D28_R3.wig rel_D28_R2.wig DKO_D28_R2.wig rel_D28_R1.wig rel_D28_R3.wig 
 [zinb:output()] 
 [zinb:output()] samples for Condition/Covariate/Interaction: KO_5849 
-[zinb:output()]         KO5849: 5849_D28_R1.wig DKO_D28_R3.wig DKO_D28_R2.wig 5849_D28_R2.wig 5849_D28_R3.wig DKO_D28_R1.wig 
-[zinb:output()]         x: WT_D28_R3.wig rel_D28_R2.wig rel_D28_R3.wig WT_D28_R1.wig rel_D28_R1.wig WT_D28_R2.wig 
+[zinb:output()]         KO5849: DKO_D28_R1.wig 5849_D28_R2.wig 5849_D28_R3.wig DKO_D28_R3.wig DKO_D28_R2.wig 5849_D28_R1.wig 
+[zinb:output()]         x: WT_D28_R3.wig WT_D28_R2.wig rel_D28_R2.wig rel_D28_R1.wig rel_D28_R3.wig WT_D28_R1.wig 
 [zinb:output()] 
 [zinb:output()] samples in cross-product: 
 [zinb:output()] Running ZINB 
@@ -30,28 +30,28 @@ zeroinfl(formula = as.formula(zinbMod1), data = melted, dist = "negbin")
 
 Pearson residuals:
     Min      1Q  Median      3Q     Max 
--0.9982 -0.7629 -0.2293  0.4297 11.9195 
+-0.7668 -0.6276 -0.4695  0.3358  4.5517 
 
 Count model coefficients (negbin with log link):
-               Estimate Std. Error z value Pr(>|z|)   
-(Intercept)     0.33416    0.10779   3.100  0.00194 **
-condx          -0.18534    0.15107  -1.227  0.21987   
-KO_5849x       -0.25059    0.15893  -1.577  0.11486   
-condx:KO_5849x -0.06428    0.21976  -0.292  0.76991   
-Log(theta)      0.14150    0.07911   1.789  0.07369 . 
+               Estimate Std. Error z value Pr(>|z|)  
+(Intercept)    -0.32249    0.13542  -2.381   0.0172 *
+condx           0.28376    0.18194   1.560   0.1188  
+KO_5849x        0.33179    0.20325   1.632   0.1026  
+condx:KO_5849x -0.21075    0.26657  -0.791   0.4292  
+Log(theta)      0.01715    0.09139   0.188   0.8512  
 
 Zero-inflation model coefficients (binomial with logit link):
-               Estimate Std. Error z value Pr(>|z|)    
-(Intercept)     -1.5445     0.3581  -4.313 1.61e-05 ***
-condx           -0.1871     0.5675  -0.330    0.742    
-KO_5849x         0.6212     0.4415   1.407    0.159    
-condx:KO_5849x  -0.2252     0.7135  -0.316    0.752    
+               Estimate Std. Error z value Pr(>|z|)
+(Intercept)      0.2584     0.2125   1.216    0.224
+condx           -0.3518     0.3167  -1.111    0.267
+KO_5849x         0.1363     0.2981   0.457    0.648
+condx:KO_5849x  -0.2554     0.4444  -0.575    0.566
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Theta = 1.152 
+Theta = 1.0173 
 Number of iterations in BFGS optimization: 12 
-Log-likelihood: -1964 on 9 Df
+Log-likelihood: -1650 on 9 Df
 [1] "Model 0:"
 [1] "cnt~1+cond+KO_5849+offset(log(non_zero_mean))|1+cond+KO_5849+offset(logit_z_perc)"
 
@@ -60,26 +60,26 @@ zeroinfl(formula = as.formula(zinbMod0), data = melted, dist = "negbin")
 
 Pearson residuals:
     Min      1Q  Median      3Q     Max 
--1.0035 -0.7611 -0.2238  0.4304 11.7306 
+-0.7774 -0.6209 -0.4696  0.3392  4.3196 
 
 Count model coefficients (negbin with log link):
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  0.34968    0.09444   3.703 0.000213 ***
-condx       -0.21580    0.10971  -1.967 0.049173 *  
-KO_5849x    -0.28403    0.10975  -2.588 0.009657 ** 
-Log(theta)   0.14109    0.07915   1.783 0.074643 .  
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept) -0.26655    0.11877  -2.244   0.0248 *
+condx        0.18458    0.13297   1.388   0.1651  
+KO_5849x     0.20981    0.13151   1.595   0.1106  
+Log(theta)   0.01443    0.09144   0.158   0.8746  
 
 Zero-inflation model coefficients (binomial with logit link):
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  -1.4896     0.3059  -4.869 1.12e-06 ***
-condx        -0.3309     0.3440  -0.962    0.336    
-KO_5849x      0.5368     0.3468   1.548    0.122    
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept)  0.31640    0.18600   1.701   0.0889 .
+condx       -0.48273    0.22210  -2.173   0.0297 *
+KO_5849x     0.02186    0.22095   0.099   0.9212  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Theta = 1.1515 
+Theta = 1.0145 
 Number of iterations in BFGS optimization: 10 
-Log-likelihood: -1964 on 7 Df
-[1] "delta_log_likelihood=0.091570"
-[zinb:calculate()] P Value for Gene MSMEG_3808c: 0.912497416819904, status: - 
+Log-likelihood: -1650 on 7 Df
+[1] "delta_log_likelihood=0.473836"
+[zinb:calculate()] P Value for Gene MSMEG_3808c: 0.622609469850168, status: - 
 [zinb:calculate()] Ran for single gene. Exiting... 
