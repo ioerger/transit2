@@ -50,27 +50,27 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "--include-conditions",
-        "--exclude-conditions",
-        "--ref",
+        "-include-conditions",
+        "-exclude-conditions",
+        "-ref",
         "-iN",
         "-iC",
         "-PC",
         "-alpha",
-        "-winz",
+        "--winz",
     ]
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -PC <N> := pseudocounts to use for calculating LFCs. Default: -PC 5
-            -alpha <N> := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-            -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            -n <string> :=  Normalization method. Default: -n TTR
+            -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            -ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+            -iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            -PC    <N>  := pseudocounts to use for calculating LFCs. Default: -PC 5
+            -alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+            --winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -104,13 +104,13 @@ class Method:
             # 
             # parameter inputs
             # 
-            # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-            # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-            # --ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
+            # -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            # -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            # -ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
             # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
             # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-            # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            # --winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
@@ -170,20 +170,19 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=4)
         
-        combined_wig      = args[0]
-        annotation_path   = args[2]
-        metadata          = args[1]
-        output_path       = args[3]
-        normalization     = kwargs.get("n", Method.inputs.normalization)
-        n_terminus        = float(kwargs.get("iN", Method.inputs.n_terminus))
-        c_terminus        = float(kwargs.get("iC", Method.inputs.c_terminus))
-        winz              = "winz" in kwargs
-        pseudocount       = int(kwargs.get("PC", Method.inputs.pseudocount))
-        alpha             = float(kwargs.get("alpha", Method.inputs.alpha))
-        refs              = kwargs.get("-ref", Method.inputs.refs)  # list of condition names to use a reference for calculating lfc_s
-        if refs != []: refs = refs.split(",")
-        excluded_conditions = list( filter(None, kwargs.get("-exclude-conditions", "").split(",")) )
-        included_conditions = list( filter(None, kwargs.get("-include-conditions", "").split(",")) )
+        combined_wig        = args[0]
+        annotation_path     = args[2]
+        metadata            = args[1]
+        output_path         = args[3]
+        refs                = console_tools.string_arg_to_list(kwargs["ref"])  # list of condition names to use a reference for calculating lfc_s
+        excluded_conditions = console_tools.string_arg_to_list(kwargs["exclude-conditions"])
+        included_conditions = console_tools.string_arg_to_list(kwargs["include-conditions"])
+        normalization       = kwargs.get("n", Method.inputs.normalization)
+        n_terminus          = kwargs.get("iN", Method.inputs.n_terminus)
+        c_terminus          = kwargs.get("iC", Method.inputs.c_terminus)
+        pseudocount         = kwargs.get("PC", Method.inputs.pseudocount)
+        alpha               = kwargs.get("alpha", Method.inputs.alpha)
+        winz                = "winz" in kwargs
 
         # save all the data
         Method.inputs.update(dict(

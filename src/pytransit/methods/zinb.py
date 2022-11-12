@@ -34,37 +34,37 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "--exclude-conditions",
-        "--include-conditions",
-        "--ref",
+        "-exclude-conditions",
+        "-include-conditions",
+        "-ref",
         "-iN",
         "-iC",
-        "-winz",
+        "--winz",
         "-PC",
-        "--group-by",
+        "-group-by",
         "--condition",
-        "--covars",
-        "--interactions",
+        "-covars",
+        "-interactions",
         "--append_gene_desc",
-        "--gene",
+        "-gene",
     ]
     
     usage_string = f"""{console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table_path> <output file> [Optional Arguments]
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
-            --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
-            --ref <cond>    := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
-            -iN <float>     := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
-            -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
-            -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-            -PC <N>         := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
-            --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-            --condition     := alias for --group-by
-            --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
-            --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
-            --append_gene_desc                := the output file will have column for gene descriptions
-            --gene <RV number or Gene name>   := Run method for one gene and print model output.
+            -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
+            -include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
+            -n   <string>        :=  Normalization method. Default: -n TTR
+            -ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+            -iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
+            -iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
+            -PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
+            --winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            -group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+            -condition <string>  := alias for -group-by
+            -covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
+            -interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
+            -gene <RV number or Gene name>   := Run method for one gene and print model output.
+            --append_gene_desc               := the output file will have column for gene descriptions
     """.replace("\n        ", "\n")
 
     @staticmethod
@@ -380,10 +380,10 @@ class Method:
                     c1, i1 = (ic1[0], ic1[1]) if len(ic1) > 1 else (ic1[0], None)
                     c2, i2 = (ic2[0], ic2[1]) if len(ic2) > 1 else (ic2[0], None)
 
-                    # use --include-conditions to determine order of columns in output file
+                    # use -include-conditions to determine order of columns in output file
                     # this only works if an alternative --condition was not specified
                     # otherwise don't try to order them this way because it gets too complicated
-                    # possibly should require --covars and --interactions to be unspecified too
+                    # possibly should require -covars and -interactions to be unspecified too
                     if (
                         group_by == "Condition"
                         and len(included_conditions) > 0
@@ -430,7 +430,7 @@ class Method:
                             for group in ordered_stat_group_names
                     ]
                     if only_have_one_lfc_column:
-                        # TODO: still need to adapt this to use --ref if defined
+                        # TODO: still need to adapt this to use -ref if defined
                         log_fold_changes = [
                             numpy.math.log(
                                 (means_per_group[1] + pseudocount) / (means_per_group[0] + pseudocount),

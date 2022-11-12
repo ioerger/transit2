@@ -14,6 +14,7 @@ class Method:
     description = "Method for normalizing datasets and outputting into CombinedWig file."
     usage_string = f"""
         {console_tools.subcommand_prefix} norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        {console_tools.subcommand_prefix} norm -c <combined_wig> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
     
             Optional Arguments:
             -n <string>     :=  Normalization method. Default: -n TTR

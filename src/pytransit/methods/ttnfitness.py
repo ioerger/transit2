@@ -52,7 +52,9 @@ class Method:
         normalization = "TTR",
     )
 
-    usage_string = f"""usage: {console_tools.subcommand_prefix} ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" # TODO: this is the old way, with multiple wigs as input
+    usage_string = f"""
+        usage: {console_tools.subcommand_prefix} {cli_name} <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>
+    """ # FIXME: this is the old way, with multiple wigs as input
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):

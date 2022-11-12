@@ -39,11 +39,11 @@ class Method:
     valid_cli_flags = [
         "--anova",
         "--zinb",
-        "--qval",
-        "--topk",
-        "--low_mean_filter",
+        "-qval",
+        "-topk",
+        "-low_mean_filter",
     ]
-    usage_string = f"usage: {console_tools.subcommand_prefix} heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb [-topk <int>] [-qval <float>] [-low_mean_filter <int>]\n note: genes are selected based on qval<0.05 by default"
+    usage_string = f"usage: {console_tools.subcommand_prefix} heatmap <anova_or_zinb_output> <heatmap.png> --anova|--zinb [-topk <int>] [-qval <float>] [-low_mean_filter <int>]\n note: genes are selected based on qval<0.05 by default"
     
     @gui.add_menu("Post-Processing", "ANOVA", "Heatmap")
     def on_menu_click(event):

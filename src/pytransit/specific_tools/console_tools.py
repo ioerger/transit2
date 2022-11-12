@@ -23,7 +23,7 @@ class InvalidArgumentException(Exception):
     def __init__(self, *args, **kwargs):
         super(InvalidArgumentException, self).__init__(*args, **kwargs)
 
-def clean_args(rawargs):
+def clean_args(raw_args):
     """Returns a list and a dictionary with positional and keyword arguments.
 
     -This function assumes flags must start with a "-" and and cannot be a 
@@ -39,7 +39,7 @@ def clean_args(rawargs):
     
 
     Arguments:
-        rawargs (list): List of positional/keyword arguments. As obtained from
+        raw_args (list): List of positional/keyword arguments. As obtained from
                          sys.argv.
 
     Returns:
@@ -55,38 +55,40 @@ def clean_args(rawargs):
     args = []
     kwargs = defaultdict(lambda *args: None)
     count = 0
-    # Loop through list of arguments
-    while count < len(rawargs):
-        # If the current argument starts with "-", then it's probably a flag
-        if rawargs[count].startswith("-"):
-            # Check if next argument is a number
-            try:
-                temp = float(rawargs[count + 1])
-                next_is_number = True
-            except:
-                next_is_number = False
-
-            still_not_finished = count + 1 < len(rawargs)
-            if still_not_finished:
-                next_is_not_argument = not rawargs[count + 1].startswith("-")
-                next_looks_like_list = len(rawargs[count + 1].split(" ")) > 1
-            else:
-                next_is_not_argument = True
-                next_looks_like_list = False
-
-            # If still things in list, and they look like arguments to a flag, add them to dict
-            kwarg_name = rawargs[count][1:]
-            if still_not_finished and (
-                next_is_not_argument or next_looks_like_list or next_is_number
-            ):
-                kwargs[kwarg_name] = rawargs[count + 1]
-                count += 1
-            # Else it's a flag but without arguments/values so assign it True
-            else:
-                kwargs[kwarg_name] = True
-        # Else, it's probably a positional argument without flags
+    
+    raw_args = list(raw_args)
+    while len(raw_args) > 0:
+        next_raw_argument = raw_args.pop(0)
+        # is a flag
+        if next_raw_argument.startswith('--'):
+            kwargs[next_raw_argument] = True
+        # If the current argument starts with "-", then it's a key
+        elif next_raw_argument.startswith("-"):
+            if len(raw_args) == 0:
+                raise Exception(f'''
+                    
+                    This argument: {next_raw_argument}
+                    expects a value after it (-key value), however it was the last argument
+                    Maybe you meant: -{next_raw_argument}
+                    (which is just a flag, e.g. no value)
+                    
+                ''')
+            if raw_args[0].startswith('-'):
+                raise Exception(f'''
+                    
+                    This argument: {next_raw_argument}
+                    expects a value after it (-key value)
+                    However it was follow by another key/flag (--key {raw_args[0]})
+                    Maybe this would be valid: -{next_raw_argument} {raw_args[0]}
+                    (which is just a flag, e.g. no value)
+                    
+                ''')
+            # consume the next element as the value
+            kwargs[next_raw_argument] = raw_args.pop(0)
+            kwargs[next_raw_argument] = True
+        # Else, it's a positional argument without flags
         else:
-            args.append(rawargs[count])
+            args.append(raw_args[count])
         count += 1
     
     
@@ -106,7 +108,7 @@ def clean_args(rawargs):
                 kwargs[each_key] = float(each_value)
     
     # 
-    # make the --name vs -name irrelevent 
+    # make the -name vs -name irrelevent 
     # 
     for each_key, each_value in list(kwargs.items()):
         if each_key.startswith("--"):
@@ -140,18 +142,9 @@ def enforce_number_of_args(args, usage_string, *, exactly=None, at_least=type(No
             exit(1)
 
 def handle_unrecognized_flags(flags, kwargs, usage_string):
-    possible_flags = list(flags)
-    for each_name in flags:
-        if each_name.startswith("--"):
-            possible_flags.append(each_name[1:])
-            possible_flags.append(each_name[2:])
-        elif each_name.startswith("-"):
-            possible_flags.append(each_name[1:])
-            possible_flags.append("-"+each_name)
-        else:
-            possible_flags.append("--"+each_name)
-            possible_flags.append("-"+each_name)
-    
+    if any([ not each.startswith('-') for each in flags]):
+        print(f'''usage_string = {usage_string}''')
+        raise Exception(f'''Developer issue: {flags} contains elements that are missing the - or -- prefix''')
     for flag_string in kwargs.keys():
         if flag_string not in possible_flags:
             from pytransit.generic_tools import misc

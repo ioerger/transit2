@@ -48,9 +48,14 @@ class Method:
     valid_cli_flags = [
         "-n", # normalization flag
         "-o", # output filename (optional)
-        "-c", # indicates whether input is list of wig files (comma- or space-separated?), or a combined_wig file
+        "-c",
     ]
-    usage_string = f"""usage: {console_tools.subcommand_prefix} tnseq_stats <file.wig>+ [-o <output_file>]\n       {console_tools.subcommand_prefix} tnseq_stats -c <combined_wig> [-o <output_file>]"""
+    
+    usage_string = f"""
+        usage:
+            {console_tools.subcommand_prefix} tnseq_stats -c <combined_wig> [-o <output_file>]
+            {console_tools.subcommand_prefix} tnseq_stats <file.wig>+ [-o <output_file>]
+    """
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
@@ -110,7 +115,7 @@ class Method:
 
         # save all the data
         Method.inputs.update(dict(
-            wigs=wigs, ### what if user gives a list of wig files instead of a combined_wig?
+            wigs=wigs, # FIXME: what if user gives a list of wig files instead of a combined_wig?
             combined_wig=combined_wig, 
             normalization=normalization,
             output_path=output_path,

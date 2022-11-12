@@ -13,7 +13,7 @@ import numpy
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
-from pytransit.specific_tools.transit_tools import calc_gene_means, wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import calc_gene_means, wx, basename
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -26,15 +26,15 @@ class Method:
     cli_name = identifier.lower()
     
     valid_cli_flags = [
-        "-log",
-        "-genes",
-        "-cond" 
+        "--log",
+        "--genes",
+        "--cond",
     ]
 
     usage_string = f"""
         usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> <sample_id1> <sample_id2> <annotation_file> <output.png> [-genes -log]
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> -cond <condition1> <condition2> <annotation_file> <output.png> [-genes -log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <metadata_file> -samp <sample_id1,sample_id2,...> <output.png> [--genes --log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <metadata_file> -cond <condition1,condition2,...> <output.png> [--genes --log]
     """.replace("\n        ","\n     ")
     
     # usage: scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>
@@ -46,30 +46,32 @@ class Method:
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
         
         combined_wig_path      = args[0]
-        metadata_path          = args[1]
-        sample_or_condition1   = args[2]
-        sample_or_condition2   = args[3]
-        annotation_path        = args[4]
-        output_path            = args[5] # png file
-        avg_by_conditions = "cond" in kwargs
+        annotation_path        = args[1]
+        metadata_path          = args[2]
+        output_path            = args[3] # png file
+        condition_names = console_tools.string_arg_to_list(kwargs["cond"])
+        sample_ids      = console_tools.string_arg_to_list(kwargs["samp"])
         
         combined_wig = tnseq_tools.CombinedWig.load(
             main_path=combined_wig_path,
             metadata_path=metadata_path,
+            annotation_path=annotation_path,
         )
         # 
         # filter either by condition or by sample
         # 
+        avg_by_conditions = "cond" in kwargs
         if avg_by_conditions:
-            combined_wig = combined_wig.with_only(condition_names=[sample_or_condition1, sample_or_condition2])
+            combined_wig = combined_wig.with_only(condition_names=condition_names)
         else:
-            combined_wig = combined_wig.with_only(wig_ids=[sample_or_condition1, sample_or_condition2])
+            combined_wig = combined_wig.with_only(wig_ids=sample_ids)
         
         # save the data
         Method.output(
             combined_wig=combined_wig,
             annotation_path=annotation_path,
             output_path=output_path,
+            avg_by_conditions=avg_by_conditions,
             normalization=kwargs["n"],
             gene_means="genes" in kwargs, # bool
             log_scale="log" in kwargs # bool
@@ -126,9 +128,9 @@ class Method:
         # if plotting samples, (for now) only allow two samples
         # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
         if not Method.by_condition:
-            assert len(arguments.combined_wig.samples) >= 2, "Please select only two samples on the left"
+            assert len(arguments.combined_wig.samples) >= 2, "Please select two or more samples on the left"
         else:
-            assert len(arguments.combined_wig.condition_names) >= 2, "Please select only two conditions on the left"
+            assert len(arguments.combined_wig.condition_names) >= 2, "Please select only two or more conditions on the left"
         arguments.avg_by_conditions = Method.by_condition
         
         # 
@@ -158,15 +160,12 @@ class Method:
         if combined_wig == None:
             combined_wig = tnseq_tools.CombinedWig.load(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
         
-        # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
-        #if not avg_by_conditions: assert len(combined_wig.samples) == 2, "Please use combined_wig.with_only(wig_ids=[ID1, ID2]) before calling scatter plot"
-        #else: assert len(combined_wig.condition_names) == 2, "Please use combined_wig.with_only(condition_names=[NAME1, NAME2]) before calling scatter plot"
-        
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
             # by gene or site
             # 
-            if gene_means: 
+            if gene_means:
+                print(f'''combined_wig.as_tuple = {combined_wig.as_tuple}''')
                 means, genes, labels = calc_gene_means(combined_wig=combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
                 labels = combined_wig.wig_ids
                 counts = means

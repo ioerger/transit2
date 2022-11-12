@@ -56,7 +56,7 @@ class Method:
     valid_cli_flags = [
         "-r",
         "-n",
-        "-l",
+        "--l",
         "-iN",
         "-iC",
     ]
@@ -66,7 +66,7 @@ class Method:
         Optional Arguments:
             -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
             -n <string>     :=  Normalization method. Default: -n TTR
-            -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
             -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
             -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
@@ -96,13 +96,13 @@ class Method:
                 title_text= self.name,
                 sub_text= "Hidden Markov Model",
                 method_specific_instructions="""
-                The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
-                
-                1. Select a condition from the conditions panel
+                    The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
+                    
+                    1. Select a condition from the conditions panel
 
-                2. [Optional] Select/Adjust other parameters
+                    2. [Optional] Select/Adjust other parameters
 
-                3. Click Run
+                    3. Click Run
                 """.replace("\n                    ","\n"),
             )
             # 

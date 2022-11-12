@@ -63,7 +63,7 @@ class Method:
         "-iN", # trimming TA sites at gene termini
         "-iC", 
         "-signif", # method to determine genes with significant interaction
-        "--rope", # Region Of Probable Equivalence around 0
+        "-rope", # Region Of Probable Equivalence around 0
     ]
 
     usage_string = f"""usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
@@ -74,14 +74,14 @@ class Method:
         Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
         Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
             By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-            Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+            Alternative methods for significance: use -signif key with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
 
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
         -s <integer>    :=  Number of samples. Default: -s 10000
         -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
-        --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
+        -rope <float>   :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: -rope 0.5
         -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
         -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<{significance_threshold} (no adjustment)
         -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<{significance_threshold}
@@ -103,25 +103,25 @@ class Method:
                 title_text= self.name,
                 sub_text = self.description,
                 method_specific_instructions="""
-                GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
-                
-                HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes. Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately). Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-                
-                By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+                    GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
+                    
+                    HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes. Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately). Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+                    
+                    By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
 
-                1.  Add an annotation file for the organism corresponding to the desired datasets
+                    1.  Add an annotation file for the organism corresponding to the desired datasets
 
-                2.  Adding datasets grown under condition A
-                    a. Using the dropdown for Condition A1, select your control dataset for condition A
-                    b. Using the dropdown for Condition A2, select your experimental dataset for condition A
+                    2.  Adding datasets grown under condition A
+                        a. Using the dropdown for Condition A1, select your control dataset for condition A
+                        b. Using the dropdown for Condition A2, select your experimental dataset for condition A
 
-                3.  Adding datasets grown under condition B
-                    a. Using the dropdown for Condition B1, select your control dataset for condition B
-                    b. Using the dropdown for Condition B2, select your experimental dataset for condition B
+                    3.  Adding datasets grown under condition B
+                        a. Using the dropdown for Condition B1, select your control dataset for condition B
+                        b. Using the dropdown for Condition B2, select your experimental dataset for condition B
 
-                4. [Optional] Select the remaining parameters
+                    4. [Optional] Select the remaining parameters
 
-                5. Click Run
+                    5. Click Run
                 """.replace("\n                    ","\n"),
             )
 
@@ -194,7 +194,7 @@ class Method:
 
         normalization = kwargs.get("n", "TTR")
         samples = int(kwargs.get("s", 10000))
-        rope = float(kwargs.get("-rope", 0.5))  # fixed! changed int to float
+        rope = float(kwargs.get("rope", 0.5))  # fixed! changed int to float
         signif = kwargs.get("signif", "HDI")
 
         n_terminus = float(kwargs.get("iN", 0.00))

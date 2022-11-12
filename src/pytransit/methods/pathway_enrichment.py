@@ -48,20 +48,20 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        "-Pval_col",
-        "-Qval_col",
+        "-p-val-col",
+        "-q-val-col",
         "-ranking",
-        "-LFC_col",
+        "-LFC-col",
         "-p",
-        "-Nperm",
+        "-n-perm",
         "-PC"
     ]
 
-    #-Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
-    #-Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
-    #-LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+    #-p-val-col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
+    #-q-val-col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
+    #-LFC-col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
-    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-n-perm <int>] [-p-val-col <int>] [-q-val-col <int>]  [-LFC-col <int>]
 
         Optional parameters:
         -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
@@ -69,7 +69,7 @@ class Method:
         for GSEA...
         -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
         -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-        -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+        -n-perm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
         
         for FET...
         -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
@@ -374,12 +374,12 @@ class Method:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
-            qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
+            pval_col = int(kwargs.get("p-val-col", Method.inputs.pval_col)),
+            qval_col = int(kwargs.get("q-val-col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SLPV"),
-            lfc_col = int(kwargs.get("LFC_col", Method.inputs.lfc_col)),
+            lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
-            num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
+            num_permutations = int(kwargs.get("n-perm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         

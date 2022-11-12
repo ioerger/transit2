@@ -59,17 +59,16 @@ class Method:
         "-s",
         "-n",
         "-h",
-        "-a",
-        "-ez",
+        "--a",
+        "--ez",
         "-PC",
-        "-l",
+        "--l",
         "-iN",
         "-iC",
-        "--ctrl_lib",
-        "--exp_lib",
-        "-Z",
-        "-winz",
-        "-sr",
+        "-ctrl_lib",
+        "-exp_lib",
+        "--winz",
+        "--sr",
     ]
     
     inputs = LazyDict(
@@ -107,26 +106,25 @@ class Method:
         NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
 
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -a              :=  Perform adaptive resampling. Default: Turned Off.
-        -ez             :=  Exclude rows with zero across conditions. Default: Turned off
-                            (i.e. include rows with zeros).
-        -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias.
-                            Default: Turned Off.
-        -iN <int>       :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <int>       :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        --ctrl_lib      :=  String of letters representing library of control files in order
-                            e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
-
-        --exp_lib       :=  String of letters representing library of experimental files in order
-                            e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
-        -winz           :=  winsorize insertion counts for each gene in each condition 
-                            (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-        -sr             :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
+        -s <integer>        :=  Number of samples. Default: -s 10000
+        -n <string>         :=  Normalization method. Default: -n TTR
+        --a                 :=  Perform adaptive resampling. Default: Turned Off.
+        --ez                :=  Exclude rows with zero across conditions. Default: Turned off
+                                (i.e. include rows with zeros).
+        -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+        --l                 :=  Perform LOESS Correction; Helps remove possible genomic position bias.
+                                Default: Turned Off.
+        -iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
+        -iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+        -ctrl_lib <string>  :=  String of letters representing library of control files in order
+                                e.g. 'AABB'. Default empty. Letters used must also be used in -exp_lib
+                                If non-empty, resampling will limit permutations to within-libraries.
+        -exp_lib <string>   :=  String of letters representing library of experimental files in order
+                                e.g. 'ABAB'. Default empty. Letters used must also be used in -ctrl_lib
+                                If non-empty, resampling will limit permutations to within-libraries.
+        --winz              :=  winsorize insertion counts for each gene in each condition 
+                                (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+        --sr                :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)

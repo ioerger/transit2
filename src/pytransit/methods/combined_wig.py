@@ -30,16 +30,21 @@ class Method:
         ref=None,
     )
     
+    valid_cli_flags = [
+        "-n",
+    ]
+    
     @staticmethod
     @cli.add_command("export", "combined_wig")
     def from_args(args, kwargs):
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
         Method.inputs.update(dict(
-            ctrldata= args[0].split(","),
+            ctrldata=args[0].split(","),
             annotation_path=args[1],
             output_path=args[2],
-            normalization= kwargs.get("n", "TTR"),
+            normalization=kwargs.get("n", "TTR"),
         ))
         
         Method.Run()
@@ -63,7 +68,6 @@ class Method:
                     default_file_name=f"recent_export.comwig.tsv",
                     output_extensions='Common output extensions (*.comwig.tsv,*.tsv,*.csv,*.dat,*.out)|*.comwig.tsv;*.tsv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
-                print(f'''wig_paths = {wig_paths}''')
                 
                 # TODO: add validation here
                 

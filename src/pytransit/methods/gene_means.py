@@ -32,7 +32,7 @@ class Method:
         "-n",  # normalization
         "-iN", # n_terminus
         "-iC", # c_terminus
-        "-cond" # averages counts over replicates of each condition
+        "--cond" # averages counts over replicates of each condition
     ]
     
     usage_string = f"""
@@ -41,7 +41,7 @@ class Method:
             -n <string>         :=  Normalization method. Default: -n TTR
             -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -cond   :=  Averages counts over replicates of each condition
+            --cond  :=  Averages counts over replicates of each condition
     """.replace("\n        ", "\n")
     
     @staticmethod

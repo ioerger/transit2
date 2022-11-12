@@ -43,7 +43,7 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "-iz",
+        "--iz",
         "-l",
         "-iN",
         "-iC",
@@ -53,8 +53,8 @@ class Method:
 
         Optional Arguments:
         -n <string>     :=  Normalization method. Default: -n TTR
-        -iz             :=  Include rows with zero accross conditions.
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
+        --iz            :=  Include rows with zero accross conditions.
+        --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
         -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
