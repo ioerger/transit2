@@ -60,11 +60,13 @@ class Method:
         "--winz",
     ]
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+        
         Optional Arguments:
-            -n <string> :=  Normalization method. Default: -n TTR
             -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
             -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            -n <string> := Normalization method. Default: -n TTR
             -ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
             -iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
             -iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
@@ -168,11 +170,11 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=4)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
         combined_wig        = args[0]
-        annotation_path     = args[2]
-        metadata            = args[1]
+        annotation_path     = args[1]
+        metadata            = args[2]
         output_path         = args[3]
         refs                = console_tools.string_arg_to_list(kwargs["ref"])  # list of condition names to use a reference for calculating lfc_s
         excluded_conditions = console_tools.string_arg_to_list(kwargs["exclude-conditions"])

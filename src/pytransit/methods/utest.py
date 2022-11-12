@@ -49,14 +49,15 @@ class Method:
         "-iC",
     ]
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined-wig-path> <annotation .prot_table or GFF3> <metadata path> <condition name for control group> <condition name for experimental group> <output file> [Optional Arguments]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
 
         Optional Arguments:
-        -n <string>     :=  Normalization method. Default: -n TTR
-        --iz            :=  Include rows with zero accross conditions.
-        --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
-        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
+            --iz            :=  Include rows with zero accross conditions.
+            --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
+            -n <string>     :=  Normalization method. Default: -n TTR
+            -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
+            -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)

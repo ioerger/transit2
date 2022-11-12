@@ -13,8 +13,8 @@ annotation="./src/pytransit/data/mc2_155_tamu.prot_table"
 # asking about "KO_REL" condition
 python3 ./src/transit.py zinb \
     "$comwig" \
-    "$metadata" \
     "$annotation" \
+    "$metadata" \
     "$result_file" \
     -include-conditions WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28 \
     -group-by KO_rel \

@@ -41,9 +41,21 @@ class Method:
         "--zinb",
         "-qval",
         "-topk",
-        "-low_mean_filter",
+        "-low-mean-filter",
     ]
-    usage_string = f"usage: {console_tools.subcommand_prefix} heatmap <anova_or_zinb_output> <heatmap.png> --anova|--zinb [-topk <int>] [-qval <float>] [-low_mean_filter <int>]\n note: genes are selected based on qval<0.05 by default"
+    usage_string = f"""
+        Usage 1:
+            {console_tools.subcommand_prefix} heatmap <anova_output> <heatmap.png> --anova [Optional Arguments]
+        Usage 2:
+            {console_tools.subcommand_prefix} heatmap <zinb_output> <heatmap.png> --zinb [Optional Arguments]
+        
+        Optional Arguments:
+            -topk <int>            := number of results
+            -qval <float>          := adjusted p value threshold. Default -qval 0.05
+            -low-mean-filter <int> := Filter out genes with grand mean count (across all conditions) below this threshold
+                                    (even if adjusted p-value < 0.05)
+                                    Default -low-mean-filter 5
+    """
     
     @gui.add_menu("Post-Processing", "ANOVA", "Heatmap")
     def on_menu_click(event):
@@ -124,7 +136,7 @@ class Method:
         Method.inputs.adj_p_value = float(kwargs.get("qval", 0.05))
         Method.inputs.top_k = int(kwargs.get("topk", -1))
         Method.inputs.low_mean_filter = int(
-            kwargs.get("low_mean_filter", 5)
+            kwargs.get("low-mean-filter", 5)
         )  # filter out genes with grandmean<5 by default
         
         Method.Run()

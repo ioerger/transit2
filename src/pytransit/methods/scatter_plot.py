@@ -33,9 +33,9 @@ class Method:
     ]
 
     usage_string = f"""
-        usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <metadata_file> -samp <sample_id1,sample_id2,...> <output.png> [--genes --log]
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <metadata_file> -cond <condition1,condition2,...> <output.png> [--genes --log]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> -samp <comma-separated sample ID's> <output.png> [--genes --log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> -cond <comma-separated condition names> <output.png> [--genes --log]
     """.replace("\n        ","\n     ")
     
     # usage: scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>
@@ -192,9 +192,6 @@ class Method:
             else: g = sns.PairGrid(counts_df)
             g.map(sns.scatterplot, s=10, alpha=.5)
             
-            #if Method.by_condition: g.set(xlabel="Condition",y_label="Condition")
-            #else: g.set(xlabel="Sample Name",ylabel="Sample Name")
-
             if gene_means: g.fig.suptitle("scatter plot of mean insertion counts for each gene")
             else: g.fig.suptitle("scatter plot of insertion counts at individual TA sites")
             plt.savefig(output_path, bbox_inches='tight', pad_inches = 0.5)

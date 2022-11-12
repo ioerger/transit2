@@ -49,7 +49,10 @@ class Method:
         "-gene",
     ]
     
-    usage_string = f"""{console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table_path> <output file> [Optional Arguments]
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+        
         Optional Arguments:
             -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
             -include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
@@ -64,7 +67,7 @@ class Method:
             -covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
             -interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
             -gene <RV number or Gene name>   := Run method for one gene and print model output.
-            --append_gene_desc               := the output file will have column for gene descriptions
+            --append_gene_desc               := the output_file will have column for gene descriptions
     """.replace("\n        ", "\n")
 
     @staticmethod
@@ -79,8 +82,8 @@ class Method:
         # save the data
         Method.output(
             combined_wig_path = args[0],
-            metadata_path = args[1],
-            annotation_path = args[2],
+            annotation_path = args[1],
+            metadata_path = args[2],
             output_path = args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
             group_by=kwargs.get("-group-by", kwargs["-condition"]),

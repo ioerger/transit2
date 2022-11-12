@@ -7,8 +7,8 @@ comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 
 if python3 ./src/transit.py anova \
     ./src/pytransit/data/cholesterol_glycerol_combined.dat \
-    ./src/pytransit/data/samples_metadata_cg.txt \
     ./src/pytransit/data/genomes/H37Rv.prot_table \
+    ./src/pytransit/data/samples_metadata_cg.txt \
     "$result_file" \
     -alpha 100 \
     -ref Untreated

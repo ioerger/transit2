@@ -50,7 +50,7 @@ class Method:
     ]
     
     usage_string = f"""
-        usage:
+        Usage:
             {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file>
             {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file> <output_file>
     """

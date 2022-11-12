@@ -61,7 +61,9 @@ class Method:
         "-iC",
     ]
     
-    usage_string = f"""{console_tools.subcommand_prefix} hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} hmm <comma-separated .wig files> <annotation_file> <output_file>
 
         Optional Arguments:
             -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean

@@ -13,7 +13,10 @@ class Method:
     name = "igv"
     description = "A method to export and normalized datasets in 'IGV' format."
     menu_name = f"IGV - {description}"
-    usage_string = f"""{console_tools.subcommand_prefix} export igv <comma-separated .wig files> <annotation .prot_table> <output file>"""
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} export igv <comma-separated .wig files> <annotation_file> <output_file>
+    """.replace("\n        ", "\n")
     
     inputs = LazyDict(
         ctrldata=None,

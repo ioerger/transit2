@@ -17,9 +17,11 @@ class Method:
     identifier = "CombinedWig"
     menu_name = "Combined Wig"
     usage_string = f"""
-        {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
-        
-            default normalization_method=TTR
+        Usage:
+            {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation_file> <output_file> [Optional Arguments]
+            
+        Optional Arguments:
+            -n <string>     :=  Normalization method. Default: -n TTR
     """.replace("\n    ","\n")
     
     inputs = LazyDict(
@@ -48,6 +50,20 @@ class Method:
         ))
         
         Method.Run()
+    
+    @staticmethod
+    def file_is_combined_wig(filepath):
+        import os
+        if os.path.exists(filepath):
+            with open(filepath,'r') as f:
+                for each in f.readlines():
+                    if not each.startswith("#"):
+                        return False
+                    elif each.startswith("#"+Method.identifier):
+                        return True
+                    elif each.startswith("#File"):
+                        return True
+        return False
         
     @gui.add_menu("Pre-Processing", "Export", menu_name)
     def on_menu_click(event):

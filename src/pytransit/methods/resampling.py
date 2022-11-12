@@ -93,39 +93,38 @@ class Method:
         Z=False,
         diff_strains=False,
         annotation_path_exp="",
-        combined_wig_params=None,
         do_histogram=False,
         site_restricted=False,
     )
     
     usage_string = f"""
-        {console_tools.subcommand_prefix} resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-        ---
-        OR
-        ---
-        {console_tools.subcommand_prefix} resampling -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
-        NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
+        Usage 1:
+            {console_tools.subcommand_prefix} resampling <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+            Note: The ctrl and exp condition names need to match Condition names in metadata_file
+        
+        Usage 2:
+            {console_tools.subcommand_prefix} resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
 
         Optional Arguments:
-        -s <integer>        :=  Number of samples. Default: -s 10000
-        -n <string>         :=  Normalization method. Default: -n TTR
-        --a                 :=  Perform adaptive resampling. Default: Turned Off.
-        --ez                :=  Exclude rows with zero across conditions. Default: Turned off
-                                (i.e. include rows with zeros).
-        -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
-        --l                 :=  Perform LOESS Correction; Helps remove possible genomic position bias.
-                                Default: Turned Off.
-        -iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        -ctrl_lib <string>  :=  String of letters representing library of control files in order
-                                e.g. 'AABB'. Default empty. Letters used must also be used in -exp_lib
-                                If non-empty, resampling will limit permutations to within-libraries.
-        -exp_lib <string>   :=  String of letters representing library of experimental files in order
-                                e.g. 'ABAB'. Default empty. Letters used must also be used in -ctrl_lib
-                                If non-empty, resampling will limit permutations to within-libraries.
-        --winz              :=  winsorize insertion counts for each gene in each condition 
-                                (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-        --sr                :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
+            -s <integer>        :=  Number of samples. Default: -s 10000
+            -n <string>         :=  Normalization method. Default: -n TTR
+            --a                 :=  Perform adaptive resampling. Default: Turned Off.
+            --ez                :=  Exclude rows with zero across conditions. Default: Turned off
+                                    (i.e. include rows with zeros).
+            -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+            --l                 :=  Perform LOESS Correction; Helps remove possible genomic position bias.
+                                    Default: Turned Off.
+            -iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
+            -iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+            -ctrl_lib <string>  :=  String of letters representing library of control files in order
+                                    e.g. 'AABB'. Default empty. Letters used must also be used in -exp_lib
+                                    If non-empty, resampling will limit permutations to within-libraries.
+            -exp_lib <string>   :=  String of letters representing library of experimental files in order
+                                    e.g. 'ABAB'. Default empty. Letters used must also be used in -ctrl_lib
+                                    If non-empty, resampling will limit permutations to within-libraries.
+            --winz              :=  winsorize insertion counts for each gene in each condition 
+                                    (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+            --sr                :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -213,24 +212,13 @@ class Method:
         # 
         # extract universal data
         # 
-        cwig_path     = gui.combined_wigs[-1].main_path
-        metadata_path = gui.combined_wigs[-1].metadata.path
-        
-        Method.inputs.combined_wig_params = dict(
-            combined_wig=cwig_path,
-            samples_metadata=metadata_path,
-            conditions=[
-                Method.inputs.ctrldata,
-                Method.inputs.expdata,
-            ],
-        )
+        Method.inputs.combined_wig_path = gui.combined_wigs[-1].main_path
+        Method.inputs.metadata_path     = gui.combined_wigs[-1].metadata.path
         assert Method.inputs.ctrldata != "[None]", "Control group can't be None"
         assert Method.inputs.expdata != "[None]", "Experimental group can't be None"
+        Method.inputs.ctrldata          = [ Method.inputs.ctrldata ]
+        Method.inputs.expdata           = [ Method.inputs.expdata  ]
         
-        # backwards compatibility
-        Method.inputs.ctrldata = [Method.inputs.combined_wig_params["conditions"][0]]
-        Method.inputs.expdata = [Method.inputs.combined_wig_params["conditions"][1]]
-
         Method.inputs.update(dict(
             annotation_path_exp=Method.inputs.annotation_path_exp if Method.inputs.diff_strains else Method.inputs.annotation_path
         ))
@@ -240,31 +228,41 @@ class Method:
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
+        from pytransit.methods.combined_wig import Method as CombinedWigMethod
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         
-        is_combined_wig = True if kwargs.get("c", False) else False
-        combined_wig_params = None
+        # init to avoid var-undefined for specific cases
+        combined_wig_path      = None
+        metadata_path          = None
+        control_condition      = None
+        experimental_condition = None
+        control_wigs           = None
+        experimental_wigs      = None
+        annotation_path        = None
+        output_path            = None
+        
+        # Usage 1
+        is_combined_wig = CombinedWigMethod.file_is_combined_wig(args[0])
         if is_combined_wig:
-            console_tools.enforce_number_of_args(args, Method.usage_string, exactly=5)
-            combined_wig_params = {
-                "combined_wig": kwargs.get("c"),
-                "samples_metadata": args[0],
-                "conditions": [args[1], args[2]],
-            }
-            annot_paths = args[3].split(",")
-            # to show contrasted conditions for combined_wigs in output header
-            ctrldata = [combined_wig_params["conditions"][0]]
-            expdata  = [combined_wig_params["conditions"][1]]
-            output_path = args[4]
+            console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
+            # <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+            combined_wig_path      = args[0]
+            annotation_paths       = console_tools.string_arg_to_list(args[1])
+            metadata_path          = args[2]
+            control_condition      = args[3]
+            experimental_condition = args[4]
+            output_path            = args[5]
+        # Usage 2
         else:
             console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
-            ctrldata    = args[0].split(",")
-            expdata     = args[1].split(",")
-            annot_paths = args[2].split(",")
-            output_path = args[3]
+            # <wig_file1,wig_file2,...(control group)> <wig_file1,wig_file2,... (experimental group)> <annotation_file> <output_file> [Optional Arguments]
+            control_wigs           = console_tools.string_arg_to_list(args[0])
+            experimental_wigs      = console_tools.string_arg_to_list(args[1])
+            annotation_paths       = console_tools.string_arg_to_list(args[2])
+            output_path            = args[3]
         
-        annotation_path = annot_paths[0]
+        annotation_path = annotation_paths[0]
         diff_strains = False
         annotation_path_exp = ""
         if len(annot_paths) == 2:
@@ -281,16 +279,13 @@ class Method:
         do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
         include_zeros = not kwargs.get("ez", not Method.inputs.include_zeros)
         pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
-        
         Z = True if "Z" in kwargs else False
-
         LOESS = kwargs.get("l", False)
         ignore_codon = True
-
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
         c_terminus = float(kwargs.get("iC", 0.00))
-        ctrl_lib_str = kwargs.get("-ctrl_lib", "")
-        exp_lib_str = kwargs.get("-exp_lib", "")
+        ctrl_lib_str = kwargs.get("ctrl_lib", "")
+        exp_lib_str = kwargs.get("exp_lib", "")
         
         Method.inputs.update(dict(
             ctrldata=ctrldata,
@@ -313,8 +308,11 @@ class Method:
             diff_strains=diff_strains,
             annotation_path=annotation_path,
             annotation_path_exp=annotation_path,
-            combined_wig_params=combined_wig_params,
+            combined_wig_path=combined_wig_path,
+            metadata_path=metadata_path,
             do_histogram=do_histogram,
+            control_condition=control_condition,
+            experimental_condition=experimental_condition,
         ))
         Method.Run()
 
@@ -345,19 +343,19 @@ class Method:
         # 
         # Combine 
         # 
-        if self.inputs.combined_wig_params:
+        if self.inputs.combined_wig_path:
             (position, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
-                self.inputs.combined_wig_params["combined_wig"]
+                self.inputs.combined_wig_path
             )
             conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.CombinedWigMetadata.read_condition_data(
-                self.inputs.combined_wig_params["samples_metadata"]
+                self.inputs.metadata_path
             )
             condition_names = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
             datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
-                data, condition_names, self.inputs.combined_wig_params["conditions"],
+                data, condition_names, [ self.inputs.control_condition, self.inputs.experimental_condition ],
             )
-            control_condition = self.inputs.combined_wig_params["conditions"][0]
-            experimental_condition = self.inputs.combined_wig_params["conditions"][1]
+            control_condition      = self.inputs.control_condition
+            experimental_condition = self.inputs.experimental_condition
             data_ctrl = numpy.array(
                 [
                     each_dataset
