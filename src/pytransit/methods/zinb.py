@@ -208,10 +208,10 @@ class Method:
         excluded_conditions             = excluded_conditions             if excluded_conditions             is not None else []
         included_conditions             = included_conditions             if included_conditions             is not None else []
         winz                            = winz                            if winz                            is not None else False
-        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 # TODO: check later to make sure this is the correct default --Jeff
+        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 # FIXME: check later to make sure this is the correct default --Jeff
         normalization                   = normalization                   if normalization                   is not None else "TTR"
-        n_terminus                      = n_terminus                      if n_terminus                      is not None else 5.0
-        c_terminus                      = c_terminus                      if c_terminus                      is not None else 5.0
+        n_terminus                      = n_terminus                      if n_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
+        c_terminus                      = c_terminus                      if c_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
         
         transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:

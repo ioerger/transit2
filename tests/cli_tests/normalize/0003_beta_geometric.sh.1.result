@@ -1,11 +1,11 @@
 #Wig
 #yaml:
-#    date: 2022-11-10 10:28:18
+#    date: 2022-11-11 22:27:41
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'normalize' './src/pytransit/data/111_cholesterol_glycerol_combined.cwig' './tests/cli_tests/normalize/0003_beta_geometric.sh.1.result' '-n' 'betageom'
-#    time: 17.831464052200317
+#    time: 3106.1193192005157
 #    normalization: betageom
 #    original_path: ./src/pytransit/data/111_cholesterol_glycerol_combined.cwig
 #    other_data: []

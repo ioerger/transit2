@@ -2,19 +2,19 @@ attempting wx import
 attempting R import
 R imported
 [pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:826: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:867: UserWarning: 
 GO terms with at least one ORF: 3963
 
   logging.warn(
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:831: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:872: UserWarning: 
 not found: GO:0030529
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:831: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:872: UserWarning: 
 not found: GO:0015197
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:831: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:872: UserWarning: 
 not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?

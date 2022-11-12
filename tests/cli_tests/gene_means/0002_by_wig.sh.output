@@ -4,4 +4,4 @@ R imported
 [transit_tools:__enter__()] Starting GeneMeans analysis 
 [transit_tools:calc_gene_means()] Normalizing using: TTR 
 [gene_means:output()] Writing output file: ./tests/cli_tests/gene_means/0002_by_wig.sh.1.result 
-[transit_tools:__exit__()] Finished GeneMeans analysis in 2.7sec 
+[transit_tools:__exit__()] Finished GeneMeans analysis in 609.2sec 
