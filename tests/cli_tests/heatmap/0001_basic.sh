@@ -8,7 +8,7 @@ comwig="./src/pytransit/data/cholesterol_glycerol_combined.dat"
 python3 ./src/transit.py heatmap \
     ./tests/cli_tests/anova/0001_basic.sh.1.result \
     "$result_file.png" \
-    -anova
+    --anova
     # -topk <int> \
     # -qval <float> \
     # -low_mean_filter <int> \

@@ -11,5 +11,5 @@ python3 ./src/transit.py zinb \
     "$metadata" \
     "$annotation" \
     "$result_file" \
-    --group-by "Condition" 
-    # --interactions "Cholesterol"
+    -group-by "Condition" 
+    # -interactions "Cholesterol"

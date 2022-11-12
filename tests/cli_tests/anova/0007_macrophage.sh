@@ -13,7 +13,7 @@ then
         ./src/pytransit/data.ignore/macrophages_metadata.txt \
         ./src/pytransit/data/genomes/H37Rv.prot_table \
         "$result_file" \
-        --ref Untreated \
-        --exclude-conditions Input \
+        -ref Untreated \
+        -exclude-conditions Input \
         -n nonorm
 fi

@@ -16,7 +16,7 @@ python3 ./src/transit.py zinb \
     "$metadata" \
     "$annotation" \
     "$result_file" \
-    --include-conditions WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28 \
-    --condition "KO_rel" \
-    --interactions KO_5849 \
-    --gene uvrA
+    -include-conditions WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28 \
+    -condition "KO_rel" \
+    -interactions KO_5849 \
+    -gene uvrA
