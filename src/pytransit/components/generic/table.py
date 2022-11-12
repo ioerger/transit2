@@ -15,11 +15,12 @@ class Table:
     """
     estimated_row_height = 26 # TODO: this should probably be dynamically calculated somehow
     
-    def __init__(self, initial_columns=None, column_width=None, column_widths=None, min_size=(1,1), max_size=(-1, -1), frame=None):
+    def __init__(self, initial_columns=None, column_width=None, column_widths=None, min_size=(1,1), max_size=(-1, -1), soft_size=False, frame=None):
         from collections import defaultdict
         frame         = gui.frame if not frame else frame
         column_width  = column_width if column_width is not None else -1
         column_widths = column_widths or {}
+        self.soft_size = soft_size
         
         # 
         # wx_object
@@ -85,6 +86,8 @@ class Table:
         return fitted_width, fitted_height
     
     def refresh_size(self):
+        if self.soft_size:
+            return # no sizing
         min_width, min_height = self._state.min_size
         max_width, max_height = self._state.max_size
         

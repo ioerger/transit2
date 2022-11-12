@@ -240,8 +240,7 @@ def create_sample_area(frame):
         # samples.wig_table
         # 
         with Table(
-            min_size=(int(gui.width*0.7), 200),
-            max_size=(int(gui.width*0.7), 200),
+            soft_size=True
         ) as samples.wig_table:
             # 
             # show wig-specific buttons
@@ -279,8 +278,7 @@ def create_sample_area(frame):
         # samples.conditions_table
         # 
         with Table(
-            min_size=(int(gui.width*0.7), 200),
-            max_size=(int(gui.width*0.7), 200),
+            soft_size=True
         ) as samples.conditions_table:
         
             # 
