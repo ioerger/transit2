@@ -181,33 +181,59 @@ class Method:
 
         print("heatmap based on %s genes" % len(hits))
         genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
-        hash = {}
-        headers = [h.replace("Mean_", "") for h in headers]
-        for i, col in enumerate(headers):
-            hash[col] = FloatVector([x[i] for x in LFCs])
-        df = DataFrame(hash)
-        heatmapFunc = self.make_heatmap_r_func()
-        heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
-        results_area.add(self.inputs.output_path)
+        
+        # hash = {}
+        # headers = [h.replace("Mean_", "") for h in headers]
+        # for i, col in enumerate(headers):
+        #     hash[col] = FloatVector([x[i] for x in LFCs])
 
-    def make_heatmap_r_func(self):
-        r("""
-            make_heatmap = function(lfcs,genenames,outfilename) { 
-                rownames(lfcs) = genenames
-                suppressMessages(require(gplots))
-                colors <- colorRampPalette(c("red", "white", "blue"))(n = 200)
+        # df = DataFrame(hash) 
+        # heatmapFunc = self.make_heatmap_r_func()
+        # heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[self.inputs.output_path],):
+            import seaborn as sns
+            import matplotlib.pyplot as plt
+            import numpy as np
+            import pandas as pd
 
-                C = length(colnames(lfcs))
-                R = length(rownames(lfcs))
-                W = 300+C*30
-                H = 300+R*15
+            hash = {}
+            headers = [h.replace("Mean_", "") for h in headers]
+            for i, col in enumerate(headers):
+                hash[col] = FloatVector([x[i] for x in LFCs])
 
-                png(outfilename,width=W,height=H)
-                #defaults are lwid=lhei=c(1.5,4)
-                #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),lwid=c(2,6),lhei=c(0.1,2),trace="none",cexCol=1.4,cexRow=1.4,key=T) # make sure white=0
-                #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # make sure white=0 # setting margins was causing failures, so remove it 8/22/21
-                heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # actually, margins was OK, so the problem must have been with lhei and lwid
-                dev.off()
-            }
-        """)
-        return globalenv["make_heatmap"]
+            df = pd.DataFrame.from_dict(hash, orient="columns") 
+            df.index = genenames
+
+            C = len(df.columns)
+            R = len(df.index)
+            W = 300+C*30
+            H = 300+R*15
+            px = 1/plt.rcParams['figure.dpi'] 
+            plt.figure()
+            g = sns.clustermap(df,figsize=(W*px, H*px),cmap="coolwarm_r", linewidths=.5, method="complete", metric="euclidean")
+            plt.savefig(self.inputs.output_path, bbox_inches='tight')
+            #results_area.add(self.inputs.output_path)
+
+    # def make_heatmap_r_func(self):
+
+    #     r("""
+    #         make_heatmap = function(lfcs,genenames,outfilename) { 
+    #             rownames(lfcs) = genenames
+    #             suppressMessages(require(gplots))
+    #             colors <- colorRampPalette(c("red", "white", "blue"))(n = 200)
+
+    #             C = length(colnames(lfcs))
+    #             R = length(rownames(lfcs))
+    #             W = 300+C*30
+    #             H = 300+R*15
+
+    #             png(outfilename,width=W,height=H)
+    #             #defaults are lwid=lhei=c(1.5,4)
+    #             #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),lwid=c(2,6),lhei=c(0.1,2),trace="none",cexCol=1.4,cexRow=1.4,key=T) # make sure white=0
+    #             #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # make sure white=0 # setting margins was causing failures, so remove it 8/22/21
+    #             heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # actually, margins was OK, so the problem must have been with lhei and lwid
+    #             dev.off()
+    #         }
+    #     """)
+        
+    #     return globalenv["make_heatmap"]

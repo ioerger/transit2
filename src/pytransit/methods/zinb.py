@@ -522,7 +522,9 @@ class Method:
                         c_terminus=c_terminus,
                         pseudocount=pseudocount,
                         should_append_gene_descriptions=should_append_gene_descriptions,
-                    )
+                    ),
+                    
+                    summary_info=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
                 )
             
             # 
@@ -886,7 +888,7 @@ class ResultFileType1:
         # read in data
         # 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
         # 
         # get summary stats
