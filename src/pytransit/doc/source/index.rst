@@ -73,23 +73,53 @@ TRANSIT offers a variety of features including:
 
 .. toctree::
    :maxdepth: 3
-   :caption: ANALYSIS METHODS
+   :caption: PRE-PROCESSING
+
+   method_tnseq_stats
+   method_scatterplot
+   method_corrplot
+   method_normalization
+   method_gene_means
+   method_track_view
+   method_conversions
+
+.. toctree::
+   :maxdepth: 3
+   :caption: ANALYSES of single conditions
 
    method_gumbel
-   method_griffin
-   method_tn5gaps
    method_HMM
+   method_ttnfitness
+
+.. toctree::
+   :maxdepth: 3
+   :caption: ANALYSES for pairwise comparisons
+
    method_resampling
    method_Utest
+
+.. toctree::
+   :maxdepth: 3
+   :caption: ANALYSES for multiple conditions
+
    method_GI
    method_anova
    method_zinb
-   method_normalization
+
+.. toctree::
+   :maxdepth: 3
+   :caption: POST-PROCESSING
+
    method_pathway_enrichment
-   method_tnseq_stats
-   method_corrplot
    method_heatmap
-   method_ttnfitness
+   method_volcano_plot
+
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Tn5 METHODS
+
+   method_tn5gaps
 
 .. _tutorial-link:
 
