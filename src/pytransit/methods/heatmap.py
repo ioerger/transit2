@@ -1,23 +1,26 @@
-import sys
-import os
-import time
-import ntpath
-import math
-import random
-import datetime
 import collections
+import datetime
 import heapq
+import math
+import ntpath
+import os
+import random
+import sys
+import time
 
 import numpy
 
-from pytransit.generic_tools import csv, misc, informative_iterator
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.components import samples_area, results_area, parameter_panel, file_display
-
-from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, r, globalenv, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.components import (file_display, parameter_panel, results_area,
+                                  samples_area)
 from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.generic_tools import csv, informative_iterator, misc
+from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.globals import cli, debugging_enabled, gui, root_folder
+from pytransit.specific_tools import (console_tools, gui_tools, logging,
+                                      norm_tools, tnseq_tools, transit_tools)
+from pytransit.specific_tools.transit_tools import (HAS_R, DataFrame,
+                                                    FloatVector, StrVector,
+                                                    basename, globalenv, r, wx)
 
 
 @misc.singleton
@@ -191,8 +194,7 @@ class Method:
         # heatmapFunc = self.make_heatmap_r_func()
         # heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[self.inputs.output_path],):
-            import seaborn as sns
-            import matplotlib.pyplot as plt
+            
             import numpy as np
             import pandas as pd
 
@@ -200,21 +202,24 @@ class Method:
             headers = [h.replace("Mean_", "") for h in headers]
             for i, col in enumerate(headers):
                 hash[col] = FloatVector([x[i] for x in LFCs])
-
             df = pd.DataFrame.from_dict(hash, orient="columns") 
-            df.index = genenames
+           
+            make_heatmap(df, genenames, self.inputs.output_path)
 
-            C = len(df.columns)
-            R = len(df.index)
-            W = 300+C*30
-            H = 300+R*15
-            px = 1/plt.rcParams['figure.dpi'] 
-            plt.figure()
-            g = sns.clustermap(df,figsize=(W*px, H*px),cmap="coolwarm_r", linewidths=.5, method="complete", metric="euclidean")
-            plt.savefig(self.inputs.output_path, bbox_inches='tight')
-            #results_area.add(self.inputs.output_path)
+def make_heatmap(df, genenames, output_path):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    df.index = genenames
 
-    # def make_heatmap_r_func(self):
+    C = len(df.columns)
+    R = len(df.index)
+    W = 300+C*30
+    H = 300+R*15
+    px = 1/plt.rcParams['figure.dpi'] 
+    plt.figure()
+    g = sns.clustermap(df,figsize=(W*px, H*px),cmap="coolwarm_r", linewidths=.5, method="complete", metric="euclidean")
+    plt.savefig(output_path, bbox_inches='tight')
+
 
     #     r("""
     #         make_heatmap = function(lfcs,genenames,outfilename) { 

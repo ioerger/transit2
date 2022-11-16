@@ -11,7 +11,7 @@ annotation="./src/pytransit/data/mc2_155_tamu.prot_table"
 # Time Slices: 0days, 7days, 14days, 28days
 
 # asking about "KO_REL" condition
-python3 ./src/transit.py zinb \
+python3.9 ./src/transit.py zinb \
     "$comwig" \
     "$metadata" \
     "$annotation" \

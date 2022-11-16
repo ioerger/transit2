@@ -511,6 +511,8 @@ class File:
         """.replace('\n            ','\n').strip()
     
     def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
+        import pytransit.methods.heatmap as heatmap
+        import pandas as pd
         with gui_tools.nice_error_log:
             transit_tools.require_r_to_be_installed()
             
@@ -561,8 +563,8 @@ class File:
             headers = [h.replace("Mean ", "") for h in headers]
             for i, col in enumerate(headers):
                 hash[col] = FloatVector([x[i] for x in lfc_s])
-            df = DataFrame(hash)
-            transit_tools.r_heatmap_func(df, StrVector(gene_names), output_path)
+            df = pd.DataFrame.from_dict(hash, orient="columns") 
+            heatmap.make_heatmap(df, StrVector(gene_names), output_path)
             
             # add it as a result
             results_area.add(output_path)
