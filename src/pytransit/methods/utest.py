@@ -27,6 +27,7 @@ class Method:
     cli_name    = name.lower()
     description = f"""Mann-Whitney U-test of conditional essentiality"""
     menu_name   = f"{name} - {description}"
+    himar1      = True # default assume
     
     column_names = [
         "Orf",
@@ -62,10 +63,12 @@ class Method:
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
+        self.himar1 = True
         Method.define_panel(event)
     
     @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
+        self.himar1 = False
         Method.define_panel(event)
     
     def define_panel(self, _):
@@ -85,7 +88,7 @@ class Method:
             self.value_getters.n_terminus               = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus               = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.normalization            = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.include_zeros            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
+            self.value_getters.include_zeros            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=(self.himar1), tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             self.value_getters.LOESS                    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             
     
@@ -147,7 +150,7 @@ class Method:
         normalization          = normalization          if normalization          is not None else "TTR"
         n_terminus             = n_terminus             if n_terminus             is not None else 0.0
         c_terminus             = c_terminus             if c_terminus             is not None else 0.0
-        include_zeros          = include_zeros          if include_zeros          is not None else False
+        include_zeros          = include_zeros          if include_zeros          is not None else True
         LOESS                  = LOESS                  if LOESS                  is not None else False
         ignore_codon           = ignore_codon           if ignore_codon           is not None else True
         significance_threshold = significance_threshold if significance_threshold is not None else 0.05
