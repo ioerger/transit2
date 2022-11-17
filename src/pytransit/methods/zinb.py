@@ -833,12 +833,28 @@ class Method:
                   return(NULL)
                 })
               if (DEBUG) {
-                  print("Model 1:")
-                  print(f1)
-                  print(summary(mod1))
-                  print("Model 0:")
-                  print(f0)
-                  print(summary(mod0))
+                tryCatch(
+                    {
+                        print("Model 1:")
+                        print(f1)
+                        print(summary(mod1))
+                    },
+                    error=function(err) {
+                        print("Error Printing Model 1")
+                        return(NULL)
+                    }
+                )
+                tryCatch(
+                    {
+                        print("Model 0:")
+                        print(f0)
+                        print(summary(mod0))
+                    },
+                    error=function(err) {
+                        print("Error Printing Model 0")
+                        return(NULL)
+                    }
+                )
               }
 
               if (is.null(mod1) | is.null(mod0)) { return (c(1, paste0("Model Error. ", status))) }
@@ -880,6 +896,7 @@ class ResultFileType1:
                         # HANDLE_THIS
                     ],
                 ).Show(),
+                "Heatmap": lambda *args: create_heatmap,
             })
         )
         
