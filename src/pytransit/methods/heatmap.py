@@ -153,9 +153,7 @@ class Method:
         with open(self.inputs.input_path) as file:
             for line in file:
                 w = line.rstrip().split("\t")
-            if line[0] == "#" or (
-                    "P Value" in line
-                ):  # check for 'pval' for backwards compatibility
+                if line[0] == "#" or ("P Value" in line):  # check for 'pval' for backwards compatibility
                     headers = w
                     continue  # keep last comment line as headers
                 # assume first non-comment line is header

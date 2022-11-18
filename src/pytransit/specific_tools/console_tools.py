@@ -65,7 +65,7 @@ def clean_args(raw_args):
         if next_raw_argument.startswith('--'):
             kwargs[next_raw_argument] = True
         # If the current argument starts with "-", then it's a key
-        elif next_raw_argument.startswith("-"):
+        elif next_raw_argument.startswith("-") and not misc.str_is_float(next_raw_argument):
             if len(raw_args) == 0:
                 raise Exception(f'''
                     
