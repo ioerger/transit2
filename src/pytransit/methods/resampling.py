@@ -177,7 +177,7 @@ class Method:
             self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
             self.value_getters.include_zeros   = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
-            
+            self.value_getters.Z               = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Use Z-score in filtering Wald Test", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
         
     @staticmethod
     def from_gui(frame):
@@ -780,6 +780,7 @@ class Method:
         logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
+        
 
         return (data, qval)
 
@@ -812,8 +813,16 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
     
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm", "LOESS"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
+
     def __str__(self):
         return f"""
             File for {Method.identifier}

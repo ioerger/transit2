@@ -501,8 +501,13 @@ class File:
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
-    
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["conditions_list", "normalization"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
     def __str__(self):
         return f"""
             File for {Method.identifier}
