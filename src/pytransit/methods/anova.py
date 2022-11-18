@@ -446,7 +446,9 @@ class Method:
             
             # 
             # write to file
-            # 
+            #
+            mean_columns = [ f"Mean {condition_name}" for condition_name in conditions_list ] 
+            lfc_columns  = [ f"LFC {condition_name}" for condition_name in conditions_list ] 
             transit_tools.write_result(
                 path=self.inputs.output_path,
                 file_kind=Method.identifier,
@@ -455,8 +457,8 @@ class Method:
                     "Rv",
                     "Gene",
                     "TAs",
-                    *[ f"Mean {condition_name}" for condition_name in conditions_list ],
-                    *[  f"LFC {condition_name}" for condition_name in conditions_list ],
+                    *mean_columns,
+                    *lfc_columns,
                     "MSR",
                     "MSE With Alpha",
                     "Fstat",
@@ -472,6 +474,8 @@ class Method:
                         pseudocounts=self.inputs.pseudocount,
                         alpha=self.inputs.alpha,
                     ),
+                    mean_columns=mean_columns,
+                    lfc_columns=lfc_columns,
                     summary_info = dict(
                         Hits=self.hit_summary,
                     ),
@@ -511,61 +515,65 @@ class File:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
+    def create_heatmap(self, infile, output_path, topk=-1, qval_threshold=0.05, low_mean_filter=5):
         with gui_tools.nice_error_log:
-            transit_tools.require_r_to_be_installed()
             
-            headers = None
-            data, hits = [], []
-            number_of_conditions = -1
-
-            with open(infile) as file:
-                for line in file:
-                    w = line.rstrip().split("\t")
-                    if line[0] == "#" or (
-                        "P Value" in line and "Adj P Value" in line
-                    ):  # check for 'pval' for backwards compatibility
-                        headers = w
-                        continue  # keep last comment line as headers
-                    # assume first non-comment line is header
-                    if number_of_conditions == -1:
-                        # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, lfc_s) X number_of_conditions conditions)
-                        number_of_conditions = int((len(w) - 6) / 2)
-                        headers = headers[3 : 3 + number_of_conditions]
-                        headers = [x.replace("Mean ", "") for x in headers]
+            # 
+            # generic function
+            # 
+            def heatmap(condition_names, formatted_rows, output_path, top_k=-1, qval_threshold=0.05, low_mean_filter=5):
+                transit_tools.require_r_to_be_installed()
+                # 
+                # sort
+                # 
+                sorted_rows = sorted(formatted_rows, key=lambda row: row["q_value"])
+                # 
+                # filter by top_k
+                # 
+                slice_end = len(sorted_rows) if top_k == -1 else top_k
+                sorted_rows = sorted_rows[:slice_end]
+                # 
+                # filter by significant
+                # 
+                significant_rows = [ each for each in sorted_rows if each["q_value"] < qval_threshold ]
+                # translation: olways have AT LEAST top_k elements in the sorted_rows
+                if len(significant_rows) >= top_k:
+                    sorted_rows = significant_rows
+                
+                # 
+                # apply low_mean_filter
+                # 
+                gene_names, lfc_s = [], []
+                for each_row in sorted_rows:
+                    mean_of_means = round(numpy.mean(each_row["means"]), 1)
+                    if mean_of_means < low_mean_filter:
+                        print(f"""excluding {each_row["gene_name"]}, mean(means)={mean_of_means}""")
                     else:
-                        means = [
-                            float(x) for x in w[3 : 3 + number_of_conditions]
-                        ]  # take just the columns of means
-                        lfcs = [
-                            float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                        ]  # take just the columns of lfc_s
-                        each_qval = float(w[-2])
-                        data.append((w, means, lfcs, each_qval))
+                        gene_names.append(each_row["gene_name"])
+                        lfc_s.append(each_row['lfcs'])
+                
+                print(f"heatmap based on {len(gene_names)} genes")
+                condition_to_lfcs = DataFrame({
+                    condition_name : FloatVector([ each_lfc[condition_index] for each_lfc in lfc_s ])
+                        for condition_index, condition_name in enumerate(condition_names)
+                })
+                transit_tools.r_heatmap_func(condition_to_lfcs, StrVector(gene_names), output_path)
+                return output_path
             
-            data.sort(key=lambda x: x[-1])
-            hits, lfc_s = [], []
-            for k, (w, means, lfcs, each_qval) in enumerate(data):
-                if (topk == -1 and each_qval < qval) or (
-                    topk != -1 and k < topk
-                ):
-                    mm = round(numpy.mean(means), 1)
-                    if mm < low_mean_filter:
-                        print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-                    else:
-                        hits.append(w)
-                        lfc_s.append(lfcs)
-
-            print("heatmap based on %s genes" % len(hits))
-            gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
-            hash = {}
-            headers = [h.replace("Mean ", "") for h in headers]
-            for i, col in enumerate(headers):
-                hash[col] = FloatVector([x[i] for x in lfc_s])
-            df = DataFrame(hash)
-            transit_tools.r_heatmap_func(df, StrVector(gene_names), output_path)
-            
+            # 
+            # specific to anova
+            # 
+            condition_names = self.extra_data["parameters"]["conditions_list"]
+            formatted_rows  = tuple(
+                dict(
+                    gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+                    means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                    lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
+                    q_value=each_row["Adj P Value"],
+                )
+                    for each_row in self.rows
+            )
+            output_path = heatmap(condition_names, formatted_rows, output_path)
             # add it as a result
             results_area.add(output_path)
-            gui_tools.show_image(output_path)
-
+            gui_tools.show_image(output_path)    

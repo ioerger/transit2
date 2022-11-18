@@ -318,7 +318,3 @@ def cache(*args, **kwargs):
     def decorator_name(function_being_wrapped):
         return function_being_wrapped
     return decorator_name
-try:
-    from cool_cache import cache
-except ImportError as error:
-    pass
