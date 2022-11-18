@@ -218,6 +218,7 @@ def create_sample_area(frame):
                 def load_combined_wig_clear_function(event):
                     samples.wig_table.clear()
                     gui.combined_wigs.clear()
+                    samples.conditions_table.clear()
                 
                 samples.wig_header_sizer.Add(combined_wig_clear_button, proportion=1, flag=wx.EXPAND, border=0)
                 

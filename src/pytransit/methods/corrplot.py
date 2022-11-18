@@ -37,12 +37,20 @@ class Method:
         normalization="TTR", #TRI hard-coded for now
     )
     
-    valid_cli_flags = [ "avg_by_conditions" ]
+    valid_cli_flags = [
+        "--avg_by_conditions",
+        "-n",
+        "-iN",
+        "-iC",
+    ]
     #TRI - could add a flag for Adj P Value cutoff (or top n most signif genes)
 
-    # TODO: TRI - should drop anova and zinb defaults, and instead take combined_wig or gene_means file (from export)
-    #usage_string = """usage: {console_tools.subcommand_prefix} corrplot <gene_means> <output.png> [-anova|-zinb]""""
-    usage_string = f"""usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <output.png> [-avg_by_conditions <metadata_file>]"""
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
+        Optional Arguments:
+            --avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: false
+    """
     
     # 
     # CLI method

@@ -1,6 +1,15 @@
+Exception in thread Thread-1 (worker):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/jeffhykin/repos/cool_cache/main/cool_cache/__init__.py", line 113, in worker
+    pickle.dump((data.deep_hash, data.cache), cache_file, protocol=4)
+AttributeError: Can't pickle local object 'named_list.<locals>.NamedList'
 attempting wx import
 attempting R import
 R imported
 [normalize:run_normalize()] Starting Normalization 
-[normalize:run_normalize()] normalization=betageom, counts_by_wig.shape=(1, 74605) 
+[normalize:run_normalize()] normalization=betageom, counts_by_wig.shape=(5, 74605) 
 [normalize:run_normalize()] Finished Normalization 

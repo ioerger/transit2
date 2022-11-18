@@ -78,16 +78,18 @@ class Method:
         "-iC",
     ]
 
-    usage_string = f"""{console_tools.subcommand_prefix} gumbel <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} gumbel <comma-separated .wig files> <annotation_file> <output_file> [Optional Arguments]
     
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -b <integer>    :=  Number of Burn-in samples. Default -b 500
-        -m <integer>    :=  Smallest read-count to consider. Default: -m 1
-        -t <integer>    :=  Trims all but every t-th value. Default: -t 1
-        -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
-        -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+            -s <integer> := Number of samples. Default: -s 10000
+            -b <integer> := Number of Burn-in samples. Default -b 500
+            -m <integer> := Smallest read-count to consider. Default: -m 1
+            -t <integer> := Trims all but every t-th value. Default: -t 1
+            -r <string>  := How to handle replicates. Sum or Mean. Default: -r Sum
+            -iN <float>  := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
+            -iC <float>  := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)

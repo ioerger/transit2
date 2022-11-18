@@ -74,7 +74,7 @@ if True:
             def when_button_clicked(event):
                 print("do stuff")
         """
-        run_button = wx.Button(
+        a_button = wx.Button(
             panel,
             wx.ID_ANY,
             label,
@@ -82,9 +82,9 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
+        sizer.Add(a_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         def decorator(func):
-            @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
+            @gui_tools.bind_to(a_button, wx.EVT_BUTTON)
             def wrapper(*args,**kwargs):
                 with gui_tools.nice_error_log:
                     return func(*args,**kwargs)
@@ -780,8 +780,8 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         sizer.Add(10,20) # vertical padding
+        sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):

@@ -12,5 +12,5 @@ python3 ./src/transit.py pathway_enrichment \
     $DATA/H37Rv_sanger_roles.dat \
     $DATA/sanger_roles.dat \
     "$result_file" \
-    --LFC_col 6 \
+    -LFC-col 6 \
     -M GSEA

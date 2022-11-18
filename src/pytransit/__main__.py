@@ -67,7 +67,7 @@ def help_command(args=[], kwargs={}):
         )
 
 # this wrapper exist to help with test cases. Might be good to change the test cases to elimate the need for it
-def main(*args, **kwargs):
+def main(args, kwargs):
     from collections import defaultdict
     kwargs = defaultdict(lambda :None, kwargs)
     
@@ -109,7 +109,7 @@ def main(*args, **kwargs):
     # 
     # GUI Mode
     # 
-    if not (args or kwargs):
+    if not args:
         # Tried GUI but no wxPython
         if not console_tools.check_if_has_wx():
             print("Please install wxPython to run in GUI Mode. (pip install wxPython)")
@@ -162,7 +162,7 @@ def main(*args, **kwargs):
 def run_main():
     from pytransit.specific_tools.console_tools import clean_args
     (args, kwargs) = clean_args(sys.argv[1:])
-    main(*args, **kwargs)
+    main(args, kwargs)
 
 if __name__ == "__main__":
     run_main()

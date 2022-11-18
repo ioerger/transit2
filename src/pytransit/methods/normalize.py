@@ -13,9 +13,10 @@ class Method:
     name = "normalize"
     description = "Method for normalizing datasets and outputting into CombinedWig file."
     usage_string = f"""
-        {console_tools.subcommand_prefix} norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-    
-            Optional Arguments:
+        Usage:
+            {console_tools.subcommand_prefix} norm <wig_file or combined_wig_file> <output_file> [Optional Arguments]
+        
+        Optional Arguments:
             -n <string>     :=  Normalization method. Default: -n TTR
     """.replace("\n        ","\n")
     
@@ -70,17 +71,19 @@ class Method:
     @cli.add_command("normalize")
     @cli.add_command("export", "norm")
     def from_args(args, kwargs):
-        is_combined_wig = "c" in kwargs
+        from pytransit.methods.combined_wig import Method as CombinedWigMethod
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=2)
+        
+        is_combined_wig = CombinedWigMethod.file_is_combined_wig(args[0])
+        combined_wig = None
         if is_combined_wig:
-            console_tools.enforce_number_of_args(args, Method.usage_string, at_least=1)
-            infile_path = kwargs.get("c")
+            infile_path = args[0]
             combined_wig = tnseq_tools.CombinedWig.load(main_path=infile_path)
-            output_path = args[0]  # if no arg give, could print to screen
+            output_path = args[1]
         else:
             console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)
-            combined_wig = False
-            infile_path = args[0]  # only 1 input wig file
-            output_path = args[1]  # if no arg give, could print to screen
+            infile_path = args[0] # only 1 input wig file
+            output_path = args[1]
         
         Method.run_normalize(
             combined_wig=combined_wig,

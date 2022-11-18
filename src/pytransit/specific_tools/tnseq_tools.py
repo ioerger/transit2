@@ -253,11 +253,9 @@ class CombinedWigMetadata:
             index_for_condition       = column_names.index(column_name_for_condition.lower())
             index_for_wig_fingerprint = column_names.index("Filename".lower())
             # validate
-            print(f'''covars_to_read = {covars_to_read}''')
             for each in covars_to_read:
                 if each not in column_names:
                     raise Exception(f'''Tried to select {each} as a covariate, but the available covariates are: {column_names}''')
-            print(f'''interactions_to_read = {interactions_to_read}''')
             for each in interactions_to_read:
                 if each not in column_names:
                     raise Exception(f'''Tried to select {each} as an interaction, but the available interactions are: {column_names}''')
@@ -631,8 +629,23 @@ class CombinedWig:
                 )
             )
         
-        
-        
+        # Helpful check to prevent far down-the-line errors
+        if len(new_combined_wig.as_tuple.counts_by_wig) == 0:
+            if condition_names  == None: condition_names = "*All*"
+            if wig_fingerprints == None: wig_fingerprints = "*All*"
+            if wig_ids          == None: wig_ids = "*All*"
+            logging.error(f"""
+                when calling .with_only() these were the restrictions:
+                    condition_names={condition_names}
+                    wig_fingerprints={wig_fingerprints}
+                    wig_ids={wig_ids}
+                However these are the available values
+                    condition_names={self.metadata.condition_names}
+                    wig_fingerprints={self.wig_fingerprints}
+                    wig_ids={self.metadata.wig_ids}
+                So after performing a .with_only()
+                there are no samples in the resulting combined_wig
+            """)
         return new_combined_wig
         
     def summed(self, *, by_conditions=False):

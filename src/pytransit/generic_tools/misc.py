@@ -319,7 +319,6 @@ def cache(*args, **kwargs):
         return function_being_wrapped
     return decorator_name
 try:
-    import dill
     from cool_cache import cache
 except ImportError as error:
     pass

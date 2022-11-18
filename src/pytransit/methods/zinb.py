@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
+from pytransit.specific_tools.transit_tools import wx, basename, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
 from pytransit.specific_tools.tnseq_tools import ProtTable
 from pytransit.components.spreadsheet import SpreadSheet
 
@@ -34,37 +34,40 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "--exclude-conditions",
-        "--include-conditions",
-        "--ref",
+        "-exclude-conditions",
+        "-include-conditions",
+        "-ref",
         "-iN",
         "-iC",
-        "-winz",
+        "--winz",
         "-PC",
-        "--group-by",
-        "--condition",
-        "--covars",
-        "--interactions",
+        "-group-by",
+        "-condition",
+        "-covars",
+        "-interactions",
         "--append_gene_desc",
-        "--gene",
+        "-gene",
     ]
     
-    usage_string = f"""{console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table_path> <output file> [Optional Arguments]
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+        
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
-            --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
-            --ref <cond>    := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
-            -iN <float>     := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
-            -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
-            -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-            -PC <N>         := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
-            --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-            --condition     := alias for --group-by
-            --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
-            --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
-            --append_gene_desc                := the output file will have column for gene descriptions
-            --gene <RV number or Gene name>   := Run method for one gene and print model output.
+            -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
+            -include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
+            -n   <string>        :=  Normalization method. Default: -n TTR
+            -ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+            -iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
+            -iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
+            -PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
+            --winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            -group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+            -condition <string>  := alias for -group-by
+            -covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
+            -interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
+            -gene <RV number or Gene name>   := Run method for one gene and print model output.
+            --append_gene_desc               := the output_file will have column for gene descriptions
     """.replace("\n        ", "\n")
 
     @staticmethod
@@ -79,16 +82,16 @@ class Method:
         # save the data
         Method.output(
             combined_wig_path = args[0],
-            metadata_path = args[1],
-            annotation_path = args[2],
+            annotation_path = args[1],
+            metadata_path = args[2],
             output_path = args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
-            group_by=kwargs.get("-group-by", kwargs["-condition"]),
-            covars=console_tools.string_arg_to_list(kwargs["-covars"]),
-            interactions=console_tools.string_arg_to_list(kwargs["-interactions"]),
-            refs=console_tools.string_arg_to_list(kwargs["-ref"]),
-            excluded_conditions=console_tools.string_arg_to_list(kwargs["-exclude-conditions"]),
-            included_conditions=console_tools.string_arg_to_list(kwargs["-include-conditions"]),
+            group_by=kwargs.get("-group-by", kwargs["condition"]),
+            covars=console_tools.string_arg_to_list(kwargs["covars"]),
+            interactions=console_tools.string_arg_to_list(kwargs["interactions"]),
+            refs=console_tools.string_arg_to_list(kwargs["ref"]),
+            excluded_conditions=console_tools.string_arg_to_list(kwargs["exclude-conditions"]),
+            included_conditions=console_tools.string_arg_to_list(kwargs["include-conditions"]),
             winz="winz" in kwargs,
             normalization=kwargs["n"],
             n_terminus=kwargs["iN"],
@@ -134,9 +137,8 @@ class Method:
                 c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),
                 normalization=       panel_helpers.create_normalization_input(panel, main_sizer),
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
-                alpha=               panel_helpers.create_alpha_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
-                group_by=            panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Group By",     options=metadata_headers, tooltip_text="Column name (in samples_metadata) to use as the primary Condition being evaluated (to test for significant variability of insertions among conditions)."),
+                group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group By",          options=metadata_headers, default_option=None, tooltip_text="Column name (in samples_metadata) to use as the primary Condition being evaluated (to test for significant variability of insertions among conditions)."),
                 covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars",       options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to include, for the analysis. If additional covariates distinguishing the samples are available, such as library, timepoint, or genotype, they may be “factored out” of the test of the primary condition. (variation due to covars is accounted for in the model, but not considered in evaluating the effect on variability due to the primary condition)"), 
                 interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="Select covariates (cols in metadata) to include, that interact with the condition for the analysis. (variation due to these variables is included in testing the effect of the main condition)"), 
                 should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None),
@@ -380,10 +382,10 @@ class Method:
                     c1, i1 = (ic1[0], ic1[1]) if len(ic1) > 1 else (ic1[0], None)
                     c2, i2 = (ic2[0], ic2[1]) if len(ic2) > 1 else (ic2[0], None)
 
-                    # use --include-conditions to determine order of columns in output file
+                    # use -include-conditions to determine order of columns in output file
                     # this only works if an alternative --condition was not specified
                     # otherwise don't try to order them this way because it gets too complicated
-                    # possibly should require --covars and --interactions to be unspecified too
+                    # possibly should require -covars and -interactions to be unspecified too
                     if (
                         group_by == "Condition"
                         and len(included_conditions) > 0
@@ -430,7 +432,7 @@ class Method:
                             for group in ordered_stat_group_names
                     ]
                     if only_have_one_lfc_column:
-                        # TODO: still need to adapt this to use --ref if defined
+                        # TODO: still need to adapt this to use -ref if defined
                         log_fold_changes = [
                             numpy.math.log(
                                 (means_per_group[1] + pseudocount) / (means_per_group[0] + pseudocount),
@@ -762,7 +764,6 @@ class Method:
     
     @staticmethod
     def def_r_zinb_signif():
-        if not HAS_R: return lambda *args, **kwargs: Exception("You're getting this if debugging is on and you dont have R")
         from pytransit.specific_tools.transit_tools import r, globalenv
         r(
             """
@@ -834,12 +835,28 @@ class Method:
                   return(NULL)
                 })
               if (DEBUG) {
-                  print("Model 1:")
-                  print(f1)
-                  print(summary(mod1))
-                  print("Model 0:")
-                  print(f0)
-                  print(summary(mod0))
+                tryCatch(
+                    {
+                        print("Model 1:")
+                        print(f1)
+                        print(summary(mod1))
+                    },
+                    error=function(err) {
+                        print("Error Printing Model 1")
+                        return(NULL)
+                    }
+                )
+                tryCatch(
+                    {
+                        print("Model 0:")
+                        print(f0)
+                        print(summary(mod0))
+                    },
+                    error=function(err) {
+                        print("Error Printing Model 0")
+                        return(NULL)
+                    }
+                )
               }
 
               if (is.null(mod1) | is.null(mod0)) { return (c(1, paste0("Model Error. ", status))) }
@@ -881,6 +898,7 @@ class ResultFileType1:
                         # HANDLE_THIS
                     ],
                 ).Show(),
+                "Heatmap": lambda *args: create_heatmap,
             })
         )
         

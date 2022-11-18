@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.ignore.result"
+result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.result"
 annotation="./src/pytransit/data/genomes/mc2_155_tamu.prot_table"
-metadata="./src/pytransit/data/Harman_metadata_v3.ignore.txt"
-comwig="./src/pytransit/data/Harman_combined_wig_smeg_BGC.ignore.txt"
+metadata="./src/pytransit/data/harman_randomized.metadata.tsv"
+comwig="./src/pytransit/data/harman_randomized.comwig.tsv"
 
 annotation="./src/pytransit/data/mc2_155_tamu.prot_table"
 
@@ -13,9 +13,9 @@ annotation="./src/pytransit/data/mc2_155_tamu.prot_table"
 # asking about "KO_REL" condition
 python3.9 ./src/transit.py zinb \
     "$comwig" \
-    "$metadata" \
     "$annotation" \
+    "$metadata" \
     "$result_file" \
-    --include-conditions WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28 \
-    --group-by KO_rel \
-    --interactions KO_5849
+    -include-conditions WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28 \
+    -group-by KO_rel \
+    -interactions KO_5849

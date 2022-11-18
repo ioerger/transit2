@@ -10,12 +10,12 @@ comwig="./src/pytransit/data/Subu_KO_combined_wig.txt"
 
 python3 ./src/transit.py gi \
     "$comwig" \
+    "$annotation" \
     "$metadata" \
     "H37Rv_day0"\
     "H37Rv_day32" \
     "Rv2680_day0" \
     "Rv2680_day32" \
-    "$annotation" \
     "$result_file"
 
 

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# summary
+#     this just removes all of the can-be deleted files
+#     can be useful for fixing corrupted setups
+
+# if you want to add something
+#     edit the settings/during_clean/ 
+#     (add your own file to that folder like 001_clean_mything.sh)
+
+# source all the file in settings/during_clean/ in alphabetical order
+cd "$FORNIX_FOLDER"
+pip install sphinx-rtd-theme
+cd transit/src/pytransit/doc
+make clean && make html && echo 'http://localhost:8000/' && python3 -m http.server --directory ./build/html

@@ -32,16 +32,17 @@ class Method:
         "-n",  # normalization
         "-iN", # n_terminus
         "-iC", # c_terminus
-        "-cond" # averages counts over replicates of each condition
+        "--cond" # averages counts over replicates of each condition
     ]
     
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata> <prot_table> <output_file> [Optional Arguments]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -cond   :=  Averages counts over replicates of each condition
+            -n <string> :=  Normalization method. Default: -n TTR
+            -iN <N>     :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC <N>     :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            --cond      :=  Averages counts over replicates of each condition
     """.replace("\n        ", "\n")
     
     @staticmethod

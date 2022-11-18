@@ -10,10 +10,10 @@ if [ -f "src/pytransit/data.ignore/macrophages.comwig" ]
 then
     python3 ./src/transit.py anova \
         ./src/pytransit/data.ignore/macrophages.comwig \
-        ./src/pytransit/data.ignore/macrophages_metadata.txt \
         ./src/pytransit/data/genomes/H37Rv.prot_table \
+        ./src/pytransit/data.ignore/macrophages_metadata.txt \
         "$result_file" \
-        --ref Untreated \
-        --exclude-conditions Input \
+        -ref Untreated \
+        -exclude-conditions Input \
         -n nonorm
 fi

@@ -17,9 +17,11 @@ class Method:
     identifier = "CombinedWig"
     menu_name = "Combined Wig"
     usage_string = f"""
-        {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file> [-n normalization_method]
-        
-            default normalization_method=TTR
+        Usage:
+            {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation_file> <output_file> [Optional Arguments]
+            
+        Optional Arguments:
+            -n <string>     :=  Normalization method. Default: -n TTR
     """.replace("\n    ","\n")
     
     inputs = LazyDict(
@@ -30,19 +32,38 @@ class Method:
         ref=None,
     )
     
+    valid_cli_flags = [
+        "-n",
+    ]
+    
     @staticmethod
     @cli.add_command("export", "combined_wig")
     def from_args(args, kwargs):
+        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
         Method.inputs.update(dict(
-            ctrldata= args[0].split(","),
+            ctrldata=args[0].split(","),
             annotation_path=args[1],
             output_path=args[2],
-            normalization= kwargs.get("n", "TTR"),
+            normalization=kwargs.get("n", "TTR"),
         ))
         
         Method.Run()
+    
+    @staticmethod
+    def file_is_combined_wig(filepath):
+        import os
+        if os.path.exists(filepath):
+            with open(filepath,'r') as f:
+                for each in f.readlines():
+                    if not each.startswith("#"):
+                        return False
+                    elif each.startswith("#"+Method.identifier):
+                        return True
+                    elif each.startswith("#File"):
+                        return True
+        return False
         
     @gui.add_menu("Pre-Processing", "Export", menu_name)
     def on_menu_click(event):
@@ -63,7 +84,6 @@ class Method:
                     default_file_name=f"recent_export.comwig.tsv",
                     output_extensions='Common output extensions (*.comwig.tsv,*.tsv,*.csv,*.dat,*.out)|*.comwig.tsv;*.tsv;*.csv;*.dat;*.out;|\nAll files (*.*)|*.*',
                 )
-                print(f'''wig_paths = {wig_paths}''')
                 
                 # TODO: add validation here
                 

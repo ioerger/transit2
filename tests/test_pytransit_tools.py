@@ -86,7 +86,7 @@ class TestTnSeqTools(TransitTestCase):
         self.assertEqual(int(kwargs.get("p",0)), -10)
 
     def test_clean_args_flag_without_arguments(self):
-        TEST_RAWARGS = ["test", "-p"]
+        TEST_RAWARGS = ["test", "--p"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertTrue(kwargs.get("p",False))
 

@@ -13,7 +13,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 class Method:
     name = "gff_to_prot"
     menu_name = "GFF to Prot Table"
-    usage_string = f"""{console_tools.subcommand_prefix} convert gff_to_prot_table <annotation in gff format> <output file>"""
+    usage_string = f"""Usage: {console_tools.subcommand_prefix} convert gff_to_prot_table <gff_file> <output_file>"""
     
     inputs = LazyDict(
         path_to_gff=None,

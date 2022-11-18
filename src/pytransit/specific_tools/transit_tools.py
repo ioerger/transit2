@@ -693,21 +693,16 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
         combined_wig = tnseq_tools.CombinedWig.load(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
     
     assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
-    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
-
-    logging.log(f"Normalizing using: {normalization}")
-    data, factors = norm_tools.normalize_data(data, normalization)
     
-    # calculate gene means 
-    genes = tnseq_tools.Genes(
-        wig_list=[],
-        data=data,
-        annotation=combined_wig.annotation_path,
-        position=sites,
+    logging.log(f"Normalizing using: {normalization}")
+    combined_wig = combined_wig.normalized_with(kind=normalization)
+    
+    genes = combined_wig.get_genes(
         n_terminus=n_terminus,
         c_terminus=c_terminus,
     )
     
+    # calculate gene means 
     means = []
     if combined_wig.metadata_path:
         labels = combined_wig.wig_ids

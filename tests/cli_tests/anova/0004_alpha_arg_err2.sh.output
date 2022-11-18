@@ -9,5 +9,3 @@ Traceback (most recent call last):
     raise TransitError(error_message)
 pytransit.specific_tools.logging.TransitError: One of the reference conditions ['Untreated'] is not one of the available conditions: ['Cholesterol', 'Glycerol']
 
-covars_to_read = []
-interactions_to_read = []
