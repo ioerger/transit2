@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    date: 2022-11-18 11:58:43
+#    date: 2022-11-18 17:37:02
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -13,6 +13,12 @@
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
 #       alpha: 100.0
+#    mean_columns:
+#    - Mean Cholesterol
+#    - Mean Glycerol
+#    lfc_columns:
+#    - LFC Cholesterol
+#    - LFC Glycerol
 #    summary_info:
 #       Hits: '36'
 #    

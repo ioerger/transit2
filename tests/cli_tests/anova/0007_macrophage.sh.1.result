@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    date: 2022-11-18 11:59:00
+#    date: 2022-11-18 17:37:11
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -19,6 +19,24 @@
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
 #       alpha: 1000
+#    mean_columns:
+#    - Mean Untreated
+#    - Mean Tcell
+#    - Mean Rapa
+#    - Mean IL1
+#    - Mean IFNg
+#    - Mean GMCSF
+#    - Mean IFNg-GMCSF
+#    - Mean IFNab
+#    lfc_columns:
+#    - LFC Untreated
+#    - LFC Tcell
+#    - LFC Rapa
+#    - LFC IL1
+#    - LFC IFNg
+#    - LFC GMCSF
+#    - LFC IFNg-GMCSF
+#    - LFC IFNab
 #    summary_info:
 #       Hits: '443'
 #    
