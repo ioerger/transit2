@@ -81,7 +81,7 @@ class TestTnSeqTools(TransitTestCase):
         self.assertFalse((factors == numpy.ones(N)).all())
 
     def test_clean_args_negative_arguments(self):
-        TEST_RAWARGS = ["test", "--p", "-10"]
+        TEST_RAWARGS = ["test", "-p", "-10"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(int(kwargs.get("p",0)), -10)
 
