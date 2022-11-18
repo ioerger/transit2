@@ -2510,12 +2510,157 @@ def filepaths_to_fingerprints(filepaths):
 @misc.singleton
 class ProtTable:
     gene_description_index = 0
-    gene_name_index        = 8
+    index_of_gene_start    = 1
+    index_of_gene_end      = 2
+    index_of_gene_strand   = 3
+    magic_number_four      = 4
     
-    index_of_gene_start   = 1
-    index_of_gene_end   = 2
-    index_of_gene_strand = 3
-    magic_number_four  = 4
-    magic_number_six   = 6
-    magic_number_seven = 7
-    magic_number_nine  = 9
+    magic_number_six       = 6
+    magic_number_seven     = 7
+    gene_name_index        = 8
+    magic_number_nine      = 9
+
+@misc.singleton
+class GffFile:
+    GffRow = named_list((
+        # http://gmod.org/wiki/GFF3
+        # all of these can be "." or the value mentioned in the comments below
+        'seqid',      # name of the chromosome or scaffold; chromosome names can be given with or without the 'chr' prefix. Important note: the seq ID must be one used within Ensembl, i.e. a standard chromosome name or an Ensembl identifier such as a scaffold ID, without any additional content such as species or assembly. See the example GFF output below.
+        'source',     # name of the program that generated this feature, or the data source (database or project name)
+        'type',       # type of feature. Must be a term or accession from the SOFA sequence ontology
+        'start',      # Start position of the feature, with sequence numbering starting at 1.
+        'end',        # End position of the feature, with sequence numbering starting at 1.
+        'score',      # A floating point value.
+        'strand',     # defined as + (forward) or - (reverse).
+        'phase',      # One of '0', '1' or '2'. '0' indicates that the first base of the feature is the first base of a codon, '1' that the second base is the first base of a codon, and so on..
+        'attributes', # A semicolon-separated list of tag-value pairs, providing additional information about each feature. Some of these tags are predefined, e.g. ID, Name, Alias, Parent - see the GFF documentation for more details.
+    ))
+    
+    def is_definitely_not_gff3(self, path):
+        line = ""
+        with open(path) as in_file:
+            for line in in_file:
+                if line.startswith("##gff-version 3"):
+                    return False
+                if not line.startswith("#"):
+                    break
+        
+        row = line.split("\t")
+        if len(row) != 9:
+            return True
+        
+        # convert into a named list
+        row = GffFile.GffRow(row)
+        
+        # 
+        # check phase is valid
+        # 
+        if row.phase not in [ '.', '1', '2', '3' ]:
+            return True
+        # 
+        # check strand is valid
+        # 
+        if row.strand not in [ '.', '+', '-' ]:
+            return True
+        # 
+        # check score is valid
+        # 
+        if row.score != '.':
+            try:
+                row.score = float(row.score)
+            except ValueError as error:
+                return True
+        # 
+        # check start is valid
+        # 
+        if row.start != '.':
+            try:
+                row.start = int(row.start)
+            except ValueError as error:
+                return True
+        # 
+        # check end is valid
+        # 
+        if row.end != '.':
+            try:
+                row.end = int(row.end)
+            except ValueError as error:
+                return True
+        
+        # 
+        # consider having two attributes to be a "giveaway" of gff3
+        # 
+        attributes_list = row.attributes.split(";")
+        attribute_assignments = [ each.split("=") for each in attributes_list if len(each) > 0 ]
+        # each assignment should be len([varname, value]) == 2
+        if len(attribute_assignments) > 0:
+            if all(len(assignment) == 2 for assignment in attribute_assignments):
+                return False
+            else:
+                return True
+        
+        return None
+    
+    def doesnt_meet_transit_gff_requirements(self, path):
+        required_attribute_keys = [
+            "locus_tag",
+            # FIXME: confirm which are required
+            # here are some common keys:
+            #     "ID",
+            #     "Name",
+            #     "gbkey",
+            #     "gene_biotype",
+            #     "old_locus_tag",
+        ]
+        if GffFile.is_definitely_not_gff3(path):
+            return True
+        
+        comments = []
+        columns = []
+        rows = []
+        try:
+            file_as_string = ""
+            with open(filepath,'r') as f:
+                file_as_string = f.read()
+                # 
+                # fail-early test
+                # 
+                for each_required in required_attribute_keys:
+                    if each_required not in file_as_string:
+                        return True
+            
+            comments, columns, rows = csv.read(
+                string=file_as_string,
+                seperator="\t",
+                first_row_is_column_names=False,
+                column_names=GffRow.names,
+                comment_symbol="#"
+            )
+        except:
+            return True
+        
+        # convert "ID=operon001;Name=superOperon" to { "ID": "operon001", "Name": "superOperon" }
+        attributes_per_row = (
+            dict(
+                tuple(each_assignment.split("="))
+                    for each_assignment in row.attributes.split(";")
+            )
+                for row in rows
+        )
+        for attributes, row in zip(attributes_per_row, rows):
+            # skip incompatible entries
+            for each_required_key in required_attribute_keys:
+                if each_required_key not in attributes.keys():
+                    continue
+            
+            rv          = attributes["locus_tag"].strip()
+            gene        = attributes.get("gene", "").strip() or "-"
+            description = attributes.get("product", "")
+            size        = int(abs(row.end - row.start + 1) / 3)  # FIXME: why divide by 3? --Jeff
+            strand      = row.strand.strip()
+            # in prot_table form:
+            # [ description, row.start, row.end, strand, size, "-", "-", gene, rv, "-" ]
+            return False
+        
+        return True
+        

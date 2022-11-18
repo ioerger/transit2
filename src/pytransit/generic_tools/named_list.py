@@ -106,6 +106,7 @@ def named_list(names):
             names_to_index[each] = index
     
     class NamedList(NamedListBase):
+        names = names_to_index
         _names_to_index = names_to_index
             
     return NamedList

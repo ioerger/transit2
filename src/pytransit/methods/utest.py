@@ -116,6 +116,11 @@ class Method:
         if not arguments.output_path:
             return None
         
+        if arguments.control_condition == '[None]':
+            logging.error(f'''Please select control condition''')
+        if arguments.experimental_condition == '[None]':
+            logging.error(f'''Please select experimental condition''')
+        
         arguments.combined_wig = gui.combined_wigs[-1].with_only(condition_names=[ arguments.control_condition, arguments.experimental_condition ])
         Method.output(**arguments)
 

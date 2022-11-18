@@ -83,7 +83,7 @@ class Method:
                 start = int(cols[ProtTable.index_of_gene_strand])
                 end = int(cols[ProtTable.magic_number_four])
                 strand = cols[ProtTable.magic_number_six].strip()
-                size = int(abs(end - start + 1) / ProtTable.index_of_gene_strand)  # includes stop codon
+                size = int(abs(end - start + 1) / 3)  # FIXME: why divide by 3?
                 labels = {}
                 for pair in cols[ProtTable.gene_name_index].split(";"):
                     k, v = pair.split("=")
