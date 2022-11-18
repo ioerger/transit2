@@ -1,11 +1,11 @@
 #GeneMeans
 #yaml:
-#    date: 2022-11-12 13:53:26
+#    date: 2022-11-18 12:00:58
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'gene_means' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gene_means/0002_by_wig.sh.1.result'
-#    time: 3.079660654067993
+#    time: 2.195966958999634
 #    
 #ORF	Gene Name	src/pytransit/data/cholesterol_H37Rv_rep1.wig	src/pytransit/data/cholesterol_H37Rv_rep2.wig	src/pytransit/data/cholesterol_H37Rv_rep3.wig	src/pytransit/data/glycerol_H37Rv_rep1.wig	src/pytransit/data/glycerol_H37Rv_rep2.wig
 Rv0001	dnaA	0.0	0.0	0.0	0.0	0.0

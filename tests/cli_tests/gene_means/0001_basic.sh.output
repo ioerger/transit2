@@ -1,7 +1,16 @@
+Exception in thread Thread-1 (worker):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/jeffhykin/repos/cool_cache/main/cool_cache/__init__.py", line 113, in worker
+    pickle.dump((data.deep_hash, data.cache), cache_file, protocol=4)
+AttributeError: Can't pickle local object 'named_list.<locals>.NamedList'
 attempting wx import
 attempting R import
 R imported
 [transit_tools:__enter__()] Starting GeneMeans analysis 
 [transit_tools:calc_gene_means()] Normalizing using: TTR 
 [gene_means:output()] Writing output file: ./tests/cli_tests/gene_means/0001_basic.sh.1.result 
-[transit_tools:__exit__()] Finished GeneMeans analysis in 3.1sec 
+[transit_tools:__exit__()] Finished GeneMeans analysis in 2.2sec 
