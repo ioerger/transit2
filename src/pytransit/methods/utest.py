@@ -63,12 +63,12 @@ class Method:
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
-        self.himar1 = True
+        Method.himar1 = True
         Method.define_panel(event)
     
     @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
-        self.himar1 = False
+        Method.himar1 = False
         Method.define_panel(event)
     
     def define_panel(self, _):
