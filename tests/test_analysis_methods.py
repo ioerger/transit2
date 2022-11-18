@@ -23,11 +23,10 @@ from pytransit.methods.anova  import Method as AnovaMethod
 from pytransit.methods.gumbel import Method as GumbelMethod
 from pytransit.methods.hmm    import Method as HMMMethod
 from pytransit.methods.zinb   import Method as ZinbMethod
-#from pytransit.methods.utest  import Method as UTestMethod
 
 # Comparative methods
-from pytransit.methods.resampling  import Method as ResamplingMethod
-# from pytransit.methods.utest       import UTestMethod # TODO: check if utest is needed
+from pytransit.methods.resampling import Method as ResamplingMethod
+from pytransit.methods.utest      import Method as UTestMethod
 
 # Genetic Interactions
 from pytransit.methods.gi import Method as GIMethod
@@ -230,7 +229,7 @@ class TestMethods(TransitTestCase):
 
 
     def test_utest(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output]
+        args = [ combined_wig, small_annotation, samples_metadata, "Glycerol", "Cholesterol", output, ]
         try:
             method_object = UTestMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
