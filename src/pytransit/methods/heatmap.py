@@ -229,9 +229,11 @@ def make_heatmap(df, genenames, output_path):
     if os.path.isfile(output_path):
             os.remove(output_path) 
     plt.figure()
-    g = sns.clustermap(df,figsize=(W*px, H*px),cmap="coolwarm_r", linewidths=.5, method="complete", metric="euclidean")
+   
+    g = sns.clustermap(df,figsize=(W*px, H*px),cmap=sns.color_palette('blend:Red,White,Blue',  as_cmap=True), linewidths=.5, method="complete", metric="euclidean",center=0)
     x0, y0, w, h = g.cbar_pos
     g.ax_cbar.set_position([x0, 0.9, w/2, h])
+    if os.path.exists(output_path):os.remove(output_path)
     plt.savefig(output_path, bbox_inches='tight')
 
 

@@ -544,8 +544,8 @@ class File:
 
             print("heatmap based on %s genes" % len(selected_df))
             lfc_cols = [col for col in selected_df.columns if "Log 2 FC" in col]
-            heatmap_df = selected_df[lfc_cols+mean_cols]
-            heatmap_df = heatmap_df.drop(columns = ["Log 2 FC "+str(ref) for ref in self.extra_data.get("parameters",{})["refs"]])
+            heatmap_df = selected_df[lfc_cols]
+            heatmap_df.columns = heatmap_df.columns.str.replace('Log 2 FC', '')
             gene_names = selected_df["#Rv"]+"/" +selected_df["Gene"]
 
             if len(heatmap_df)<3:
