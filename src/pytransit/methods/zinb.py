@@ -898,7 +898,7 @@ class ResultFileType1:
                         # HANDLE_THIS
                     ],
                 ).Show(),
-                "Heatmap": lambda *args: create_heatmap,
+                "Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
         
@@ -929,3 +929,39 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
+    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
+        import pytransit.methods.heatmap as heatmap
+        import pandas as pd
+        with gui_tools.nice_error_log:
+            skip_count=0
+            for line in open(infile):
+                li=line.strip()
+                if li.startswith("#"):
+                    skip_count= skip_count+1
+            skip_count = skip_count -1 # the last comment line is the headers
+
+            #with open(infile) as file:
+            input_file= pd.read_csv(infile, sep="\t", skiprows=skip_count)
+            significant_df = input_file[input_file["Adj P Value"]<qval].sort_values(by="Adj P Value")
+
+            if (topk!=-1): selected_df = significant_df.head(n=topk)
+            else: selected_df = significant_df
+
+            #mean of means and filter out the ones below the low_filter
+            mean_cols = [col for col in selected_df.columns if "Mean" in col and "Non" not in col]
+            selected_df["mean_of_means"] = selected_df[mean_cols].mean(axis=1)
+
+            selected_df = selected_df[selected_df["mean_of_means"]>low_mean_filter]
+
+            print("heatmap based on %s genes" % len(selected_df))
+            lfc_cols = [col for col in selected_df.columns if "Log 2 FC" in col]
+            heatmap_df = selected_df[lfc_cols]
+            gene_names = selected_df["#Rv"]+"/" +selected_df["Gene"]
+
+            if len(heatmap_df)<3:
+                logging.error("There are not enough hits in this dataset to create a clustermap")
+            heatmap.make_heatmap(heatmap_df, StrVector(gene_names), output_path)
+            
+            # add it as a result
+            results_area.add(output_path)
+            gui_tools.show_image(output_path)

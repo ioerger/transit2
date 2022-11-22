@@ -456,7 +456,7 @@ class Method:
                     "Gene",
                     "TAs",
                     *[ f"Mean {condition_name}" for condition_name in conditions_list ],
-                    *[  f"LFC {condition_name}" for condition_name in conditions_list ],
+                    *[  f"Log 2 FC {condition_name}" for condition_name in conditions_list ],
                     "MSR",
                     "MSE With Alpha",
                     "Fstat",
@@ -471,6 +471,7 @@ class Method:
                         trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
                         pseudocounts=self.inputs.pseudocount,
                         alpha=self.inputs.alpha,
+                        refs = self.inputs.refs,
                     ),
                     summary_info = dict(
                         Hits=self.hit_summary,
@@ -520,57 +521,35 @@ class File:
         import pytransit.methods.heatmap as heatmap
         import pandas as pd
         with gui_tools.nice_error_log:
-            transit_tools.require_r_to_be_installed()
-            
-            headers = None
-            data, hits = [], []
-            number_of_conditions = -1
+            #transit_tools.require_r_to_be_installed()
+            skip_count=0
+            for line in open(infile):
+                li=line.strip()
+                if li.startswith("#"):
+                    skip_count= skip_count+1
+            skip_count = skip_count -1 # the last comment line is the headers
 
-            with open(infile) as file:
-                for line in file:
-                    w = line.rstrip().split("\t")
-                    if line[0] == "#" or (
-                        "P Value" in line and "Adj P Value" in line
-                    ):  # check for 'pval' for backwards compatibility
-                        headers = w
-                        continue  # keep last comment line as headers
-                    # assume first non-comment line is header
-                    if number_of_conditions == -1:
-                        # ANOVA header line has names of conditions, organized as 3+2*number_of_conditions+3 (2 groups (means, lfc_s) X number_of_conditions conditions)
-                        number_of_conditions = int((len(w) - 6) / 2)
-                        headers = headers[3 : 3 + number_of_conditions]
-                        headers = [x.replace("Mean ", "") for x in headers]
-                    else:
-                        means = [
-                            float(x) for x in w[3 : 3 + number_of_conditions]
-                        ]  # take just the columns of means
-                        lfcs = [
-                            float(x) for x in w[3 + number_of_conditions : 3 + number_of_conditions + number_of_conditions]
-                        ]  # take just the columns of lfc_s
-                        each_qval = float(w[-2])
-                        data.append((w, means, lfcs, each_qval))
-            
-            data.sort(key=lambda x: x[-1])
-            hits, lfc_s = [], []
-            for k, (w, means, lfcs, each_qval) in enumerate(data):
-                if (topk == -1 and each_qval < qval) or (
-                    topk != -1 and k < topk
-                ):
-                    mm = round(numpy.mean(means), 1)
-                    if mm < low_mean_filter:
-                        print("excluding %s/%s, mean(means)=%s" % (w[0], w[1], mm))
-                    else:
-                        hits.append(w)
-                        lfc_s.append(lfcs)
+            #with open(infile) as file:
+            input_file= pd.read_csv(infile, sep="\t", skiprows=skip_count)
+            significant_df = input_file[input_file["Adj P Value"]<qval].sort_values(by="Adj P Value")
 
-            print("heatmap based on %s genes" % len(hits))
-            gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
-            hash = {}
-            headers = [h.replace("Mean ", "") for h in headers]
-            for i, col in enumerate(headers):
-                hash[col] = FloatVector([x[i] for x in lfc_s])
-            df = pd.DataFrame.from_dict(hash, orient="columns") 
-            heatmap.make_heatmap(df, StrVector(gene_names), output_path)
+            if (topk!=-1): selected_df = significant_df.head(n=topk)
+            else: selected_df = significant_df
+
+            #mean of means and filter out the ones below the low_filter
+            mean_cols = [col for col in selected_df.columns if "Mean" in col and "Non" not in col]
+            selected_df["mean_of_means"] = selected_df[mean_cols].mean(axis=1)
+
+            selected_df = selected_df[selected_df["mean_of_means"]>low_mean_filter]
+
+            print("heatmap based on %s genes" % len(selected_df))
+            lfc_cols = [col for col in selected_df.columns if "Log 2 FC" in col]
+            heatmap_df = selected_df[lfc_cols+mean_cols]
+            gene_names = selected_df["#Rv"]+"/" +selected_df["Gene"]
+
+            if len(heatmap_df)<3:
+                logging.error("There are not enough hits in this dataset to create a clustermap")
+            heatmap.make_heatmap(heatmap_df, StrVector(gene_names), output_path)
             
             # add it as a result
             results_area.add(output_path)
