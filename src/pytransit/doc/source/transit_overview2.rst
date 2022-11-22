@@ -115,13 +115,18 @@ e.g. to ensure that the result is not biased by outliers (high counts) at indivi
 but rather that apparent differences in counts between conditions are reflected as a consistent trend
 over multiple TA sites in a gene.  This is a recommended practice.*
 
-Once a combined_wig file is prepared, it is often useful to :ref:`assess data quality <Quality Control>`.
-There are two methods available.  First, there is a :ref:`tnseq_stats` command,
-which will calculate various metrics for each sample, include saturation (density, percent of TA sites with non-zero insertions),
-mean read count (NZmean), as well as skewness and other statistics of the read-count distribution (for diagnositic purposes).
-This can be run at the command-line and in the GUI. Also, plots of read-count distributions
-can be generated for selected samples in the GUI (again, helpful for identifying highly skewed samples).
-A discussion about skewed samples, problems they cause, and what to do about them can be found :ref:`HERE <Quality Control>`.
+Once a combined_wig file is prepared, it can be used to
+:ref:`assess data quality <transit_quality_control>`. There are two methods
+available.  First, there is a :ref:`tnseq_stats <tnseq_stats>` command, which will
+calculate various metrics for each sample, include saturation
+(density, percent of TA sites with non-zero insertions), mean read
+count (NZmean), as well as skewness and other statistics of the
+read-count distribution (for diagnostic purposes).  This can be run at
+the command-line and in the GUI. Also, plots of read-count
+distributions can be generated for selected samples in the GUI (again,
+helpful for identifying highly skewed samples).  A discussion about
+skewed samples, the problems they cause, and what to do about them can be
+found :ref:`here <transit_quality_control>`.
 
 (also mention can do corrplots and scatterplots?)
 
