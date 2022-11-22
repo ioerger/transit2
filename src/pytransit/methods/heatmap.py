@@ -226,8 +226,12 @@ def make_heatmap(df, genenames, output_path):
     W = 300+C*30
     H = 300+R*15
     px = 1/plt.rcParams['figure.dpi'] 
+    if os.path.isfile(output_path):
+            os.remove(output_path) 
     plt.figure()
     g = sns.clustermap(df,figsize=(W*px, H*px),cmap="coolwarm_r", linewidths=.5, method="complete", metric="euclidean")
+    x0, y0, w, h = g.cbar_pos
+    g.ax_cbar.set_position([x0, 0.9, w/2, h])
     plt.savefig(output_path, bbox_inches='tight')
 
 
