@@ -148,30 +148,30 @@ class Method:
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
                     #popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     popup_sizer = wx.GridSizer(rows=3, cols=3, hgap=2, vgap=2) 
-                    win.SetSizer(popup_sizer)
+                    win.SetSizer(popup_sizer,  wx.EXPAND|wx.ALL)
 
                     
-                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.EXPAND)
+                    pathway_label_text= wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="Select A Pathway Type : ", style=wx.EXPAND)
                     popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win)
+                    pathway_type = wx.ComboBox(win, size = (250, 20))
                     pathway_type.Clear()
                     pathway_type.SetItems(list(path_to_assoc_dict.keys())+["Upload my Own Pathway file"])
                     popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND)
+                    pathway_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND, size = (250, 20))
                     popup_sizer.Add(pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
 
-                    associations_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Association : ", style=wx.EXPAND)
+                    associations_label_text= wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="Select An Association : ", style=wx.EXPAND)
                     popup_sizer.Add(associations_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    association_type = wx.ComboBox(win)
+                    association_type = wx.ComboBox(win, size = (250, 20))
                     association_type.Clear()
                     association_type.SetItems(list(assoc_to_path_dict.keys())+["Upload my Own Associations file"])
                     popup_sizer.Add(association_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    association_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND)
+                    association_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND, size = (250, 20))
                     popup_sizer.Add(association_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
           
 
-                    reset_btn = wx.Button(win, wx.ID_OK, label = "Reset Choices", size = (50,20), pos = (75,50))
+                    reset_btn = wx.Button(win, wx.ID_OK, label = "Reset Choices")
                     popup_sizer.Add(reset_btn,wx.EXPAND, gui_tools.default_padding)
 
                     
@@ -197,6 +197,10 @@ class Method:
                             else:
                                 pathway_text.SetLabel(selected_path)
                                 association_type.SetItems(path_to_assoc_dict[selected_path]+["Upload my Own Associations file"])
+                                if selected_path =="COG": 
+                                    association_type.SetValue('Mycobacterium_tuberculosis_H37Rv')
+                                    association_text.SetLabel('Mycobacterium_tuberculosis_H37Rv')
+
 
                     @gui_tools.bind_to(association_type, wx.EVT_COMBOBOX)
                     def onAssociationSelect(*args,**kwargs):
@@ -237,7 +241,8 @@ class Method:
                     
                     if res == wx.ID_OK:
                         organism_pathway = association_text.GetLabel() + "-" + pathway_text.GetLabel()
-                        organism_pathway_text.SetLabel(basename(organism_pathway or ""))
+                        display_text= association_text.GetLabel().split("_")[-1]+ "-" + pathway_text.GetLabel()
+                        organism_pathway_text.SetLabel(display_text)
                     win.Destroy()
 
             row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
@@ -285,7 +290,7 @@ class Method:
 
             self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
                 button_label="Select Pathway system", 
-                tooltip_text="We have a few Associaiton and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
+                tooltip_text="We have a few Association and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
             )
 
    
