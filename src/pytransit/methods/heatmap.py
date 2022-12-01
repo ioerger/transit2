@@ -201,6 +201,37 @@ class Method:
            
             make_heatmap(df, gene_names, self.inputs.output_path)
 
+    # @staticmethod
+    # def output():
+    #     # 
+    #     # sort
+    #     # 
+    #     sorted_rows = sorted(formatted_rows, key=lambda row: row["q_value"])
+    #     # 
+    #     # filter by top_k
+    #     # 
+    #     slice_end = len(sorted_rows) if top_k == -1 else top_k
+    #     sorted_rows = sorted_rows[:slice_end]
+    #     # 
+    #     # filter by significant
+    #     # 
+    #     significant_rows = [ each for each in sorted_rows if each["q_value"] < qval_threshold ]
+    #     # translation: olways have AT LEAST top_k elements in the sorted_rows
+    #     if len(significant_rows) >= top_k:
+    #         sorted_rows = significant_rows
+        
+    #     # 
+    #     # apply low_mean_filter
+    #     # 
+    #     gene_names, lfc_s = [], []
+    #     for each_row in sorted_rows:
+    #         mean_of_means = round(numpy.mean(each_row["means"]), 1)
+    #         if mean_of_means < low_mean_filter:
+    #             print(f"""excluding {each_row["gene_name"]}, mean(means)={mean_of_means}""")
+    #         else:
+    #             gene_names.append(each_row["gene_name"])
+    #             lfc_s.append(each_row['lfcs'])
+
 magic_number_300 = 300
 magic_number_30 = 30
 magic_number_15 = 15
@@ -211,7 +242,7 @@ def make_heatmap(df, gene_names, output_path):
     
     number_of_columns = len(df.columns)
     number_of_rows = len(df.index)
-    base_width = magic_number_300+number_of_columns*magic_number_30
+    base_width  = magic_number_300+number_of_columns*magic_number_30
     base_height = magic_number_300+number_of_rows*magic_number_15
     scale = 1/plt.rcParams['figure.dpi'] 
     if os.path.isfile(output_path):
@@ -220,6 +251,72 @@ def make_heatmap(df, gene_names, output_path):
    
     g = sns.clustermap(
         df,
+        figsize=(base_width*scale, base_height*scale),
+        cmap=sns.color_palette('blend:Red,White,Blue', as_cmap=True),
+        linewidths=.5,
+        method="complete",
+        metric="euclidean",
+        center=0,
+    )
+    x0, y0, cbar_width, cbar_height = g.cbar_pos
+    g.ax_cbar.set_position([x0, 0.9, cbar_width/2, cbar_height])
+    if os.path.exists(output_path):
+        os.remove(output_path)
+    plt.savefig(output_path, bbox_inches='tight')
+
+
+def save_significance_heatmap(column_names, formatted_rows, output_path, top_k=-1, qval_threshold=0.05, low_mean_filter=5):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
+    # 
+    # sort
+    # 
+    sorted_rows = sorted(formatted_rows, key=lambda row: row["q_value"])
+    # 
+    # filter by top_k
+    # 
+    slice_end = len(sorted_rows) if top_k == -1 else top_k
+    sorted_rows = sorted_rows[:slice_end]
+    # 
+    # filter by significant
+    # 
+    significant_rows = [ each for each in sorted_rows if each["q_value"] < qval_threshold ]
+    # translation: olways have AT LEAST top_k elements in the sorted_rows
+    if len(significant_rows) >= top_k:
+        sorted_rows = significant_rows
+    
+    # 
+    # apply low_mean_filter
+    # 
+    gene_names, lfc_s = [], []
+    for each_row in sorted_rows:
+        mean_of_means = round(numpy.mean(each_row["means"]), 1)
+        if mean_of_means < low_mean_filter:
+            print(f"""excluding {each_row["gene_name"]}, mean(means)={mean_of_means}""")
+        else:
+            gene_names.append(each_row["gene_name"])
+            lfc_s.append(each_row['lfcs'])
+    
+    print(f"heatmap based on {len(gene_names)} genes")
+    column_to_lfcs = pd.DataFrame({
+        column_name : [ each_lfc[column_index] for each_lfc in lfc_s ]
+            for column_index, column_name in enumerate(column_names)
+    })
+    
+    column_to_lfcs.index = gene_names
+    
+    number_of_columns = len(column_to_lfcs.columns)
+    number_of_rows = len(column_to_lfcs.index)
+    base_width  = magic_number_300+number_of_columns*magic_number_30
+    base_height = magic_number_300+number_of_rows*magic_number_15
+    scale = 1/plt.rcParams['figure.dpi'] 
+    if os.path.isfile(output_path):
+        os.remove(output_path) 
+    plt.figure()
+   
+    g = sns.clustermap(
+        column_to_lfcs,
         figsize=(base_width*scale, base_height*scale),
         cmap=sns.color_palette('blend:Red,White,Blue', as_cmap=True),
         linewidths=.5,

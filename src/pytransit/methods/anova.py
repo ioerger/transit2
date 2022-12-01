@@ -14,7 +14,6 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_to
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
@@ -497,13 +496,13 @@ class File:
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
-            name=basename(self.path),
+            name=os.path.basename(self.path),
             type=Method.identifier,
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
-                "Display Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                "Display Heatmap": lambda *args: self.create_heatmap(output_path=self.path+".heatmap.png"),
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
@@ -514,6 +513,7 @@ class File:
         parameters = self.extra_data.get("parameters",{})
         parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["conditions_list", "normalization"]]
         self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+    
     def __str__(self):
         return f"""
             File for {Method.identifier}
@@ -521,55 +521,28 @@ class File:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        import pytransit.methods.heatmap as heatmap
-        import pandas as pd
+    def create_heatmap(self, output_path, topk=-1, qval=0.05, low_mean_filter=5):
+        from pytransit.methods.heatmap import save_significance_heatmap
         with gui_tools.nice_error_log:
-            #transit_tools.require_r_to_be_installed()
-            skip_count=0
-            for line in open(infile):
-                li=line.strip()
-                if li.startswith("#"):
-                    skip_count= skip_count+1
-            skip_count = skip_count -1 # the last comment line is the headers
-
-            #with open(infile) as file:
-            input_file= pd.read_csv(infile, sep="\t", skiprows=skip_count)
-            significant_df = input_file[input_file["Adj P Value"]<qval].sort_values(by="Adj P Value")
-
-            if (topk!=-1): selected_df = significant_df.head(n=topk)
-            else: selected_df = significant_df
-
-            #mean of means and filter out the ones below the low_filter
-            mean_cols = [col for col in selected_df.columns if "Mean" in col and "Non" not in col]
-            selected_df["mean_of_means"] = selected_df[mean_cols].mean(axis=1)
-
-            selected_df = selected_df[selected_df["mean_of_means"]>low_mean_filter]
-
-            print("heatmap based on %s genes" % len(selected_df))
-            lfc_cols = [col for col in selected_df.columns if "Log 2 FC" in col]
-            heatmap_df = selected_df[lfc_cols]
-            heatmap_df.columns = heatmap_df.columns.str.replace('Log 2 FC', '')
-            gene_names = selected_df["#Rv"]+"/" +selected_df["Gene"]
-
-            if len(heatmap_df)<3:
-                logging.error("There are not enough hits in this dataset to create a clustermap")
-            heatmap.make_heatmap(heatmap_df, StrVector(gene_names), output_path)
-            
             # 
             # specific to anova
             # 
-            condition_names = self.extra_data["parameters"]["conditions_list"]
-            formatted_rows  = tuple(
-                dict(
-                    gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
-                    means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
-                    lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
-                    q_value=each_row["Adj P Value"],
-                )
-                    for each_row in self.rows
+            save_significance_heatmap(
+                column_names=self.extra_data["parameters"]["conditions_list"],
+                output_path=output_path,
+                top_k=topk,
+                qval_threshold=qval,
+                low_mean_filter=low_mean_filter,
+                formatted_rows=tuple(
+                    dict(
+                        gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+                        means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                        lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
+                        q_value=each_row["Adj P Value"],
+                    )
+                        for each_row in self.rows
+                ),
             )
-            output_path = heatmap(condition_names, formatted_rows, output_path)
             # add it as a result
             results_area.add(output_path)
             gui_tools.show_image(output_path)
