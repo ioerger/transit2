@@ -606,9 +606,9 @@ class Method:
         # filter: project associations (of orfs to pathways) onto only those orfs appearing in the resampling file
 
         ontology = self.read_pathways(self.inputs.pathways_file)
-        genenames = {}
+        gene_names = {}
         for gene in data:
-            genenames[gene[0]] = gene[1]
+            gene_names[gene[0]] = gene[1]
         n2 = int(len(data) / 2)
         terms = list(ontology.keys())
         terms2orfs = associations
@@ -695,7 +695,7 @@ class Method:
 
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
-            rvinfo = [(x, genenames.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
+            rvinfo = [(x, gene_names.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
             rvinfo.sort(key=lambda x: x[2])
             rvs = ["%s/%s (%s)" % x for x in rvinfo]
             rvs = " ".join(rvs)
@@ -786,9 +786,9 @@ class Method:
             rej, qvals = multitest.fdrcorrection(pvals)
             results = [x + [y] for x, y in zip(results, qvals)]
 
-            genenames = {}
+            gene_names = {}
             for gene in genes:
-                genenames[gene[0]] = gene[1]
+                gene_names[gene[0]] = gene[1]
 
             results.sort(key=lambda x: x[-2])  # pvals
             for res in results:
@@ -796,7 +796,7 @@ class Method:
                 term = res[0]
                 vals.append(pathways[term])
                 intersection = list(filter(lambda x: x in associations[term], hits))
-                intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
+                intersection = ["%s/%s" % (x, gene_names[x]) for x in intersection]
                 vals.append(" ".join(intersection))
                 self.rows.append(vals)
 

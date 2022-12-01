@@ -171,20 +171,20 @@ class HeatmapMethod(base.SingleConditionMethod):
                     LFCs.append(lfcs)
 
         print("heatmap based on %s genes" % len(hits))
-        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
+        gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
         hash = {}
         headers = [h.replace("Mean_", "") for h in headers]
         for i, col in enumerate(headers):
             hash[col] = FloatVector([x[i] for x in LFCs])
         df = DataFrame(hash)
         heatmapFunc = self.make_heatmapFunc()
-        heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
+        heatmapFunc(df, StrVector(gene_names), self.inputs.output_path)
 
     def make_heatmapFunc(self):
         r(
             """
-make_heatmap = function(lfcs,genenames,outfilename) { 
-rownames(lfcs) = genenames
+make_heatmap = function(lfcs,gene_names,outfilename) { 
+rownames(lfcs) = gene_names
 suppressMessages(require(gplots))
 colors <- colorRampPalette(c("red", "white", "blue"))(n = 200)
 

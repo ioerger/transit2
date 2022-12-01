@@ -10,17 +10,12 @@ import time
 
 import numpy
 
-from pytransit.components import (file_display, parameter_panel, results_area,
-                                  samples_area)
+from pytransit.components import file_display, parameter_panel, results_area, samples_area
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import csv, informative_iterator, misc
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.globals import cli, debugging_enabled, gui, root_folder
-from pytransit.specific_tools import (console_tools, gui_tools, logging,
-                                      norm_tools, tnseq_tools, transit_tools)
-from pytransit.specific_tools.transit_tools import (HAS_R, DataFrame,
-                                                    FloatVector, StrVector,
-                                                    basename, globalenv, r, wx)
+from pytransit.specific_tools import console_tools, gui_tools, logging, norm_tools, tnseq_tools, transit_tools
 
 
 @misc.singleton
@@ -145,7 +140,6 @@ class Method:
         Method.Run()
         
     def Run(self):
-        transit_tools.require_r_to_be_installed()
         if self.inputs.filetype != "anova" and self.inputs.filetype != "zinb":
             logging.error("filetype not recognized: %s" % self.inputs.filetype)
 
@@ -193,18 +187,9 @@ class Method:
                     LFCs.append(lfcs)
 
         print("heatmap based on %s genes" % len(hits))
-        genenames = ["%s/%s" % (w[0], w[1]) for w in hits]
+        gene_names = ["%s/%s" % (w[0], w[1]) for w in hits]
         
-        # hash = {}
-        # headers = [h.replace("Mean_", "") for h in headers]
-        # for i, col in enumerate(headers):
-        #     hash[col] = FloatVector([x[i] for x in LFCs])
-
-        # df = DataFrame(hash) 
-        # heatmapFunc = self.make_heatmap_r_func()
-        # heatmapFunc(df, StrVector(genenames), self.inputs.output_path)
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[self.inputs.output_path],):
-            
             import numpy as np
             import pandas as pd
 
@@ -214,47 +199,36 @@ class Method:
                 hash[col] = FloatVector([x[i] for x in LFCs])
             df = pd.DataFrame.from_dict(hash, orient="columns") 
            
-            make_heatmap(df, genenames, self.inputs.output_path)
+            make_heatmap(df, gene_names, self.inputs.output_path)
 
-def make_heatmap(df, genenames, output_path):
+magic_number_300 = 300
+magic_number_30 = 30
+magic_number_15 = 15
+def make_heatmap(df, gene_names, output_path):
     import matplotlib.pyplot as plt
     import seaborn as sns
-    df.index = genenames
-
-    C = len(df.columns)
-    R = len(df.index)
-    W = 300+C*30
-    H = 300+R*15
-    px = 1/plt.rcParams['figure.dpi'] 
+    df.index = gene_names
+    
+    number_of_columns = len(df.columns)
+    number_of_rows = len(df.index)
+    base_width = magic_number_300+number_of_columns*magic_number_30
+    base_height = magic_number_300+number_of_rows*magic_number_15
+    scale = 1/plt.rcParams['figure.dpi'] 
     if os.path.isfile(output_path):
-            os.remove(output_path) 
+        os.remove(output_path) 
     plt.figure()
    
-    g = sns.clustermap(df,figsize=(W*px, H*px),cmap=sns.color_palette('blend:Red,White,Blue',  as_cmap=True), linewidths=.5, method="complete", metric="euclidean",center=0)
-    x0, y0, w, h = g.cbar_pos
-    g.ax_cbar.set_position([x0, 0.9, w/2, h])
-    if os.path.exists(output_path):os.remove(output_path)
+    g = sns.clustermap(
+        df,
+        figsize=(base_width*scale, base_height*scale),
+        cmap=sns.color_palette('blend:Red,White,Blue', as_cmap=True),
+        linewidths=.5,
+        method="complete",
+        metric="euclidean",
+        center=0,
+    )
+    x0, y0, cbar_width, cbar_height = g.cbar_pos
+    g.ax_cbar.set_position([x0, 0.9, cbar_width/2, cbar_height])
+    if os.path.exists(output_path):
+        os.remove(output_path)
     plt.savefig(output_path, bbox_inches='tight')
-
-
-    #     r("""
-    #         make_heatmap = function(lfcs,genenames,outfilename) { 
-    #             rownames(lfcs) = genenames
-    #             suppressMessages(require(gplots))
-    #             colors <- colorRampPalette(c("red", "white", "blue"))(n = 200)
-
-    #             C = length(colnames(lfcs))
-    #             R = length(rownames(lfcs))
-    #             W = 300+C*30
-    #             H = 300+R*15
-
-    #             png(outfilename,width=W,height=H)
-    #             #defaults are lwid=lhei=c(1.5,4)
-    #             #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),lwid=c(2,6),lhei=c(0.1,2),trace="none",cexCol=1.4,cexRow=1.4,key=T) # make sure white=0
-    #             #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # make sure white=0 # setting margins was causing failures, so remove it 8/22/21
-    #             heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # actually, margins was OK, so the problem must have been with lhei and lwid
-    #             dev.off()
-    #         }
-    #     """)
-        
-    #     return globalenv["make_heatmap"]
