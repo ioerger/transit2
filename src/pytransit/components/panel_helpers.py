@@ -512,7 +512,7 @@ if True:
             panel,
             label_text="Normalization: ",
             options=Method.options,
-            tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+            tooltip_text="Choice of normalization method. The default choice is TTR (trimmed total reads). See documentation for a description other methods.",
         )
         sizer.Add(normalization_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         # return a value-getter
@@ -557,7 +557,7 @@ if True:
             panel,
             label_text="Ref Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
-            tooltip_text="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+            tooltip_text="Which condition to use as a reference for calculating LFCs. If no ref given, this compares against grand mean of all conditions.",
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
@@ -669,7 +669,7 @@ if True:
             sizer,
             label_text="Ignore N-Terminus %:",
             default_value="0",
-            tooltip_text="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+            tooltip_text="Ignore TA sites in a given fraction of the N-terminal end of the ORF. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
         )
         return lambda *args: float(get_text())
     
@@ -679,11 +679,11 @@ if True:
             sizer,
             label_text="Ignore C-Terminus %:",
             default_value="0",
-            tooltip_text="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+            tooltip_text="Ignore TA sites in a given fraction of the C-terminal end of the ORF. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_input(panel, sizer, default_value="5", tooltip = "Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC."):
+    def create_pseudocount_input(panel, sizer, default_value="5", tooltip = "Pseudo-counts used in calculating log-fold-change. Note: pseudocounts do not affect P values. Useful to dampen the effects of small counts which may lead to deceptively high LFC."):
         # 
         # text input: Pseudocount
         # 
@@ -692,7 +692,7 @@ if True:
             sizer,
             label_text="Pseudocount:",
             default_value=default_value,
-            tooltip_text= tooltip
+            tooltip_text=tooltip
         )
         return lambda *args: float(get_text())
     
@@ -703,7 +703,7 @@ if True:
             sizer,
             label_text="Alpha:",
             default_value=default_value,
-            tooltip_text=" Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha). This is helpful because genes with very low counts are occasionally ranked as significant by traditional ANOVA, even though the apparent variability is probably due to noise. Setting alpha to a number like 1000 helps filter out these irrelevant genes by reducing their significance. If you want to emulate the standard ANOVA test, you can set alpha to 0.",    
+            tooltip_text="Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha). Note: this value does affect P values. This is helpful because genes with very low counts are occasionally ranked as significant by traditional ANOVA, even though the apparent variability is probably due to noise. Setting alpha to a number like 1000 helps filter out these irrelevant genes by reducing their significance. If you want to emulate the standard ANOVA test, you can set alpha to 0.",    
         )
         return lambda *args: int(get_text())
     
@@ -718,9 +718,9 @@ if True:
     
     def create_selected_condition_names_input(panel, sizer, default_value=False):
         check_box_getter = create_check_box_getter(panel, sizer,
-            label_text="Only Selected Conditions",
+            label_text="Use only selected conditions",
             default_value=default_value,
-            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
+            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on. When not checked, all conditions are used.",
         )
         def wrapper(*args, **kwargs):
             is_checked = check_box_getter(*args, **kwargs)
