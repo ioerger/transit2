@@ -23,6 +23,7 @@ import pytransit.components.results_area as results_area
 class Method:
     identifier  = "Tnseq Stats"
     cli_name    = identifier.replace(" ","_").lower()
+    identifier  = "TnseqStats"
     menu_name   = f"{identifier} - Analyze statistics of TnSeq datasets"
     description = """Analyze statistics of TnSeq datasets in combined_wig file"""
     
@@ -104,7 +105,7 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         
         wig_or_combined_wig = console_tools.string_arg_to_list(args[0])
-        output_path = args[1] if len(args > 1) else None
+        output_path = args[1] if len(args) > 1 else None
         normalization = kwargs.get("n", Method.inputs.normalization)
 
         if len(wig_or_combined_wig) > 1:
