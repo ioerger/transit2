@@ -521,17 +521,17 @@ class File:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        from pytransit.methods.heatmap import save_significance_heatmap
+    def create_heatmap(self, output_path, topk=None, qval=None, low_mean_filter=None):
+        from pytransit.methods.heatmap import Method as HeatmapMethod
         with gui_tools.nice_error_log:
             # 
             # specific to anova
             # 
-            save_significance_heatmap(
+            HeatmapMethod.output(
                 column_names=self.extra_data["parameters"]["conditions_list"],
                 output_path=output_path,
                 top_k=topk,
-                qval_threshold=qval,
+                q_value_threshold=qval,
                 low_mean_filter=low_mean_filter,
                 formatted_rows=tuple(
                     dict(

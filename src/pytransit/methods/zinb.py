@@ -482,19 +482,20 @@ class Method:
                 # column_names
                 # 
                 if only_have_one_lfc_column:
-                    lfc_names = [ "Log 2 FC" ]
+                    lfc_columns = [ "Log 2 FC" ]
                 else:
-                    lfc_names = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
+                    lfc_columns = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
                 
+                mean_columns = [
+                        "Mean "+each_name
+                            for each_name in headers_stat_group_names
+                ]
                 column_names = [
                     "Rv",
                     "Gene",
                     "TA Sites",
-                    *[
-                        "Mean "+each_name
-                            for each_name in headers_stat_group_names
-                    ],
-                    *lfc_names,
+                    *mean_columns,
+                    *lfc_columns,
                     *[
                         "Non Zero Mean "+each_name
                             for each_name in headers_stat_group_names
@@ -525,7 +526,9 @@ class Method:
                         pseudocount=pseudocount,
                         should_append_gene_descriptions=should_append_gene_descriptions,
                     ),
-                    
+                    group_names=headers_stat_group_names,
+                    lfc_columns=lfc_columns,
+                    mean_columns=mean_columns,
                     summary_info=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
                 )
             
@@ -875,7 +878,7 @@ class Method:
         return globalenv["zinb_signif"]
         
 @transit_tools.ResultsFile
-class ResultFileType1:
+class File:
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Method.identifier)
@@ -929,40 +932,28 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
-    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
-        import pytransit.methods.heatmap as heatmap
-        import pandas as pd
+    def create_heatmap(self, output_path, topk=None, qval=None, low_mean_filter=None):
+        from pytransit.methods.heatmap import Method as HeatmapMethod
         with gui_tools.nice_error_log:
-            skip_count=0
-            for line in open(infile):
-                li=line.strip()
-                if li.startswith("#"):
-                    skip_count= skip_count+1
-            skip_count = skip_count -1 # the last comment line is the headers
-
-            #with open(infile) as file:
-            input_file= pd.read_csv(infile, sep="\t", skiprows=skip_count)
-            significant_df = input_file[input_file["Adj P Value"]<qval].sort_values(by="Adj P Value")
-
-            if (topk!=-1): selected_df = significant_df.head(n=topk)
-            else: selected_df = significant_df
-
-            #mean of means and filter out the ones below the low_filter
-            mean_cols = [col for col in selected_df.columns if "Mean" in col and "Non" not in col]
-            selected_df["mean_of_means"] = selected_df[mean_cols].mean(axis=1)
-
-            selected_df = selected_df[selected_df["mean_of_means"]>low_mean_filter]
-
-            print("heatmap based on %s genes" % len(selected_df))
-            lfc_cols = [col for col in selected_df.columns if "Log 2 FC" in col]
-            heatmap_df = selected_df[lfc_cols]
-            heatmap_df.columns = heatmap_df.columns.str.replace('Log 2 FC', '')
-            gene_names = selected_df["#Rv"]+"/" +selected_df["Gene"]
-
-            if len(heatmap_df)<3:
-                logging.error("There are not enough hits in this dataset to create a clustermap")
-            heatmap.make_heatmap(heatmap_df, StrVector(gene_names), output_path)
-            
+            # 
+            # specific to zinb
+            # 
+            HeatmapMethod.output(
+                column_names=self.extra_data["parameters"]["group_names"],
+                output_path=output_path,
+                top_k=topk,
+                q_value_threshold=qval,
+                low_mean_filter=low_mean_filter,
+                formatted_rows=tuple(
+                    dict(
+                        gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+                        means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                        lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
+                        q_value=each_row["Adj P Value"],
+                    )
+                        for each_row in self.rows
+                ),
+            )
             # add it as a result
             results_area.add(output_path)
             gui_tools.show_image(output_path)
