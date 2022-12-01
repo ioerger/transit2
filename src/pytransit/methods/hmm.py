@@ -644,6 +644,11 @@ class SitesFile:
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         #self.values_for_result_table.update({" ":""})
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["replicates","normalization", "loess_correction"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
             
     
     def __str__(self):
@@ -702,8 +707,10 @@ class GeneFile:
         #
         summary = self.extra_data.get("Summary Of Gene Calls", {})
         summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())]  
-        self.values_for_result_table.update({"Essentiality Calls": "; ".join(summary_str) })
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
     
+        
+
     def __str__(self):
         return f"""
             File for {Method.identifier}

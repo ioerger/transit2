@@ -726,7 +726,12 @@ class ResultFileType1:
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         summary = self.extra_data["Summary_Of_Genetic_Interactions"]
         summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
-        self.values_for_result_table.update({"Genetic Interaction Summary": "; ".join(summary_str) })
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+        #self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["Number_Of_Samples_For_Monte_Carlo","Normalization_Of_Counts","ROPE","Method_For_Determining_Significance"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
         
        
     

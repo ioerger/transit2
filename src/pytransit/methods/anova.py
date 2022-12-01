@@ -448,7 +448,7 @@ class Method:
             # write to file
             #
             mean_columns = [ f"Mean {condition_name}" for condition_name in conditions_list ] 
-            lfc_columns  = [ f"LFC {condition_name}" for condition_name in conditions_list ] 
+            lfc_columns  = [ f"Log 2 FC {condition_name}" for condition_name in conditions_list ] 
             transit_tools.write_result(
                 path=self.inputs.output_path,
                 file_kind=Method.identifier,
@@ -473,6 +473,7 @@ class Method:
                         trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
                         pseudocounts=self.inputs.pseudocount,
                         alpha=self.inputs.alpha,
+                        refs = self.inputs.refs,
                     ),
                     mean_columns=mean_columns,
                     lfc_columns=lfc_columns,
@@ -506,8 +507,13 @@ class File:
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
-    
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["conditions_list", "normalization"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
     def __str__(self):
         return f"""
             File for {Method.identifier}
@@ -515,50 +521,40 @@ class File:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, infile, output_path, topk=-1, qval_threshold=0.05, low_mean_filter=5):
+    def create_heatmap(self, infile, output_path, topk=-1, qval=0.05, low_mean_filter=5):
+        import pytransit.methods.heatmap as heatmap
+        import pandas as pd
         with gui_tools.nice_error_log:
-            
-            # 
-            # generic function
-            # 
-            def heatmap(condition_names, formatted_rows, output_path, top_k=-1, qval_threshold=0.05, low_mean_filter=5):
-                transit_tools.require_r_to_be_installed()
-                # 
-                # sort
-                # 
-                sorted_rows = sorted(formatted_rows, key=lambda row: row["q_value"])
-                # 
-                # filter by top_k
-                # 
-                slice_end = len(sorted_rows) if top_k == -1 else top_k
-                sorted_rows = sorted_rows[:slice_end]
-                # 
-                # filter by significant
-                # 
-                significant_rows = [ each for each in sorted_rows if each["q_value"] < qval_threshold ]
-                # translation: olways have AT LEAST top_k elements in the sorted_rows
-                if len(significant_rows) >= top_k:
-                    sorted_rows = significant_rows
-                
-                # 
-                # apply low_mean_filter
-                # 
-                gene_names, lfc_s = [], []
-                for each_row in sorted_rows:
-                    mean_of_means = round(numpy.mean(each_row["means"]), 1)
-                    if mean_of_means < low_mean_filter:
-                        print(f"""excluding {each_row["gene_name"]}, mean(means)={mean_of_means}""")
-                    else:
-                        gene_names.append(each_row["gene_name"])
-                        lfc_s.append(each_row['lfcs'])
-                
-                print(f"heatmap based on {len(gene_names)} genes")
-                condition_to_lfcs = DataFrame({
-                    condition_name : FloatVector([ each_lfc[condition_index] for each_lfc in lfc_s ])
-                        for condition_index, condition_name in enumerate(condition_names)
-                })
-                transit_tools.r_heatmap_func(condition_to_lfcs, StrVector(gene_names), output_path)
-                return output_path
+            #transit_tools.require_r_to_be_installed()
+            skip_count=0
+            for line in open(infile):
+                li=line.strip()
+                if li.startswith("#"):
+                    skip_count= skip_count+1
+            skip_count = skip_count -1 # the last comment line is the headers
+
+            #with open(infile) as file:
+            input_file= pd.read_csv(infile, sep="\t", skiprows=skip_count)
+            significant_df = input_file[input_file["Adj P Value"]<qval].sort_values(by="Adj P Value")
+
+            if (topk!=-1): selected_df = significant_df.head(n=topk)
+            else: selected_df = significant_df
+
+            #mean of means and filter out the ones below the low_filter
+            mean_cols = [col for col in selected_df.columns if "Mean" in col and "Non" not in col]
+            selected_df["mean_of_means"] = selected_df[mean_cols].mean(axis=1)
+
+            selected_df = selected_df[selected_df["mean_of_means"]>low_mean_filter]
+
+            print("heatmap based on %s genes" % len(selected_df))
+            lfc_cols = [col for col in selected_df.columns if "Log 2 FC" in col]
+            heatmap_df = selected_df[lfc_cols]
+            heatmap_df.columns = heatmap_df.columns.str.replace('Log 2 FC', '')
+            gene_names = selected_df["#Rv"]+"/" +selected_df["Gene"]
+
+            if len(heatmap_df)<3:
+                logging.error("There are not enough hits in this dataset to create a clustermap")
+            heatmap.make_heatmap(heatmap_df, StrVector(gene_names), output_path)
             
             # 
             # specific to anova
@@ -576,4 +572,4 @@ class File:
             output_path = heatmap(condition_names, formatted_rows, output_path)
             # add it as a result
             results_area.add(output_path)
-            gui_tools.show_image(output_path)    
+            gui_tools.show_image(output_path)

@@ -316,8 +316,9 @@ class ResultFileType1:
         # get summary stats
         #
         number_of_significant = self.extra_data["stats"]["number_of_significant_genes"]
+
         self.values_for_result_table.update({
-            " ": f"{number_of_significant} significant conditionally essential genes",
+            "summary": f"{number_of_significant} significant conditionally essential genes",
         })
     
     def __str__(self):
