@@ -141,6 +141,22 @@ meaningful.  The reason it is not easy to boil all these down to a
 simple set of criteria is that some some of the metrics interact with
 each other.  
 
+What to do about Skewed Samples?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Skewed samples have excessively high counts and one or a few TA sites, which causes
+lower counts at all the other TA sites in the genome.
+
+If you have multiple replicates for a condition, and one of them is
+skewed, you could consider dropping it from the analysis (e.g. by
+commenting it out of the metadata file).  The reduction in statistical
+sensitivity by dropping a replicate can often be offset by the gain in
+accuracy of essentiality calls from removing the noise contributed by
+the skewed sample.
+
+Another option is to apply BGC normalization to the .wig file of a skewed sample (or to all the samples
+in a combined_wig file), as described in the next section.
+
 
 .. _BGC:
 

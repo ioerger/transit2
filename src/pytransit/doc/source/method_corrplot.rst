@@ -17,6 +17,10 @@ correlated with all the others (which subsequently might be excluded from analys
 and relies on the 'corrplot' R package.
 See :ref:`Installation Instructions <install-zinb>`.
 
+
+NEW: how to select samples in CLI or GUI...
+
+
 Usage:
 ------
 
