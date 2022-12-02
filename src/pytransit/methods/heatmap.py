@@ -122,9 +122,9 @@ class Method:
             filetype="anova" if kwargs["anova"] else "zinb",
             input_path        = args[0],
             output_path       = args[1],
-            q_value_threshold = float(kwargs["qval"]),
-            top_k             = int(kwargs["topk"]),
-            low_mean_filter   = int(kwargs["low-mean-filter"]) , # filter out genes with grandmean<5 by default
+            q_value_threshold = kwargs["qval"],
+            top_k             = kwargs["topk"],
+            low_mean_filter   = kwargs["low-mean-filter"], # filter out genes with grandmean<5 by default
         )
         
     @staticmethod
@@ -138,9 +138,9 @@ class Method:
         
     @staticmethod
     def output(column_names, formatted_rows, output_path, top_k=None, q_value_threshold=None, low_mean_filter=None):
-        top_k           = top_k            if top_k           != None  else Method.defaults.top_k
-        q_value_threshold  = q_value_threshold   if q_value_threshold  != None  else Method.defaults.q_value_threshold
-        low_mean_filter = low_mean_filter  if low_mean_filter != None  else Method.defaults.low_mean_filter
+        top_k              = int(top_k)               if top_k              != None  else Method.defaults.top_k
+        q_value_threshold  = float(q_value_threshold) if q_value_threshold  != None  else Method.defaults.q_value_threshold
+        low_mean_filter    = int(low_mean_filter)     if low_mean_filter    != None  else Method.defaults.low_mean_filter
         
         import matplotlib.pyplot as plt
         import seaborn as sns
