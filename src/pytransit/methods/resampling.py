@@ -60,7 +60,6 @@ class Method:
         "-n",
         "--h",
         "--a",
-        "--ez",
         "-PC",
         "--l",
         "-iN",
@@ -80,7 +79,6 @@ class Method:
         normalization="TTR",
         samples=10000,
         adaptive=False,
-        include_zeros=True, # FIXME: include_zeros=False breaks resampling (even on master I believe), TODO: only remove if zeros if in both ctrl and experimental
         pseudocount=1,
         replicates="Sum",
         LOESS=False,
@@ -109,8 +107,6 @@ class Method:
             -s <integer>        :=  Number of samples. Default: -s 10000
             -n <string>         :=  Normalization method. Default: -n TTR
             --a                 :=  Perform adaptive resampling. Default: Turned Off.
-            --ez                :=  Exclude rows with zero across conditions. Default: Turned off
-                                    (i.e. include rows with zeros).
             -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
             --l                 :=  Perform LOESS Correction; Helps remove possible genomic position bias.
                                     Default: Turned Off.
@@ -174,7 +170,6 @@ class Method:
             self.value_getters.LOESS           = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
             self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.include_zeros   = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             self.value_getters.Z               = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Use Z-score in filtering Wald Test", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
         
     @staticmethod
@@ -277,7 +272,6 @@ class Method:
         adaptive      = kwargs.get("a", Method.inputs.adaptive)
         replicates    = kwargs.get("r", Method.inputs.replicates)
         do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
-        include_zeros = not kwargs.get("ez", not Method.inputs.include_zeros)
         pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
         Z = True if "Z" in kwargs else False
         LOESS = kwargs.get("l", False)
@@ -294,7 +288,6 @@ class Method:
             normalization=normalization,
             samples=samples,
             adaptive=adaptive,
-            include_zeros=include_zeros,
             pseudocount=pseudocount,
             replicates=replicates,
             LOESS=LOESS,
@@ -533,7 +526,6 @@ class Method:
                         norm=self.inputs.normalization,
                         histograms=self.inputs.do_histogram,
                         adaptive=self.inputs.adaptive,
-                        exclude_zeros=not self.inputs.include_zeros,
                         pseudocounts=self.inputs.pseudocount,
                         LOESS=self.inputs.LOESS,
                         n_terminus=self.inputs.n_terminus,
@@ -669,12 +661,8 @@ class Method:
                 data1      = [0]
                 data2      = [0]
             else:
-                if not self.inputs.include_zeros:
-                    ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
-                    ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
-                else:
-                    ii_ctrl = numpy.ones(gene.n) == 1
-                    ii_exp = numpy.ones(gene_exp.n) == 1
+                ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
+                ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
                 data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22

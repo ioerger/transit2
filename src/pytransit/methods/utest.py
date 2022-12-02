@@ -88,7 +88,6 @@ class Method:
             self.value_getters.n_terminus               = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus               = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.normalization            = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.include_zeros            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=(self.himar1), tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
             self.value_getters.LOESS                    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             
     
@@ -143,19 +142,17 @@ class Method:
             normalization=kwargs["n"],
             n_terminus=kwargs["iN"],
             c_terminus=kwargs["iC"],
-            include_zeros=kwargs["iz"],
             LOESS="l" in kwargs,
         )
     
     @staticmethod
-    def output(*, combined_wig, control_condition, experimental_condition, output_path, normalization=None, n_terminus=None, c_terminus=None, include_zeros=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
+    def output(*, combined_wig, control_condition, experimental_condition, output_path, normalization=None, n_terminus=None, c_terminus=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
         import scipy.stats
         from pytransit.specific_tools import stat_tools
         # Defaults (even if argument directly provided as None)
         normalization          = normalization          if normalization          is not None else "TTR"
         n_terminus             = n_terminus             if n_terminus             is not None else 0.0
         c_terminus             = c_terminus             if c_terminus             is not None else 0.0
-        include_zeros          = include_zeros          if include_zeros          is not None else True
         LOESS                  = LOESS                  if LOESS                  is not None else False
         ignore_codon           = ignore_codon           if ignore_codon           is not None else True
         significance_threshold = significance_threshold if significance_threshold is not None else 0.05
@@ -199,11 +196,7 @@ class Method:
                     u_stat     = 0.0
                     pval_2tail = 1.0
                 else:
-                    # FIXME: needs same fix as resampling I believe
-                    if not include_zeros:
-                        ii = numpy.sum(gene.reads, 0) > 0
-                    else:
-                        ii = numpy.ones(gene.n) == 1
+                    ii = numpy.sum(gene.reads, 0) > 0
 
                     data1 = gene.reads[:number_of_control_wigs, ii].flatten()
                     data2 = gene.reads[number_of_control_wigs:, ii].flatten()
