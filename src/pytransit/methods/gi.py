@@ -599,10 +599,11 @@ class Method:
         suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
 
         annot = {}
-        for line in open(self.inputs.annotation_path):
-            cells = line.rstrip().split('\t')
-            gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
-            annot[gene_name] = cells[0]
+        with open(self.inputs.annotation_path) as file:
+            for line in file:
+                cells = line.rstrip().split('\t')
+                gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
+                annot[gene_name] = cells[0]
         
         # 
         # format into rows
