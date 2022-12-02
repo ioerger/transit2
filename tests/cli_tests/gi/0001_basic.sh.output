@@ -62,27 +62,9 @@ R imported
  Running GI Method...  98.0%   [gi:calc_gi()] analyzing Rv0050 (98.0% done) 
  Running GI Method... 100.0%   [gi:calc_gi()] analyzing Rv0051 (100.0% done) 
 [gi:Run()] Adding File: ./tests/cli_tests/gi/0001_basic.sh.1.result 
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
-    main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/gi.py", line 222, in from_args
-    Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/gi.py", line 284, in Run
-    self.print_gi_results(results,adjusted_label,condA1,condA2,condB1,condB2,metadata)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/gi.py", line 602, in print_gi_results
-    for line in open(self.inputs.annotation_path):
-  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
-    sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
-    traceback.print_stack(file=log)
-/Users/jeffhykin/repos/transit/src/pytransit/methods/gi.py:602: ResourceWarning: unclosed file <_io.TextIOWrapper name='./src/pytransit/data/genomes/H37Rv_dev.prot_table' mode='r' encoding='UTF-8'>
-  for line in open(self.inputs.annotation_path):
 [gi:print_gi_results()] Adding File: ./tests/cli_tests/gi/0001_basic.sh.1.result 
 [gi:print_gi_results()] Finished Genetic Interactions Method 
 [gi:Run()] Summary of genetic interactions: aggravating=0, alleviating=0, suppressive=0 
-[gi:Run()] Time: 47.5s
+[gi:Run()] Time: 48.1s
 [gi:Run()]  
 [gi:Run()] Finished Genetic Interaction analysis 
