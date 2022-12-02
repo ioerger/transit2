@@ -68,7 +68,6 @@ class Method:
         "-exp_lib",
         "--winz",
         "--sr",
-        "--Z",
     ]
     
     inputs = LazyDict(
@@ -87,7 +86,6 @@ class Method:
         ctrl_lib_str="",
         exp_lib_str="",
         winz=False,
-        Z=False,
         diff_strains=False,
         annotation_path_exp="",
         do_histogram=False,
@@ -164,9 +162,8 @@ class Method:
             self.value_getters.pseudocount     = panel_helpers.create_pseudocount_input(panel, main_sizer)
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer)
             self.value_getters.site_restricted = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
-            self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
-            self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.Z               = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Use Z-score in filtering Wald Test", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
+            self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be slightly less accurate (p-values within a factor of 2 to 3).")
+            self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram (null distributions for the difference of mean counts) of the ORFs. Histogram images are created in a folder with the same name as the output file.")
         
     @staticmethod
     def from_gui(frame):
@@ -269,7 +266,6 @@ class Method:
         replicates    = kwargs.get("r", Method.inputs.replicates)
         do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
         pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
-        Z = True if "Z" in kwargs else False
         ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
         c_terminus = float(kwargs.get("iC", 0.00))
@@ -291,7 +287,6 @@ class Method:
             ctrl_lib_str=ctrl_lib_str,
             exp_lib_str=exp_lib_str,
             winz=winz,
-            Z=Z,
             diff_strains=diff_strains,
             annotation_path=annotation_path,
             annotation_path_exp=annotation_path,
@@ -442,55 +437,26 @@ class Method:
                     log2FC,
                     pval_2tail,
                 ) = row
-                if self.inputs.Z == True:
-                    p = pval_2tail / 2  # convert from 2-sided back to 1-sided
-                    if p == 0:
-                        p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
-                    if p == 1:
-                        p = 1 - 1e-5
-                    z = scipy.stats.norm.ppf(p)
-                    if log2FC > 0:
-                        z *= -1
-                    rows.append(
-                        (
-                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f"
-                            % (
-                                orf,
-                                name,
-                                desc,
-                                n,
-                                mean1,
-                                mean2,
-                                log2FC,
-                                sum1,
-                                sum2,
-                                test_obs,
-                                pval_2tail,
-                                z,
-                                qval[row_index],
-                            )
-                        ).split('\t')
-                    )
-                else:
-                    rows.append(
-                        (
-                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
-                            % (
-                                orf,
-                                name,
-                                desc,
-                                n,
-                                mean1,
-                                mean2,
-                                log2FC,
-                                sum1,
-                                sum2,
-                                test_obs,
-                                pval_2tail,
-                                qval[row_index],
-                            )
-                        ).split('\t')
-                    )
+                rows.append(
+                    (
+                        "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
+                        % (
+                            orf,
+                            name,
+                            desc,
+                            n,
+                            mean1,
+                            mean2,
+                            log2FC,
+                            sum1,
+                            sum2,
+                            test_obs,
+                            pval_2tail,
+                            qval[row_index],
+                        )
+                    ).split('\t')
+                )
+                    
             
             # 
             # write to file
@@ -499,21 +465,7 @@ class Method:
                 path=self.inputs.output_path,
                 file_kind=Method.identifier,
                 rows=rows,
-                column_names=Method.column_names if not self.inputs.Z else [
-                    "ORF",
-                    "Gene Name",
-                    "Description",
-                    "Sites",
-                    "Mean Control",
-                    "Mean Experimental",
-                    "Log 2 FC",
-                    "Sum Control",
-                    "Sum Experimental",
-                    "Delta Mean",
-                    "P Value",
-                    "Z Score",
-                    "Adj P Value",
-                ],
+                column_names=Method.column_names,
                 extra_info=dict(
                     parameters=dict(
                         samples=self.inputs.samples,
