@@ -165,7 +165,7 @@ class Method:
             
             self.value_getters.ctrldata        = panel_helpers.create_control_condition_input(panel, main_sizer)
             self.value_getters.expdata         = panel_helpers.create_experimental_condition_input(panel, main_sizer)
-            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
+            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of permutations [Monte Carlo] to try when generating the null distribution for each gene")
             self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.pseudocount     = panel_helpers.create_pseudocount_input(panel, main_sizer)

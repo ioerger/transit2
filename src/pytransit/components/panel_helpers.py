@@ -642,7 +642,7 @@ if True:
             panel,
             label_text="Control Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
-            tooltip_text="which condition(s) to use as the control group",
+            tooltip_text="In a comparison of a treatment vs. control condition, this is the control condition to be used as reference",
             label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
@@ -657,7 +657,7 @@ if True:
             panel,
             label_text="Experimental Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
-            tooltip_text="which condition(s) to use as the experimental group",
+            tooltip_text="In a comparison of a treatment vs. control condition, this is the treatment condition”p",
             label_size=(200, 20),
         )
         sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
