@@ -57,6 +57,7 @@ class Method:
                     y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
                 
                 y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                plt.clf()
                 plt.plot(x_w, y_w, "g+")
                 plt.plot(x_w, y_smooth, "b-")
                 plt.xlabel("Genomic Position (TA sites)")
