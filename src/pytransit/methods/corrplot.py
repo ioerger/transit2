@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, r, basename, HAS_R, FloatVector, DataFrame, StrVector, globalenv
+from pytransit.specific_tools.transit_tools import wx, r, basename, FloatVector, DataFrame, StrVector, globalenv
 from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
