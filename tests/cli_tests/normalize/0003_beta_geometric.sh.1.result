@@ -1,6 +1,6 @@
 #CombinedWig
 #yaml:
-#    date: 2022-11-18 17:47:22
+#    date: 2022-12-02 11:39:06
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -11,7 +11,7 @@
 #    - src/pytransit/data/cholesterol_H37Rv_rep3.wig
 #    - src/pytransit/data/glycerol_H37Rv_rep1.wig
 #    - src/pytransit/data/glycerol_H37Rv_rep2.wig
-#    time: 89.0604772567749
+#    time: 89.07961297035217
 #    normalization: betageom
 #    original_path: ./src/pytransit/data/111_cholesterol_glycerol_combined.cwig
 #    

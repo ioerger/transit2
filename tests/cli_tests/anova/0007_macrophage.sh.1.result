@@ -1,6 +1,6 @@
 #Anova
 #yaml:
-#    date: 2022-11-18 17:42:45
+#    date: 2022-12-02 11:34:29
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -19,6 +19,8 @@
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
 #       alpha: 1000
+#       refs:
+#       - Untreated
 #    mean_columns:
 #    - Mean Untreated
 #    - Mean Tcell
@@ -29,18 +31,18 @@
 #    - Mean IFNg-GMCSF
 #    - Mean IFNab
 #    lfc_columns:
-#    - LFC Untreated
-#    - LFC Tcell
-#    - LFC Rapa
-#    - LFC IL1
-#    - LFC IFNg
-#    - LFC GMCSF
-#    - LFC IFNg-GMCSF
-#    - LFC IFNab
+#    - Log 2 FC Untreated
+#    - Log 2 FC Tcell
+#    - Log 2 FC Rapa
+#    - Log 2 FC IL1
+#    - Log 2 FC IFNg
+#    - Log 2 FC GMCSF
+#    - Log 2 FC IFNg-GMCSF
+#    - Log 2 FC IFNab
 #    summary_info:
 #       Hits: '443'
 #    
-#Rv	Gene	TAs	Mean Untreated	Mean Tcell	Mean Rapa	Mean IL1	Mean IFNg	Mean GMCSF	Mean IFNg-GMCSF	Mean IFNab	LFC Untreated	LFC Tcell	LFC Rapa	LFC IL1	LFC IFNg	LFC GMCSF	LFC IFNg-GMCSF	LFC IFNab	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
+#Rv	Gene	TAs	Mean Untreated	Mean Tcell	Mean Rapa	Mean IL1	Mean IFNg	Mean GMCSF	Mean IFNg-GMCSF	Mean IFNab	Log 2 FC Untreated	Log 2 FC Tcell	Log 2 FC Rapa	Log 2 FC IL1	Log 2 FC IFNg	Log 2 FC GMCSF	Log 2 FC IFNg-GMCSF	Log 2 FC IFNab	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
 Rv0001	dnaA	31	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.002949	1000.003869	0.000003	1.000000	1.000000	-
 Rv0002	dnaN	31	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions
 Rv0003	recF	35	1.37	0.55	1.00	1.45	1.59	1.43	1.63	1.98	0.000	-0.199	-0.087	0.017	0.049	0.013	0.057	0.132	26.315306	1012.389479	0.025993	0.999982	1.000000	-

@@ -2,5 +2,3 @@ attempting wx import
 attempting R import
 R imported
 heatmap based on 25 genes
-[transit_tools:__enter__()] Starting Heatmap analysis 
-[transit_tools:__exit__()] Finished Heatmap analysis in 0.6sec 
