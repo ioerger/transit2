@@ -39,7 +39,7 @@ manage and analyze large datasets.
 Typical Workflow
 ----------------
 
-Make a flow-chart for this?...
+Make a flow-chart for this?... <insert a picture of the workflow?>
 
 * .fastq -> TPP -> .wig
 
@@ -267,11 +267,18 @@ Pre-Processing
 Results and Post-Processing
 ---------------------------
 
-* display table
+After the user runs a TRANSIT Analysis Method, various functions can be performed on the output file to better understand the results of the analyis performed.
+If using the GUI, the output file is visible in the results pane, along with a summary. Click on the file and select one of the following (availablity depends on 
+analysis that was run)from the action dropdown:
 
-* volcano plot
+* Display Table - an external window will appear in an spreadsheet-like format for you to view the file
 
-* Pathway Enrichment Analysis
+* Volcano Plot - an external window will appear that displays a plot of the LFCs vs. log10(pvalue) with a horizontal line indicating the thresold of significance
+
+* Display Heatmap - an external window will appear of clustered conditions and significant hits resulting from the analysis. This file will be also saved to your folder of choice
+  and placed in the results pane, which then can be viewed by selection of the "View" option in the action dropdown.
+
+* Pathway Enrichment Analysis - this selection will assume the output file selected is the input file to the Pathway Analysis method (see more details below)
 
 
 
@@ -288,7 +295,7 @@ Michael A. DeJesus       2015-2018     `http://mad-lab.org <http://mad-lab.org>`
 Chaitra Ambadipudi       2015
 Eric Nelson              2016
 Siddharth Subramaniyam   2018
-Sanjee Choudhery         2021-
+Sanjeevani Choudhery     2021-
 Jeff Hykin               2022-
 =======================  ============  ==============================================================================
 
