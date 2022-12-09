@@ -9,6 +9,7 @@ import collections
 import heapq
 
 import numpy
+from blissful_basics import to_pure, print
 
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
@@ -158,7 +159,10 @@ class Method:
         significance_threshold = significance_threshold if significance_threshold is not None else 0.05
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
-            number_of_control_wigs = 1 # TODO: check if this is right
+            print(f'''control_condition = {control_condition}''')
+            print(f'''experimental_condition = {experimental_condition}''')
+            
+            number_of_control_wigs = sum( 1 for each in combined_wig.samples if control_condition in each.condition_names ) # TODO: check if this is right
             # 
             # restrict to relevent data
             # 
@@ -174,8 +178,19 @@ class Method:
             if LOESS:
                 logging.log("Performing LOESS Correction")
                 combined_wig = combined_wig.with_loess_correction()
-
-            genes = combined_wig.get_genes(
+            
+            # with print.indent.block("data (combined_wig.as_tuple.counts_by_wig) after loess:"):
+            #     data = combined_wig.as_tuple.counts_by_wig
+            #     for each in zip(*tuple(data)):
+            #         newline = "\n"
+            #         print(f'''{repr(to_pure(each)).replace(newline, " ")}''')
+            
+            control_samples_by_gene = combined_wig.with_only(condition_names=[control_condition]).get_genes(
+                ignore_codon=ignore_codon,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
+            )
+            experimental_samples_by_gene = combined_wig.with_only(condition_names=[experimental_condition]).get_genes(
                 ignore_codon=ignore_codon,
                 n_terminus=n_terminus,
                 c_terminus=c_terminus,
@@ -183,75 +198,90 @@ class Method:
 
             # u-test
             data = []
-            N = len(genes)
+            N = len(control_samples_by_gene)
             count = 0
             
-            for progress, gene in informative_iterator.ProgressBar(genes, title=f"Running {Method.name}"):
-                count += 1
-                if gene.k == 0 or gene.n == 0:
-                    test_obs   = 0
-                    mean1      = 0
-                    mean2      = 0
-                    log2_fc    = 0
-                    u_stat     = 0.0
-                    pval_2tail = 1.0
-                else:
-                    ii = numpy.sum(gene.reads, 0) > 0
+            with print.indent:
+                for progress, (control_gene, experimental_gene) in informative_iterator.ProgressBar(
+                    tuple(zip(control_samples_by_gene, experimental_samples_by_gene)),
+                    title=f"Running {Method.name}",
+                    disable_logging=True
+                ):
+                    count += 1
+                    if (control_gene.k + experimental_gene.k) == 0 or control_gene.n == 0:
+                        test_obs   = 0
+                        mean1      = 0
+                        mean2      = 0
+                        log2_fc    = 0
+                        u_stat     = 0.0
+                        pval_2tail = 1.0
+                    else:
+                        print("control_gene",control_gene)
+                        # FIXME: this assumes the control wigs are always listed first in the read counts
+                        # FIXME: this is probably done in other places in the codebase, like resampling
+                        data1 = control_gene.reads.flatten()
+                        data2 = experimental_gene.reads.flatten()
+                        print(f'''data1.shape = {data1.shape}''')
+                        print(f'''data2.shape = {data2.shape}''')
+                        print(f'''data1 = {data1}''')
+                        print(f'''data2 = {data2}''')
+                        try:
+                            u_stat, pval_2tail = scipy.stats.mannwhitneyu(
+                                data1, data2, alternative="two-sided"
+                            )
+                        except ValueError as e:
+                            u_stat, pval_2tail = 0.0, 1.00
 
-                    data1 = gene.reads[:number_of_control_wigs, ii].flatten()
-                    data2 = gene.reads[number_of_control_wigs:, ii].flatten()
-                    try:
-                        u_stat, pval_2tail = scipy.stats.mannwhitneyu(
-                            data1, data2, alternative="two-sided"
-                        )
-                    except ValueError as e:
-                        u_stat, pval_2tail = 0.0, 1.00
+                        n1 = len(data1)
+                        n2 = len(data2)
 
-                    n1 = len(data1)
-                    n2 = len(data2)
+                        mean1 = 0
+                        if n1 > 0:
+                            mean1 = numpy.mean(data1)
+                        mean2 = 0
+                        if n2 > 0:
+                            mean2 = numpy.mean(data2)
 
-                    mean1 = 0
-                    if n1 > 0:
-                        mean1 = numpy.mean(data1)
-                    mean2 = 0
-                    if n2 > 0:
-                        mean2 = numpy.mean(data2)
+                        try:
+                            # Only adjust log2_fc if one of the means is zero
+                            if mean1 > 0 and mean2 > 0:
+                                log2_fc = math.log((mean2) / (mean1), 2)
+                            else:
+                                log2_fc = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
+                        except:
+                            log2_fc = 0.0
 
-                    try:
-                        # Only adjust log2_fc if one of the means is zero
-                        if mean1 > 0 and mean2 > 0:
-                            log2_fc = math.log((mean2) / (mean1), 2)
-                        else:
-                            log2_fc = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
-                    except:
-                        log2_fc = 0.0
+                    data.append(
+                        [
+                            control_gene.orf,
+                            control_gene.name,
+                            control_gene.desc,
+                            control_gene.n,
+                            mean1,
+                            mean2,
+                            log2_fc,
+                            u_stat,
+                            pval_2tail,
+                        ]
+                    )
 
-                data.append(
-                    [
-                        gene.orf,
-                        gene.name,
-                        gene.desc,
-                        gene.n,
-                        mean1,
-                        mean2,
-                        log2_fc,
-                        u_stat,
-                        pval_2tail,
-                    ]
-                )
+                    # # Update Progress
+                    # percent = (100.0 * count / N)
+                    # if gui.is_active:
+                    #     text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
+                    #     parameter_panel.progress_update(text, percent)
 
-                # Update Progress
-                percent = (100.0 * count / N)
-                if gui.is_active:
-                    text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
-                    parameter_panel.progress_update(text, percent)
-
+            data.sort()
+            with print.indent.block("data after Mann-Whitney U-test:"):
+                for each in data:
+                    newline = "\n"
+                    print(f'''{repr(to_pure(each)).replace(newline, " ")}''')
+            
             logging.log("")  # Printing empty line to flush stdout
             logging.log("Performing Benjamini-Hochberg Correction")
-            data.sort()
-            qval = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
+            qvals = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
             
-            number_of_significant_genes = len([ 1 for each in qval if each < significance_threshold ])
+            number_of_significant_genes = len([ 1 for each in qvals if each < significance_threshold ])
             
             # 
             # write output
@@ -261,7 +291,7 @@ class Method:
                 file_kind=Method.identifier,
                 rows=[
                     [*row, qval]
-                        for row, qval in zip(data, qval) 
+                        for row, qval in zip(data, qvals) 
                 ],
                 column_names=Method.column_names,
                 extra_info=dict(
