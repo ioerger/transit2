@@ -251,7 +251,7 @@ class Method:
             data.sort()
             qval = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
             
-            number_of_significant_genes = len([ 1 for each in qval if each > significance_threshold ])
+            number_of_significant_genes = len([ 1 for each in qval if each < significance_threshold ])
             
             # 
             # write output
@@ -268,7 +268,16 @@ class Method:
                     stats=dict(
                         number_of_significant_genes=number_of_significant_genes,
                     ),
-                    parameters={},
+                    parameters={
+                        "normalization": normalization,
+                        "control_condition": control_condition,
+                        "experimental_condition": experimental_condition,
+                        "n_terminus":n_terminus,
+                        "c_terminus":c_terminus,
+                        "LOESS":LOESS,
+                        "ignore_codon":ignore_codon,
+                        "significance_threshold":significance_threshold,
+                    },
                 ),
             )
 
