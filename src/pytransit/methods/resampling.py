@@ -600,8 +600,8 @@ class Method:
                 data1      = [0]
                 data2      = [0]
             else:
-                ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
-                ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
+                ii_ctrl = numpy.ones(gene.n) == 1
+                ii_exp = numpy.ones(gene_exp.n) == 1
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
                 data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
