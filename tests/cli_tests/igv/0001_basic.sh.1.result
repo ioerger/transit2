@@ -2,7 +2,7 @@
 #Reads normalized using 'TTR'
 #Normalization Factors: 2.286197257382532
 #Files:
-#src/pytransit/data/glycerol_H37Rv_rep1.wig
+#src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
 #Chromosome	Start	End	Feature	glycerol_H37Rv_rep1	TAs
 H37Rv_dev	60	61	TA60	0.0	1
 H37Rv_dev	72	73	TA72	0.0	1

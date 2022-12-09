@@ -4,9 +4,9 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'zinb' './src/pytransit/data/111_cholesterol_glycerol_combined.cwig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/222_samples_metadata_cg.txt' './tests/cli_tests/zinb/0001_basic.sh.1.result' '-group-by' 'Condition'
+#        python3 './src/transit.py' 'zinb' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/cholesterol_glycerol.transit/metdata.tsv' './tests/cli_tests/zinb/0001_basic.sh.1.result' '-group-by' 'Condition'
 #    files:
-#       combined_wig: ./src/pytransit/data/111_cholesterol_glycerol_combined.cwig
+#       combined_wig: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
 #       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #    parameters:
 #       normalization: TTR

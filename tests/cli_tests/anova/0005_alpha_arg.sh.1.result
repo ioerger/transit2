@@ -4,7 +4,7 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/samples_metadata_cg.txt' './tests/cli_tests/anova/0005_alpha_arg.sh.1.result' '-alpha' '100'
+#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './tests/cli_tests/anova/0005_alpha_arg.sh.1.result' '-alpha' '100'
 #    parameters:
 #       conditions_list:
 #       - Cholesterol

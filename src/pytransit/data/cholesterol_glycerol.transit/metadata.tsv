@@ -1,0 +1,6 @@
+Id	Condition	Filename
+Chol1	Cholesterol	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig
+Chol2	Cholesterol	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig
+Chol3	Cholesterol	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig
+Glyc1	Glycerol	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
+Glyc2	Glycerol	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig

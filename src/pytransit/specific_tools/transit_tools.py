@@ -413,7 +413,7 @@ def get_validated_data(wig_list):
     :Example:
 
         >>> from pytransit.specific_tools import tnseq_tools
-        >>> (data, position) = tnseq_tools.get_validated_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.get_validated_data(["data/cholesterol_glycerol.transit/glycerol_rep1.wig", "data/cholesterol_glycerol.transit/glycerol_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])

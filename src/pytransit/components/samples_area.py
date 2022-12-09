@@ -310,9 +310,9 @@ def create_sample_area(frame):
     if debugging_enabled:
         from os import remove, getcwd
         load_combined_wigs_and_metadatas(
-            [f"{root_folder}/src/pytransit/data/111_cholesterol_glycerol_combined.cwig"],
-            [f"{root_folder}/src/pytransit/data/222_samples_metadata_cg.txt"],
-            [f"{root_folder}/src/pytransit/data/genomes/H37Rv.prot_table"],
+            [f"{root_folder}/src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"],
+            [f"{root_folder}/src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv"],
+            [f"{root_folder}/src/pytransit/data/cholesterol_glycerol.transit/annotation.H37Rv.prot_table"],
         )
         
     return wx_object

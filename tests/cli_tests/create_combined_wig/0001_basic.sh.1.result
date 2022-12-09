@@ -4,16 +4,16 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'export' 'combined_wig' 'src/pytransit/data/glycerol_H37Rv_rep1.wig,src/pytransit/data/glycerol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep3.wig,src/pytransit/data/cholesterol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/create_combined_wig/0001_basic.sh.1.result'
+#        python3 './src/transit.py' 'export' 'combined_wig' 'src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/create_combined_wig/0001_basic.sh.1.result'
 #    time: 1.749621868133545
 #    normalization: TTR
 #    annotation: H37Rv.prot_table
 #    wig_fingerprints:
-#    - src/pytransit/data/glycerol_H37Rv_rep1.wig
-#    - src/pytransit/data/glycerol_H37Rv_rep2.wig
-#    - src/pytransit/data/cholesterol_H37Rv_rep3.wig
-#    - src/pytransit/data/cholesterol_H37Rv_rep2.wig
-#    - src/pytransit/data/cholesterol_H37Rv_rep1.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig
 #    normalization_factors:
 #    - 2.286197257382532
 #    - 1.4371695843583265
@@ -22,13 +22,13 @@
 #    - 2.6365107688705036
 #    reference_genome: H37Rv
 #    stats:
-#       src/pytransit/data/glycerol_H37Rv_rep1.wig: 'density: 0.41855103545338784, mean_read: 123.25773341362304, non_zero_mean_read: 294.48674826501457, non_zero_median_read: 160, max_read: 8813, total_read: 9195643, skew: 4.022213863266364, kurtosis: 33.023993747873625, pickands_tail_index: 0.18393535611667985,'
-#       src/pytransit/data/glycerol_H37Rv_rep2.wig: 'density: 0.5157161048187119, mean_read: 123.79923855449373, non_zero_mean_read: 240.05307842385974, non_zero_median_read: 127, max_read: 8542, total_read: 9236042, skew: 3.975522680364775, kurtosis: 33.4559392434489, pickands_tail_index: 0.15172981943788721,'
-#       src/pytransit/data/cholesterol_H37Rv_rep3.wig: 'density: 0.3589839823068159, mean_read: 173.82809500446095, non_zero_mean_read: 484.22242654797276, non_zero_median_read: 171, max_read: 292294, total_read: 12968445, skew: 42.17620960361279, kurtosis: 2327.9714057599094, pickands_tail_index: 1.5836733535411007,'
-#       src/pytransit/data/cholesterol_H37Rv_rep2.wig: 'density: 0.43891160109912203, mean_read: 171.39082981928374, non_zero_mean_read: 390.4905438591438, non_zero_median_read: 148, max_read: 704662, total_read: 12786612, skew: 105.78284470780147, kurtosis: 14216.199240166572, pickands_tail_index: 1.5293654939507282,'
-#       src/pytransit/data/cholesterol_H37Rv_rep1.wig: 'density: 0.4394611621205013, mean_read: 139.58933024466356, non_zero_mean_read: 317.63746669014597, non_zero_median_read: 147, max_read: 125355, total_read: 10414061, skew: 54.83729352080048, kurtosis: 4237.703504066972, pickands_tail_index: 0.9729507859693783,'
+#       src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig: 'density: 0.41855103545338784, mean_read: 123.25773341362304, non_zero_mean_read: 294.48674826501457, non_zero_median_read: 160, max_read: 8813, total_read: 9195643, skew: 4.022213863266364, kurtosis: 33.023993747873625, pickands_tail_index: 0.18393535611667985,'
+#       src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig: 'density: 0.5157161048187119, mean_read: 123.79923855449373, non_zero_mean_read: 240.05307842385974, non_zero_median_read: 127, max_read: 8542, total_read: 9236042, skew: 3.975522680364775, kurtosis: 33.4559392434489, pickands_tail_index: 0.15172981943788721,'
+#       src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig: 'density: 0.3589839823068159, mean_read: 173.82809500446095, non_zero_mean_read: 484.22242654797276, non_zero_median_read: 171, max_read: 292294, total_read: 12968445, skew: 42.17620960361279, kurtosis: 2327.9714057599094, pickands_tail_index: 1.5836733535411007,'
+#       src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig: 'density: 0.43891160109912203, mean_read: 171.39082981928374, non_zero_mean_read: 390.4905438591438, non_zero_median_read: 148, max_read: 704662, total_read: 12786612, skew: 105.78284470780147, kurtosis: 14216.199240166572, pickands_tail_index: 1.5293654939507282,'
+#       src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig: 'density: 0.4394611621205013, mean_read: 139.58933024466356, non_zero_mean_read: 317.63746669014597, non_zero_median_read: 147, max_read: 125355, total_read: 10414061, skew: 54.83729352080048, kurtosis: 4237.703504066972, pickands_tail_index: 0.9729507859693783,'
 #    
-#TA Site Position	src/pytransit/data/glycerol_H37Rv_rep1.wig	src/pytransit/data/glycerol_H37Rv_rep2.wig	src/pytransit/data/cholesterol_H37Rv_rep3.wig	src/pytransit/data/cholesterol_H37Rv_rep2.wig	src/pytransit/data/cholesterol_H37Rv_rep1.wig	ORF	Gene Name
+#TA Site Position	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig	ORF	Gene Name
 60	0.0	0.0	0.0	0.0	0.0	Rv0001	dnaA
 72	0.0	0.0	0.0	0.0	0.0	Rv0001	dnaA
 102	0.0	0.0	0.0	0.0	0.0	Rv0001	dnaA

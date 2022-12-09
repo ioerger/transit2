@@ -4,10 +4,10 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'zinb' './src/pytransit/data/harman_randomized.comwig.tsv' './src/pytransit/data/mc2_155_tamu.prot_table' './src/pytransit/data/harman_randomized.metadata.tsv' './tests/cli_tests/zinb/0002_harman.sh.1.result' '-include-conditions' 'WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28' '-group-by' 'KO_rel' '-interactions' 'KO_5849'
+#        python3 './src/transit.py' 'zinb' './src/pytransit/data/harman_randomized.comwig.tsv' './src/pytransit/data/genomes/mc2_155_tamu.prot_table' './src/pytransit/data/harman_randomized.metadata.tsv' './tests/cli_tests/zinb/0002_harman.sh.1.result' '-include-conditions' 'WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28' '-group-by' 'KO_rel' '-interactions' 'KO_5849'
 #    files:
 #       combined_wig: ./src/pytransit/data/harman_randomized.comwig.tsv
-#       annotation_path: ./src/pytransit/data/mc2_155_tamu.prot_table
+#       annotation_path: ./src/pytransit/data/genomes/mc2_155_tamu.prot_table
 #    parameters:
 #       normalization: TTR
 #       n_terminus: 0

@@ -4,7 +4,7 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'utest' './src/pytransit/data/Subu_KO_combined_wig.txt' './src/pytransit/data/genomes/H37Rv_dev.prot_table' './src/pytransit/data/Subu_KO_metadata.txt' 'H37Rv_day0' 'H37Rv_day32' './tests/cli_tests/utest/0001_basic.sh.1.result'
+#        python3 './src/transit.py' 'utest' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' './src/pytransit/data/subu_ko.transit/metadata.tsv' 'H37Rv_day0' 'H37Rv_day32' './tests/cli_tests/utest/0001_basic.sh.1.result'
 #    stats:
 #       number_of_significant_genes: 50
 #    parameters: {}

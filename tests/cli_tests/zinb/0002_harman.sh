@@ -2,10 +2,8 @@
 
 result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.result"
 annotation="./src/pytransit/data/genomes/mc2_155_tamu.prot_table"
-metadata="./src/pytransit/data/harman_randomized.metadata.tsv"
-comwig="./src/pytransit/data/harman_randomized.comwig.tsv"
-
-annotation="./src/pytransit/data/mc2_155_tamu.prot_table"
+metadata="./src/pytransit/data/randomized_harman.transit/metadata.tsv"
+comwig="./src/pytransit/data/randomized_harman.transit/comwig.tsv"
 
 # Strains: "DKO" "rel" "WT" "x5849"
 # Time Slices: 0days, 7days, 14days, 28days

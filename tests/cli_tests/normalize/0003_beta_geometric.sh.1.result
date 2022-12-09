@@ -4,18 +4,18 @@
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'normalize' './src/pytransit/data/111_cholesterol_glycerol_combined.cwig' './tests/cli_tests/normalize/0003_beta_geometric.sh.1.result' '-n' 'betageom'
+#        python3 './src/transit.py' 'normalize' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './tests/cli_tests/normalize/0003_beta_geometric.sh.1.result' '-n' 'betageom'
 #    wig_fingerprints:
-#    - src/pytransit/data/cholesterol_H37Rv_rep1.wig
-#    - src/pytransit/data/cholesterol_H37Rv_rep2.wig
-#    - src/pytransit/data/cholesterol_H37Rv_rep3.wig
-#    - src/pytransit/data/glycerol_H37Rv_rep1.wig
-#    - src/pytransit/data/glycerol_H37Rv_rep2.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
+#    - src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
 #    time: 89.07961297035217
 #    normalization: betageom
-#    original_path: ./src/pytransit/data/111_cholesterol_glycerol_combined.cwig
+#    original_path: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
 #    
-#TA Site Position	src/pytransit/data/cholesterol_H37Rv_rep1.wig	src/pytransit/data/cholesterol_H37Rv_rep2.wig	src/pytransit/data/cholesterol_H37Rv_rep3.wig	src/pytransit/data/glycerol_H37Rv_rep1.wig	src/pytransit/data/glycerol_H37Rv_rep2.wig
+#TA Site Position	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
 60	0.0	0.0	0.0	0.0	0.0
 72	0.0	0.0	0.0	0.0	0.0
 102	0.0	0.0	0.0	0.0	0.0
