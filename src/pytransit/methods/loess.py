@@ -57,35 +57,26 @@ class Method:
             X = sorted(buckets.keys())
             Y = [numpy.mean(buckets[x]) for x in X]
             Xbp = [x*win for x in X]
-            fit = lowess(exog=Xbp,endog=Y)
+            fit = lowess(exog=Xbp,endog=Y) # using statsmodels; note: previously, stat_tools.loess(x_w, y_w, h=10000) was being called
 
-            #plt.plot(TAsites,counts, "g+")
-            plt.plot(Xbp,Y, "g+")
-            plt.plot(fit[:,0],fit[:,1], "b-")
-            plt.xlabel("Genomic Position (bp)")
-            plt.ylabel("mean insertion count over %sbp windows" % win)
-            plt.yscale("log")
-                
-            plt.title("LOWESS Fit")
+            fig, (ax1, ax2) = plt.subplots(1, 2)
+            fig.set_figheight(5)
+            fig.set_figwidth(10)
+
+            ax1.plot(Xbp,Y, "g+")
+            ax1.plot(fit[:,0],fit[:,1], "b-")
+            ax1.set_xlabel("Genomic Position (bp)")
+            ax1.set_ylabel("mean insertion count over %sbp windows" % win)
+            ax1.set_yscale("log")
+            ax1.set_title("LOESS Fit (log-scale)")
+
+            ax2.plot(Xbp,Y, "g+")
+            ax2.plot(fit[:,0],fit[:,1], "b-")
+            ax2.set_xlabel("Genomic Position (bp)")
+            ax2.set_ylabel("mean insertion count over %sbp windows" % win)
+            ax2.set_title("LOESS Fit")
+            m,s = numpy.max(fit[:,1]),numpy.std(Y)
+            ax2.set_ylim(0,m+2*s)
+
             plt.show()
 
-#            number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-#            window = 100
-#            for each_path_index in range(number_of_wigs):
-#
-#                number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-#                x_w = numpy.zeros(number_of_windows)
-#                y_w = numpy.zeros(number_of_windows)
-#                for window_index in range(number_of_windows):
-#                    x_w[window_index] = window * window_index
-#                    y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-#                
-#                y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-#                plt.plot(x_w, y_w, "g+")
-#                plt.plot(x_w, y_smooth, "b-")
-#                plt.xlabel("Genomic Position (TA sites)")
-#                plt.ylabel("Reads per 100 insertion sites")
-#                
-#                plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-#                plt.show()
-#
