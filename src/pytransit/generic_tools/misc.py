@@ -185,8 +185,8 @@ def human_readable_data(obj):
         return ez_yaml.to_string(to_pure(obj))
 
 def pascal_case_with_spaces(string):
-    digits = "1234567890"
-    valid_word_contents = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+    digits = "1234567890-"
+    valid_word_contents = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM-"
     new_string = " "
     # get pairwise elements
     for each_character in string:
