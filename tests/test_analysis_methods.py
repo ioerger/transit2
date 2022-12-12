@@ -153,6 +153,8 @@ class TestMethods(TransitTestCase):
             traceback.print_exc()
             print(f'''error = {error}''')
         self.assertTrue(os.path.exists(output))
+        from blissful_basics import FS
+        FS.copy(output, to=".", new_name="zinb_output.tsv", force=True)
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
         self.assertEqual(

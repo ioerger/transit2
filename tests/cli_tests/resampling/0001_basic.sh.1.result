@@ -1,6 +1,6 @@
 #Resampling
 #yaml:
-#    date: 2022-12-02 11:39:52
+#    date: 2022-12-09 11:46:56
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -10,9 +10,7 @@
 #       norm: TTR
 #       histograms: false
 #       adaptive: false
-#       exclude_zeros: false
 #       pseudocounts: 1.0
-#       LOESS: false
 #       n_terminus: 0.0
 #       c_terminus: 0.0
 #       site_restricted: false
@@ -21,7 +19,7 @@
 #    control_data: Glycerol
 #    experimental_data: Cholesterol
 #    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
-#    time: 26.077059030532837
+#    time: 26.48791003227234
 #    
 #ORF	Gene Name	Description	Sites	Mean Control	Mean Experimental	Log 2 FC	Sum Control	Sum Experimental	Delta Mean	P Value	Adj P Value
 Rv0001	dnaA	chromosomal replication initiation protein 	31	0.0	0.0	0.00	0.0	0.00	0.0	1.00000	1.00000

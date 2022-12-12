@@ -5,8 +5,8 @@
 
 result_file="./tests/cli_tests/$(basename "$(dirname "$0")")/$(basename "$0").1.result"
 annotation="./src/pytransit/data/genomes/H37Rv_dev.prot_table"
-metadata="./src/pytransit/data/subu_ko/metadata.tsv"
-comwig="./src/pytransit/data/subu_ko/comwig.tsv"
+metadata="./src/pytransit/data/subu_ko.transit/metadata.tsv"
+comwig="./src/pytransit/data/subu_ko.transit/comwig.tsv"
 
 python3 ./src/transit.py gi \
     "$comwig" \

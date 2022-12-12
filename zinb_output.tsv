@@ -1,0 +1,78 @@
+#Zinb
+#yaml:
+#    date: 2022-12-09 14:31:11
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './tests/test_analysis_methods.py' 'TestMethods.test_zinb_covariates'
+#    files:
+#       combined_wig: /Users/jeffhykin/repos/transit/tests/../src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
+#       annotation_path: /Users/jeffhykin/repos/transit/tests/data/test.prot_table
+#    parameters:
+#       normalization: TTR
+#       n_terminus: 0
+#       c_terminus: 0
+#       pseudocount: 5.0
+#       should_append_gene_descriptions: false
+#    group_names:
+#    - X
+#    - Y
+#    lfc_columns:
+#    - Log 2 FC
+#    mean_columns:
+#    - Mean X
+#    - Mean Y
+#    summary_info: 13
+#    
+#Rv	Gene	TA Sites	Mean X	Mean Y	Log 2 FC	Non Zero Mean X	Non Zero Mean Y	Non Zero Percentage X	Non Zero Percentage Y	P Value	Adj P Value	Status
+Rv0244c	fadE5	23	11.8	105.4	2.719	54.2	151.6	0.22	0.70	3.35269140998865e-05	0.0004274681547735529	-
+Rv0362	mgtE	16	0.4	229.3	5.431	5.2	319.0	0.08	0.72	1.30115836973285e-05	0.0002211969228545845	-
+Rv0450c	mmpL4	84	11.0	60.6	2.040	83.7	172.6	0.13	0.35	0.000419997841478304	0.003569981652565584	-
+Rv0485	-	23	1.6	115.8	4.200	21.7	171.8	0.07	0.67	5.14261938545492e-06	0.00013113679432910047	-
+Rv0694	lldD1	17	3.7	80.8	3.300	37.9	229.1	0.10	0.35	0.0900350986104199	0.20871772859688248	-
+Rv0761c	adhB	13	8.9	220.7	4.017	31.7	382.6	0.28	0.58	0.000372123074795314	0.003569981652565584	-
+Rv1129c	-	27	1.1	51.6	3.210	18.1	185.8	0.06	0.28	0.00100720314571094	0.0061441837305397295	-
+Rv1130	-	27	0.6	54.2	3.414	5.0	108.5	0.11	0.50	1.52075277073094e-06	7.755839130727794e-05	-
+Rv1183	mmpL10	52	2.8	26.1	2.000	48.1	75.4	0.06	0.35	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv1428c	-	18	14.4	124.5	2.743	55.4	224.2	0.26	0.56	0.010603203262105	0.04159718202825808	-
+Rv3200c	-	16	134.2	10.1	-3.205	214.8	29.4	0.62	0.34	0.000668193069336818	0.004868263790882531	-
+Rv3559c	-	8	0.0	31.3	2.861	0.0	62.7	0.00	0.50	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv3564	fadE33	11	0.0	32.6	2.909	0.0	89.5	0.00	0.36	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv3575c	-	18	37.1	127.1	1.648	105.6	190.6	0.35	0.67	0.072543609002205	0.20016797968722705	-
+Rv0381c	-	17	62.8	210.1	1.665	123.2	274.8	0.51	0.76	0.025652709439783	0.08176801133930832	-
+Rv1432	-	16	0.0	18.0	2.204	0.0	72.2	0.00	0.25	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv3543c	fadE29	17	0.0	18.1	2.208	0.0	61.5	0.00	0.29	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv3570c	-	18	2.7	63.8	3.161	29.1	164.1	0.09	0.39	0.134556975243343	0.2859335723921039	-
+Rv0495c	-	13	4.9	75.2	3.022	63.4	139.7	0.08	0.54	0.107174509419008	0.23764782523345251	-
+Rv0805	-	18	6.1	46.9	2.221	33.1	93.8	0.19	0.50	0.00262820963982115	0.013403869163087865	-
+Rvnr01	rrs	62	0.0	0.0	0.000	0.0	0.0	0.00	0.00	1.0	1.0	pan-essential (no counts in all conditions) - not analyzed
+Rv3924c	rpmH	2	0.0	0.0	0.000	0.0	0.0	0.00	0.00	1.0	1.0	pan-essential (no counts in all conditions) - not analyzed
+Rv3923c	rnpA	4	5.1	2.2	-0.501	61.4	17.2	0.08	0.12	1.0	1.0	low saturation (<15%) across all conditions (pan-growth-defect) - not analyzed
+Rv3922c	-	12	3.9	7.4	0.483	46.6	44.5	0.08	0.17	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv3921c	-	23	0.0	0.1	0.018	0.0	2.9	0.00	0.02	1.0	1.0	low saturation (<15%) across all conditions (pan-growth-defect) - not analyzed
+Rv3920c	-	3	172.3	181.3	0.071	172.3	217.6	1.00	0.83	0.200866779245227	0.365864490768092	-
+Rv3918c	parA	19	0.0	1.4	0.356	0.0	53.2	0.00	0.03	1.0	1.0	low saturation (<15%) across all conditions (pan-growth-defect) - not analyzed
+Rv3917c	parB	18	0.0	0.0	0.000	0.0	0.0	0.00	0.00	1.0	1.0	pan-essential (no counts in all conditions) - not analyzed
+Rv3916c	-	11	0.0	0.3	0.091	0.0	7.2	0.00	0.05	1.0	1.0	low saturation (<15%) across all conditions (pan-growth-defect) - not analyzed
+Rv3915	-	24	0.0	0.0	0.000	0.0	0.0	0.00	0.00	1.0	1.0	pan-essential (no counts in all conditions) - not analyzed
+Rv1132	-	26	50.3	115.5	1.124	135.3	182.1	0.37	0.63	0.00108426771715407	0.0061441837305397295	-
+Rv0499	-	5	88.0	236.4	1.377	109.9	236.4	0.80	1.00	0.0344112219557256	0.1032336658671768	-
+Rv2190c	-	20	85.5	11.4	-2.466	244.2	50.6	0.35	0.23	0.0851661120588866	0.20871772859688248	-
+Rv2207	cobT	8	0.0	6.2	1.159	0.0	24.7	0.00	0.25	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv2347c	esxP	3	73.8	285.2	1.881	73.8	285.2	1.00	1.00	0.0745723845893591	0.20016797968722705	-
+Rv2567	-	39	11.0	35.4	1.337	85.7	131.5	0.13	0.27	0.191363693531271	0.36146475444795634	-
+Rv2887	-	8	6.4	50.0	2.271	30.7	100.1	0.21	0.50	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv3005c	-	21	163.7	66.5	-1.238	245.5	121.5	0.67	0.55	0.389092905751815	0.6614579397780854	-
+Rv1111c	-	24	110.2	23.7	-2.008	317.5	81.1	0.35	0.29	0.0248391122797616	0.08176801133930832	-
+Rv1072	-	17	0.3	15.0	1.911	7.9	127.2	0.04	0.12	1.0	1.0	low saturation (<15%) across all conditions (pan-growth-defect) - not analyzed
+Rv2958c	-	25	262.0	163.9	-0.660	333.0	190.6	0.79	0.86	0.183866900086784	0.3606619963240763	-
+Rv3552	-	10	0.0	11.3	1.702	0.0	56.3	0.00	0.20	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv0129c	fbpC	28	158.1	22.5	-2.566	415.0	84.1	0.38	0.27	0.433643071070228	0.7134127943413429	-
+Rv1821	secA2	39	96.8	32.5	-1.443	192.1	133.2	0.50	0.24	0.155098090900658	0.3164001054373423	-
+Rv2224c	-	29	319.9	137.3	-1.191	434.8	176.9	0.74	0.78	0.483087370729278	0.7699204970997868	-
+Rv3567c	-	8	0.1	29.0	2.729	3.2	154.9	0.04	0.19	1.0	1.0	Has Coefs, but Pvals are NAs (model failure)
+Rv0924c	mntH	20	455.0	129.2	-1.778	802.9	224.6	0.57	0.57	0.0874121426300793	0.20871772859688248	-
+Rv0249c	-	23	38.5	6.8	-1.883	126.7	104.4	0.30	0.07	0.239088184960396	0.42046542872345505	-
+Rv2021c	-	6	200.5	511.7	1.330	328.1	877.2	0.61	0.58	0.00956314059910726	0.040643347546205855	-
+Rv2694c	-	8	3012.1	127.9	-4.505	4252.3	227.3	0.71	0.56	0.0223095320268221	0.08127043809770908	-
+Rv3586	-	14	89.8	228.5	1.300	209.6	399.8	0.43	0.57	0.00859334896262994	0.03984189064492063	-

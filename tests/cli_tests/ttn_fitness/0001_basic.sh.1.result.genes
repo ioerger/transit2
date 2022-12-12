@@ -1,11 +1,11 @@
 #TTNFitnessGenes
 #yaml:
-#    date: 2022-12-02 11:45:12
+#    date: 2022-12-09 10:49:27
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
-#    time: 303.9686360359192
+#    time: 279.30720615386963
 #    saturation: 0.5342776384918797
 #    parameters:
 #       combined_wig: null
