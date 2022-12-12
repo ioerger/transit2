@@ -810,6 +810,7 @@ class ResultFileType1:
             # 
             # plot (log2_fc_values, log10_p_values, threshold)
             # 
+            plt.clf()
             plt.scatter(log2_fc_values, log10_p_values, marker=".")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")
