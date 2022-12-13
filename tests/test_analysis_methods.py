@@ -145,7 +145,7 @@ class TestMethods(TransitTestCase):
 
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_covariates(self):
-        args = [combined_wig, small_annotation, samples_metadata_covariates, output, "-covars", "batch", "-group-by", "NewConditionCol"]
+        args = [combined_wig, small_annotation, samples_metadata_covariates, output, "-covars", "batch", "-group-by", "NewConditionCol", "-iN", "5.0", "-iC", "5.0" ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -153,18 +153,10 @@ class TestMethods(TransitTestCase):
             traceback.print_exc()
             print(f'''error = {error}''')
         self.assertTrue(os.path.exists(output))
-        from blissful_basics import FS
-        FS.copy(output, to=".", new_name="zinb_output.tsv", force=True)
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
-        self.assertEqual(
-            len(sig_pvals),
-            15,
-            "sig_pvals expected: %d, actual: %d" % (15, len(sig_pvals)))
-        self.assertEqual(
-            len(sig_qvals),
-            10,
-            "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
+        self.assertEqual(len(sig_pvals), 15, "sig_pvals expected: %d, actual: %d" % (15, len(sig_pvals)))
+        self.assertEqual(len(sig_qvals), 10, "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
 
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_interactions(self):

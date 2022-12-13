@@ -81,10 +81,10 @@ class Method:
         
         # save the data
         Method.output(
-            combined_wig_path = args[0],
-            annotation_path = args[1],
-            metadata_path = args[2],
-            output_path = args[3],
+            combined_wig_path=args[0],
+            annotation_path=args[1],
+            metadata_path=args[2],
+            output_path=args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
             group_by=kwargs.get("-group-by", kwargs["condition"]),
             covars=console_tools.string_arg_to_list(kwargs["covars"]),
