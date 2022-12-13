@@ -124,7 +124,7 @@ class TestMethods(TransitTestCase):
     
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb(self):
-        args = [combined_wig, small_annotation, samples_metadata, output]
+        args = [combined_wig, small_annotation, samples_metadata, output, "-iN", "5.0", "-iC", "5.0" ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -145,7 +145,7 @@ class TestMethods(TransitTestCase):
 
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_covariates(self):
-        args = [combined_wig, small_annotation, samples_metadata_covariates, output, "-covars", "batch", "-group-by", "NewConditionCol", "-iN", "5.0", "-iC", "5.0" ]
+        args = [combined_wig, small_annotation, samples_metadata_covariates, output, "-covars", "batch", "-group-by", "NewConditionCol", "-iN", "5.0", "-iC", "5.0", ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -160,7 +160,7 @@ class TestMethods(TransitTestCase):
 
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_interactions(self):
-        args = [combined_wig, small_annotation, samples_metadata_interactions,  output, "-covars", "batch", "-interactions", "atm"]
+        args = [combined_wig, small_annotation, samples_metadata_interactions,  output, "-covars", "batch", "-interactions", "atm", "-iN", "5.0", "-iC", "5.0", ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
