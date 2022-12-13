@@ -436,6 +436,8 @@ class CombinedWig:
     @staticmethod
     @cache(watch_filepaths=lambda *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None: [ main_path, metadata_path, annotation_path ])
     def load(*args, **kwargs):
+        print(f'''args = {args}''')
+        print(f'''kwargs = {kwargs}''')
         return CombinedWig(*args, **kwargs)
     
     def __init__(self, *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None):

@@ -90,8 +90,8 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="tnseq_stats.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name="tnseq_stats.tsv",
+            output_extensions='Common output extensions (*.tsv,*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         if not Method.inputs.output_path:
             return None
@@ -140,7 +140,7 @@ class Method:
         # 
         logging.log(f"Getting Data from {self.inputs.combined_wig}")
         if self.inputs.combined_wig:
-            combined_wig = tnseq_tools.CombinedWig.load(combined_wig)
+            combined_wig = tnseq_tools.CombinedWig.load(main_path=self.inputs.combined_wig)
             ta_site_positions, read_counts, filenames_in_comb_wig = combined_wig.as_tuple
         else:
             read_counts, ta_site_positions = tnseq_tools.CombinedWig.gather_wig_data(self.inputs.wigs)

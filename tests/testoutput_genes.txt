@@ -1,10 +1,10 @@
 #HMM_Genes
 #yaml:
-#    date: 2022-12-09 12:01:21
+#    date: 2022-12-13 11:34:02
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './tests/test_analysis_methods.py'
+#        python3 './tests/test_analysis_methods.py' 'TestMethods'
 #    Summary Of Gene Calls:
 #       ES: 0
 #       GD: 2
