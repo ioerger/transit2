@@ -53,7 +53,7 @@ class TrashFrame(view_trash.MainFrame):
         self.start = 1
         self.end = 10000
 
-        self.orf2data = transit_tools.get_gene_info(annotation)
+        self.orf2data = transit_tools.AnnotationFile(path=annotation).orf_to_info
         self.hash = transit_tools.get_pos_hash(annotation)
 
         self.features = []
@@ -218,7 +218,7 @@ class TrashFrame(view_trash.MainFrame):
                     self.feature_data.append(S)
                 else:
                     self.feature_hashes.append(transit_tools.get_pos_hash(path))
-                    self.feature_data.append(transit_tools.get_gene_info(path))
+                    self.feature_data.append(transit_tools.AnnotationFile(path=path).orf_to_info)
                 self.updateFunc(self.parent)
                 self.Fit()
             else:

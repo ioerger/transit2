@@ -597,13 +597,8 @@ class Method:
         aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
         allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
         suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
-
-        annot = {}
-        with open(self.inputs.annotation_path) as file:
-            for line in file:
-                cells = line.rstrip().split('\t')
-                gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
-                annot[gene_name] = cells[0]
+        
+        annotation_data = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path)
         
         # 
         # format into rows
@@ -613,7 +608,7 @@ class Method:
             rows.append([
                 orf,
                 name,
-                annot[orf],
+                annotation_data.gene_description(orf_id=orf),
                 "%d" % n,
                 "%1.2f" % mean_mu_a1_post,
                 "%1.2f" % mean_mu_a2_post,

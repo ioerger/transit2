@@ -348,27 +348,6 @@ def get_pos_hash(path):
     else:
         return tnseq_tools.get_pos_hash_pt(path)
 
-def get_gene_info(path):
-    """Returns a dictionary that maps gene id to gene information.
-    
-    Arguments:
-        path (str): Path to annotation in .prot_table or GFF3 format.
-    
-    Returns:
-        dict: Dictionary of gene id to tuple of information:
-            - name
-            - description
-            - start coordinate
-            - end coordinate
-            - strand
-            
-    """
-    filename, file_extension = os.path.splitext(path)
-    if file_extension.lower() in [".gff", ".gff3"]:
-        return tnseq_tools.get_gene_info_gff(path)
-    else:
-        return tnseq_tools.get_gene_info_pt(path)
-
 def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples, enable_logging=False):
     '''
         pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)

@@ -160,8 +160,8 @@ class TTRNorm(NormMethod):
         data,
         wig_list=[],
         annotation_path="",
-        thetaEst=empirical_theta,
-        muEst=trimmed_empirical_mu,
+        theta_est=empirical_theta,
+        mu_est=trimmed_empirical_mu,
         target=100.0,
     ):
         """Returns the normalization factors for the data, using the TTR method.
@@ -170,9 +170,9 @@ class TTRNorm(NormMethod):
         Arguments:
             data (numpy array): (K,N) numpy array defining read-counts at N sites
                 for K datasets.
-            thetaEst (function): Function used to estimate density. Should take a list
+            theta_est (function): Function used to estimate density. Should take a list
                 of counts as input.
-            muEst (function): Function used to estimate mean count. Should take a list
+            mu_est (function): Function used to estimate mean count. Should take a list
                 of counts as input.
 
         Returns:
@@ -197,7 +197,7 @@ class TTRNorm(NormMethod):
 
         factors = numpy.zeros((K, 1))
         for j in range(K):
-            factors[j] = float(target) / (thetaEst(data[j]) * muEst(data[j]))
+            factors[j] = float(target) / (theta_est(data[j]) * mu_est(data[j]))
         data = factors * data
         return (data, factors)
 

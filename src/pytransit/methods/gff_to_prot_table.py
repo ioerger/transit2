@@ -4,7 +4,7 @@ import os
 import time
 
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.specific_tools.tnseq_tools import ProtTable
+from pytransit.specific_tools.tnseq_tools import GffFile
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -68,24 +68,25 @@ class Method:
         gff_file.close()
         logging.log("Converting annotation file from GFF3 format to prot_table format")
         
+        # FIXME: should probably use transit_tools.GffFile to load/parse the data
         for i, line in enumerate(lines):
             line = line.strip()
             if len(line) == 0 or line.startswith("#"):
                 continue
             cols = line.split("\t")
-            if len(cols) < ProtTable.magic_number_nine:
+            if len(cols) < GffFile.max_number_of_columns:
                 sys.stderr.write(("Ignoring invalid row with entries: {0}\n".format(cols)))
                 continue
-            if (cols[ProtTable.index_of_gene_end]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
+            if (cols[GffFile.end_index]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
                 if "locus_tag" not in line:
                     print("warning: skipping lines that do not contain 'locus_tag'")
                     continue
-                start = int(cols[ProtTable.index_of_gene_strand])
-                end = int(cols[ProtTable.magic_number_four])
-                strand = cols[ProtTable.magic_number_six].strip()
+                start = int(cols[GffFile.start_index])
+                end = int(cols[GffFile.end_index])
+                strand = cols[GffFile.strand_index].strip()
                 size = int(abs(end - start + 1) / 3)  # FIXME: why divide by 3?
                 labels = {}
-                for pair in cols[ProtTable.gene_name_index].split(";"):
+                for pair in cols[GffFile.attributes_index].split(";"):
                     k, v = pair.split("=")
                     labels[k.strip()] = v.strip()
                 Rv = labels["locus_tag"].strip()  # error out if not found
@@ -103,11 +104,11 @@ class Method:
         labels = {}
         print(line)
         print(len(cols))
-        for pair in cols[ProtTable.gene_name_index].split(";"):
+        for pair in cols[GffFile.attributes_index].split(";"):
             k, v = pair.split("=")
             labels[k] = v
 
-        if (cols[ProtTable.index_of_gene_end]) == "CDS" and labels["Parent"] == parent:
+        if (cols[GffFile.end_index]) == "CDS" and labels["Parent"] == parent:
             # return labels.get("Note", '-')
             return labels.get("product", "-")
         return "-"
@@ -137,12 +138,12 @@ def annotation_gff3_to_pt(event):
                         continue
                     tmp = line.strip().split("\t")
                     chr = tmp[0]
-                    type = tmp[ProtTable.index_of_gene_end]
-                    start = int(tmp[ProtTable.index_of_gene_strand])
-                    end = int(tmp[ProtTable.magic_number_four])
-                    length = ((end - start + 1) / ProtTable.index_of_gene_strand) - 1
-                    strand = tmp[ProtTable.magic_number_six]
-                    features = dict([tuple(f.split("=")) for f in tmp[ProtTable.gene_name_index].split(";")])
+                    type = tmp[GffFile.type_index]
+                    start = int(tmp[GffFile.start_index])
+                    end = int(tmp[GffFile.end_index])
+                    length = ((end - start + 1) / GffFile.start_index) - 1
+                    strand = tmp[GffFile.strand_index]
+                    features = dict([tuple(f.split("=")) for f in tmp[GffFile.attributes_index].split(";")])
                     if "ID" not in features:
                         continue
                     orf = features["ID"]

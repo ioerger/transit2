@@ -229,7 +229,7 @@ class Method:
                         data[j] = stat_tools.loess_correction(position, data[j])
 
                 hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
-                rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
+                rv2info = transit_tools.AnnotationFile(path=self.inputs.annotation_path).orf_to_info
 
                 if len(self.inputs.ctrl_read_counts) > 1:
                     logging.log("Combining Replicates as '%s'" % self.inputs.replicates)
