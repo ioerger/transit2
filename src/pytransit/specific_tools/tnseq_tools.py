@@ -2506,10 +2506,10 @@ class GffFile:
     
     def __init__(self, path):
         self.comments, self.columns, self.rows = csv.read(
-            string=file_as_string,
+            path=path,
             seperator="\t",
             first_row_is_column_names=False,
-            column_names=GffRow.names,
+            column_names=GffFile.GffRow.names,
             comment_symbol="#"
         )
         
@@ -2591,69 +2591,6 @@ class GffFile:
         
         return None
     
-    def doesnt_meet_transit_gff_requirements(self, path):
-        required_attribute_keys = [
-            "locus_tag",
-            # FIXME: confirm which are required
-            # here are some common keys:
-            #     "ID",
-            #     "Name",
-            #     "gbkey",
-            #     "gene_biotype",
-            #     "old_locus_tag",
-        ]
-        if GffFile.is_definitely_not_gff3(path):
-            return True
-        
-        comments = []
-        columns = []
-        rows = []
-        try:
-            file_as_string = ""
-            with open(path,'r') as f:
-                file_as_string = f.read()
-                # 
-                # fail-early test
-                # 
-                for each_required in required_attribute_keys:
-                    if each_required not in file_as_string:
-                        return True
-            
-            comments, columns, rows = csv.read(
-                string=file_as_string,
-                seperator="\t",
-                first_row_is_column_names=False,
-                column_names=GffRow.names,
-                comment_symbol="#"
-            )
-        except:
-            return True
-        
-        # convert "ID=operon001;Name=superOperon" to { "ID": "operon001", "Name": "superOperon" }
-        attributes_per_row = (
-            dict(
-                tuple(each_assignment.split("="))
-                    for each_assignment in row.attributes.split(";")
-            )
-                for row in rows
-        )
-        for attributes, row in zip(attributes_per_row, rows):
-            # skip incompatible entries
-            for each_required_key in required_attribute_keys:
-                if each_required_key not in attributes.keys():
-                    continue
-            
-            rv          = attributes["locus_tag"].strip()
-            gene        = attributes.get("gene", "").strip() or "-"
-            description = attributes.get("product", "")
-            size        = int(abs(row.end - row.start + 1) / 3)  # FIXME: why divide by 3? --Jeff
-            strand      = row.strand.strip()
-            # in prot_table form:
-            # [ description, row.start, row.end, strand, size, "-", "-", gene, rv, "-" ]
-            return False
-        
-        return True
-    
     @staticmethod
     def extract_gene_info(path):
         """
@@ -2731,6 +2668,6 @@ class GffFile:
             strand      = row.strand.strip()
             
             new_rows.append(
-                [ description, row.start, row.end, strand, size, "-", "-", gene, orf_id, "-" ]
+                [ description, row.start, row.end, strand, size, "-", "-", gene_name, orf_id, "-" ]
             )
         return new_rows
