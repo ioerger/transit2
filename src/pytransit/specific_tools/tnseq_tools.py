@@ -2503,6 +2503,27 @@ class GffFile:
     strand_index     = 6
     phase_index      = 7
     attributes_index = 8
+    
+    def __init__(self, path):
+        self.comments, self.columns, self.rows = csv.read(
+            string=file_as_string,
+            seperator="\t",
+            first_row_is_column_names=False,
+            column_names=GffRow.names,
+            comment_symbol="#"
+        )
+        
+        # convert "ID=operon001;Name=superOperon" to { "ID": "operon001", "Name": "superOperon" }
+        attributes_per_row = (
+            dict(
+                tuple(each_assignment.split("="))
+                    for each_assignment in row.attributes.split(";")
+            )
+                for row in self.rows
+        )
+        # overwrite the attribute string with an attribute dictionary
+        for each_row, attributes in zip(self.rows, attributes_per_row):
+            each_row.attributes = attributes
 
     @staticmethod
     def is_definitely_not_gff3(path):
@@ -2589,7 +2610,7 @@ class GffFile:
         rows = []
         try:
             file_as_string = ""
-            with open(filepath,'r') as f:
+            with open(path,'r') as f:
                 file_as_string = f.read()
                 # 
                 # fail-early test
@@ -2688,3 +2709,28 @@ class GffFile:
                 orf2info[orf] = (name, desc, start, end, strand)
         
         return orf2info
+    
+    def as_prot_table_rows(self, allowed_types=["CDS"], max_row_length=max_number_of_columns):
+        """
+            NOTE:
+                if you also want tRNAs and rRNAs, modify the allowed_types to include relevent records
+        """
+        new_rows = []
+        for row in self.rows:
+            if len(row) > max_row_length:
+                continue
+            if row.type not in allowed_types:
+                continue
+            if "locus_tag" not in row.attributes:
+                continue
+            
+            orf_id      = row.attributes["locus_tag"].strip()
+            gene_name   = row.attributes.get("gene", "").strip() or "-"
+            description = row.attributes.get("product", "")
+            size        = int(abs(row.end - row.start + 1) / 3)  # FIXME: why divide by 3? --Jeff
+            strand      = row.strand.strip()
+            
+            new_rows.append(
+                [ description, row.start, row.end, strand, size, "-", "-", gene, orf_id, "-" ]
+            )
+        return new_rows
