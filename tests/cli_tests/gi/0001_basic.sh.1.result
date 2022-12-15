@@ -1,11 +1,11 @@
 #GI
 #yaml:
-#    date: 2022-12-09 12:03:32
+#    date: 2022-12-15 10:36:47
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' './src/pytransit/data/subu_ko.transit/metadata.tsv' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
-#    time: 47.97038912773132
+#    time: 49.37007403373718
 #    Parameters:
 #       Normalization_Of_Counts: TTR
 #       Number_Of_Samples_For_Monte_Carlo: '10000'

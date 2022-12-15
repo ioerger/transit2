@@ -65,6 +65,6 @@ R imported
 [gi:print_gi_results()] Adding File: ./tests/cli_tests/gi/0001_basic.sh.1.result 
 [gi:print_gi_results()] Finished Genetic Interactions Method 
 [gi:Run()] Summary of genetic interactions: aggravating=0, alleviating=0, suppressive=0 
-[gi:Run()] Time: 48.0s
+[gi:Run()] Time: 49.4s
 [gi:Run()]  
 [gi:Run()] Finished Genetic Interaction analysis 

@@ -2416,7 +2416,7 @@ class AnnotationFile:
         else:
             raise Exception(f'''File extension {file_extension} not recognized. Please use .gff or .prot_table file extension''')
     
-    def gene_description(*, orf_id, fallback_value=None):
+    def gene_description(self, *, orf_id, fallback_value=None):
         gene_info = self.orf_to_info.get(orf_id, None)
         if gene_info == None:
             return fallback_value

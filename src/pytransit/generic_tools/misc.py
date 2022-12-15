@@ -313,21 +313,5 @@ def invert_dict(existing_dict):
     return new_dict
     
 
-# a fallback function that just never caches anything
-def cache(*args, **kwargs):
-    def decorator_name(function_being_wrapped):
-        return function_being_wrapped
-    return decorator_name
-
-from super_hash import super_hash
-def memory_cache(function_being_wrapped):
-    data_cache = {}
-    def wrapper(*args, **kwargs):
-        hash_value = super_hash((args, kwargs))
-        if hash_value in data_cache:
-            return data_cache[hash_value]
-        else:
-            output = function_being_wrapped(*args, **kwargs)
-            data_cache[hash_value] = output
-            return output
-    return wrapper
+from pytransit.generic_tools.cool_cache import cache, settings
+settings.default_folder = None # use in-memory storage
