@@ -13,7 +13,7 @@ import numpy
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import calc_gene_means, wx, basename
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -26,15 +26,16 @@ class Method:
     cli_name = identifier.lower()
     
     valid_cli_flags = [
-        "-log",
-        "-genes",
-        "-cond" 
+        "--log",
+        "--genes",
+        "-cond",
+        "-samp",
     ]
 
     usage_string = f"""
-        usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> <sample_id1> <sample_id2> <annotation_file> <output.png> [-genes -log]
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> -cond <condition1> <condition2> <annotation_file> <output.png> [-genes -log]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> -samp <comma-separated sample ID's> <output.png> [--genes --log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> -cond <comma-separated condition names> <output.png> [--genes --log]
     """.replace("\n        ","\n     ")
     
     # usage: scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>
@@ -43,52 +44,79 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
         combined_wig_path      = args[0]
-        metadata_path          = args[1]
-        sample_or_condition1   = args[2]
-        sample_or_condition2   = args[3]
-        annotation_path        = args[4]
-        output_path            = args[5] # png file
+        annotation_path        = args[1]
+        metadata_path          = args[2]
+        output_path            = args[3] # png file
         avg_by_conditions = "cond" in kwargs
+        condition_names = console_tools.string_arg_to_list(kwargs["cond"])
+        sample_ids      = console_tools.string_arg_to_list(kwargs["samp"])
         
-        combined_wig = tnseq_tools.CombinedWig(
-            main_path=combined_wig,
+        combined_wig = tnseq_tools.CombinedWig.load(
+            main_path=combined_wig_path,
             metadata_path=metadata_path,
+            annotation_path=annotation_path,
         )
         # 
         # filter either by condition or by sample
         # 
         if avg_by_conditions:
-            combined_wig = combined_wig.with_only(condition_names=[sample_or_condition1, sample_or_condition2])
+            combined_wig = combined_wig.with_only(condition_names=condition_names)
         else:
-            combined_wig = combined_wig.with_only(wig_ids=[sample_or_condition1, sample_or_condition2])
+            combined_wig = combined_wig.with_only(wig_ids=sample_ids)
         
         # save the data
         Method.output(
             combined_wig=combined_wig,
             annotation_path=annotation_path,
             output_path=output_path,
+            avg_by_conditions=avg_by_conditions,
             normalization=kwargs["n"],
             gene_means="genes" in kwargs, # bool
             log_scale="log" in kwargs # bool
         )
         
+<<<<<<< HEAD
     @gui.add_menu("Pre-Processing", menu_name, "By Sample")
+=======
+    @gui.add_menu("Pre-Processing", "Visuals", cli_name)
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
     def on_menu_click(event):
+        Method.define_panel(event)
+    
+    def define_panel(self, _):
         from pytransit.components import panel_helpers
         Method.value_getters = LazyDict()
         Method.by_condition = False
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            parameter_panel.set_instructions(
+                title_text= self.name,
+                sub_text= "",
+                method_specific_instructions="""
+                    A useful tool to show a detailed correlation of counts between 2 datasets.
+
+                    1. Ensure the correct annotation file has been loaded in 
+
+                    2. Select exactly 2 samples from the sample pane
+                    
+                    3. Select whether you would like to calculate the mean insertion count within a gene prior to the plot generation
+
+                    4. [Optional] Select if you would like to have the plots be in log scale and/or normalized using a specific method
+
+                    5. Click Run
+                """.replace("\n                    ","\n")
+            )
+
             sample_ids = [x.id for x in gui.samples]
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
             Method.value_getters.combined_wig  = panel_helpers.combined_wig_filtered_by_sample_input(panel, main_sizer)
             Method.value_getters.gene_means    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="average counts at the gene level", default_value=False, tooltip_text="if false, this shows the scatterplot of insertion counts at individual TA sites", widget_size=None)
             Method.value_getters.log_scale     = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="show axes on log scale", default_value=False, tooltip_text="show axes on log scale", widget_size=None)
             Method.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer)
-            Method.value_getters.n_terminus    = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            Method.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
 
+<<<<<<< HEAD
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
     
     @gui.add_menu("Pre-Processing", menu_name, "By Condition")
@@ -106,6 +134,8 @@ class Method:
             Method.value_getters.c_terminus    = panel_helpers.create_c_terminus_input(panel, main_sizer)
 
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
+=======
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
     
     @staticmethod
     def from_gui(frame):
@@ -123,9 +153,9 @@ class Method:
         # if plotting samples, (for now) only allow two samples
         # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
         if not Method.by_condition:
-            assert len(arguments.combined_wig.samples) == 2, "Please select only two samples on the left"
+            assert len(arguments.combined_wig.samples) >= 2, "Please select two or more samples on the left"
         else:
-            assert len(arguments.combined_wig.condition_names) == 2, "Please select only two conditions on the left"
+            assert len(arguments.combined_wig.condition_names) >= 2, "Please select only two or more conditions on the left"
         arguments.avg_by_conditions = Method.by_condition
         
         # 
@@ -143,7 +173,7 @@ class Method:
         Method.output(**arguments)
 
     @staticmethod
-    def output(*, combined_wig, output_path, normalization=None, avg_by_conditions=None, gene_means=None, log_scale=None, n_terminus=None, c_terminus=None, disable_logging=False):
+    def output(*, output_path, combined_wig_path=None, metadata_path=None, annotation_path=None, combined_wig=None, normalization=None, avg_by_conditions=None, gene_means=None, log_scale=None, n_terminus=None, c_terminus=None, disable_logging=False):
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         avg_by_conditions = avg_by_conditions if avg_by_conditions is not None else False
@@ -152,40 +182,40 @@ class Method:
         n_terminus        = n_terminus        if n_terminus        is not None else 0.0
         c_terminus        = c_terminus        if c_terminus        is not None else 0.0
         
-        # TODO: in future potentially allow a grid of scatterplots when more than two samples are selected
-        if not avg_by_conditions: assert len(combined_wig.samples) == 2, "Please use combined_wig.with_only(wig_ids=[ID1, ID2]) before calling scatter plot"
-        else: assert len(combined_wig.condition_names) == 2, "Please use combined_wig.with_only(condition_names=[NAME1, NAME2]) before calling scatter plot"
+        if combined_wig == None:
+            combined_wig = tnseq_tools.CombinedWig.load(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
             # by gene or site
             # 
-            if gene_means: 
-                means, genes, labels = calc_gene_means(combined_wig, normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
+            if gene_means:
+                means, genes, labels = calc_gene_means(combined_wig=combined_wig, normalization=normalization, avg_by_conditions=avg_by_conditions, n_terminus=n_terminus, c_terminus=c_terminus)
                 counts = means
             else:
+                if combined_wig.metadata:
+                    labels = combined_wig.metadata.wig_ids
+                else:
+                    labels = combined_wig.wig_fingerprints
                 # average conditions if needed
                 if avg_by_conditions:
                     combined_wig = combined_wig.averaged(by_conditions=True)
+                    labels = combined_wig.metadata.condition_names
                 counts = combined_wig.read_counts_array
-                labels = combined_wig.wig_ids # wig_ids will be equivlent to condition names when averaged by conditions
             
             # 
             # plot
             # 
-            sample1_name, sample2_name = labels
-            sample_1_counts = counts[:,0]
-            sample_2_counts = counts[:,1]
+            import seaborn as sns
             import matplotlib.pyplot as plt
-            if log_scale:
-                plt.scatter(numpy.log10(sample_1_counts),numpy.log10(sample_2_counts))
-                plt.xlabel("log10(%s)" % sample1_name)
-                plt.ylabel("log10(%s)" % sample2_name)
-            else:
-                plt.scatter(sample_1_counts,sample_2_counts)
-                plt.xlabel("%s" % sample1_name)
-                plt.ylabel("%s" % sample2_name)
-            if gene_means: plt.title("scatter plot of mean insertion counts for each gene")
-            else: plt.title("scatter plot of insertion counts at individual TA sites")
-            plt.savefig(output_path)
-            plt.clf()
+            import pandas as pd
+            
+            counts_df = pd.DataFrame(counts, columns=labels)
+            plt.figure()
+            if log_scale:  g = sns.PairGrid(numpy.log10(counts_df))
+            else: g = sns.PairGrid(counts_df)
+            g.map(sns.scatterplot, s=10, alpha=.5)
+            
+            if gene_means: g.fig.suptitle("scatter plot of mean insertion counts for each gene")
+            else: g.fig.suptitle("scatter plot of insertion counts at individual TA sites")
+            plt.savefig(output_path, bbox_inches='tight', pad_inches = 0.5)

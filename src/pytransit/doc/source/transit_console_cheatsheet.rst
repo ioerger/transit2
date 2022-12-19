@@ -50,7 +50,7 @@ Example
 
 .. code-block:: python
 
-   python transit.py gumbel glycerol_H37Rv_rep1.wig,glycerol_H37Rv_rep2.wig H37Rv.prot_table glycerol_TTR.txt -r Sum -s 10000
+   python transit.py gumbel cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig H37Rv.prot_table glycerol_TTR.txt -r Sum -s 10000
 
 
 
@@ -84,7 +84,7 @@ Example
 
 .. code-block:: python
 
-   python transit.py resampling glycerol_H37Rv_rep1.wig,glycerol_H37Rv_rep2.wig cholesterol_H37Rv_rep1.wig,cholesterol_H37Rv_rep2.wig H37Rv.prot_table glycerol_TTR.txt -n TTR -s 10000
+   python transit.py resampling cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig cholesterol_glycerol.transit/cholesterol_rep1.wig,cholesterol_glycerol.transit/cholesterol_rep2.wig H37Rv.prot_table glycerol_TTR.txt -n TTR -s 10000
 
 
 
@@ -129,7 +129,7 @@ Example
 
 .. code-block:: python
 
-   python transit.py norm glycerol_H37Rv_rep1.wig,glycerol_H37Rv_rep2.wig H37Rv.prot_table glycerol_TTR.txt -n TTR
+   python transit.py norm cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig H37Rv.prot_table glycerol_TTR.txt -n TTR
 
 
 

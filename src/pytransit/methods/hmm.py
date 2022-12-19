@@ -15,7 +15,7 @@ import heapq
 import math
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.specific_tools.tnseq_tools import Wig
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -56,17 +56,19 @@ class Method:
     valid_cli_flags = [
         "-r",
         "-n",
-        "-l",
+        "--l",
         "-iN",
         "-iC",
     ]
     
-    usage_string = f"""{console_tools.subcommand_prefix} hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} hmm <comma-separated .wig files> <annotation_file> <output_file>
 
         Optional Arguments:
             -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
             -n <string>     :=  Normalization method. Default: -n TTR
-            -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
             -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
             -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
@@ -93,31 +95,30 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.name,
-                method_long_text= "Hidden Markov Model",
+                title_text= self.name,
+                sub_text= "Hidden Markov Model",
                 method_specific_instructions="""
-                The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
-                
-                1. Select a condition from the conditions panel
+                    The HMM method can be used to determine the essentiality of the entire genome, as opposed to gene-level analysis of the other methods. It is capable of identifying regions that have unusually high or unusually low read counts (i.e. growth advantage or growth defect regions), in addition to the more common categories of essential and non-essential.
+                    
+                    1. Select a condition from the conditions panel
 
-                2. [Optional] Select/Adjust other parameters
+                    2. [Optional] Select/Adjust other parameters
 
-                3. Click Run
+                    3. Click Run
                 """.replace("\n                    ","\n"),
             )
             # 
             # parameter inputs
             # 
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
-            if True:
-                self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-                self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
-                self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
-                self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-                self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-                self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            self.value_getters.condition              = panel_helpers.create_condition_input(panel, main_sizer)
+            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
+            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using loess_correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
                 
-                panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
         
     @staticmethod
     def from_gui(frame):
@@ -152,7 +153,11 @@ class Method:
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
+<<<<<<< HEAD
             output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+=======
+            output_extensions=transit_tools.result_output_extensions,
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         )
         if not Method.inputs.output_path:
             return None
@@ -228,7 +233,7 @@ class Method:
                         data[j] = stat_tools.loess_correction(position, data[j])
 
                 hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
-                rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
+                rv2info = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path).orf_to_info
 
                 if len(self.inputs.ctrl_read_counts) > 1:
                     logging.log("Combining Replicates as '%s'" % self.inputs.replicates)
@@ -350,6 +355,8 @@ class Method:
                             annotation_path=self.inputs.annotation_path,
                             output_path=self.inputs.output_path,
                         ),
+
+
                     ),
                 )
                 logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
@@ -640,7 +647,13 @@ class SitesFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update({" ":""})
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["replicates","normalization", "loess_correction"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
+            
     
     def __str__(self):
         return f"""
@@ -685,35 +698,23 @@ class GeneFile:
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[
-                        # HANDLE_THIS
+                        "ORF"
                     ],
                 ).Show(),
             })
         )
         
-        # 
-        # get column names
-        # 
-        comments, headers, rows = csv.read(self.path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
-        self.comments = "\n".join(comments)
-        
-        # 
-        # get rows
-        #
-        self.rows = []
-        for each_row in rows:
-            self.rows.append({
-                each_column_name: each_cell
-                    for each_column_name, each_cell in zip(self.column_names, each_row)
-            })
+        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         
         # 
         # get summary stats
         #
-        self.values_for_result_table.update({
-            # HANDLE_THIS (additional summary_info for results table)
-        })
+        summary = self.extra_data.get("Summary Of Gene Calls", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())]  
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
     
+        
+
     def __str__(self):
         return f"""
             File for {Method.identifier}

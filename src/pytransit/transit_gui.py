@@ -45,7 +45,6 @@ from pytransit.components.menu                   import create_menu
 from pytransit.components.parameter_panel        import create_panel_area
 from pytransit.components.results_area           import create_results_area
 from pytransit.components.samples_area           import create_sample_area
-from pytransit.components.annotation_area        import create_annotation_area
 from pytransit.generic_tools.lazy_dict                  import LazyDict
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 
@@ -64,6 +63,8 @@ class TnSeqFrame(wx.Frame):
         # connect to GUI tools (otherwise they will not function)
         gui_tools.bit_map = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, (16, 16))
         
+        gui.debug_wx_if_needed()
+        
         with InnerFrame(parent, title="TRANSIT") as frame:
             
             with Row() as main_wrapper:
@@ -79,13 +80,9 @@ class TnSeqFrame(wx.Frame):
                 # data column
                 # 
                 with Column() as data_column:
-                    
+                    data_column.wx_object.Add(10,5) # padding
                     # children
                     if True:
-                        data_column.add(
-                            create_annotation_area(self),
-                            proportion=0,
-                        )
                         data_column.add(
                             create_sample_area(self),
                             proportion=1,

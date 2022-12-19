@@ -13,9 +13,10 @@ class Method:
     name = "normalize"
     description = "Method for normalizing datasets and outputting into CombinedWig file."
     usage_string = f"""
-        {console_tools.subcommand_prefix} norm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-    
-            Optional Arguments:
+        Usage:
+            {console_tools.subcommand_prefix} norm <wig_file or combined_wig_file> <output_file> [Optional Arguments]
+        
+        Optional Arguments:
             -n <string>     :=  Normalization method. Default: -n TTR
     """.replace("\n        ","\n")
     
@@ -54,13 +55,19 @@ class Method:
     
     # a helper for all the methods above
     def gui_normalize(self, kind):
+        from pytransit.specific_tools import transit_tools
         # TODO: ask the user for the combined wig instead of operating on the one that (is presumably) loaded
         return Method.run_normalize(
             combined_wig=gui.combined_wigs[-1],
             output_path=gui_tools.ask_for_output_file_path(
                 default_file_name=f"{Method.name}_output.tsv".lower(),
+<<<<<<< HEAD
                 output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+=======
+                output_extensions=transit_tools.result_output_extensions,
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
             ),
+            infile_path=gui.combined_wigs[-1],
             normalization=kind,
         )
     
@@ -68,17 +75,19 @@ class Method:
     @cli.add_command("normalize")
     @cli.add_command("export", "norm")
     def from_args(args, kwargs):
-        is_combined_wig = "c" in kwargs
+        from pytransit.methods.combined_wig import Method as CombinedWigMethod
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=2)
+        
+        is_combined_wig = CombinedWigMethod.file_is_combined_wig(args[0])
+        combined_wig = None
         if is_combined_wig:
-            console_tools.enforce_number_of_args(args, Method.usage_string, at_least=1)
-            infile_path = kwargs.get("c")
-            combined_wig = tnseq_tools.CombinedWig(main_path=infile_path)
-            output_path = args[0]  # if no arg give, could print to screen
+            infile_path = args[0]
+            combined_wig = tnseq_tools.CombinedWig.load(main_path=infile_path)
+            output_path = args[1]
         else:
             console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)
-            combined_wig = False
-            infile_path = args[0]  # only 1 input wig file
-            output_path = args[1]  # if no arg give, could print to screen
+            infile_path = args[0] # only 1 input wig file
+            output_path = args[1]
         
         Method.run_normalize(
             combined_wig=combined_wig,
@@ -88,7 +97,7 @@ class Method:
         )
 
     @staticmethod
-    def run_normalize(combined_wig, infile_path, output_path, normalization):
+    def run_normalize(combined_wig, output_path, normalization, infile_path=None):
         with gui_tools.nice_error_log:
             logging.log("Starting Normalization")
             start_time = time.time()

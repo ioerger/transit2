@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
 
@@ -75,12 +75,13 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                     HANDLE_THIS
                 """.replace("\n                    ","\n"),
             )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
@@ -105,7 +106,6 @@ class Method:
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):
@@ -118,7 +118,6 @@ class Method:
         gui.is_active # false if using command line
         gui.frame # self.wxobj equivalent
         gui.busy_running_method # Boolean, is true when any run-button function is started but not finished
-        gui.annotation_path # string, may need to become a list of strings
         gui.samples # list of Wig objects
         gui.conditions # list of Condition objects
         gui.selected_samples # list of Wig objects

@@ -1,10 +1,14 @@
 #Anova
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:37:26
+=======
+#    date: 2022-12-15 10:35:08
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol_combined.dat' './src/pytransit/data/samples_metadata_cg.txt' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0001_basic.sh.1.result'
+#        python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './tests/cli_tests/anova/0001_basic.sh.1.result'
 #    parameters:
 #       conditions_list:
 #       - Cholesterol
@@ -12,9 +16,18 @@
 #       normalization: TTR
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
-#       alpha: 1000.0
+#       alpha: 1000
+#       refs: []
+#    mean_columns:
+#    - Mean Cholesterol
+#    - Mean Glycerol
+#    lfc_columns:
+#    - Log 2 FC Cholesterol
+#    - Log 2 FC Glycerol
+#    summary_info:
+#       Hits: '25'
 #    
-#Rv	Gene	TAs	Mean Cholesterol	Mean Glycerol	LFC Cholesterol	LFC Glycerol	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
+#Rv	Gene	TAs	Mean Cholesterol	Mean Glycerol	Log 2 FC Cholesterol	Log 2 FC Glycerol	MSR	MSE With Alpha	Fstat	P Value	Adj P Value	Status
 Rv0001	dnaA	31	0.00	0.00	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions
 Rv0002	dnaN	31	0.00	0.00	0.000	0.000	0.000000	0.000000	-1.000000	1.000000	1.000000	No counts in all conditions
 Rv0003	recF	35	21.59	16.82	0.136	-0.150	617.903517	4563.341611	0.135406	0.713341	1.000000	-

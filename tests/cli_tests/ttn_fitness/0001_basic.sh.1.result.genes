@@ -1,20 +1,27 @@
 #TTNFitnessGenes
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:50:43
+=======
+#    date: 2022-12-15 12:07:13
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
+#        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
+#    time: 5136.479867935181
+#    saturation: 0.5342776384918797
 #    parameters:
 #       combined_wig: null
 #       wig_files:
-#       - ./src/pytransit/data/glycerol_H37Rv_rep1.wig
-#       - ./src/pytransit/data/glycerol_H37Rv_rep2.wig
+#       - ./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
+#       - ./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
 #       metadata: null
 #       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #       gumbel_results_file: ./tests/cli_tests/gumbel/0001_basic.sh.1.result
 #       normalization: TTR
 #    summary_info:
+<<<<<<< HEAD
 #       time: 237.43343091011047
 #       saturation: 0.5342776384918797
 #       ES: 173 essential based on Gumbel
@@ -23,6 +30,21 @@
 #       GA: 206 Growth Advantage
 #       NE: 2672 non-essential
 #       U: 76 uncertain
+=======
+#       ES: '173'
+#       ESB: '501'
+#       GD: '351'
+#       GA: '206'
+#       NE: '2672'
+#       U: '76'
+#    naming_reference:
+#       ES: Essential based on Gumbel
+#       ESB: Essential based on Binomial
+#       NE: Non-essential
+#       U: Uncertain
+#       GD: Growth Defect
+#       GA: Growth Advantage
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    
 #ORF	Gene Name	Description	Total TA Site Count	Count Of Sites With Insertions	Gene Saturation	Gene Plus TTN M1 Coef	Gene Plus TTN M1 Adj P Value	Mean Insertion Count	Fitness Ratio	TTN Fitness Assessment
 Rv0001	dnaA	chromosomal replication initiation protein 	31	0	0.0			0.0		ESB

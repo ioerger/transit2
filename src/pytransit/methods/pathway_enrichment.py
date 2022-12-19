@@ -19,7 +19,11 @@ from pytransit.components.parameter_panel import panel,progress_update, set_inst
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
+<<<<<<< HEAD
 from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+=======
+from pytransit.specific_tools.transit_tools import wx, basename
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 
@@ -48,51 +52,72 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        "-Pval_col",
-        "-Qval_col",
+        "-p-val-col",
+        "-q-val-col",
         "-ranking",
-        "-LFC_col",
+        "-LFC-col",
         "-p",
-        "-Nperm",
+        "-n-perm",
         "-PC"
     ]
 
-    #-Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
-    #-Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
-    #-LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+    #-p-val-col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
+    #-q-val-col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
+    #-LFC-col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
-    usage_string = f"""{console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
-
-        Optional parameters:
-        -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
-
-        for GSEA...
-        -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
-        -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-        -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
-        for FET...
-        -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
+    usage_string = f"""
+        Usage 1: # -M FET for Fisher's Exact Test (default)
+            {console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> -M FET [Optional Arguments]
+            
+            Optional Arguments:
+                -PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: -PC 2
+                -p-val-col <int> := column index (starting at 0) for p-val
+                -q-val-col <int> := column index (starting at 0) for q-val
+                -LFC-col   <int> := column index (starting at 0) for LFC's
+        
+        Usage 2:
+            # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
+            {console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> -M GSEA [Optional Arguments]
+            
+            Optional Arguments:
+                -ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from resampling. Default -ranking SLPV
+                -p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+                -n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default -n-perm 10000
+                -p-val-col <int>       := column index (starting at 0) for p-val
+                -q-val-col <int>       := column index (starting at 0) for q-val
+                -LFC-col   <int>       := column index (starting at 0) for LFC's
+            
+        Usage 3:
+            # ONT for Ontologizer (Grossman et al, 2007)
+            {console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> -M ONT [Optional Arguments]
+            
+            Optional Arguments:
+                -p-val-col <int>       := column index (starting at 0) for p-val
+                -q-val-col <int>       := column index (starting at 0) for q-val
+                -LFC-col   <int>       := column index (starting at 0) for LFC's
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Method", "himar1", menu_name)
+    @gui.add_menu("Post-Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
-    @gui.add_menu("Method", "tn5", menu_name)
-    def on_menu_click(event):
-        Method.define_panel(event)
-
     def call_from_results_panel(self, results_file):
         self.inputs.resampling_file = results_file
         self.define_panel()
 
-    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text=""):
+    def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
         import csv
         COG_orgs = []
         with open(root_folder+"src/pytransit/data/cog-20.org.tsv") as file_obj:
             reader_obj = csv.reader(file_obj)
             for row in reader_obj:
                 COG_orgs.append(row[1])
+
+        path_to_assoc_dict={"Sanger":["H37Rv"], "COG": COG_orgs, "KEGG":["H37Rv"], "GO":["H37Rv", "Smeg"]}
+        assoc_to_path_dict={"H37Rv":["Sanger", "KEGG", "GO"]}
+        for org in COG_orgs:
+            assoc_to_path_dict[org]=["COG"]
+
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
         if True:
             # 
@@ -125,49 +150,106 @@ class Method:
                 def when_button_clicked(*args,**kwargs):
                     nonlocal organism_pathway
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
-                    popup_sizer = wx.BoxSizer(wx.VERTICAL)
-                    win.SetSizer(popup_sizer)
+                    #popup_sizer = wx.BoxSizer(wx.VERTICAL)
+                    popup_sizer = wx.GridSizer(rows=3, cols=3, hgap=2, vgap=2) 
+                    win.SetSizer(popup_sizer,  wx.EXPAND|wx.ALL)
 
-                    pathway_label_text= wx.StaticText(win, wx.ID_ANY, label="Select A Pathway Type : ", style=wx.ALIGN_LEFT)
+                    
+                    pathway_label_text= wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="Select A Pathway Type : ", style=wx.EXPAND)
                     popup_sizer.Add(pathway_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    pathway_type = wx.ComboBox(win,choices = ["Sanger", "COG" ,"GO", "KEGG"])
+                    pathway_type = wx.ComboBox(win, size = (250, 20))
+                    pathway_type.Clear()
+                    pathway_type.SetItems(list(path_to_assoc_dict.keys())+["Upload my Own Pathway file"])
                     popup_sizer.Add(pathway_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    pathway_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND, size = (250, 20))
+                    popup_sizer.Add(pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
 
-                    select_btn = wx.Button(win, wx.ID_OK, label = "Select", size = (50,20), pos = (75,50))
-                    popup_sizer.Add(select_btn,wx.EXPAND, gui_tools.default_padding)
 
+                    associations_label_text= wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="Select An Association : ", style=wx.EXPAND)
+                    popup_sizer.Add(associations_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    association_type = wx.ComboBox(win, size = (250, 20))
+                    association_type.Clear()
+                    association_type.SetItems(list(assoc_to_path_dict.keys())+["Upload my Own Associations file"])
+                    popup_sizer.Add(association_type,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                    association_text = wx.StaticText(win, wx.ALL | wx.ALIGN_CENTER, label="", style=wx.EXPAND, size = (250, 20))
+                    popup_sizer.Add(association_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+          
+
+                    reset_btn = wx.Button(win, wx.ID_OK, label = "Reset Choices")
+                    popup_sizer.Add(reset_btn,wx.EXPAND, gui_tools.default_padding)
+
+                    
+                    @gui_tools.bind_to(pathway_type, wx.EVT_COMBOBOX)
+                    def onPathwaySelect(*args,**kwargs):
+                        with gui_tools.nice_error_log:
+                            selected_path = pathway_type.GetStringSelection()
+                            logging.log("You selected "+selected_path + " Pathway")                               
+                            if "Upload" in selected_path: #upload your own pathway file
+                                pathway_text.SetLabel("Custom")
+                                association_type.SetItems(["Upload my Own Associations file"])
+
+                                pathway_file_path = gui_tools.ask_for_file(
+                                    message="Select Pathways File",
+                                    default_folder=None,
+                                    default_file_name="",
+                                    allowed_extensions='All files (*.*)|*.*',
+                                )
+                                Method.inputs.pathways_file = pathway_file_path
+                                pathway_text.SetLabel(pathway_file_path.split("/")[-1])
+                                association_type.SetItems(["Upload my Own Associations file"])
+
+                            else:
+                                pathway_text.SetLabel(selected_path)
+                                association_type.SetItems(path_to_assoc_dict[selected_path]+["Upload my Own Associations file"])
+                                if selected_path =="COG": 
+                                    association_type.SetValue('Mycobacterium_tuberculosis_H37Rv')
+                                    association_text.SetLabel('Mycobacterium_tuberculosis_H37Rv')
+
+
+                    @gui_tools.bind_to(association_type, wx.EVT_COMBOBOX)
+                    def onAssociationSelect(*args,**kwargs):
+
+                        with gui_tools.nice_error_log:
+                            selected_org = association_type.GetStringSelection()
+                            logging.log("You selected "+selected_org + " Associations")
+                            if "Upload" in selected_org:
+                                # set the file path variable
+                                associations_file_path = gui_tools.ask_for_file(
+                                    message="Select Associations File",
+                                    default_folder=None,
+                                    default_file_name="",
+                                    allowed_extensions='All files (*.*)|*.*',
+                                )
+                                Method.inputs.associations_file = associations_file_path
+                                association_text.SetLabel(associations_file_path.split("/")[-1])
+                                pathway_type.SetItems(["Upload my Own Associations file"])
+                            else:
+                                association_text.SetLabel(selected_org)
+                                pathway_type.SetItems(assoc_to_path_dict[selected_org]+["Upload my Own Pathways file"])
+                                    
+
+                    @gui_tools.bind_to(reset_btn, wx.EVT_BUTTON)
+                    def when_reset_button_clicked(*args,**kwargs):
+                        pathway_text.SetLabel("")
+                        pathway_type.Clear()
+                        pathway_type.SetItems(list(path_to_assoc_dict.keys())+["Upload my Own Pathway file"])
+                        association_text.SetLabel("")
+                        association_type.Clear()
+                        association_type.SetItems(list(assoc_to_path_dict.keys())+["Upload my Own Associations file"])                    
+                    
+                    ok_btn = wx.Button(win, wx.ID_OK, label = "Done")
+                    popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
                     win.Layout()
                     popup_sizer.Fit(win)
-                    selected_path = win.ShowModal()
-
-                    if selected_path == wx.ID_OK:
-                        pathway_type_selected = pathway_type.GetValue()
-                        organism_label_text= wx.StaticText(win, wx.ID_ANY, label="Select An Organism : ", style=wx.ALIGN_LEFT)
-                        popup_sizer.Add(organism_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        if pathway_type_selected== "COG":                           
-                            organism = wx.ComboBox(win,choices = sorted(COG_orgs))               
-                        elif pathway_type_selected== "KEGG":
-                            organism = wx.ComboBox(win,choices = ["H37Rv"])
-                        elif pathway_type_selected== "Sanger":
-                            organism = wx.ComboBox(win,choices = ["H37Rv"])
-                        else:
-                            organism = wx.ComboBox(win,choices = ["H37Rv", "Smeg"])
-
-                        popup_sizer.Add(organism,wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
-                        popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
-
-                        win.Layout()
-                        popup_sizer.Fit(win)
-                        res = win.ShowModal()
-                        if res == wx.ID_OK:
-                            organism_pathway = "-".join([organism.GetValue(),pathway_type_selected])
-                            organism_pathway_text.SetLabel(basename(organism_pathway or ""))
-                        win.Destroy()
+                    res = win.ShowModal()
                     
+                    if res == wx.ID_OK:
+                        organism_pathway = association_text.GetLabel() + "-" + pathway_text.GetLabel()
+                        display_text= association_text.GetLabel().split("_")[-1]+ "-" + pathway_text.GetLabel()
+                        organism_pathway_text.SetLabel(display_text)
+                    win.Destroy()
 
             row_sizer.Add(popup_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-
             organism_pathway_text= wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(organism_pathway_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
         
@@ -178,8 +260,8 @@ class Method:
         from pytransit.components import panel_helpers 
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                 Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. 
 
@@ -199,6 +281,7 @@ class Method:
                     5. Click Run
                 """.replace("\n                    ","\n"),
             )
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
             self.value_getters = LazyDict()
 
             if Method.inputs.resampling_file == None:
@@ -209,25 +292,12 @@ class Method:
                     allowed_extensions='All files (*.*)|*.*'
                 )
 
-            self.value_getters.associations_file = panel_helpers.create_file_input(panel, main_sizer, 
-                button_label="Select Custom Associations File", 
-                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines. It is OK if there are no associations listed for some genes. Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.", 
-                popup_title="Select Associations File",
-                allowed_extensions='All files (*.*)|*.*'
-            )
-
-            self.value_getters.pathways_file = panel_helpers.create_file_input(panel, main_sizer, 
-                button_label="Select Custom Pathways File", 
-                tooltip_text="This is a tab-separated text file with 2 columns: pathway id, and pathway name.", 
-                popup_title="Select Pathways File",
-                allowed_extensions='All files (*.*)|*.*'
-            )
-
             self.value_getters.organism_pathway =  self.create_default_pathway_button(panel, main_sizer, 
-                button_label="Select from Provided Files", 
-                tooltip_text="We have a few Associaiton and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
+                button_label="Select Pathway system", 
+                tooltip_text="We have a few Association and Pathway files pre-loaded for for your use. When this button is clicked, a pop-up will appear that will allow you to select a Pathway type and organism", 
             )
-    
+
+   
             self.value_getters.method = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Method",
                 options= ["FET", "GSEA", "ONT"],
@@ -246,9 +316,8 @@ class Method:
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
-            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2)
+            self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2, tooltip="Pseudo-counts used in calculating pathway enrichment. Useful to dampen the effects of small counts which may lead to deceptively high enrichment scores.")
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
 
 
     @staticmethod
@@ -266,8 +335,7 @@ class Method:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
 
-
-        if Method.inputs.organism_pathway != None:
+        if Method.inputs.organism_pathway != "-":
             organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG":
                 try:
@@ -294,18 +362,34 @@ class Method:
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
-            elif Method.inputs.organism_pathway =="H37Rv-GO" and Method.inputs.method == "ONT":
-                logging.log("Loading in H37Rv Associations for GO Pathways")
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
+            elif Method.inputs.organism_pathway =="H37Rv-GO": 
+                if Method.inputs.method == "ONT":
+                    logging.log("Loading in H37Rv Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
+                else: 
+                    logging.log("Loading in H37Rv Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
             elif Method.inputs.organism_pathway =="Smeg-GO":
-                logging.log("Loading in Smeg Associations for GO Pathways")
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
-
+                if Method.inputs.method == "ONT":
+                    logging.log("Loading in H37Rv Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
+                else:
+                    logging.log("Loading in Smeg Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
+        else:
+            logging.error("Select pathway and association files")
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+<<<<<<< HEAD
             default_file_name=f"{Method.cli_name}_output.txt",
             output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+=======
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions=transit_tools.result_output_extensions,
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         )
 
 
@@ -332,12 +416,12 @@ class Method:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            pval_col = int(kwargs.get("Pval_col", Method.inputs.pval_col)),
-            qval_col = int(kwargs.get("Qval_col", Method.inputs.qval_col)),
+            pval_col = int(kwargs.get("p-val-col", Method.inputs.pval_col)),
+            qval_col = int(kwargs.get("q-val-col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SLPV"),
-            lfc_col = int(kwargs.get("LFC_col", Method.inputs.lfc_col)),
+            lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
-            num_permutations = int(kwargs.get("Nperm", Method.inputs.num_permutations)),
+            num_permutations = int(kwargs.get("n-perm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
         ))
         
@@ -352,8 +436,10 @@ class Method:
             
             #checking validation of inputs
             if self.inputs.method == "FET":
-                self.hit_summary = self.fisher_exact_test()
-                file_output_type = Method.identifier+"FET"
+                self.hit_summary = {
+                    "Hits":self.fisher_exact_test()
+                }
+                file_output_type = Method.identifier+"_FET"
                 file_columns = [
                         "Pathway",
                         "Total Genes", 
@@ -371,21 +457,26 @@ class Method:
                     ]
             elif self.inputs.method == "GSEA":
                 up,down = self.GSEA()
-                self.hit_summary = str(up)+str(" Siginificant Pathways for Conditional Essential Genes, ") + str(down) + str(" Siginificant Pathways for Conditional Non-Essential Genes, ")
-                file_output_type = Method.identifier+"GSEA"
+                #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
+                self.hit_summary = {
+                    "Hits": str(up) + " enriched;"+str(down) + " depleted",
+                }
+                file_output_type = Method.identifier+"_GSEA"
                 file_columns = [
                         "Pathway",
-                        "Pathway Description"
+                        "Pathway Description",
                         "Genes in Path", 
                         "Mean Rank",
-                        "Enrichment" , 
+                        "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
                         "Genes"
                     ]
             elif self.inputs.method == "ONT":
-                self.hit_summary = self.Ontologizer()
-                file_output_type = Method.identifier+"ONT"
+                self.hit_summary = {
+                    "Hits":self.Ontologizer()
+                }
+                file_output_type = Method.identifier+"_ONT"
                 file_columns = [
                         "Pathway",
                         "Total Genes", 
@@ -424,8 +515,8 @@ class Method:
                     enrichment_exponent = self.inputs.enrichment_exponent,
                     num_permutations = self.inputs.num_permutations,
                     pseudocount = self.inputs.pseudocount,
-                    hit_summary = self.hit_summary
                 ),
+                summary_info = self.hit_summary
             ),
         )
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
@@ -534,9 +625,9 @@ class Method:
         # filter: project associations (of orfs to pathways) onto only those orfs appearing in the resampling file
 
         ontology = self.read_pathways(self.inputs.pathways_file)
-        genenames = {}
+        gene_names = {}
         for gene in data:
-            genenames[gene[0]] = gene[1]
+            gene_names[gene[0]] = gene[1]
         n2 = int(len(data) / 2)
         terms = list(ontology.keys())
         terms2orfs = associations
@@ -621,19 +712,9 @@ class Method:
                 else:
                     down += 1
 
-        for term,mr,es,pval,qval in results:
-            if qval<0.05 and mr<n2: 
-                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
-                )
-    
-        for term,mr,es,pval,qval in results:
-            if qval<0.05 and mr>n2: 
-                self.rows.append("#   %s %s (mean_rank=%s)" % (term,ontology.get(term,"?"),mr)
-                )
-
         for term, mr, es, pval, qval in results:
             rvs = terms2orfs[term]
-            rvinfo = [(x, genenames.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
+            rvinfo = [(x, gene_names.get(x, "?"), orfs2rank.get(x, n2)) for x in rvs]
             rvinfo.sort(key=lambda x: x[2])
             rvs = ["%s/%s (%s)" % x for x in rvinfo]
             rvs = " ".join(rvs)
@@ -724,9 +805,9 @@ class Method:
             rej, qvals = multitest.fdrcorrection(pvals)
             results = [x + [y] for x, y in zip(results, qvals)]
 
-            genenames = {}
+            gene_names = {}
             for gene in genes:
-                genenames[gene[0]] = gene[1]
+                gene_names[gene[0]] = gene[1]
 
             results.sort(key=lambda x: x[-2])  # pvals
             for res in results:
@@ -734,7 +815,7 @@ class Method:
                 term = res[0]
                 vals.append(pathways[term])
                 intersection = list(filter(lambda x: x in associations[term], hits))
-                intersection = ["%s/%s" % (x, genenames[x]) for x in intersection]
+                intersection = ["%s/%s" % (x, gene_names[x]) for x in intersection]
                 vals.append(" ".join(intersection))
                 self.rows.append(vals)
 
@@ -917,19 +998,19 @@ class Method:
 class FETResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier+"FET")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"_FET")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier+"FET",
+            type=Method.identifier+"_FET",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier+"FET",
+                    title=Method.identifier+"_FET",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -941,8 +1022,16 @@ class FETResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
     
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
     def __str__(self):
         return f"""
             File for {Method.identifier}
@@ -954,19 +1043,19 @@ class FETResultsFile:
 class GSEAResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier+"GSEA")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"_GSEA")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier+"GSEA",
+            type=Method.identifier+"_GSEA",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier+"GSEA",
+                    title=Method.identifier+"_GSEA",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -978,7 +1067,14 @@ class GSEAResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        #self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
     
     def __str__(self):
         return f"""
@@ -992,19 +1088,19 @@ class GSEAResultsFile:
 class ONTResultsFile:
     @staticmethod
     def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier+"ONT")
+        return transit_tools.file_starts_with(path, '#'+Method.identifier+"_ONT")
     
     def __init__(self, path=None):
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
             name=basename(self.path),
-            type=Method.identifier+"ONT",
+            type=Method.identifier+"_ONT",
             path=self.path,
             # anything with __ is not shown in the table
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier+"ONT",
+                    title=Method.identifier+"_ONT",
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
@@ -1016,8 +1112,15 @@ class ONTResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
-    
+
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
     def __str__(self):
         return f"""
             File for {Method.identifier}

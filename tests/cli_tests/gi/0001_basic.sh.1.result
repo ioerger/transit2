@@ -1,11 +1,20 @@
 #GI
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:59:45
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'gi' './src/pytransit/data/Subu_KO_combined_wig.txt' './src/pytransit/data/Subu_KO_metadata.txt' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './src/pytransit/data/genomes/H37Rv_dev.prot_table' './tests/cli_tests/gi/0001_basic.sh.1.result'
 #    time: 125.94780278205872
+=======
+#    date: 2022-12-15 10:36:47
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' './src/pytransit/data/subu_ko.transit/metadata.tsv' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
+#    time: 49.37007403373718
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    Parameters:
 #       Normalization_Of_Counts: TTR
 #       Number_Of_Samples_For_Monte_Carlo: '10000'
@@ -27,7 +36,7 @@
 #       Alleviating: '0'
 #       Suppressive: '0'
 #    
-#ORF	Gene	Annotation	TA Sites	A1 Mean Count	A2 Mean Count	B1 Mean Count	B2 Mean Count	Log FC Strain A	Log FC Strain B	Delta Log FC	Lower Bound Delta Log FC	Upper Bound Delta Log FC	Is HDI Outside ROPE	Probability Of Delta Log FC Being Within ROPE	un Adj P Value	Type Of Interaction
+#ORF	Gene	Annotation	TA Sites	A1 Mean Count	A2 Mean Count	B1 Mean Count	B2 Mean Count	Log 2 FC Strain A	Log 2 FC Strain B	Delta Log 2 FC	Lower Bound Delta Log 2 FC	Upper Bound Delta Log 2 FC	Is HDI Outside ROPE	Probability Of Delta Log 2 FC Being Within ROPE	un Adj P Value	Type Of Interaction
 Rv0017c	rodA	PROBABLE CELL DIVISION PROTEIN RODA 	27	33.33	16.27	28.46	77.57	-1.32	1.48	2.80	0.10	5.89	False	0.02550000	0.02550000	No Interaction
 Rv0013	trpG	para-aminobenzoate synthase component II 	15	16.87	158.54	31.56	17.31	3.27	-0.90	-4.17	-9.13	0.99	False	0.02710000	0.02710000	No Interaction
 Rv0047c	-	hypothetical protein Rv0047c 	7	287.70	820.62	72.56	25.43	1.22	-1.73	-2.96	-7.20	2.00	False	0.05970000	0.05970000	No Interaction

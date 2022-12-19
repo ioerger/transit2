@@ -2,7 +2,8 @@ from pytransit.specific_tools.transit_tools import wx
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
-default_label_size = (200, -1)
+default_padding = 30
+default_label_size = (220, -1)
 default_widget_size = (100, -1)
 
 # 
@@ -44,6 +45,28 @@ if True:
                 self.wx_panel.SetupScrolling()
                 gui.frame.Layout()
     
+    def create_tooltip_and_label(panel, tooltip_text, label_text=None):
+        from pytransit.components.icon import InfoIcon
+        inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        inner_sizer.Add(
+            InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
+            proportion=0,
+            flag=wx.ALIGN_CENTER_VERTICAL,
+            border=gui_tools.default_padding,
+        )
+        # a spacer because the border doesn't seem to actually work
+        inner_sizer.Add(10, default_padding)
+        if label_text != None:
+            label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, default_label_size, 0)
+            label.Wrap(-1)
+            inner_sizer.Add(
+                label,
+                proportion=0,
+                flag=wx.ALIGN_CENTER_VERTICAL,
+                border=gui_tools.default_padding,
+            )
+        return inner_sizer
+    
     def create_button(panel, sizer, *, label):
         """
         Example:
@@ -51,7 +74,7 @@ if True:
             def when_button_clicked(event):
                 print("do stuff")
         """
-        run_button = wx.Button(
+        a_button = wx.Button(
             panel,
             wx.ID_ANY,
             label,
@@ -59,9 +82,9 @@ if True:
             wx.DefaultSize,
             0,
         )
-        sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(a_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         def decorator(func):
-            @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
+            @gui_tools.bind_to(a_button, wx.EVT_BUTTON)
             def wrapper(*args,**kwargs):
                 with gui_tools.nice_error_log:
                     return func(*args,**kwargs)
@@ -77,52 +100,42 @@ if True:
         """
 
         from os.path import basename
-        row_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
-            if tooltip_text:
-                from pytransit.components.icon import InfoIcon
-                row_sizer.Add(
-                    InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-                    0,
-                    wx.ALIGN_CENTER_VERTICAL,
-                    gui_tools.default_padding,
-                )
-             
-            if True:
-                # the button to click on in passed in panel to get a popup
-                click_button = wx.Button(
-                    panel,
-                    wx.ID_ANY,
-                    button_label,
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    0,
-                )
-                results=None
-                @gui_tools.bind_to(click_button, wx.EVT_BUTTON)
-                def when_button_clicked(*args,**kwargs):
-                    nonlocal results
-                    win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
-                    popup_sizer = wx.BoxSizer(wx.VERTICAL)
-                    win.SetSizer(popup_sizer)
+            # the button to click on in passed in panel to get a popup
+            click_button = wx.Button(
+                panel,
+                wx.ID_ANY,
+                button_label,
+                wx.DefaultPosition,
+                wx.DefaultSize,
+                0,
+            )
+            results=None
+            @gui_tools.bind_to(click_button, wx.EVT_BUTTON)
+            def when_button_clicked(*args,**kwargs):
+                nonlocal results
+                win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
+                popup_sizer = wx.BoxSizer(wx.VERTICAL)
+                win.SetSizer(popup_sizer)
 
-                    dropdown_label_text= wx.StaticText(win, wx.ID_ANY, label="Select One : ", style=wx.ALIGN_LEFT)
-                    popup_sizer.Add(dropdown_label_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-                    dropdown_selection = wx.ComboBox(win,choices = ["Yes", "No", "Maybe"])
-                    popup_sizer.Add(dropdown_selection, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                dropdown_label_text= wx.StaticText(win, wx.ID_ANY, label="Select One : ", style=wx.ALIGN_LEFT)
+                popup_sizer.Add(dropdown_label_text, 0, wx.ALL, gui_tools.default_padding)
+                dropdown_selection = wx.ComboBox(win,choices = ["Yes", "No", "Maybe"])
+                popup_sizer.Add(dropdown_selection, wx.ALL, gui_tools.default_padding)
 
-                    ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
-                    popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
+                ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+                popup_sizer.Add(ok_btn,wx.EXPAND, gui_tools.default_padding)
 
-                    win.Layout()
-                    popup_sizer.Fit(win)
-                    res = win.ShowModal()
-                    if res == wx.ID_OK:
-                        results = dropdown_selection.GetValue()
-                    win.Destroy()
-        row_sizer.Add(click_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+                win.Layout()
+                popup_sizer.Fit(win)
+                res = win.ShowModal()
+                if res == wx.ID_OK:
+                    results = dropdown_selection.GetValue()
+                win.Destroy()
+        row_sizer.Add(click_button, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(row_sizer, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args, **kwargs: results
 
         return
@@ -135,20 +148,8 @@ if True:
                 file_path_or_none = file_path_getter()
         """
         from os.path import basename
-        row_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
-            # 
-            # tooltip
-            # 
-            if tooltip_text:
-                from pytransit.components.icon import InfoIcon
-                row_sizer.Add(
-                    InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-                    0,
-                    wx.ALIGN_CENTER_VERTICAL,
-                    gui_tools.default_padding,
-                )
-            
             # 
             # button
             # 
@@ -177,15 +178,15 @@ if True:
                         )
                         file_text.SetLabel(basename(the_file_path or ""))
                         after_select(*args)
-            row_sizer.Add(add_file_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+            row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
             
             # 
             # Text
             # 
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(file_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+            row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_LEFT, border=gui_tools.default_padding)
         return lambda *args, **kwargs: the_file_path
     
     def create_multi_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
@@ -195,20 +196,8 @@ if True:
                 file_path_or_none = file_path_getter()
         """
         from os.path import basename
-        row_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
-            # 
-            # tooltip
-            # 
-            if tooltip_text:
-                from pytransit.components.icon import InfoIcon
-                row_sizer.Add(
-                    InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-                    0,
-                    wx.ALIGN_CENTER_VERTICAL,
-                    gui_tools.default_padding,
-                )
-            
             # 
             # button
             # 
@@ -238,15 +227,15 @@ if True:
                         names = "\n".join([ basename(each) for each in selected_paths ])
                         file_text.SetLabel(names)
                         after_select(*args)
-            row_sizer.Add(add_file_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+            row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
             
             # 
             # Text
             # 
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(file_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+            row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         return lambda *args, **kwargs: selected_paths
     
     def create_persistent_file_input(panel, sizer, *, name, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*'):
@@ -257,20 +246,8 @@ if True:
         """
         ##todo : HANDLE NAME
         from os.path import basename
-        row_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
-            # 
-            # tooltip
-            # 
-            if tooltip_text:
-                from pytransit.components.icon import InfoIcon
-                row_sizer.Add(
-                    InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-                    0,
-                    wx.ALIGN_CENTER_VERTICAL,
-                    gui_tools.default_padding,
-                )
-            
             # 
             # button
             # 
@@ -298,15 +275,15 @@ if True:
                             allowed_extensions=allowed_extensions,
                         )
                         file_text.SetLabel(basename(the_file_path or ""))
-            row_sizer.Add(add_file_button, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
+            row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
             
             # 
             # Text
             # 
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(file_text, 0, wx.ALL | wx.ALIGN_CENTER, gui_tools.default_padding)
-        
-        sizer.Add(row_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+            row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         return lambda *args, **kwargs: the_file_path
    
     def define_choice_box(
@@ -325,20 +302,11 @@ if True:
         if not widget_size:
             widget_size = default_widget_size
 
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
-        label.Wrap(-1)
+        sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text, label_text=label_text)
         choice_box = wx.Choice(panel, wx.ID_ANY, wx.DefaultPosition, widget_size, options, 0 )
         choice_box.SetSelection(0)
-        sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         sizer.Add(choice_box, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
-        sizer.Add(
-            InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-            0,
-            wx.ALIGN_CENTER_VERTICAL,
-            gui_tools.default_padding,
-        )
-        return (label, choice_box, sizer)
+        return (None, choice_box, sizer)
     
     def create_label(
         panel,
@@ -355,7 +323,7 @@ if True:
         choice_box.SetSelection(0)
         inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         
-        sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(inner_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
 
     def create_choice_input(panel, sizer, label, options, default_option=None, tooltip_text=""):
         # 
@@ -378,7 +346,7 @@ if True:
             options=options,
             tooltip_text=tooltip_text,
         )
-        sizer.Add(inner_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(inner_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         # return a value-getter
         wxobj.SetSelection(wxobj.FindString(default_option))
         return lambda *args: wxobj.GetString(wxobj.GetCurrentSelection())
@@ -397,18 +365,12 @@ if True:
             if not widget_size:
                 widget_size = default_widget_size
 
-            sizer = wx.BoxSizer(wx.HORIZONTAL)
-            label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
-            label.Wrap(-1)
+            sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text, label_text=label_text)
             text_box = wx.TextCtrl(panel, wx.ID_ANY, f"{default_value}", wx.DefaultPosition, widget_size, 0)
-            
-            sizer.Add(label, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
-            sizer.Add(text_box, 0,  wx.ALL|wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
-            sizer.Add(InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text), 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            sizer.Add(text_box, 0,  wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
             sizer.Layout()
             
-            
-            return label, text_box, sizer
+            return None, text_box, sizer
             
     def create_check_box_getter(panel, sizer, *, label_text="", default_value=False, tooltip_text="", label_size=None, widget_size=None):
         from pytransit.components.icon import InfoIcon
@@ -417,23 +379,12 @@ if True:
         if not label_size:
             label_size = default_label_size
         
-        inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, label_size, 0)
-        label.Wrap(-1)
+        inner_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text, label_text=label_text)
         check_box   = wx.CheckBox(panel, label="", size=widget_size)
         check_box.SetValue(default_value)
-        
-        inner_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
         inner_sizer.Add(check_box, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
-        inner_sizer.Add(
-            InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
-            0,
-            wx.ALIGN_CENTER_VERTICAL,
-            gui_tools.default_padding,
-        )
         
-        sizer.Add(inner_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
-        
+        sizer.Add(inner_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: check_box.GetValue()
     
     def create_text_box_getter(panel, sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,):
@@ -447,7 +398,7 @@ if True:
             default_value=str(default_value),
             tooltip_text=tooltip_text,
         )
-        sizer.Add(wrapper_sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(wrapper_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: wxobj.GetValue()
 
     def create_float_getter(panel, sizer, *, label_text, default_value, tooltip_text=None):
@@ -469,6 +420,30 @@ if True:
             tooltip_text=tooltip_text,
         )
         return lambda *args: int(get_text())        
+    
+    def create_multiselect_getter(panel, sizer, options, label_text=None, tooltip_text=None):
+        from pytransit.components import parameter_panel
+        from pytransit.components.generic.table import Table
+        
+        sizer.Add(
+            create_tooltip_and_label(panel, tooltip_text=tooltip_text, label_text=label_text),
+            0,
+            wx.ALIGN_LEFT, gui_tools.default_padding
+        )
+        
+        table = None
+        row_height_approximate = 25
+        with Table(frame=panel, column_width="100%", min_size=(parameter_panel.panel.max_width*0.5, -1)) as table:
+            sizer.Add(
+                table.wx_object,
+                0,
+                wx.ALIGN_CENTER_HORIZONTAL,
+                gui_tools.default_padding
+            )
+            for each in options:
+                table.add(dict(option=each))
+        
+        return lambda *args: [ each["option"] for each in table.selected_rows ]
 
 # 
 # 
@@ -537,9 +512,9 @@ if True:
             panel,
             label_text="Normalization: ",
             options=Method.options,
-            tooltip_text="Choice of normalization method. The default choice, 'TTR', normalizes datasets to have the same expected count (while not being sensative to outliers). Read documentation for a description other methods. ",
+            tooltip_text="Choice of normalization method. The default choice is TTR (trimmed total reads). See documentation for a description other methods.",
         )
-        sizer.Add(normalization_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(normalization_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         # return a value-getter
         normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
         return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
@@ -556,7 +531,7 @@ if True:
             options=wig_ids,
             tooltip_text=tooltip_text,
         )
-        sizer.Add(ref_wig_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(ref_wig_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: gui.samples[wig_ids.index(ref_wig_wxobj.GetString(ref_wig_wxobj.GetCurrentSelection()))]
     
     def create_condition_choice(panel, sizer, *, label_text, tooltip_text="choose condition"):
@@ -570,7 +545,7 @@ if True:
             options=[x.name for x in gui.conditions],
             tooltip_text=tooltip_text,
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_reference_condition_input(panel, sizer):
@@ -582,9 +557,9 @@ if True:
             panel,
             label_text="Ref Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
-            tooltip_text="which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)",
+            tooltip_text="Which condition to use as a reference for calculating LFCs. If no ref given, this compares against grand mean of all conditions.",
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_condition_input(panel, sizer, label_text="Condition", tooltip_text="choose condition"):
@@ -598,8 +573,22 @@ if True:
             options=[ "[None]" ] + [x.name for x in gui.conditions],
             tooltip_text=tooltip_text,
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
+    
+    def create_dropdown(panel, sizer, items, label_text="choose", tooltip_text="choose item"):
+        (
+            label,
+            ref_dropdown_wxobj,
+            ref_dropdown_choice_sizer,
+        ) = define_choice_box(
+            panel,
+            label_text=label_text,
+            options=items,
+            tooltip_text=tooltip_text,
+        )
+        sizer.Add(ref_dropdown_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
+        return lambda *args: ref_dropdown_wxobj.GetString(ref_dropdown_wxobj.GetCurrentSelection())
     
     def create_include_condition_list_input(panel, sizer):
         (
@@ -612,7 +601,7 @@ if True:
             default_value="",
             tooltip_text="comma seperated list (default=all)",
         )
-        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(wrapper_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         
         def get_value(*args):
             as_list = wxobj.GetValue().split(",")
@@ -635,7 +624,7 @@ if True:
             default_value="",
             tooltip_text="comma seperated list (default=none)",
         )
-        sizer.Add(wrapper_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(wrapper_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         
         def get_value(*args):
             as_list = wxobj.GetValue().split(",")
@@ -653,10 +642,10 @@ if True:
             panel,
             label_text="Control Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
-            tooltip_text="which condition(s) to use as the control group",
+            tooltip_text="In a comparison of a treatment vs. control condition, this is the control condition to be used as reference",
             label_size=(200, 20),
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_experimental_condition_input(panel, sizer):
@@ -668,10 +657,10 @@ if True:
             panel,
             label_text="Experimental Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
-            tooltip_text="which condition(s) to use as the experimental group",
+            tooltip_text="In a comparison of a treatment vs. control condition, this is the treatment condition”p",
             label_size=(200, 20),
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_n_terminus_input(panel, sizer):
@@ -680,7 +669,7 @@ if True:
             sizer,
             label_text="Ignore N-Terminus %:",
             default_value="0",
-            tooltip_text="Ignores a fraction of the ORF, beginning at the N-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+            tooltip_text="Ignore TA sites in a given fraction of the N-terminal end of the ORF. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
         )
         return lambda *args: float(get_text())
     
@@ -690,11 +679,11 @@ if True:
             sizer,
             label_text="Ignore C-Terminus %:",
             default_value="0",
-            tooltip_text="Ignores a fraction of the ORF, beginning at the C-terminal end. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
+            tooltip_text="Ignore TA sites in a given fraction of the C-terminal end of the ORF. Useful for ignoring read-counts that may occur at the terminal ends, even though they do not truly disrupt a genes function.",    
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_input(panel, sizer, default_value="5"):
+    def create_pseudocount_input(panel, sizer, default_value="5", tooltip = "Pseudo-counts used in calculating log-fold-change. Note: pseudocounts do not affect P values. Useful to dampen the effects of small counts which may lead to deceptively high LFC."):
         # 
         # text input: Pseudocount
         # 
@@ -703,19 +692,10 @@ if True:
             sizer,
             label_text="Pseudocount:",
             default_value=default_value,
-            tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
+            tooltip_text=tooltip
         )
         return lambda *args: float(get_text())
     
-    def create_pseudocount_input(panel, sizer, default_value="5"):
-        get_text = create_text_box_getter(
-            panel,
-            sizer,
-            label_text="Pseudocount:",
-            default_value=default_value,
-            tooltip_text="Pseudo-counts used in calculating log-fold-change. Useful to dampen the effects of small counts which may lead to deceptively high LFC.",    
-        )
-        return lambda *args: int(get_text())
     
     def create_alpha_input(panel, sizer, default_value="1000"):
         get_text = create_text_box_getter(
@@ -723,7 +703,7 @@ if True:
             sizer,
             label_text="Alpha:",
             default_value=default_value,
-            tooltip_text=" Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha). This is helpful because genes with very low counts are occasionally ranked as significant by traditional ANOVA, even though the apparent variability is probably due to noise. Setting alpha to a number like 1000 helps filter out these irrelevant genes by reducing their significance. If you want to emulate the standard ANOVA test, you can set alpha to 0.",    
+            tooltip_text="Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha). Note: this value does affect P values. This is helpful because genes with very low counts are occasionally ranked as significant by traditional ANOVA, even though the apparent variability is probably due to noise. Setting alpha to a number like 1000 helps filter out these irrelevant genes by reducing their significance. If you want to emulate the standard ANOVA test, you can set alpha to 0.",    
         )
         return lambda *args: int(get_text())
     
@@ -738,9 +718,9 @@ if True:
     
     def create_selected_condition_names_input(panel, sizer, default_value=False):
         check_box_getter = create_check_box_getter(panel, sizer,
-            label_text="Only Selected Conditions",
+            label_text="Use only selected conditions",
             default_value=default_value,
-            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on",
+            tooltip_text="When checked, use the conditions table (on the left) to select which conditions to run this analysis on. When not checked, all conditions are used.",
         )
         def wrapper(*args, **kwargs):
             is_checked = check_box_getter(*args, **kwargs)
@@ -792,16 +772,14 @@ if True:
         return wrapper
     
     def create_run_button(panel, sizer, from_gui_function):
-        run_button = wx.Button(
-            panel,
-            wx.ID_ANY,
-            "Run",
-            wx.DefaultPosition,
-            wx.DefaultSize,
-            0,
-        )
-        sizer.Add(run_button, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        from wx.lib.buttons import GenButton
         
+        font = wx.Font(10, family = wx.FONTFAMILY_MODERN, style=0, weight=90, underline=False, faceName="", encoding=wx.FONTENCODING_DEFAULT)
+  
+        run_button = GenButton(panel, id=wx.ID_ANY, label="Run", style=wx.NO_BORDER, size=(-1, -1))
+        run_button.SetBackgroundColour((244, 122, 116, 255))
+        sizer.Add(10,20) # vertical padding
+        sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         
         @gui_tools.bind_to(run_button, wx.EVT_BUTTON)
         def run(*args):
@@ -835,7 +813,9 @@ if True:
             --BFDR: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the BFDR method
             --FWER: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the FWER method""".replace("\n            ","\n"),
         )
-        sizer.Add(signif_sizer, 1, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, gui_tools.default_padding)
+        sizer.Add(signif_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
         # return a value-getter
         signif_wxobj.SetSelection(signif_wxobj.FindString(default))
         return lambda *args: signif_wxobj.GetString(signif_wxobj.GetCurrentSelection())
+    
+    

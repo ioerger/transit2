@@ -19,12 +19,11 @@ from pytransit.specific_tools import logging, gui_tools, transit_tools, console_
 from pytransit.generic_tools import csv, misc
 import pytransit.components.results_area as results_area
 
-
-
 @misc.singleton
 class Method:
-    identifier  = "tnseq_stats"
-    cli_name    = identifier.lower()
+    identifier  = "Tnseq Stats"
+    cli_name    = identifier.replace(" ","_").lower()
+    identifier  = "TnseqStats"
     menu_name   = f"{identifier} - Analyze statistics of TnSeq datasets"
     description = """Analyze statistics of TnSeq datasets in combined_wig file"""
     
@@ -49,10 +48,13 @@ class Method:
     
     valid_cli_flags = [
         "-n", # normalization flag
-        "-o", # output filename (optional)
-        "-c", # indicates whether input is list of wig files (comma- or space-separated?), or a combined_wig file
     ]
-    usage_string = f"""usage: {console_tools.subcommand_prefix} tnseq_stats <file.wig>+ [-o <output_file>]\n       {console_tools.subcommand_prefix} tnseq_stats -c <combined_wig> [-o <output_file>]"""
+    
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file>
+            {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file> <output_file>
+    """
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
@@ -62,10 +64,10 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             # only need Norm selection and Run button        
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict(
                 normalization=panel_helpers.create_normalization_input(panel, main_sizer,default="nonorm")
             )
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
 
     @staticmethod
     def from_gui(frame):
@@ -88,8 +90,8 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="tnseq_stats.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name="tnseq_stats.tsv",
+            output_extensions='Common output extensions (*.tsv,*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
         )
         if not Method.inputs.output_path:
             return None
@@ -101,18 +103,27 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        
+        wig_or_combined_wig = console_tools.string_arg_to_list(args[0])
+        output_path = args[1] if len(args) > 1 else None
+        normalization = kwargs.get("n", Method.inputs.normalization)
 
-        wigs = args # should be args[0]?
-        combined_wig  = kwargs.get("c", Method.inputs.combined_wig)
-        normalization = kwargs.get("n", Method.inputs.normalization) 
-        output_path   = kwargs.get("o", Method.inputs.output_path)
-
-        if combined_wig == None and len(wigs) == 0:
-            logging.error(Method.usage_string)
-
-        # save all the data
+        if len(wig_or_combined_wig) > 1:
+            wigs = wig_or_combined_wig
+            combined_wig = None
+        else:
+            from pytransit.methods.combined_wig import Method as CombinedWigMethod
+            
+            wig_or_combined_wig = wig_or_combined_wig[0]
+            if CombinedWigMethod.file_is_combined_wig(wig_or_combined_wig):
+                combined_wig = wig_or_combined_wig
+                wigs = []
+            else:
+                combined_wig = None
+                wigs = [ wig_or_combined_wig ]
+        
         Method.inputs.update(dict(
-            wigs=wigs, ### what if user gives a list of wig files instead of a combined_wig?
+            wigs=wigs,
             combined_wig=combined_wig, 
             normalization=normalization,
             output_path=output_path,
@@ -128,15 +139,21 @@ class Method:
         # get data
         # 
         logging.log(f"Getting Data from {self.inputs.combined_wig}")
-        sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
+        if self.inputs.combined_wig:
+            combined_wig = tnseq_tools.CombinedWig.load(main_path=self.inputs.combined_wig)
+            ta_site_positions, read_counts, filenames_in_comb_wig = combined_wig.as_tuple
+        else:
+            read_counts, ta_site_positions = tnseq_tools.CombinedWig.gather_wig_data(self.inputs.wigs)
+            filenames_in_comb_wig = self.inputs.wigs
+            
         logging.log(f"Normalizing using: {self.inputs.normalization}")
-        data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+        read_counts, factors = norm_tools.normalize_data(read_counts, self.inputs.normalization)
             
         # 
-        # process data
+        # process read_counts
         # 
-        logging.log("processing data")
-        results = self.calc_tnseq_stats(data,filenames_in_comb_wig)
+        logging.log("processing read_counts")
+        results = self.calc_tnseq_stats(read_counts, filenames_in_comb_wig)
 
         # 
         # write output
@@ -173,10 +190,10 @@ class Method:
             PTIs.append(PTI)
         return numpy.median(PTIs)
 
-    # data=numpy array of (normalized) insertion counts at TA sites for multiple samples; sample_names=.wig filenames
-    def calc_tnseq_stats(self,data,sample_names): 
+    # data=numpy array of (normalized) insertion counts at TA ta_site_positions for multiple samples; sample_names=.wig filenames
+    def calc_tnseq_stats(self, read_counts, sample_names): 
         results = []
-        for i in range(data.shape[0]):
+        for i in range(read_counts.shape[0]):
             (
                 density,
                 meanrd,
@@ -186,9 +203,9 @@ class Method:
                 totalrd,
                 skew,
                 kurtosis,
-            ) = tnseq_tools.get_data_stats(data[i, :])
+            ) = tnseq_tools.get_data_stats(read_counts[i, :])
             nzmedianrd = int(nzmedianrd) if numpy.isnan(nzmedianrd) == False else 0
-            pti = self.pickands_tail_index(data[i, :])
+            pti = self.pickands_tail_index(read_counts[i, :])
             vals = [
                 sample_names[i],
                 "%0.3f" % density,

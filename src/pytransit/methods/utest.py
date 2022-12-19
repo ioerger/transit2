@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
 
@@ -27,21 +27,7 @@ class Method:
     cli_name    = name.lower()
     description = f"""Mann-Whitney U-test of conditional essentiality"""
     menu_name   = f"{name} - {description}"
-    
-    
-    inputs = LazyDict(
-        ctrldata=None,
-        expdata=None,
-        annotation_path=None,
-        output_path=None,
-        normalization="TTR",
-        include_zeros=False,
-        LOESS=False,
-        ignore_codon=True,
-        n_terminus=0.0,
-        c_terminus=0.0,
-        significance_threshold=0.05,
-    )
+    himar1      = True # default assume
     
     column_names = [
         "Orf",
@@ -58,257 +44,256 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "-iz",
+        "--iz",
         "-l",
         "-iN",
         "-iC",
     ]
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
 
         Optional Arguments:
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -iz             :=  Include rows with zero accross conditions.
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
-        -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
+            --iz            :=  Include rows with zero accross conditions.
+            --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
+            -n <string>     :=  Normalization method. Default: -n TTR
+            -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
+            -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
+        Method.himar1 = True
         Method.define_panel(event)
     
     @gui.add_menu("Method", "tn5", menu_name)
     def on_menu_click(event):
+        Method.himar1 = False
         Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
-                    HANDLE_THIS
+                    This is a method for comparing datasets from a TnSeq library evaluated in two different conditions, analogous to resampling. This is a rank-based test on whether the level of insertions in a gene or chromosomal region are significantly higher or lower in one condition than the other. Effectively, the insertion counts at the TA sites in the region are pooled and sorted. Then the combined ranks of the counts in region A are compared to those in region B, and p-value is calculated that reflects whether there is a significant difference in the ranks. The advantage of this method is that it is less sensitive to outliers (a unusually high insertion count at just a single TA site). A reference for this method is (Santa Maria et al., 2014).
                 """.replace("\n                    ","\n"),
             )
-            self.value_getters = LazyDict()
-            # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(panel, main_sizer, label="")
-            # def when_button_clicked(event):
-            #     print("do stuff")
-            # @panel_helpers.create_button(panel, main_sizer, label="Show pop up")
-            # def when_button_clicked(event):
-            #     from pytransit.components import pop_up
-            #     @pop_up.create_pop_up(panel)
-            #     def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
-            # 
-            #         @panel_helpers.create_button(pop_up_panel, sizer, label="Click me for pop up")
-            #         def when_button_clicked(event):
-            #             print("do stuff")
-            
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-            
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+            self.value_getters = LazyDict()
+            self.value_getters.control_condition        = panel_helpers.create_control_condition_input(panel, main_sizer)
+            self.value_getters.experimental_condition   = panel_helpers.create_experimental_condition_input(panel, main_sizer)
+            self.value_getters.n_terminus               = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus               = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.normalization            = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.LOESS                    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             
-    @staticmethod
+    
+    @staticmethod        
     def from_gui(frame):
-        # 
-        # get annotation
-        # 
-        Method.inputs.annotation_path = gui.annotation_path
+        arguments = LazyDict()
         
         # 
-        # call all GUI getters, puts results into respective Method.inputs key-value
+        # call all GUI getters, puts results into respective arguments key-value
         # 
         for each_key, each_getter in Method.value_getters.items():
             try:
-                Method.inputs[each_key] = each_getter()
+                arguments[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
         # 
         # ask for output path(s)
         # 
+<<<<<<< HEAD
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
             output_extensions='Common output extensions (*.txt,*.tsv,*.dat,*.out)|*.txt;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
+=======
+        arguments.output_path = gui_tools.ask_for_output_file_path(
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions='Common output extensions (*.tsv,*.dat,*.out)|*.txt;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         )
         # if user didn't select an output path
-        if not Method.inputs.output_path:
+        if not arguments.output_path:
             return None
-
-        return Method
+        
+        if arguments.control_condition == '[None]':
+            logging.error(f'''Please select control condition''')
+        if arguments.experimental_condition == '[None]':
+            logging.error(f'''Please select experimental condition''')
+        
+        arguments.combined_wig = gui.combined_wigs[-1].with_only(condition_names=[ arguments.control_condition, arguments.experimental_condition ])
+        Method.output(**arguments)
 
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
         
-        # save the data
-        Method.inputs.update(dict(
-            ctrldata = args[0].split(","),
-            expdata = args[1].split(","),
-            annotation_path = args[2],
-            output_path = args[3],
-            normalization = kwargs.get("n", "TTR"),
-            include_zeros = kwargs.get("iz", False),
-            LOESS = kwargs.get("l", False),
-            ignore_codon = True,
-            n_terminus = float(kwargs.get("iN", 0.00)),
-            c_terminus = float(kwargs.get("iC", 0.00)),
-        ))
-        
-        Method.Run()
+        Method.output(
+            combined_wig=tnseq_tools.CombinedWig.load(
+                main_path=args[0],
+                annotation_path=args[1],
+                metadata_path=args[2],
+            ),
+            control_condition=args[3],
+            experimental_condition=args[4],
+            output_path=args[5],
+            normalization=kwargs["n"],
+            n_terminus=kwargs["iN"],
+            c_terminus=kwargs["iC"],
+            LOESS="l" in kwargs,
+        )
     
-    def Run(self):
+    @staticmethod
+    def output(*, combined_wig, control_condition, experimental_condition, output_path, normalization=None, n_terminus=None, c_terminus=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
         import scipy.stats
         from pytransit.specific_tools import stat_tools
-        logging.log("Starting Mann-Whitney U-test Method")
-        start_time = time.time()
-
-        k_ctrl = len(self.inputs.ctrldata)
-        k_exp = len(self.inputs.expdata)
-        # Get orf data
-        logging.log("Getting Data")
-        (data, position) = transit_tools.get_validated_data(
-            self.inputs.ctrldata + self.inputs.expdata,
-        )
-
-        (K, N) = data.shape
-
-        if self.inputs.normalization != "nonorm":
-            logging.log("Normalizing using: %s" % self.inputs.normalization)
-            (data, factors) = norm_tools.normalize_data(
-                data,
-                self.inputs.normalization,
-                self.inputs.ctrldata + self.inputs.expdata,
-                self.inputs.annotation_path,
+        # Defaults (even if argument directly provided as None)
+        normalization          = normalization          if normalization          is not None else "TTR"
+        n_terminus             = n_terminus             if n_terminus             is not None else 0.0
+        c_terminus             = c_terminus             if c_terminus             is not None else 0.0
+        LOESS                  = LOESS                  if LOESS                  is not None else False
+        ignore_codon           = ignore_codon           if ignore_codon           is not None else True
+        significance_threshold = significance_threshold if significance_threshold is not None else 0.05
+        
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
+            number_of_control_wigs = sum( 1 for each in combined_wig.samples if control_condition in each.condition_names ) # TODO: check if this is right
+            # 
+            # restrict to relevent data
+            # 
+            combined_wig = combined_wig.with_only(condition_names=[ control_condition, experimental_condition ])
+            
+            # 
+            # normalize
+            # 
+            if normalization != "nonorm":
+                logging.log(f"Normalizing with {normalization}")
+                combined_wig = combined_wig.normalized_with(normalization)
+            
+            if LOESS:
+                logging.log("Performing LOESS Correction")
+                combined_wig = combined_wig.with_loess_correction()
+            
+            control_samples_by_gene = combined_wig.with_only(condition_names=[control_condition]).get_genes(
+                ignore_codon=ignore_codon,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
+            )
+            experimental_samples_by_gene = combined_wig.with_only(condition_names=[experimental_condition]).get_genes(
+                ignore_codon=ignore_codon,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
             )
 
-        if self.inputs.LOESS:
-            logging.log("Performing LOESS Correction")
-            for j in range(K):
-                data[j] = stat_tools.loess_correction(position, data[j])
-
-        G = tnseq_tools.Genes(
-            self.inputs.ctrldata + self.inputs.expdata,
-            self.inputs.annotation_path,
-            ignore_codon=self.inputs.ignore_codon,
-            n_terminus=self.inputs.n_terminus,
-            c_terminus=self.inputs.c_terminus,
-            data=data,
-            position=position,
-        )
-
-        # u-test
-        data = []
-        N = len(G)
-        count = 0
-        
-        for gene in G:
-            count += 1
-            if gene.k == 0 or gene.n == 0:
-                (test_obs, mean1, mean2, log2_fc, u_stat, pval_2tail) = (
-                    0,
-                    0,
-                    0,
-                    0,
-                    0.0,
-                    1.00,
-                )
-            else:
-
-                if not self.inputs.include_zeros:
-                    ii = numpy.sum(gene.reads, 0) > 0
+            # u-test
+            data = []
+            N = len(control_samples_by_gene)
+            count = 0
+            
+            for progress, (control_gene, experimental_gene) in informative_iterator.ProgressBar(
+                tuple(zip(control_samples_by_gene, experimental_samples_by_gene)),
+                title=f"Running {Method.name}",
+                disable_logging=True
+            ):
+                count += 1
+                if (control_gene.k + experimental_gene.k) == 0 or control_gene.n == 0:
+                    test_obs   = 0
+                    mean1      = 0
+                    mean2      = 0
+                    log2_fc    = 0
+                    u_stat     = 0.0
+                    pval_2tail = 1.0
                 else:
-                    ii = numpy.ones(gene.n) == 1
+                    data1 = control_gene.reads.flatten()
+                    data2 = experimental_gene.reads.flatten()
+                    try:
+                        u_stat, pval_2tail = scipy.stats.mannwhitneyu(
+                            data1, data2, alternative="two-sided"
+                        )
+                    except ValueError as e:
+                        u_stat, pval_2tail = 0.0, 1.00
 
-                data1 = gene.reads[:k_ctrl, ii].flatten()
-                data2 = gene.reads[k_ctrl:, ii].flatten()
-                try:
-                    u_stat, pval_2tail = scipy.stats.mannwhitneyu(
-                        data1, data2, alternative="two-sided"
-                    )
-                except ValueError as e:
-                    u_stat, pval_2tail = 0.0, 1.00
+                    n1 = len(data1)
+                    n2 = len(data2)
 
-                n1 = len(data1)
-                n2 = len(data2)
+                    mean1 = 0
+                    if n1 > 0:
+                        mean1 = numpy.mean(data1)
+                    mean2 = 0
+                    if n2 > 0:
+                        mean2 = numpy.mean(data2)
 
-                mean1 = 0
-                if n1 > 0:
-                    mean1 = numpy.mean(data1)
-                mean2 = 0
-                if n2 > 0:
-                    mean2 = numpy.mean(data2)
+                    try:
+                        # Only adjust log2_fc if one of the means is zero
+                        if mean1 > 0 and mean2 > 0:
+                            log2_fc = math.log((mean2) / (mean1), 2)
+                        else:
+                            log2_fc = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
+                    except:
+                        log2_fc = 0.0
 
-                try:
-                    # Only adjust log2_fc if one of the means is zero
-                    if mean1 > 0 and mean2 > 0:
-                        log2_fc = math.log((mean2) / (mean1), 2)
-                    else:
-                        log2_fc = math.log((mean2 + 1.0) / (mean1 + 1.0), 2)
-                except:
-                    log2_fc = 0.0
+                data.append(
+                    [
+                        control_gene.orf,
+                        control_gene.name,
+                        control_gene.desc,
+                        control_gene.n,
+                        mean1,
+                        mean2,
+                        log2_fc,
+                        u_stat,
+                        pval_2tail,
+                    ]
+                )
 
-            data.append(
-                [
-                    gene.orf,
-                    gene.name,
-                    gene.desc,
-                    gene.n,
-                    mean1,
-                    mean2,
-                    log2_fc,
-                    u_stat,
-                    pval_2tail,
-                ]
+                # # Update Progress
+                # percent = (100.0 * count / N)
+                # if gui.is_active:
+                #     text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
+                #     parameter_panel.progress_update(text, percent)
+
+            data.sort()
+            logging.log("")  # Printing empty line to flush stdout
+            logging.log("Performing Benjamini-Hochberg Correction")
+            qvals = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
+            
+            number_of_significant_genes = len([ 1 for each in qvals if each < significance_threshold ])
+            
+            # 
+            # write output
+            # 
+            transit_tools.write_result(
+                path=output_path, # path=None means write to STDOUT
+                file_kind=Method.identifier,
+                rows=[
+                    [*row, qval]
+                        for row, qval in zip(data, qvals) 
+                ],
+                column_names=Method.column_names,
+                extra_info=dict(
+                    stats=dict(
+                        number_of_significant_genes=number_of_significant_genes,
+                    ),
+                    parameters={
+                        "normalization": normalization,
+                        "control_condition": control_condition,
+                        "experimental_condition": experimental_condition,
+                        "n_terminus":n_terminus,
+                        "c_terminus":c_terminus,
+                        "LOESS":LOESS,
+                        "ignore_codon":ignore_codon,
+                        "significance_threshold":significance_threshold,
+                    },
+                ),
             )
 
-            # Update Progress
-            percent = (100.0 * count / N)
-            text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
-            parameter_panel.progress_update(text, percent)
-
-        logging.log("")  # Printing empty line to flush stdout
-        logging.log("Performing Benjamini-Hochberg Correction")
-        data.sort()
-        qval = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
-        
-        number_of_significant_genes = len([ 1 for each in qval if each > self.inputs.significance_threshold ])
-        
-        # 
-        # write output
-        # 
-        transit_tools.write_result(
-            path=self.inputs.output_path, # path=None means write to STDOUT
-            file_kind=Method.identifier,
-            rows=[
-                [*row, qval]
-                    for row, qval in zip(data, qval) 
-            ],
-            column_names=Method.column_names,
-            extra_info=dict(
-                stats=dict(
-                    number_of_significant_genes=number_of_significant_genes,
-                ),
-                parameters=self.inputs,
-            ),
-        )
-
-        logging.log("Adding File: %s" % (self.inputs.output_path))
-        results_area.add(self.inputs.output_path)
-        logging.log("Finished Mann-Whitney U-test Method")
 
 @transit_tools.ResultsFile
 class ResultFileType1:
@@ -346,8 +331,9 @@ class ResultFileType1:
         # get summary stats
         #
         number_of_significant = self.extra_data["stats"]["number_of_significant_genes"]
+
         self.values_for_result_table.update({
-            " ": f"{number_of_significant} significant conditionally essential genes",
+            "summary": f"{number_of_significant} significant conditionally essential genes",
         })
     
     def __str__(self):

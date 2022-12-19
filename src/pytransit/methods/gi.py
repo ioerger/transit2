@@ -17,7 +17,7 @@ import math
 import statsmodels.stats.multitest
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.specific_tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 from pytransit.generic_tools import csv, misc
 import pytransit.components.file_display as file_display
@@ -63,30 +63,31 @@ class Method:
         "-iN", # trimming TA sites at gene termini
         "-iC", 
         "-signif", # method to determine genes with significant interaction
-        "--rope", # Region Of Probable Equivalence around 0
+        "-rope", # Region Of Probable Equivalence around 0
     ]
 
-    usage_string = f"""usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
-        GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
-        It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
-        Provide replicates in each group as a comma-separated list of wig files.
-        HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
-        Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
-        Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-            By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-            Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+    usage_string = f"""
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <output_file> [optional arguments]
+            GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
+            It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
+            Provide replicates in each group as a comma-separated list of wig files.
+            HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
+            Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
+            Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+                By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+                Alternative methods for significance: use -signif key with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
 
         Optional Arguments:
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
-        --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
-        -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
-        -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<{significance_threshold} (no adjustment)
-        -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<{significance_threshold}
-        -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<{significance_threshold}
-    """
+            -n <string>     :=  Normalization method. Default: -n TTR
+            -s <integer>    :=  Number of samples. Default: -s 10000
+            -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+            -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+            -rope <float>   :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: -rope 0.5
+            -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
+            -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<{significance_threshold} (no adjustment)
+            -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<{significance_threshold}
+            -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<{significance_threshold}
+    """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
@@ -100,32 +101,33 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.name,
-                method_long_text = self.description,
+                title_text= self.name,
+                sub_text = self.description,
                 method_specific_instructions="""
-                GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
-                
-                HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes. Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately). Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-                
-                By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+                    GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment). It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC). Provide replicates in each group as a comma-separated list of wig files.
+                    
+                    HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes. Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately). Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+                    
+                    By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
 
-                1.  Add an annotation file for the organism corresponding to the desired datasets
+                    1.  Add an annotation file for the organism corresponding to the desired datasets
 
-                2.  Adding datasets grown under condition A
-                    a. Using the dropdown for Condition A1, select your control dataset for condition A
-                    b. Using the dropdown for Condition A2, select your experimental dataset for condition A
+                    2.  Adding datasets grown under condition A
+                        a. Using the dropdown for Condition A1, select your control dataset for condition A
+                        b. Using the dropdown for Condition A2, select your experimental dataset for condition A
 
-                3.  Adding datasets grown under condition B
-                    a. Using the dropdown for Condition B1, select your control dataset for condition B
-                    b. Using the dropdown for Condition B2, select your experimental dataset for condition B
+                    3.  Adding datasets grown under condition B
+                        a. Using the dropdown for Condition B1, select your control dataset for condition B
+                        b. Using the dropdown for Condition B2, select your experimental dataset for condition B
 
-                4. [Optional] Select the remaining parameters
+                    4. [Optional] Select the remaining parameters
 
-                5. Click Run
+                    5. Click Run
                 """.replace("\n                    ","\n"),
             )
 
             # only need Norm selection and Run button        
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             self.value_getters.condA1        = panel_helpers.create_condition_input(panel,main_sizer, label_text="Condition A1:", tooltip_text="indicate condition representing 'strain A' in 'condition 1'")
             self.value_getters.condB1        = panel_helpers.create_condition_input(panel,main_sizer, label_text="Condition B1:", tooltip_text="indicate condition representing 'strain B' in 'condition 1'")
@@ -137,7 +139,6 @@ class Method:
             self.value_getters.samples       = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of samples",default_value=10000, tooltip_text="random trials in Monte Carlo simulation")
             self.value_getters.rope          = panel_helpers.create_float_getter(panel, main_sizer, label_text="ROPE"             ,default_value=0.5,   tooltip_text="Region of probable equivalence around 0")
             self.value_getters.signif        = panel_helpers.create_significance_choice_box(panel,main_sizer) # default is HDI
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
 
 
     @staticmethod
@@ -167,8 +168,8 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
-            default_file_name="GI_test.dat",
-            output_extensions='Common output extensions (*.txt,*.dat,*.out)|*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions=transit_tools.result_output_extensions,
         )
         if not Method.inputs.output_path:
             return None
@@ -182,34 +183,31 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=8)
 
-        combined_wig = args[0]
-        metadata_path = args[1]
-        condA1 = args[2]
-        condA2 = args[3]
-        condB1 = args[4]
-        condB2 = args[5]
-
-        annotation_path = args[6]
-        output_path = args[7]
+        combined_wig    = args[0]
+        annotation_path = args[1]
+        metadata_path   = args[2]
+        condA1          = args[3]
+        condA2          = args[4]
+        condB1          = args[5]
+        condB2          = args[6]
+        output_path     = args[7]
 
         normalization = kwargs.get("n", "TTR")
-        samples = int(kwargs.get("s", 10000))
-        rope = float(kwargs.get("-rope", 0.5))  # fixed! changed int to float
-        signif = kwargs.get("signif", "HDI")
-
-        n_terminus = float(kwargs.get("iN", 0.00))
-        c_terminus = float(kwargs.get("iC", 0.00))
+        samples       = int(kwargs.get("s", 10000))
+        rope          = float(kwargs.get("rope", 0.5))  # fixed! changed int to float
+        signif        = kwargs.get("signif", "HDI")
+        n_terminus    = float(kwargs.get("iN", 0.00))
+        c_terminus    = float(kwargs.get("iC", 0.00))
 
         # save all the data
         Method.inputs.update(dict(
           combined_wig=combined_wig,
+          annotation_path=annotation_path,
           metadata_path=metadata_path,
           condA1=condA1,
           condA2=condA2,
           condB1=condB1,
           condB2=condB2,
-
-          annotation_path=annotation_path,
           output_path=output_path,
 
           normalization=normalization,
@@ -599,12 +597,17 @@ class Method:
         aggra = len(list(filter(lambda x: x[-1]=="Aggravating", results)))
         allev = len(list(filter(lambda x: x[-1]=="Alleviating", results)))
         suppr = len(list(filter(lambda x: x[-1]=="Suppressive", results)))
+<<<<<<< HEAD
 
         annot = {}
         for line in open(self.inputs.annotation_path):
             cells = line.rstrip().split('\t')
             gene_name = cells[tnseq_tools.ProtTable.gene_name_index]
             annot[gene_name] = cells[0]
+=======
+        
+        annotation_data = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path)
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         
         # 
         # format into rows
@@ -614,7 +617,7 @@ class Method:
             rows.append([
                 orf,
                 name,
-                annot[orf],
+                annotation_data.gene_description(orf_id=orf),
                 "%d" % n,
                 "%1.2f" % mean_mu_a1_post,
                 "%1.2f" % mean_mu_a2_post,
@@ -647,13 +650,13 @@ class Method:
                 'A2 Mean Count',
                 'B1 Mean Count',
                 'B2 Mean Count',
-                'Log FC Strain A',
-                'Log FC Strain B',
-                'Delta Log FC',
-                'Lower Bound Delta Log FC',
-                'Upper Bound Delta Log FC',
+                'Log 2 FC Strain A',
+                'Log 2 FC Strain B',
+                'Delta Log 2 FC',
+                'Lower Bound Delta Log 2 FC',
+                'Upper Bound Delta Log 2 FC',
                 'Is HDI Outside ROPE',
-                'Probability Of Delta Log FC Being Within ROPE',
+                'Probability Of Delta Log 2 FC Being Within ROPE',
                 str(adjusted_label)+ ' Adj P Value',
                 'Type Of Interaction',
             ],
@@ -726,7 +729,15 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("Summary_Of_Genetic_Interactions", {}))
+        summary = self.extra_data["Summary_Of_Genetic_Interactions"]
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+        #self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["Number_Of_Samples_For_Monte_Carlo","Normalization_Of_Counts","ROPE","Method_For_Determining_Significance"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+        
        
     
     def __str__(self):

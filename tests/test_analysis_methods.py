@@ -23,11 +23,10 @@ from pytransit.methods.anova  import Method as AnovaMethod
 from pytransit.methods.gumbel import Method as GumbelMethod
 from pytransit.methods.hmm    import Method as HMMMethod
 from pytransit.methods.zinb   import Method as ZinbMethod
-#from pytransit.methods.utest  import Method as UTestMethod
 
 # Comparative methods
-from pytransit.methods.resampling  import Method as ResamplingMethod
-# from pytransit.methods.utest       import UTestMethod # TODO: check if utest is needed
+from pytransit.methods.resampling import Method as ResamplingMethod
+from pytransit.methods.utest      import Method as UTestMethod
 
 # Genetic Interactions
 from pytransit.methods.gi import Method as GIMethod
@@ -38,7 +37,7 @@ gui.is_active = False # normally checks sys.argv[] but tests use their own sys.a
 
 class TestMethods(TransitTestCase):
     def test_resampling(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-l"]
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--l"]
         method_object = None
         try:
             ResamplingMethod.from_args(*console_tools.clean_args(args))
@@ -58,7 +57,7 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_combined_wig(self):
         # The conditions in the args should be matched case-insensitively.
-        args = ["-c", combined_wig, samples_metadata, "Glycerol", "Cholesterol", small_annotation, output, "-a"]
+        args = [ combined_wig, small_annotation, samples_metadata, "Glycerol", "Cholesterol", output, "--a"]
         try:
             method_object = ResamplingMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -79,7 +78,7 @@ class TestMethods(TransitTestCase):
                 "sig_qvals expected in range: %s, actual: %d" % ("[34, 36]", len(sig_qvals)))
 
     def test_resampling_adaptive(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-a", "--ctrl_lib", "AA", "--exp_lib", "AAA"]
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--a", "-ctrl_lib", "AA", "-exp_lib", "AAA"]
         try:
             method_object = ResamplingMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -98,7 +97,7 @@ class TestMethods(TransitTestCase):
                 "sig_qvals expected in range: %s, actual: %d" % ("[34, 36]", len(sig_qvals)))
 
     def test_resampling_histogram(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-s", "1000", "-h"]
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "-s", "1000", "--h"]
         try:
             method_object = ResamplingMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -111,7 +110,7 @@ class TestMethods(TransitTestCase):
                 "histpath expected: %s" % (hist_path))
 
     def test_resampling_multistrain(self):
-        args = [ctrl_data_txt, exp_data_txt, ','.join([small_annotation, small_annotation]), output, "-h"]
+        args = [ctrl_data_txt, exp_data_txt, ','.join([small_annotation, small_annotation]), output, "--h"]
         try:
             method_object = ResamplingMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -125,7 +124,7 @@ class TestMethods(TransitTestCase):
     
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb(self):
-        args = [combined_wig, samples_metadata, small_annotation, output]
+        args = [combined_wig, small_annotation, samples_metadata, output, "-iN", "5.0", "-iC", "5.0" ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -146,7 +145,7 @@ class TestMethods(TransitTestCase):
 
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_covariates(self):
-        args = [combined_wig, samples_metadata_covariates, small_annotation, output, "--covars", "batch", "--condition", "NewConditionCol"]
+        args = [combined_wig, small_annotation, samples_metadata_covariates, output, "-covars", "batch", "-group-by", "NewConditionCol", "-iN", "5.0", "-iC", "5.0", ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -156,18 +155,12 @@ class TestMethods(TransitTestCase):
         self.assertTrue(os.path.exists(output))
         (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
         sig_qvals.sort()
-        self.assertEqual(
-            len(sig_pvals),
-            15,
-            "sig_pvals expected: %d, actual: %d" % (15, len(sig_pvals)))
-        self.assertEqual(
-            len(sig_qvals),
-            10,
-            "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
+        self.assertEqual(len(sig_pvals), 15, "sig_pvals expected: %d, actual: %d" % (15, len(sig_pvals)))
+        self.assertEqual(len(sig_qvals), 10, "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
 
     @unittest.skipUnless(HAS_R, "requires R, rpy2")
     def test_zinb_interactions(self):
-        args = [combined_wig, samples_metadata_interactions, small_annotation, output, "--covars", "batch", "--interactions", "atm"]
+        args = [combined_wig, small_annotation, samples_metadata_interactions,  output, "-covars", "batch", "-interactions", "atm", "-iN", "5.0", "-iC", "5.0", ]
         try:
             method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -187,7 +180,7 @@ class TestMethods(TransitTestCase):
             "sig_qvals expected: %d, actual: %d" % (0, len(sig_qvals)))
     
     def test_anova(self):
-        args = [combined_wig, samples_metadata, small_annotation, output]
+        args = [combined_wig, small_annotation, samples_metadata, output]
         try:
             method_object = AnovaMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -230,7 +223,7 @@ class TestMethods(TransitTestCase):
 
 
     def test_utest(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output]
+        args = [ combined_wig, small_annotation, samples_metadata, "Glycerol", "Cholesterol", output, ]
         try:
             method_object = UTestMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -241,7 +234,7 @@ class TestMethods(TransitTestCase):
 
     def test_GI(self):
         #  usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
-        args = [KO_combined_wig, KO_samples_metadata,"H37Rv_day0","H37Rv_day32","Rv2680_day0","Rv2680_day32", small_annotation, output]
+        args = [KO_combined_wig, small_annotation, KO_samples_metadata,"H37Rv_day0","H37Rv_day32","Rv2680_day0","Rv2680_day32", output]
         try:
             method_object = GIMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:

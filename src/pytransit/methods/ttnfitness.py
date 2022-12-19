@@ -11,19 +11,24 @@ import heapq
 import collections
 import numpy
 
-import pandas
-import statsmodels.stats.multitest
-import statsmodels.api as sm
-
 from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools, console_tools, logging
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, logging
 from pytransit.generic_tools import csv, misc, informative_iterator
+from pytransit.generic_tools.misc import cache
 import pytransit.components.results_area as results_area
 
+@cache() # cache really only helps for testing, but it helps a lot for testing
+def slow_computation(gene_one_hot_encoded, ttn_vectors, Y):
+    import pandas
+    import statsmodels.stats.multitest
+    import statsmodels.api as sm
+    X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
+    #X1 = sm.add_constant(X1)
+    return X1, sm.OLS(Y, X1).fit()
 
 @misc.singleton
 class Method:
@@ -47,7 +52,9 @@ class Method:
         normalization = "TTR",
     )
 
-    usage_string = f"""usage: {console_tools.subcommand_prefix} ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel results file> <genes output file> <sites output file>""" # TODO: this is the old way, with multiple wigs as input
+    usage_string = f"""
+        Usage: {console_tools.subcommand_prefix} {cli_name} <comma-separated .wig files> <annotation_file> <genome .fna> <gumbel_results_file> <genes output_file> <sites output_file>
+    """ # FIXME: this is the old way, with multiple wigs as input
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
@@ -57,8 +64,8 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text= self.name,
-                method_long_text="",
+                title_text= self.name,
+                sub_text="",
                 method_specific_instructions="""
                 TTN-Fitness provides a method for estimating the fitness of genes in a single condition, while correcting for biases in Himar1 insertion preferences at TA sites based on surrounding nucleotides. The frequency of insertions depends on nucleotides surrounding TA sites. This model captures that effect.
 
@@ -77,7 +84,7 @@ class Method:
                 6. Click Run
                 """.replace("\n                    ","\n"),
             )
-
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
 
             self.value_getters.condition = panel_helpers.create_condition_input(panel, main_sizer)
@@ -98,11 +105,10 @@ class Method:
             self.value_getters.output_basename = panel_helpers.create_text_box_getter(panel, main_sizer,
                 label_text="Basename for output files",
                 default_value="ttnfitness.test",
-                tooltip_text="If X is basename, then X_genes.dat and X_sites.dat will be generated as output files."
+                tooltip_text="If X is basename, then X_genes.tsv and X_sites.tsv will be generated as output files."
             )
             self.value_getters.normalization = panel_helpers.create_normalization_input(panel, main_sizer, default=self.inputs.normalization) # TTR 
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
     
     @staticmethod
     def from_gui(frame):
@@ -122,8 +128,8 @@ class Method:
                 except Exception as error:
                     raise Exception(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
             
-            Method.inputs.genes_output_path = "%s.genes.dat" % (Method.inputs.output_basename)
-            Method.inputs.sites_output_path = "%s.sites.dat" % (Method.inputs.output_basename)
+            Method.inputs.genes_output_path = "%s.genes.tsv" % (Method.inputs.output_basename)
+            Method.inputs.sites_output_path = "%s.sites.tsv" % (Method.inputs.output_basename)
 
             return Method
 
@@ -229,7 +235,7 @@ class Method:
                 results_area.add(self.inputs.genes_output_path)
                 logging.log(f"Adding File: {self.inputs.sites_output_path}")
                 results_area.add(self.inputs.sites_output_path)
-            logging.log("Finished TnseqStats")
+            logging.log("Finished TTNFitness")
             logging.log("Time: %0.1fs\n" % (time.time() - self.start_time))
 
     def calc_ttnfitness(self, genome, G, gumbel_results_file):
@@ -237,6 +243,9 @@ class Method:
         Returns:
             ta_sites_df, models_df, gene_obj_dict
         """
+        import pandas
+        import statsmodels.stats.multitest
+        import statsmodels.api as sm
         
         self.gumbel_estimations = gumbel_results_file
 
@@ -455,18 +464,13 @@ class Method:
 
         logging.log("\t + Fitting M1")
         if True: # NOTE: the block of code in this if statement is what takes up the bulk of the processing time (can't give good ETA/progress cause of this)
-            X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
-            #X1 = sm.add_constant(X1)
-            results1 = sm.OLS(Y, X1).fit()
-            print(results1.params.index.values.tolist())
+            X1, results1 = slow_computation(gene_one_hot_encoded, ttn_vectors, Y) # is a function so that it can be cached
             not_overlap =[]
             for i in gene_one_hot_encoded.columns:
                 if i not in results1.params.index: not_overlap.append(i)
-            print("no overlap genes", not_overlap)
             not_overlap =[]
             for i in ttn_vectors.columns:
                 if i not in results1.params.index: not_overlap.append(i)
-            print("no overlap ttn", not_overlap)
             filtered_ttn_data["M1 Pred Log Count"] = results1.predict(X1) 
             filtered_ttn_data["M1 Pred Log Count"] = filtered_ttn_data["M1 Pred Log Count"] + numpy.mean(old_Y) #adding mean target value to account for centering
             filtered_ttn_data["M1 Predicted Count"] = numpy.power(
@@ -499,6 +503,7 @@ class Method:
         return (ta_sites_df,models_df,gene_obj_dict,filtered_ttn_data,gumbel_bernoulli_gene_calls)
 
     def write_ttnfitness_results(self, ta_sites_df, models_df, gene_obj_dict, filtered_ttn_data, gumbel_bernoulli_gene_calls, genes_output_path, sites_output_path):
+        import pandas
         genes_out_rows, sites_out_rows = [],[]
         logging.log("Writing To Output Files")
         # Write Models Information to CSV
@@ -592,6 +597,8 @@ class Method:
             rows=genes_out_rows,
             column_names=output_df.columns,
             extra_info=dict(
+                time=(time.time() - self.start_time),
+                saturation= saturation,
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
@@ -601,15 +608,22 @@ class Method:
                     normalization = self.inputs.normalization,
                 ),
                 summary_info=dict(
-                    time=(time.time() - self.start_time),
-                    saturation= saturation,
-                    ES=  str(assesment_cnt["ES"] ) + " essential based on Gumbel",
-                    ESB= str(assesment_cnt["ESB"]) + " essential based on Binomial",
-                    GD=  str(assesment_cnt["GD"] ) + " Growth Defect",
-                    GA=  str(assesment_cnt["GA"] ) + " Growth Advantage",
-                    NE=  str(assesment_cnt["NE"] ) + " non-essential",
-                    U=   str(assesment_cnt["U"]  ) + " uncertain",
-                )
+                    ES=  str(assesment_cnt["ES"] ),
+                    ESB= str(assesment_cnt["ESB"]),
+                    GD=  str(assesment_cnt["GD"] ),
+                    GA=  str(assesment_cnt["GA"] ),
+                    NE=  str(assesment_cnt["NE"] ),
+                    U=   str(assesment_cnt["U"]  ),
+                ),
+
+                naming_reference = dict(
+                    ES = "Essential based on Gumbel",
+                    ESB = "Essential based on Binomial",
+                    NE = "Non-essential",
+                    U = "Uncertain",
+                    GD = "Growth Defect",
+                    GA = "Growth Advantage",
+                ),
             ),
         )
         
@@ -625,6 +639,8 @@ class Method:
             rows=sites_out_rows,
             column_names=ta_sites_df.columns,
             extra_info=dict(
+                time=(time.time() - self.start_time),
+                saturation = saturation,
                 parameters=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
@@ -633,24 +649,10 @@ class Method:
                     gumbel_results_file = self.inputs.gumbel_results_path,
                     normalization = self.inputs.normalization,
                 ),
-                summary_info=dict(
-                    time=(time.time() - self.start_time),
-                    saturation = saturation,
-
-                    ES = str(assesment_cnt["ES"]) + " essential based on Gumbel",
-                    ESB = str(assesment_cnt["ESB"]) + " essential based on Binomial",
-                    GD = str(assesment_cnt["GD"]) +" Growth Defect",
-                    GA = str(assesment_cnt["GA"]) +" Growth Advantage",
-                    NE = str(assesment_cnt["NE"]) + " non-essential",
-                    U = str(assesment_cnt["U"]) + " uncertain",    
-                )    
             ),
         )
 
         logging.log("")  # Printing empty line to flush stdout
-        logging.log(f"Adding File: {self.inputs.sites_output_path}")
-        results_area.add(self.inputs.sites_output_path)
-        logging.log("Finished TTNFitness Method")
 
 
             
@@ -694,9 +696,15 @@ class GenesFile:
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
-    
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
+        
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["normalization"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
     def __str__(self):
         return f"""
             File for {Method.identifier}
@@ -706,6 +714,7 @@ class GenesFile:
 
 
     def graph_volcano_plot(self):
+        import pandas
         with gui_tools.nice_error_log:
             Method.inputs.volcano_output_path = gui_tools.ask_for_output_file_path(
                 default_file_name=f"volcano.png",
@@ -795,7 +804,6 @@ class SitesFile:
         )
 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("summary_info", {}))
         
     
     def __str__(self):

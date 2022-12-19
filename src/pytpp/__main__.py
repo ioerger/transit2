@@ -36,10 +36,10 @@ from pytpp.tpp_gui import *
 
 def run_main():
     (args, kwargs) = clean_args(sys.argv[1:])
-    main(*args, **kwargs)
+    main(args, kwargs)
 
 
-def main(*args, **kwargs):
+def main(args, kwargs):
     # Check python version
     if sys.version_info[0] < 3:
         print(

@@ -16,7 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
 
@@ -32,16 +32,17 @@ class Method:
         "-n",  # normalization
         "-iN", # n_terminus
         "-iC", # c_terminus
-        "-cond" # averages counts over replicates of each condition
+        "--cond" # averages counts over replicates of each condition
     ]
     
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata> <prot_table> <output_file> [Optional Arguments]
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -cond   :=  Averages counts over replicates of each condition
+            -n <string> :=  Normalization method. Default: -n TTR
+            -iN <N>     :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+            -iC <N>     :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            --cond      :=  Averages counts over replicates of each condition
     """.replace("\n        ", "\n")
     
     @staticmethod
@@ -53,7 +54,7 @@ class Method:
         
         # save the flags
         Method.output(
-            combined_wig=tnseq_tools.CombinedWig(
+            combined_wig=tnseq_tools.CombinedWig.load(
                 main_path=args[0],
                 metadata_path=args[1],
                 annotation_path=args[2],
@@ -72,6 +73,7 @@ class Method:
     def define_panel(self, _):
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
@@ -79,7 +81,6 @@ class Method:
             self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
             self.value_getters.avg_by_conditions      = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Average counts over\nreplicates of each condition", default_value=False, tooltip_text="the output can contain gene means for each individual sample, or averaged by condition", widget_size=None)
             
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             
     @staticmethod
     def from_gui(frame):
@@ -104,7 +105,11 @@ class Method:
         # 
         arguments.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
+<<<<<<< HEAD
             output_extensions='Common output extensions (*.tsv,*.txt,*.dat,*.out)|*.tsv;*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+=======
+            output_extensions=transit_tools.result_output_extensions,
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         )
         # if user didn't select an output path
         if not arguments.output_path:

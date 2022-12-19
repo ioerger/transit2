@@ -1,6 +1,10 @@
 #HMM_Genes
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:36:25
+=======
+#    date: 2022-12-15 10:34:27
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |

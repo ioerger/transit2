@@ -36,15 +36,17 @@ class gui:
         "Pre-Processing": {},
     })
     
-    _annotation_path = "" if not debugging_enabled else f"{getcwd()}/src/pytransit/data/genomes/H37Rv_dev.prot_table"
+
     @property
     def annotation_path(self):
         from pytransit.specific_tools import transit_tools
         import os
+        _annotation_path = self.combined_wigs[-1].annotation_path
         # validate it anytime the GUI tries to retrieve the annotation
-        if not os.path.isfile(self._annotation_path):
-            logging.error(f"Error: Annotation doesn't seem to be a file:{self._annotation_path}")
-        return self._annotation_path
+        if not os.path.isfile(_annotation_path):
+            from pytransit.specific_tools import logging
+            logging.error(f"Error: Annotation doesn't seem to be a file:{_annotation_path}")
+        return _annotation_path
     
     @property
     def width(self):
@@ -56,11 +58,17 @@ class gui:
         
     @property
     def conditions(self):
-        return no_duplicates(flatten_once(each_combined_wig.conditions for each_combined_wig in self.combined_wigs))
+        if len(self.combined_wigs):
+            return self.combined_wigs[-1].conditions
+        else:
+            return []
             
     @property
     def samples(self):
-        return no_duplicates(flatten_once(each_combined_wig.samples for each_combined_wig in self.combined_wigs))
+        if len(self.combined_wigs):
+            return self.combined_wigs[-1].samples
+        else:
+            return []
     
     @property
     def selected_samples(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
@@ -130,6 +138,12 @@ class gui:
     def add_result(self, *args, **kwargs):
         from pytransit.components import results_area
         return results_area.add(*args, **kwargs)
+    
+    debug_wx_python = True
+    def debug_wx_if_needed(self):
+        if self.debug_wx_python:
+            import wx.lib.inspection
+            wx.lib.inspection.InspectionTool().Show()
 
 @singleton
 class cli:
@@ -155,10 +169,3 @@ if debugging_enabled:
     seed(0)
     import numpy
     numpy.random.seed(0)
-
-debug_wx_python = False
-if debug_wx_python:
-    def _():
-        import wx.lib.inspection
-        wx.lib.inspection.InspectionTool().Show()
-    _()

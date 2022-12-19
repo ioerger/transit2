@@ -4,7 +4,7 @@ import os
 import time
 
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.specific_tools.tnseq_tools import ProtTable
+from pytransit.specific_tools.tnseq_tools import GffFile
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
@@ -13,7 +13,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 class Method:
     name = "gff_to_prot"
     menu_name = "GFF to Prot Table"
-    usage_string = f"""{console_tools.subcommand_prefix} convert gff_to_prot_table <annotation in gff format> <output file>"""
+    usage_string = f"""Usage: {console_tools.subcommand_prefix} convert gff_to_prot_table <gff_file> <output_file>"""
     
     inputs = LazyDict(
         path_to_gff=None,
@@ -50,7 +50,11 @@ class Method:
                 # get output path
                 output_path = gui_tools.ask_for_output_file_path(
                     default_file_name=f"{name}.prot_table",
+<<<<<<< HEAD
                     output_extensions='Common output extensions (*.txt,*.tsv,*.dat,*.out)|*.txt;*.tsv;*.dat;*.out;|\nAll files (*.*)|*.*',
+=======
+                    output_extensions=['prot_table', 'tsv', 'csv', 'dat', 'txt'],
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
                 )
                 Method.inputs.update(dict(
                     path_to_gff=path_to_gff,
@@ -60,121 +64,13 @@ class Method:
                 logging.log(f"Conversion complete, written to {output_path}")
     
     def Run(self):
-        gff_file = open(self.inputs.path_to_gff)
-        output_file = self.inputs.output_file
+        gff = GffFile(path=self.inputs.path_to_gff)
         import csv
+        output_file = self.inputs.output_file
         writer = csv.writer(output_file, delimiter="\t")
-        lines = gff_file.readlines()
-        gff_file.close()
         logging.log("Converting annotation file from GFF3 format to prot_table format")
         
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if len(line) == 0 or line.startswith("#"):
-                continue
-            cols = line.split("\t")
-            if len(cols) < ProtTable.magic_number_nine:
-                sys.stderr.write(("Ignoring invalid row with entries: {0}\n".format(cols)))
-                continue
-            if (cols[ProtTable.index_of_gene_end]) == "CDS":  # if you also want tRNAs and rRNAs, modify here
-                if "locus_tag" not in line:
-                    print("warning: skipping lines that do not contain 'locus_tag'")
-                    continue
-                start = int(cols[ProtTable.index_of_gene_strand])
-                end = int(cols[ProtTable.magic_number_four])
-                strand = cols[ProtTable.magic_number_six].strip()
-                size = int(abs(end - start + 1) / ProtTable.index_of_gene_strand)  # includes stop codon
-                labels = {}
-                for pair in cols[ProtTable.gene_name_index].split(";"):
-                    k, v = pair.split("=")
-                    labels[k.strip()] = v.strip()
-                Rv = labels["locus_tag"].strip()  # error out if not found
-                gene = labels.get("gene", "")  # or Name?
-                if gene == "":
-                    gene = "-"
-                desc = labels.get("product", "")
-                vals = [desc, start, end, strand, size, "-", "-", gene, Rv, "-"]
-                writer.writerow(vals)
+        for row in gff.as_prot_table_rows():
+            writer.writerow(row)
         output_file.close()
         logging.log("Finished conversion")
-    
-    def get_description(self, line, parent):
-        cols = line.split("\t")
-        labels = {}
-        print(line)
-        print(len(cols))
-        for pair in cols[ProtTable.gene_name_index].split(";"):
-            k, v = pair.split("=")
-            labels[k] = v
-
-        if (cols[ProtTable.index_of_gene_end]) == "CDS" and labels["Parent"] == parent:
-            # return labels.get("Note", '-')
-            return labels.get("product", "-")
-        return "-"
-
-
-# UNUSED at the moment
-def annotation_gff3_to_pt(event):
-    with gui_tools.nice_error_log:
-        path_to_gff = gui.path_to_gff
-        default_file = transit_tools.fetch_name(path_to_gff) + ".prot_table"
-        # default_dir = os.path.dirname(os.path.realpath(__file__))
-        default_dir = os.getcwd()
-
-        if not path_to_gff:
-            # NOTE: was a popup
-            logging.error("Error: No annotation file selected.")
-        else:
-            output_path = frame.SaveFile(default_dir, default_file)
-            if not output_path:
-                return
-            logging.log("Converting annotation file from GFF3 format to prot_table format")
-
-            output = open(output_path, "w")
-            with open(path_to_gff) as file:
-                for line in file:
-                    if line.startswith("#"):
-                        continue
-                    tmp = line.strip().split("\t")
-                    chr = tmp[0]
-                    type = tmp[ProtTable.index_of_gene_end]
-                    start = int(tmp[ProtTable.index_of_gene_strand])
-                    end = int(tmp[ProtTable.magic_number_four])
-                    length = ((end - start + 1) / ProtTable.index_of_gene_strand) - 1
-                    strand = tmp[ProtTable.magic_number_six]
-                    features = dict([tuple(f.split("=")) for f in tmp[ProtTable.gene_name_index].split(";")])
-                    if "ID" not in features:
-                        continue
-                    orf = features["ID"]
-                    name = features.get("Name", features.get("Gene Name","-"))
-                    if name == "-":
-                        name = features.get("name", "-")
-
-                    desc = features.get("Description", "-")
-                    if desc == "-":
-                        desc = features.get("description", "-")
-                    if desc == "-":
-                        desc = features.get("Desc", "-")
-                    if desc == "-":
-                        desc = features.get("desc", "-")
-
-                    someID = "-"
-                    someID2 = "-"
-                    COG = "-"
-                    output.write(
-                        "%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n"
-                        % (
-                            desc,
-                            start,
-                            end,
-                            strand,
-                            length,
-                            someID,
-                            someID2,
-                            name,
-                            orf,
-                            COG,
-                        )
-                    )
-            output.close()
-            logging.log("Finished conversion")

@@ -1,10 +1,14 @@
 #HMM_Genes
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:44:36
+=======
+#    date: 2022-12-15 10:38:36
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'hmm' 'src/pytransit/data/cholesterol_H37Rv_rep3.wig,src/pytransit/data/cholesterol_H37Rv_rep2.wig,src/pytransit/data/cholesterol_H37Rv_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/hmm/0001_basic.sh.1.result'
+#        python3 './src/transit.py' 'hmm' 'src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/hmm/0001_basic.sh.1.result'
 #    Summary Of Gene Calls:
 #       ES: 636
 #       GD: 211

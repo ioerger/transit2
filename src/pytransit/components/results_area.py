@@ -17,6 +17,7 @@ results = LazyDict(
     header=None,
     table=None,
     file_action_choice_element=None,
+    dropdown_width=220,
 )
 def create_results_area(frame):
     results_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -25,6 +26,7 @@ def create_results_area(frame):
     # Box
     # 
     if True:
+        results_sizer.Add(10, 20) # spacer
         results_sizer.Add(
             wx.StaticText(
                 gui.frame,
@@ -87,7 +89,7 @@ def create_results_area(frame):
     # 
     with Table(
         initial_columns=[ "name", "type", "path"],
-        max_size=(int(gui.width*0.7), 200)
+        soft_size=True,
     ) as results.table:
     
         @results.table.events.on_select
@@ -127,7 +129,7 @@ def change_file_action_choices(new_choices):
                 gui.frame,
                 wx.ID_ANY,
                 wx.DefaultPosition,
-                (120, -1),
+                (results.dropdown_width, -1),
                 list(new_choices.keys()),
                 0,
             )

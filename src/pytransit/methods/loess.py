@@ -13,7 +13,11 @@ import numpy
 from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
+<<<<<<< HEAD
 from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+=======
+from pytransit.specific_tools.transit_tools import wx, basename
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
@@ -21,11 +25,6 @@ from pytransit.components.spreadsheet import SpreadSheet
 @misc.singleton
 class Method:
     name = "LOESS"
-    
-    # TODO: confirm menu option not needed
-    # @gui.add_menu("Pre-Processing", name)
-    # def on_menu_click(event):
-    #     pass
     
     # 
     # LOESS
@@ -62,6 +61,7 @@ class Method:
                     y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
                 
                 y_smooth = stat_tools.loess(x_w, y_w, h=10000)
+                plt.clf()
                 plt.plot(x_w, y_w, "g+")
                 plt.plot(x_w, y_smooth, "b-")
                 plt.xlabel("Genomic Position (TA sites)")

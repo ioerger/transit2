@@ -9,13 +9,18 @@ class Table:
         Overview:
             self.wx_object
             self.events.on_select   # decorator (use @)
-            self.selected           # list of wx objects, TODO: have it return the python_obj
+            self.selected
             self.length
             self.add(python_obj)
     """
-    def __init__(self, initial_columns=None, column_width=None, max_size=(-1, 200)):
-        frame        = gui.frame
-        column_width = column_width if column_width is not None else 100
+    estimated_row_height = 26 # TODO: this should probably be dynamically calculated somehow
+    
+    def __init__(self, initial_columns=None, column_width=None, column_widths=None, min_size=(1,1), max_size=(-1, -1), soft_size=False, frame=None):
+        from collections import defaultdict
+        frame         = gui.frame if not frame else frame
+        column_width  = column_width if column_width is not None else -1
+        column_widths = column_widths or {}
+        self.soft_size = soft_size
         
         # 
         # wx_object
@@ -27,32 +32,92 @@ class Table:
             wx.DefaultSize,
             wx.LC_REPORT | wx.SUNKEN_BORDER,
         )
-        wx_object.SetMaxSize(wx.Size(*max_size))
-        wx_object.InsertColumn(0, "", width=0) # first one is some kind of special name. Were going to ignore it
-        
         self.wx_object = wx_object
-        self.events = LazyDict(
-            on_select=lambda func: wx_object.Bind(wx.EVT_LIST_ITEM_SELECTED, func),
-        )
-        
+        # stuff that has no reactive getter/setters
         self._state = LazyDict(
             index               = -1,
             key_to_column_index = {},
+            max_size            = max_size,
+            min_size            = min_size,
             column_width        = column_width,
+            column_width_for    = defaultdict(lambda : self.column_width, column_widths or {}),
             initial_columns     = initial_columns or [],
             data_values         = [],
         )
         
+        self.wx_object.InsertColumn(0, "", width=0) # first one is some kind of special name. Were going to ignore it    
+        self.events = LazyDict(
+            on_select=lambda func: wx_object.Bind(wx.EVT_LIST_ITEM_SELECTED, func),
+        )
+        
+        self.refresh_size()
+        
         # create the inital columns
         for each_key in self._state.initial_columns:
             self._key_to_column_index(each_key)
-        
     
+    def clear(self):
+        self.wx_object.DeleteAllItems()
+        self._state.data_values.clear()
+        self._state.index = -1
+    
+    _scrollbar_adjustment = 10
+    @property
+    def column_width(self):
+        if isinstance(self._state.column_width, str) and self._state.column_width.endswith("%"):
+            percentage = float(self._state.column_width[0:-1])
+            width, _ = self.compute_size()
+            return int(width * (percentage/100)) - self._scrollbar_adjustment
+        return self._state.column_width
+    
+    def compute_size(self):
+        min_width, min_height = self._state.min_size
+        max_width, max_height = self._state.max_size
+        
+        if min_height < 1:
+            min_height = self.estimated_row_height * (len(self.rows) + 1)
+        
+        # set min size because pop_up_sizer.SetMinSize doesn't actually do its job
+        fitted_width, fitted_height = self.wx_object.GetSize()
+        if fitted_width  > max_width : fitted_width  = max_width
+        if fitted_height > max_height: fitted_height = max_height
+        if fitted_width  < min_width : fitted_width  = min_width
+        if fitted_height < min_height: fitted_height = min_height
+        return fitted_width, fitted_height
+    
+    def refresh_size(self):
+        if self.soft_size:
+            return # no sizing
+        min_width, min_height = self._state.min_size
+        max_width, max_height = self._state.max_size
+        
+        if min_height < 1:
+            min_height = self.estimated_row_height * (len(self.rows) + 1)
+        
+        # set min size because pop_up_sizer.SetMinSize doesn't actually do its job
+        fitted_width, fitted_height = self.wx_object.GetSize()
+        if fitted_width  > max_width : fitted_width  = max_width
+        if fitted_height > max_height: fitted_height = max_height
+        if fitted_width  < min_width : fitted_width  = min_width
+        if fitted_height < min_height: fitted_height = min_height
+        self.wx_object.SetSize((
+            int(fitted_width),
+            int(fitted_height),
+        ))
+        self.wx_object.SetMinSize((
+            int(fitted_width),
+            int(fitted_height),
+        ))
+        self.wx_object.SetMaxSize((
+            int(fitted_width),
+            int(fitted_height),
+        ))
+        
     def _key_to_column_index(self, key):
         if key not in self._state.key_to_column_index:
             index = len(self._state.key_to_column_index)+1
             self._state.key_to_column_index[key] = index
-            self.wx_object.InsertColumn(index, key, width=self._state.column_width)
+            self.wx_object.InsertColumn(index, key, width=self._state.column_width_for[key])
             return index
         else:
             return self._state.key_to_column_index[key]
@@ -71,6 +136,7 @@ class Table:
             self.wx_object.SetItem(self._state.index, column_index, f"{each_value}")
         
         self._state.data_values.append(python_obj)
+        self.refresh_size()
     
     @property
     def length(self):

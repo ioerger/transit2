@@ -161,11 +161,11 @@ Example of running the TTN-Fitness methodology on the sample glycerol data
 
 1. Run the Gumbel Analysis
 ::
-  python3 transit.py gumbel glycerol_H37Rv_rep1.wig,glycerol_H37Rv_rep2.wig H37Rv.prot_table gylcerol_H37Rv.gumbel.out
+  python3 transit.py gumbel cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig H37Rv.prot_table gylcerol_H37Rv.gumbel.out
 
 2. Use the output of the Gumbel Analysis as the input to the TTTN-Fitness method
 ::
-  python3 transit.py ttnfitness glycerol_H37Rv_rep1.wig,glycerol_H37Rv_rep2.wig H37Rv.prot_table H37Rv.fna glycerol_H37Rv.gumbel.out ttnfitness_glycerol_H37Rv_gene.txt ttnfitness_glycerol_H37Rv_TAsite.txt
+  python3 transit.py ttnfitness cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig H37Rv.prot_table H37Rv.fna glycerol_H37Rv.gumbel.out ttnfitness_glycerol_H37Rv_gene.txt ttnfitness_glycerol_H37Rv_TAsite.txt
 
 The resulting ttnfitness_glycerol_H37Rv_gene.txt out should contain TTN Fitness Assessments breakdown similar to:
 

@@ -1,26 +1,28 @@
-#PathwayEnrichmentGSEA
+#PathwayEnrichment_GSEA
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:45:40
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_sanger_roles.dat' 'src/pytransit/data//sanger_roles.dat' './tests/cli_tests/pathway_enrichment/0003_example.sh.1.result' '--LFC_col' '6' '-M' 'GSEA'
+=======
+#    date: 2022-12-15 10:40:41
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_sanger_roles.dat' 'src/pytransit/data//sanger_roles.dat' './tests/cli_tests/pathway_enrichment/0003_example.sh.1.result' '-LFC-col' '6' '-M' 'GSEA'
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 #    parameters:
 #       method: GSEA
 #       ranking: SLPV
 #       enrichment_exponent: 1
 #       num_permutations: 10000
 #       pseudocount: 2
-#       hit_summary: '6 Siginificant Pathways for Conditional Essential Genes, 1 Siginificant Pathways for Conditional Non-Essential Genes, '
+#    summary_info:
+#       Hits: 6 enriched;1 depleted
 #    
-#Pathway	Pathway DescriptionGenes in Path	Mean Rank	Enrichment	P Value	Adj P Value	Genes
-#   I.B.8 ATP-proton motive force (mean_rank=1785.4)
-#   I.A.3 Fatty acids (mean_rank=1847.0)
-#   I.B Energy Metabolism (mean_rank=1889.7)
-#   I.A Degradation (mean_rank=1908.9)
-#   I.B.7 Miscellaneous oxidoreductases and oxygenases (mean_rank=1910.1)
-#   I Small-molecule metabolism (mean_rank=1918.0)
-#   IV.B.1.a IS6110 (mean_rank=3519.4)
+#Pathway	Pathway Description	Genes in Path	Mean Rank	Enrichment Score	P Value	Adj P Value	Genes
 III.A.5	Fatty acid transport	2	401.5	0.944638	0.054187	0.307061	Rv3540c/ltp2 (0) Rv2790c/ltp1 (803)
 IV.B.1.b	IS1081	6	730.3	0.720131	0.198020	0.654565	Rv2512c/- (501) Rv1199c/- (533) Rv2666/- (626) Rv3023c/- (754) Rv3115/- (848) Rv1047/- (1120)
 I.F.5	Miscellaneous nucleoside/nucleotide reactions	9	1145.1	0.791509	0.070513	0.364827	Rv2404c/lepA (141) Rv2344c/dgt (245) Rv2727c/miaA (293) Rv1712/cmk (717) Rv2583c/relA (834) Rv2445c/ndk (1861) Rv0733/adk (1957) Rv2440c/obgE (2122) Rv2364c/era (2136)

@@ -22,12 +22,9 @@ import os
 import math
 import warnings
 import ntpath
-from typing import NamedTuple
+import heapq
 
 import numpy
-import scipy.optimize
-import scipy.stats
-import heapq
 import matplotlib.pyplot as plt
 
 
@@ -38,6 +35,7 @@ EOL = "\n" # TODO remove this
 # optional import: wx
 # 
 try:
+    print("attempting wx import")
     import wx
     import wx.xrc
     import wx.adv
@@ -61,6 +59,7 @@ except ModuleNotFoundError as e:
 # optional import: R
 # 
 try:
+    print("attempting R import")
     import rpy2.robjects
     from rpy2.robjects import (
         r,
@@ -72,6 +71,7 @@ try:
         packages as rpackages,
     )
     HAS_R = True
+    print("R imported")
 except ModuleNotFoundError as e:
     HAS_R = False
     r = None
@@ -151,231 +151,11 @@ if HAS_WX:
 
 working_directory = os.getcwd()
 
-def require_r_to_be_installed(required_r_packages=[]):
-    if not HAS_R:
-        raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
-    
-    if required_r_packages:
-        missing_packages = [x for x in required_r_packages if not rpackages.isinstalled(x)]
-        if len(missing_packages) > 0:
-            logging.error(
-                "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
-                % ({"0": '"{0}"'.format('", "'.join(missing_packages))})
-            )
-
-def fetch_name(filepath):
-    return os.path.splitext(ntpath.basename(filepath))[0]
-
-def basename(filepath):
-    return ntpath.basename(filepath)
-
-def dirname(filepath):
-    return os.path.dirname(os.path.abspath(filepath))
-
-def validate_wig_format(wig_list):
-    # Check if the .wig files include zeros or not
-    status = 0
-    genome = ""
-    includes_zeros = tnseq_tools.check_wig_includes_zeros(wig_list)
-
-    if sum(includes_zeros) < len(includes_zeros):
-        from pytransit.globals import gui
-        if not gui.is_active:
-            warnings.warn(
-                "\nOne or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). Proceeding as if data was Tn5 (all other sites assumed to be zero)!\n"
-            )
-            return (2, "")
-
-        # Else check their decision
-        dlg = AssumeZerosDialog()
-        result = dlg.ShowModal()
-        if result == dlg.ID_HIMAR1 and gui.is_active:
-            status = 1
-            # Get genome
-            wc = "Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
-            gen_dlg = wx.FileDialog(
-                gui.frame,
-                message="Save file as ...",
-                defaultDir=os.getcwd(),
-                defaultFile="",
-                wildcard=wc,
-                style=wx.FD_OPEN,
-            )
-            if gen_dlg.ShowModal() == wx.ID_OK:
-                genome = gen_dlg.GetPath()
-            else:
-                genome = ""
-
-        elif result == dlg.ID_TN5:
-            status = 2
-            genome = ""
-        else:
-            status = 3
-            genome = ""
-    return (status, genome)
-
-def get_pos_hash(path):
-    """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.
-    
-    Arguments:
-        path (str): Path to annotation in .prot_table or GFF3 format.
-    
-    Returns:
-        dict: Dictionary of position to list of genes that share that position.
-    """
-    filename, file_extension = os.path.splitext(path)
-    if file_extension.lower() in [".gff", ".gff3"]:
-        return tnseq_tools.get_pos_hash_gff(path)
-    else:
-        return tnseq_tools.get_pos_hash_pt(path)
-
-def get_gene_info(path):
-    """Returns a dictionary that maps gene id to gene information.
-    
-    Arguments:
-        path (str): Path to annotation in .prot_table or GFF3 format.
-    
-    Returns:
-        dict: Dictionary of gene id to tuple of information:
-            - name
-            - description
-            - start coordinate
-            - end coordinate
-            - strand
-            
-    """
-    filename, file_extension = os.path.splitext(path)
-    if file_extension.lower() in [".gff", ".gff3"]:
-        return tnseq_tools.get_gene_info_gff(path)
-    else:
-        return tnseq_tools.get_gene_info_pt(path)
-
-def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples, enable_logging=False):
-    '''
-        pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)
-        recursive: keep calling till vars reduced to empty
-    '''
-    from pytransit.generic_tools import misc
-    
-    if len(vars) == 0:
-        s = "%s=%s" % (pairs[0][0], pairs[0][1])
-        for i in range(1, len(pairs)):
-            s += " & %s=%s" % (pairs[i][0], pairs[i][1])
-        s += ": %s" % len(samples)
-        enable_logging and logging.log(s)
-        if len(samples) == 0:
-            return True
-    else:
-        var, vals_dict = vars[0], vars_by_file_list[0]
-        inv = misc.invert_dict(vals_dict)
-        any_empty = False
-        for val in vars_to_vals[var]:
-            subset = samples.intersection(set(inv[val]))
-            res = expand_var(
-                pairs + [(var, val)],
-                vars[1:],
-                vars_by_file_list[1:],
-                vars_to_vals,
-                subset,
-            )
-            any_empty = any_empty or res
-        return any_empty
-
-def get_validated_data(wig_list):
-    """ Returns a tuple of (data, position) containing a matrix of raw read-counts
-        , and list of coordinates. 
-
-    Arguments:
-        wig_list (list): List of paths to wig files.
-
-    Returns:
-        tuple: Two lists containing data and positions of the wig files given.
-
-    :Example:
-
-        >>> from pytransit.specific_tools import tnseq_tools
-        >>> (data, position) = tnseq_tools.get_validated_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
-        >>> print(data)
-        array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
-               [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
-
-    .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.specific_tools.norm_tools.normalize_data`
-    """
-    (status, genome) = validate_wig_format(wig_list)
-
-    # Regular file with empty sites
-    if status == 0:
-        return tnseq_tools.CombinedWig.gather_wig_data(wig_list)
-    # No empty sites, decided to proceed as Himar1
-    elif status == 1:
-        return tnseq_tools.get_data_w_genome(wig_list, genome)
-    # No empty sites, decided to proceed as Tn5
-    elif status == 2:
-        return tnseq_tools.get_data_zero_fill(wig_list)
-    # Didn't choose either.... what!?
-    else:
-        return tnseq_tools.CombinedWig.gather_wig_data([])
-
-import time
-class TimerAndOutputs(object):
-    def __init__(self, method_name, output_paths=[], disable=False):
-        self.method_name = method_name
-        self.output_paths = output_paths
-        self.disable = disable
-    
-    def __enter__(self):
-        if not self.disable:
-            logging.log(f"Starting {self.method_name} analysis")
-        self.start_time = time.time()
-        return self
-    
-    def __exit__(self, _, error, traceback):
-        from pytransit.globals import gui
-        from pytransit.components import results_area
-        if error is None:
-            if gui.is_active:
-                for each in self.output_paths:
-                    if not self.disable:
-                        logging.log(f"Adding File: {each}")
-                    results_area.add(each)
-            if not self.disable:
-                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
-        else:
-            raise error
-    
-    @property
-    def duration_in_seconds(self):
-        return time.time() - self.start_time
-
-def r_heatmap_func(*args):
-    raise Exception(f'''R is not installed, cannot create heatmap without R''')
-if HAS_R:
-    # Create the R function
-    r("""
-        make_heatmap = function(lfcs,genenames,outfilename) { 
-        rownames(lfcs) = genenames
-        suppressMessages(require(gplots))
-        colors <- colorRampPalette(c("red", "white", "blue"))(n = 200)
-
-        C = length(colnames(lfcs))
-        R = length(rownames(lfcs))
-        W = 300+C*30
-        H = 300+R*15
-
-        png(outfilename,width=W,height=H)
-        #defaults are lwid=lhei=c(1.5,4)
-        #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),lwid=c(2,6),lhei=c(0.1,2),trace="none",cexCol=1.4,cexRow=1.4,key=T) # make sure white=0
-        #heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # make sure white=0 # setting margins was causing failures, so remove it 8/22/21
-        heatmap.2(as.matrix(lfcs),col=colors,margin=c(12,12),trace="none",cexCol=1.2,cexRow=1.2,key=T) # actually, margins was OK, so the problem must have been with lhei and lwid
-        dev.off()
-        }
-    """.replace("    \n", "\n"))
-    r_heatmap_func = globalenv["make_heatmap"]
-
 # 
 # Results read/write
 # 
 if True:
+    result_output_extensions = 'Common output extensions (*.tsv,*.csv,*.dat,*.txt,*.out)|*.tsv;*.csv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*'
     result_file_classes = []
     def ResultsFile(a_class):
         """
@@ -457,6 +237,182 @@ if True:
             ],
             rows=rows,
         )
+
+import time
+class TimerAndOutputs(object):
+    def __init__(self, method_name, output_paths=[], disable=False):
+        self.method_name = method_name
+        self.output_paths = output_paths
+        self.disable = disable
+    
+    def __enter__(self):
+        if not self.disable:
+            logging.log(f"Starting {self.method_name} analysis")
+        self.start_time = time.time()
+        return self
+    
+    def __exit__(self, _, error, traceback):
+        from pytransit.globals import gui
+        from pytransit.components import results_area
+        if error is None:
+            if gui.is_active:
+                for each in self.output_paths:
+                    if not self.disable:
+                        logging.log(f"Adding File: {each}")
+                    results_area.add(each)
+            if not self.disable:
+                logging.log(f"Finished {self.method_name} analysis in {self.duration_in_seconds:0.1f}sec")
+        else:
+            raise error
+    
+    @property
+    def duration_in_seconds(self):
+        return time.time() - self.start_time
+
+
+def require_r_to_be_installed(required_r_packages=[]):
+    if not HAS_R:
+        raise Exception(f'''Error: R and rpy2 (~= 3.0) required for this operation, see: https://www.r-project.org/''')
+    
+    if required_r_packages:
+        missing_packages = [x for x in required_r_packages if not rpackages.isinstalled(x)]
+        if len(missing_packages) > 0:
+            logging.error(
+                "Error: Following R packages are required: %(0)s. From R console, You can install them using install.packages(c(%(0)s))"
+                % ({"0": '"{0}"'.format('", "'.join(missing_packages))})
+            )
+
+def fetch_name(filepath):
+    return os.path.splitext(ntpath.basename(filepath))[0]
+
+def basename(filepath):
+    return ntpath.basename(filepath)
+
+def dirname(filepath):
+    return os.path.dirname(os.path.abspath(filepath))
+
+def validate_wig_format(wig_list):
+    # Check if the .wig files include zeros or not
+    status = 0
+    genome = ""
+    includes_zeros = tnseq_tools.check_wig_includes_zeros(wig_list)
+
+    if sum(includes_zeros) < len(includes_zeros):
+        from pytransit.globals import gui
+        if not gui.is_active:
+            warnings.warn(
+                "\nOne or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). Proceeding as if data was Tn5 (all other sites assumed to be zero)!\n"
+            )
+            return (2, "")
+
+        # Else check their decision
+        dlg = AssumeZerosDialog()
+        result = dlg.ShowModal()
+        if result == dlg.ID_HIMAR1 and gui.is_active:
+            status = 1
+            # Get genome
+            wc = "Known Sequence Extensions (*.fna,*.fasta)|*.fna;*.fasta;|\nAll files (*.*)|*.*"
+            gen_dlg = wx.FileDialog(
+                gui.frame,
+                message="Save file as ...",
+                defaultDir=os.getcwd(),
+                defaultFile="",
+                wildcard=wc,
+                style=wx.FD_OPEN,
+            )
+            if gen_dlg.ShowModal() == wx.ID_OK:
+                genome = gen_dlg.GetPath()
+            else:
+                genome = ""
+
+        elif result == dlg.ID_TN5:
+            status = 2
+            genome = ""
+        else:
+            status = 3
+            genome = ""
+    return (status, genome)
+
+def get_pos_hash(path):
+    """Returns a dictionary that maps coordinates to a list of genes that occur at that coordinate.
+    
+    Arguments:
+        path (str): Path to annotation in .prot_table or GFF3 format.
+    
+    Returns:
+        dict: Dictionary of position to list of genes that share that position.
+    """
+    filename, file_extension = os.path.splitext(path)
+    if file_extension.lower() in [".gff", ".gff3"]:
+        return tnseq_tools.get_pos_hash_gff(path)
+    else:
+        return tnseq_tools.get_pos_hash_pt(path)
+
+def expand_var(pairs, vars, vars_by_file_list, vars_to_vals, samples, enable_logging=False):
+    '''
+        pairs is a list of (var,val); samples is a set; varsByFileList is a list of dictionaries mapping values to samples for each var (parallel to vars)
+        recursive: keep calling till vars reduced to empty
+    '''
+    from pytransit.generic_tools import misc
+    
+    if len(vars) == 0:
+        s = "%s=%s" % (pairs[0][0], pairs[0][1])
+        for i in range(1, len(pairs)):
+            s += " & %s=%s" % (pairs[i][0], pairs[i][1])
+        s += ": %s" % len(samples)
+        enable_logging and logging.log(s)
+        if len(samples) == 0:
+            return True
+    else:
+        var, vals_dict = vars[0], vars_by_file_list[0]
+        inv = misc.invert_dict(vals_dict)
+        any_empty = False
+        for val in vars_to_vals[var]:
+            subset = samples.intersection(set(inv[val]))
+            res = expand_var(
+                pairs + [(var, val)],
+                vars[1:],
+                vars_by_file_list[1:],
+                vars_to_vals,
+                subset,
+            )
+            any_empty = any_empty or res
+        return any_empty
+
+def get_validated_data(wig_list):
+    """ Returns a tuple of (data, position) containing a matrix of raw read-counts
+        , and list of coordinates. 
+
+    Arguments:
+        wig_list (list): List of paths to wig files.
+
+    Returns:
+        tuple: Two lists containing data and positions of the wig files given.
+
+    :Example:
+
+        >>> from pytransit.specific_tools import tnseq_tools
+        >>> (data, position) = tnseq_tools.get_validated_data(["data/cholesterol_glycerol.transit/glycerol_rep1.wig", "data/cholesterol_glycerol.transit/glycerol_rep2.wig"])
+        >>> print(data)
+        array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
+               [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
+
+    .. seealso:: :class:`get_file_types` :class:`combine_replicates` :class:`get_data_zero_fill` :class:`pytransit.specific_tools.norm_tools.normalize_data`
+    """
+    (status, genome) = validate_wig_format(wig_list)
+
+    # Regular file with empty sites
+    if status == 0:
+        return tnseq_tools.CombinedWig.gather_wig_data(wig_list)
+    # No empty sites, decided to proceed as Himar1
+    elif status == 1:
+        return tnseq_tools.get_data_w_genome(wig_list, genome)
+    # No empty sites, decided to proceed as Tn5
+    elif status == 2:
+        return tnseq_tools.get_data_zero_fill(wig_list)
+    # Didn't choose either.... what!?
+    else:
+        return tnseq_tools.CombinedWig.gather_wig_data([])
 
 # input: conditions are per wig; orderingMetdata comes from tnseq_tools.CombinedWigMetadata.read_condition_data()
 # output: conditionsList is selected subset of conditions (unique, in preferred order)
@@ -616,6 +572,19 @@ def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None,
     return Wig.selected_as_gathered_data(wig_objects)
 
 ##########################################
+def winsorize(counts):
+    # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
+    unique_counts = numpy.unique(numpy.concatenate(counts))
+    if len(unique_counts) < 2:
+        return counts
+    else:
+        n, n_minus_1 = unique_counts[
+            heapq.nlargest(2, range(len(unique_counts)), unique_counts.take)
+        ]
+        result = [
+            [n_minus_1 if count == n else count for count in wig] for wig in counts
+        ]
+        return numpy.array(result)
 
 def winsorize(counts):
     # input is insertion counts for gene: list of lists: n_replicates (rows) X n_TA sites (cols) in gene
@@ -698,26 +667,27 @@ def get_stats_by_rv(data, rv_site_indexes_map, genes, conditions, interactions, 
     stat_group_names = group_wig_index_map.keys()
     return stats_by_rv, stat_group_names
 
-def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", n_terminus=0, c_terminus=0):
+def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=None, normalization="TTR", n_terminus=0, c_terminus=0, avg_by_conditions=False, combined_wig=None):
+    if combined_wig==None: 
+        combined_wig = tnseq_tools.CombinedWig.load(main_path=combined_wig_path, metadata_path=metadata_path, annotation_path=annotation_path)
+    
     assert combined_wig.annotation_path != None, "When computing gene means, make sure the combined_wig.annotation_path is not None"
     
-    sites, data, filenames_in_comb_wig = combined_wig.as_tuple
-
     logging.log(f"Normalizing using: {normalization}")
-    data, factors = norm_tools.normalize_data(data, normalization)
+    combined_wig = combined_wig.normalized_with(kind=normalization)
     
-    # calculate gene means 
-    genes = tnseq_tools.Genes(
-        wig_list=[],
-        data=data,
-        annotation=combined_wig.annotation_path,
-        position=sites,
+    genes = combined_wig.get_genes(
         n_terminus=n_terminus,
         c_terminus=c_terminus,
     )
     
+    # calculate gene means 
     means = []
-    labels = combined_wig.wig_fingerprints # NOTE: this would be wig_ids, but can't because the metadata is only guarenteed to exist if avg_by_conditions is true
+    if combined_wig.metadata_path:
+        labels = combined_wig.wig_ids
+    else:
+        labels = combined_wig.wig_fingerprints
+    
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
@@ -726,7 +696,7 @@ def calc_gene_means(combined_wig, avg_by_conditions=False, normalization="TTR", 
     if avg_by_conditions:
         labels = combined_wig.metadata.condition_names
         condition_per_wig_index = [
-            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0] #FIXME: this is assuming there is only one condition per wig
+            combined_wig.metadata.condition_names_for(wig_fingerprint=each_fingerprint)[0]
                 for each_fingerprint in combined_wig.wig_fingerprints
         ]
         conditions_array = numpy.array(condition_per_wig_index)

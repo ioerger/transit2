@@ -33,9 +33,10 @@ def bind_to(wx_python_obj, event, *args, **kwargs):
 def handle_traceback(traceback_obj):
     import traceback
     frame = gui.frame
-    print(''.join(traceback.format_tb(traceback_obj)))
+    error_message = ''.join(traceback.format_tb(traceback_obj))
+    print(error_message)
     if frame and hasattr(frame, "status_bar") and hasattr(frame.status_bar, "SetStatusText"):
-        frame.status_bar.SetStatusText("Error: "+str(error.args))
+        frame.status_bar.SetStatusText(error_message)
 
 def set_status(message):
     frame = gui.frame
@@ -50,6 +51,13 @@ def ask_for_files(
         default_file_name="",
         allowed_extensions='All files (*.*)|*.*',
     ):
+        if isinstance(allowed_extensions, list):
+            string = 'Common extensions '
+            string += "(" + ",".join([ f"*.{each}" for each in allowed_extensions]) + ")|"
+            string += "".join([ f"*.{each};" for each in allowed_extensions]) + "|"
+            string += "\nAll files (*.*)|*.*"
+            allowed_extensions = string
+        
         import os
         output = []
         file_dialog = wx.FileDialog(
@@ -72,6 +80,12 @@ def ask_for_file(
         default_file_name="",
         allowed_extensions='All files (*.*)|*.*',
     ):
+        if isinstance(allowed_extensions, list):
+            string = 'Common extensions '
+            string += "(" + ",".join([ f"*.{each}" for each in allowed_extensions]) + ")|"
+            string += "".join([ f"*.{each};" for each in allowed_extensions]) + "|"
+            string += "\nAll files (*.*)|*.*"
+            allowed_extensions = string
         
         path = None
         file_dialog = wx.FileDialog(
@@ -95,7 +109,13 @@ def ask_for_output_file_path(
         path = None
         if not default_folder:
             default_folder = os.getcwd()
-
+        
+        if isinstance(output_extensions, list):
+            string = 'Common output extensions '
+            string += "(" + ",".join([ f"*.{each}" for each in output_extensions]) + ")|"
+            string += "".join([ f"*.{each};" for each in output_extensions]) + "|"
+            string += "\nAll files (*.*)|*.*"
+            output_extensions = string
         
         file_dialog = wx.FileDialog(
             gui.frame,
@@ -162,36 +182,37 @@ class NiceErrorLog(object):
 nice_error_log = NiceErrorLog()
 
 def show_image(path):
-    class ImgFrame(wx.Frame):
-        def __init__(self, parent, filePath):
-            wx.Frame.__init__(
-                self,
-                parent,
-                id=wx.ID_ANY,
-                title="%s" % (filePath),
-                pos=wx.DefaultPosition,
-                size=wx.Size(1150, 740),
-                style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL,
-            )
-            self.SetSizeHintsSz(wx.DefaultSize, wx.DefaultSize)
-            bSizer1 = wx.BoxSizer(wx.VERTICAL)
+    from pytransit.globals import gui
+    if gui.is_active:
+        class ImgFrame(wx.Frame):
+            def __init__(self, parent, filePath):
+                wx.Frame.__init__(
+                    self,
+                    parent,
+                    id=wx.ID_ANY,
+                    title="%s" % (filePath),
+                    pos=wx.DefaultPosition,
+                    size=wx.Size(1150, 740),
+                    style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL,
+                )
+                self.SetSizeHintsSz(wx.DefaultSize, wx.DefaultSize)
+                bSizer1 = wx.BoxSizer(wx.VERTICAL)
 
-            self.m_bitmap1 = wx.StaticBitmap(
-                self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0
-            )
-            bSizer1.Add(self.m_bitmap1, 1, wx.ALL | wx.EXPAND, 5)
-            self.SetSizer(bSizer1)
-            self.Layout()
-            self.Centre(wx.BOTH)
+                self.m_bitmap1 = wx.StaticBitmap(
+                    self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0
+                )
+                bSizer1.Add(self.m_bitmap1, 1, wx.ALL | wx.EXPAND, 5)
+                self.SetSizer(bSizer1)
+                self.Layout()
+                self.Centre(wx.BOTH)
 
-            img = wx.Image(filePath, wx.BITMAP_TYPE_ANY)
-            self.m_bitmap1.SetBitmap(wx.BitmapFromImage(img))
+                img = wx.Image(filePath, wx.BITMAP_TYPE_ANY)
+                self.m_bitmap1.SetBitmap(wx.BitmapFromImage(img))
 
-            self.Refresh()
-            self.Fit()
-    
-    ImgFrame(None, path).Show()
-
+                self.Refresh()
+                self.Fit()
+        
+        ImgFrame(None, path).Show()
 
 # 
 # Image Converters

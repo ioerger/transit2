@@ -16,8 +16,7 @@ from pytransit.globals import gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
-from pytransit.specific_tools.tnseq_tools import ProtTable
+from pytransit.specific_tools.transit_tools import wx, basename, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
 from pytransit.components.spreadsheet import SpreadSheet
 
 cli_args = LazyDict(
@@ -34,37 +33,40 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "--exclude-conditions",
-        "--include-conditions",
-        "--ref",
+        "-exclude-conditions",
+        "-include-conditions",
+        "-ref",
         "-iN",
         "-iC",
-        "-winz",
+        "--winz",
         "-PC",
-        "--group-by",
-        "--condition",
-        "--covars",
-        "--interactions",
-        "--prot_table_path",
-        "--gene",
+        "-group-by",
+        "-condition",
+        "-covars",
+        "-interactions",
+        "--append_gene_desc",
+        "-gene",
     ]
     
-    usage_string = f"""{console_tools.subcommand_prefix} {cli_name} <combined wig file> <samples_metadata file> <annotation .prot_table_path> <output file> [Optional Arguments]
+    usage_string = f"""
+        Usage:
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+        
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
-            --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
-            --ref <cond>    := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
-            -iN <float>     := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
-            -iC <float>     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
-            -winz           := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-            -PC <N>         := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
-            --group-by      := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-            --condition     := alias for --group-by
-            --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
-            --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
-            --prot_table_path <filename>           := for appending annotations of genes
-            --gene <RV number or Gene name>   := Run method for one gene and print model output.
+            -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
+            -include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
+            -n   <string>        :=  Normalization method. Default: -n TTR
+            -ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+            -iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
+            -iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
+            -PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
+            --winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            -group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+            -condition <string>  := alias for -group-by
+            -covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
+            -interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
+            -gene <RV number or Gene name>   := Run method for one gene and print model output.
+            --append_gene_desc               := the output_file will have column for gene descriptions
     """.replace("\n        ", "\n")
 
     @staticmethod
@@ -74,21 +76,21 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
-        cli_args.gene = "-gene" in kwargs
+        cli_args.gene = kwargs["-gene"]
         
         # save the data
         Method.output(
-            combined_wig_path = args[0],
-            metadata_path = args[1],
-            annotation_path = args[2],
-            output_path = args[3],
-            prot_table_path=kwargs["prot_table"],
-            group_by=kwargs.get("-group-by", kwargs["-condition"]),
-            covars=console_tools.string_arg_to_list(kwargs["-covars"]),
-            interactions=console_tools.string_arg_to_list(kwargs["-interactions"]),
-            refs=console_tools.string_arg_to_list(kwargs["-ref"]),
-            excluded_conditions=console_tools.string_arg_to_list(kwargs["-exclude-conditions"]),
-            included_conditions=console_tools.string_arg_to_list(kwargs["-include-conditions"]),
+            combined_wig_path=args[0],
+            annotation_path=args[1],
+            metadata_path=args[2],
+            output_path=args[3],
+            should_append_gene_descriptions="append_gene_desc" in kwargs,
+            group_by=kwargs.get("-group-by", kwargs["condition"]),
+            covars=console_tools.string_arg_to_list(kwargs["covars"]),
+            interactions=console_tools.string_arg_to_list(kwargs["interactions"]),
+            refs=console_tools.string_arg_to_list(kwargs["ref"]),
+            excluded_conditions=console_tools.string_arg_to_list(kwargs["exclude-conditions"]),
+            included_conditions=console_tools.string_arg_to_list(kwargs["include-conditions"]),
             winz="winz" in kwargs,
             normalization=kwargs["n"],
             n_terminus=kwargs["iN"],
@@ -110,27 +112,27 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
                     The ZINB (Zero-Inflated Negative Binomial) method is used to determine which genes exhibit statistically significant variability across multiple conditions, in either the magnitude of insertion counts or local saturation, agnostically (in any one condition compared to the others). Like ANOVA, the ZINB method takes a combined_wig file (which combines multiple datasets in one file) and a samples_metadata file (which describes which samples/replicates belong to which experimental conditions).
                     
                     ZINB can be applied to two or more conditions at a time. Thus it subsumes resampling. Our testing suggests that ZINB typically identifies 10-20% more varying genes than resampling (and vastly out-performs ANOVA for detecting significant variability across conditions). Furthermore, because of how ZINB treats magnitude of read counts separately from local saturation in a gene, it occasionally identifies genes with variability not detectable by resampling analysis.
-                    
-                    1. Add an annotation file for the organism corresponding to the desired datasets
-                    
-                    2. FIXME
-                    
-                    3. FIXME
-                    
-                    4. FIXME
                 """.replace("\n                    ","\n"),
             )
+<<<<<<< HEAD
             self.value_getters = LazyDict()
+=======
+            metadata_headers = []
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
             try:
                 metadata_headers = gui.combined_wigs[-1].metadata.headers
             except Exception as error:
                 pass
+<<<<<<< HEAD
+=======
+            metadata_headers = [ each for each in misc.no_duplicates(["Condition", *metadata_headers]) if each not in ["Id", "Filename"] ]
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
             
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
@@ -150,6 +152,20 @@ class Method:
                 prot_table_path=     panel_helpers.create_file_input(panel, main_sizer, button_label="Add ProtTable (optional)", tooltip_text="FIXME", popup_title="ProtTable"),
             )
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+            self.value_getters = LazyDict(
+                included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),
+                excluded_conditions= (lambda *args: []), # never needed, but exists to comply with CLI interface
+                refs=                panel_helpers.create_reference_condition_input(panel, main_sizer),
+                n_terminus=          panel_helpers.create_n_terminus_input(panel, main_sizer),
+                c_terminus=          panel_helpers.create_c_terminus_input(panel, main_sizer),
+                normalization=       panel_helpers.create_normalization_input(panel, main_sizer),
+                pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
+                winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
+                group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group By",                   options=metadata_headers, default_option=None, tooltip_text="Column name (in samples_metadata) to use as the primary condition being evaluated (to test for significant variability of insertions among groups)."),
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="For example, suppose you have two treatments with multiple strains. The strains themselves may have an affect on the outcome. However, selecting strain as a covar adjusts for differences caused only by differences in strain."), 
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the selected group/covars. For Example, If grouping by condition and media as the interaction, then ZINB  will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None),
+            )
             
     @staticmethod
     def from_gui(frame):
@@ -171,12 +187,20 @@ class Method:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
+        # make sure refs is always a list
+        if isinstance(arguments.refs, str):
+            refs = [ arguments.refs ]
+        
         # 
         # ask for output path(s)
         # 
         arguments.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
+<<<<<<< HEAD
             output_extensions='Common output extensions (*.tsv,*.txt,*.dat,*.out)|*.tsv;*.txt;*.dat;*.out;|\nAll files (*.*)|*.*',
+=======
+            output_extensions=transit_tools.result_output_extensions,
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         )
         # if user didn't select an output path
         if not arguments.output_path:
@@ -190,7 +214,7 @@ class Method:
         metadata_path,
         annotation_path,
         output_path,
-        prot_table_path=None,
+        should_append_gene_descriptions=None,
         group_by=None,
         covars=None,
         interactions=None,
@@ -205,20 +229,20 @@ class Method:
         disable_logging=False,
     ): # output()
         # Defaults (even if argument directly provided as None)
-        prot_table_path     = prot_table_path     if prot_table_path     is not None else None
-        group_by            = group_by            if group_by            is not None else "Condition"
-        covars              = covars              if covars              is not None else []
-        interactions        = interactions        if interactions        is not None else []
-        refs                = refs                if refs                is not None else []
-        excluded_conditions = excluded_conditions if excluded_conditions is not None else []
-        included_conditions = included_conditions if included_conditions is not None else []
-        winz                = winz                if winz                is not None else False
-        pseudocount         = pseudocount         if pseudocount         is not None else 5.0 # TODO: check later to make sure this is the correct default --Jeff
-        normalization       = normalization       if normalization       is not None else "TTR"
-        n_terminus          = n_terminus          if n_terminus          is not None else 5.0
-        c_terminus          = c_terminus          if c_terminus          is not None else 5.0
+        should_append_gene_descriptions = should_append_gene_descriptions if should_append_gene_descriptions is not None else False
+        group_by                        = group_by                        if group_by                        is not None else "Condition"
+        covars                          = covars                          if covars                          is not None else []
+        interactions                    = interactions                    if interactions                    is not None else []
+        refs                            = refs                            if refs                            is not None else []
+        excluded_conditions             = excluded_conditions             if excluded_conditions             is not None else []
+        included_conditions             = included_conditions             if included_conditions             is not None else []
+        winz                            = winz                            if winz                            is not None else False
+        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 # FIXME: check later to make sure this is the correct default --Jeff
+        normalization                   = normalization                   if normalization                   is not None else "TTR"
+        n_terminus                      = n_terminus                      if n_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
+        c_terminus                      = c_terminus                      if c_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
         
-        # transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ]) # FIXME: uncomment this
+        transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             # 
             # process data
@@ -227,15 +251,7 @@ class Method:
                 # 
                 # create gene_name_to_description from prot_table
                 # 
-                gene_name_to_description = None
-                if prot_table_path != None:
-                    gene_name_to_description = {}
-                    with open(prot_table_path) as file:
-                        for line in file:
-                            row = line.rstrip().split("\t")
-                            gene_name        = row[ProtTable.gene_name_index]
-                            gene_description = row[ProtTable.gene_name_index]
-                            gene_name_to_description[gene_name] = gene_description
+                annotation_data = tnseq_tools.AnnotationFile(path=annotation_path)
                 
                 # 
                 # gather comwig data
@@ -256,17 +272,13 @@ class Method:
                 # process the metadata
                 # 
                 if True:
-                    # FIXME: it looks like something needs to be fixed here, but i need to look into it more --Jeff
-                    # original message:
-                    #    if a covar is not found, this crashes; check for it?
-                    #    read it first with no condition specified, to get original Condition names
                     (
                         conditions_by_wig_fingerprint,
                         covariates_by_wig_fingerprint_list,
                         interactions_by_wig_fingerprint_list,
                         ordering_metadata,
                     ) = tnseq_tools.CombinedWigMetadata.read_condition_data(
-                        metadata_path, covars, interactions, # condition_name=group_by # TODO: this wasnt an available argument 
+                        metadata_path, covars, interactions, column_name_for_condition=group_by,
                     )
                     
                     # 
@@ -355,7 +367,7 @@ class Method:
                 # process gene data 
                 # 
                 if True:
-                    genes = tnseq_tools.read_genes(annotation_path)
+                    genes = annotation_data.as_list_of_dicts
                     ta_site_index_map = {
                         each_ta_site: index
                             for index, each_ta_site in enumerate(sites) 
@@ -389,10 +401,10 @@ class Method:
                     c1, i1 = (ic1[0], ic1[1]) if len(ic1) > 1 else (ic1[0], None)
                     c2, i2 = (ic2[0], ic2[1]) if len(ic2) > 1 else (ic2[0], None)
 
-                    # use --include-conditions to determine order of columns in output file
+                    # use -include-conditions to determine order of columns in output file
                     # this only works if an alternative --condition was not specified
                     # otherwise don't try to order them this way because it gets too complicated
-                    # possibly should require --covars and --interactions to be unspecified too
+                    # possibly should require -covars and -interactions to be unspecified too
                     if (
                         group_by == "Condition"
                         and len(included_conditions) > 0
@@ -427,19 +439,18 @@ class Method:
             # 
             if True:
                 only_have_one_lfc_column = len(ordered_stat_group_names) == 2
-                have_gene_name_column = gene_name_to_description != None
                 # 
                 # rows
                 #
                 rows = [] 
                 for gene in genes:
-                    gene_name = gene["rv"]
+                    gene_orf_id = gene["rv"]
                     means_per_group = [
-                        stats_by_rv[gene_name]["mean"][group]
+                        stats_by_rv[gene_orf_id]["mean"][group]
                             for group in ordered_stat_group_names
                     ]
                     if only_have_one_lfc_column:
-                        # TODO: still need to adapt this to use --ref if defined
+                        # TODO: still need to adapt this to use -ref if defined
                         log_fold_changes = [
                             numpy.math.log(
                                 (means_per_group[1] + pseudocount) / (means_per_group[0] + pseudocount),
@@ -451,16 +462,16 @@ class Method:
                             grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
                         else:
                             grand_means = numpy.mean(
-                                [stats_by_rv[gene_name]["mean"][group] for group in refs]
+                                [stats_by_rv[gene_orf_id]["mean"][group] for group in refs]
                             )
                         log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
                     
                     row = [
-                        gene_name,
+                        gene_orf_id,
                         gene["gene"],
-                        str(len(rv_site_indexes_map[gene_name])),
+                        str(len(rv_site_indexes_map[gene_orf_id])),
                         *[
-                            "%0.1f" % stats_by_rv[gene_name]["mean"][each_group]
+                            "%0.1f" % stats_by_rv[gene_orf_id]["mean"][each_group]
                                 for each_group in ordered_stat_group_names
                         ],
                         *[
@@ -468,40 +479,41 @@ class Method:
                                 for each_lfc in log_fold_changes
                         ],
                         *[
-                            "%0.1f" % stats_by_rv[gene_name]["nz_mean"][each_group]
+                            "%0.1f" % stats_by_rv[gene_orf_id]["nz_mean"][each_group]
                                 for each_group in ordered_stat_group_names
                         ],
                         *[
-                            "%0.2f" % stats_by_rv[gene_name]["nz_perc"][each_group]
+                            "%0.2f" % stats_by_rv[gene_orf_id]["nz_perc"][each_group]
                                 for each_group in ordered_stat_group_names
                         ],
-                        gene_name_to_p_value[gene_name],
-                        gene_name_to_adj_p_value[gene_name],
-                        run_status[gene_name],
+                        gene_name_to_p_value[gene_orf_id],
+                        gene_name_to_adj_p_value[gene_orf_id],
+                        run_status[gene_orf_id],
                     ]
                     
-                    if have_gene_name_column:
-                        gene_name = gene_name_to_description.get(gene_name, "?")
-                        row.append(gene_name)
+                    if should_append_gene_descriptions:
+                        gene_description = annotation_data.gene_description(orf_id=gene_orf_id, fallback_value="?")
+                        row.append(gene_description)
                     
                     rows.append(row)
                 # 
                 # column_names
                 # 
                 if only_have_one_lfc_column:
-                    lfc_names = [ "Log 2 FC" ]
+                    lfc_columns = [ "Log 2 FC" ]
                 else:
-                    lfc_names = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
+                    lfc_columns = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
                 
+                mean_columns = [
+                        "Mean "+each_name
+                            for each_name in headers_stat_group_names
+                ]
                 column_names = [
                     "Rv",
                     "Gene",
                     "TA Sites",
-                    *[
-                        "Mean "+each_name
-                            for each_name in headers_stat_group_names
-                    ],
-                    *lfc_names,
+                    *mean_columns,
+                    *lfc_columns,
                     *[
                         "Non Zero Mean "+each_name
                             for each_name in headers_stat_group_names
@@ -514,7 +526,7 @@ class Method:
                     "Adj P Value",
                     "Status",
                 ]
-                if have_gene_name_column:
+                if should_append_gene_descriptions:
                     column_names.append("Gene Name")
                 
                 # 
@@ -524,14 +536,18 @@ class Method:
                     files=dict(
                         combined_wig=combined_wig_path,
                         annotation_path=annotation_path,
-                        prot_table=prot_table_path,
                     ),
                     parameters=dict(
                         normalization=normalization,
                         n_terminus=n_terminus,
                         c_terminus=c_terminus,
-                        pseudocount=pseudocount
-                    )
+                        pseudocount=pseudocount,
+                        should_append_gene_descriptions=should_append_gene_descriptions,
+                    ),
+                    group_names=headers_stat_group_names,
+                    lfc_columns=lfc_columns,
+                    mean_columns=mean_columns,
+                    summary_info=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
                 )
             
             # 
@@ -591,18 +607,18 @@ class Method:
         comp1b = "1+cond"
 
         # include cond in mod0 only if testing interactions
-        comp0a = "1" if len(interactions) == 0 else "1+cond"
-        comp0b = "1" if len(interactions) == 0 else "1+cond"
-        for I in interactions:
-            comp1a += "*" + I
-            comp1b += "*" + I
-            comp0a += "+" + I
-            comp0b += "+" + I
-        for C in covars:
-            comp1a += "+" + C
-            comp1b += "+" + C
-            comp0a += "+" + C
-            comp0b += "+" + C
+        comp0a = "1" if len(interactions) == 0 else "1+cond" # >>> "1+cond"
+        comp0b = "1" if len(interactions) == 0 else "1+cond" # >>> "1+cond"
+        for each_interaction in interactions: # >>>  [ "KO_5849" ]
+            comp1a += "*" + each_interaction
+            comp1b += "*" + each_interaction
+            comp0a += "+" + each_interaction
+            comp0b += "+" + each_interaction
+        for each_covariate in covars: # >>> [ ]
+            comp1a += "+" + each_covariate
+            comp1b += "+" + each_covariate
+            comp0a += "+" + each_covariate
+            comp0b += "+" + each_covariate
         zinb_mod1 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp1a, comp1b)
         zinb_mod0 = "cnt~%s+offset(log(non_zero_mean))|%s+offset(logit_z_perc)" % (comp0a, comp0b)
 
@@ -769,7 +785,6 @@ class Method:
     
     @staticmethod
     def def_r_zinb_signif():
-        if not HAS_R: return lambda *args, **kwargs: Exception("You're getting this if debugging is on and you dont have R")
         from pytransit.specific_tools.transit_tools import r, globalenv
         r(
             """
@@ -781,7 +796,6 @@ class Method:
                 nbMod0,
                 DEBUG = F
             ) {
-              print("Starting ZINB in R")
               suppressMessages(require(pscl))
               suppressMessages(require(MASS))
               melted = df
@@ -842,12 +856,28 @@ class Method:
                   return(NULL)
                 })
               if (DEBUG) {
-                  print("Model 1:")
-                  print(f1)
-                  print(summary(mod1))
-                  print("Model 0:")
-                  print(f0)
-                  print(summary(mod0))
+                tryCatch(
+                    {
+                        print("Model 1:")
+                        print(f1)
+                        print(summary(mod1))
+                    },
+                    error=function(err) {
+                        print("Error Printing Model 1")
+                        return(NULL)
+                    }
+                )
+                tryCatch(
+                    {
+                        print("Model 0:")
+                        print(f0)
+                        print(summary(mod0))
+                    },
+                    error=function(err) {
+                        print("Error Printing Model 0")
+                        return(NULL)
+                    }
+                )
               }
 
               if (is.null(mod1) | is.null(mod0)) { return (c(1, paste0("Model Error. ", status))) }
@@ -858,7 +888,6 @@ class Method:
               # this gives same answer, but I would need to extract the Pvalue...
               #require(lmtest)
               #print(lrtest(mod1,mod0))
-              print("Finished ZINB in R")
               return (c(pval, status))
             }
         """
@@ -867,7 +896,7 @@ class Method:
         return globalenv["zinb_signif"]
         
 @transit_tools.ResultsFile
-class ResultFileType1:
+class File:
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Method.identifier)
@@ -890,6 +919,7 @@ class ResultFileType1:
                         # HANDLE_THIS
                     ],
                 ).Show(),
+                "Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
             })
         )
         
@@ -897,19 +927,20 @@ class ResultFileType1:
         # read in data
         # 
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
+                
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
         
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["normalization"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
         # 
         # get summary stats
         #
         self.values_for_result_table.update({
-            # HANDLE_THIS (additional summary_info for results table)
-            # examples:
-                # f"Gene Count": len(self.rows),
-                # f"Adj P Value < {Method.significance_threshold}": len([
-                #     1 for each in self.rows
-                #         if each.get("Adj P Value", 0) < Method.significance_threshold 
-                # ]),
+           " ":"" 
         })
     
     def __str__(self):
@@ -919,3 +950,28 @@ class ResultFileType1:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
 
+    def create_heatmap(self, output_path, topk=None, qval=None, low_mean_filter=None):
+        from pytransit.methods.heatmap import Method as HeatmapMethod
+        with gui_tools.nice_error_log:
+            # 
+            # specific to zinb
+            # 
+            HeatmapMethod.output(
+                column_names=self.extra_data["parameters"]["group_names"],
+                output_path=output_path,
+                top_k=topk,
+                q_value_threshold=qval,
+                low_mean_filter=low_mean_filter,
+                formatted_rows=tuple(
+                    dict(
+                        gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+                        means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                        lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
+                        q_value=each_row["Adj P Value"],
+                    )
+                        for each_row in self.rows
+                ),
+            )
+            # add it as a result
+            results_area.add(output_path)
+            gui_tools.show_image(output_path)

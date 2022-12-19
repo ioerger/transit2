@@ -18,7 +18,7 @@ from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.specific_tools.transit_tools import wx, basename, HAS_R, FloatVector, DataFrame, StrVector
+from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.specific_tools.tnseq_tools import Wig
 import pytransit
 import pytransit.components.file_display as file_display
@@ -58,18 +58,16 @@ class Method:
         "-c",
         "-s",
         "-n",
-        "-h",
-        "-a",
-        "-ez",
+        "--h",
+        "--a",
         "-PC",
-        "-l",
+        "--l",
         "-iN",
         "-iC",
-        "--ctrl_lib",
-        "--exp_lib",
-        "-Z",
-        "-winz",
-        "-sr",
+        "-ctrl_lib",
+        "-exp_lib",
+        "--winz",
+        "--sr",
     ]
     
     inputs = LazyDict(
@@ -80,53 +78,44 @@ class Method:
         normalization="TTR",
         samples=10000,
         adaptive=False,
-        include_zeros=True, # FIXME: include_zeros=False breaks resampling (even on master I believe)
         pseudocount=1,
         replicates="Sum",
-        LOESS=False,
         ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         ctrl_lib_str="",
         exp_lib_str="",
         winz=False,
-        Z=False,
         diff_strains=False,
         annotation_path_exp="",
-        combined_wig_params=None,
         do_histogram=False,
         site_restricted=False,
     )
     
     usage_string = f"""
-        {console_tools.subcommand_prefix} resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-        ---
-        OR
-        ---
-        {console_tools.subcommand_prefix} resampling -c <combined wig file> <samples_metadata file> <ctrl condition name> <exp condition name> <annotation .prot_table> <output file> [Optional Arguments]
-        NB: The ctrl and exp condition names should match Condition names in samples_metadata file.
+        Usage 1:
+            {console_tools.subcommand_prefix} resampling <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+            Note: The ctrl and exp condition names need to match Condition names in metadata_file
+        
+        Usage 2:
+            {console_tools.subcommand_prefix} resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
 
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -a              :=  Perform adaptive resampling. Default: Turned Off.
-        -ez             :=  Exclude rows with zero across conditions. Default: Turned off
-                            (i.e. include rows with zeros).
-        -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias.
-                            Default: Turned Off.
-        -iN <int>       :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <int>       :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-        --ctrl_lib      :=  String of letters representing library of control files in order
-                            e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
-
-        --exp_lib       :=  String of letters representing library of experimental files in order
-                            e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
-        -winz           :=  winsorize insertion counts for each gene in each condition 
-                            (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-        -sr             :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
+            -s <integer>        :=  Number of samples. Default: -s 10000
+            -n <string>         :=  Normalization method. Default: -n TTR
+            --a                 :=  Perform adaptive resampling. Default: Turned Off.
+            -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+            -iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
+            -iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+            -ctrl_lib <string>  :=  String of letters representing library of control files in order
+                                    e.g. 'AABB'. Default empty. Letters used must also be used in -exp_lib
+                                    If non-empty, resampling will limit permutations to within-libraries.
+            -exp_lib <string>   :=  String of letters representing library of experimental files in order
+                                    e.g. 'ABAB'. Default empty. Letters used must also be used in -ctrl_lib
+                                    If non-empty, resampling will limit permutations to within-libraries.
+            --winz              :=  winsorize insertion counts for each gene in each condition 
+                                    (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+            --sr                :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -141,44 +130,40 @@ class Method:
         from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
-                method_short_text=self.name,
-                method_long_text="",
+                title_text=self.name,
+                sub_text="",
                 method_specific_instructions="""
-                The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
+                    The resampling method is a comparative analysis the allows that can be used to determine conditional essentiality of genes. It is based on a permutation test, and is capable of determining read-counts that are significantly different across conditions.
 
-                See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
-                
-                1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
+                    See Pathway Enrichment Method for post-processing the hits to determine if the hits are associated with a particular functional catogory of genes or known biological pathway.
+                    
+                    1. Of the Conditions in the Conditions pane, select one to be the control condition using the 'Control Condition' dropdown
 
-                2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
+                    2. Of the Conditions in the Conditions pane, select one to be the experimental condition using the 'Experimental Condition' dropdown
 
-                3.[Optional] Select/Adjust other parameters
+                    3.[Optional] Select/Adjust other parameters
 
-                4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+                    4.[Optional] Select from the samples panel
 
-                5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
+                    5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
 
-                6. Click Run
+                    6. Click Run
                 """.replace("\n                    ","\n"),
             )
 
+            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict()
             
-            self.value_getters.ctrldata               = panel_helpers.create_control_condition_input(panel, main_sizer)
-            self.value_getters.expdata                = panel_helpers.create_experimental_condition_input(panel, main_sizer)
-            self.value_getters.samples                = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of samples to take when estimating the resampling histogram. More samples give more accurate estimates of the p-values at the cost of computation time.")
-            self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
-            self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-            self.value_getters.pseudocount            = panel_helpers.create_pseudocount_input(panel, main_sizer)
-            self.value_getters.normalization          = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.site_restricted        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
-            self.value_getters.genome_positional_bias = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            panel_helpers.create_preview_loess_button(panel, main_sizer) # TODO: change tooltip text that references this button, then remove this button
-            self.value_getters.adaptive                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
-            self.value_getters.do_histogram            = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.include_zeros           = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Include sites with all zeros", default_value=True, tooltip_text="Includes sites that are empty (zero) across all datasets. Unchecking this may be useful for tn5 datasets, where all nucleotides are possible insertion sites and will have a large number of empty sites (significantly slowing down computation and affecting estimates).")
-            
-            panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
+            self.value_getters.ctrldata        = panel_helpers.create_control_condition_input(panel, main_sizer)
+            self.value_getters.expdata         = panel_helpers.create_experimental_condition_input(panel, main_sizer)
+            self.value_getters.samples         = panel_helpers.create_int_getter(panel, main_sizer, label_text="Samples", default_value="10000", tooltip_text="Number of permutations [Monte Carlo] to try when generating the null distribution for each gene")
+            self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
+            self.value_getters.pseudocount     = panel_helpers.create_pseudocount_input(panel, main_sizer)
+            self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.site_restricted = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
+            self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be slightly less accurate (p-values within a factor of 2 to 3).")
+            self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram (null distributions for the difference of mean counts) of the ORFs. Histogram images are created in a folder with the same name as the output file.")
         
     @staticmethod
     def from_gui(frame):
@@ -206,8 +191,13 @@ class Method:
         # save result files
         # 
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
+<<<<<<< HEAD
             default_file_name=f"{Method.cli_name}_output.txt",
             output_extensions='Common output extensions (*.tsv,*.dat,*.txt,*.out)|*.tsv;*.dat;*.txt;*.out;|\nAll files (*.*)|*.*',
+=======
+            default_file_name=f"{Method.cli_name}_output.tsv",
+            output_extensions=transit_tools.result_output_extensions,
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
         )
         if not Method.inputs.output_path:
             return None
@@ -215,24 +205,13 @@ class Method:
         # 
         # extract universal data
         # 
-        cwig_path     = gui.combined_wigs[-1].main_path
-        metadata_path = gui.combined_wigs[-1].metadata.path
-        
-        Method.inputs.combined_wig_params = dict(
-            combined_wig=cwig_path,
-            samples_metadata=metadata_path,
-            conditions=[
-                Method.inputs.ctrldata,
-                Method.inputs.expdata,
-            ],
-        )
+        Method.inputs.combined_wig_path = gui.combined_wigs[-1].main_path
+        Method.inputs.metadata_path     = gui.combined_wigs[-1].metadata.path
         assert Method.inputs.ctrldata != "[None]", "Control group can't be None"
         assert Method.inputs.expdata != "[None]", "Experimental group can't be None"
+        Method.inputs.ctrldata          = [ Method.inputs.ctrldata ]
+        Method.inputs.expdata           = [ Method.inputs.expdata  ]
         
-        # backwards compatibility
-        Method.inputs.ctrldata = [Method.inputs.combined_wig_params["conditions"][0]]
-        Method.inputs.expdata = [Method.inputs.combined_wig_params["conditions"][1]]
-
         Method.inputs.update(dict(
             annotation_path_exp=Method.inputs.annotation_path_exp if Method.inputs.diff_strains else Method.inputs.annotation_path
         ))
@@ -242,35 +221,45 @@ class Method:
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
+        from pytransit.methods.combined_wig import Method as CombinedWigMethod
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         
-        is_combined_wig = True if kwargs.get("c", False) else False
-        combined_wig_params = None
+        # init to avoid var-undefined for specific cases
+        combined_wig_path      = None
+        metadata_path          = None
+        control_condition      = None
+        experimental_condition = None
+        control_wigs           = None
+        experimental_wigs      = None
+        annotation_path        = None
+        output_path            = None
+        
+        # Usage 1
+        is_combined_wig = CombinedWigMethod.file_is_combined_wig(args[0])
         if is_combined_wig:
-            console_tools.enforce_number_of_args(args, Method.usage_string, exactly=5)
-            combined_wig_params = {
-                "combined_wig": kwargs.get("c"),
-                "samples_metadata": args[0],
-                "conditions": [args[1], args[2]],
-            }
-            annot_paths = args[3].split(",")
-            # to show contrasted conditions for combined_wigs in output header
-            ctrldata = [combined_wig_params["conditions"][0]]
-            expdata  = [combined_wig_params["conditions"][1]]
-            output_path = args[4]
+            console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
+            # <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+            combined_wig_path      = args[0]
+            annotation_paths       = console_tools.string_arg_to_list(args[1])
+            metadata_path          = args[2]
+            control_condition      = args[3]
+            experimental_condition = args[4]
+            output_path            = args[5]
+        # Usage 2
         else:
             console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
-            ctrldata    = args[0].split(",")
-            expdata     = args[1].split(",")
-            annot_paths = args[2].split(",")
-            output_path = args[3]
+            # <wig_file1,wig_file2,...(control group)> <wig_file1,wig_file2,... (experimental group)> <annotation_file> <output_file> [Optional Arguments]
+            control_wigs           = console_tools.string_arg_to_list(args[0])
+            experimental_wigs      = console_tools.string_arg_to_list(args[1])
+            annotation_paths       = console_tools.string_arg_to_list(args[2])
+            output_path            = args[3]
         
-        annotation_path = annot_paths[0]
+        annotation_path = annotation_paths[0]
         diff_strains = False
         annotation_path_exp = ""
-        if len(annot_paths) == 2:
-            annotation_path_exp = annot_paths[1]
+        if len(annotation_paths) == 2:
+            annotation_path_exp = annotation_paths[1]
             diff_strains = True
         if diff_strains and is_combined_wig:
             logging.error("Error: Cannot have combined wig and different annotation files.")
@@ -281,42 +270,36 @@ class Method:
         adaptive      = kwargs.get("a", Method.inputs.adaptive)
         replicates    = kwargs.get("r", Method.inputs.replicates)
         do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
-        include_zeros = not kwargs.get("ez", not Method.inputs.include_zeros)
         pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
-        
-        Z = True if "Z" in kwargs else False
-
-        LOESS = kwargs.get("l", False)
         ignore_codon = True
-
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
         c_terminus = float(kwargs.get("iC", 0.00))
-        ctrl_lib_str = kwargs.get("-ctrl_lib", "")
-        exp_lib_str = kwargs.get("-exp_lib", "")
+        ctrl_lib_str = kwargs.get("ctrl_lib", "")
+        exp_lib_str = kwargs.get("exp_lib", "")
         
         Method.inputs.update(dict(
-            ctrldata=ctrldata,
-            expdata=expdata,
+            ctrldata=control_wigs or [ control_condition ],
+            expdata=experimental_wigs or [ experimental_condition ],
             output_path=output_path,
             normalization=normalization,
             samples=samples,
             adaptive=adaptive,
-            include_zeros=include_zeros,
             pseudocount=pseudocount,
             replicates=replicates,
-            LOESS=LOESS,
             ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
             ctrl_lib_str=ctrl_lib_str,
             exp_lib_str=exp_lib_str,
             winz=winz,
-            Z=Z,
             diff_strains=diff_strains,
             annotation_path=annotation_path,
             annotation_path_exp=annotation_path,
-            combined_wig_params=combined_wig_params,
+            combined_wig_path=combined_wig_path,
+            metadata_path=metadata_path,
             do_histogram=do_histogram,
+            control_condition=control_condition,
+            experimental_condition=experimental_condition,
         ))
         Method.Run()
 
@@ -347,19 +330,19 @@ class Method:
         # 
         # Combine 
         # 
-        if self.inputs.combined_wig_params:
+        if self.inputs.combined_wig_path:
             (position, data, filenames_in_comb_wig) = tnseq_tools.CombinedWigData.load(
-                self.inputs.combined_wig_params["combined_wig"]
+                self.inputs.combined_wig_path
             )
             conditions_by_wig_fingerprint, _, _, _ = tnseq_tools.CombinedWigMetadata.read_condition_data(
-                self.inputs.combined_wig_params["samples_metadata"]
+                self.inputs.metadata_path
             )
             condition_names = self.wigs_to_conditions(conditions_by_wig_fingerprint, filenames_in_comb_wig)
             datasets, conditions_per_dataset = self.filter_wigs_by_conditions(
-                data, condition_names, self.inputs.combined_wig_params["conditions"],
+                data, condition_names, [ self.inputs.control_condition, self.inputs.experimental_condition ],
             )
-            control_condition = self.inputs.combined_wig_params["conditions"][0]
-            experimental_condition = self.inputs.combined_wig_params["conditions"][1]
+            control_condition      = self.inputs.control_condition
+            experimental_condition = self.inputs.experimental_condition
             data_ctrl = numpy.array(
                 [
                     each_dataset
@@ -434,6 +417,9 @@ class Method:
                     )
         
         (data, qval) = self.run_resampling(g_ctrl, g_exp, do_library_resampling)
+
+        self.hit_summary= f"{len([val for val in qval if val<0.05])}" #significant conditionally essential genes"
+    
         # 
         # write output
         # 
@@ -456,55 +442,26 @@ class Method:
                     log2FC,
                     pval_2tail,
                 ) = row
-                if self.inputs.Z == True:
-                    p = pval_2tail / 2  # convert from 2-sided back to 1-sided
-                    if p == 0:
-                        p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
-                    if p == 1:
-                        p = 1 - 1e-5
-                    z = scipy.stats.norm.ppf(p)
-                    if log2FC > 0:
-                        z *= -1
-                    rows.append(
-                        (
-                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f"
-                            % (
-                                orf,
-                                name,
-                                desc,
-                                n,
-                                mean1,
-                                mean2,
-                                log2FC,
-                                sum1,
-                                sum2,
-                                test_obs,
-                                pval_2tail,
-                                z,
-                                qval[row_index],
-                            )
-                        ).split('\t')
-                    )
-                else:
-                    rows.append(
-                        (
-                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
-                            % (
-                                orf,
-                                name,
-                                desc,
-                                n,
-                                mean1,
-                                mean2,
-                                log2FC,
-                                sum1,
-                                sum2,
-                                test_obs,
-                                pval_2tail,
-                                qval[row_index],
-                            )
-                        ).split('\t')
-                    )
+                rows.append(
+                    (
+                        "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
+                        % (
+                            orf,
+                            name,
+                            desc,
+                            n,
+                            mean1,
+                            mean2,
+                            log2FC,
+                            sum1,
+                            sum2,
+                            test_obs,
+                            pval_2tail,
+                            qval[row_index],
+                        )
+                    ).split('\t')
+                )
+                    
             
             # 
             # write to file
@@ -513,34 +470,22 @@ class Method:
                 path=self.inputs.output_path,
                 file_kind=Method.identifier,
                 rows=rows,
-                column_names=Method.column_names if not self.inputs.Z else [
-                    "ORF",
-                    "Gene Name",
-                    "Description",
-                    "Sites",
-                    "Mean Control",
-                    "Mean Experimental",
-                    "Log 2 FC",
-                    "Sum Control",
-                    "Sum Experimental",
-                    "Delta Mean",
-                    "P Value",
-                    "Z Score",
-                    "Adj P Value",
-                ],
+                column_names=Method.column_names,
                 extra_info=dict(
                     parameters=dict(
                         samples=self.inputs.samples,
                         norm=self.inputs.normalization,
                         histograms=self.inputs.do_histogram,
                         adaptive=self.inputs.adaptive,
-                        exclude_zeros=not self.inputs.include_zeros,
                         pseudocounts=self.inputs.pseudocount,
-                        LOESS=self.inputs.LOESS,
                         n_terminus=self.inputs.n_terminus,
                         c_terminus=self.inputs.c_terminus,
                         site_restricted=self.inputs.site_restricted,
                     ),
+                    summary_info = dict(
+                        Hits=self.hit_summary,
+                    ),
+
                     control_data=(",".join(self.inputs.ctrldata)),
                     experimental_data=(",".join(self.inputs.expdata)),
                     annotation_path=self.inputs.annotation_path,
@@ -565,12 +510,6 @@ class Method:
                 self.inputs.ctrldata + self.inputs.expdata,
                 self.inputs.annotation_path,
             )
-
-        if self.inputs.LOESS:
-            logging.log("Performing LOESS Correction")
-            from pytransit.specific_tools import stat_tools
-            for j in range(K):
-                data[j] = stat_tools.loess_correction(position, data[j])
 
         return data
 
@@ -666,12 +605,8 @@ class Method:
                 data1      = [0]
                 data2      = [0]
             else:
-                if not self.inputs.include_zeros:
-                    ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
-                    ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
-                else:
-                    ii_ctrl = numpy.ones(gene.n) == 1
-                    ii_exp = numpy.ones(gene_exp.n) == 1
+                ii_ctrl = numpy.ones(gene.n) == 1
+                ii_exp = numpy.ones(gene_exp.n) == 1
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
                 data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
@@ -768,13 +703,13 @@ class Method:
             # Update progress
             percentage = (100.0 * count / control_group_size)
             if gui.is_active:
-                text = "Running Resampling Method... %5.1f%%" % percentage
-                parameter_panel.progress_update(text, percentage)
+                parameter_panel.progress_update(f"Running Resampling Method... {percentage:.2f}%", percentage)
 
         logging.log("")  # Printing empty line to flush stdout
         logging.log("Performing Benjamini-Hochberg Correction")
         data.sort()
         qval = stat_tools.bh_fdr_correction([row[-1] for row in data])
+        
 
         return (data, qval)
 
@@ -807,12 +742,16 @@ class ResultFileType1:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        parameters = LazyDict(self.extra_data.get("parameters", {}))
-        number_of_significant = len([ 1 for each_row in self.rows if each_row["Adj P Value"] < Method.significance_threshold ])
-        self.values_for_result_table.update({
-            " ": f"{number_of_significant} significant conditionally essential genes"
-        })
+        summary = self.extra_data.get("summary_info", {})
+        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        self.values_for_result_table.update({"summary": "; ".join(summary_str) })
     
+
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm",]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+
+
     def __str__(self):
         return f"""
             File for {Method.identifier}
@@ -876,6 +815,7 @@ class ResultFileType1:
             # 
             # plot (log2_fc_values, log10_p_values, threshold)
             # 
+            plt.clf()
             plt.scatter(log2_fc_values, log10_p_values, marker=".")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")

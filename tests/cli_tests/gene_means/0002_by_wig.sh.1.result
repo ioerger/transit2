@@ -1,5 +1,6 @@
 #GeneMeans
 #yaml:
+<<<<<<< HEAD
 #    date: 2022-10-26 18:38:14
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
@@ -8,6 +9,16 @@
 #    time: 2.9883029460906982
 #    
 #ORF	Gene Name	src/pytransit/data/cholesterol_H37Rv_rep1.wig	src/pytransit/data/cholesterol_H37Rv_rep2.wig	src/pytransit/data/cholesterol_H37Rv_rep3.wig	src/pytransit/data/glycerol_H37Rv_rep1.wig	src/pytransit/data/glycerol_H37Rv_rep2.wig
+=======
+#    date: 2022-12-15 10:35:55
+#    transit_version: v3.2.6
+#    app_or_command_line: command_line
+#    console_command: |
+#        python3 './src/transit.py' 'gene_means' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gene_means/0002_by_wig.sh.1.result'
+#    time: 2.2748537063598633
+#    
+#ORF	Gene Name	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
+>>>>>>> a1a0f4ffbe990bbffbc1b4ac779dfcb8a82a5a95
 Rv0001	dnaA	0.0	0.0	0.0	0.0	0.0
 Rv0002	dnaN	0.0	0.0	0.0	0.0	0.0
 Rv0003	recF	31.3	18.3	15.6	12.1	23.7

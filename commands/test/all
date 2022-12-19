@@ -3,25 +3,34 @@
 # no args
 if [ -z "$1" ]
 then
+    
+    one_failed="false"
     # 
     # python code tests
     # 
     echo '#'
     echo '# test_analysis_methods'
     echo '#'
-    python3 ./tests/test_analysis_methods.py
+    python3 ./tests/test_analysis_methods.py || one_failed="true"
     echo '#'
     echo '# test_norm_methods'
     echo '#'
-    python3 ./tests/test_norm_methods.py
+    python3 ./tests/test_norm_methods.py || one_failed="true"
     echo '#'
     echo '# test_pytransit_tools'
     echo '#'
-    python3 ./tests/test_pytransit_tools.py
+    python3 ./tests/test_pytransit_tools.py || one_failed="true"
     echo '#'
     echo '# test_tpp'
     echo '#'
-    python3 ./tests/test_tpp.py
+    python3 ./tests/test_tpp.py || one_failed="true"
+    
+    if [ "$one_failed" = "true" ]
+    then
+        echo "#"
+        echo "# one of the tests above failed"
+        echo "#"
+    fi
     
     
     # 

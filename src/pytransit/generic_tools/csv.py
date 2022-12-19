@@ -1,7 +1,7 @@
 from pytransit.generic_tools.named_list import named_list
 
 # reads .csv, .tsv, etc 
-def read(path, *, seperator=",", first_row_is_column_names=False, column_names=None, skip_empty_lines=True, comment_symbol=None):
+def read(path=None, *, string=None, seperator=",", first_row_is_column_names=False, column_names=None, skip_empty_lines=True, comment_symbol=None):
     """
         Examples:
             comments, column_names, rows = csv.read("something/file.csv", first_row_is_column_names=True, comment_symbol="#")
@@ -62,75 +62,85 @@ def read(path, *, seperator=",", first_row_is_column_names=False, column_names=N
     file_column_names = []
     is_first_data_row = True
     
-    with open(path,'r') as file:
-        for each_line in file.readlines():
-            # remove all weird whitespace as a precaution
-            each_line = each_line.replace("\r", "").replace("\n", "")
-            
-            # 
-            # comments
-            # 
-            if comment_symbol:
-                if each_line.startswith(comment_symbol):
-                    comments.append(each_line[len(comment_symbol):])
-                    continue
-            
-            # 
-            # empty lines
-            # 
-            if skip_empty_lines and len(each_line.strip()) == 0:
+    def handle_line(each_line):
+        nonlocal comments, rows, file_column_names, is_first_data_row
+        # remove all weird whitespace as a precaution
+        each_line = each_line.replace("\r", "").replace("\n", "")
+        
+        # 
+        # comments
+        # 
+        if comment_symbol:
+            if each_line.startswith(comment_symbol):
+                comments.append(each_line[len(comment_symbol):])
+                return
+        
+        # 
+        # empty lines
+        # 
+        if skip_empty_lines and len(each_line.strip()) == 0:
+            return
+        
+        # 
+        # cell data
+        #
+        cells = each_line.split(seperator)
+        cells_with_types = []
+        skip_to = 0
+        for index, each_cell in enumerate(cells):
+            # apply any "skip_to" (which would be set by a previous loop)
+            if index < skip_to:
                 continue
             
-            # 
-            # cell data
-            #
-            cells = each_line.split(seperator)
-            cells_with_types = []
-            skip_to = 0
-            for index, each_cell in enumerate(cells):
-                if index < skip_to:
-                    continue
-                
-                stripped = each_cell.strip()
-                if len(stripped) == 0:
-                    cells_with_types.append(None)
-                else:
-                    first_char = stripped[0]
-                    if not (first_char == '"' or first_char == '[' or first_char == '{'):
-                        # this converts scientific notation to floats, ints with whitespace to ints, null to None, etc
-                        try: cells_with_types.append(json.loads(each_cell))
-                        # if its not valid JSON, just treat it as a string
+            stripped = each_cell.strip()
+            if len(stripped) == 0:
+                cells_with_types.append(None)
+            else:
+                first_char = stripped[0]
+                if not (first_char == '"' or first_char == '[' or first_char == '{'):
+                    # this converts scientific notation to floats, ints with whitespace to ints, null to None, etc
+                    try: cells_with_types.append(json.loads(each_cell))
+                    # if its not valid JSON, just treat it as a string
+                    except Exception as error:
+                        cells_with_types.append(each_cell)
+                else: # if first_char == '"' or first_char == '[' or first_char == '{'
+                    # this gets complicated because strings/objects/lists could contain an escaped seperator
+                    remaining_end_indicies = reversed(list(range(index, len(cells))))
+                    skip_to = 0
+                    for each_remaining_end_index in remaining_end_indicies:
+                        try:
+                            cells_with_types.append(
+                                json.loads(seperator.join(cells[index:each_remaining_end_index]))
+                            )
+                            skip_to = each_remaining_index
+                            break
                         except Exception as error:
-                            cells_with_types.append(each_cell)
-                    else: # if first_char == '"' or first_char == '[' or first_char == '{'
-                        remaining_end_indicies = reversed(list(range(index, len(cells))))
-                        skip_to = 0
-                        for each_remaining_end_index in remaining_end_indicies:
-                            try:
-                                cells_with_types.append(
-                                    json.loads(seperator.join(cells[index:each_remaining_end_index]))
-                                )
-                                skip_to = each_remaining_index
-                                break
-                            except Exception as error:
-                                pass
-                        # continue the outer loop
-                        if skip_to != 0:
-                            continue
-                        else:
-                            # if all fail, go with the default of the shortest cell as a string
-                            cells_with_types.append(each_cell)
-            
-            # 
-            # file_column_names
-            # 
-            if is_first_data_row:
-                is_first_data_row = False
-                if first_row_is_column_names:
-                    file_column_names = [ str(each) for each in cells_with_types ]
-                    continue
-            
-            rows.append(cells_with_types)
+                            pass
+                    # continue the outer loop
+                    if skip_to != 0:
+                        continue
+                    else:
+                        # if all fail, go with the default of the shortest cell as a string
+                        cells_with_types.append(each_cell)
+        
+        # 
+        # file_column_names
+        # 
+        if is_first_data_row:
+            is_first_data_row = False
+            if first_row_is_column_names:
+                file_column_names = [ str(each) for each in cells_with_types ]
+                return
+        
+        rows.append(cells_with_types)
+    
+    if path:
+        with open(path,'r') as file:
+            for each_line in file.readlines():
+                handle_line(each_line)
+    elif string: 
+        for each_line in string.splitlines():
+            handle_line(each_line)
     
     # if file_column_names
     if first_row_is_column_names or column_names:
