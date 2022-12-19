@@ -264,7 +264,9 @@ def progress_update(text, percent):
             panel.progress.SetValue(thousands)
         except:
             pass
-        # update status text
-        gui_tools.set_status(string)
         
-        wx.Yield() # to get the UI to update
+        if gui.is_active:
+            # update status text
+            gui_tools.set_status(string)
+            
+            wx.Yield() # to get the UI to update
