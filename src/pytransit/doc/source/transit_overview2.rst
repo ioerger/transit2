@@ -274,14 +274,19 @@ GUI
 
 Here is a screenshot of the new GUI in Transit 4.0:
 
+.. image:: _images/Transit4.0_GUI.png
+   :width: 1000
+   :align: center
 
-Basic overview:
+**(note replace image when we update the version number; show it with an 'resampling' parameters and an output file in Results panel)**
+
+Basic walk-through:
 
 * You start by loading 3 input files (in succession): combined_wig, metadata, and annotation. This will populate the upper panel with individual samples, and the middle panel with conditions.
 
-* Next, you can evaluate certain samples by selecting them and then choose an action from the dropdown box above the samples panel, such as displaying track views, making scatter plots, examining chromosomal bias via LOESS plots, and showing plots of read-count distributions (for quality control).
+* Next, you can evaluate certain samples by selecting them and then choose an Action from the 'Select Tool' dropdown box above the samples panel, such as displaying track views, making scatter plots, examining chromosomal bias via LOESS plots, and showing plots of read-count distributions (for quality control).
 
-* Next, you can select an analysis method from the menu, such as gumbel, hmm, resampling, anova...  This will bring up a corresponding parameter panel on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
+* Next, you can select an analysis method from the menu (under Methods->himar1), such as gumbel, HMM, resampling, ZINB...  This will bring up a corresponding parameter panel on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
 
 * Then you hit 'Run'. You should be able to monitor progress via the Progress Bar.
 
@@ -291,7 +296,7 @@ Basic overview:
 
 * If you select an output file in the panel, it will provide a dropdown with Actions you can perform, including  displaying the file as a table (or figure, if it is an image, such as volcano plots, heatmaps, etc). Some output files have customized Actions, such as making a volcano plot from output of resampling, or making a heatmap from the output file after running ANOVA or ZINB.
 
-* One of the most common and important Actions is to perform **Pathway Enrichment Analysis** on the genes found to be significant by one of the other analyses (e.g. gumbel, hmm, resampling, ANOVA). Most of these output files have a column with adjusted P-values, and "hits" are usually defined as Padj<0.05.  If you have more than about 20 hits, you can use Pathway Enrichment Analysis to determine whether they share functional similarities.  There are several systems of pathways available, including COG categories and GO terms.
+* One of the most common and important Actions (Select Tool drowdown under Results Files) is to perform is **Pathway Enrichment Analysis** on the genes found to be significant by one of the other analyses (e.g. gumbel, hmm, resampling, ANOVA). Most of these output files have a column with adjusted P-values, and "hits" are usually defined as Padj<0.05.  If you have more than about 20 hits, you can use Pathway Enrichment Analysis to determine whether they share functional similarities.  There are several systems of pathways available, including COG categories and GO terms.
 
 
 Pre-Processing
@@ -318,6 +323,7 @@ Pre-Processing
  * hits are ususally Qval<0.05
 
 * Analysis for Tn5
+
 
 Results and Post-Processing
 ---------------------------

@@ -224,6 +224,11 @@ Significant genes are those NOT marked with 'No Interaction' in the last column.
 
 |
 
+**To Do: (TRI, 12/19/22)**
+
+* explain the 3 types of interactions
+* tell users this is what they should primarily look at
+* if they want a quantitative score for ranking/sorting, they could use either 'mean delta logFC' or 'prob of delta_logFC being within ROPE'.
 
 
 .. rst-class:: transit_sectionend
