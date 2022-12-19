@@ -222,7 +222,7 @@ class Method:
         from pytransit.methods.combined_wig import Method as CombinedWigMethod
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, at_least=4)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=4)
         
         # init to avoid var-undefined for specific cases
         combined_wig_path      = None
