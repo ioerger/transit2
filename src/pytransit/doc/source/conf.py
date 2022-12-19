@@ -138,7 +138,7 @@ todo_include_todos = True
 # html_theme = 'classic'
 html_theme = "sphinx_rtd_theme"
 html_js_files = [
-    'js/custom.js',
+    # 'js/custom.js',
 ]
 
 # Theme options are theme-specific and customize the look and feel of a theme

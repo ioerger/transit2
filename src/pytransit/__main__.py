@@ -15,7 +15,8 @@ def help_command(args=[], kwargs={}):
     # create available subcommand string
     # 
     if True:
-        subcommand_prefix      = console_tools.subcommand_prefix
+        # subcommand_prefix      = console_tools.subcommand_prefix
+        subcommand_prefix = ""
         
         # convert to strings
         subcommands_as_strings = [

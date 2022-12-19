@@ -208,8 +208,11 @@ class Method:
         Method.inputs.expdata           = [ Method.inputs.expdata  ]
         
         Method.inputs.update(dict(
-            annotation_path_exp=Method.inputs.annotation_path_exp if Method.inputs.diff_strains else Method.inputs.annotation_path
+            annotation_path_exp=Method.inputs.annotation_path_exp if Method.inputs.diff_strains else Method.inputs.annotation_path,
+            control_condition=Method.inputs.ctrldata[0],
+            experimental_condition=Method.inputs.expdata[0],
         ))
+        
         
         return Method
 
@@ -219,6 +222,7 @@ class Method:
         from pytransit.methods.combined_wig import Method as CombinedWigMethod
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
+        console_tools.enforce_number_of_args(args, at_least=4)
         
         # init to avoid var-undefined for specific cases
         combined_wig_path      = None
