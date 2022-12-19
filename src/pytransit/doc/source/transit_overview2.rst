@@ -87,14 +87,14 @@ and 2) the .wig files contain coordinates and counts for all sites in the
 genome, since Tn5 is not restricted to insertions at TA sites (unlike Himar1).
 
 
-Combined_wig Files
-------------------
+Combined_wig and Metadata Files
+-------------------------------
 
-Once the .wig files are created, they are combined into a combined_wig
+Once the .wig files are created, they are combined into a :ref:`combined_wig <combined_wig_link>`
 file.  This is a new step in Transit 4.0.  Multiple .wig files are
 combined into a single combined_wig file using the **'transit export
 combined_wig'** command on the command line.  Users then prepare a
-metadata file describing each of the samples (as a spreadsheet,
+:ref:`metadata <metadata_files>` file describing each of the samples (as a spreadsheet,
 e.g. in Excel, which is then saved in tab-separted format).  Most
 commonly, there will be several replicates associated with
 each condition.  The analysis methods in Transit all have been redesigned
@@ -134,73 +134,16 @@ to get a preview of how samples are related to each other.
    :align: center
 
 
-Metadata Files
---------------
-
-The **metadata** file describes the sample ids, filenames,
-and conditions they represent (e.g. different media, growth
-conditions, knockout strains, animal passaging, etc., or whatever
-treatments and controls your TnSeq experiment involves).  
-
-(TRI - metadata files are also described on the page for ZINB)
-
-The format of the samples metadata file is a *tab-separated file* (which 
-can be created/editted/saved in Excel) with 3 columns: Id, Condition, and Filename (it
-must have these headers).  You can include other info about samples as additional columns, but
-do not include additional rows.  Individual rows can be commented out
-by prefixing them with a '#'.  Here is an example of a samples
-metadata file: The filenames should match what is shown in the header
-of the combined_wig (including pathnames, if present).
-
-Note: the Condition column should have a unique label for each distinct condition (the same label shared only among replicates).
-If there are attributes that distinguish the conditions (such as strain, treatment, etc), they could be included as additional columns (e.g. covariates).
-
-Note: the filenames should match what is shown in the header of the combined_wig file;
-samples are cross-referenced by filename between these two files.
-
-::
-
-  Id      Condition    Filename
-  glyc1   glycerol     /Users/example_data/glycerol_rep1.wig
-  glyc2   glycerol     /Users/example_data/glycerol_rep2.wig
-  chol1   cholesterol  /Users/example_data/cholesterol_rep1.wig
-  chol2   cholesterol  /Users/example_data/cholesterol_rep2.wig
-  chol2   cholesterol  /Users/example_data/cholesterol_rep3.wig
 
 
-
-
-Genome Annotations (prot_tables and gff files)
+Genome Annotations (.prot_tables and .gff files)
 ------------------
-
-(this used to be documented on the Running_Transit page)
 
 The annotation of a genome contains information about genes, such as
 coordinates, strand, locus tag, gene name, and functional description.
-Transit uses a custom format for annotations called "prot_table"s,
-e.g. H37Rv.prot_table.  Prot_tables are **tab-separated text files**
-containing the gene information in 9 specific columns:
-
-**Prot_table file format:**
-
-1. gene function description
-2. start coordinate
-3. end coordinate
-4. strand
-5. length of protein product (in amino acids)
-6. don't care
-7. don't care
-8. gene name (like "dnaA")
-9. ORF id (like Rv0001)
-
-(should we put details like file formats and export/convert commands on another page???)
-
-*It is critical that the annotation file (.prot_table) used for
-analyses in Transit corresponds to exactly the same genome sequence
-(.fasta or .fna) that was used to generate the .wig files with TPP,
-because it is used to determine which TA sites are contained in which
-genes (by coordinates).* For example, H37Rv.fna is paired with
-H37Rv.prot_table, both derived from GenBank sequence NC_000962.3.
+Transit uses a custom format for annotations called prot_tables,
+e.g. H37Rv.prot_table.  :ref:`Prot_tables <annotation_files>` are **tab-separated text files**
+containing the information on each gene, such as coordinates, strand, ORF id, and gene name.
 
 In many cases, users might often obtain annotations for their genome
 in .gff (or .gff3) file format, such as downloaded from NCBI.  .gff
@@ -210,8 +153,9 @@ the tags used in the right-most column), and the information about
 genes is not always encoded in a uniform way, making it difficult to
 use arbitrary .gffs for analyses in Transit.  Therefore, there is a
 simple procedure in Transit to convert a .gff file to .prot_table
-format ('**convert gff2prot_table**' via GUI or command-line).  This
-step only has to be done once, and then the .prot_table can be used
+format (see 
+:ref:`instructions for converting .gff files to .prot_tables <annotation_files>`).  
+This step only has to be done once, and then the .prot_table can be used
 for all subsequent analyses in Transit.
 
 
@@ -282,21 +226,21 @@ Here is a screenshot of the new GUI in Transit 4.0:
 
 Basic walk-through:
 
-* You start by loading 3 input files (in succession): combined_wig, metadata, and annotation. This will populate the upper panel with individual samples, and the middle panel with conditions.
+* You start by **loading 3 input files** (in succession): combined_wig, metadata, and annotation. This will populate the upper panel with individual samples, and the middle panel with conditions.
 
 * Next, you can evaluate certain samples by selecting them and then choose an Action from the 'Select Tool' dropdown box above the samples panel, such as displaying track views, making scatter plots, examining chromosomal bias via LOESS plots, and showing plots of read-count distributions (for quality control).
 
-* Next, you can select an analysis method from the menu (under Methods->himar1), such as gumbel, HMM, resampling, ZINB...  This will bring up a corresponding parameter panel on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
+* Next, you can select an analysis method from the menu (under **Methods->himar1**), such as gumbel, HMM, resampling, ZINB...  This will bring up a corresponding **parameter panel** on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
 
 * Then you hit 'Run'. You should be able to monitor progress via the Progress Bar.
 
 * Status updates and various messages will be displayed in the Message Bar at the bottom of the GUI window. **Important:** The full list of messages, including error messages will be printed on in the console window from where you started Transit. Check these message if anything goes wrong.
 
-* Usually, an analysis method will generate one or more output files.  These are typically text files in tab-separated format (which could be opened as spreadsheets in Excel). The file will get populated into the Results Table (bottom pannel).
+* Usually, an analysis method will generate one or more output files.  These are typically text files in tab-separated format (which could be opened as spreadsheets in Excel). The file will get populated into the **Results Table** (bottom pannel).
 
 * If you select an output file in the panel, it will provide a dropdown with Actions you can perform, including  displaying the file as a table (or figure, if it is an image, such as volcano plots, heatmaps, etc). Some output files have customized Actions, such as making a volcano plot from output of resampling, or making a heatmap from the output file after running ANOVA or ZINB.
 
-* One of the most common and important Actions (Select Tool drowdown under Results Files) is to perform is **Pathway Enrichment Analysis** on the genes found to be significant by one of the other analyses (e.g. gumbel, hmm, resampling, ANOVA). Most of these output files have a column with adjusted P-values, and "hits" are usually defined as Padj<0.05.  If you have more than about 20 hits, you can use Pathway Enrichment Analysis to determine whether they share functional similarities.  There are several systems of pathways available, including COG categories and GO terms.
+* One of the most common and important Actions ('Select Tool' dropdown under Results Files) is to perform is **Pathway Enrichment Analysis** on the genes found to be significant by one of the other analyses (e.g. gumbel, hmm, resampling, ANOVA). Most of these output files have a column with adjusted P-values, and significant "hits" are usually defined as genes with Padj<0.05.  If you have more than about 20 hits, you can use Pathway Enrichment Analysis to determine whether they share functional similarities.  There are several systems of pathways available, including COG categories and GO terms.
 
 
 Pre-Processing
