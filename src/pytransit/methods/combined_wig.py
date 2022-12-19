@@ -130,7 +130,7 @@ class Method:
         # Genome Data
         # 
         positional_hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
-        rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
+        rv2info = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path).orf_to_info
         def get_gene_name(orf_id):
             return rv2info.get(orf_id,["-"])[0]
         

@@ -1,0 +1,16 @@
+#TnseqStats
+#yaml:
+#    date: 2022-12-13 13:37:54
+#    transit_version: v3.2.6
+#    app_or_command_line: app
+#    console_command: |
+#        transit 
+#    parameters:
+#       normalization: nonorm
+#    
+#Dataset	Density	Mean Count	Non Zero Mean	Non Zero Median	Max Count	Total Counts	Skewness	Kurtosis	Pickands Tail Index
+src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig	0.439	139.6	317.6	147	125355.5	10414005	54.8	4237.7	0.973
+src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig	0.439	171.4	390.5	148	704662.8	12786637	105.8	14216.2	1.529
+src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig	0.359	173.8	484.2	171	292294.8	12968502	42.2	2328.0	1.584
+src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig	0.419	123.3	294.5	160	8813.3	9195672	4.0	33.0	0.184
+src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig	0.516	123.8	240.1	127	8542.5	9235984	4.0	33.5	0.152

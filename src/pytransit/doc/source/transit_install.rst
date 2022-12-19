@@ -109,7 +109,7 @@ TRANSIT can be (optionally) installed as a python package. This can simplify the
 
         >>> import pytransit.norm_tools as norm_tools
         >>> import pytransit.tnseq_tools as tnseq_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"])
+        >>> (data, position) = tnseq_tools.get_data(["transit/data/cholesterol_glycerol.transit/glycerol_rep1.wig", "transit/data/cholesterol_glycerol.transit/glycerol_rep2.wig"])
         >>> print(data)
         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])

@@ -87,7 +87,7 @@ class Method:
         position = position.astype(int)
 
         hash = transit_tools.get_pos_hash(self.inputs.annotation_path)
-        rv2info = transit_tools.get_gene_info(self.inputs.annotation_path)
+        rv2info = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path).orf_to_info
 
         logging.log("Normalizing")
         self.inputs.output_file.write("#Converted to IGV with TRANSIT.\n")

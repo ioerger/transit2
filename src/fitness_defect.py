@@ -69,7 +69,7 @@ for x in sys.argv:
 print
 
 coords, counts = read_wig(sys.argv[1])
-genes = pytransit.specific_tools.tnseq_tools.read_genes(sys.argv[2])
+genes = pytransit.specific_tools.tnseq_tools.AnnotationFile(path=sys.argv[2]).as_list_of_dicts
 
 noness = remove_essential_regions(counts, 5)  # run length
 print "# sites: %s, noness: %s" % (len(counts), len(noness))

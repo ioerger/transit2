@@ -17,7 +17,6 @@ from pytransit.components import samples_area, results_area, parameter_panel, fi
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
-from pytransit.specific_tools.tnseq_tools import ProtTable
 from pytransit.components.spreadsheet import SpreadSheet
 
 cli_args = LazyDict(
@@ -81,10 +80,10 @@ class Method:
         
         # save the data
         Method.output(
-            combined_wig_path = args[0],
-            annotation_path = args[1],
-            metadata_path = args[2],
-            output_path = args[3],
+            combined_wig_path=args[0],
+            annotation_path=args[1],
+            metadata_path=args[2],
+            output_path=args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
             group_by=kwargs.get("-group-by", kwargs["condition"]),
             covars=console_tools.string_arg_to_list(kwargs["covars"]),
@@ -224,15 +223,7 @@ class Method:
                 # 
                 # create gene_name_to_description from prot_table
                 # 
-                gene_name_to_description = None
-                if should_append_gene_descriptions: # TODO: could be treated as boolean flag to include gene descriptions
-                    gene_name_to_description = {}
-                    with open(annotation_path) as file:
-                        for line in file:
-                            row = line.rstrip().split("\t")
-                            gene_name        = row[ProtTable.gene_name_index]
-                            gene_description = row[ProtTable.gene_name_index]
-                            gene_name_to_description[gene_name] = gene_description
+                annotation_data = tnseq_tools.AnnotationFile(path=annotation_path)
                 
                 # 
                 # gather comwig data
@@ -348,7 +339,7 @@ class Method:
                 # process gene data 
                 # 
                 if True:
-                    genes = tnseq_tools.read_genes(annotation_path)
+                    genes = annotation_data.as_list_of_dicts
                     ta_site_index_map = {
                         each_ta_site: index
                             for index, each_ta_site in enumerate(sites) 
@@ -420,15 +411,14 @@ class Method:
             # 
             if True:
                 only_have_one_lfc_column = len(ordered_stat_group_names) == 2
-                have_gene_name_column = gene_name_to_description != None
                 # 
                 # rows
                 #
                 rows = [] 
                 for gene in genes:
-                    gene_name = gene["rv"]
+                    gene_orf_id = gene["rv"]
                     means_per_group = [
-                        stats_by_rv[gene_name]["mean"][group]
+                        stats_by_rv[gene_orf_id]["mean"][group]
                             for group in ordered_stat_group_names
                     ]
                     if only_have_one_lfc_column:
@@ -444,16 +434,16 @@ class Method:
                             grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
                         else:
                             grand_means = numpy.mean(
-                                [stats_by_rv[gene_name]["mean"][group] for group in refs]
+                                [stats_by_rv[gene_orf_id]["mean"][group] for group in refs]
                             )
                         log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
                     
                     row = [
-                        gene_name,
+                        gene_orf_id,
                         gene["gene"],
-                        str(len(rv_site_indexes_map[gene_name])),
+                        str(len(rv_site_indexes_map[gene_orf_id])),
                         *[
-                            "%0.1f" % stats_by_rv[gene_name]["mean"][each_group]
+                            "%0.1f" % stats_by_rv[gene_orf_id]["mean"][each_group]
                                 for each_group in ordered_stat_group_names
                         ],
                         *[
@@ -461,21 +451,21 @@ class Method:
                                 for each_lfc in log_fold_changes
                         ],
                         *[
-                            "%0.1f" % stats_by_rv[gene_name]["nz_mean"][each_group]
+                            "%0.1f" % stats_by_rv[gene_orf_id]["nz_mean"][each_group]
                                 for each_group in ordered_stat_group_names
                         ],
                         *[
-                            "%0.2f" % stats_by_rv[gene_name]["nz_perc"][each_group]
+                            "%0.2f" % stats_by_rv[gene_orf_id]["nz_perc"][each_group]
                                 for each_group in ordered_stat_group_names
                         ],
-                        gene_name_to_p_value[gene_name],
-                        gene_name_to_adj_p_value[gene_name],
-                        run_status[gene_name],
+                        gene_name_to_p_value[gene_orf_id],
+                        gene_name_to_adj_p_value[gene_orf_id],
+                        run_status[gene_orf_id],
                     ]
                     
-                    if have_gene_name_column:
-                        gene_name = gene_name_to_description.get(gene_name, "?")
-                        row.append(gene_name)
+                    if should_append_gene_descriptions:
+                        gene_description = annotation_data.gene_description(orf_id=gene_orf_id, fallback_value="?")
+                        row.append(gene_description)
                     
                     rows.append(row)
                 # 
@@ -508,7 +498,7 @@ class Method:
                     "Adj P Value",
                     "Status",
                 ]
-                if have_gene_name_column:
+                if should_append_gene_descriptions:
                     column_names.append("Gene Name")
                 
                 # 

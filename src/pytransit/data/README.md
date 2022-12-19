@@ -38,5 +38,5 @@ These wig files are from the
 [Griffin et al (2011) paper in PLOS Pathogens](http://www.ncbi.nlm.nih.gov/pubmed/21980284).
 on M. tuberculosis genes required for growth on glycerol.
 
- * glycerol_H37Rv_rep1.wig, glycerol_H37Rv_rep2.wig, glycerol_H37Rv_rep3.wig
- * cholesterol_H37Rv_rep1.wig, cholesterol_H37Rv_rep2.wig, cholesterol_H37Rv_rep3.wig
+ * cholesterol_glycerol.transit/glycerol_rep1.wig, cholesterol_glycerol.transit/glycerol_rep2.wig, glycerol_H37Rv_rep3.wig
+ * cholesterol_glycerol.transit/cholesterol_rep1.wig, cholesterol_glycerol.transit/cholesterol_rep2.wig, cholesterol_glycerol.transit/cholesterol_rep3.wig

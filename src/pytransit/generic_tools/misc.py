@@ -185,8 +185,8 @@ def human_readable_data(obj):
         return ez_yaml.to_string(to_pure(obj))
 
 def pascal_case_with_spaces(string):
-    digits = "1234567890"
-    valid_word_contents = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+    digits = "1234567890-"
+    valid_word_contents = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM-"
     new_string = " "
     # get pairwise elements
     for each_character in string:
@@ -313,8 +313,5 @@ def invert_dict(existing_dict):
     return new_dict
     
 
-# a fallback function that just never caches anything
-def cache(*args, **kwargs):
-    def decorator_name(function_being_wrapped):
-        return function_being_wrapped
-    return decorator_name
+from pytransit.generic_tools.cool_cache import cache, settings
+settings.default_folder = None # use in-memory storage

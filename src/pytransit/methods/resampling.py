@@ -68,7 +68,6 @@ class Method:
         "-exp_lib",
         "--winz",
         "--sr",
-        "--Z",
     ]
     
     inputs = LazyDict(
@@ -81,14 +80,12 @@ class Method:
         adaptive=False,
         pseudocount=1,
         replicates="Sum",
-        LOESS=False,
         ignore_codon=True,
         n_terminus=0.0,
         c_terminus=0.0,
         ctrl_lib_str="",
         exp_lib_str="",
         winz=False,
-        Z=False,
         diff_strains=False,
         annotation_path_exp="",
         do_histogram=False,
@@ -108,8 +105,6 @@ class Method:
             -n <string>         :=  Normalization method. Default: -n TTR
             --a                 :=  Perform adaptive resampling. Default: Turned Off.
             -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
-            --l                 :=  Perform LOESS Correction; Helps remove possible genomic position bias.
-                                    Default: Turned Off.
             -iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
             -iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
             -ctrl_lib <string>  :=  String of letters representing library of control files in order
@@ -148,7 +143,7 @@ class Method:
 
                     3.[Optional] Select/Adjust other parameters
 
-                    4.[Optional] Select from the samples panel and then click on 'Preview LOESS fit' to see the loess fit graph. This is the equivalent of selecting values from the samples panel and selecting 'LOESS' on the dropdown
+                    4.[Optional] Select from the samples panel
 
                     5.[Optional] If you select to 'Generate Resampling Histograms', a folder titled 'resampling_output_histograms' will be generated and populated locally
 
@@ -167,10 +162,8 @@ class Method:
             self.value_getters.pseudocount     = panel_helpers.create_pseudocount_input(panel, main_sizer)
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer)
             self.value_getters.site_restricted = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
-            self.value_getters.LOESS           = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
-            self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be less accurate.")
-            self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram for each of the ORFs. Histogram images are created in a folder with the same name as the output file.")
-            self.value_getters.Z               = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Use Z-score in filtering Wald Test", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
+            self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be slightly less accurate (p-values within a factor of 2 to 3).")
+            self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram (null distributions for the difference of mean counts) of the ORFs. Histogram images are created in a folder with the same name as the output file.")
         
     @staticmethod
     def from_gui(frame):
@@ -273,8 +266,6 @@ class Method:
         replicates    = kwargs.get("r", Method.inputs.replicates)
         do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
         pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
-        Z = True if "Z" in kwargs else False
-        LOESS = kwargs.get("l", False)
         ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
         c_terminus = float(kwargs.get("iC", 0.00))
@@ -290,14 +281,12 @@ class Method:
             adaptive=adaptive,
             pseudocount=pseudocount,
             replicates=replicates,
-            LOESS=LOESS,
             ignore_codon=ignore_codon,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
             ctrl_lib_str=ctrl_lib_str,
             exp_lib_str=exp_lib_str,
             winz=winz,
-            Z=Z,
             diff_strains=diff_strains,
             annotation_path=annotation_path,
             annotation_path_exp=annotation_path,
@@ -448,55 +437,26 @@ class Method:
                     log2FC,
                     pval_2tail,
                 ) = row
-                if self.inputs.Z == True:
-                    p = pval_2tail / 2  # convert from 2-sided back to 1-sided
-                    if p == 0:
-                        p = 1e-5  # or 1 level deeper the num of iterations of resampling, which is 1e-4=1/10000, by default
-                    if p == 1:
-                        p = 1 - 1e-5
-                    z = scipy.stats.norm.ppf(p)
-                    if log2FC > 0:
-                        z *= -1
-                    rows.append(
-                        (
-                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%0.2f\t%1.5f"
-                            % (
-                                orf,
-                                name,
-                                desc,
-                                n,
-                                mean1,
-                                mean2,
-                                log2FC,
-                                sum1,
-                                sum2,
-                                test_obs,
-                                pval_2tail,
-                                z,
-                                qval[row_index],
-                            )
-                        ).split('\t')
-                    )
-                else:
-                    rows.append(
-                        (
-                            "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
-                            % (
-                                orf,
-                                name,
-                                desc,
-                                n,
-                                mean1,
-                                mean2,
-                                log2FC,
-                                sum1,
-                                sum2,
-                                test_obs,
-                                pval_2tail,
-                                qval[row_index],
-                            )
-                        ).split('\t')
-                    )
+                rows.append(
+                    (
+                        "%s\t%s\t%s\t%d\t%1.1f\t%1.1f\t%1.2f\t%1.1f\t%1.2f\t%1.1f\t%1.5f\t%1.5f"
+                        % (
+                            orf,
+                            name,
+                            desc,
+                            n,
+                            mean1,
+                            mean2,
+                            log2FC,
+                            sum1,
+                            sum2,
+                            test_obs,
+                            pval_2tail,
+                            qval[row_index],
+                        )
+                    ).split('\t')
+                )
+                    
             
             # 
             # write to file
@@ -505,21 +465,7 @@ class Method:
                 path=self.inputs.output_path,
                 file_kind=Method.identifier,
                 rows=rows,
-                column_names=Method.column_names if not self.inputs.Z else [
-                    "ORF",
-                    "Gene Name",
-                    "Description",
-                    "Sites",
-                    "Mean Control",
-                    "Mean Experimental",
-                    "Log 2 FC",
-                    "Sum Control",
-                    "Sum Experimental",
-                    "Delta Mean",
-                    "P Value",
-                    "Z Score",
-                    "Adj P Value",
-                ],
+                column_names=Method.column_names,
                 extra_info=dict(
                     parameters=dict(
                         samples=self.inputs.samples,
@@ -527,7 +473,6 @@ class Method:
                         histograms=self.inputs.do_histogram,
                         adaptive=self.inputs.adaptive,
                         pseudocounts=self.inputs.pseudocount,
-                        LOESS=self.inputs.LOESS,
                         n_terminus=self.inputs.n_terminus,
                         c_terminus=self.inputs.c_terminus,
                         site_restricted=self.inputs.site_restricted,
@@ -560,12 +505,6 @@ class Method:
                 self.inputs.ctrldata + self.inputs.expdata,
                 self.inputs.annotation_path,
             )
-
-        if self.inputs.LOESS:
-            logging.log("Performing LOESS Correction")
-            from pytransit.specific_tools import stat_tools
-            for j in range(K):
-                data[j] = stat_tools.loess_correction(position, data[j])
 
         return data
 
@@ -661,8 +600,8 @@ class Method:
                 data1      = [0]
                 data2      = [0]
             else:
-                ii_ctrl = numpy.sum(gene.reads, axis=0) > 0
-                ii_exp = numpy.sum(gene_exp.reads, axis=0) > 0
+                ii_ctrl = numpy.ones(gene.n) == 1
+                ii_exp = numpy.ones(gene_exp.n) == 1
 
                 # data1 = gene.reads[:,ii_ctrl].flatten() + self.inputs.pseudocount # we used to have an option to add pseudocounts to each observation, like this
                 data1 = gene.reads[:,ii_ctrl]###.flatten() #TRI - do not flatten, as of 9/6/22
@@ -804,7 +743,7 @@ class ResultFileType1:
     
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm", "LOESS"]]
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm",]]
         self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
 
@@ -871,6 +810,7 @@ class ResultFileType1:
             # 
             # plot (log2_fc_values, log10_p_values, threshold)
             # 
+            plt.clf()
             plt.scatter(log2_fc_values, log10_p_values, marker=".")
             plt.axhline( -math.log(threshold, 10), color="r", linestyle="dashed", linewidth=3)
             plt.xlabel("Log Fold Change (base 2)")

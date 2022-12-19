@@ -1,0 +1,6 @@
+Id	Condition	Filename	Batch	NewConditionCol
+c1	Cholesterol	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig	b1	X
+c2	Cholesterol	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig	b1	X
+c3	Cholesterol	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig	b2	X
+g1	Glycerol	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig	b2	Y
+g2	Glycerol	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig	b2	Y

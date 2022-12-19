@@ -1,17 +1,17 @@
 #TTNFitnessGenes
 #yaml:
-#    date: 2022-12-02 11:45:12
+#    date: 2022-12-15 12:07:13
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
-#        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/glycerol_H37Rv_rep1.wig,./src/pytransit/data/glycerol_H37Rv_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
-#    time: 303.9686360359192
+#        python3 './src/transit.py' 'ttnfitness' './src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/genomes/H37Rv.fna' './tests/cli_tests/gumbel/0001_basic.sh.1.result' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.genes' './tests/cli_tests/ttn_fitness/0001_basic.sh.1.result.sites'
+#    time: 5136.479867935181
 #    saturation: 0.5342776384918797
 #    parameters:
 #       combined_wig: null
 #       wig_files:
-#       - ./src/pytransit/data/glycerol_H37Rv_rep1.wig
-#       - ./src/pytransit/data/glycerol_H37Rv_rep2.wig
+#       - ./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
+#       - ./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
 #       metadata: null
 #       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #       gumbel_results_file: ./tests/cli_tests/gumbel/0001_basic.sh.1.result

@@ -435,6 +435,8 @@ class CombinedWig:
     @staticmethod
     @cache(watch_filepaths=lambda *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None: [ main_path, metadata_path, annotation_path ])
     def load(*args, **kwargs):
+        print(f'''args = {args}''')
+        print(f'''kwargs = {kwargs}''')
         return CombinedWig(*args, **kwargs)
     
     def __init__(self, *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None):
@@ -961,7 +963,7 @@ class CombinedWig:
         :Example:
 
             >>> from pytransit.specific_tools.tnseq_tools import CombinedWig
-            >>> (data, position) = CombinedWig.gather_wig_data(["data/glycerol_H37Rv_rep1.wig", "data/glycerol_H37Rv_rep2.wig"])
+            >>> (data, position) = CombinedWig.gather_wig_data(["data/cholesterol_glycerol.transit/glycerol_rep1.wig", "data/cholesterol_glycerol.transit/glycerol_rep2.wig"])
             >>> print(data)
             array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
                 [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
@@ -1028,29 +1030,6 @@ class CombinedWig:
         
         return CombinedWig.PositionsAndReads((data_per_path, position_per_line))
     
-def read_genes(fname, descriptions=False):
-    """
-      (Filename, Options) -> [Gene]
-      Gene :: {start, end, rv, gene, strand}
-    """
-    from pytransit.specific_tools.tnseq_tools import ProtTable
-    genes = []
-    with open(fname) as file:
-        for line in file:
-            row = line.rstrip().split("\t")
-            data = {
-                "start" : int(row[ProtTable.index_of_gene_start]),
-                "end"   : int(row[ProtTable.index_of_gene_end]),
-                "rv"    : row[ProtTable.gene_name_index],
-                "gene"  : row[ProtTable.magic_number_seven],
-                "strand": row[ProtTable.index_of_gene_strand],
-            }
-            if descriptions == True:
-                data.append(row[ProtTable.gene_description_index])
-            genes.append(data)
-    return genes
-
-
 @total_ordering
 class Gene:
     """Class defining a gene with useful attributes for TnSeq analysis.
@@ -1252,7 +1231,7 @@ class Genes:
     :Example:
 
         >>> from pytransit.specific_tools import tnseq_tools
-        >>> G = tnseq_tools.Genes(["transit/data/glycerol_H37Rv_rep1.wig", "transit/data/glycerol_H37Rv_rep2.wig"], "transit/data/genomes/H37Rv.prot_table", norm="TTR")
+        >>> G = tnseq_tools.Genes(["transit/data/cholesterol_glycerol.transit/glycerol_rep1.wig", "transit/data/cholesterol_glycerol.transit/glycerol_rep2.wig"], "transit/data/genomes/H37Rv.prot_table", norm="TTR")
         >>> print(G)
         Genes Object (N=3990)
         >>> print(G.global_theta())
@@ -1389,7 +1368,7 @@ class Genes:
         self.orf2index = {}
         self.genes = []
 
-        orf2info = get_gene_info(self.annotation)
+        orf2info = AnnotationFile(path=self.annotation).orf_to_info
         if not numpy.any(data):
             if transposon.lower() == "himar1" and not genome:
                 (data, position) = CombinedWig.gather_wig_data(self.wig_list)
@@ -2011,110 +1990,6 @@ def get_pos_hash(path):
     else:
         return get_pos_hash_pt(path)
 
-def get_gene_info_pt(path):
-    """Returns a dictionary that maps gene id to gene information.
-
-    Arguments:
-        path (str): Path to annotation in .prot_table format.
-
-    Returns:
-        dict: Dictionary of gene id to tuple of information:
-            - name
-            - description
-            - start coordinate
-            - end coordinate
-            - strand
-
-    """
-    orf2info = {}
-    with open(path) as file:
-        for line in file:
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            orf = tmp[8]
-            name = tmp[7]
-            desc = tmp[0]
-            start = int(tmp[1])
-            end = int(tmp[2])
-            strand = tmp[3]
-            orf2info[orf] = (name, desc, start, end, strand)
-    return orf2info
-
-def get_gene_info_gff(path):
-    """Returns a dictionary that maps gene id to gene information.
-
-    Arguments:
-        path (str): Path to annotation in GFF3 format.
-
-    Returns:
-        dict: Dictionary of gene id to tuple of information:
-            - name
-            - description
-            - start coordinate
-            - end coordinate
-            - strand
-
-    """
-    orf2info = {}
-    with open(path) as file:
-        for line in file:
-            if line.startswith("#"):
-                continue
-            tmp = line.strip().split("\t")
-            chr = tmp[0]
-            type = tmp[2]
-            start = int(tmp[3])
-            end = int(tmp[4])
-            length = ((end - start + 1) / 3) - 1
-            strand = tmp[6]
-            features = dict(
-                [
-                    tuple(f.split("=", 1))
-                    for f in filter(lambda x: "=" in x, tmp[8].split(";"))
-                ]
-            )
-            if "ID" not in features:
-                continue
-            orf = features["ID"]
-            name = features.get("Name", features.get("Gene Name","-"))
-            if name == "-":
-                name = features.get("name", "-")
-
-            desc = features.get("Description", "-")
-            if desc == "-":
-                desc = features.get("description", "-")
-            if desc == "-":
-                desc = features.get("Desc", "-")
-            if desc == "-":
-                desc = features.get("desc", "-")
-            if desc == "-":
-                desc = features.get("product", "-")
-
-            orf2info[orf] = (name, desc, start, end, strand)
-    return orf2info
-
-def get_gene_info(path):
-    """Returns a dictionary that maps gene id to gene information.
-
-    Arguments:
-        path (str): Path to annotation in .prot_table or GFF3 format.
-
-    Returns:
-        dict: Dictionary of gene id to tuple of information:
-            - name
-            - description
-            - start coordinate
-            - end coordinate
-            - strand
-
-    """
-    filename, file_extension = os.path.splitext(path)
-    if file_extension.lower() in [".gff", ".gff3"]:
-        return get_gene_info_gff(path)
-    else:
-        return get_gene_info_pt(path)
-
 def get_coordinate_map(galign_path, reverse=False):
     """Attempts to get mapping of coordinates from galign file.
 
@@ -2509,20 +2384,102 @@ def filepaths_to_fingerprints(filepaths):
             for minimal_dirname, minimal_basename in zip(minimal_dirnames, basenames) 
     ]
 
-@misc.singleton
-class ProtTable:
-    gene_description_index = 0
-    index_of_gene_start    = 1
-    index_of_gene_end      = 2
-    index_of_gene_strand   = 3
-    magic_number_four      = 4
+class AnnotationFile:
+    Info = named_list((
+        "name",
+        "description",
+        "start_coordinate",
+        "end_coordinate",
+        "strand",
+    ))
     
-    magic_number_six       = 6
-    magic_number_seven     = 7
-    gene_name_index        = 8
-    magic_number_nine      = 9
+    def __init__(self, *, path):
+        """
+            Examples:
+                print(AnnotationFile(path="./somewhere.gff3").orf_to_info)
+                # dictionary with ORF id as keys, and named lists as values
+            Summary:
+                can load either a .gff or prot_table file
+                uses file extension to figure out the difference
+        """
+        filename, file_extension = os.path.splitext(path)
+        file_extension = file_extension.lower()
+        self.path = path
+        if file_extension in [".gff", ".gff3"]:
+            self.orf_to_info = {
+                key : AnnotationFile.Info(value)
+                    for key, value in GffFile.extract_gene_info(path).items()
+            }
+        elif file_extension in [".prot_table"]:
+            self.orf_to_info = {
+                key : AnnotationFile.Info(value)
+                    for key, value in ProtTable.extract_gene_info(path).items()
+            }
+        else:
+            raise Exception(f'''File extension {file_extension} not recognized. Please use .gff or .prot_table file extension''')
+    
+    def gene_description(self, *, orf_id, fallback_value=None):
+        gene_info = self.orf_to_info.get(orf_id, None)
+        if gene_info == None:
+            return fallback_value
+        else:
+            return gene_info.description
+    
+    @property
+    def as_list_of_dicts(self):
+        gene_list = []
+        for each_orf, each_value in self.orf_to_info.items():
+            gene_list.append(dict(
+                start=each_value.start_coordinate,
+                end=each_value.end_coordinate,
+                rv=each_orf,
+                gene=each_value.name,
+                strand=each_value.strand,
+            ))
+        return gene_list
 
 @misc.singleton
+class ProtTable:
+    index_of_description = 0
+    index_of_gene_start  = 1
+    index_of_gene_end    = 2
+    index_of_gene_strand = 3
+    index_of_gene_name   = 7
+    index_of_orf         = 8
+    
+    @staticmethod
+    def extract_gene_info(path):
+        """
+            Returns a dictionary that maps gene id to gene information.
+
+            Arguments:
+                path (str): Path to annotation in .prot_table format.
+
+            Returns:
+                dict: 
+                    keys are the ORF id's
+                    values are tuples of:
+                    - name
+                    - description
+                    - start coordinate
+                    - end coordinate
+                    - strand
+        """
+        orf2info = {}
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                tmp = line.strip().split("\t")
+                orf = tmp[ProtTable.index_of_orf]
+                name = tmp[ProtTable.index_of_gene_name]
+                desc = tmp[0]
+                start = int(tmp[ProtTable.index_of_gene_start])
+                end = int(tmp[ProtTable.index_of_gene_end])
+                strand = tmp[ProtTable.index_of_gene_strand]
+                orf2info[orf] = (name, desc, start, end, strand)
+        return orf2info
+
 class GffFile:
     GffRow = named_list((
         # http://gmod.org/wiki/GFF3
@@ -2537,8 +2494,41 @@ class GffFile:
         'phase',      # One of '0', '1' or '2'. '0' indicates that the first base of the feature is the first base of a codon, '1' that the second base is the first base of a codon, and so on..
         'attributes', # A semicolon-separated list of tag-value pairs, providing additional information about each feature. Some of these tags are predefined, e.g. ID, Name, Alias, Parent - see the GFF documentation for more details.
     ))
+    max_number_of_columns = 9
     
-    def is_definitely_not_gff3(self, path):
+    seqid_index      = 0
+    source_index     = 1
+    type_index       = 2
+    start_index      = 3
+    end_index        = 4
+    score_index      = 5
+    strand_index     = 6
+    phase_index      = 7
+    attributes_index = 8
+    
+    def __init__(self, path):
+        self.comments, self.columns, self.rows = csv.read(
+            path=path,
+            seperator="\t",
+            first_row_is_column_names=False,
+            column_names=GffFile.GffRow.names,
+            comment_symbol="#"
+        )
+        
+        # convert "ID=operon001;Name=superOperon" to { "ID": "operon001", "Name": "superOperon" }
+        attributes_per_row = (
+            dict(
+                tuple(each_assignment.split("="))
+                    for each_assignment in row.attributes.split(";")
+            )
+                for row in self.rows
+        )
+        # overwrite the attribute string with an attribute dictionary
+        for each_row, attributes in zip(self.rows, attributes_per_row):
+            each_row.attributes = attributes
+
+    @staticmethod
+    def is_definitely_not_gff3(path):
         line = ""
         with open(path) as in_file:
             for line in in_file:
@@ -2548,7 +2538,7 @@ class GffFile:
                     break
         
         row = line.split("\t")
-        if len(row) != 9:
+        if len(row) != GffFile.max_number_of_columns:
             return True
         
         # convert into a named list
@@ -2603,66 +2593,83 @@ class GffFile:
         
         return None
     
-    def doesnt_meet_transit_gff_requirements(self, path):
-        required_attribute_keys = [
-            "locus_tag",
-            # FIXME: confirm which are required
-            # here are some common keys:
-            #     "ID",
-            #     "Name",
-            #     "gbkey",
-            #     "gene_biotype",
-            #     "old_locus_tag",
-        ]
-        if GffFile.is_definitely_not_gff3(path):
-            return True
-        
-        comments = []
-        columns = []
-        rows = []
-        try:
-            file_as_string = ""
-            with open(filepath,'r') as f:
-                file_as_string = f.read()
-                # 
-                # fail-early test
-                # 
-                for each_required in required_attribute_keys:
-                    if each_required not in file_as_string:
-                        return True
-            
-            comments, columns, rows = csv.read(
-                string=file_as_string,
-                seperator="\t",
-                first_row_is_column_names=False,
-                column_names=GffRow.names,
-                comment_symbol="#"
-            )
-        except:
-            return True
-        
-        # convert "ID=operon001;Name=superOperon" to { "ID": "operon001", "Name": "superOperon" }
-        attributes_per_row = (
-            dict(
-                tuple(each_assignment.split("="))
-                    for each_assignment in row.attributes.split(";")
-            )
-                for row in rows
-        )
-        for attributes, row in zip(attributes_per_row, rows):
-            # skip incompatible entries
-            for each_required_key in required_attribute_keys:
-                if each_required_key not in attributes.keys():
+    @staticmethod
+    def extract_gene_info(path):
+        """
+            Returns a dictionary that maps gene id to gene information.
+
+            Arguments:
+                path (str): Path to annotation in GFF3 format.
+
+            Returns:
+                dict: Dictionary of gene id to tuple of information:
+                    - name
+                    - description
+                    - start coordinate
+                    - end coordinate
+                    - strand
+        """
+        orf2info = {}
+        with open(path) as file:
+            for line in file:
+                if line.startswith("#"):
                     continue
+                tmp = line.strip().split("\t")
+                chr = tmp[0]
+                type = tmp[2]
+                start = int(tmp[3])
+                end = int(tmp[4])
+                length = ((end - start + 1) / 3) - 1
+                strand = tmp[6]
+                features = dict(
+                    [
+                        tuple(f.split("=", 1))
+                        for f in filter(lambda x: "=" in x, tmp[8].split(";"))
+                    ]
+                )
+                # FIXME: check if this should also be using locus_tag
+                if "ID" not in features:
+                    continue
+                orf = features["ID"]
+                name = features.get("Name", features.get("Gene Name","-"))
+                if name == "-":
+                    name = features.get("name", "-")
+
+                desc = features.get("Description", "-")
+                if desc == "-":
+                    desc = features.get("description", "-")
+                if desc == "-":
+                    desc = features.get("Desc", "-")
+                if desc == "-":
+                    desc = features.get("desc", "-")
+                if desc == "-":
+                    desc = features.get("product", "-")
+
+                orf2info[orf] = (name, desc, start, end, strand)
+        
+        return orf2info
+    
+    def as_prot_table_rows(self, allowed_types=["CDS"], max_row_length=max_number_of_columns):
+        """
+            NOTE:
+                if you also want tRNAs and rRNAs, modify the allowed_types to include relevent records
+        """
+        new_rows = []
+        for row in self.rows:
+            if len(row) > max_row_length:
+                continue
+            if row.type not in allowed_types:
+                continue
+            if "locus_tag" not in row.attributes:
+                continue
             
-            rv          = attributes["locus_tag"].strip()
-            gene        = attributes.get("gene", "").strip() or "-"
-            description = attributes.get("product", "")
+            orf_id      = row.attributes["locus_tag"].strip()
+            gene_name   = row.attributes.get("gene", "").strip() or "-"
+            description = row.attributes.get("product", "")
             size        = int(abs(row.end - row.start + 1) / 3)  # FIXME: why divide by 3? --Jeff
             strand      = row.strand.strip()
-            # in prot_table form:
-            # [ description, row.start, row.end, strand, size, "-", "-", gene, rv, "-" ]
-            return False
-        
-        return True
-        
+            
+            new_rows.append(
+                [ description, row.start, row.end, strand, size, "-", "-", gene_name, orf_id, "-" ]
+            )
+        return new_rows

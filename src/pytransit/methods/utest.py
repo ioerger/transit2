@@ -158,7 +158,7 @@ class Method:
         significance_threshold = significance_threshold if significance_threshold is not None else 0.05
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
-            number_of_control_wigs = 1 # TODO: check if this is right
+            number_of_control_wigs = sum( 1 for each in combined_wig.samples if control_condition in each.condition_names ) # TODO: check if this is right
             # 
             # restrict to relevent data
             # 
@@ -174,8 +174,13 @@ class Method:
             if LOESS:
                 logging.log("Performing LOESS Correction")
                 combined_wig = combined_wig.with_loess_correction()
-
-            genes = combined_wig.get_genes(
+            
+            control_samples_by_gene = combined_wig.with_only(condition_names=[control_condition]).get_genes(
+                ignore_codon=ignore_codon,
+                n_terminus=n_terminus,
+                c_terminus=c_terminus,
+            )
+            experimental_samples_by_gene = combined_wig.with_only(condition_names=[experimental_condition]).get_genes(
                 ignore_codon=ignore_codon,
                 n_terminus=n_terminus,
                 c_terminus=c_terminus,
@@ -183,12 +188,16 @@ class Method:
 
             # u-test
             data = []
-            N = len(genes)
+            N = len(control_samples_by_gene)
             count = 0
             
-            for progress, gene in informative_iterator.ProgressBar(genes, title=f"Running {Method.name}"):
+            for progress, (control_gene, experimental_gene) in informative_iterator.ProgressBar(
+                tuple(zip(control_samples_by_gene, experimental_samples_by_gene)),
+                title=f"Running {Method.name}",
+                disable_logging=True
+            ):
                 count += 1
-                if gene.k == 0 or gene.n == 0:
+                if (control_gene.k + experimental_gene.k) == 0 or control_gene.n == 0:
                     test_obs   = 0
                     mean1      = 0
                     mean2      = 0
@@ -196,10 +205,8 @@ class Method:
                     u_stat     = 0.0
                     pval_2tail = 1.0
                 else:
-                    ii = numpy.sum(gene.reads, 0) > 0
-
-                    data1 = gene.reads[:number_of_control_wigs, ii].flatten()
-                    data2 = gene.reads[number_of_control_wigs:, ii].flatten()
+                    data1 = control_gene.reads.flatten()
+                    data2 = experimental_gene.reads.flatten()
                     try:
                         u_stat, pval_2tail = scipy.stats.mannwhitneyu(
                             data1, data2, alternative="two-sided"
@@ -228,10 +235,10 @@ class Method:
 
                 data.append(
                     [
-                        gene.orf,
-                        gene.name,
-                        gene.desc,
-                        gene.n,
+                        control_gene.orf,
+                        control_gene.name,
+                        control_gene.desc,
+                        control_gene.n,
                         mean1,
                         mean2,
                         log2_fc,
@@ -240,18 +247,18 @@ class Method:
                     ]
                 )
 
-                # Update Progress
-                percent = (100.0 * count / N)
-                if gui.is_active:
-                    text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
-                    parameter_panel.progress_update(text, percent)
+                # # Update Progress
+                # percent = (100.0 * count / N)
+                # if gui.is_active:
+                #     text = "Running Mann-Whitney U-test Method... %1.1f%%" % percent
+                #     parameter_panel.progress_update(text, percent)
 
+            data.sort()
             logging.log("")  # Printing empty line to flush stdout
             logging.log("Performing Benjamini-Hochberg Correction")
-            data.sort()
-            qval = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
+            qvals = stat_tools.bh_fdr_correction([row[Method.column_names.index("P Value")] for row in data])
             
-            number_of_significant_genes = len([ 1 for each in qval if each > significance_threshold ])
+            number_of_significant_genes = len([ 1 for each in qvals if each < significance_threshold ])
             
             # 
             # write output
@@ -261,14 +268,23 @@ class Method:
                 file_kind=Method.identifier,
                 rows=[
                     [*row, qval]
-                        for row, qval in zip(data, qval) 
+                        for row, qval in zip(data, qvals) 
                 ],
                 column_names=Method.column_names,
                 extra_info=dict(
                     stats=dict(
                         number_of_significant_genes=number_of_significant_genes,
                     ),
-                    parameters={},
+                    parameters={
+                        "normalization": normalization,
+                        "control_condition": control_condition,
+                        "experimental_condition": experimental_condition,
+                        "n_terminus":n_terminus,
+                        "c_terminus":c_terminus,
+                        "LOESS":LOESS,
+                        "ignore_codon":ignore_codon,
+                        "significance_threshold":significance_threshold,
+                    },
                 ),
             )
 

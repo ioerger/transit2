@@ -392,7 +392,7 @@ class Method:
             ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
             
             logging.log("reading genes")
-            genes = tnseq_tools.read_genes(self.inputs.annotation_path)
+            genes = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path).as_list_of_dicts
         
         # 
         # process data

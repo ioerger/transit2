@@ -407,6 +407,10 @@ def loess_correction(X, Y, h=10000, window=100):
 def f_mean_diff_flat(*args, **kwargs):
     A = args[0]
     B = args[1]
+    if len(B) == 0 or len(A) == 0:
+        import math
+        # to prevent warning # TODO: check this is the desired behavior
+        return math.nan
     return numpy.mean(B) - numpy.mean(A)
 
 def f_sum_diff_flat(*args, **kwargs):

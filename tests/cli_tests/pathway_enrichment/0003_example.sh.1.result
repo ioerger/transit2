@@ -1,6 +1,6 @@
 #PathwayEnrichment_GSEA
 #yaml:
-#    date: 2022-12-02 11:39:23
+#    date: 2022-12-15 10:40:41
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -12,7 +12,7 @@
 #       num_permutations: 10000
 #       pseudocount: 2
 #    summary_info:
-#       Hits: 6 conditional ES;1 conditional NE
+#       Hits: 6 enriched;1 depleted
 #    
 #Pathway	Pathway Description	Genes in Path	Mean Rank	Enrichment Score	P Value	Adj P Value	Genes
 III.A.5	Fatty acid transport	2	401.5	0.944638	0.054187	0.307061	Rv3540c/ltp2 (0) Rv2790c/ltp1 (803)

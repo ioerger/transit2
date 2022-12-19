@@ -358,14 +358,24 @@ class Method:
                 logging.log("Loading in H37Rv Associations for GO Pathways")
                 Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
                 Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
-            elif Method.inputs.organism_pathway =="H37Rv-GO" and Method.inputs.method == "ONT":
-                logging.log("Loading in H37Rv Associations for GO Pathways")
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
+            elif Method.inputs.organism_pathway =="H37Rv-GO": 
+                if Method.inputs.method == "ONT":
+                    logging.log("Loading in H37Rv Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
+                else: 
+                    logging.log("Loading in H37Rv Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/H37Rv_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"
             elif Method.inputs.organism_pathway =="Smeg-GO":
-                logging.log("Loading in Smeg Associations for GO Pathways")
-                Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
-                Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
+                if Method.inputs.method == "ONT":
+                    logging.log("Loading in H37Rv Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/gene_ontology.1_2.3-11-18.obo"
+                else:
+                    logging.log("Loading in Smeg Associations for GO Pathways")
+                    Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
+                    Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
         else:
             logging.error("Select pathway and association files")
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
@@ -440,7 +450,7 @@ class Method:
                 up,down = self.GSEA()
                 #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
                 self.hit_summary = {
-                    "Hits": str(up) + " conditional ES;"+str(down) + " conditional NE",
+                    "Hits": str(up) + " enriched;"+str(down) + " depleted",
                 }
                 file_output_type = Method.identifier+"_GSEA"
                 file_columns = [
