@@ -21,10 +21,15 @@ gui.is_active = False # normally checks sys.argv[] but tests use their own sys.a
 tppMain = pytpp.__main__.main
 
 def get_bwa():
-    if (os.path.exists("/usr/bin/bwa")):
+    import platform
+    if os.path.exists("/usr/bin/bwa"):
         return "/usr/bin/bwa"
-    elif (os.path.exists("/usr/local/bin/bwa")):
+    elif os.path.exists("/usr/local/bin/bwa"):
         return "/usr/local/bin/bwa"
+    elif platform.system() != "Windows":
+        import subprocess
+        output = subprocess.check_output([ 'sh', '-c', 'command -v bwa'])
+        return output[0:-1]
     return ""
 
 bwa_path = get_bwa()
