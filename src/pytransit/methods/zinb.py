@@ -138,9 +138,9 @@ class Method:
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
                 group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group By",                   options=metadata_headers, default_option=None, tooltip_text="Column name (in samples_metadata) to use as the primary condition being evaluated (to test for significant variability of insertions among groups)."),
-                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="For example, suppose you have two treatments with multiple strains. The strains themselves may have an affect on the outcome. However, selecting strain as a covar adjusts for differences caused only by differences in strain."), 
-                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the selected group/covars. For Example, If grouping by condition and media as the interaction, then ZINB  will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
-                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None),
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjusts for differences caused only the strain."), 
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to analyze"   , options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="Add an additional column to the output that inlcudes gene descriptions", widget_size=None),
             )
             
     @staticmethod
@@ -209,7 +209,7 @@ class Method:
         excluded_conditions             = excluded_conditions             if excluded_conditions             is not None else []
         included_conditions             = included_conditions             if included_conditions             is not None else []
         winz                            = winz                            if winz                            is not None else False
-        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 # FIXME: check later to make sure this is the correct default --Jeff
+        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 
         normalization                   = normalization                   if normalization                   is not None else "TTR"
         n_terminus                      = n_terminus                      if n_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
         c_terminus                      = c_terminus                      if c_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
