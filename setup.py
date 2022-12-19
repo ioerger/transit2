@@ -150,6 +150,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     # 'wxPython' is needed for GUI only, but go ahead and install them
     install_requires=[
+        'attrdict',
         'setuptools',
         'numpy~=1.16',
         'scipy~=1.2',

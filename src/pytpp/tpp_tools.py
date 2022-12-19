@@ -1607,6 +1607,14 @@ def verify_inputs(vars):
         vars.single_end = True
         vars.fq2 = ""
 
+    # try to auto-find bwa
+    if not vars.bwa:
+        import platform
+        if platform.system() != "Windows":
+            import subprocess
+            output = subprocess.check_output([ 'sh', '-c', 'command -v bwa'])
+            vars.bwa = output.decode()[0:-1]
+    
     if os.path.isdir(vars.bwa):
         bwaexec_unix = os.path.join(vars.bwa, "bwa")
         bwaexec_win = os.path.join(vars.bwa, "bwa.exe")

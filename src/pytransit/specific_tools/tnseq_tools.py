@@ -403,7 +403,10 @@ class CombinedWigData(NamedListBase):
                     counts_by_wig[index].append(count)
             logging.log(f"\rreading lines: 100%          ")
         
-        return CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints))
+        output_object = CombinedWigData((numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints))
+        logging.log(f"created combined wig data object")
+        
+        return output_object
 
 from pytransit.generic_tools.named_list import named_list
 class CombinedWig:
@@ -435,8 +438,6 @@ class CombinedWig:
     @staticmethod
     @cache(watch_filepaths=lambda *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None: [ main_path, metadata_path, annotation_path ])
     def load(*args, **kwargs):
-        print(f'''args = {args}''')
-        print(f'''kwargs = {kwargs}''')
         return CombinedWig(*args, **kwargs)
     
     def __init__(self, *, main_path, metadata_path=None, annotation_path=None, comments=None, extra_data=None):
@@ -504,6 +505,7 @@ class CombinedWig:
     # read_counts_wig
     # 
     @property
+    @cache(watch_attributes=lambda self:[ self.wig_fingerprints ])
     def read_counts_by_wig_fingerprint(self):
         if self.cached_read_counts_by_wig_fp!=None: return self.cached_read_counts_by_wig_fp
         counts_for_wig = { each_path: [] for each_path in self.wig_fingerprints }
@@ -863,6 +865,7 @@ class CombinedWig:
                 return each
     
     def _load_main_path(self):
+        from pytransit.generic_tools.informative_iterator import ProgressBar
         import ez_yaml
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
@@ -917,7 +920,7 @@ class CombinedWig:
         extra_data["wig_fingerprints"] = wig_fingerprints
         self.extra_data.update(extra_data)
         self.CWigRow = named_list([ "position", *wig_fingerprints ])
-        for row in rows:
+        for progress, row in ProgressBar(rows, disable_logging=True):
             #
             # extract
             #
@@ -934,6 +937,11 @@ class CombinedWig:
             
             sites.append(position)
 
+            if progress.updated:
+                logging.log(f"formatting data {progress.percent:.0f}%", end="\r")
+
+        logging.log(f"formatting data 100%", end="\r")
+        
         for column_index, wig_fingerprint in enumerate(self.wig_fingerprints):
             self.samples.append(
                 Wig(

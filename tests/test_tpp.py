@@ -9,7 +9,38 @@ sys.path.insert(0, basedir + '/../src/')
 import shutil
 import unittest
 
-from transit_test import *
+from transit_test import (
+    basedir,
+    ctrl_rep1,
+    ctrl_rep2,
+    ctrl_data_txt,
+    mini_wig,
+    combined_wig,
+    samples_metadata,
+    samples_metadata_covariates,
+    samples_metadata_interactions,
+    KO_combined_wig,
+    KO_samples_metadata,
+    exp_rep1,
+    exp_rep2,
+    exp_rep3,
+    exp_data_txt,
+    all_data_list,
+    annotation,
+    small_annotation,
+    output,
+    hist_path,
+    tpp_output_base,
+    tpp_output_paths,
+    reads1,
+    test_multicontig,
+    test_multicontig_reads1,
+    test_multicontig_reads2,
+    h37fna,
+    TransitTestCase,
+    count_hits,
+    significant_pvals_qvals,
+)
 from pytpp.tpp_tools import clean_args
 
 import pytpp.__main__
@@ -21,10 +52,15 @@ gui.is_active = False # normally checks sys.argv[] but tests use their own sys.a
 tppMain = pytpp.__main__.main
 
 def get_bwa():
-    if (os.path.exists("/usr/bin/bwa")):
+    import platform
+    if os.path.exists("/usr/bin/bwa"):
         return "/usr/bin/bwa"
-    elif (os.path.exists("/usr/local/bin/bwa")):
+    elif os.path.exists("/usr/local/bin/bwa"):
         return "/usr/local/bin/bwa"
+    elif platform.system() != "Windows":
+        import subprocess
+        output = subprocess.check_output([ 'sh', '-c', 'command -v bwa'])
+        return output.decode()[0:-1]
     return ""
 
 bwa_path = get_bwa()
@@ -130,31 +166,31 @@ class TestTPP(TransitTestCase):
     @unittest.skipUnless(len(bwa_path) > 0, "requires BWA")
     def test_tpp_noflag_primer(self):
         (args, kwargs) = clean_args(["-bwa", bwa_path, "-ref", h37fna, "-reads1", reads1, "-output", tpp_output_base, "-protocol", "sassetti"])
-        tppMain(*args, **kwargs)
+        tppMain(args, kwargs)
         self.assertTrue(verify_stats("{0}.tn_stats".format(tpp_output_base), NOFLAG_PRIMER))
 
     @unittest.skipUnless(len(bwa_path) > 0, "requires BWA")
     def test_tpp_flag_primer(self):
         (args, kwargs) = clean_args(["-bwa", bwa_path, "-ref", h37fna, "-reads1", reads1, "-output", tpp_output_base, "-himar1", "-flags", "-k 1"])
-        tppMain(*args, **kwargs)
+        tppMain(args, kwargs)
         self.assertTrue(verify_stats("{0}.tn_stats".format(tpp_output_base), FLAG_PRIMER))
 
     @unittest.skipUnless(len(bwa_path) > 0, "requires BWA")
     def test_tpp_protocol_mme1(self):
         (args, kwargs) = clean_args(["-bwa", bwa_path, "-ref", h37fna, "-reads1", reads1, "-output", tpp_output_base, "-protocol", "Mme1"])
-        tppMain(*args, **kwargs)
+        tppMain(args, kwargs)
         self.assertTrue(verify_stats("{0}.tn_stats".format(tpp_output_base), MME1_PROTOCOL))
 
     @unittest.skipUnless(len(bwa_path) > 0, "requires BWA")
     def test_tpp_multicontig_empty_prefix(self):
         (args, kwargs) = clean_args(["-bwa", bwa_path, "-ref", test_multicontig, "-reads1", test_multicontig_reads1, "reads2", test_multicontig_reads2, "-output", tpp_output_base, "-replicon-ids", "a,b,c", "-maxreads", "10000", "-primer", ""])
-        tppMain(*args, **kwargs)
+        tppMain(args, kwargs)
         self.assertTrue(verify_stats("{0}.tn_stats".format(tpp_output_base), MULTICONTIG))
 
     @unittest.skipUnless(len(bwa_path) > 0, "requires BWA")
     def test_tpp_multicontig_auto_replicon_ids(self):
         (args, kwargs) = clean_args(["-bwa", bwa_path, "-ref", test_multicontig, "-reads1", test_multicontig_reads1, "reads2", test_multicontig_reads2, "-output", tpp_output_base, "-replicon-ids", "auto", "-maxreads", "10000", "-primer", ""])
-        tppMain(*args, **kwargs)
+        tppMain(args, kwargs)
         self.assertTrue(verify_stats("{0}.tn_stats".format(tpp_output_base), MULTICONTIG_AUTO_IDS))
 
 if __name__ == '__main__':
