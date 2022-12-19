@@ -1,6 +1,6 @@
 #Gumbel
 #yaml:
-#    date: 2022-12-19 10:46:56
+#    date: 2022-12-19 15:34:17
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
@@ -15,7 +15,7 @@
 #       iN: 0.0
 #       iC: 0.0
 #    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
-#    time: 95.65025448799133
+#    time: 61.368659019470215
 #    summary_info:
 #       ES: '553'
 #       ESB: '121'

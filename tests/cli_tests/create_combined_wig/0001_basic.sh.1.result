@@ -1,11 +1,11 @@
 #CombinedWig
 #yaml:
-#    date: 2022-12-19 10:42:57
+#    date: 2022-12-19 15:32:17
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
 #    console_command: |
 #        python3 './src/transit.py' 'export' 'combined_wig' 'src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/create_combined_wig/0001_basic.sh.1.result'
-#    time: 3.0945651531219482
+#    time: 1.717832088470459
 #    normalization: TTR
 #    annotation: H37Rv.prot_table
 #    wig_fingerprints:
