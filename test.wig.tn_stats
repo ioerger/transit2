@@ -1,0 +1,36 @@
+# title: Tn-Seq Pre-Processor
+# date: 12/19/2022 11:33:36
+# command: python /home/jeffhykin/.local/bin/tpp -ref /home/jeffhykin/Downloads/H37Rv.fna -reads1 /home/jeffhykin/Downloads/example.fastq -output test.wig
+# transposon type: Himar1
+# protocol type: Sassetti
+# bwa flags: 
+# read1: /home/jeffhykin/Downloads/example.fastq
+# read2: 
+# ref_genome: /home/jeffhykin/Downloads/H37Rv.fna
+# replicon_ids: 
+# total_reads (or read pairs): 1000
+# truncated_reads 28 (genomic inserts shorter than the read length; ADAP2 appears in read1)
+# trimmed_reads (reads with valid Tn prefix, and insert size>20bp): 987
+# reads1_mapped: 967
+# reads2_mapped: 0
+# mapped_reads (both R1 and R2 map into genome, and R2 has a proper barcode): 967 
+# read_count (TA sites only, for Himar1): 940
+# template_count: 940
+# template_ratio (reads per template): 1.00
+# TA_sites: 74605
+# TAs_hit: 914
+# density: 0.012
+# max_count (among templates): 2
+# max_site (coordinate): 4348593
+# NZ_mean (among templates): 1.0
+# FR_corr (Fwd templates vs. Rev templates): 0.019
+# BC_corr (reads vs. templates, summed over both strands): 1.000
+# Break-down of total reads (1000):
+#  13 reads (1.3%) lack the expected Tn prefix
+# Break-down of trimmed reads with valid Tn prefix (983):
+#  primer_matches: 8 reads (0.8%) contain CTAGAGGGCCCAATTCGCCCTATAGTGAGT (Himar1)
+#  vector_matches: 8 reads (0.8%) contain CTAGACCGTCCAGTCTGGCAGGCCGGAAAC (phiMycoMarT7)
+#  adapter_matches: 0 reads (0.0%) contain GATCGGAAGAGCACACGTCTGAACTCCAGTCAC (Illumina/TruSeq index)
+#  misprimed_reads: 0 reads (0.0%) contain Himar1 prefix but don't end in TGTTA
+# read_length: 125 bp
+# mean_R1_genomic_length: 92.8 bp

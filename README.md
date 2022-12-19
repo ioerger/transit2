@@ -63,3 +63,8 @@ http://saclab.tamu.edu/essentiality/transit/genomes/
 Source code for TRANSIT and TPP are available open source under the terms of the GNU General Public License (Version 3.0) as published by the Free Software Foundation. For more information on this license, please see the included LICENSE.md file or visit their website at:
 
 http://www.gnu.org/licenses/gpl.html
+
+<!-- NOTE: sudo apt install -y libeigen3-dev -->
+<!-- NOTE: sudo apt install -y 'python-wxgtk3*' -->
+<!-- pip install --upgrade setuptools -->
+<!-- pip3 install attrdict -->
