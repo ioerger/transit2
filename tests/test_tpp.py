@@ -9,7 +9,38 @@ sys.path.insert(0, basedir + '/../src/')
 import shutil
 import unittest
 
-from transit_test import *
+from transit_test import (
+    basedir,
+    ctrl_rep1,
+    ctrl_rep2,
+    ctrl_data_txt,
+    mini_wig,
+    combined_wig,
+    samples_metadata,
+    samples_metadata_covariates,
+    samples_metadata_interactions,
+    KO_combined_wig,
+    KO_samples_metadata,
+    exp_rep1,
+    exp_rep2,
+    exp_rep3,
+    exp_data_txt,
+    all_data_list,
+    annotation,
+    small_annotation,
+    output,
+    hist_path,
+    tpp_output_base,
+    tpp_output_paths,
+    reads1,
+    test_multicontig,
+    test_multicontig_reads1,
+    test_multicontig_reads2,
+    h37fna,
+    TransitTestCase,
+    count_hits,
+    significant_pvals_qvals,
+)
 from pytpp.tpp_tools import clean_args
 
 import pytpp.__main__
