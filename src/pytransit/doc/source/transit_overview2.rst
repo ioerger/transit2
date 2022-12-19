@@ -28,7 +28,7 @@ be applied to other transposons, like Tn5.
 
 **NEW in Transit 4.0:**
 The GUI and command-line versions of Transit have been 
-overhauled to now take combined_wig files (and corresponding metadata files),
+overhauled to now take **combined_wig** files (and corresponding **metadata** files),
 instead of individual .wig files.
 Thus, after running TPP on all the individual samples,
 the multiple .wig file are combined together in a single combined_wig file
@@ -39,22 +39,22 @@ manage and analyze large datasets.
 Typical Workflow
 ----------------
 
-Make a flow-chart for this?... <insert a picture of the workflow?>
+A typical workflow follows 3 phases, illustrated below.
 
-* .fastq -> TPP -> .wig
+1. First, the user runs TPP on raw sequence files (.fastq) to produce .wig files with insertion counts at coordinates of TA sites for each sample.
+2. Second, the user runs a command to merge the .wig files into a single combined_wig file, and prepares a corresponding metadata file describing the samples.
+3. Third, the user runs various statistical analysis methods in Transit, using the combined_wig and metadata files as inputs.
 
-* multiple .wig files for individual  samples -> export command -> single combined_wig file (user also writes metadata file describing samples)
-
-* combined_wig+metadata file -> GUI or command-line Transit to run analyses -> output file (spreadsheet)
-
-Most of the analyses in Transit produce an output file in tab-separated format that can be 
-opened as a spreadsheet.  For example, 'resampling' generates an output file
+Most of the analyses in Transit produce an **output file in tab-separated format that can be 
+opened as a spreadsheet**.  For example, 'resampling' generates an output file
 that lists the data (mean insertion counts in 2 conditions being compared) and statistics (log-fold-change, p-value, adjusted p-value)
 for each gene in the genome.  The user can then view this output file (in the GUI, or open it in a program like Excel)
 to examine genes predicted to be conditionally essential.
 
-(We could also show that the genome sequence (.fna or .fasta file) is needed for the TPP step,
-and the genome annotation (.prot_table file) is needed for the analyses.)
+.. image:: _images/Transit_flow_chart2b.png
+   :width: 600
+   :align: center
+
 
 
 TPP (Transit Pre-Processor)
@@ -81,7 +81,7 @@ It also reports statistics on how many reads were rejected because they containe
 primer, adapter, or vectors sequences, which can be useful for diagnosing problems with the library.
 
 
-For Tn5 (such as magellan6, see PROTOCOL), the difference in TPP are: 
+For Tn5 (such as magellan6, see PROTOCOL), the differences in running TPP are: 
 1) there is no prefix, since the transposon terminus does not appear in the reads, 
 and 2) the .wig files contain coordinates and counts for all sites in the 
 genome, since Tn5 is not restricted to insertions at TA sites (unlike Himar1).
@@ -92,16 +92,14 @@ Combined_wig Files
 
 Once the .wig files are created, they are combined into a combined_wig
 file.  This is a new step in Transit 4.0.  Multiple .wig files are
-combined into a single combined_wig file using the 'transit export
-combined_wig' command on the command line.  Users then prepare a
+combined into a single combined_wig file using the **'transit export
+combined_wig'** command on the command line.  Users then prepare a
 metadata file describing each of the samples (as a spreadsheet,
 e.g. in Excel, which is then saved in tab-separted format).  Most
-commonly, there will be several replicates will be associated with
-each condition.  The analysis methods in Transit have been redesigned
+commonly, there will be several replicates associated with
+each condition.  The analysis methods in Transit all have been redesigned
 to take combined_wig and metadata files as inputs, which simplifies
 things when working with large datasets.
-
-(show command, or link to it?)
 
 By default, the insertion counts in each dataset (.wig file) are **normalized**
 by TTR (Total Trimmed Read-count) when they are combined in a combined_wig file.
@@ -126,9 +124,15 @@ the command-line and in the GUI. Also, plots of read-count
 distributions can be generated for selected samples in the GUI (again,
 helpful for identifying highly skewed samples).  A discussion about
 skewed samples, the problems they cause, and what to do about them can be
-found :ref:`here <transit_quality_control>`.
+found :ref:`here <transit_quality_control>` (Quality Control).
 
-(also mention can do corrplots and scatterplots?)
+One can also evaluate and compare samples by making :ref:`scatter plots <scatterplot>` and pairwise :ref:`correlation plots <corrplot>`,
+to get a preview of how samples are related to each other.
+
+.. image:: _images/glyc_chol_corrplot.png
+   :width: 300
+   :align: center
+
 
 Metadata Files
 --------------
@@ -138,7 +142,7 @@ and conditions they represent (e.g. different media, growth
 conditions, knockout strains, animal passaging, etc., or whatever
 treatments and controls your TnSeq experiment involves).  
 
-(metadata files are also described on the page for ZINB)
+(TRI - metadata files are also described on the page for ZINB)
 
 The format of the samples metadata file is a *tab-separated file* (which 
 can be created/editted/saved in Excel) with 3 columns: Id, Condition, and Filename (it
@@ -214,12 +218,54 @@ for all subsequent analyses in Transit.
 Command Line
 ------------
 
-flags
-
 The analysis methods in Transit are also described in this `PDF manual
 <https://orca1.tamu.edu/essentiality/transit/transit-manual.pdf>`_ , focusing on 
 command-line operations.
 
+
+Most of the methods in Transit can be run from the command line.
+Typically, you run this as follows:
+
+::
+
+  > python TRANSIT_PATH/src/transit.py <command> args...
+
+Remember to use python3.
+
+Commands include: gumbel, resampling, hmm, GI, tnseq_stats, anova...
+If you run 'python TRANSIT_PATH/src/transit.py --help', it will print out the full list of available commands.
+
+::
+
+  > python TRANSIT_PATH/src/transit.py --help
+  The available subcommands are:
+     anova 
+     gi 
+     gumbel
+     hmm
+     ...
+
+The arguments would be whatever input files, options, and flags are appropriate for a given command.
+
+If you want a reminder of the **usage** for given command, use run that command without any arguments.
+For example:
+
+::
+
+  > python TRANSIT_PATH/src/transit.py anova
+  Usage:
+     python src/transit.py anova <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+
+  Optional Arguments:
+    -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+    -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+    -n <string> := Normalization method. Default: -n TTR
+    -ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+    -iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
+    -iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+    -PC    <N>  := pseudocounts to use for calculating LFCs. Default: -PC 5
+    -alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+    --winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
 
 
 
