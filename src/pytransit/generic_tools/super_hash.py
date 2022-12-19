@@ -294,8 +294,10 @@ def super_hash(value, *, __already_seen__=None):
         super_hash._non_iterable_cache[value_id] = value_id
         return super_hash._non_iterable_cache[value_id]
 
+from collections import OrderedDict
 super_hash._non_iterable_cache = {}
-super_hash.conversion_table = {
+super_hash.conversion_table = OrderedDict()
+super_hash.conversion_table[
     # have functions default to deep hashing
-    (lambda each: callable(each) and not isinstance(each, type)): function_hashers.smart
-}
+    (lambda each: callable(each) and not isinstance(each, type))
+] = function_hashers.smart
