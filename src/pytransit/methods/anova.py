@@ -19,6 +19,8 @@ from pytransit.components.parameter_panel import progress_update, set_instructio
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import misc, csv, informative_iterator
 
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
+
 @misc.singleton
 class Method:
     name = "Anova"
@@ -503,6 +505,7 @@ class File:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(output_path=self.path+".heatmap.png"),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)

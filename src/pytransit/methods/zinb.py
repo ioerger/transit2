@@ -19,6 +19,8 @@ from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
 from pytransit.components.spreadsheet import SpreadSheet
 
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
+
 cli_args = LazyDict(
     gene=None, # for debugging
 )
@@ -519,7 +521,9 @@ class Method:
                     group_names=headers_stat_group_names,
                     lfc_columns=lfc_columns,
                     mean_columns=mean_columns,
-                    summary_info=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
+                    summary_info=dict(
+                        Hits=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
+                    )
                 )
             
             # 
@@ -892,6 +896,7 @@ class File:
                     ],
                 ).Show(),
                 "Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         

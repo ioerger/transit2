@@ -19,6 +19,8 @@ from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
+
 
 @misc.singleton
 class Method:
@@ -313,6 +315,7 @@ class ResultFileType1:
                         "Adj P Value",
                     ],
                 ).Show(),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         
