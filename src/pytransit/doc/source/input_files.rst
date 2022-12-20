@@ -31,6 +31,48 @@ You can specify the normalization method you want to use with a flag.
 TTR is the default, but other relevant normalization options would be 'nonorm'
 (i.e. preserve raw counts) and 'betageom' (this corrects for skew, but is slow).
 
+The format of a combined_wig is simply a multi-column file with
+the first column being the coordinates of TA sites, followed by 
+N columns of counts (for N samples), possibly with a final column indicating
+the gene annotation information.
+A combined_wig file can have header lines, prefixed by '#'.
+
+Importantly, a combined_wig file must include sample identifiers
+(filenames) that are prefixed with **"#File: "**.  These header lines
+are automatically included by the 'export combined_wig' Transit
+command the creates a combined_wig from multiple .wig files.  These "File:"
+header lines should be given in the same order as the sample columns,
+and the filenames are used as identifiers to cross-reference
+information about each sample in the metadata file (see below).
+
+::
+
+ #command: python3 ../src/transit.py export combined_wig /Users/example_data/glycerol_rep1.wig,/Users/example_data/glycerol_rep2.wig,/Users/example_data/cholesterol_rep1.wig,/Users/example_data/cholesterol_rep2.wig,/Users/example_data/cholesterol_rep3.wig H37Rv.prot_table temp.cwig
+ #genome: H37Rv
+ #File: src/pytransit/data/glycerol_rep1.wig
+ #File: src/pytransit/data/glycerol_rep2.wig
+ #File: src/pytransit/data/cholesterol_rep1.wig
+ #File: src/pytransit/data/cholesterol_rep2.wig
+ #File: src/pytransit/data/cholesterol_rep3.wig
+ #normalizatin: TTR
+ #Normalization factors: 1.89 2.01 0.97 1.15 1.06
+ #TA  glycerol_rep1  glycerol_rep2  cholesterol_rep1  cholesterol_rep2  cholesterol_rep3  annot
+ 60	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)
+ 72	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)
+ 102	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)
+ 188	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)
+ ...
+
+(DnaA is essential, which is why there are no insertion counts in this example)
+
+(The '#genome' is extracted from information in the individual .wig files,
+which records the reference genome sequence that was used with TPP; 
+the coordinates of TA sites are determined from the genome sequence.)
+
+**This needs to be updated for header info in YAML format!**
+
+|
+
 
 .. _metadata_files:
 
@@ -51,8 +93,11 @@ by prefixing them with a '#'.  Here is an example of a samples
 metadata file: The filenames should match what is shown in the header
 of the combined_wig (including pathnames, if present).
 
-Note: the Condition column should have a unique label for each distinct condition (the same label shared only among replicates).
-If there are attributes that distinguish the conditions (such as strain, treatment, etc), they could be included as additional columns (e.g. covariates).
+Note: the Condition column should have a unique label for each
+distinct condition (the same label shared only among replicates).  If
+there are attributes that distinguish the conditions (such as strain,
+treatment, etc), they could be included as **additional columns**
+(e.g. covariates, like Carbon_source or Drug or Days or Strain...).
 
 ::
 
