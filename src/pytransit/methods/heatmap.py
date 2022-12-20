@@ -14,8 +14,8 @@ from pytransit.components import file_display, parameter_panel, results_area, sa
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import csv, informative_iterator, misc
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.globals import cli, debugging_enabled, gui, root_folder
-from pytransit.specific_tools import console_tools, gui_tools, logging, norm_tools, tnseq_tools, transit_tools
+from pytransit.globals import logging, cli, debugging_enabled, gui, root_folder
+from pytransit.specific_tools import console_tools, gui_tools, norm_tools, tnseq_tools, transit_tools
 
 @misc.singleton
 class Method:

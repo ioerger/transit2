@@ -4,9 +4,9 @@ import sys
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools import misc
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
-from pytransit.specific_tools import logging, gui_tools, transit_tools
+from pytransit.specific_tools import  gui_tools, transit_tools
 import pytransit.components.images as images
 import pytransit
 

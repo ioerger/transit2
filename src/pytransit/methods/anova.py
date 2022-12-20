@@ -10,7 +10,7 @@ import heapq
 
 import numpy
 
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area

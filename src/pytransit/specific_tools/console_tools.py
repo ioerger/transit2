@@ -16,13 +16,6 @@ else:
         foreground="bright_blue"
     )
 
-
-
-
-class InvalidArgumentException(Exception):
-    def __init__(self, *args, **kwargs):
-        super(InvalidArgumentException, self).__init__(*args, **kwargs)
-
 class RawKwargs: pass
 def clean_args(raw_args):
     """Returns a list and a dictionary with positional and keyword arguments.
@@ -128,7 +121,8 @@ def clean_args(raw_args):
             else:
                 kwargs["--"+each_key] = each_value
                 kwargs["-"+each_key] = each_value
-            
+    
+    kwargs = defaultdict(lambda :None, kwargs)
     return (args, kwargs)
 
 def handle_help_flag(kwargs, usage_string):

@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with TRANSIT.  If not, see <http://www.gnu.org/licenses/>.
 
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 if gui.is_active:
     # ----------------------------------------------------------------------

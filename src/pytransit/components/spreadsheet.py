@@ -1,11 +1,11 @@
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 SpreadSheet = None
 TransitTable = None
 if gui.is_active:
     import wx.grid
 
-    from pytransit.specific_tools import logging, gui_tools
+    from pytransit.specific_tools import  gui_tools
     from pytransit.specific_tools.transit_tools import wx
 
     class TransitTable(wx.grid.GridTableBase):

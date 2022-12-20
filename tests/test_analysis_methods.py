@@ -32,7 +32,7 @@ from pytransit.methods.utest      import Method as UTestMethod
 from pytransit.methods.gi import Method as GIMethod
 
 # fake setup for testing
-from pytransit.globals import gui
+from pytransit.globals import logging, gui
 gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
 
 class TestMethods(TransitTestCase):

@@ -26,6 +26,7 @@ import heapq
 
 import numpy
 import matplotlib.pyplot as plt
+from pytransit.globals import logging
 
 
 SEPARATOR = "," # TODO remove this
@@ -83,7 +84,7 @@ import pytransit
 from pytransit.specific_tools import tnseq_tools
 from pytransit.specific_tools import norm_tools
 import pytransit.generic_tools.csv as csv
-from pytransit.specific_tools import logging, console_tools
+from pytransit.specific_tools import console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools.named_list import named_list
 from pytransit.specific_tools.console_tools import clean_args
@@ -196,7 +197,7 @@ if True:
         import ez_yaml
         import pytransit
         import pytransit.generic_tools.csv as csv
-        from pytransit.globals import gui
+        from pytransit.globals import logging, gui
         from pytransit.generic_tools.misc import indent, to_pure
         ez_yaml.yaml.version = None # disable the "%YAML 1.2\n" header
         ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
@@ -249,7 +250,7 @@ class TimerAndOutputs(object):
         return self
     
     def __exit__(self, _, error, traceback):
-        from pytransit.globals import gui
+        from pytransit.globals import logging, gui
         from pytransit.components import results_area
         if error is None:
             if gui.is_active:
@@ -295,7 +296,7 @@ def validate_wig_format(wig_list):
     includes_zeros = tnseq_tools.check_wig_includes_zeros(wig_list)
 
     if sum(includes_zeros) < len(includes_zeros):
-        from pytransit.globals import gui
+        from pytransit.globals import logging, gui
         if not gui.is_active:
             warnings.warn(
                 "\nOne or more of your .wig files does not include any empty sites (i.e. sites with zero read-counts). Proceeding as if data was Tn5 (all other sites assumed to be zero)!\n"
@@ -545,7 +546,7 @@ def get_samples_metadata(metadata_path):
     return data
 
 def gather_sample_data_for(conditions=None, wig_ids=None, wig_fingerprints=None, selected_samples=False):
-    from pytransit.globals import gui, cli, root_folder, debugging_enabled
+    from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
     from pytransit.specific_tools.tnseq_tools import Wig
     
     wig_objects = gui.samples

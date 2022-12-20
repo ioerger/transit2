@@ -11,8 +11,8 @@ import heapq
 import numpy
 
 from pytransit.generic_tools import csv, misc, informative_iterator
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict

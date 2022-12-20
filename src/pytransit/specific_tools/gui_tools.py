@@ -3,7 +3,7 @@ import os
 from typing import NamedTuple
 
 from pytransit.specific_tools.transit_tools import wx
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 
 
@@ -182,7 +182,7 @@ class NiceErrorLog(object):
 nice_error_log = NiceErrorLog()
 
 def show_image(path):
-    from pytransit.globals import gui
+    from pytransit.globals import logging, gui
     if gui.is_active:
         class ImgFrame(wx.Frame):
             def __init__(self, parent, filePath):

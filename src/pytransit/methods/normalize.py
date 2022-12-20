@@ -3,10 +3,10 @@ import sys
 import os
 import time
 
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 @misc.singleton
 class Method:

@@ -13,10 +13,10 @@ import numpy
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, logging
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.generic_tools.misc import cache
 import pytransit.components.results_area as results_area

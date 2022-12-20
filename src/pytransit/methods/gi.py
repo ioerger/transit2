@@ -18,11 +18,11 @@ import statsmodels.stats.multitest
 from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.specific_tools.transit_tools import wx, basename
-from pytransit.specific_tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 from pytransit.generic_tools import csv, misc
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 

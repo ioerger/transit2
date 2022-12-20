@@ -12,7 +12,7 @@ from pytransit.generic_tools import csv, misc
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify
 from pytransit.generic_tools.named_list import named_list, NamedListBase
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces, cache
-from pytransit.specific_tools import logging
+from pytransit.globals import logging
 
 try:
     from pytransit.specific_tools import norm_tools
@@ -96,7 +96,7 @@ class Wig:
     @staticmethod
     def selected_as_gathered_data(wig_objects):
         import numpy
-        from pytransit.globals import gui, cli, root_folder, debugging_enabled
+        from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
         
         # fail fast
         if len(wig_objects) == 0:
