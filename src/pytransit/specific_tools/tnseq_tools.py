@@ -2484,6 +2484,7 @@ class ProtTable:
                 orf2info[orf] = (name, desc, start, end, strand)
         return orf2info
 
+nucleotides_group_size = 3
 class GffFile:
     GffRow = named_list((
         # http://gmod.org/wiki/GFF3
@@ -2634,8 +2635,17 @@ class GffFile:
                 # FIXME: check if this should also be using locus_tag
                 if "ID" not in features:
                     continue
+                    # always skip if if not CDS
+                    # "gene" as gene name if it exists
+                    # "locus_tag" as orf id
+                    # "product" as gene description, could also be called "note"
+                # require: "locus_tag"
+                # require: type=="CDS"
+                # "gene"
+                # "product",
+                
                 orf = features["ID"]
-                name = features.get("Name", features.get("Gene Name","-"))
+                name = features.get("Name", features.get("Gene Name","-")) # FIXME: "Name" can be pro
                 if name == "-":
                     name = features.get("name", "-")
 
@@ -2670,7 +2680,7 @@ class GffFile:
             orf_id      = row.attributes["locus_tag"].strip()
             gene_name   = row.attributes.get("gene", "").strip() or "-"
             description = row.attributes.get("product", "")
-            size        = int(abs(row.end - row.start + 1) / 3)  # FIXME: why divide by 3? --Jeff
+            size        = int(abs(row.end - row.start + 1) / nucleotides_group_size)
             strand      = row.strand.strip()
             
             new_rows.append(

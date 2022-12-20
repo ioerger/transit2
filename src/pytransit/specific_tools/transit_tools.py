@@ -35,7 +35,6 @@ EOL = "\n" # TODO remove this
 # optional import: wx
 # 
 try:
-    print("attempting wx import")
     import wx
     import wx.xrc
     import wx.adv
@@ -59,7 +58,6 @@ except ModuleNotFoundError as e:
 # optional import: R
 # 
 try:
-    print("attempting R import")
     import rpy2.robjects
     from rpy2.robjects import (
         r,
@@ -71,7 +69,6 @@ try:
         packages as rpackages,
     )
     HAS_R = True
-    print("R imported")
 except ModuleNotFoundError as e:
     HAS_R = False
     r = None

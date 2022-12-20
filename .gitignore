@@ -3,6 +3,7 @@
 # 
 .env
 src/pytransit/doc/build/*
+tpp.cfg
 
 # 
 # standard

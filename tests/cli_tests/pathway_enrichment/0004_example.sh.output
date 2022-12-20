@@ -1,94 +1,91 @@
-attempting wx import
-attempting R import
-R imported
 [pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
-[pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.6sec 
-  File "./src/transit.py", line 27, in <module>
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 166, in run_main
     main(args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 155, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
     Method.Run()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
     "Hits":self.Ontologizer()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 900, in Ontologizer
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 900, in Ontologizer
     logging.warn(
-  File "/home/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
-  File "/usr/lib/python3.8/warnings.py", line 109, in _showwarnmsg
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/home/jeffhykin/.local/lib/python3.8/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
+  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
     traceback.print_stack(file=log)
-/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:900: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:900: UserWarning: 
 GO terms with at least one ORF: 3963
 
   logging.warn(
-  File "./src/transit.py", line 27, in <module>
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 166, in run_main
     main(args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 155, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
     Method.Run()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
     "Hits":self.Ontologizer()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 905, in Ontologizer
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 905, in Ontologizer
     logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/home/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
-  File "/usr/lib/python3.8/warnings.py", line 109, in _showwarnmsg
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/home/jeffhykin/.local/lib/python3.8/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
+  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
     traceback.print_stack(file=log)
-/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:905: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:905: UserWarning: 
 not found: GO:0030529
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "./src/transit.py", line 27, in <module>
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 166, in run_main
     main(args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 155, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
     Method.Run()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
     "Hits":self.Ontologizer()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 905, in Ontologizer
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 905, in Ontologizer
     logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/home/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
-  File "/usr/lib/python3.8/warnings.py", line 109, in _showwarnmsg
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/home/jeffhykin/.local/lib/python3.8/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
+  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
     traceback.print_stack(file=log)
-/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:905: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:905: UserWarning: 
 not found: GO:0015197
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "./src/transit.py", line 27, in <module>
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 165, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 166, in run_main
     main(args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/__main__.py", line 154, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 155, in main
     cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 419, in from_args
     Method.Run()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 468, in Run
     "Hits":self.Ontologizer()
-  File "/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 905, in Ontologizer
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 905, in Ontologizer
     logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/home/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/specific_tools/logging.py", line 43, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
-  File "/usr/lib/python3.8/warnings.py", line 109, in _showwarnmsg
+  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/home/jeffhykin/.local/lib/python3.8/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
+  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
     traceback.print_stack(file=log)
-/home/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:905: UserWarning: 
+/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:905: UserWarning: 
 not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
+[pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.1sec 

@@ -777,7 +777,7 @@ if True:
         font = wx.Font(10, family = wx.FONTFAMILY_MODERN, style=0, weight=90, underline=False, faceName="", encoding=wx.FONTENCODING_DEFAULT)
   
         run_button = GenButton(panel, id=wx.ID_ANY, label="Run", style=wx.NO_BORDER, size=(-1, -1))
-        run_button.SetBackgroundColour((244, 122, 116, 255))
+        run_button.SetBackgroundColour((78, 201, 176, 209))
         sizer.Add(10,20) # vertical padding
         sizer.Add(run_button, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=gui_tools.default_padding)
         
