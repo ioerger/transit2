@@ -2474,13 +2474,13 @@ class ProtTable:
             for line in file:
                 if line.startswith("#"):
                     continue
-                tmp = line.strip().split("\t")
-                orf = tmp[ProtTable.index_of_orf]
-                name = tmp[ProtTable.index_of_gene_name]
-                desc = tmp[0]
-                start = int(tmp[ProtTable.index_of_gene_start])
-                end = int(tmp[ProtTable.index_of_gene_end])
-                strand = tmp[ProtTable.index_of_gene_strand]
+                row           = line.strip().split("\t")
+                orf           = row[ProtTable.index_of_orf]
+                name          = row[ProtTable.index_of_gene_name]
+                desc          = row[0]
+                start         = int(row[ProtTable.index_of_gene_start])
+                end           = int(row[ProtTable.index_of_gene_end])
+                strand        = row[ProtTable.index_of_gene_strand]
                 orf2info[orf] = (name, desc, start, end, strand)
         return orf2info
 
@@ -2614,53 +2614,9 @@ class GffFile:
                     - end coordinate
                     - strand
         """
-        orf2info = {}
-        with open(path) as file:
-            for line in file:
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                chr = tmp[0]
-                type = tmp[2]
-                start = int(tmp[3])
-                end = int(tmp[4])
-                length = ((end - start + 1) / 3) - 1
-                strand = tmp[6]
-                features = dict(
-                    [
-                        tuple(f.split("=", 1))
-                        for f in filter(lambda x: "=" in x, tmp[8].split(";"))
-                    ]
-                )
-                # FIXME: check if this should also be using locus_tag
-                if "ID" not in features:
-                    continue
-                    # always skip if if not CDS
-                    # "gene" as gene name if it exists
-                    # "locus_tag" as orf id
-                    # "product" as gene description, could also be called "note"
-                # require: "locus_tag"
-                # require: type=="CDS"
-                # "gene"
-                # "product",
-                
-                orf = features["ID"]
-                name = features.get("Name", features.get("Gene Name","-")) # FIXME: "Name" can be pro
-                if name == "-":
-                    name = features.get("name", "-")
-
-                desc = features.get("Description", "-")
-                if desc == "-":
-                    desc = features.get("description", "-")
-                if desc == "-":
-                    desc = features.get("Desc", "-")
-                if desc == "-":
-                    desc = features.get("desc", "-")
-                if desc == "-":
-                    desc = features.get("product", "-")
-
-                orf2info[orf] = (name, desc, start, end, strand)
-        
+        gff_data = GffFile(path=path)
+        for description, start, end, strand, size, _, _, gene_name, orf_id, _ in gff_data.as_prot_table_rows:
+            orf2info[orf] = (gene_name, description, start, end, strand)
         return orf2info
     
     def as_prot_table_rows(self, allowed_types=["CDS"], max_row_length=max_number_of_columns):
