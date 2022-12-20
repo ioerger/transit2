@@ -229,7 +229,7 @@ Once that is done the command `python ./src/transit.py hello_world jeff` should 
 
 `LazyDict`: The only difference from `dict` is `a_dict["thing"] == a_dict.thing`. Its literally only used for simplifying syntax.
 
-`named_list`: slightly different, `named_list()` returns a CLASS.
+`named_list` is slightly different, `named_list()` returns a CLASS.
 It is most easily explained with an example:
 
 ```py
@@ -265,15 +265,16 @@ There are some smaller structures like `GffFile` and `Wig`, but they follow from
 
 ### CombinedWig
 
-Any time you want to work with `.comwig` files, this class is designed to handle all the boilerplate work.
+Any time you want to work with `.comwig` files, this class is designed to handle all the boilerplate work, such as:
 - normalizing
 - filtering out conditions
 - filtering out wig_ids
 - summing across conditions
-- data as a list of rows
-- data as a list of columns
-- data grouped by genes
-- data as a numpy array
+- getting insertions as a list of rows
+- getting insertions as a list of columns
+- getting a list of wig_fingerprints
+- getting insertions grouped by genes
+- getting insertions as a numpy array
 - etc
 
 Here's how a combined wig is created
@@ -365,7 +366,7 @@ CombinedWig objects are desiged to have a Metadata object if the paths is availa
 
 ### Metadata
 
-Creating a metadata object
+Here's how to create a metadata object:
 
 ```py
 metadata_obj = CombinedWigMetadata(path="path/to/file.metadata")
@@ -374,19 +375,20 @@ metadata_obj = CombinedWigMetadata(path="path/to/file.metadata")
 Here is reference of the available properties/methods:
 
 ```py
-metadata_obj.path
-metadata_obj.headers
+metadata_obj.path             # string or None (is None after .with_only() is called)
+metadata_obj.headers          # a list of strings that always (at least) includes:
+                              # [ "Condition", "Filename", "Id" ]
 metadata_obj.rows             # a list of named lists
 metadata_obj.conditions       # a list of Condition objects
 metadata_obj.condition_names  # a list of strings
 metadata_obj.wig_ids          # a list of strings
 metadata_obj.wig_fingerprints # a list of strings
-metadata_obj.with_only(condition_names=[])
-metadata_obj.with_only(wig_fingerprints=[])
-metadata_obj.condition_names_for(wig_fingerprint="")
-metadata_obj.condition_names_for(wig_id="")
-metadata_obj.id_for(wig_fingerprint="")
-metadata_obj.fingerprints_for(condition_name="")
+metadata_obj.with_only(condition_names=[])           # returns a CombinedWigMetadata obj
+metadata_obj.with_only(wig_fingerprints=[])          # returns a CombinedWigMetadata obj
+metadata_obj.condition_names_for(wig_fingerprint="") # returns a list of strings
+metadata_obj.condition_names_for(wig_id="")          # returns a list of strings
+metadata_obj.id_for(wig_fingerprint="")              # returns a string
+metadata_obj.fingerprints_for(condition_name="")     # returns a list of strings
 ```
 
 ### AnnotationFile
