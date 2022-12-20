@@ -1,2 +1,9 @@
-[gff_to_prot_table:Run()] Converting annotation file from GFF3 format to prot_table format 
-[gff_to_prot_table:Run()] Finished conversion 
+Traceback (most recent call last):
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 23, in <module>
+    import pytransit.__main__
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 8, in <module>
+    import pytransit.methods
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/__init__.py", line 1
+    import .anova
+           ^
+SyntaxError: invalid syntax

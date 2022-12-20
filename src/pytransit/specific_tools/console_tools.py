@@ -121,8 +121,7 @@ def clean_args(raw_args):
             else:
                 kwargs["--"+each_key] = each_value
                 kwargs["-"+each_key] = each_value
-    
-    kwargs = defaultdict(lambda :None, kwargs)
+            
     return (args, kwargs)
 
 def handle_help_flag(kwargs, usage_string):

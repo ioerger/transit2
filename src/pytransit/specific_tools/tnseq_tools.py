@@ -429,8 +429,8 @@ class CombinedWig:
         self.metadata.wig_ids
         self.metadata.wig_fingerprints
         self.metadata.with_only(condition_names=[], wig_fingerprints=[])
-        self.metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-        self.metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        self.metadata.condition_names_for(wig_fingerprint="")
+        self.metadata.condition_names_for(wig_id="")
         self.metadata.id_for(wig_fingerprint)
         self.metadata.fingerprints_for(condition_name)
     '''
