@@ -33,6 +33,7 @@ class Method:
     rows = []
     
     inputs = LazyDict(
+        input_type = None,
         input_file = None,
         associations_file = None,
         pathways_file = None,
@@ -519,21 +520,37 @@ class Method:
         file = open(self.inputs.input_file, 'r')
         Lines = file.readlines()
         comments = [line for line in Lines if line.startswith("#")]
-
+        
         genes, hits, standardized_headers= [], [], []
-        with open(filename) as file:
-            for line in file:
-                if line[0] == "#":
+        input_type = comments[0][1:]
+        if "GI" in input_type:
+            
+            pval_list, qval_list=[],[]
+            headers = comments[-1].split("\t")
+            if len (headers)>2:
+                standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
+                interactions_col = standardized_headers.index("Type Of Interaction")
+
+            
+        else:
+            with open(filename) as file:
+                for line in file:
+                    if line[0] == "#": continue
                     headers = comments[-1].split("\t")
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
-                        self.inputs.qval_col = standardized_headers.index("Adj P Value")
-                    continue
-                w = line.rstrip().split("\t")
-                genes.append(w)
-                qval = float(w[self.inputs.qval_col])
-                if qval < 0.05:
-                    hits.append(w[0])
+                        if "GI" in input_type: interactions_col = standardized_headers.index("Type Of Interaction")
+                        else: self.inputs.qval_col = standardized_headers.index("Adj P Value")
+                    w = line.rstrip().split("\t")
+                    genes.append(w)
+                    if "GI" in input_type:
+                        interaction = float(w[interactions_col])
+                        if "No Interaction" in interaction:
+                           hits.append(w[0]) 
+                    else:
+                        qval = float(w[self.inputs.qval_col])
+                        if qval < 0.05:
+                            hits.append(w[0])
         
         return genes, hits, standardized_headers
         # assume these are listed as pairs (tab-sep)
