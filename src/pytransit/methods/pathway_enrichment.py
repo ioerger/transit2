@@ -34,6 +34,7 @@ class Method:
     
     inputs = LazyDict(
         input_file = None,
+        input_type = None,
         associations_file = None,
         pathways_file = None,
         output_path= None,
@@ -449,42 +450,48 @@ class Method:
                         "Genes"
                     ]
             elif self.inputs.method == "GSEA":
-                up,down = self.GSEA()
-                #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
-                self.hit_summary = {
-                    "Sig Pathways": str(up) + " enriched;"+str(down) + " depleted",
-                }
-                file_output_type = Method.identifier+"_GSEA"
-                file_columns = [
-                        "Pathway",
-                        "Pathway Description",
-                        "Genes in Path", 
-                        "Mean Rank",
-                        "Enrichment Score" , 
-                        "P Value", 
-                        "Adj P Value", 
-                        "Genes"
-                    ]
+                if "GI" in self.inputs.input_type : 
+                    logging.log("GSEA cannot be run with a GI output")
+                else:
+                    up,down = self.GSEA()
+                    #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
+                    self.hit_summary = {
+                        "Sig Pathways": str(up) + " enriched;"+str(down) + " depleted",
+                    }
+                    file_output_type = Method.identifier+"_GSEA"
+                    file_columns = [
+                            "Pathway",
+                            "Pathway Description",
+                            "Genes in Path", 
+                            "Mean Rank",
+                            "Enrichment Score" , 
+                            "P Value", 
+                            "Adj P Value", 
+                            "Genes"
+                        ]
             elif self.inputs.method == "ONT":
-                self.hit_summary = {
-                    "Sig Pathways":self.Ontologizer()
-                }
-                file_output_type = Method.identifier+"_ONT"
-                file_columns = [
-                        "Pathway",
-                        "Total Genes", 
-                        "Genes In Path",
-                        "Significant Genes",
-                        "Significent Genes In Path",
-                        "Expected", 
-                        "K Plus PC",
-                        "Number Adjusted By PC",
-                        "Enrichment" , 
-                        "P Value", 
-                        "Adj P Value", 
-                        "Description", 
-                        "Genes"
-                    ]
+                if "GI" in self.inputs.input_type : 
+                    logging.log("ONT cannot be run with a GI output")
+                else:
+                    self.hit_summary = {
+                        "Sig Pathways":self.Ontologizer()
+                    }
+                    file_output_type = Method.identifier+"_ONT"
+                    file_columns = [
+                            "Pathway",
+                            "Total Genes", 
+                            "Genes In Path",
+                            "Significant Genes",
+                            "Significent Genes In Path",
+                            "Expected", 
+                            "K Plus PC",
+                            "Number Adjusted By PC",
+                            "Enrichment" , 
+                            "P Value", 
+                            "Adj P Value", 
+                            "Description", 
+                            "Genes"
+                        ]
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
@@ -524,8 +531,8 @@ class Method:
         comments = [line for line in Lines if line.startswith("#")]
         
         genes, hits, standardized_headers= [], [], []
-        input_type = comments[0][1:]
-        if "GI" in input_type:
+        self.inputs.input_type = comments[0][1:]
+        if "GI" in self.inputs.input_type:
             
             pval_list, qval_list=[],[]
             headers = comments[-1].split("\t")
@@ -541,11 +548,11 @@ class Method:
                     headers = comments[-1].split("\t")
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
-                        if "GI" in input_type: interactions_col = standardized_headers.index("Type Of Interaction")
+                        if "GI" in self.inputs.input_type: interactions_col = standardized_headers.index("Type Of Interaction")
                         else: self.inputs.qval_col = standardized_headers.index("Adj P Value")
                     w = line.rstrip().split("\t")
                     genes.append(w)
-                    if "GI" in input_type:
+                    if "GI" in self.inputs.input_type:
                         interaction = float(w[interactions_col])
                         if "No Interaction" in interaction:
                            hits.append(w[0]) 
