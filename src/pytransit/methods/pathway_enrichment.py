@@ -49,8 +49,8 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-       # "-p-val-col",
-       # "-q-val-col",
+        #"-p-val-col",
+        #"-q-val-col",
         "-ranking",
        # "-LFC-col",
         "-p",
@@ -101,7 +101,6 @@ class Method:
     def call_from_results_panel(self, results_file):
         self.inputs.input_file = results_file
         self.define_panel()
-        self.inputs.input_file = None #allows input of own file when method selected from dropdown
 
 
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
@@ -495,6 +494,7 @@ class Method:
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
+            self.inputs.input_file = None
         
         # 
         # write output
@@ -549,7 +549,10 @@ class Method:
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
                         if "GI" in self.inputs.input_type: interactions_col = standardized_headers.index("Type Of Interaction")
-                        else: self.inputs.qval_col = standardized_headers.index("Adj P Value")
+                        else: 
+                            self.inputs.pval_col = standardized_headers.index("P Value")
+                            self.inputs.qval_col = standardized_headers.index("Adj P Value")
+                            self.inputs.lfc_col = standardized_headers.index("Log 2 FC")
                     w = line.rstrip().split("\t")
                     genes.append(w)
                     if "GI" in self.inputs.input_type:
