@@ -33,7 +33,6 @@ class Method:
     rows = []
     
     inputs = LazyDict(
-        input_type = None,
         input_file = None,
         associations_file = None,
         pathways_file = None,
@@ -101,6 +100,8 @@ class Method:
     def call_from_results_panel(self, results_file):
         self.inputs.input_file = results_file
         self.define_panel()
+        self.inputs.input_file = None #allows input of own file when method selected from dropdown
+
 
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
         import csv
@@ -513,6 +514,7 @@ class Method:
         )
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
         results_area.add(self.inputs.output_path)
+        
         
     def read_input_file(self, filename):
         import pandas as pd
