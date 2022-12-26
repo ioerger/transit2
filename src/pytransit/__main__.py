@@ -28,6 +28,7 @@ def main(args, kwargs):
     # GUI Mode
     # 
     if not args:
+        import pytransit.specific_tools.console_tools as console_tools
         # Tried GUI but no wxPython
         if not console_tools.check_if_has_wx():
             print("Please install wxPython to run in GUI Mode. (pip install wxPython)")

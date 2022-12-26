@@ -19,8 +19,6 @@ from pytransit.components.parameter_panel import progress_update, set_instructio
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import misc, csv, informative_iterator
 
-from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
-
 @misc.singleton
 class Method:
     name = "Anova"
@@ -495,6 +493,8 @@ class File:
         return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
+        from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
+        
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
