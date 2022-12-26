@@ -2409,12 +2409,12 @@ class AnnotationFile:
         filename, file_extension = os.path.splitext(path)
         file_extension = file_extension.lower()
         self.path = path
-        if file_extension in [".gff", ".gff3"]:
+        if file_extension in GffFile.file_extensions:
             self.orf_to_info = {
                 key : AnnotationFile.Info(value)
                     for key, value in GffFile.extract_gene_info(path).items()
             }
-        elif file_extension in [".prot_table"]:
+        elif file_extension in ProtTable.file_extensions:
             self.orf_to_info = {
                 key : AnnotationFile.Info(value)
                     for key, value in ProtTable.extract_gene_info(path).items()
@@ -2450,6 +2450,7 @@ class ProtTable:
     index_of_gene_strand = 3
     index_of_gene_name   = 7
     index_of_orf         = 8
+    file_extensions = [".prot_table"]
     
     @staticmethod
     def extract_gene_info(path):
@@ -2477,7 +2478,7 @@ class ProtTable:
                 row           = line.strip().split("\t")
                 orf           = row[ProtTable.index_of_orf]
                 name          = row[ProtTable.index_of_gene_name]
-                desc          = row[0]
+                desc          = row[ProtTable.index_of_description]
                 start         = int(row[ProtTable.index_of_gene_start])
                 end           = int(row[ProtTable.index_of_gene_end])
                 strand        = row[ProtTable.index_of_gene_strand]
@@ -2499,6 +2500,7 @@ class GffFile:
         'phase',      # One of '0', '1' or '2'. '0' indicates that the first base of the feature is the first base of a codon, '1' that the second base is the first base of a codon, and so on..
         'attributes', # A semicolon-separated list of tag-value pairs, providing additional information about each feature. Some of these tags are predefined, e.g. ID, Name, Alias, Parent - see the GFF documentation for more details.
     ))
+    file_extensions = [".gff", ".gff3"]
     max_number_of_columns = 9
     
     seqid_index      = 0

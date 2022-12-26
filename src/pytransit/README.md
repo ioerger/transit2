@@ -239,9 +239,9 @@ NOTE: This does mean, if a command is renamed, you'll have to remember to rename
 
 ### Running a Hello World: Folder Structure
 
-The most important part of the folder structure will look like this:
+The most important part of the folder structure for a hello world will be this:
 
-```
+```sh
 __main__.py
 globals.py
 transit_cli.py
@@ -253,13 +253,19 @@ methods/
     hello_world.py
 ```
 
+We've covered `__main__.py`, `globals.py`, `transit_cli.py`, `transit_gui.py` in the sections above, and "specific_tools VS generic_tools" was given its own section above, so `methods/` is the last thing we need to cover for a hello_world.
+
 For a proper `hello_world` command we need to do two things.
 1. Create `methods/hello_world.py`
 2. Add `from .hello_world import *` to the `methods/__init__.py` file
 
-Once that is done the command `python ./src/transit.py hello_world jeff` should print out `Hello jeff`
+Once that is done, the command `python ./src/transit.py hello_world jeff` should print out `Hello jeff`
+
+There's a bit more to the folder structure, but we'll cover that after we talk about data and GUI tooling.
 
 ## How to Manipulate Data: The Data Structures
+
+After skimming the generic structures, if you have input data (ex: Gff file) structure feel free to skip to particular sections.
 
 #### Two generic structures: `LazyDict` and `named_list`
 
@@ -430,9 +436,54 @@ metadata_obj.id_for(wig_fingerprint="")              # returns a string
 metadata_obj.fingerprints_for(condition_name="")     # returns a list of strings
 ```
 
-### AnnotationFile
+### AnnotationFile (Gff & Prot Table)
 
-TODO:
+#### How to create the object
+
+```py
+annotation = AnnotationFile(path="./somewhere.gff3")
+annotation = AnnotationFile(path="./somewhere.prot_table")
+```
+
+This class looks at the file extension, and if its neither gff or prot_table then it throws an error explaining what extension is required.
+
+#### Available attributes and methods
+
+```py
+# the original filepath 
+annotation.path 
+
+# getting descriptions
+description = annotation.gene_description(orf_id="Rv0001", fallback_value="-")
+# NOTE: if ORF doesnt exist there is NO ERROR, just fallback_value
+# if fallback_value is not given the default value is None rather than a string
+
+# 
+# a dictionary of named-lists 
+# 
+annotation.orf_to_info
+# example access:
+annotation.orf_to_info["Rv0001"].name
+annotation.orf_to_info["Rv0001"].description
+annotation.orf_to_info["Rv0001"].start_coordinate
+annotation.orf_to_info["Rv0001"].end_coordinate
+annotation.orf_to_info["Rv0001"].strand
+# example 2 access:
+name, description, start_coordinate, end_coordinate, strand = annotation.orf_to_info["Rv0001"]
+
+# 
+# a list of dictionaries 
+# 
+# unnecessary? yes, it would be nice to remove this but it
+#              was created when consolidating duplicated code
+annotation.as_list_of_dicts
+# each dictionary has the following keys:
+#     "start"
+#     "end"
+#     "rv"
+#     "gene"
+#     "strand"
+```
 
 ### Gene
 
@@ -443,6 +494,55 @@ TODO:
 TODO:
 
 ## Editing a GUI method
+
+Lets start with trying to edit `methods/resampling.py`
+
+Ideally each analysis method has 4 member functions:
+- `output()` this does all the computation, its the main function and usually writes to file
+- `from_args()` converts CLI args, then calls the `ouput()` function using those args
+- `define_panel()` creates/defines the GUI components
+- `from_gui()` grabs data from the GUI, then calls the `ouput()` function using that data
+
+Sometimes there is also a `compute()` which is reserved for pure computation (does not write any output files). This is especially useful for something such as normalization which so that other methods can use the `compute` function without creating side effects.
+
+All of these are not programmatically necessary, but are a helpful convention.
+
+Here's what a skeleton might look like
+
+```py
+@misc.singleton
+class Method:
+    
+    # Just like the hello world tutorial 
+    @staticmethod
+    @cli.add_command("cli_name")
+    def from_args(args, kwargs):
+        Method.output(
+            annotation_path=args[0],
+            should_normalize=kwargs["normalize"],
+        )
+    
+    # What happens when menu method is clicked
+    @gui.add_menu("Method", "menu_name")
+    def define_panel(event):
+        ...
+        # IMPORTANT: connects "from_gui" to the run button
+        panel_helpers.create_run_button(panel, main_sizer, from_gui_function=Method.from_gui)
+    
+    # What happens when run button is clicked
+    @staticmethod
+    def from_gui(frame):
+        # use panel_helpers to grab data 
+        generic_args = GUI_SPECIFIC_STUFF()
+        Method.output(generic_args)
+        
+    # the core function (writes to an output file)
+    def output(*, arg1=None, arg2=None):
+        # (seems round-about but I promise this style of setting defaults is not frivolous )
+        arg1 = arg1 if arg1 is not None else "default value"
+        arg2 = arg2 if arg2 is not None else "default value"
+        ...
+```
 
 TODO: convention:
     from_args
@@ -457,3 +557,19 @@ TODO:
 - result files
 
 ## Testing
+
+TODO
+
+## Documentation
+
+- Most things get documented inside the code (docstring)
+- Tutorials for developers are added to this document
+- TODO: 
+
+## Where is Everything: Folder Structure
+
+- `./data` 
+- `./data/NAME.transit` 
+- `./testing/cli_tests/001_THING.sh` 
+- `./commands` 
+- `./doc` 
