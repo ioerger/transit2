@@ -1,24 +1,18 @@
 #Anova
 #yaml:
-#    date: 2022-12-26 14:24:24
+#    date: 2022-12-26 14:56:23
 #    transit_version: v3.2.6
 #    app_or_command_line: app
 #    console_command: transit 
 #    parameters:
-#       conditions_list:
-#       - Cholesterol
-#       - Glycerol
+#       conditions_list: [Cholesterol, Glycerol]
 #       normalization: TTR
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5.0
 #       alpha: 1000
 #       refs: []
-#    mean_columns:
-#    - Mean Cholesterol
-#    - Mean Glycerol
-#    lfc_columns:
-#    - Log 2 FC Cholesterol
-#    - Log 2 FC Glycerol
+#    mean_columns: [Mean Cholesterol, Mean Glycerol]
+#    lfc_columns: [Log 2 FC Cholesterol, Log 2 FC Glycerol]
 #    summary_info:
 #       Hits: '25'
 #    

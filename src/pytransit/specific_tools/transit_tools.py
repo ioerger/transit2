@@ -203,12 +203,26 @@ if True:
         ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
         extra_info = extra_info or {}
         
+        original_function = ez_yaml.yaml.representer.represent_sequence
+        def my_represent_sequence(*args, **kwargs):
+            if len(args) >= 2:
+                tag, data, *_ = args
+                if isinstance(data, (tuple, list)):
+                    # if all primitives
+                    if not any(isinstance(each, (tuple,list,dict)) for each in data):
+                        # set the format
+                        kwargs["flow_style"] = True
+            return original_function(*args, **kwargs)
+
+        ez_yaml.yaml.representer.represent_sequence = my_represent_sequence
+        options = dict()
+
         yaml_string = ""
         try:
-            yaml_string = ez_yaml.to_string(extra_info)
+            yaml_string = ez_yaml.to_string(extra_info, options=options)
         except Exception as error:
             try:
-                yaml_string = ez_yaml.to_string(to_pure(extra_info))
+                yaml_string = ez_yaml.to_string(to_pure(extra_info), options=options)
             except Exception as error:
                 raise Exception(f'''There was an issue with turning this value (or its contents) into a yaml string: {extra_info}''')
         
