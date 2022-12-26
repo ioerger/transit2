@@ -196,7 +196,46 @@ This will work for both:
 
 ### CLI tooling: The Order of Listed Commands
 
-TODO: example of globals.py
+Lets say we want 'hello_world' to be the first command shown whenever the list of of all commands is printed.
+The default order is the order they are imported (mostly inside the `methods/__init__.py` file)
+
+However, there is a more direct way to control the order, and to use that we would up the `globals.py` file, and find this part:
+
+```py
+@singleton
+class cli:
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code"
+    }
+```
+
+Editing it to look something like this will make the `hello_world` command be listed first.
+
+```py
+@singleton
+class cli:
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code",
+    }
+```
+
+If we had subcommands, such as `export hello_world` then we would could change there order like this:
+
+```py
+@singleton
+class cli:
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
+        ("export", "hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code",
+    }
+```
+
+NOTE: This does mean, if a command is renamed, you'll have to remember to rename it here as well.
 
 ### Running a Hello World: Folder Structure
 
