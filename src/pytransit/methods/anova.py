@@ -14,7 +14,7 @@ from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import misc, csv, informative_iterator
