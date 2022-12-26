@@ -181,42 +181,6 @@ class Method:
         # 
         wig_fingerprints = tnseq_tools.filepaths_to_fingerprints(self.inputs.ctrldata)
         
-        # 
-        # Stats per wig
-        # 
-        from pytransit.methods.tnseq_stats import Method as tnseq_stats
-        logging.log("Generating stats")
-        stats = LazyDict()
-        for wig_file_index, each_wig_fingerprint in enumerate(wig_fingerprints):
-            wig_insertion_counts = read_counts_at_position_for_wig[wig_file_index, :]
-            
-            (
-                density,
-                mean_read,
-                non_zero_mean_read,
-                non_zero_median_read,
-                max_read,
-                total_read,
-                skew,
-                kurtosis,
-            ) = tnseq_tools.get_data_stats(wig_insertion_counts)
-            
-            import ez_yaml
-            import sys
-            ez_yaml.yaml.version = None
-            ez_yaml.yaml.width = sys.maxint if hasattr(sys, "maxint") else sys.maxsize
-            stats[each_wig_fingerprint] = ez_yaml.to_string(dict(
-                density=float(density),
-                mean_read=float(mean_read),
-                non_zero_mean_read=float(non_zero_mean_read),
-                non_zero_median_read= 0 if numpy.isnan(non_zero_median_read) else int(non_zero_median_read),
-                max_read=int(max_read),
-                total_read=int(total_read),
-                skew=float(skew),
-                kurtosis=float(kurtosis),
-                pickands_tail_index=float(tnseq_stats.pickands_tail_index(wig_insertion_counts)),
-            )).replace("\n", ", ").strip()
-        
         #
         # Write to output
         #
@@ -238,7 +202,6 @@ class Method:
                     wig_fingerprints=wig_fingerprints,
                 ),
                 **extra_info,
-                "stats": dict(stats),
             },
         )
 
