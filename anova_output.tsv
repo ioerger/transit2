@@ -1,9 +1,10 @@
 #Anova
 #yaml:
-#    date: 2022-12-26 14:56:23
+#    date: 2022-12-26 15:27:36
 #    transit_version: v3.2.6
 #    app_or_command_line: app
 #    console_command: transit 
+#    calculation_time: 2.8seconds
 #    parameters:
 #       conditions_list: [Cholesterol, Glycerol]
 #       normalization: TTR

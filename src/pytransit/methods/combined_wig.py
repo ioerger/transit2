@@ -196,7 +196,6 @@ class Method:
             ],
             extra_info={
                 **dict(
-                    time=(time.time() - start_time),
                     normalization=self.inputs.normalization,
                     annotation=os.path.basename(self.inputs.annotation_path),
                     wig_fingerprints=wig_fingerprints,
