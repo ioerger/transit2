@@ -228,8 +228,7 @@ if True:
                 f"    date: {todays_date}",
                 f"    transit_version: {pytransit.__version__}",
                 f"    app_or_command_line: {'app' if gui.is_active else 'command_line'}",
-                f"    console_command: |",
-                indent(console_tools.full_commandline_command, by="        "),
+                f"    console_command: {console_tools.full_commandline_command}",
                 indent(yaml_string, by="    "),
                 "\t".join(column_names) # column names always last
             ],
