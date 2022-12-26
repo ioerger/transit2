@@ -78,7 +78,7 @@ class Method:
             self.value_getters = LazyDict()
             self.value_getters.input_path        = panel_helpers.create_file_input(  panel, main_sizer, button_label=f"Select {Method.prev_menu_choice} file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.q_value_threshold = panel_helpers.create_float_getter(panel, main_sizer, label_text="Adj P Value Cutoff", default_value=Method.defaults.q_value_threshold, tooltip_text="Change adjusted p-value threshold for selecting genes")
-            self.value_getters.top_k             = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Top K",              default_value=Method.defaults.top_k,             tooltip_text="Select top k genes ranked by significance (adjusted pval)")
+            self.value_getters.top_k             = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Top K",              default_value=Method.defaults.top_k,             tooltip_text="(-1 means all) Sometimes there are so many genes it is hard to see the heatmap top genes. This allows limiting to the top K genes (ranked by significance; adjusted p-value)")
             self.value_getters.low_mean_filter   = panel_helpers.create_float_getter(panel, main_sizer, label_text="Low Mean Filter",    default_value=Method.defaults.low_mean_filter,   tooltip_text="Filter out genes with grand mean count (across all conditions) below this threshold (even if adjusted p-value < 0.05)")
             
     @staticmethod
