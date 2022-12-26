@@ -33,14 +33,15 @@ class Method:
     rows = []
     
     inputs = LazyDict(
-        resampling_file = None,
+        input_file = None,
+        input_type = None,
         associations_file = None,
         pathways_file = None,
         output_path= None,
         organism_pathway = None,
-        pval_col = -2,
-        qval_col = -1,
-        lfc_col = 6,
+        #pval_col = -2,
+        #qval_col = -1,
+        #lfc_col = 6,
         num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
         pseudocount = 2
@@ -48,10 +49,10 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        "-p-val-col",
-        "-q-val-col",
+        #"-p-val-col",
+        #"-q-val-col",
         "-ranking",
-        "-LFC-col",
+       # "-LFC-col",
         "-p",
         "-n-perm",
         "-PC"
@@ -63,7 +64,7 @@ class Method:
 
     usage_string = f"""
         Usage 1: # -M FET for Fisher's Exact Test (default)
-            {console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> -M FET [Optional Arguments]
+            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M FET [Optional Arguments]
             
             Optional Arguments:
                 -PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: -PC 2
@@ -73,10 +74,10 @@ class Method:
         
         Usage 2:
             # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
-            {console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> -M GSEA [Optional Arguments]
+            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M GSEA [Optional Arguments]
             
             Optional Arguments:
-                -ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from resampling. Default -ranking SLPV
+                -ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default -ranking SLPV
                 -p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
                 -n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default -n-perm 10000
                 -p-val-col <int>       := column index (starting at 0) for p-val
@@ -85,7 +86,7 @@ class Method:
             
         Usage 3:
             # ONT for Ontologizer (Grossman et al, 2007)
-            {console_tools.subcommand_prefix} pathway_enrichment <resampling_file> <associations> <pathways> <output_file> -M ONT [Optional Arguments]
+            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M ONT [Optional Arguments]
             
             Optional Arguments:
                 -p-val-col <int>       := column index (starting at 0) for p-val
@@ -98,8 +99,9 @@ class Method:
         Method.define_panel(event)
     
     def call_from_results_panel(self, results_file):
-        self.inputs.resampling_file = results_file
+        self.inputs.input_file = results_file
         self.define_panel()
+
 
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
         import csv
@@ -259,13 +261,13 @@ class Method:
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
-                Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step to the hits identified by a comparative analysis, such as resampling. Several analytical method are provided: Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. 
+                Pathway Enrichment Analysis provides a method to identify enrichment of functionally-related genes among those that are conditionally essential (i.e. significantly more or less essential between two conditions). The analysis is typically applied as post-processing step to the hits identified by a comparative analysis, such as input. Several analytical method are provided: Fisher’s exact test (FET, hypergeometric distribution), GSEA (Gene Set Enrichment Analysis) by Subramanian et al (2005), and Ontologizer. 
 
 
-                    1. If you have selected this method from the menu bar, ensure you select a resampling file from the Select 
+                    1. If you have selected this method from the menu bar, ensure you select a input file from the Select 
                        Input File button below
 
-                    2. Add in Associaiton/Pathway Information
+                    2. Add in Association/Pathway Information
                         a. Choose from one of our provided associations and pathways using the "Select from Provided Files" OR
                         b. Select your own using the Select Custom Associations and Select Custom Pathways Buttons
 
@@ -280,10 +282,10 @@ class Method:
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function = self.from_gui)
             self.value_getters = LazyDict()
 
-            if Method.inputs.resampling_file == None:
-                self.value_getters.resampling_file = panel_helpers.create_file_input(panel, main_sizer, 
-                    button_label="Select Resampling File", 
-                    tooltip_text="The resampling file is the one obtained after using the resampling method in Transit. (It is a tab separated file with 11 columns.) GSEA method makes usage of the last column (adjusted P-value)", 
+            if Method.inputs.input_file == None:
+                self.value_getters.input_file = panel_helpers.create_file_input(panel, main_sizer, 
+                    button_label="Select Input File", 
+                    tooltip_text="The input file is the one obtained after using an comparitive analysis method in Transit that provides significance. GSEA method makes usage of adjusted P-value column", 
                     popup_title="Select File with Hits",
                     allowed_extensions='All files (*.*)|*.*'
                 )
@@ -303,12 +305,12 @@ class Method:
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Ranking",
                 options= ["SLPV", "LFC"],
-                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling"
+                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from input"
             )
 
-            self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="Column index with raw P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)")
-            self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="Column index with adjusted P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)")
-            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
+            #self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="Column index with raw P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)")
+            #self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="Column index with adjusted P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)")
+            #self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
@@ -387,7 +389,7 @@ class Method:
         # 
         # validate input files have been selected
         # 
-        assert Method.inputs.resampling_file != None, "Please select a resampling file"
+        assert Method.inputs.input_file != None, "Please select a input file"
         assert Method.inputs.associations_file != None, "Please select an associations file from the pre-provided options or upload your own"
         assert Method.inputs.pathways_file != None, "Please select a pathways file from the pre-provided options or upload your own"
 
@@ -402,7 +404,7 @@ class Method:
 
         # save the data
         Method.inputs.update(dict(
-            resampling_file = args[0],
+            input_file = args[0],
             associations_file = args[1],
             pathways_file = args[2],
             output_path=args[3],
@@ -428,7 +430,7 @@ class Method:
             #checking validation of inputs
             if self.inputs.method == "FET":
                 self.hit_summary = {
-                    "Hits":self.fisher_exact_test()
+                    "Sig Pathways":self.fisher_exact_test()
                 }
                 file_output_type = Method.identifier+"_FET"
                 file_columns = [
@@ -447,45 +449,52 @@ class Method:
                         "Genes"
                     ]
             elif self.inputs.method == "GSEA":
-                up,down = self.GSEA()
-                #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
-                self.hit_summary = {
-                    "Hits": str(up) + " enriched;"+str(down) + " depleted",
-                }
-                file_output_type = Method.identifier+"_GSEA"
-                file_columns = [
-                        "Pathway",
-                        "Pathway Description",
-                        "Genes in Path", 
-                        "Mean Rank",
-                        "Enrichment Score" , 
-                        "P Value", 
-                        "Adj P Value", 
-                        "Genes"
-                    ]
+                if "GI" in self.inputs.input_type : 
+                    logging.log("GSEA cannot be run with a GI output")
+                else:
+                    up,down = self.GSEA()
+                    #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
+                    self.hit_summary = {
+                        "Sig Pathways": str(up) + " enriched;"+str(down) + " depleted",
+                    }
+                    file_output_type = Method.identifier+"_GSEA"
+                    file_columns = [
+                            "Pathway",
+                            "Pathway Description",
+                            "Genes in Path", 
+                            "Mean Rank",
+                            "Enrichment Score" , 
+                            "P Value", 
+                            "Adj P Value", 
+                            "Genes"
+                        ]
             elif self.inputs.method == "ONT":
-                self.hit_summary = {
-                    "Hits":self.Ontologizer()
-                }
-                file_output_type = Method.identifier+"_ONT"
-                file_columns = [
-                        "Pathway",
-                        "Total Genes", 
-                        "Genes In Path",
-                        "Significant Genes",
-                        "Significent Genes In Path",
-                        "Expected", 
-                        "K Plus PC",
-                        "Number Adjusted By PC",
-                        "Enrichment" , 
-                        "P Value", 
-                        "Adj P Value", 
-                        "Description", 
-                        "Genes"
-                    ]
+                if "GI" in self.inputs.input_type : 
+                    logging.log("ONT cannot be run with a GI output")
+                else:
+                    self.hit_summary = {
+                        "Sig Pathways":self.Ontologizer()
+                    }
+                    file_output_type = Method.identifier+"_ONT"
+                    file_columns = [
+                            "Pathway",
+                            "Total Genes", 
+                            "Genes In Path",
+                            "Significant Genes",
+                            "Significent Genes In Path",
+                            "Expected", 
+                            "K Plus PC",
+                            "Number Adjusted By PC",
+                            "Enrichment" , 
+                            "P Value", 
+                            "Adj P Value", 
+                            "Description", 
+                            "Genes"
+                        ]
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
+            self.inputs.input_file = None
         
         # 
         # write output
@@ -513,21 +522,47 @@ class Method:
         logging.log(f"Finished {Method.identifier} analysis in {time.time() - start_time:0.1f}sec")
         results_area.add(self.inputs.output_path)
         
-    def read_resampling_file(self, filename):
-        logging.log("Reading in Resampling File", filename)
+        
+    def read_input_file(self, filename):
+        import pandas as pd
+        logging.log("Reading in Input File", filename)
+        file = open(self.inputs.input_file, 'r')
+        Lines = file.readlines()
+        comments = [line for line in Lines if line.startswith("#")]
+        
         genes, hits, standardized_headers= [], [], []
-        with open(filename) as file:
-            for line in file:
-                if line[0] == "#":
-                    headers = line.split("\t")
+        self.inputs.input_type = comments[0][1:]
+        if "GI" in self.inputs.input_type:
+            
+            pval_list, qval_list=[],[]
+            headers = comments[-1].split("\t")
+            if len (headers)>2:
+                standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
+                interactions_col = standardized_headers.index("Type Of Interaction")
+
+            
+        else:
+            with open(filename) as file:
+                for line in file:
+                    if line[0] == "#": continue
+                    headers = comments[-1].split("\t")
                     if len (headers)>2:
                         standardized_headers = [misc.pascal_case_with_spaces(col) for col in headers]
-                    continue
-                w = line.rstrip().split("\t")
-                genes.append(w)
-                qval = float(w[self.inputs.qval_col])
-                if qval < 0.05:
-                    hits.append(w[0])
+                        if "GI" in self.inputs.input_type: interactions_col = standardized_headers.index("Type Of Interaction")
+                        else: 
+                            self.inputs.pval_col = standardized_headers.index("P Value")
+                            self.inputs.qval_col = standardized_headers.index("Adj P Value")
+                            self.inputs.lfc_col = standardized_headers.index("Log 2 FC")
+                    w = line.rstrip().split("\t")
+                    genes.append(w)
+                    if "GI" in self.inputs.input_type:
+                        interaction = float(w[interactions_col])
+                        if "No Interaction" in interaction:
+                           hits.append(w[0]) 
+                    else:
+                        qval = float(w[self.inputs.qval_col])
+                        if qval < 0.05:
+                            hits.append(w[0])
         
         return genes, hits, standardized_headers
         # assume these are listed as pairs (tab-sep)
@@ -543,7 +578,7 @@ class Method:
                     continue
                 w = line.rstrip().split("\t")
                 if filter != None and w[0] not in filter:
-                    continue  # skip genes in association file that are not relevant (i.e. not in resampling file)
+                    continue  # skip genes in association file that are not relevant (i.e. not in input file)
                 # store mappings in both directions
                 for (a, b) in [(w[0], w[1]), (w[1], w[0])]:
                     if a not in associations:
@@ -601,19 +636,19 @@ class Method:
         n2 = len(orfs2ranks.keys()) / 2
         return round(numpy.mean([orfs2ranks.get(x, n2) for x in A]), 1)
 
-    # during initialization, self.inputs.resampling_file etc have been set, and self.inputs.output_path has been opened
+    # during initialization, self.inputs.input_file etc have been set, and self.inputs.output_path has been opened
     
     def GSEA(self):  
         logging.log("Running GSEA")
-        data, hits, headers = self.read_resampling_file(
-            self.inputs.resampling_file
+        data, hits, headers = self.read_input_file(
+            self.inputs.input_file
         )  # hits are not used in GSEA()
-        orfs_in_resampling_file = [w[0] for w in data]
+        orfs_in_input_file = [w[0] for w in data]
         headers = headers[-1].rstrip().split("\t")  # last line prefixed by '#'
         associations = self.read_associations(
-            self.inputs.associations_file, filter=orfs_in_resampling_file
+            self.inputs.associations_file, filter=orfs_in_input_file
         )  # bidirectional map; includes term->genelist and gene->termlist
-        # filter: project associations (of orfs to pathways) onto only those orfs appearing in the resampling file
+        # filter: project associations (of orfs to pathways) onto only those orfs appearing in the input file
 
         ontology = self.read_pathways(self.inputs.pathways_file)
         gene_names = {}
@@ -725,7 +760,7 @@ class Method:
     # scipy.stats.hypergeom.sf() is survival function (1-cdf), so only enriched genes will be significant
     # M = all genes
     # n = category members overall
-    # N = sample size (resampling hits)
+    # N = sample size (input hits)
     # k = number of hits in category (intersection)
 
     def fisher_exact_test(self):
@@ -733,8 +768,8 @@ class Method:
         import scipy.stats
         
         
-        genes, hits, headers = self.read_resampling_file(
-            self.inputs.resampling_file
+        genes, hits, headers = self.read_input_file(
+            self.inputs.input_file
         )  # use self.inputs.qval_col to determine hits
         if len(hits) > 1:
 
@@ -742,7 +777,7 @@ class Method:
             pathways = self.read_pathways(self.inputs.pathways_file)
 
             # how many genes are there, and how many have associations?
-            # how many genes in associations are not listed in resampling file?
+            # how many genes in associations are not listed in input file?
             # do all associations have a definition in pathways?
             # how many pathways have >1 gene? (out of total?) what is max?
 
@@ -778,7 +813,7 @@ class Method:
             for term in goodterms:
                 n = len(associations[term])  # number of pathway members overall
                 M = len(genes)  # total genes
-                N = len(hits)  # number of resampling hits
+                N = len(hits)  # number of input hits
                 intersection = list(filter(lambda x: x in associations[term], hits))
                 k = len(intersection)
                 # add pseudo-counts
@@ -905,11 +940,17 @@ class Method:
                 logging.warn("not found: %s" % go)  # also indicate which gene?
 
         # could use class method, but would have to adapt it:
-        # genes,hits,headers = self.read_resampling_file(self.inputs.resampling_file)
+        # genes,hits,headers = self.read_input_file(self.inputs.input_file)
 
         genes, pvals = {}, []
         allorfs, studyset = [], []
-        with open(self.inputs.resampling_file) as file:
+        with open(self.inputs.input_file) as file:
+            file = open(self.inputs.input_file, 'r')
+            Lines = file.readlines()
+            comments = [line for line in Lines if line.startswith("#")]
+            headers = comments[-1].split("\t")
+            self.qval_col = headers.index("Adj P Value")
+            self.pval_col = headers.index("P Value")
             for line in file:
                 if line[0] == "#":
                     continue
@@ -925,7 +966,7 @@ class Method:
         ranks = {}
         for i, (rv, pval) in enumerate(pvals):
             ranks[rv] = i + 1
-        #self.rows.append("# number of resampling hits (qval<0.05): %s" % len(studyset))
+        #self.rows.append("# number of input hits (qval<0.05): %s" % len(studyset))
         counts = []
         n, a = len(allorfs), len(studyset)
         for go in go2rvs.keys():

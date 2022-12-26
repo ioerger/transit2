@@ -26,6 +26,8 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
 
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
+
 @misc.singleton
 class Method:
     name = "Genetic Interaction"
@@ -654,7 +656,7 @@ class Method:
             extra_info=dict(
                 time = (time.time() - self.start_time),
 
-                Parameters= dict(
+                parameters= dict(
                     Normalization_Of_Counts= self.inputs.normalization,
                     Number_Of_Samples_For_Monte_Carlo = str(self.inputs.samples),
                     Trimming_Of_TA_Sites = dict(
@@ -715,7 +717,9 @@ class ResultFileType1:
                     title=Method.description,
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
-                    rows=self.rows).Show(),
+                    rows=self.rows
+                    ).Show(),
+                    "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         
