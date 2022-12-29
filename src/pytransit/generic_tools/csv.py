@@ -173,7 +173,10 @@ def write(path=None, *, rows=tuple(), column_names=tuple(), seperator=",", eol="
                 # no need for quoting
                 return element
         # all other values are stored in json format
-        return json.dumps(element)
+        try:
+            return json.dumps(element)
+        except Exception as error:
+            return f"{element}"
     
     def break_up_comments(comments):
         for each in comments:
