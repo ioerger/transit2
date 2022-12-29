@@ -15,7 +15,7 @@ that reflects whether there is a significant difference in the ranks.
 The results (genes with adjusted P-value<0.05) should be similar to what
 you get with resampling.
 The advantage of this method is that it is less sensitive to outliers
-(a unusually high insertion count at just a single TA site).
+(e.g an unusually high insertion count at just a single TA site).
 A reference for this method is `(Santa Maria et al., 2014)
 <https://www.ncbi.nlm.nih.gov/pubmed/25104751>`__.
 
@@ -41,20 +41,49 @@ Usage
 
 [Note to Jeff: normally I would includes a section explaining the parameters, but they are so obvious in this case.]
 
-[Note to Jeff: update usage for combined wigs]
+[Note to Jeff: change the order of CL args: <combined_wig> <metadata> <annotation> - it should be like this for all methods.  Check the usage() strings and from_args().  Also, can you update the usage blocks in each method in the documentation?]
 
 
 Output
 ------
 
-Explain the columns in the output file...
+The output file is tab-separated text file (spreadsheet) with the following columns:
 
-Point out that the significant genes are those with Padj<0.05.
++-----------------+-----------------------------------------------------------------+
+| Column Header   | Column Definition                                               |
++=================+=================================================================+
+| Orf             | Gene ID.                                                        |
++-----------------+-----------------------------------------------------------------+
+| Name            | Name of the gene.                                               |
++-----------------+-----------------------------------------------------------------+
+| Description     | Gene description.                                               |
++-----------------+-----------------------------------------------------------------+
+| Sites           | Number of TA sites in the gene.                                 |
++-----------------+-----------------------------------------------------------------+
+| Mean Ctrl       | Mean of read counts in condition 1. (avg over TA sites and reps)|
++-----------------+-----------------------------------------------------------------+
+| Mean Exp        | Mean of read counts in condition 2.                             |
++-----------------+-----------------------------------------------------------------+
+| log2FC          | Log-fold-change of exp (treatment) over ctrl (untreated)        |
++-----------------+-----------------------------------------------------------------+
+| u_stat          | test statistic reflecting which condition has higher counts     |
++-----------------+-----------------------------------------------------------------+
+| p-value         | 2-tailed P-value of u_stat based on Mann-Whitney                |
++-----------------+-----------------------------------------------------------------+
+| Adj. p-value    | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
++-----------------+-----------------------------------------------------------------+
+
+The u_stat is the statistic of U-test reflecting whether insertion counts at TA sites in control samples are higer on average than counts in the experimental samples.
+
+*Important:* The significant genes are those with Padj<0.05.*
+
+The significant genes should be comparable with those from resampling.
+
 
 Runtime
 -------
 
-If this typically takes less than a minute, say so...
+The utest method is relatively fast, and should take less than a minute on most datasets.
 
 
 |

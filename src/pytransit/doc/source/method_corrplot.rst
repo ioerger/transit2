@@ -1,7 +1,5 @@
-
 .. _corrplot:
 
-.. rst-class:: transit_clionly
 corrplot
 ========
 

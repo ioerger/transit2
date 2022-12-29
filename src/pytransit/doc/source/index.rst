@@ -70,6 +70,7 @@ TRANSIT offers a variety of features including:
    transit_overview2
    transit_install
    transit_running
+   input_files
    transit_features
 
 .. toctree::

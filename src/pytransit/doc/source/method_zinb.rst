@@ -1,6 +1,3 @@
-
-.. rst-class:: transit_clionly
-
 .. _zinb:
 
 ZINB
@@ -61,55 +58,13 @@ Example
         --gene <Orf id or Gene name>:= Run method for one gene and print model output.
 
 
-.. _combined_wig:
+Input files
+-----------
 
-Combined wig files
-------------------
+For description of input file formats, see documentation 
+on :ref:`Combined wig files <combined_wig_link>`
+and :ref:`Metadata files <metadata_files>`.
 
-Transit now supports a new file format called 'combined_wig' which basically
-combines multiple wig files into one file (with multiple columns).  This is
-used for some of the new analysis methods for larger collections of datasets, like :ref:`Anova <anova>`, :ref:`ZINB <zinb>`.
-Combined_wig files can created through the Transit GUI
-(File->Export->Selected_Datasets->Combined_wig), or via the command line.
-You can specify the normalization method you want to use with a flag.
-TTR is the default, but other relevant normalization options would be 'nonorm'
-(i.e. preserve raw counts) and 'betageom' (this corrects for skew, but is slow).
-
-
-::
-
-  > python3 src/transit.py export combined_wig --help
-
-  usage: python3 src/transit.py export combined_wig <comma-separated .wig files> <annotation .prot_table> <output file>
-
-  > python3 ../transit/src/transit.py export combined_wig Rv_1_H37RvRef.wig,Rv_2_H37RvRef.wig,Rv_3_H37RvRef.wig H37Rv.prot_table clinicals_combined_TTR.wig -n TTR
-
-
-
-.. _samples_metadata:
-
-Samples Metadata File
----------------------
-
-Format of the *samples_metadata* file: a tab-separated file (which you
-can edit in Excel) with 3 columns: Id, Condition, and Filename (it
-must have these headers).  You can include other columns of info, but
-do not include additional rows.  Individual rows can be commented out
-by prefixing them with a '#'.  Here is an example of a samples
-metadata file: The filenames should match what is shown in the header
-of the combined_wig (including pathnames, if present).
-
-Note: the Condition column should have a unique label for each distinct condition (the same label shared only among replicates).
-If there are attributes that distinguish the conditions (such as strain, treatment, etc), they could be included as additional columns (e.g. covariates).
-
-::
-
-  ID      Condition    Filename
-  glyc1   glycerol     /Users/example_data/glycerol_rep1.wig
-  glyc2   glycerol     /Users/example_data/glycerol_rep2.wig
-  chol1   cholesterol  /Users/example_data/cholesterol_rep1.wig
-  chol2   cholesterol  /Users/example_data/cholesterol_rep2.wig
-  chol2   cholesterol  /Users/example_data/cholesterol_rep3.wig
 
 Parameters
 ----------
@@ -153,7 +108,8 @@ strains (think: different 'slopes'). In such a case, we would say strain and tim
 
 
 If covariates distinguishing the samples are available,
-such as batch or library, they may be
+such as batch or library (factors that could influence counts, but which
+we don't care about so we want to factor out these effects), they may be
 incorporated in the ZINB model by using the **\-\-covars** flag and samples
 metadata file. For example, consider the following samples metadata
 file, with a column describing the batch information of each

@@ -35,6 +35,50 @@ original, observed difference in read-counts.
 |
 
 
+Site-Restricted (S-R) Resampling 
+--------------------------------
+
+The original version of resampling implemented in
+Transit is called 'pooled' resampling because the counts are permuted
+among all samples (replicates, conditions) *and* among all the TA
+sites in a gene (i.e. randomizing counts within and between TA sites).
+This was based on the assumption that insertions at any TA site are
+equally likely (and the only differences are due to stochastic
+differences in abundance in the transposon insertion library when
+constructed).
+
+We recently developed an improved version of resampling called
+"site-restricted" (S-R) resampling.  With S-R resampling, during the
+process of permuting the counts to generate the null distribution, the
+counts at each TA site are restricted to permutations among samples
+**within the same TA site** (the counts at each site are permuted
+independently).  This restriction has the effect of reducing the
+variance in the null distribution, because there is evidence that
+there is an insertion bias for the Himar1 transposon that causes some
+TA sites to have a higher propensity for insertions and hence higher
+insertion counts than others (:ref:`Choudhery et al, 2021<Choudhery2021>`).
+
+Testing on a wide range of TnSeq datasets suggests
+that S-R resampling is **more sensitive** than regular pooled resampling.
+Typically, S-R resampling finds 2-3 times as many significant conditionally essential
+genes, mostly including the ones found by pooled resampling, but also capturing more 
+borderline cases that were close to the previous significance cutoff.
+
+It is important to note that the previous pooled version of resampling that has been
+in Transit for many years is not wrong, just overly conservative.
+
+S-R resampling is incorporated in the v3.2.7 version of Transit.
+There is an option (i.e. checkbox) for it in the GUI interface
+for the resampling method, and there is a new command-line flag (-sr) if you want 
+use it in console mode.
+
+History:
+
+* The original form of resampling in Transit (for a long time) was 'pooled' resampling.
+* Site-restricted resampling was introduced as an option (-sr) in v3.2.7 (9/21/22).
+* As of Transit v4.0, site-restricted resampling is now the default.
+
+
 Usage
 -----
 

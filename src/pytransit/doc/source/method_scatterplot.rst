@@ -1,5 +1,6 @@
+.. _scatterplot:
 
-Scatterplot
+scatterplot
 ===========
 
 For comparing counts between pairs of samples.
