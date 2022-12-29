@@ -450,7 +450,6 @@ class CombinedWig:
         self.comments        = comments or []
         self.extra_data      = LazyDict(extra_data or {})
         self.samples         = []
-        self.cached_read_counts_by_wig_fp = None
         self._load_main_path()
     
     def __repr__(self):
@@ -507,14 +506,12 @@ class CombinedWig:
     @property
     @cache(watch_attributes=lambda self:[ self.wig_fingerprints ])
     def read_counts_by_wig_fingerprint(self):
-        if self.cached_read_counts_by_wig_fp!=None: return self.cached_read_counts_by_wig_fp
         counts_for_wig = { each_path: [] for each_path in self.wig_fingerprints }
         for each_row in self.rows:
             for each_wig_fingerprint in self.wig_fingerprints:
                 counts_for_wig[each_wig_fingerprint].append(
                     each_row[each_wig_fingerprint]
                 )
-        self.cached_read_counts_by_wig_fp = counts_for_wig
         return counts_for_wig
     
     def copy(self):
