@@ -39,9 +39,9 @@ class Method:
         pathways_file = None,
         output_path= None,
         organism_pathway = None,
-        #pval_col = -2,
-        #qval_col = -1,
-        #lfc_col = 6,
+        pval_col = -2,
+        qval_col = -1,
+        lfc_col = 6,
         num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
         pseudocount = 2
