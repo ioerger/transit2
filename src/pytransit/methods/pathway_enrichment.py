@@ -49,10 +49,10 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        #"-p-val-col",
-        #"-q-val-col",
+        "-p-val-col",
+        "-q-val-col",
         "-ranking",
-       # "-LFC-col",
+        "-LFC-col",
         "-p",
         "-n-perm",
         "-PC"
