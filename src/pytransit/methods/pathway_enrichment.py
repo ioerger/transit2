@@ -34,7 +34,7 @@ class Method:
     
     inputs = LazyDict(
         input_file = None,
-        input_type = None,
+        input_type = "",
         associations_file = None,
         pathways_file = None,
         output_path= None,
@@ -49,10 +49,10 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        #"-p-val-col",
-        #"-q-val-col",
+        "-p-val-col",
+        "-q-val-col",
         "-ranking",
-       # "-LFC-col",
+        "-LFC-col",
         "-p",
         "-n-perm",
         "-PC"
@@ -305,14 +305,15 @@ class Method:
             self.value_getters.ranking = panel_helpers.create_choice_input(panel, main_sizer,
                 label = "Ranking",
                 options= ["SLPV", "LFC"],
-                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from input"
+                tooltip_text="SLPV is signed-log-p-value (default); LFC is log2-fold-change from input. This parameter is only used in GSEA"
+                #PV confoundes depleted AND enriched hits in the top. GSEA prefers ordered ranking by depletion (neg to pos). SPLV allows for positive LFC with significance at the top and negative LFC with signifincae is at the bottom
             )
 
             #self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="Column index with raw P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)")
             #self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="Column index with adjusted P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)")
             #self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
                 
-            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)")
+            self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent (p)",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005). FIXME  By anecdotal testing we found 0 is better ")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2, tooltip="Pseudo-counts used in calculating pathway enrichment. Useful to dampen the effects of small counts which may lead to deceptively high enrichment scores.")
             
@@ -380,6 +381,7 @@ class Method:
                     Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
         else:
             logging.error("Select pathway and association files")
+            
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
             output_extensions=transit_tools.result_output_extensions,
@@ -409,10 +411,10 @@ class Method:
             pathways_file = args[2],
             output_path=args[3],
             method = kwargs.get("M", "FET"),
-            pval_col = int(kwargs.get("p-val-col", Method.inputs.pval_col)),
-            qval_col = int(kwargs.get("q-val-col", Method.inputs.qval_col)),
+            #pval_col = int(kwargs.get("p-val-col", Method.inputs.pval_col)),
+            #qval_col = int(kwargs.get("q-val-col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SLPV"),
-            lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
+            #lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
             num_permutations = int(kwargs.get("n-perm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -449,48 +451,42 @@ class Method:
                         "Genes"
                     ]
             elif self.inputs.method == "GSEA":
-                if "GI" in self.inputs.input_type : 
-                    logging.log("GSEA cannot be run with a GI output")
-                else:
-                    up,down = self.GSEA()
-                    #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
-                    self.hit_summary = {
-                        "Sig Pathways": str(up) + " enriched;"+str(down) + " depleted",
-                    }
-                    file_output_type = Method.identifier+"_GSEA"
-                    file_columns = [
-                            "Pathway",
-                            "Pathway Description",
-                            "Genes in Path", 
-                            "Mean Rank",
-                            "Enrichment Score" , 
-                            "P Value", 
-                            "Adj P Value", 
-                            "Genes"
-                        ]
+                up,down = self.GSEA()
+                #hit summary shows # up Siginificant Pathways for Conditional Essential Genes and # down Siginificant Pathways for Conditional Non-Essential Genes
+                self.hit_summary = {
+                    "Sig Pathways": str(up) + " enriched;"+str(down) + " depleted",
+                }
+                file_output_type = Method.identifier+"_GSEA"
+                file_columns = [
+                        "Pathway",
+                        "Pathway Description",
+                        "Genes in Path", 
+                        "Mean Rank",
+                        "Enrichment Score" , 
+                        "P Value", 
+                        "Adj P Value", 
+                        "Genes"
+                    ]
             elif self.inputs.method == "ONT":
-                if "GI" in self.inputs.input_type : 
-                    logging.log("ONT cannot be run with a GI output")
-                else:
-                    self.hit_summary = {
-                        "Sig Pathways":self.Ontologizer()
-                    }
-                    file_output_type = Method.identifier+"_ONT"
-                    file_columns = [
-                            "Pathway",
-                            "Total Genes", 
-                            "Genes In Path",
-                            "Significant Genes",
-                            "Significent Genes In Path",
-                            "Expected", 
-                            "K Plus PC",
-                            "Number Adjusted By PC",
-                            "Enrichment" , 
-                            "P Value", 
-                            "Adj P Value", 
-                            "Description", 
-                            "Genes"
-                        ]
+                self.hit_summary = {
+                    "Sig Pathways":self.Ontologizer()
+                }
+                file_output_type = Method.identifier+"_ONT"
+                file_columns = [
+                        "Pathway",
+                        "Total Genes", 
+                        "Genes In Path",
+                        "Significant Genes",
+                        "Significent Genes In Path",
+                        "Expected", 
+                        "K Plus PC",
+                        "Number Adjusted By PC",
+                        "Enrichment" , 
+                        "P Value", 
+                        "Adj P Value", 
+                        "Description", 
+                        "Genes"
+                    ]
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
@@ -643,6 +639,8 @@ class Method:
         data, hits, headers = self.read_input_file(
             self.inputs.input_file
         )  # hits are not used in GSEA()
+        if "GI" in self.inputs.input_type : 
+            logging.error("GSEA cannot be run with a GI output")
         orfs_in_input_file = [w[0] for w in data]
         headers = headers[-1].rstrip().split("\t")  # last line prefixed by '#'
         associations = self.read_associations(
@@ -949,6 +947,8 @@ class Method:
             Lines = file.readlines()
             comments = [line for line in Lines if line.startswith("#")]
             headers = comments[-1].split("\t")
+            self.inputs.input_type = comments[0]
+            if "GI" in self.inputs.input_type : logging.error("ONT cannot be run with a GI output")
             self.qval_col = headers.index("Adj P Value")
             self.pval_col = headers.index("P Value")
             for line in file:
