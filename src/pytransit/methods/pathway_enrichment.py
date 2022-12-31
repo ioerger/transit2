@@ -1100,8 +1100,8 @@ class GSEAResultsFile:
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
-        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+        parameters_str = "method : GSEA ;"+" ranking : "+str(parameters["ranking"])+" ; "
+        self.values_for_result_table.update({"parameters": parameters_str })
     
     def __str__(self):
         return f"""
