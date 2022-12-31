@@ -55,9 +55,6 @@ class Method:
         "-PC"
     ]
 
-    #-p-val-col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2)
-    #-q-val-col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
-    #-LFC-col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
     usage_string = f"""
         Usage 1: # -M FET for Fisher's Exact Test (default)
@@ -82,11 +79,12 @@ class Method:
     
     @gui.add_menu("Post-Processing", menu_name)
     def on_menu_click(event):
+        Method.inputs.input_file = None
         Method.define_panel(event)
     
     def call_from_results_panel(self, results_file):
-        self.inputs.input_file = results_file
-        self.define_panel()
+        Method.inputs.input_file = results_file
+        Method.define_panel()
 
 
     def create_default_pathway_button(self,panel, sizer, *, button_label, tooltip_text="Click this button to select from TRANSIT provided files"):
@@ -476,7 +474,7 @@ class Method:
             else:
                 self.inputs.method = "Not a valid method"
                 progress_update("Not a valid method", 100)
-            self.inputs.input_file = None
+            
         
         # 
         # write output
