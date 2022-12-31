@@ -41,7 +41,7 @@ class Method:
         organism_pathway = None,
         #pval_col = -2,
         #qval_col = -1,
-        #lfc_col = 6,
+        lfc_col = 6,
         num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
         pseudocount = 2
@@ -50,6 +50,7 @@ class Method:
     valid_cli_flags = [
         "-M", 
         "-ranking",
+        "-LFC-col",
         "-p",
         "-n-perm",
         "-PC"
@@ -62,6 +63,7 @@ class Method:
             
             Optional Arguments:
                 -PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: -PC 2
+                -LFC-col   <int> := column index (starting at 0) for LFC's
         
         Usage 2:
             # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
@@ -71,10 +73,14 @@ class Method:
                 -ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default -ranking SLPV
                 -p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
                 -n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default -n-perm 10000
+                -LFC-col   <int> := column index (starting at 0) for LFC's
             
         Usage 3:
             # ONT for Ontologizer (Grossman et al, 2007)
             {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M ONT [Optional Arguments]
+
+            Optional Arguments:
+                -LFC-col   <int>       := column index (starting at 0) for LFC's
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Post-Processing", menu_name)
@@ -295,7 +301,7 @@ class Method:
 
             #self.value_getters.pval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="P-Value Column Index", default_value=-2, tooltip_text="Column index with raw P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)")
             #self.value_getters.qval_col            = panel_helpers.create_int_getter(panel, main_sizer, label_text="Q-Value Column Index", default_value=-1, tooltip_text="Column index with adjusted P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)")
-            #self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
+            self.value_getters.lfc_col             = panel_helpers.create_int_getter(panel, main_sizer, label_text="LFC Column Index", default_value=6, tooltip_text="Column index with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)")
                 
             self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent (p)",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005). FIXME  By anecdotal testing we found 0 is better ")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
@@ -398,7 +404,7 @@ class Method:
             #pval_col = int(kwargs.get("p-val-col", Method.inputs.pval_col)),
             #qval_col = int(kwargs.get("q-val-col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SLPV"),
-            #lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
+            lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
             enrichment_exponent = int(kwargs.get("p", "1")),
             num_permutations = int(kwargs.get("n-perm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
@@ -492,8 +498,8 @@ class Method:
                 analysis_type=Method.identifier,
                 files=dict(
                     input_file=Method.inputs.input_file,
-                    association_path=Method.inputs.associations_path,
-                    pathways_path=Method.inputs.pathways_path,
+                    association_path=Method.inputs.associations_file,
+                    pathways_path=Method.inputs.pathways_file,
                 ),
                 parameters=dict(
                     method = self.inputs.method,
@@ -538,7 +544,6 @@ class Method:
                         else: 
                             self.inputs.pval_col = standardized_headers.index("P Value")
                             self.inputs.qval_col = standardized_headers.index("Adj P Value")
-                            self.inputs.lfc_col = standardized_headers.index("Log 2 FC")
                     w = line.rstrip().split("\t")
                     genes.append(w)
                     if "GI" in self.inputs.input_type:
