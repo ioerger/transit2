@@ -49,10 +49,7 @@ class Method:
     
     valid_cli_flags = [
         "-M", 
-        "-p-val-col",
-        "-q-val-col",
         "-ranking",
-        "-LFC-col",
         "-p",
         "-n-perm",
         "-PC"
@@ -68,9 +65,6 @@ class Method:
             
             Optional Arguments:
                 -PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: -PC 2
-                -p-val-col <int> := column index (starting at 0) for p-val
-                -q-val-col <int> := column index (starting at 0) for q-val
-                -LFC-col   <int> := column index (starting at 0) for LFC's
         
         Usage 2:
             # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
@@ -80,18 +74,10 @@ class Method:
                 -ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default -ranking SLPV
                 -p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
                 -n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default -n-perm 10000
-                -p-val-col <int>       := column index (starting at 0) for p-val
-                -q-val-col <int>       := column index (starting at 0) for q-val
-                -LFC-col   <int>       := column index (starting at 0) for LFC's
             
         Usage 3:
             # ONT for Ontologizer (Grossman et al, 2007)
             {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M ONT [Optional Arguments]
-            
-            Optional Arguments:
-                -p-val-col <int>       := column index (starting at 0) for p-val
-                -q-val-col <int>       := column index (starting at 0) for q-val
-                -LFC-col   <int>       := column index (starting at 0) for LFC's
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Post-Processing", menu_name)

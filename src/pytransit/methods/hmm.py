@@ -706,7 +706,7 @@ class GeneFile:
         # get summary stats
         #
         summary = self.extra_data.get("Summary Of Gene Calls", {})
-        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())]  
+        summary_str = [str(summary[key])+" "+str(key) for key in ["ES", "GD", "GA", "NE", "N/A"]] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
     
         
