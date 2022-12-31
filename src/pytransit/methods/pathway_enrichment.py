@@ -489,6 +489,12 @@ class Method:
             rows=self.rows,
             column_names=file_columns,
             extra_info=dict(
+                analysis_type=Method.identifier,
+                files=dict(
+                    input_file=Method.inputs.input_file,
+                    association_path=Method.inputs.associations_path,
+                    pathways_path=Method.inputs.pathways_path,
+                ),
                 parameters=dict(
                     method = self.inputs.method,
                     ranking = self.inputs.ranking,

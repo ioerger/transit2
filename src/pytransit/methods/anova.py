@@ -468,6 +468,11 @@ class Method:
                     "Status"
                 ],
                 extra_info=dict(
+                    analysis_type=Method.identifier,
+                    files=dict(
+                        combined_wig=Method.inputs.combined_wig,
+                        annotation_path=Method.inputs.annotation,
+                    ),
                     parameters=dict(
                         conditions_list=conditions_list,
                         normalization=self.inputs.normalization,

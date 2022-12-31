@@ -507,6 +507,7 @@ class Method:
                 # extra_info
                 # 
                 extra_info = dict(
+                    analysis_type=Method.identifier,
                     files=dict(
                         combined_wig=combined_wig_path,
                         annotation_path=annotation_path,

@@ -599,12 +599,15 @@ class Method:
             extra_info=dict(
                 time=(time.time() - self.start_time),
                 saturation= saturation,
-                parameters=dict(
+                analysis_type=Method.identifier,
+                files=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
                     metadata = self.inputs.metadata,
                     annotation_path=self.inputs.annotation_path,
                     gumbel_results_file = self.inputs.gumbel_results_path,
+                ),
+                parameters=dict(
                     normalization = self.inputs.normalization,
                 ),
                 summary_info=dict(
@@ -640,13 +643,16 @@ class Method:
             column_names=ta_sites_df.columns,
             extra_info=dict(
                 time=(time.time() - self.start_time),
+                analysis_type=Method.identifier,
                 saturation = saturation,
-                parameters=dict(
+                files=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
                     metadata = self.inputs.metadata,
                     annotation_path=self.inputs.annotation_path,
                     gumbel_results_file = self.inputs.gumbel_results_path,
+                ),
+                parameters=dict(
                     normalization = self.inputs.normalization,
                 ),
             ),

@@ -471,6 +471,11 @@ class Method:
                 rows=rows,
                 column_names=Method.column_names,
                 extra_info=dict(
+                    analysis_type=Method.identifier,
+                    files=dict(
+                        combined_wig=Method.inputs.combined_wig_path,
+                        annotation_path=Method.inputs.annotation_path,
+                    ),
                     parameters=dict(
                         samples=self.inputs.samples,
                         norm=self.inputs.normalization,
