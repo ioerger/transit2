@@ -208,6 +208,7 @@ def basic_heatmap(df, row_names, output_path):
         method="complete",
         metric="euclidean",
         center=0,
+        yticklabels=True
     )
     x0, y0, cbar_width, cbar_height = clustermap_plot.cbar_pos
     clustermap_plot.ax_cbar.set_position([x0, 0.9, cbar_width/2, cbar_height])

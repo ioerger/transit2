@@ -752,7 +752,7 @@ class ResultFileType1:
     
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm",]]
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm","site_restricted"]]
         self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
 
