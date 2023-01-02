@@ -5,12 +5,12 @@
 [zinb:output()] Normalizing using: TTR 
 [zinb:output()] 
 [zinb:output()] samples for Condition/Covariate/Interaction: KO_rel 
-[zinb:output()]         x: WT_D28_R2.wig WT_D28_R3.wig 5849_D28_R2.wig WT_D28_R1.wig 5849_D28_R1.wig 5849_D28_R3.wig 
-[zinb:output()]         KOrel: rel_D28_R1.wig rel_D28_R3.wig DKO_D28_R1.wig DKO_D28_R2.wig DKO_D28_R3.wig rel_D28_R2.wig 
+[zinb:output()]         x: WT_D28_R3.wig 5849_D28_R2.wig 5849_D28_R3.wig 5849_D28_R1.wig WT_D28_R1.wig WT_D28_R2.wig 
+[zinb:output()]         KOrel: rel_D28_R1.wig DKO_D28_R2.wig rel_D28_R3.wig rel_D28_R2.wig DKO_D28_R1.wig DKO_D28_R3.wig 
 [zinb:output()] 
 [zinb:output()] samples for Condition/Covariate/Interaction: KO_5849 
-[zinb:output()]         KO5849: DKO_D28_R1.wig 5849_D28_R2.wig DKO_D28_R2.wig 5849_D28_R1.wig DKO_D28_R3.wig 5849_D28_R3.wig 
-[zinb:output()]         x: rel_D28_R1.wig WT_D28_R2.wig rel_D28_R3.wig WT_D28_R3.wig WT_D28_R1.wig rel_D28_R2.wig 
+[zinb:output()]         KO5849: DKO_D28_R2.wig 5849_D28_R3.wig 5849_D28_R2.wig DKO_D28_R1.wig 5849_D28_R1.wig DKO_D28_R3.wig 
+[zinb:output()]         x: rel_D28_R1.wig rel_D28_R3.wig WT_D28_R3.wig rel_D28_R2.wig WT_D28_R1.wig WT_D28_R2.wig 
 [zinb:output()] 
 [zinb:output()] samples in cross-product: 
 [zinb:output()] Running ZINB 
