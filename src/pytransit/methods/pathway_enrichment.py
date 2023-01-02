@@ -334,7 +334,8 @@ class Method:
                     import requests
                     URL = "https://orca1.tamu.edu/essentiality/transit/COG2020/"+organism+"_COG_20_roles.associations.txt"
                     response = requests.get(URL)
-                    open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb").write(response.content)
+                    with open(root_folder+"src/pytransit/data/"+organism+"_COG_20_roles.associations.txt", "wb") as file:
+                        file.write(response.content)
                 except requests.exceptions.ConnectionError:
                     logging.error("Please Connect to the Internet to get this COG files for "+organism)
                     #sys.exit()
@@ -523,8 +524,9 @@ class Method:
     def read_input_file(self, filename):
         import pandas as pd
         logging.log("Reading in Input File", filename)
-        file = open(self.inputs.input_file, 'r')
-        lines = file.readlines()
+        lines = []
+        with open(self.inputs.input_file, 'r') as file:
+            lines = file.readlines()
         comments = [line for line in lines if line.startswith("#")]
         
         genes, hits, standardized_headers= [], [], []
