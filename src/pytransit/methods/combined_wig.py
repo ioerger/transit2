@@ -36,6 +36,8 @@ class Method:
         "-n",
     ]
     
+    old_file_header = "#File: "
+    
     @staticmethod
     @cli.add_command("export", "combined_wig")
     def from_args(args, kwargs):
@@ -61,7 +63,9 @@ class Method:
                         return False
                     elif each.startswith("#"+Method.identifier):
                         return True
-                    elif each.startswith("#File"):
+                    elif each.startswith(Method.old_file_header):
+                        return True
+                    elif each.startswith(Method.old_file_header.lower()):
                         return True
         return False
         
@@ -190,7 +194,7 @@ class Method:
             rows=rows,
             comments=[
                 f"genome:{os.path.basename(self.inputs.annotation_path)}",
-                *[ f"File: {each}" for each in wig_fingerprints ],
+                *[ f"file: {each}" for each in wig_fingerprints ],
             ],
             column_names=[
                 "TA Site Position",

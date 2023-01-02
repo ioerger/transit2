@@ -16,19 +16,10 @@ from pytransit.globals import logging
 
 try:
     from pytransit.specific_tools import norm_tools
-
     no_norm = False
 except ImportError:
     no_norm = True
-    warnings.warn(
-        "Problem importing the norm_tools.py module. Read-counts will not be normalized. Some functions may not work."
-    )
-
-
-# format:
-#   header lines (prefixed by '#'), followed by lines with counts
-#   counts lines contain the following columns: TA coord, counts, other info like gene/annotation
-#   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
+    warnings.warn("Problem importing the norm_tools.py module. Read-counts will not be normalized. Some functions may not work.")
 
 class Wig:
     '''
@@ -370,8 +361,9 @@ class CombinedWigData(NamedListBase):
                     # 
                     # handle older file method
                     # 
-                    if line.startswith("#File: "):
-                        wig_fingerprints.append(line.rstrip()[7:])  # allows for spaces in filenames
+                    old_header = "#File: "
+                    if line.startswith(old_header) or line.startswith(old_header.lower()):
+                        wig_fingerprints.append(line.rstrip()[len(old_header):])  # allows for spaces in filenames
                         continue
             
             # 
