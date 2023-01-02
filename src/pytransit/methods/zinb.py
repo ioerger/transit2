@@ -507,6 +507,7 @@ class Method:
                 # extra_info
                 # 
                 extra_info = dict(
+                    analysis_type=Method.identifier,
                     files=dict(
                         combined_wig=combined_wig_path,
                         annotation_path=annotation_path,
@@ -896,6 +897,7 @@ class File:
                     ],
                 ).Show(),
                 "Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                #"Display Heatmap": lambda *args: self.create_heatmap(output_path=self.path+".heatmap.png"),
                 "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
@@ -934,7 +936,7 @@ class File:
             # specific to zinb
             # 
             HeatmapMethod.output(
-                column_names=self.extra_data["parameters"]["group_names"],
+                column_names=self.extra_data["group_names"],
                 output_path=output_path,
                 top_k=topk,
                 q_value_threshold=qval,
@@ -942,8 +944,8 @@ class File:
                 formatted_rows=tuple(
                     dict(
                         gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
-                        means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
-                        lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
+                        means=[each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                        lfcs=[each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
                         q_value=each_row["Adj P Value"],
                     )
                         for each_row in self.rows

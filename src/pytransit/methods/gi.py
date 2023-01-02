@@ -655,7 +655,11 @@ class Method:
             ],
             extra_info=dict(
                 time = (time.time() - self.start_time),
-
+                analysis_type=Method.identifier,
+                files=dict(
+                    combined_wig=Method.inputs.combined_wig_path,
+                    annotation_path=Method.inputs.annotation_path,
+                ),
                 parameters= dict(
                     Normalization_Of_Counts= self.inputs.normalization,
                     Number_Of_Samples_For_Monte_Carlo = str(self.inputs.samples),

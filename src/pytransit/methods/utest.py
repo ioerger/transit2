@@ -274,6 +274,7 @@ class Method:
                 ],
                 column_names=Method.column_names,
                 extra_info=dict(
+                    analysis_type=Method.identifier,
                     stats=dict(
                         number_of_significant_genes=number_of_significant_genes,
                     ),

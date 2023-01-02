@@ -174,13 +174,12 @@ class Method:
             else:
                 gene_names.append(each_row["gene_name"])
                 lfc_s.append(each_row['lfcs'])
-        
         print(f"heatmap based on {len(gene_names)} genes")
         column_to_lfcs = pd.DataFrame({
             column_name : [ each_lfc[column_index] for each_lfc in lfc_s ]
                 for column_index, column_name in enumerate(column_names)
         })
-        
+
         basic_heatmap(column_to_lfcs, row_names=gene_names, output_path=output_path)
         
 magic_number_300 = 300
@@ -208,6 +207,7 @@ def basic_heatmap(df, row_names, output_path):
         method="complete",
         metric="euclidean",
         center=0,
+        yticklabels=True
     )
     x0, y0, cbar_width, cbar_height = clustermap_plot.cbar_pos
     clustermap_plot.ax_cbar.set_position([x0, 0.9, cbar_width/2, cbar_height])

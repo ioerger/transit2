@@ -599,12 +599,15 @@ class Method:
             extra_info=dict(
                 time=(time.time() - self.start_time),
                 saturation= saturation,
-                parameters=dict(
+                analysis_type=Method.identifier,
+                files=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
                     metadata = self.inputs.metadata,
                     annotation_path=self.inputs.annotation_path,
                     gumbel_results_file = self.inputs.gumbel_results_path,
+                ),
+                parameters=dict(
                     normalization = self.inputs.normalization,
                 ),
                 summary_info=dict(
@@ -640,13 +643,16 @@ class Method:
             column_names=ta_sites_df.columns,
             extra_info=dict(
                 time=(time.time() - self.start_time),
+                analysis_type=Method.identifier,
                 saturation = saturation,
-                parameters=dict(
+                files=dict(
                     combined_wig = self.inputs.combined_wig,
                     wig_files = self.inputs.wig_files,
                     metadata = self.inputs.metadata,
                     annotation_path=self.inputs.annotation_path,
                     gumbel_results_file = self.inputs.gumbel_results_path,
+                ),
+                parameters=dict(
                     normalization = self.inputs.normalization,
                 ),
             ),
@@ -698,7 +704,7 @@ class GenesFile:
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         
         summary = self.extra_data.get("summary_info", {})
-        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        summary_str = [str(summary[key])+" "+str(key) for key in ["ES", "ESB", "GD", "GA", "NE", "U"]] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
         
         parameters = self.extra_data.get("parameters",{})
