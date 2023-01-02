@@ -597,7 +597,7 @@ class Method:
             rows=genes_out_rows,
             column_names=output_df.columns,
             extra_info=dict(
-                time=(time.time() - self.start_time),
+                calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
                 saturation= saturation,
                 analysis_type=Method.identifier,
                 files=dict(
@@ -642,7 +642,7 @@ class Method:
             rows=sites_out_rows,
             column_names=ta_sites_df.columns,
             extra_info=dict(
-                time=(time.time() - self.start_time),
+                calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
                 analysis_type=Method.identifier,
                 saturation = saturation,
                 files=dict(

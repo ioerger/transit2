@@ -654,7 +654,7 @@ class Method:
                 'Type Of Interaction',
             ],
             extra_info=dict(
-                time = (time.time() - self.start_time),
+                calculation_time=f"{time.time() - self.start_time:0.1f}seconds",
                 analysis_type=Method.identifier,
                 files=dict(
                     combined_wig=Method.inputs.combined_wig_path,

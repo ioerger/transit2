@@ -331,6 +331,7 @@ class Method:
                     rows=rows,
                     column_names=SitesFile.column_names,
                     extra_info=dict(
+                        calculation_time=f"{(time.time() - start_time):0.1f}seconds",
                         analysis_type=Method.identifier,
                         files=dict(
                             combined_wig=Method.inputs.combined_wig,

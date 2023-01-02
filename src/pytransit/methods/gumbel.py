@@ -423,6 +423,7 @@ class Method:
             rows=rows,
             column_names=Method.column_names,
             extra_info=dict(
+                calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
                 analysis_type=Method.identifier,
                 files=dict(
                     combined_wig=Method.inputs.combined_wig,
@@ -439,8 +440,6 @@ class Method:
                     iC=self.inputs.iC,
                 ),
                 annotation_path=self.inputs.annotation_path,
-                time=(time.time() - self.start_time),
-
                 summary_info=dict(
                     ES = str(calls.count("E")),
                     ESB = str(calls.count("EB")),
@@ -448,7 +447,6 @@ class Method:
                     U = str(calls.count("U")),
                     S = str(calls.count("S")),
                 ),
-
                 naming_reference = dict(
                     ES = "Essential based on Gumbel",
                     ESB = "Essential based on Binomial",

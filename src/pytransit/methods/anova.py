@@ -468,6 +468,11 @@ class Method:
                     ],
                     extra_info=dict(
                         calculation_time=f"{timer.duration_in_seconds:0.1f}seconds",
+                        analysis_type=Method.identifier,
+                        files=dict(
+                            combined_wig=Method.inputs.combined_wig,
+                            annotation_path=Method.inputs.annotation,
+                        ),
                         parameters=dict(
                             conditions_list=conditions_list,
                             normalization=self.inputs.normalization,

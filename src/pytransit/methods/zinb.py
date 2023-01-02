@@ -507,6 +507,7 @@ class Method:
                 # extra_info
                 # 
                 extra_info = dict(
+                    calculation_time=f"{timer.duration_in_seconds:0.1f}seconds",
                     analysis_type=Method.identifier,
                     files=dict(
                         combined_wig=combined_wig_path,

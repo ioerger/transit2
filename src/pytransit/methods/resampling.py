@@ -471,6 +471,7 @@ class Method:
                 rows=rows,
                 column_names=Method.column_names,
                 extra_info=dict(
+                    calculation_time=f"{(time.time() - start_time):0.1f}seconds",
                     analysis_type=Method.identifier,
                     files=dict(
                         combined_wig=Method.inputs.combined_wig_path,
@@ -496,7 +497,6 @@ class Method:
                     **({} if not self.inputs.diff_strains else dict(
                         annotation_path_exp=self.inputs.annotation_path_exp,
                     )),
-                    time=(time.time() - start_time),
                 ),
             )
             results_area.add(self.inputs.output_path)
