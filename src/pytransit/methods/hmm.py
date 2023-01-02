@@ -334,7 +334,7 @@ class Method:
                         calculation_time=f"{(time.time() - start_time):0.1f}seconds",
                         analysis_type=Method.identifier,
                         files=dict(
-                            combined_wig=Method.inputs.combined_wig,
+                            combined_wig=Method.inputs.data_sources[0],
                             annotation_path=Method.inputs.annotation_path,
                         ),
                         stats=dict(

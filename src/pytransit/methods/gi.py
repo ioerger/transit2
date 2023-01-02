@@ -149,7 +149,7 @@ class Method:
         # get wig files
         # 
         wig_group = gui.combined_wigs[-1] # assume there is only 1 (should check that it has beed defined)
-        Method.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
+        Method.inputs.combined_wig_path = wig_group.main_path # see components/sample_area.py
         Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path # assume all samples are in the same metadata file
 
         # 
@@ -185,14 +185,14 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=8)
 
-        combined_wig    = args[0]
-        annotation_path = args[1]
-        metadata_path   = args[2]
-        condA1          = args[3]
-        condA2          = args[4]
-        condB1          = args[5]
-        condB2          = args[6]
-        output_path     = args[7]
+        combined_wig_path = args[0]
+        annotation_path   = args[1]
+        metadata_path     = args[2]
+        condA1            = args[3]
+        condA2            = args[4]
+        condB1            = args[5]
+        condB2            = args[6]
+        output_path       = args[7]
 
         normalization = kwargs.get("n", "TTR")
         samples       = int(kwargs.get("s", 10000))
@@ -203,7 +203,7 @@ class Method:
 
         # save all the data
         Method.inputs.update(dict(
-          combined_wig=combined_wig,
+          combined_wig_path=combined_wig_path,
           annotation_path=annotation_path,
           metadata_path=metadata_path,
           condA1=condA1,
@@ -232,7 +232,7 @@ class Method:
             # get data
 
             logging.log("Getting Data")
-            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig_path)
             logging.log(f"Normalizing using: {self.inputs.normalization}")
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
 
