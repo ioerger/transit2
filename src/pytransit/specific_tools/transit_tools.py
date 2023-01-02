@@ -190,7 +190,7 @@ if True:
         
         return result_object
 
-    def write_result(*, path, file_kind, extra_info, column_names, rows):
+    def write_result(*, path, file_kind, extra_info, column_names, rows, comments=[]):
         assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
         
         import datetime
@@ -238,6 +238,7 @@ if True:
             comment_symbol="#",
             comments=[
                 file_kind, # identifier always comes first
+                *comments,
                 f"yaml:",
                 f"    date: {todays_date}",
                 f"    transit_version: {pytransit.__version__}",

@@ -188,6 +188,10 @@ class Method:
             path=self.inputs.output_path,
             file_kind=Method.identifier,
             rows=rows,
+            comments=[
+                f"genome:{os.path.basename(self.inputs.annotation_path)}",
+                *[ f"File: {each}" for each in wig_fingerprints ],
+            ],
             column_names=[
                 "TA Site Position",
                 *wig_fingerprints,
