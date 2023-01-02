@@ -34,7 +34,7 @@ class Method:
     # 
     # newer method
     # 
-    menu_prefix = ("Pre-Processing", "Normalize Comwig Using")
+    menu_prefix = ("Pre-Processing", "Normalize Combined Wig Using ...")
     @gui.add_menu(*menu_prefix, "Trimmed Total Reads")
     def menu_options(*args): Method.gui_normalize(kind="TTR")
     
