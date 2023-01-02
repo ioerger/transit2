@@ -4,5 +4,5 @@
 [tnseq_stats:Run()] processing read_counts 
 [tnseq_stats:Run()] Adding File: ./tests/cli_tests/tnseq_stats/0001_basic.sh.1.result 
 [tnseq_stats:Run()] Finished TnseqStats 
-[tnseq_stats:Run()] Time: 0.2s
+[tnseq_stats:Run()] Time: 0.0s
 [tnseq_stats:Run()]  

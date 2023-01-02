@@ -46,6 +46,8 @@ class Method:
         pseudocount = 2
     )
     
+    default_significance = 0.05
+    
     valid_cli_flags = [
         "-M", 
         "-p-val-col",
@@ -527,8 +529,8 @@ class Method:
         import pandas as pd
         logging.log("Reading in Input File", filename)
         file = open(self.inputs.input_file, 'r')
-        Lines = file.readlines()
-        comments = [line for line in Lines if line.startswith("#")]
+        lines = file.readlines()
+        comments = [line for line in lines if line.startswith("#")]
         
         genes, hits, standardized_headers= [], [], []
         self.inputs.input_type = comments[0][1:]
@@ -561,7 +563,7 @@ class Method:
                            hits.append(w[0]) 
                     else:
                         qval = float(w[self.inputs.qval_col])
-                        if qval < 0.05:
+                        if qval < Method.default_significance:
                             hits.append(w[0])
         
         return genes, hits, standardized_headers
@@ -732,7 +734,7 @@ class Method:
         n2 = int(len(data) / 2)
         up, down = 0, 0
         for term, mr, es, pval, qval in results:
-            if qval < 0.05:
+            if qval < Method.default_significance:
                 if mr < n2:
                     up += 1
                 else:
@@ -791,7 +793,7 @@ class Method:
             #     "# genes with associations=%s out of %s total"
             #     % (genes_with_associations, len(genes))
             # )
-            # self.rows.append("# significant genes (qval<0.05): %s" % (len(hits)))
+            # self.rows.append("# significant genes (qval<Method.default_significance): %s" % (len(hits)))
 
             terms = list(pathways.keys())
             terms.sort()
@@ -846,7 +848,7 @@ class Method:
                 self.rows.append(vals)
 
             logging.log("Finishing up FET")
-            return len([i for i in qvals if i<0.05])
+            return len([i for i in qvals if i<Method.default_significance])
 
         else:
             logging.log("The file you passed in has no hits to run Pathway Enrichment")
@@ -939,36 +941,31 @@ class Method:
             if go not in ontology:
                 logging.warn("not found: %s" % go)  # also indicate which gene?
 
-        # could use class method, but would have to adapt it:
-        # genes,hits,headers = self.read_input_file(self.inputs.input_file)
-
         genes, pvals = {}, []
-        allorfs, studyset = [], []
-        with open(self.inputs.input_file) as file:
-            file = open(self.inputs.input_file, 'r')
-            Lines = file.readlines()
-            comments = [line for line in Lines if line.startswith("#")]
-            headers = comments[-1].split("\t")
-            self.qval_col = headers.index("Adj P Value")
-            self.pval_col = headers.index("P Value")
-            for line in file:
-                if line[0] == "#":
-                    continue
-                w = line.rstrip().split("\t")
-                genes[w[0]] = w
-                allorfs.append(w[0])
-                # pval,qval = float(w[-2]),float(w[-1])
-                pval, qval = float(w[self.inputs.pval_col]), float(w[self.inputs.qval_col])
-                if qval < 0.05:
-                    studyset.append(w[0])
-                pvals.append((w[0], pval))
+        all_orfs, studyset = [], []
+        comments, headers, rows = tnseq_tools.read_result(self.inputs.input_file)
+        try:
+            self.inputs.qval_col = headers.index("Adj P Value")
+            self.inputs.pval_col = headers.index("P Value")
+        except Exception as error:
+            logging.error(f'''missing header 'Adj P Value' or 'P Value' in file: {self.inputs.input_file}''')
+        
+        for each_row in rows:
+            genes[each_row["ORF"]] = each_row
+            all_orfs.append(each_row["ORF"])
+                
+            if each_row["Adj P Value"] < Method.default_significance:
+                studyset.append(each_row["ORF"])
+            pvals.append((each_row["ORF"], each_row["P Value"]))
+        
+            
         pvals.sort(key=lambda x: x[1])
         ranks = {}
         for i, (rv, pval) in enumerate(pvals):
             ranks[rv] = i + 1
-        #self.rows.append("# number of input hits (qval<0.05): %s" % len(studyset))
+        #self.rows.append("# number of input hits (qval<Method.default_significance): %s" % len(studyset))
         counts = []
-        n, a = len(allorfs), len(studyset)
+        n, a = len(all_orfs), len(studyset)
         for go in go2rvs.keys():
             if go not in ontology:
                 continue
@@ -1023,7 +1020,7 @@ class Method:
                 hits,
             ]
             self.rows.append(vals)
-        return len([i for i in qvals if i<0.05])
+        return len([i for i in qvals if i<Method.default_significance])
 
 
 @transit_tools.ResultsFile

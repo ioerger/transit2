@@ -2646,3 +2646,14 @@ class GffFile:
                 [ description, row.start, row.end, strand, size, "-", "-", gene_name, orf_id, "-" ]
             )
         return new_rows
+
+
+def read_result(path):
+    from pytransit.generic_tools.named_list import named_list
+    comments, headers, rows = csv.read(path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+    # real headers are in first comment
+    headers   = comments[-1].split("\t")
+    named_row = named_list([ each for each in headers if each ])
+    rows = [ named_row(each) for each in rows ]
+    
+    return comments, headers, rows

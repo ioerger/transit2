@@ -1,44 +1,19 @@
 #Anova
 #yaml:
-#    date: 2022-12-19 15:32:05
+#    date: 2023-01-02 11:39:53
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
-#    console_command: |
-#        python3 './src/transit.py' 'anova' './src/pytransit/data.ignore/macrophages.comwig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data.ignore/macrophages_metadata.txt' './tests/cli_tests/anova/0007_macrophage.sh.1.result' '-ref' 'Untreated' '-exclude-conditions' 'Input' '-n' 'nonorm'
+#    console_command: python3 './src/transit.py' 'anova' './src/pytransit/data.ignore/macrophages.comwig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data.ignore/macrophages_metadata.txt' './tests/cli_tests/anova/0007_macrophage.sh.1.result' '-ref' 'Untreated' '-exclude-conditions' 'Input' '-n' 'nonorm'
+#    calculation_time: 8.4seconds
 #    parameters:
-#       conditions_list:
-#       - Untreated
-#       - Tcell
-#       - Rapa
-#       - IL1
-#       - IFNg
-#       - GMCSF
-#       - IFNg-GMCSF
-#       - IFNab
+#       conditions_list: [Untreated, Tcell, Rapa, IL1, IFNg, GMCSF, IFNg-GMCSF, IFNab]
 #       normalization: nonorm
 #       trimming: 0.0/0.0 % (N/C)
 #       pseudocounts: 5
 #       alpha: 1000
-#       refs:
-#       - Untreated
-#    mean_columns:
-#    - Mean Untreated
-#    - Mean Tcell
-#    - Mean Rapa
-#    - Mean IL1
-#    - Mean IFNg
-#    - Mean GMCSF
-#    - Mean IFNg-GMCSF
-#    - Mean IFNab
-#    lfc_columns:
-#    - Log 2 FC Untreated
-#    - Log 2 FC Tcell
-#    - Log 2 FC Rapa
-#    - Log 2 FC IL1
-#    - Log 2 FC IFNg
-#    - Log 2 FC GMCSF
-#    - Log 2 FC IFNg-GMCSF
-#    - Log 2 FC IFNab
+#       refs: [Untreated]
+#    mean_columns: [Mean Untreated, Mean Tcell, Mean Rapa, Mean IL1, Mean IFNg, Mean GMCSF, Mean IFNg-GMCSF, Mean IFNab]
+#    lfc_columns: [Log 2 FC Untreated, Log 2 FC Tcell, Log 2 FC Rapa, Log 2 FC IL1, Log 2 FC IFNg, Log 2 FC GMCSF, Log 2 FC IFNg-GMCSF, Log 2 FC IFNab]
 #    summary_info:
 #       Hits: '443'
 #    

@@ -1,10 +1,9 @@
 #PathwayEnrichment_ONT
 #yaml:
-#    date: 2022-12-19 15:36:55
+#    date: 2023-01-02 12:13:04
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
-#    console_command: |
-#        python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_GO_terms.txt' 'src/pytransit/data//gene_ontology.1_2.3-11-18.obo' './tests/cli_tests/pathway_enrichment/0004_example.sh.1.result' '-M' 'ONT'
+#    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_GO_terms.txt' 'src/pytransit/data//gene_ontology.1_2.3-11-18.obo' './tests/cli_tests/pathway_enrichment/0004_example.sh.1.result' '-M' 'ONT'
 #    parameters:
 #       method: ONT
 #       ranking: SLPV
@@ -12,7 +11,7 @@
 #       num_permutations: 10000
 #       pseudocount: 2
 #    summary_info:
-#       Hits: 25
+#       Sig Pathways: 25
 #    
 #Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
 GO:0008202	steroid metabolic process	3990	40	82	13	1005	25	2	13.212	0.0	0.0	Rv1129c/-(14),Rv1130/-(15),Rv3526/-(46),Rv3537/-(49),Rv3543c/fadE29(52),Rv3544c/fadE28(53),Rv3545c/cyp125(54),Rv3546/fadA5(55),Rv3561/fadD3(62),Rv3568c/bphC(65),Rv3569c/bphD(66),Rv3570c/-(67),Rv3571/hmp(68)
