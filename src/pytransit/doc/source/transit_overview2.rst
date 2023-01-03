@@ -17,8 +17,9 @@ some analyses).
 
 Transit has two main phases: 
 
- * a pre-processing phase (called TPP) which analyzes raw sequencing data (fastq files) and extracts transposon insertion counts at genomic coordinates (i.e. TA dinucleotides, for the Himar1 transposon), and   
- * statistical analyses (using Transit proper).   
+ * a **pre-processing phase** (called TPP) which analyzes raw sequencing data (fastq files) and extracts transposon insertion counts at genomic coordinates (i.e. TA dinucleotides, for the Himar1 transposon), and   
+
+ * **statistical analysis methods** (using Transit GUI or command line) - gumbel, HMM, resampling, ANOVA...
 
 The statistical analyses are focused on identifying genes
 that are *essential* or *conditionally-essential*, and quantifying the
