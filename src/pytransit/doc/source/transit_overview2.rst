@@ -232,9 +232,9 @@ Basic walk-through:
 
 * Next, you can select an analysis method from the menu (under **Methods->himar1**), such as gumbel, HMM, resampling, ZINB...  This will bring up a corresponding **parameter panel** on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
 
-* Then you hit 'Run'. You should be able to monitor progress via the Progress Bar.
+* Then you hit the **Run button**. You should be able to monitor progress via the Progress Bar.
 
-* Status updates and various messages will be displayed in the Message Bar at the bottom of the GUI window. **Important:** The full list of messages, including error messages will be printed on in the console window from where you started Transit. Check these message if anything goes wrong.
+* Status updates and various messages will be displayed in the **Message Bar** at the bottom of the GUI window. Important: The full list of messages, including error messages will be printed on in the console window from where you started Transit. Check these message if anything goes wrong.
 
 * Usually, an analysis method will generate one or more output files.  These are typically text files in tab-separated format (which could be opened as spreadsheets in Excel). The file will get populated into the **Results Table** (bottom pannel).
 
@@ -246,11 +246,33 @@ Basic walk-through:
 Pre-Processing
 --------------
 
-* tnseq_stats, QQplots, track-view, scatterplots, corrplot, gene_means
+When you first start the Transit GUI, you load up your TnSeq dataset (combined_wig file).
+Before running any statistical analyses, the first thing you will probably want to
+do is explore the individual samples, their relationships, and data quality.
+Most of these steps can be performed by clicking on a sample in the samples menu
+and selecting an action from the drop-down list, or by choosing one of the items from
+the Pre-Processing menu.  These steps can also be done at the command line.
 
-* QC - data quality, diagnostics
+ * tnseq_stats (Pre-Processing menu): generate a table summaring key statistics and metrics for each individual sample (including saturation, skewness, etc)
 
-* normalization (TTR, betageom)
+ * generate a LOESS plot (drop-down list) to see whether the mean read count variest significantly across the genome (chromosomal position bias; M. tuberculosis samples typically do not show a substantial bias)
+
+ * examine read-count distributions (Quality Control in drop-down list) to check for highly skewed samples 
+
+ * generate a Track View (drop-down list) for one or more samples that shows insertions (vertical bars) at TA sites in a target gene or locus
+
+ * compute the mean insertion count in each gene in each condition (Pre-Processing->Gene Means) - this generates a helpful spreadsheet from which one can make barcharts showing how the (normalized) insertion counts vary across conditions for genes of interest
+
+ * normalization (Pre-Processing->Normalize; *select individual samples and save as .wig, or only for whole combined_wigs???*) - while most of the analysis methods automatically perform TTR normalization, and even the method for creating combined_wig files does this by default, one can choose to normalize a sample or whole dataset a different way (such as the Beta-Geometric Correction, BGC).  But in most cases, users will not need to do an explicit normalization step.
+
+ * make a scatter plot (Pre-Processing->Visuals->corrplot) between 2 samples showing how correlated the mean insertion counts are at the gene level to check for consistency/reproducibility
+
+ * make a corrlation plot (Pre-Processing->Visuals->corrplot) among all samples to see which conditions appear more similar to each other, and to check that replicates are most highly correlated with each other (or check for outlier samples that do not correlate well with other replicates of the same condition, which might suggest they are bad or noisy)
+
+ * tnseq_stats, QQplots, track-view, scatterplots, corrplot, gene_means
+
+
+
 
 * Analyses (for Himar1 datasets)
 
