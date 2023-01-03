@@ -26,7 +26,7 @@ import scipy.stats
 import matplotlib.pyplot as plt
 
 from matplotlib.figure import Figure
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools
 
 class QualityControlFrame(wx_frame):
     def __init__(self, parent, wig_ids):

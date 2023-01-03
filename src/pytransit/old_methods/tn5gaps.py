@@ -18,7 +18,7 @@ from pytransit.specific_tools import transit_tools
 from pytransit.specific_tools import tnseq_tools
 from pytransit.specific_tools import norm_tools
 from pytransit.specific_tools import stat_tools
-from pytransit.specific_tools import logging
+from pytransit.globals import logging
 
 # method_name = "example"
 
@@ -216,7 +216,7 @@ class Tn5GapsMethod(base.SingleConditionMethod):
     def from_gui(self, wxobj):
         """ """
         # Get Annotation file
-        from pytransit.globals import gui, cli, root_folder, debugging_enabled
+        from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
         annotation_path = gui.annotation_path
         if not transit_tools.validate_annotation(annotation_path):
             return None

@@ -14,8 +14,8 @@ from pytransit.components import file_display, parameter_panel, results_area, sa
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import csv, informative_iterator, misc
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.globals import cli, debugging_enabled, gui, root_folder
-from pytransit.specific_tools import console_tools, gui_tools, logging, norm_tools, tnseq_tools, transit_tools
+from pytransit.globals import logging, cli, debugging_enabled, gui, root_folder
+from pytransit.specific_tools import console_tools, gui_tools, norm_tools, tnseq_tools, transit_tools
 
 @misc.singleton
 class Method:
@@ -78,7 +78,7 @@ class Method:
             self.value_getters = LazyDict()
             self.value_getters.input_path        = panel_helpers.create_file_input(  panel, main_sizer, button_label=f"Select {Method.prev_menu_choice} file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.q_value_threshold = panel_helpers.create_float_getter(panel, main_sizer, label_text="Adj P Value Cutoff", default_value=Method.defaults.q_value_threshold, tooltip_text="Change adjusted p-value threshold for selecting genes")
-            self.value_getters.top_k             = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Top K",              default_value=Method.defaults.top_k,             tooltip_text="Select top k genes ranked by significance (adjusted pval)")
+            self.value_getters.top_k             = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Top K",              default_value=Method.defaults.top_k,             tooltip_text="(-1 means all) Sometimes there are so many genes it is hard to see the heatmap top genes. This allows limiting to the top K genes (ranked by significance; adjusted p-value)")
             self.value_getters.low_mean_filter   = panel_helpers.create_float_getter(panel, main_sizer, label_text="Low Mean Filter",    default_value=Method.defaults.low_mean_filter,   tooltip_text="Filter out genes with grand mean count (across all conditions) below this threshold (even if adjusted p-value < 0.05)")
             
     @staticmethod
@@ -175,12 +175,11 @@ class Method:
                 gene_names.append(each_row["gene_name"])
                 lfc_s.append(each_row['lfcs'])
         
-        print(f"heatmap based on {len(gene_names)} genes")
         column_to_lfcs = pd.DataFrame({
             column_name : [ each_lfc[column_index] for each_lfc in lfc_s ]
                 for column_index, column_name in enumerate(column_names)
         })
-        
+
         basic_heatmap(column_to_lfcs, row_names=gene_names, output_path=output_path)
         
 magic_number_300 = 300
@@ -208,6 +207,7 @@ def basic_heatmap(df, row_names, output_path):
         method="complete",
         metric="euclidean",
         center=0,
+        yticklabels=True
     )
     x0, y0, cbar_width, cbar_height = clustermap_plot.cbar_pos
     clustermap_plot.ax_cbar.set_position([x0, 0.9, cbar_width/2, cbar_height])

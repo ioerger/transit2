@@ -592,7 +592,7 @@ def resampling(
             # site_retricted use F_sum_diff_flat() as test_func too
             test_obs = test_func(data1, data2) # first call, actual value from observed counts
         except Exception as error:
-            from pytransit.specific_tools import logging
+            from pytransit.globals import logging
             logging.error(f"""
                 the resampling function could not apply test function to input data!
                     data1: {data1}

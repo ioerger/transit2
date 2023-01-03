@@ -1,10 +1,14 @@
 #Gumbel
 #yaml:
-#    date: 2022-12-19 10:46:56
+#    date: 2023-01-02 12:39:48
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
-#    console_command: |
-#        python3 './src/transit.py' 'gumbel' './src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gumbel/0001_basic.sh.1.result'
+#    console_command: python3 './src/transit.py' 'gumbel' './src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,./src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gumbel/0001_basic.sh.1.result'
+#    calculation_time: 61.3seconds
+#    analysis_type: Gumbel
+#    files:
+#       combined_wig: null
+#       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #    parameters:
 #       samples: 10000
 #       norm: TTR
@@ -15,7 +19,6 @@
 #       iN: 0.0
 #       iC: 0.0
 #    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
-#    time: 95.65025448799133
 #    summary_info:
 #       ES: '553'
 #       ESB: '121'

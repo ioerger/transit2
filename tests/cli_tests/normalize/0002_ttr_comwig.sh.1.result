@@ -1,17 +1,11 @@
 #CombinedWig
 #yaml:
-#    date: 2022-12-19 10:48:39
+#    date: 2023-01-02 12:40:32
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
-#    console_command: |
-#        python3 './src/transit.py' 'normalize' 'src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './tests/cli_tests/normalize/0002_ttr_comwig.sh.1.result' '-n' 'TTR'
-#    wig_fingerprints:
-#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig
-#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig
-#    - src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig
-#    - src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
-#    - src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
-#    time: 0.2379608154296875
+#    console_command: python3 './src/transit.py' 'normalize' 'src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './tests/cli_tests/normalize/0002_ttr_comwig.sh.1.result' '-n' 'TTR'
+#    wig_fingerprints: [src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig, src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig, src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig, src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig, src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig]
+#    time: 0.15013718605041504
 #    normalization: TTR
 #    original_path: src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
 #    

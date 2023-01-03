@@ -1,6 +1,6 @@
 from pytransit.specific_tools.transit_tools import wx
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
 default_padding = 30
 default_label_size = (220, -1)
@@ -178,15 +178,15 @@ if True:
                         )
                         file_text.SetLabel(basename(the_file_path or ""))
                         after_select(*args)
-            row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
             
             # 
             # Text
             # 
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
-            row_sizer.Add(file_text, 0, wx.ALIGN_CENTER_VERTICAL, gui_tools.default_padding)
+            row_sizer.Add(file_text, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_LEFT, border=gui_tools.default_padding)
+        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER, border=gui_tools.default_padding)
         return lambda *args, **kwargs: the_file_path
     
     def create_multi_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
@@ -461,7 +461,7 @@ if True:
                 import matplotlib
                 import matplotlib.pyplot as plt
                 from pytransit.specific_tools import stat_tools
-                from pytransit.globals import gui, cli, root_folder, debugging_enabled
+                from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
                 from pytransit.specific_tools.tnseq_tools import Wig
                 
                 # 

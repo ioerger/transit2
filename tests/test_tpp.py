@@ -46,7 +46,7 @@ from pytpp.tpp_tools import clean_args
 import pytpp.__main__
 
 # fake setup for testing
-from pytransit.globals import gui
+from pytransit.globals import logging, gui
 gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
 
 tppMain = pytpp.__main__.main
@@ -59,8 +59,11 @@ def get_bwa():
         return "/usr/local/bin/bwa"
     elif platform.system() != "Windows":
         import subprocess
-        output = subprocess.check_output([ 'sh', '-c', 'command -v bwa'])
-        return output.decode()[0:-1]
+        try:
+            output = subprocess.check_output([ 'sh', '-c', 'command -v bwa'])
+            return output.decode()[0:-1]
+        except Exception as error:
+            pass
     return ""
 
 bwa_path = get_bwa()

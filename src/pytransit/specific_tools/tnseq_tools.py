@@ -12,23 +12,14 @@ from pytransit.generic_tools import csv, misc
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify
 from pytransit.generic_tools.named_list import named_list, NamedListBase
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces, cache
-from pytransit.specific_tools import logging
+from pytransit.globals import logging
 
 try:
     from pytransit.specific_tools import norm_tools
-
     no_norm = False
 except ImportError:
     no_norm = True
-    warnings.warn(
-        "Problem importing the norm_tools.py module. Read-counts will not be normalized. Some functions may not work."
-    )
-
-
-# format:
-#   header lines (prefixed by '#'), followed by lines with counts
-#   counts lines contain the following columns: TA coord, counts, other info like gene/annotation
-#   for each column of counts, there must be a header line prefixed by "#File: " and then an id or filename
+    warnings.warn("Problem importing the norm_tools.py module. Read-counts will not be normalized. Some functions may not work.")
 
 class Wig:
     '''
@@ -95,7 +86,7 @@ class Wig:
     @staticmethod
     def selected_as_gathered_data(wig_objects):
         import numpy
-        from pytransit.globals import gui, cli, root_folder, debugging_enabled
+        from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
         
         # fail fast
         if len(wig_objects) == 0:
@@ -370,8 +361,9 @@ class CombinedWigData(NamedListBase):
                     # 
                     # handle older file method
                     # 
-                    if line.startswith("#File: "):
-                        wig_fingerprints.append(line.rstrip()[7:])  # allows for spaces in filenames
+                    old_header = "#File: "
+                    if line.startswith(old_header) or line.startswith(old_header.lower()):
+                        wig_fingerprints.append(line.rstrip()[len(old_header):])  # allows for spaces in filenames
                         continue
             
             # 
@@ -428,8 +420,8 @@ class CombinedWig:
         self.metadata.wig_ids
         self.metadata.wig_fingerprints
         self.metadata.with_only(condition_names=[], wig_fingerprints=[])
-        self.metadata.condition_for(wig_fingerprint) # will need to change to "conditions" instead of "condition"
-        self.metadata.condition_for(wig_id) # will need to change to "conditions" instead of "condition"
+        self.metadata.condition_names_for(wig_fingerprint="")
+        self.metadata.condition_names_for(wig_id="")
         self.metadata.id_for(wig_fingerprint)
         self.metadata.fingerprints_for(condition_name)
     '''
@@ -450,7 +442,6 @@ class CombinedWig:
         self.comments        = comments or []
         self.extra_data      = LazyDict(extra_data or {})
         self.samples         = []
-        self.cached_read_counts_by_wig_fp = None
         self._load_main_path()
     
     def __repr__(self):
@@ -507,14 +498,12 @@ class CombinedWig:
     @property
     @cache(watch_attributes=lambda self:[ self.wig_fingerprints ])
     def read_counts_by_wig_fingerprint(self):
-        if self.cached_read_counts_by_wig_fp!=None: return self.cached_read_counts_by_wig_fp
         counts_for_wig = { each_path: [] for each_path in self.wig_fingerprints }
         for each_row in self.rows:
             for each_wig_fingerprint in self.wig_fingerprints:
                 counts_for_wig[each_wig_fingerprint].append(
                     each_row[each_wig_fingerprint]
                 )
-        self.cached_read_counts_by_wig_fp = counts_for_wig
         return counts_for_wig
     
     def copy(self):
@@ -2413,12 +2402,12 @@ class AnnotationFile:
         filename, file_extension = os.path.splitext(path)
         file_extension = file_extension.lower()
         self.path = path
-        if file_extension in [".gff", ".gff3"]:
+        if file_extension in GffFile.file_extensions:
             self.orf_to_info = {
                 key : AnnotationFile.Info(value)
                     for key, value in GffFile.extract_gene_info(path).items()
             }
-        elif file_extension in [".prot_table"]:
+        elif file_extension in ProtTable.file_extensions:
             self.orf_to_info = {
                 key : AnnotationFile.Info(value)
                     for key, value in ProtTable.extract_gene_info(path).items()
@@ -2454,6 +2443,7 @@ class ProtTable:
     index_of_gene_strand = 3
     index_of_gene_name   = 7
     index_of_orf         = 8
+    file_extensions = [".prot_table"]
     
     @staticmethod
     def extract_gene_info(path):
@@ -2478,13 +2468,13 @@ class ProtTable:
             for line in file:
                 if line.startswith("#"):
                     continue
-                tmp = line.strip().split("\t")
-                orf = tmp[ProtTable.index_of_orf]
-                name = tmp[ProtTable.index_of_gene_name]
-                desc = tmp[0]
-                start = int(tmp[ProtTable.index_of_gene_start])
-                end = int(tmp[ProtTable.index_of_gene_end])
-                strand = tmp[ProtTable.index_of_gene_strand]
+                row           = line.strip().split("\t")
+                orf           = row[ProtTable.index_of_orf]
+                name          = row[ProtTable.index_of_gene_name]
+                desc          = row[ProtTable.index_of_description]
+                start         = int(row[ProtTable.index_of_gene_start])
+                end           = int(row[ProtTable.index_of_gene_end])
+                strand        = row[ProtTable.index_of_gene_strand]
                 orf2info[orf] = (name, desc, start, end, strand)
         return orf2info
 
@@ -2503,6 +2493,7 @@ class GffFile:
         'phase',      # One of '0', '1' or '2'. '0' indicates that the first base of the feature is the first base of a codon, '1' that the second base is the first base of a codon, and so on..
         'attributes', # A semicolon-separated list of tag-value pairs, providing additional information about each feature. Some of these tags are predefined, e.g. ID, Name, Alias, Parent - see the GFF documentation for more details.
     ))
+    file_extensions = [".gff", ".gff3"]
     max_number_of_columns = 9
     
     seqid_index      = 0
@@ -2618,53 +2609,9 @@ class GffFile:
                     - end coordinate
                     - strand
         """
-        orf2info = {}
-        with open(path) as file:
-            for line in file:
-                if line.startswith("#"):
-                    continue
-                tmp = line.strip().split("\t")
-                chr = tmp[0]
-                type = tmp[2]
-                start = int(tmp[3])
-                end = int(tmp[4])
-                length = ((end - start + 1) / 3) - 1
-                strand = tmp[6]
-                features = dict(
-                    [
-                        tuple(f.split("=", 1))
-                        for f in filter(lambda x: "=" in x, tmp[8].split(";"))
-                    ]
-                )
-                # FIXME: check if this should also be using locus_tag
-                if "ID" not in features:
-                    continue
-                    # always skip if if not CDS
-                    # "gene" as gene name if it exists
-                    # "locus_tag" as orf id
-                    # "product" as gene description, could also be called "note"
-                # require: "locus_tag"
-                # require: type=="CDS"
-                # "gene"
-                # "product",
-                
-                orf = features["ID"]
-                name = features.get("Name", features.get("Gene Name","-")) # FIXME: "Name" can be pro
-                if name == "-":
-                    name = features.get("name", "-")
-
-                desc = features.get("Description", "-")
-                if desc == "-":
-                    desc = features.get("description", "-")
-                if desc == "-":
-                    desc = features.get("Desc", "-")
-                if desc == "-":
-                    desc = features.get("desc", "-")
-                if desc == "-":
-                    desc = features.get("product", "-")
-
-                orf2info[orf] = (name, desc, start, end, strand)
-        
+        gff_data = GffFile(path=path)
+        for description, start, end, strand, size, _, _, gene_name, orf_id, _ in gff_data.as_prot_table_rows:
+            orf2info[orf] = (gene_name, description, start, end, strand)
         return orf2info
     
     def as_prot_table_rows(self, allowed_types=["CDS"], max_row_length=max_number_of_columns):
@@ -2691,3 +2638,14 @@ class GffFile:
                 [ description, row.start, row.end, strand, size, "-", "-", gene_name, orf_id, "-" ]
             )
         return new_rows
+
+
+def read_result(path):
+    from pytransit.generic_tools.named_list import named_list
+    comments, headers, rows = csv.read(path, seperator="\t", skip_empty_lines=True, comment_symbol="#")
+    # real headers are in first comment
+    headers   = comments[-1].split("\t")
+    named_row = named_list([ each for each in headers if each ])
+    rows = [ named_row(each) for each in rows ]
+    
+    return comments, headers, rows

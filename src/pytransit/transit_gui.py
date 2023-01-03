@@ -46,9 +46,9 @@ from pytransit.components.parameter_panel        import create_panel_area
 from pytransit.components.results_area           import create_results_area
 from pytransit.components.samples_area           import create_sample_area
 from pytransit.generic_tools.lazy_dict                  import LazyDict
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 import pytransit
 import pytransit.components.parameter_panel as parameter_panel
 import pytransit.components.trash as trash

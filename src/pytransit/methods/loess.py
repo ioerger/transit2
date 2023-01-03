@@ -10,11 +10,11 @@ import heapq
 
 import numpy
 
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
 from pytransit.specific_tools.transit_tools import wx, basename
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 
@@ -32,7 +32,7 @@ class Method:
             import matplotlib
             import matplotlib.pyplot as plt
             from pytransit.specific_tools import stat_tools
-            from pytransit.globals import gui, cli, root_folder, debugging_enabled
+            from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
             from pytransit.specific_tools.tnseq_tools import Wig
             from statsmodels.nonparametric.smoothers_lowess import lowess
             

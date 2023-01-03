@@ -11,13 +11,15 @@ import heapq
 import numpy
 
 from pytransit.generic_tools import csv, misc, informative_iterator
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
+
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 
 @misc.singleton
@@ -272,6 +274,8 @@ class Method:
                 ],
                 column_names=Method.column_names,
                 extra_info=dict(
+                    calculation_time=f"{(timer.duration_in_seconds):0.1f}seconds",
+                    analysis_type=Method.identifier,
                     stats=dict(
                         number_of_significant_genes=number_of_significant_genes,
                     ),
@@ -313,6 +317,7 @@ class ResultFileType1:
                         "Adj P Value",
                     ],
                 ).Show(),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         

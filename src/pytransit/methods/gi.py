@@ -18,13 +18,15 @@ import statsmodels.stats.multitest
 from pytransit.generic_tools.lazy_dict import LazyDict
 
 from pytransit.specific_tools.transit_tools import wx, basename
-from pytransit.specific_tools import logging, gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, console_tools, tnseq_tools, norm_tools
 from pytransit.generic_tools import csv, misc
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.components.spreadsheet import SpreadSheet
+
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 @misc.singleton
 class Method:
@@ -147,7 +149,7 @@ class Method:
         # get wig files
         # 
         wig_group = gui.combined_wigs[-1] # assume there is only 1 (should check that it has beed defined)
-        Method.inputs.combined_wig = wig_group.main_path # see components/sample_area.py
+        Method.inputs.combined_wig_path = wig_group.main_path # see components/sample_area.py
         Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path # assume all samples are in the same metadata file
 
         # 
@@ -183,14 +185,14 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=8)
 
-        combined_wig    = args[0]
-        annotation_path = args[1]
-        metadata_path   = args[2]
-        condA1          = args[3]
-        condA2          = args[4]
-        condB1          = args[5]
-        condB2          = args[6]
-        output_path     = args[7]
+        combined_wig_path = args[0]
+        annotation_path   = args[1]
+        metadata_path     = args[2]
+        condA1            = args[3]
+        condA2            = args[4]
+        condB1            = args[5]
+        condB2            = args[6]
+        output_path       = args[7]
 
         normalization = kwargs.get("n", "TTR")
         samples       = int(kwargs.get("s", 10000))
@@ -201,7 +203,7 @@ class Method:
 
         # save all the data
         Method.inputs.update(dict(
-          combined_wig=combined_wig,
+          combined_wig_path=combined_wig_path,
           annotation_path=annotation_path,
           metadata_path=metadata_path,
           condA1=condA1,
@@ -230,7 +232,7 @@ class Method:
             # get data
 
             logging.log("Getting Data")
-            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
+            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig_path)
             logging.log(f"Normalizing using: {self.inputs.normalization}")
             data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
 
@@ -652,9 +654,13 @@ class Method:
                 'Type Of Interaction',
             ],
             extra_info=dict(
-                time = (time.time() - self.start_time),
-
-                Parameters= dict(
+                calculation_time=f"{time.time() - self.start_time:0.1f}seconds",
+                analysis_type=Method.identifier,
+                files=dict(
+                    combined_wig=Method.inputs.combined_wig_path,
+                    annotation_path=Method.inputs.annotation_path,
+                ),
+                parameters= dict(
                     Normalization_Of_Counts= self.inputs.normalization,
                     Number_Of_Samples_For_Monte_Carlo = str(self.inputs.samples),
                     Trimming_Of_TA_Sites = dict(
@@ -715,7 +721,9 @@ class ResultFileType1:
                     title=Method.description,
                     heading=misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
-                    rows=self.rows).Show(),
+                    rows=self.rows
+                    ).Show(),
+                    "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         

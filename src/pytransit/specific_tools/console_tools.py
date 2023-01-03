@@ -16,13 +16,6 @@ else:
         foreground="bright_blue"
     )
 
-
-
-
-class InvalidArgumentException(Exception):
-    def __init__(self, *args, **kwargs):
-        super(InvalidArgumentException, self).__init__(*args, **kwargs)
-
 class RawKwargs: pass
 def clean_args(raw_args):
     """Returns a list and a dictionary with positional and keyword arguments.

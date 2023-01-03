@@ -21,7 +21,7 @@ from pytransit.methods.hmm        import Method as HMMMethod
 from pytransit.methods.resampling import Method as ResamplingMethod
 
 # fake setup for testing
-from pytransit.globals import gui
+from pytransit.globals import logging, gui
 gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
 
 # RAW STATISTICS:

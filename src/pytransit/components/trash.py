@@ -28,7 +28,7 @@ import ntpath
 import traceback
 from PIL import Image, ImageDraw, ImageFont
 
-from pytransit.specific_tools import logging, transit_tools, tnseq_tools, norm_tools, gui_tools
+from pytransit.specific_tools import transit_tools, tnseq_tools, norm_tools, gui_tools
 
 track_prefix = "[TrackView]"
 

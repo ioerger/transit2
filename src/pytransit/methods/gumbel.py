@@ -14,11 +14,11 @@ import scipy
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import csv, misc, informative_iterator
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, stat_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools, stat_tools
 import pytransit.components.results_area as results_area
 
 @misc.singleton
@@ -103,14 +103,13 @@ class Method:
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
-                The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
-                    
-                1. Of the Conditions in the Conditions pane, select one using the 'Conditions' dropdown
+                    The Gumbel can be used to determine which genes are essential in a single condition. It does a gene-by-gene analysis of the insertions at TA sites with each gene, makes a call based on the longest consecutive sequence of TA sites without insertion in the genes, calculates  the probability of this using a Bayesian model.
+                        
+                    1. Of the Conditions in the Conditions pane, select one using the 'Conditions' dropdown
 
-                2. [Optional] Select/Adjust values for the remaining parameters
+                    2. [Optional] Select/Adjust values for the remaining parameters
 
-                3. Click Run
-                
+                    3. Click Run
                 """.replace("\n                    ","\n"),
             )
                 
@@ -424,6 +423,12 @@ class Method:
             rows=rows,
             column_names=Method.column_names,
             extra_info=dict(
+                calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
+                analysis_type=Method.identifier,
+                files=dict(
+                    combined_wig=Method.inputs.combined_wig,
+                    annotation_path=Method.inputs.annotation_path,
+                ),
                 parameters=dict(
                     samples=self.inputs.samples,
                     norm=self.inputs.normalization,
@@ -435,8 +440,6 @@ class Method:
                     iC=self.inputs.iC,
                 ),
                 annotation_path=self.inputs.annotation_path,
-                time=(time.time() - self.start_time),
-
                 summary_info=dict(
                     ES = str(calls.count("E")),
                     ESB = str(calls.count("EB")),
@@ -444,7 +447,6 @@ class Method:
                     U = str(calls.count("U")),
                     S = str(calls.count("S")),
                 ),
-
                 naming_reference = dict(
                     ES = "Essential based on Gumbel",
                     ESB = "Essential based on Binomial",
@@ -561,7 +563,7 @@ class ResultFileType1:
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
         summary = self.extra_data.get("summary_info", {})
-        summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
+        summary_str = [str(summary[key])+" "+str(key) for key in ["ES","ESB", "NE","S","U"]] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
         
         parameters = self.extra_data.get("parameters",{})

@@ -10,11 +10,11 @@ import heapq
 
 import numpy
 
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 import pytransit.components.file_display as file_display
 import pytransit.components.results_area as results_area
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import misc, csv, informative_iterator
@@ -348,143 +348,147 @@ class Method:
 
     def Run(self):
         logging.log("Starting Anova analysis")
-        start_time = time.time()
-        
-        # 
-        # get data
-        # 
-        logging.log("Getting Data")
-        if True:
-            sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
-            
-            logging.log(f"Normalizing using: {self.inputs.normalization}")
-            data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
-            
-            if self.inputs.winz: logging.log("Winsorizing insertion counts")
-            conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.CombinedWigMetadata.read_condition_data(self.inputs.metadata)
-            conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ]
-            conditions_list = transit_tools.select_conditions(
-                conditions=conditions or [],
-                included_conditions=self.inputs.included_conditions,
-                excluded_conditions=self.inputs.excluded_conditions,
-                ordering_metadata=ordering_metadata,
-            )
-
-            condition_names = [conditions_by_wig_fingerprint[f] for f in filenames_in_comb_wig]
-            # validate
-            if self.inputs.refs and len(set(self.inputs.refs) - set(condition_names)) > 0:
-                logging.error(f"One of the reference conditions {self.inputs.refs} is not one of the available conditions: {misc.no_duplicates(condition_names)}")
-
-            (
-                data,
-                file_names,
-                condition_names,
-                conditions,
-                _,
-                _,
-            ) = transit_tools.filter_wigs_by_conditions2(
-                data,
-                wig_fingerprints=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
-                condition_names=condition_names, # original Condition column in samples metadata file
-                included_cond=self.inputs.included_conditions,
-                excluded_cond=self.inputs.excluded_conditions,
-                conditions=condition_names,
-            ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
-            
-            logging.log("reading genes")
-            genes = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path).as_list_of_dicts
-        
-        # 
-        # process data
-        # 
-        if True:
-            logging.log("processing data")
-            TASiteindexMap = {ta: i for i, ta in enumerate(sites)}
-            rv_site_indexes_map = tnseq_tools.rv_site_indexes_map(
-                genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
-            )
-            means_by_rv = self.means_by_rv(data, rv_site_indexes_map, genes, conditions)
-
-            logging.log("Running Anova")
-            msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
-                data, genes, means_by_rv, rv_site_indexes_map, conditions
-            )
-            self.hit_summary =str(len([val for val in qvals if float(qvals[val])<0.05]))
-        
-        # 
-        # write output
-        # 
-        if True:
-            logging.log(f"Adding File: {self.inputs.output_path}")
+        disable_logging = False # change this to be an input whenever this is converted to a .output() style structure
+        with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[self.inputs.output_path], disable=disable_logging) as timer:
             
             # 
-            # generate rows
+            # get data
             # 
-            rows = []
-            for gene in genes:
-                each_rv = gene["rv"]
-                if each_rv in means_by_rv:
-                    means = [ means_by_rv[each_rv][condition_name] for condition_name in conditions_list]
-                    refs  = [ means_by_rv[each_rv][ref_condition ] for ref_condition in self.inputs.refs]
-                    lfcs = self.calc_lfcs(means, refs, self.inputs.pseudocount)
-                    rows.append(
-                        [
-                            each_rv,
-                            gene["gene"],
-                            str(len(rv_site_indexes_map[each_rv])),
-                        ] + [
-                            "%0.2f" % x for x in means
-                        ] + [
-                            "%0.3f" % x for x in lfcs
-                        ] +  [
-                            "%f" % x for x in [msrs[each_rv], mses[each_rv], f_stats[each_rv], pvals[each_rv], qvals[each_rv]]
-                        ] + [
-                            run_status[each_rv]
-                        ]
-                    )
+            logging.log("Getting Data")
+            if True:
+                sites, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
+                
+                logging.log(f"Normalizing using: {self.inputs.normalization}")
+                data, factors = norm_tools.normalize_data(data, self.inputs.normalization)
+                
+                if self.inputs.winz: logging.log("Winsorizing insertion counts")
+                conditions_by_wig_fingerprint, _, _, ordering_metadata = tnseq_tools.CombinedWigMetadata.read_condition_data(self.inputs.metadata)
+                conditions = [ conditions_by_wig_fingerprint.get(f, None) for f in filenames_in_comb_wig ]
+                conditions_list = transit_tools.select_conditions(
+                    conditions=conditions or [],
+                    included_conditions=self.inputs.included_conditions,
+                    excluded_conditions=self.inputs.excluded_conditions,
+                    ordering_metadata=ordering_metadata,
+                )
+
+                condition_names = [conditions_by_wig_fingerprint[f] for f in filenames_in_comb_wig]
+                # validate
+                if self.inputs.refs and len(set(self.inputs.refs) - set(condition_names)) > 0:
+                    logging.error(f"One of the reference conditions {self.inputs.refs} is not one of the available conditions: {misc.no_duplicates(condition_names)}")
+
+                (
+                    data,
+                    file_names,
+                    condition_names,
+                    conditions,
+                    _,
+                    _,
+                ) = transit_tools.filter_wigs_by_conditions2(
+                    data,
+                    wig_fingerprints=filenames_in_comb_wig, # it looks like file_names and condition_names have to be parallel to data (vector of wigs)
+                    condition_names=condition_names, # original Condition column in samples metadata file
+                    included_cond=self.inputs.included_conditions,
+                    excluded_cond=self.inputs.excluded_conditions,
+                    conditions=condition_names,
+                ) # this is kind of redundant for ANOVA, but it is here because condition, covars, and interactions could have been manipulated for ZINB
+                
+                logging.log("reading genes")
+                genes = tnseq_tools.AnnotationFile(path=self.inputs.annotation_path).as_list_of_dicts
             
             # 
-            # write to file
-            #
-            mean_columns = [ f"Mean {condition_name}" for condition_name in conditions_list ] 
-            lfc_columns  = [ f"Log 2 FC {condition_name}" for condition_name in conditions_list ] 
-            transit_tools.write_result(
-                path=self.inputs.output_path,
-                file_kind=Method.identifier,
-                rows=rows,
-                column_names=[
-                    "Rv",
-                    "Gene",
-                    "TAs",
-                    *mean_columns,
-                    *lfc_columns,
-                    "MSR",
-                    "MSE With Alpha",
-                    "Fstat",
-                    "P Value",
-                    "Adj P Value",
-                    "Status"
-                ],
-                extra_info=dict(
-                    parameters=dict(
-                        conditions_list=conditions_list,
-                        normalization=self.inputs.normalization,
-                        trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
-                        pseudocounts=self.inputs.pseudocount,
-                        alpha=self.inputs.alpha,
-                        refs = self.inputs.refs,
+            # process data
+            # 
+            if True:
+                logging.log("processing data")
+                TASiteindexMap = {ta: i for i, ta in enumerate(sites)}
+                rv_site_indexes_map = tnseq_tools.rv_site_indexes_map(
+                    genes, TASiteindexMap, n_terminus=self.inputs.n_terminus, c_terminus=self.inputs.c_terminus
+                )
+                means_by_rv = self.means_by_rv(data, rv_site_indexes_map, genes, conditions)
+
+                logging.log("Running Anova")
+                msrs, mses, f_stats, pvals, qvals, run_status = self.calculate_anova(
+                    data, genes, means_by_rv, rv_site_indexes_map, conditions
+                )
+                self.hit_summary =str(len([val for val in qvals if float(qvals[val])<0.05]))
+            
+            # 
+            # write output
+            # 
+            if True:
+                logging.log(f"Adding File: {self.inputs.output_path}")
+                
+                # 
+                # generate rows
+                # 
+                rows = []
+                for gene in genes:
+                    each_rv = gene["rv"]
+                    if each_rv in means_by_rv:
+                        means = [ means_by_rv[each_rv][condition_name] for condition_name in conditions_list]
+                        refs  = [ means_by_rv[each_rv][ref_condition ] for ref_condition in self.inputs.refs]
+                        lfcs = self.calc_lfcs(means, refs, self.inputs.pseudocount)
+                        rows.append(
+                            [
+                                each_rv,
+                                gene["gene"],
+                                str(len(rv_site_indexes_map[each_rv])),
+                            ] + [
+                                "%0.2f" % x for x in means
+                            ] + [
+                                "%0.3f" % x for x in lfcs
+                            ] +  [
+                                "%f" % x for x in [msrs[each_rv], mses[each_rv], f_stats[each_rv], pvals[each_rv], qvals[each_rv]]
+                            ] + [
+                                run_status[each_rv]
+                            ]
+                        )
+                
+                # 
+                # write to file
+                #
+                mean_columns = [ f"Mean {condition_name}" for condition_name in conditions_list ] 
+                lfc_columns  = [ f"Log 2 FC {condition_name}" for condition_name in conditions_list ] 
+                transit_tools.write_result(
+                    path=self.inputs.output_path,
+                    file_kind=Method.identifier,
+                    rows=rows,
+                    column_names=[
+                        "Rv",
+                        "Gene",
+                        "TAs",
+                        *mean_columns,
+                        *lfc_columns,
+                        "MSR",
+                        "MSE With Alpha",
+                        "Fstat",
+                        "P Value",
+                        "Adj P Value",
+                        "Status"
+                    ],
+                    extra_info=dict(
+                        calculation_time=f"{timer.duration_in_seconds:0.1f}seconds",
+                        analysis_type=Method.identifier,
+                        files=dict(
+                            combined_wig=Method.inputs.combined_wig,
+                            annotation_path=Method.inputs.annotation_path,
+                        ),
+                        parameters=dict(
+                            conditions_list=conditions_list,
+                            normalization=self.inputs.normalization,
+                            trimming=f"{self.inputs.n_terminus}/{self.inputs.c_terminus} % (N/C)",
+                            pseudocounts=self.inputs.pseudocount,
+                            alpha=self.inputs.alpha,
+                            refs = self.inputs.refs,
+                        ),
+                        mean_columns=mean_columns,
+                        lfc_columns=lfc_columns,
+                        summary_info = dict(
+                            Hits=self.hit_summary,
+                        ),
+                    
                     ),
-                    mean_columns=mean_columns,
-                    lfc_columns=lfc_columns,
-                    summary_info = dict(
-                        Hits=self.hit_summary,
-                    ),
-                   
-                ),
-            )
-            logging.log("Finished Anova analysis")
-            logging.log(f"Time: {time.time() - start_time:0.1f}s\n")
-        results_area.add(self.inputs.output_path)
+                )
 
 @transit_tools.ResultsFile
 class File:
@@ -493,6 +497,8 @@ class File:
         return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
+        from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
+        
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(
@@ -503,6 +509,7 @@ class File:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(output_path=self.path+".heatmap.png"),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)

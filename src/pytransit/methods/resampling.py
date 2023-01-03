@@ -24,8 +24,8 @@ import pytransit
 import pytransit.components.file_display as file_display
 from pytransit.generic_tools import csv, misc, informative_iterator
 import pytransit.components.results_area as results_area
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components import parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 
@@ -89,7 +89,7 @@ class Method:
         diff_strains=False,
         annotation_path_exp="",
         do_histogram=False,
-        site_restricted=False,
+        site_restricted=True,
     )
     
     usage_string = f"""
@@ -161,7 +161,7 @@ class Method:
             self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.pseudocount     = panel_helpers.create_pseudocount_input(panel, main_sizer)
             self.value_getters.normalization   = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.site_restricted = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=False, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
+            self.value_getters.site_restricted = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Site-restricted resampling", default_value=True, tooltip_text="Restrict permutations of insertion counts in a gene to each individual TA site, which could be more sensitive (detect more conditional-essentials) than permuting counts over all TA sites pooled (which is the default).")
             self.value_getters.adaptive        = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Adaptive Resampling (Faster)", default_value=True, tooltip_text="Dynamically stops permutations early if it is unlikely the ORF will be significant given the results so far. Improves performance, though p-value calculations for genes that are not differentially essential will be slightly less accurate (p-values within a factor of 2 to 3).")
             self.value_getters.do_histogram    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Generate Resampling Histograms", default_value=False, tooltip_text="Creates .png images with the resampling histogram (null distributions for the difference of mean counts) of the ORFs. Histogram images are created in a folder with the same name as the output file.")
         
@@ -222,7 +222,7 @@ class Method:
         from pytransit.methods.combined_wig import Method as CombinedWigMethod
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, at_least=4)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=4)
         
         # init to avoid var-undefined for specific cases
         combined_wig_path      = None
@@ -471,6 +471,12 @@ class Method:
                 rows=rows,
                 column_names=Method.column_names,
                 extra_info=dict(
+                    calculation_time=f"{(time.time() - start_time):0.1f}seconds",
+                    analysis_type=Method.identifier,
+                    files=dict(
+                        combined_wig=Method.inputs.combined_wig_path,
+                        annotation_path=Method.inputs.annotation_path,
+                    ),
                     parameters=dict(
                         samples=self.inputs.samples,
                         norm=self.inputs.normalization,
@@ -491,7 +497,6 @@ class Method:
                     **({} if not self.inputs.diff_strains else dict(
                         annotation_path_exp=self.inputs.annotation_path_exp,
                     )),
-                    time=(time.time() - start_time),
                 ),
             )
             results_area.add(self.inputs.output_path)
@@ -747,7 +752,7 @@ class ResultFileType1:
     
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm",]]
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["samples", "norm","site_restricted"]]
         self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
 

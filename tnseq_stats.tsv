@@ -1,10 +1,9 @@
 #TnseqStats
 #yaml:
-#    date: 2022-12-13 13:37:54
+#    date: 2022-12-26 14:23:43
 #    transit_version: v3.2.6
 #    app_or_command_line: app
-#    console_command: |
-#        transit 
+#    console_command: transit 
 #    parameters:
 #       normalization: nonorm
 #    

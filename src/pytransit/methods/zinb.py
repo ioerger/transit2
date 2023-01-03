@@ -11,13 +11,15 @@ import heapq
 import numpy
 
 from pytransit.generic_tools import csv, misc, informative_iterator
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename, FloatVector, DataFrame, StrVector, EOL, SEPARATOR, rpackages
 from pytransit.components.spreadsheet import SpreadSheet
+
+from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
 cli_args = LazyDict(
     gene=None, # for debugging
@@ -138,9 +140,9 @@ class Method:
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
                 group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group By",                   options=metadata_headers, default_option=None, tooltip_text="Column name (in samples_metadata) to use as the primary condition being evaluated (to test for significant variability of insertions among groups)."),
-                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="For example, suppose you have two treatments with multiple strains. The strains themselves may have an affect on the outcome. However, selecting strain as a covar adjusts for differences caused only by differences in strain."), 
-                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions", options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the selected group/covars. For Example, If grouping by condition and media as the interaction, then ZINB  will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
-                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="FIXME", widget_size=None),
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjusts for differences caused only the strain."), 
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to analyze"   , options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="Add an additional column to the output that inlcudes gene descriptions", widget_size=None),
             )
             
     @staticmethod
@@ -209,7 +211,7 @@ class Method:
         excluded_conditions             = excluded_conditions             if excluded_conditions             is not None else []
         included_conditions             = included_conditions             if included_conditions             is not None else []
         winz                            = winz                            if winz                            is not None else False
-        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 # FIXME: check later to make sure this is the correct default --Jeff
+        pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 
         normalization                   = normalization                   if normalization                   is not None else "TTR"
         n_terminus                      = n_terminus                      if n_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
         c_terminus                      = c_terminus                      if c_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
@@ -410,7 +412,6 @@ class Method:
             # create column_names, rows, extra_info
             # 
             if True:
-                only_have_one_lfc_column = len(ordered_stat_group_names) == 2
                 # 
                 # rows
                 #
@@ -421,22 +422,13 @@ class Method:
                         stats_by_rv[gene_orf_id]["mean"][group]
                             for group in ordered_stat_group_names
                     ]
-                    if only_have_one_lfc_column:
-                        # TODO: still need to adapt this to use -ref if defined
-                        log_fold_changes = [
-                            numpy.math.log(
-                                (means_per_group[1] + pseudocount) / (means_per_group[0] + pseudocount),
-                                2
-                            ) 
-                        ]  
+                    if len(refs) == 0:
+                        grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
                     else:
-                        if len(refs) == 0:
-                            grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
-                        else:
-                            grand_means = numpy.mean(
-                                [stats_by_rv[gene_orf_id]["mean"][group] for group in refs]
-                            )
-                        log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
+                        grand_means = numpy.mean(
+                            [stats_by_rv[gene_orf_id]["mean"][group] for group in refs]
+                        )
+                    log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
                     
                     row = [
                         gene_orf_id,
@@ -471,14 +463,11 @@ class Method:
                 # 
                 # column_names
                 # 
-                if only_have_one_lfc_column:
-                    lfc_columns = [ "Log 2 FC" ]
-                else:
-                    lfc_columns = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
+                lfc_columns = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
                 
                 mean_columns = [
-                        "Mean "+each_name
-                            for each_name in headers_stat_group_names
+                    "Mean "+each_name
+                        for each_name in headers_stat_group_names
                 ]
                 column_names = [
                     "Rv",
@@ -505,6 +494,8 @@ class Method:
                 # extra_info
                 # 
                 extra_info = dict(
+                    calculation_time=f"{timer.duration_in_seconds:0.1f}seconds",
+                    analysis_type=Method.identifier,
                     files=dict(
                         combined_wig=combined_wig_path,
                         annotation_path=annotation_path,
@@ -519,7 +510,9 @@ class Method:
                     group_names=headers_stat_group_names,
                     lfc_columns=lfc_columns,
                     mean_columns=mean_columns,
-                    summary_info=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
+                    summary_info=dict(
+                        Hits=len([i for i in gene_name_to_adj_p_value.values() if i < 0.05])
+                    )
                 )
             
             # 
@@ -892,6 +885,8 @@ class File:
                     ],
                 ).Show(),
                 "Heatmap": lambda *args: self.create_heatmap(infile=self.path, output_path=self.path+".heatmap.png"),
+                #"Display Heatmap": lambda *args: self.create_heatmap(output_path=self.path+".heatmap.png"),
+                "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
         
@@ -929,7 +924,7 @@ class File:
             # specific to zinb
             # 
             HeatmapMethod.output(
-                column_names=self.extra_data["parameters"]["group_names"],
+                column_names=self.extra_data["group_names"],
                 output_path=output_path,
                 top_k=topk,
                 q_value_threshold=qval,
@@ -937,8 +932,8 @@ class File:
                 formatted_rows=tuple(
                     dict(
                         gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
-                        means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
-                        lfcs=[ each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
+                        means=[each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                        lfcs=[each_row[each_column_name] for each_column_name in self.extra_data["lfc_columns"] ],
                         q_value=each_row["Adj P Value"],
                     )
                         for each_row in self.rows

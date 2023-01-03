@@ -3,10 +3,10 @@ import sys
 import os
 import time
 
-from pytransit.specific_tools import logging, gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 @misc.singleton
 class Method:
@@ -34,7 +34,7 @@ class Method:
     # 
     # newer method
     # 
-    menu_prefix = ("Pre-Processing", "Normalize Comwig Using")
+    menu_prefix = ("Pre-Processing", "Normalize Combined Wig Using ...")
     @gui.add_menu(*menu_prefix, "Trimmed Total Reads")
     def menu_options(*args): Method.gui_normalize(kind="TTR")
     

@@ -4,9 +4,9 @@ import sys
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools import misc
-from pytransit.globals import gui, cli, root_folder, debugging_enabled
+from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
-from pytransit.specific_tools import logging, gui_tools, transit_tools
+from pytransit.specific_tools import  gui_tools, transit_tools
 import pytransit.components.images as images
 import pytransit
 
@@ -143,51 +143,43 @@ def create_panel_area(_):
             flag=wx.EXPAND,
             border=panel.parameter_padding,
         )
-
-    
-    # progress
-    panel.wx_panel = wx.lib.scrolledpanel.ScrolledPanel(
-        gui.frame,
-        wx.ID_ANY,
-        pos=wx.DefaultPosition,
-        size=wx.Size(-1, -1),
-        style=wx.EXPAND | wx.TAB_TRAVERSAL,
-    )
-    if True:
-        progress_sizer = wx.BoxSizer(wx.VERTICAL)
         
         # 
-        # text
+        # progress bar
         # 
         if True:
-            panel.progress_label = wx.StaticText(
-                panel.wx_panel,
-                wx.ID_ANY,
-                "Progress",
-                wx.DefaultPosition,
-                wx.Size(-1, -1),
-                0,
-            )
-            panel.progress_label.Wrap(panel.max_width)
-            progress_sizer.Add(panel.progress_label, proportion=0, flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=5)
+            progress_sizer = wx.BoxSizer(wx.VERTICAL)
+            
+            # 
+            # text
+            # 
+            if True:
+                panel.progress_label = wx.StaticText(
+                    gui.frame,
+                    wx.ID_ANY,
+                    "Progress",
+                    wx.DefaultPosition,
+                    wx.Size(-1, -1),
+                    0,
+                )
+                panel.progress_label.Wrap(panel.max_width)
+                progress_sizer.Add(panel.progress_label, proportion=0, flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=5)
 
-        if True:
-            panel.progress = wx.Gauge(
-                panel.wx_panel,
-                wx.ID_ANY,
-                20,
-                wx.DefaultPosition,
-                wx.Size(int(panel.max_width*0.7), 10),
-                wx.GA_HORIZONTAL | wx.GA_SMOOTH,
-            )
-            progress_sizer.Add(panel.progress, proportion=0, flag=wx.ALL | wx.EXPAND, border=0)
+            if True:
+                panel.progress = wx.Gauge(
+                    gui.frame,
+                    wx.ID_ANY,
+                    20,
+                    wx.DefaultPosition,
+                    wx.Size(int(panel.max_width*0.7), 10),
+                    wx.GA_HORIZONTAL | wx.GA_SMOOTH,
+                )
+                progress_sizer.Add(panel.progress, proportion=0, flag=wx.ALL | wx.EXPAND, border=0)
 
-    panel.progress_sizer = progress_sizer
-    panel.wx_panel.SetSizer(progress_sizer)
-    # panel.wx_panel.SetMaxSize(wx.Size(panel.max_width, 100)) # For some reason this does nothing (commented-in or commented-out)
-    panel.wx_panel.Layout()
-    panel.wx_panel.SetupScrolling()
-    panel.wx_panel.Hide()
+        panel.progress_sizer = progress_sizer
+        panel.sizer.Add(panel.progress_sizer, proportion=0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=0)
+        panel.sizer.Add(10,20) # vertical padding
+        
     
     panel.progress.SetRange(1000)
     panel.progress_label.Hide()
@@ -202,8 +194,6 @@ def set_panel(new_panel):
         if old_panel != None:
             old_panel.Hide()
         
-        try: panel.method_sizer.Detach(panel.wx_panel)
-        except Exception as error: print(error)
         try: panel.method_sizer.Detach(new_panel)
         except Exception as error: print(error)
         
@@ -214,16 +204,8 @@ def set_panel(new_panel):
             border=gui_tools.default_padding,
         )
         new_panel.Show()
-        panel.method_sizer.Add(
-            panel.wx_panel,
-            proportion=2,
-            flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,
-            border=gui_tools.default_padding,
-        )
         
-        panel.wx_panel.Layout()
         panel.refresh()
-        panel.method_sizer.Fit(panel.wx_panel)
         panel.method_sizer.Fit(new_panel)
         #new_panel.SetBackgroundColour(gui_tools.color.light_gray)
         old_panel = new_panel
@@ -244,9 +226,6 @@ def set_instructions( title_text, sub_text,  method_specific_instructions,):
         
         panel.method_instructions.SetValue(method_specific_instructions)
         panel.method_instructions.Show()
-
-        panel.wx_panel.Layout()
-        panel.method_sizer.Fit(panel.wx_panel)
 
 def progress_update(text, percent):
     string = f" {text}   \r"
