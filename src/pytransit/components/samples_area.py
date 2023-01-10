@@ -2,7 +2,7 @@ import os
 
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
-from pytransit.generic_tools.misc import singleton, no_duplicates, flatten_once, human_readable_data
+from pytransit.generic_tools.misc import singleton, no_duplicates, flatten_once, human_readable_data, is_iterable
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename, working_directory
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools
@@ -29,8 +29,12 @@ samples = LazyDict(
         # put "name": None here for buttons you want to be in a specific order
         # "LOESS": None,
     },
+    load_button_args=dict(
+        alignment=wx.ALIGN_LEFT,
+        color=gui_tools.color.light_blue,
+        size=(200, 40),
+    ),
     button_height=40,
-    load_button_width=350,
     clear_button_width=80,
 )
 
@@ -109,95 +113,24 @@ def update_condition_area_dropdown(new_choices):
 
 # is only called in transit_gui.py
 def create_sample_area(frame):
+    from pytransit.components.panel_helpers import create_file_input
+    
     wx_object = None
     with Column() as outer_sample_sizer:
         wx_object = outer_sample_sizer.wx_object
-        
+        cwig_getter = None
+        metadata_getter = None
+        annotation_getter = None
         
         # 
-        # box
+        # first row (clear button and dropdown)
         # 
         if True:
-            samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
-            
-            # 
-            # combined_wig_file_picker
-            # 
             if True:
-                # 
-                # component
-                # 
-                size = (samples.load_button_width, samples.button_height)
-                combined_wig_file_picker = GenBitmapTextButton(
-                    frame,
-                    1,
-                    gui_tools.bit_map,
-                    "Load Combined Wig, Metadata, and Annotation",
-                    size=wx.Size(*size),
-                )
-                combined_wig_file_picker.SetMinSize(size)
-                combined_wig_file_picker.SetMaxSize(size)
-                combined_wig_file_picker.SetBackgroundColour(gui_tools.color.green)
+                samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
                 
                 # 
-                # callback
-                # 
-                @gui_tools.bind_to(combined_wig_file_picker, wx.EVT_BUTTON)
-                def load_combined_wig_file_func(event):
-                    with gui_tools.nice_error_log:
-                        if not gui.busy_running_method: # apparently this hook triggers for ALL button presses, so we must filter for when THIS button was clicked 
-                            file_dialog = wx.FileDialog(
-                                frame,
-                                message="Choose a cwig file",
-                                defaultDir=working_directory,
-                                defaultFile="",
-                                style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                            )
-                            cwig_paths = []
-                            metadata_paths = []
-                            annotation_paths = []
-                            if file_dialog.ShowModal() == wx.ID_OK:
-                                cwig_paths = list(file_dialog.GetPaths())
-                                metadata_paths = []
-                                for fullpath in cwig_paths:
-                                    metadata_dialog = wx.FileDialog(
-                                        frame,
-                                        message=f"\n\nPick the sample metadata\nfor {basename(fullpath)}\n\n",
-                                        defaultDir=working_directory,
-                                        defaultFile="",
-                                        style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                                    )
-                                    if metadata_dialog.ShowModal() == wx.ID_OK:
-                                        metadata_path = metadata_dialog.GetPaths()[0]
-                                        metadata_paths.append(
-                                            metadata_path
-                                        )
-                                        annotation_dialog = wx.FileDialog(
-                                            frame,
-                                            message=f"\n\nPick the sample annotation\nfor {basename(fullpath)}\n\n",
-                                            defaultDir=working_directory,
-                                            defaultFile="",
-                                            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR,
-                                        )
-                                        if annotation_dialog.ShowModal() == wx.ID_OK:
-                                            annotation_path = annotation_dialog.GetPaths()[0]
-                                            annotation_paths.append(
-                                                annotation_path
-                                            )
-                                    
-                                    annotation_dialog.Destroy()
-                            file_dialog.Destroy()
-                            
-                            load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_paths)
-                
-                samples.wig_header_sizer.Add(combined_wig_file_picker, proportion=1, flag=wx.EXPAND, border=0)
-                
-            # 
-            # combined_wig_file_picker
-            # 
-            if True:
-                # 
-                # component
+                # clear button
                 # 
                 size = (samples.clear_button_width, samples.button_height)
                 combined_wig_clear_button = GenBitmapTextButton(
@@ -210,17 +143,19 @@ def create_sample_area(frame):
                 combined_wig_clear_button.SetMinSize(size)
                 combined_wig_clear_button.SetMaxSize(size)
                 combined_wig_clear_button.SetBackgroundColour(gui_tools.color.light_gray)
-                
-                # 
                 # callback
-                # 
                 @gui_tools.bind_to(combined_wig_clear_button, wx.EVT_BUTTON)
                 def load_combined_wig_clear_function(event):
                     samples.wig_table.clear()
                     gui.combined_wigs.clear()
                     samples.conditions_table.clear()
+                    
+                    cwig_getter.set_label("")
+                    metadata_getter.set_label("")
+                    annotation_getter.set_label("")
                 
                 samples.wig_header_sizer.Add(combined_wig_clear_button, proportion=1, flag=wx.EXPAND, border=0)
+                samples.wig_header_sizer.Add(10, 10)
                 
             outer_sample_sizer.add(
                 samples.wig_header_sizer,
@@ -228,7 +163,27 @@ def create_sample_area(frame):
                 proportion=0,
             )
         
+        # padding
+        outer_sample_sizer.wx_object.Add(10, 10)
+        
+        # 
+        # cwig, metadata, and annotation button
+        # 
+        if True:
+            def update_values(*args):
+                load_combined_wigs_and_metadatas(
+                    cwig_paths=[cwig_getter()],
+                    metadata_paths=[metadata_getter()],
+                    annotation_paths=[annotation_getter()],
+                )
+                    
+            cwig_getter       = create_file_input(frame, outer_sample_sizer.wx_object, button_label="Select Combined Wig", after_select=update_values, **samples.load_button_args)
+            metadata_getter   = create_file_input(frame, outer_sample_sizer.wx_object, button_label="Select Metadata",     after_select=update_values, **samples.load_button_args)
+            annotation_getter = create_file_input(frame, outer_sample_sizer.wx_object, button_label="Select Annotation",   after_select=update_values, **samples.load_button_args)
+        
+        # padding
         outer_sample_sizer.wx_object.Add(10, 30)
+        
         # 
         # text
         # 
@@ -323,61 +278,65 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
         once the "TODO: FOR DEBUGGING ONLY" is removed, this should 
         probably be inlined again for clarity (will only have one caller)
     """
-    if cwig_paths:
-        samples.wig_table.clear()
-        samples.conditions_table.clear()
-        gui.combined_wigs.clear()
-    
-    # 
-    # load the data from the files
-    # 
-    for each_cwig_path, each_metadata_path, each_annotation_path in zip(cwig_paths, metadata_paths, annotation_paths):
-        logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
-        with gui_tools.nice_error_log:
-            gui.combined_wigs.append(
-                tnseq_tools.CombinedWig.load(
-                    main_path=each_cwig_path,
-                    metadata_path=each_metadata_path,
-                    annotation_path=each_annotation_path,
-                )
-            )
-    
-    logging.log(f"Done")
-
+    cwig_paths       = [ each for each in cwig_paths       if each != None ]
+    metadata_paths   = [ each for each in metadata_paths   if each != None ]
+    annotation_paths = [ each for each in annotation_paths if each != None ]
+    with gui_tools.nice_error_log:
+        if cwig_paths:
+            samples.wig_table.clear()
+            samples.conditions_table.clear()
+            gui.combined_wigs.clear()
         
-    # 
-    # add graphical entries for each condition
-    # 
-    if True:
-        number_of_new_combined_wigs = len(cwig_paths)
-        if number_of_new_combined_wigs > 0:
-            from pytransit.generic_tools import misc
-            new_samples = misc.flatten_once([ each.samples for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
-            for each_sample in new_samples:
-                # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
-                samples.wig_table.add(dict(
-                    # add hidden link to object
-                    __wig_obj=each_sample,
-                    # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                    id=each_sample.id,
-                    conditions=(",".join(each_sample.condition_names) or "[None]"),
-                    density=round(each_sample.extra_data.density, 4),
-                    total_insertions=round(each_sample.extra_data.sum),
-                    non_zero_mean=round(each_sample.extra_data.non_zero_mean),
-                    # # uncomment to add additional summary data
-                    # non_zero_median=each_sample.extra_data.non_zero_median,
-                    # count=each_sample.extra_data.count,
-                    # mean=each_sample.extra_data.mean,
-                    # max=each_sample.extra_data.max,
-                    # skew=each_sample.extra_data.skew,
-                    # kurtosis=each_sample.extra_data.kurtosis,
-                ))
+        # 
+        # load the data from the files
+        # 
+        for each_cwig_path, each_metadata_path, each_annotation_path in zip(cwig_paths, metadata_paths, annotation_paths):
+            logging.log(f"Loading '{os.path.basename(each_cwig_path)}' and '{os.path.basename(each_metadata_path)}'")
+            with gui_tools.nice_error_log:
+                gui.combined_wigs.append(
+                    tnseq_tools.CombinedWig.load(
+                        main_path=each_cwig_path,
+                        metadata_path=each_metadata_path,
+                        annotation_path=each_annotation_path,
+                    )
+                )
+        
+        logging.log(f"Done")
+
             
-            new_conditions = misc.flatten_once([ each.conditions for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
-            for each_condition in new_conditions:
-                samples.conditions_table.add(dict(
-                    name=each_condition.name,
-                ))
+        # 
+        # add graphical entries for each condition
+        # 
+        if True:
+            number_of_new_combined_wigs = len(cwig_paths)
+            if number_of_new_combined_wigs > 0:
+                from pytransit.generic_tools import misc
+                new_samples = misc.flatten_once([ each.samples for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+                for each_sample in new_samples:
+                    # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
+                    samples.wig_table.add(dict(
+                        # add hidden link to object
+                        __wig_obj=each_sample,
+                        # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                        id=each_sample.id,
+                        conditions=(",".join(each_sample.condition_names) or "[None]"),
+                        density=round(each_sample.extra_data.density, 4),
+                        total_insertions=round(each_sample.extra_data.sum),
+                        non_zero_mean=round(each_sample.extra_data.non_zero_mean),
+                        # # uncomment to add additional summary data
+                        # non_zero_median=each_sample.extra_data.non_zero_median,
+                        # count=each_sample.extra_data.count,
+                        # mean=each_sample.extra_data.mean,
+                        # max=each_sample.extra_data.max,
+                        # skew=each_sample.extra_data.skew,
+                        # kurtosis=each_sample.extra_data.kurtosis,
+                    ))
+                
+                new_conditions = misc.flatten_once([ each.conditions for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
+                for each_condition in new_conditions:
+                    samples.conditions_table.add(dict(
+                        name=each_condition.name,
+                    ))
 
 # should only be called/used by globals.py
 def get_selected_samples():
