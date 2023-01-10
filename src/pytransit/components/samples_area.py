@@ -361,7 +361,6 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
                     # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
                     id=each_sample.id,
                     conditions=(",".join(each_sample.condition_names) or "[None]"),
-                    annotation=os.path.basename(gui.combined_wigs[-1].annotation_path),
                     density=round(each_sample.extra_data.density, 4),
                     total_insertions=round(each_sample.extra_data.sum),
                     non_zero_mean=round(each_sample.extra_data.non_zero_mean),
