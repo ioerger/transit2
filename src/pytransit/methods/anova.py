@@ -60,7 +60,7 @@ class Method:
     ]
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
             -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
@@ -171,9 +171,10 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
+        # <combined_wig_file> <metadata_file> <annotation_file>
         combined_wig        = args[0]
-        annotation_path     = args[1]
-        metadata            = args[2]
+        metadata            = args[1]
+        annotation_path     = args[2]
         output_path         = args[3]
         refs                = console_tools.string_arg_to_list(kwargs["ref"])  # list of condition names to use a reference for calculating lfc_s
         excluded_conditions = console_tools.string_arg_to_list(kwargs["exclude-conditions"])

@@ -34,8 +34,8 @@ class Method:
 
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> -samp <comma-separated sample ID's> <output.png> [--genes --log]
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> -cond <comma-separated condition names> <output.png> [--genes --log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> -samp <comma-separated sample ID's> <output.png> [--genes --log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> -cond <comma-separated condition names> <output.png> [--genes --log]
     """.replace("\n        ","\n     ")
     
     # usage: scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>
@@ -47,8 +47,8 @@ class Method:
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
         combined_wig_path      = args[0]
-        annotation_path        = args[1]
-        metadata_path          = args[2]
+        metadata_path          = args[1]
+        annotation_path        = args[2]
         output_path            = args[3] # png file
         avg_by_conditions = "cond" in kwargs
         condition_names = console_tools.string_arg_to_list(kwargs["cond"])

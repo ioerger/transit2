@@ -9,8 +9,8 @@ wig_id2="Chol2"
 
 python3 ./src/transit.py scatterplot \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     -samp "$wig_id1,$wig_id2" \
     "$result_file.png" \
     --genes \

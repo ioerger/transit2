@@ -53,7 +53,7 @@ class Method:
     
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
             -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
@@ -84,8 +84,8 @@ class Method:
         # save the data
         Method.output(
             combined_wig_path=args[0],
-            annotation_path=args[1],
-            metadata_path=args[2],
+            metadata_path=args[1],
+            annotation_path=args[2],
             output_path=args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
             group_by=kwargs.get("-group-by", kwargs["condition"]),

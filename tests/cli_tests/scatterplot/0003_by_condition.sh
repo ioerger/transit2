@@ -9,8 +9,8 @@ condition2="Glycerol"
 
 python3 ./src/transit.py scatterplot \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     -cond \
     "$condition1,$condition2" \
     "$result_file.png" \

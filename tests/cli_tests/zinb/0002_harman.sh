@@ -11,8 +11,8 @@ comwig="./src/pytransit/data/randomized_harman.transit/comwig.tsv"
 # asking about "KO_REL" condition
 python3 ./src/transit.py zinb \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     "$result_file" \
     -include-conditions WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28 \
     -group-by KO_rel \

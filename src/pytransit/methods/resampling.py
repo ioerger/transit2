@@ -94,7 +94,7 @@ class Method:
     
     usage_string = f"""
         Usage 1:
-            {console_tools.subcommand_prefix} resampling <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} resampling <combined_wig_file> <metadata_file> <annotation_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
             Note: The ctrl and exp condition names need to match Condition names in metadata_file
         
         Usage 2:
@@ -240,8 +240,8 @@ class Method:
             console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
             # <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
             combined_wig_path      = args[0]
-            annotation_paths       = console_tools.string_arg_to_list(args[1])
-            metadata_path          = args[2]
+            metadata_path          = args[1]
+            annotation_paths       = console_tools.string_arg_to_list(args[2])
             control_condition      = args[3]
             experimental_condition = args[4]
             output_path            = args[5]
