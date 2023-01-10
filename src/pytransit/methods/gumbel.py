@@ -80,7 +80,7 @@ class Method:
 
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file> [Optional Arguments]
     
         Optional Arguments:
             -s <integer> := Number of samples. Default: -s 10000
@@ -199,28 +199,31 @@ class Method:
             # get data
 
             if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
+                condition = self.inputs.condition
                 logging.log("Getting Data from %s" % self.inputs.combined_wig)
                 position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
 
                 metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-                indexes = {}
-                for i,row in enumerate(metadata.rows): 
-                    cond = row["Condition"] 
-                    if cond not in indexes:
-                        indexes[cond] = []
-                    indexes[cond].append(i)
-                cond = Method.inputs.condition
-                ids  = [metadata.rows[i]["Id"] for i in indexes[cond]]
-                logging.log("selected samples for gumbel (cond=%s): %s" % (cond,','.join(ids)))
-                data = data[indexes[cond]] # project array down to samples selected by condition
+
                 # now, select the columns in data corresponding to samples that are replicates of desired condition...
-                
+                indexes,ids = [],[]
+                for i,f in enumerate(filenames_in_comb_wig): 
+                  cond = metadata.conditions_by_wig_fingerprint.get(f, "FLAG-UNMAPPED-CONDITION-IN-WIG")
+                  id = metadata.id_for(f)
+                  if cond==condition:
+                    indexes.append(i)
+                    ids.append(id)
+
+                logging.log("selected samples for gumbel (cond=%s): %s" % (condition,','.join(ids)))
+                data = data[indexes]
+
             elif self.inputs.wig_files!=None:
                 logging.log("Getting Data")
                 (data, position) = transit_tools.get_validated_data( self.inputs.wig_files)
                 
             else:
                 logging.error("error: must provide either combined_wig or list of wig files")
+            ######################
 
             (K, N) = data.shape
             merged = numpy.sum(data, axis=0)
