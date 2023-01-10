@@ -122,67 +122,79 @@ def create_sample_area(frame):
         metadata_getter = None
         annotation_getter = None
         
-        # 
-        # first row (clear button and dropdown)
-        # 
-        if True:
+        with Row() as button_container:
+            with Column() as load_button_container:
+                # 
+                # cwig, metadata, and annotation button
+                # 
+                if True:
+                    def update_values(*args):
+                        load_combined_wigs_and_metadatas(
+                            cwig_paths=[cwig_getter()],
+                            metadata_paths=[metadata_getter()],
+                            annotation_paths=[annotation_getter()],
+                        )
+                            
+                    cwig_getter       = create_file_input(frame, load_button_container.wx_object, button_label="Select Combined Wig File", after_select=update_values, **samples.load_button_args)
+                    metadata_getter   = create_file_input(frame, load_button_container.wx_object, button_label="Select Metadata File",     after_select=update_values, **samples.load_button_args)
+                    annotation_getter = create_file_input(frame, load_button_container.wx_object, button_label="Select Annotation File",   after_select=update_values, **samples.load_button_args)
+            
+            button_container.add(
+                load_button_container,
+                expand=True,
+                proportion=4,
+            )
+        
+            # 
+            # input row
+            # 
             if True:
                 samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
                 
                 # 
                 # clear button
                 # 
-                size = (samples.clear_button_width, samples.button_height)
-                combined_wig_clear_button = GenBitmapTextButton(
-                    frame,
-                    1,
-                    gui_tools.bit_map,
-                    "Clear",
-                    size=wx.Size(*size),
-                )
-                combined_wig_clear_button.SetMinSize(size)
-                combined_wig_clear_button.SetMaxSize(size)
-                combined_wig_clear_button.SetBackgroundColour(gui_tools.color.light_gray)
-                # callback
-                @gui_tools.bind_to(combined_wig_clear_button, wx.EVT_BUTTON)
-                def load_combined_wig_clear_function(event):
-                    samples.wig_table.clear()
-                    gui.combined_wigs.clear()
-                    samples.conditions_table.clear()
+                if True:
+                    size = (samples.clear_button_width, samples.button_height)
+                    combined_wig_clear_button = GenBitmapTextButton(
+                        frame,
+                        1,
+                        gui_tools.bit_map,
+                        "Clear",
+                        size=wx.Size(*size),
+                    )
+                    combined_wig_clear_button.SetMinSize(size)
+                    combined_wig_clear_button.SetMaxSize(size)
+                    combined_wig_clear_button.SetBackgroundColour(gui_tools.color.light_gray)
+                    # callback
+                    @gui_tools.bind_to(combined_wig_clear_button, wx.EVT_BUTTON)
+                    def load_combined_wig_clear_function(event):
+                        samples.wig_table.clear()
+                        gui.combined_wigs.clear()
+                        samples.conditions_table.clear()
+                        
+                        cwig_getter.set_label("")
+                        metadata_getter.set_label("")
+                        annotation_getter.set_label("")
                     
-                    cwig_getter.set_label("")
-                    metadata_getter.set_label("")
-                    annotation_getter.set_label("")
+                    samples.wig_header_sizer.Add(combined_wig_clear_button, proportion=1, flag=wx.EXPAND, border=0)
+                    # samples.wig_header_sizer.Add(10, 10)
                 
-                samples.wig_header_sizer.Add(combined_wig_clear_button, proportion=1, flag=wx.EXPAND, border=0)
-                samples.wig_header_sizer.Add(10, 10)
+                button_container.add(
+                    samples.wig_header_sizer,
+                    expand=True,
+                    proportion=1,
+                )
+                
                 
             outer_sample_sizer.add(
-                samples.wig_header_sizer,
+                button_container,
                 expand=True,
                 proportion=0,
             )
         
         # padding
         outer_sample_sizer.wx_object.Add(10, 10)
-        
-        # 
-        # cwig, metadata, and annotation button
-        # 
-        if True:
-            def update_values(*args):
-                load_combined_wigs_and_metadatas(
-                    cwig_paths=[cwig_getter()],
-                    metadata_paths=[metadata_getter()],
-                    annotation_paths=[annotation_getter()],
-                )
-                    
-            cwig_getter       = create_file_input(frame, outer_sample_sizer.wx_object, button_label="Select Combined Wig", after_select=update_values, **samples.load_button_args)
-            metadata_getter   = create_file_input(frame, outer_sample_sizer.wx_object, button_label="Select Metadata",     after_select=update_values, **samples.load_button_args)
-            annotation_getter = create_file_input(frame, outer_sample_sizer.wx_object, button_label="Select Annotation",   after_select=update_values, **samples.load_button_args)
-        
-        # padding
-        outer_sample_sizer.wx_object.Add(10, 30)
         
         # 
         # text
