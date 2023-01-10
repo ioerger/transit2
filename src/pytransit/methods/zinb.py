@@ -415,7 +415,6 @@ class Method:
             # create column_names, rows, extra_info
             # 
             if True:
-                only_have_one_lfc_column = len(ordered_stat_group_names) == 2
                 # 
                 # rows
                 #
@@ -426,22 +425,13 @@ class Method:
                         stats_by_rv[gene_orf_id]["mean"][group]
                             for group in ordered_stat_group_names
                     ]
-                    if only_have_one_lfc_column:
-                        # TODO: still need to adapt this to use -ref if defined
-                        log_fold_changes = [
-                            numpy.math.log(
-                                (means_per_group[1] + pseudocount) / (means_per_group[0] + pseudocount),
-                                2
-                            ) 
-                        ]  
+                    if len(refs) == 0:
+                        grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
                     else:
-                        if len(refs) == 0 or refs == "[None]":
-                            grand_means = numpy.mean(means_per_group)  # grand mean across all conditions
-                        else:
-                            grand_means = numpy.mean(
-                                [stats_by_rv[gene_orf_id]["mean"][group] for group in refs]
-                            )
-                        log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
+                        grand_means = numpy.mean(
+                            [stats_by_rv[gene_orf_id]["mean"][group] for group in refs]
+                        )
+                    log_fold_changes = [numpy.math.log((each_mean + pseudocount) / (grand_means + pseudocount), 2) for each_mean in means_per_group]
                     
                     row = [
                         gene_orf_id,
@@ -476,14 +466,11 @@ class Method:
                 # 
                 # column_names
                 # 
-                if only_have_one_lfc_column:
-                    lfc_columns = [ "Log 2 FC" ]
-                else:
-                    lfc_columns = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
+                lfc_columns = [ "Log 2 FC "+each_name for each_name in headers_stat_group_names ]
                 
                 mean_columns = [
-                        "Mean "+each_name
-                            for each_name in headers_stat_group_names
+                    "Mean "+each_name
+                        for each_name in headers_stat_group_names
                 ]
                 column_names = [
                     "Rv",

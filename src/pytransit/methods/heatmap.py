@@ -174,7 +174,7 @@ class Method:
             else:
                 gene_names.append(each_row["gene_name"])
                 lfc_s.append(each_row['lfcs'])
-        print(f"heatmap based on {len(gene_names)} genes")
+        
         column_to_lfcs = pd.DataFrame({
             column_name : [ each_lfc[column_index] for each_lfc in lfc_s ]
                 for column_index, column_name in enumerate(column_names)

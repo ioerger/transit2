@@ -471,7 +471,7 @@ class Method:
                         analysis_type=Method.identifier,
                         files=dict(
                             combined_wig=Method.inputs.combined_wig,
-                            annotation_path=Method.inputs.annotation,
+                            annotation_path=Method.inputs.annotation_path,
                         ),
                         parameters=dict(
                             conditions_list=conditions_list,
