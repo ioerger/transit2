@@ -80,7 +80,7 @@ class Method:
 
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} gumbel <comma-separated .wig files> <annotation_file> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition> <output_file> [Optional Arguments]
     
         Optional Arguments:
             -s <integer> := Number of samples. Default: -s 10000
@@ -170,14 +170,14 @@ class Method:
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=5)
 
         Method.inputs.update(dict(
-            combined_wig=None,
-            metadata=None,
-            wig_files=args[0].split(','),
-            annotation_path=args[1],
-            output_path=args[2],
+            combined_wig=args[0],
+            metadata_path=args[1],
+            annotation_path=args[2],
+            condition=args[3],
+            output_path=args[4],
             normalization=kwargs.get("n", "TTR"),
             samples=int(kwargs.get("s", 10000)),
             burnin=int(kwargs.get("b", 500)),
