@@ -21,6 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
+debugging_enabled = False
 cli_args = LazyDict(
     gene=None, # for debugging
 )
@@ -592,8 +593,8 @@ class Method:
         to_r_float_or_str_vec = lambda xs: (
             FloatVector([float(x) for x in xs])   if misc.str_is_float(xs[0])   else StrVector(xs)
         )
-
-        for gene in genes:
+        
+        for progress, gene in informative_iterator.ProgressBar(genes, title="Running ZINB "):
             count += 1
             gene_name = gene["rv"]
             
@@ -679,7 +680,7 @@ class Method:
 
                     melted = DataFrame(df_args)
                     # r_args = [IntVector(read_counts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(non_zero_mean), FloatVector(logit_z_perc)] + [True]
-                    debugging = debugging_enabled or cli_args.gene
+                    debugging = bool(debugging_enabled or cli_args.gene)
                     pval, msg = r_zinb_signif(
                         melted, zinb_mod1, zinb_mod0, nb_mod1, nb_mod0, debugging
                     )
@@ -696,9 +697,10 @@ class Method:
                     sys.exit(0)
             gene_names.append(gene_name)
             # Update progress
-            percentage = (100.0 * count / len(genes))
-            text = "Running ZINB Method... %5.1f%%" % percentage
-            parameter_panel.progress_update(text, percentage)
+            if gui.is_active:
+                percentage = (100.0 * count / len(genes))
+                text = "Running ZINB Method... %5.1f%%" % percentage
+                parameter_panel.progress_update(text, percentage)
 
         p_values = numpy.array(p_values)
         mask = numpy.isfinite(p_values)

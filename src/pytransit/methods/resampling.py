@@ -547,6 +547,7 @@ class Method:
             data:
                 input is a 2D array of insertion counts for gene (not pre-flattened)
         """
+        # TODO: use tnseq_tools.winzorize() instead of this function
         
         original_shape = data.shape
         assert len(original_shape)==2, "winsorize_resampling() expected 2D numpy array"

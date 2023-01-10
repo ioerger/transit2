@@ -823,7 +823,7 @@ class CombinedWig:
     def with_loess_correction(self):
         from pytransit.specific_tools import stat_tools
         new_combined_wig = self.copy()
-        for wig_index, _ in range(new_combined_wig.as_tuple.counts_by_wig):
+        for wig_index, _ in range(len(new_combined_wig.as_tuple.counts_by_wig)):
             new_combined_wig.as_tuple.counts_by_wig[wig_index] = stat_tools.loess_correction(
                 new_combined_wig.ta_sites,
                 new_combined_wig.as_tuple.counts_by_wig[wig_index]
