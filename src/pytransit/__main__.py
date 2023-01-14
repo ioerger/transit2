@@ -81,7 +81,7 @@ def main(args, kwargs):
                 print("")
                 print("Showing CLI help as fallback behavior:")
                 transit_cli.help_command(args, kwargs)
-                exit(0)
+                return
             
             gui_mode_start()
             
