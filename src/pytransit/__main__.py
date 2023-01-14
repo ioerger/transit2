@@ -23,11 +23,39 @@ def main(args, kwargs):
     # parse global args
     # 
     transit_cli.parse_global_flags(args, kwargs)
+    
+    # 
+    # modes
+    # 
+    def console_mode_start():
+        import matplotlib
+        matplotlib.use("Agg")
+        
+        # try to match a subcommand
+        transit_cli.find_and_run_subcommand(args, kwargs)
+        
+        # runtime only gets here if no subcommands were matched
+        transit_cli.help_command(args, kwargs)
+    
+    def gui_mode_start():
+        print("Running in GUI Mode")
+        app = wx.App(False)
 
+        # create an object of CalcFrame
+        frame = transit_gui.TnSeqFrame(None)
+        # show the frame
+        frame.Show(True)
+        frame.Maximize(True)
+
+        # start the applications
+        app.MainLoop()
+    
     # 
-    # GUI Mode
+    # Choose Mode
     # 
-    if not args:
+    if args:
+        console_mode_start()
+    else:
         import pytransit.specific_tools.console_tools as console_tools
         # Tried GUI but no wxPython
         if not console_tools.check_if_has_wx():
@@ -42,31 +70,21 @@ def main(args, kwargs):
             import pytransit.transit_gui as transit_gui
             import wx
 
-            matplotlib.use("WXAgg")
-
-            print("Running in GUI Mode")
-            app = wx.App(False)
-
-            # create an object of CalcFrame
-            frame = transit_gui.TnSeqFrame(None)
-            # show the frame
-            frame.Show(True)
-            frame.Maximize(True)
-
-            # start the applications
-            app.MainLoop()
-    # 
-    # Console mode
-    # 
-    else:
-        import matplotlib
-        matplotlib.use("Agg")
-        
-        # try to match a subcommand
-        transit_cli.find_and_run_subcommand(args, kwargs)
-        
-        # runtime only gets here if no subcommands were matched
-        transit_cli.help_command(args, kwargs)
+            try:
+                matplotlib.use("WXAgg")
+            except ImportError:
+                print("No X server found (despite having python WX installed)")
+                print("If you're running this on a remote machine, you may need to")
+                print("visit the machine in person, or setup an X server")
+                print("If you're at the machine, you may need to switch to using a")
+                print("window-based terminal")
+                print("")
+                print("Showing CLI help as fallback behavior:")
+                transit_cli.help_command(args, kwargs)
+                exit(0)
+            
+            gui_mode_start()
+            
 
 def run_main():
     from pytransit.specific_tools.console_tools import clean_args
