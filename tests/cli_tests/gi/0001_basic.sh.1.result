@@ -1,10 +1,10 @@
 #GI
 #yaml:
-#    date: 2023-01-02 12:52:11
+#    date: 2023-01-16 13:29:50
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
-#    console_command: python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' './src/pytransit/data/subu_ko.transit/metadata.tsv' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
-#    calculation_time: 48.8seconds
+#    console_command: python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/subu_ko.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
+#    calculation_time: 47.5seconds
 #    analysis_type: GI
 #    files:
 #       combined_wig: ./src/pytransit/data/subu_ko.transit/comwig.tsv

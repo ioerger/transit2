@@ -68,6 +68,7 @@ class Method:
         "-exp_lib",
         "--winz",
         "--sr",
+        "--no-sr",
     ]
     
     inputs = LazyDict(
@@ -116,6 +117,7 @@ class Method:
             --winz              :=  winsorize insertion counts for each gene in each condition 
                                     (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
             --sr                :=  site-restricted resampling; more sensitive, might find a few more significant conditionally essential genes"
+            --no-sr             :=  disable site-restricted resampling"
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -263,12 +265,13 @@ class Method:
         if diff_strains and is_combined_wig:
             logging.error("Error: Cannot have combined wig and different annotation files.")
 
-        winz          = True if "winz" in kwargs else False
-        normalization = kwargs.get("n", Method.inputs.normalization)
-        samples       = int(kwargs.get("s", Method.inputs.samples))
-        adaptive      = kwargs.get("a", Method.inputs.adaptive)
-        replicates    = kwargs.get("r", Method.inputs.replicates)
-        do_histogram  = kwargs.get("h", Method.inputs.do_histogram)
+        winz             = True if "winz" in kwargs else False
+        normalization    = kwargs.get("n", Method.inputs.normalization)
+        samples          = int(kwargs.get("s", Method.inputs.samples))
+        adaptive         = kwargs.get("a", Method.inputs.adaptive)
+        replicates       = kwargs.get("r", Method.inputs.replicates)
+        do_histogram     = kwargs.get("h", Method.inputs.do_histogram)
+        site_restricted  = not kwargs.get("no-sr", not Method.inputs.site_restricted)
         pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
         ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
@@ -299,6 +302,7 @@ class Method:
             do_histogram=do_histogram,
             control_condition=control_condition,
             experimental_condition=experimental_condition,
+            site_restricted=site_restricted,
         ))
         Method.Run()
 

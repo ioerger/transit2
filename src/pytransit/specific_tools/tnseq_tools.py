@@ -240,8 +240,13 @@ class CombinedWigMetadata:
             lines = file.readlines()
             column_names              = lines[0].split()
             column_names              = [ each.lower() for each in column_names ]
-            index_for_condition       = column_names.index(column_name_for_condition.lower())
-            index_for_wig_fingerprint = column_names.index("Filename".lower())
+            try:
+                index_for_condition       = column_names.index(column_name_for_condition.lower())
+                index_for_wig_fingerprint = column_names.index("Filename".lower())
+            except Exception as error:
+                print(f'''column_names = {column_names}''')
+                print(f'''path = {path}''')
+                raise error
             # validate
             for each in covars_to_read:
                 if each not in column_names:

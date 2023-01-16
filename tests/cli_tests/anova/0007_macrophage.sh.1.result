@@ -1,14 +1,14 @@
 #Anova
 #yaml:
-#    date: 2023-01-02 12:37:34
+#    date: 2023-01-16 13:43:15
 #    transit_version: v3.2.6
 #    app_or_command_line: command_line
-#    console_command: python3 './src/transit.py' 'anova' './src/pytransit/data.ignore/macrophages.comwig' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data.ignore/macrophages_metadata.txt' './tests/cli_tests/anova/0007_macrophage.sh.1.result' '-ref' 'Untreated' '-exclude-conditions' 'Input' '-n' 'nonorm'
-#    calculation_time: 7.4seconds
+#    console_command: python3 './src/transit.py' 'anova' './src/pytransit/data.ignore/macrophages.comwig' './src/pytransit/data.ignore/macrophages_metadata.txt' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0007_macrophage.sh.1.result' '-ref' 'Untreated' '-exclude-conditions' 'Input' '-n' 'nonorm'
+#    calculation_time: 8.3seconds
 #    analysis_type: Anova
 #    files:
 #       combined_wig: ./src/pytransit/data.ignore/macrophages.comwig
-#       annotation_path: null
+#       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #    parameters:
 #       conditions_list: [Untreated, Tcell, Rapa, IL1, IFNg, GMCSF, IFNg-GMCSF, IFNab]
 #       normalization: nonorm

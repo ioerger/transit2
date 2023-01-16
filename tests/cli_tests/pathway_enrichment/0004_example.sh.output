@@ -1,9 +1,11 @@
 [pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 74, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
     main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 66, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
     transit_cli.find_and_run_subcommand(args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
     cli.subcommands[subcommand](subcommand_args, kwargs)
@@ -25,9 +27,11 @@ GO terms with at least one ORF: 3963
   logging.warn(
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 74, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
     main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 66, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
     transit_cli.find_and_run_subcommand(args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
     cli.subcommands[subcommand](subcommand_args, kwargs)
@@ -49,9 +53,11 @@ not found: GO:0030529
   logging.warn("not found: %s" % go)  # also indicate which gene?
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 74, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
     main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 66, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
     transit_cli.find_and_run_subcommand(args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
     cli.subcommands[subcommand](subcommand_args, kwargs)
@@ -73,9 +79,11 @@ not found: GO:0015197
   logging.warn("not found: %s" % go)  # also indicate which gene?
   File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
     pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 74, in run_main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
     main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 66, in main
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
     transit_cli.find_and_run_subcommand(args, kwargs)
   File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
     cli.subcommands[subcommand](subcommand_args, kwargs)
@@ -96,4 +104,4 @@ not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.2sec 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.3sec 

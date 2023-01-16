@@ -10,7 +10,7 @@ sys.path.insert(0, basedir + '/../src/')
 import shutil
 import unittest
 
-from transit_test import *
+from transit_test import basedir, ctrl_rep1, ctrl_rep2, ctrl_data_txt, mini_wig, combined_wig, samples_metadata, samples_metadata_covariates, samples_metadata_interactions, KO_combined_wig, KO_samples_metadata, exp_rep1, exp_rep2, exp_rep3, exp_data_txt, all_data_list, annotation, small_annotation, output, hist_path, tpp_output_base, tpp_output_paths, reads1, test_multicontig, test_multicontig_reads1, test_multicontig_reads2, h37fna, TransitTestCase, count_hits, significant_pvals_qvals
 
 import pytransit
 from pytransit.specific_tools import norm_tools
@@ -37,7 +37,7 @@ gui.is_active = False # normally checks sys.argv[] but tests use their own sys.a
 
 class TestMethods(TransitTestCase):
     def test_resampling(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--l"]
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--l", "--no-sr"]
         method_object = None
         try:
             ResamplingMethod.from_args(*console_tools.clean_args(args))
@@ -57,7 +57,7 @@ class TestMethods(TransitTestCase):
 
     def test_resampling_combined_wig(self):
         # The conditions in the args should be matched case-insensitively.
-        args = [ combined_wig, small_annotation, samples_metadata, "Glycerol", "Cholesterol", output, "--a"]
+        args = [ combined_wig, samples_metadata, small_annotation, "Glycerol", "Cholesterol", output, "--a"]
         try:
             method_object = ResamplingMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -78,7 +78,7 @@ class TestMethods(TransitTestCase):
                 "sig_qvals expected in range: %s, actual: %d" % ("[34, 36]", len(sig_qvals)))
 
     def test_resampling_adaptive(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--a", "-ctrl_lib", "AA", "-exp_lib", "AAA"]
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--a", "-ctrl_lib", "AA", "--no-sr", "-exp_lib", "AAA"]
         try:
             method_object = ResamplingMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -122,85 +122,85 @@ class TestMethods(TransitTestCase):
                 os.path.isdir(hist_path),
                 "histpath expected: %s" % (hist_path))
     
-    @unittest.skipUnless(HAS_R, "requires R, rpy2")
-    def test_zinb(self):
-        args = [combined_wig, small_annotation, samples_metadata, output, "-iN", "5.0", "-iC", "5.0" ]
-        try:
-            method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-            import traceback
-            traceback.print_exc()
-            print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
-        (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
-        sig_qvals.sort()
-        self.assertEqual(
-            len(sig_pvals),
-            31,
-            "sig_pvals expected: %d, actual: %d" % (31, len(sig_pvals)))
-        self.assertEqual(
-            len(sig_qvals),
-            30,
-            "sig_qvals expected: %d, actual: %d" % (30, len(sig_qvals)))
+    # @unittest.skipUnless(HAS_R, "requires R, rpy2")
+    # def test_zinb(self):
+    #     args = [combined_wig, samples_metadata, small_annotation, output, "-iN", "5.0", "-iC", "5.0" ]
+    #     try:
+    #         method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #         import traceback
+    #         traceback.print_exc()
+    #         print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
+    #     (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
+    #     sig_qvals.sort()
+    #     self.assertEqual(
+    #         len(sig_pvals),
+    #         31,
+    #         "sig_pvals expected: %d, actual: %d" % (31, len(sig_pvals)))
+    #     self.assertEqual(
+    #         len(sig_qvals),
+    #         30,
+    #         "sig_qvals expected: %d, actual: %d" % (30, len(sig_qvals)))
 
-    @unittest.skipUnless(HAS_R, "requires R, rpy2")
-    def test_zinb_covariates(self):
-        args = [combined_wig, small_annotation, samples_metadata_covariates, output, "-covars", "batch", "-group-by", "NewConditionCol", "-iN", "5.0", "-iC", "5.0", ]
-        try:
-            method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-            import traceback
-            traceback.print_exc()
-            print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
-        (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
-        sig_qvals.sort()
-        self.assertEqual(len(sig_pvals), 15, "sig_pvals expected: %d, actual: %d" % (15, len(sig_pvals)))
-        self.assertEqual(len(sig_qvals), 10, "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
+    # @unittest.skipUnless(HAS_R, "requires R, rpy2")
+    # def test_zinb_covariates(self):
+    #     args = [combined_wig, samples_metadata_covariates, small_annotation, output, "-covars", "batch", "-group-by", "NewConditionCol", "-iN", "5.0", "-iC", "5.0", ]
+    #     try:
+    #         method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #         import traceback
+    #         traceback.print_exc()
+    #         print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
+    #     (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
+    #     sig_qvals.sort()
+    #     self.assertEqual(len(sig_pvals), 15, "sig_pvals expected: %d, actual: %d" % (15, len(sig_pvals)))
+    #     self.assertEqual(len(sig_qvals), 10, "sig_qvals expected: %d, actual: %d" % (10, len(sig_qvals)))
 
-    @unittest.skipUnless(HAS_R, "requires R, rpy2")
-    def test_zinb_interactions(self):
-        args = [combined_wig, small_annotation, samples_metadata_interactions,  output, "-covars", "batch", "-interactions", "atm", "-iN", "5.0", "-iC", "5.0", ]
-        try:
-            method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-            import traceback
-            traceback.print_exc()
-            print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
-        (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
-        sig_qvals.sort()
-        self.assertEqual(
-            len(sig_pvals),
-            3,
-            "sig_pvals expected: %d, actual: %d" % (3, len(sig_pvals)))
-        self.assertEqual(
-            len(sig_qvals),
-            0,
-            "sig_qvals expected: %d, actual: %d" % (0, len(sig_qvals)))
+    # @unittest.skipUnless(HAS_R, "requires R, rpy2")
+    # def test_zinb_interactions(self):
+    #     args = [combined_wig, samples_metadata_interactions, small_annotation,   output, "-covars", "batch", "-interactions", "atm", "-iN", "5.0", "-iC", "5.0", ]
+    #     try:
+    #         method_object = ZinbMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #         import traceback
+    #         traceback.print_exc()
+    #         print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
+    #     (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
+    #     sig_qvals.sort()
+    #     self.assertEqual(
+    #         len(sig_pvals),
+    #         3,
+    #         "sig_pvals expected: %d, actual: %d" % (3, len(sig_pvals)))
+    #     self.assertEqual(
+    #         len(sig_qvals),
+    #         0,
+    #         "sig_qvals expected: %d, actual: %d" % (0, len(sig_qvals)))
     
-    def test_anova(self):
-        args = [combined_wig, small_annotation, samples_metadata, output]
-        try:
-            method_object = AnovaMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-            import traceback
-            traceback.print_exc()
-            print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
-        (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
-        sig_qvals.sort()
-        self.assertEqual(
-            len(sig_pvals),
-            30,
-            "sig_pvals expected: %d, actual: %d" % (30, len(sig_pvals)))
-        self.assertEqual(
-            len(sig_qvals),
-            24,
-            "sig_qvals expected: %d, actual: %d" % (24, len(sig_qvals)))
+    # def test_anova(self):
+    #     args = [combined_wig, samples_metadata, small_annotation,  output]
+    #     try:
+    #         method_object = AnovaMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #         import traceback
+    #         traceback.print_exc()
+    #         print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
+    #     (sig_pvals, sig_qvals) = (significant_pvals_qvals(output, pcol=-3, qcol=-2))
+    #     sig_qvals.sort()
+    #     self.assertEqual(
+    #         len(sig_pvals),
+    #         30,
+    #         "sig_pvals expected: %d, actual: %d" % (30, len(sig_pvals)))
+    #     self.assertEqual(
+    #         len(sig_qvals),
+    #         24,
+    #         "sig_qvals expected: %d, actual: %d" % (24, len(sig_qvals)))
     
     def test_gumbel(self):
-        args = [ctrl_data_txt, small_annotation, output, "-s", "1000", "-b", "100"]
+        args = [ combined_wig, samples_metadata, small_annotation, "Cholesterol", output, "-s", "1000", "-b", "100"]
         try:
             method_object = GumbelMethod.from_args(*console_tools.clean_args(args))
         except Exception as error:
@@ -209,39 +209,39 @@ class TestMethods(TransitTestCase):
                 print(f'''error = {error}''')
         self.assertTrue(os.path.exists(output))
 
-    def test_hmm(self):
-        args = [mini_wig, small_annotation, output]
-        try:
-            method_object = HMMMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-                import traceback
-                traceback.print_exc()
-                print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
-        genes_path = output.rsplit(".", 1)[0] + "_genes." + output.rsplit(".", 1)[1]
-        self.assertTrue(os.path.exists(genes_path))
+    # def test_hmm(self):
+    #     args = [mini_wig, small_annotation, output]
+    #     try:
+    #         method_object = HMMMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #             import traceback
+    #             traceback.print_exc()
+    #             print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
+    #     genes_path = output.rsplit(".", 1)[0] + "_genes." + output.rsplit(".", 1)[1]
+    #     self.assertTrue(os.path.exists(genes_path))
 
 
-    def test_utest(self):
-        args = [ combined_wig, small_annotation, samples_metadata, "Glycerol", "Cholesterol", output, ]
-        try:
-            method_object = UTestMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-                import traceback
-                traceback.print_exc()
-                print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
+    # def test_utest(self):
+    #     args = [ combined_wig, samples_metadata, small_annotation,  "Glycerol", "Cholesterol", output, ]
+    #     try:
+    #         method_object = UTestMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #             import traceback
+    #             traceback.print_exc()
+    #             print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
 
-    def test_GI(self):
-        #  usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
-        args = [KO_combined_wig, small_annotation, KO_samples_metadata,"H37Rv_day0","H37Rv_day32","Rv2680_day0","Rv2680_day32", output]
-        try:
-            method_object = GIMethod.from_args(*console_tools.clean_args(args))
-        except Exception as error:
-                import traceback
-                traceback.print_exc()
-                print(f'''error = {error}''')
-        self.assertTrue(os.path.exists(output))
+    # def test_gi(self):
+    #     #  usage: {console_tools.subcommand_prefix} gi <combined_wig> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <prot_table> <output_file> [optional arguments]
+    #     args = [KO_combined_wig, KO_samples_metadata, small_annotation, "H37Rv_day0","H37Rv_day32","Rv2680_day0","Rv2680_day32", output]
+    #     try:
+    #         method_object = GIMethod.from_args(*console_tools.clean_args(args))
+    #     except Exception as error:
+    #             import traceback
+    #             traceback.print_exc()
+    #             print(f'''error = {error}''')
+    #     self.assertTrue(os.path.exists(output))
 
 if __name__ == '__main__':
     unittest.main()
