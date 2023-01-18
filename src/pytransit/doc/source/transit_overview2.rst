@@ -17,8 +17,9 @@ some analyses).
 
 Transit has two main phases: 
 
- * a pre-processing phase (called TPP) which analyzes raw sequencing data (fastq files) and extracts transposon insertion counts at genomic coordinates (i.e. TA dinucleotides, for the Himar1 transposon), and   
- * statistical analyses (using Transit proper).   
+ * a **pre-processing phase** (called TPP) which analyzes raw sequencing data (fastq files) and extracts transposon insertion counts at genomic coordinates (i.e. TA dinucleotides, for the Himar1 transposon), and   
+
+ * **statistical analysis methods** (using Transit GUI or command line) - gumbel, HMM, resampling, ANOVA...
 
 The statistical analyses are focused on identifying genes
 that are *essential* or *conditionally-essential*, and quantifying the
@@ -67,11 +68,13 @@ simply contain a pair of columns: 1) coordinates of TA sites,
 and 2) counts of insertions observed at each site.
 
 If Himar1 Tn libraries are prepared according to standard protocols,
-such as (LONG), then the sequencing reads will have a prefix
+such as `(Long et al, 2015) <https://pubmed.ncbi.nlm.nih.gov/25636614/>`_, 
+then the sequencing reads will have a prefix
 correspond to the transposon terminus, followed by genomic DNA (along with template barcodes in read 2).
-(See XXX for recommendations on sequencing parameters (length, depth), also replicates.)
+(See XXXXX for recommendations on sequencing parameters (length, depth), also replicates.)
 TPP removes the prefix and maps the genomic portion of the read into
-the genome (using BWA, [ref]).  It also reduces counts to unqiue
+the genome (using BWA, `Li and Durbin, 2009 <https://pubmed.ncbi.nlm.nih.gov/19451168/>`_).  
+It also reduces counts to unqiue
 templates at each site, which reduces noise.
 
 For diagnostics, each TPP run also generates a .tnseq_stats output file
@@ -81,7 +84,9 @@ It also reports statistics on how many reads were rejected because they containe
 primer, adapter, or vectors sequences, which can be useful for diagnosing problems with the library.
 
 
-For Tn5 (such as magellan6, see PROTOCOL), the differences in running TPP are: 
+For Tn5 datasets (e.g. generated the MmeI restriction enzyme, 
+`van Opijnen et al, (2015) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4696536/>`_), 
+the differences in running TPP are: 
 1) there is no prefix, since the transposon terminus does not appear in the reads, 
 and 2) the .wig files contain coordinates and counts for all sites in the 
 genome, since Tn5 is not restricted to insertions at TA sites (unlike Himar1).
@@ -107,11 +112,11 @@ This facilitates comparing insertion counts at individaul TA sites across sample
 If alternative normalization (or none) is desired, this can be specified
 using a flag in the 'export combined_wig' command.
 
-*It is often useful to examine at the pattern of insertions in conditionally-essential genes
-in combined_wig files to confirm what the statistical analyses label as "significant" genes,
+It is often useful to *examine at the pattern of insertions in conditionally-essential genes
+in combined_wig files* to confirm what the statistical analyses label as "significant" genes,
 e.g. to ensure that the result is not biased by outliers (high counts) at individual sites,
 but rather that apparent differences in counts between conditions are reflected as a consistent trend
-over multiple TA sites in a gene.  This is a recommended practice.*
+over multiple TA sites in a gene.  *This is a recommended practice.*
 
 Once a combined_wig file is prepared, it can be used to
 :ref:`assess data quality <transit_quality_control>`. There are two methods
@@ -157,6 +162,145 @@ format (see
 :ref:`instructions for converting .gff files to .prot_tables <annotation_files>`).  
 This step only has to be done once, and then the .prot_table can be used
 for all subsequent analyses in Transit.
+
+
+
+GUI
+---
+
+Here is a screenshot of the new GUI in Transit 4.0:
+
+.. image:: _images/Transit4.0_GUI.png
+   :width: 1000
+   :align: center
+
+**(note replace image when we update the version number; show it with an 'resampling' parameters and an output file in Results panel)**
+
+Basic walk-through:
+
+* You start by **loading 3 input files** (in succession): combined_wig, metadata, and annotation. This will populate the upper panel with individual samples, and the middle panel with conditions.
+
+* Next, you can evaluate certain samples by selecting them and then choose an Action from the 'Select Tool' dropdown box above the samples panel, such as displaying track views, making scatter plots, examining chromosomal bias via LOESS plots, and showing plots of read-count distributions (for quality control).
+
+* Next, you can select an analysis method from the menu (under **Methods->himar1**), such as gumbel, HMM, resampling, ZINB...  This will bring up a corresponding **parameter panel** on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
+
+* Then you hit the **Run button**. You should be able to monitor progress via the Progress Bar.
+
+* Status updates and various messages will be displayed in the **Message Bar** at the bottom of the GUI window. Important: The full list of messages, including error messages will be printed on in the console window from where you started Transit. Check these message if anything goes wrong.
+
+* Usually, an analysis method will generate one or more output files.  These are typically text files in tab-separated format (which could be opened as spreadsheets in Excel). The file will get populated into the **Results Table** (bottom pannel).
+
+* If you select an output file in the panel, it will provide a dropdown with Actions you can perform, including  displaying the file as a table (or figure, if it is an image, such as volcano plots, heatmaps, etc). Some output files have customized Actions, such as making a volcano plot from output of resampling, or making a heatmap from the output file after running ANOVA or ZINB.
+
+* One of the most common and important Actions ('Select Tool' dropdown under Results Files) is to perform is **Pathway Enrichment Analysis** on the genes found to be significant by one of the other analyses (e.g. gumbel, hmm, resampling, ANOVA). Most of these output files have a column with adjusted P-values, and significant "hits" are usually defined as genes with Padj<0.05.  If you have more than about 20 hits, you can use Pathway Enrichment Analysis to determine whether they share functional similarities.  There are several systems of pathways available, including COG categories and GO terms.
+
+
+Pre-Processing Tasks
+--------------------
+
+When you first start the Transit GUI, you load up your TnSeq dataset (combined_wig file).
+Before running any statistical analyses, the first thing you will probably want to
+do is explore the individual samples, their relationships, and data quality.
+Most of these steps can be performed by clicking on a sample in the samples menu
+and selecting an action from the drop-down list, or by choosing one of the items from
+the Pre-Processing menu.  These steps can also be done at the command line.
+
+ * generate a :ref:`tnseq_stats <tnseq_stats>` table (under Pre-Processing menu) summaring key statistics and metrics for each individual sample (including saturation, skewness, etc)
+
+ * generate a **LOESS plot** (drop-down list) to see whether the mean read count variest significantly across the genome (chromosomal position bias; M. tuberculosis samples typically do not show a substantial bias)
+
+ * examine **distributions of read-counts and QQ-plots** (select 'Quality Control' in drop-down list) to check for highly skewed samples 
+
+ * look at a **Track View** (drop-down list) for one or more samples that shows insertions (vertical bars) at TA sites in a target gene or locus
+
+ * compute a :ref:`gene means <gene_means>` spreadsheet, with the mean insertion count in each gene in each condition (Pre-Processing->Gene Means) - this generates a helpful spreadsheet from which one can make barcharts showing how the (normalized) insertion counts vary across conditions for genes of interest
+
+ * :ref:`normalize <normalization>` counts in a combined_wig file (Pre-Processing->Normalize) - while most of the analysis methods automatically perform TTR normalization, and even the method for creating combined_wig files normalizes by default, one can choose to normalize a sample or whole dataset a different way (such as the Beta-Geometric Correction, BGC).  But in most cases, users will not need to do an explicit normalization step.
+ 
+ * make a :ref:`scatter plot <scatterplot>` (Pre-Processing->Visuals->scatterplot) between 2 samples showing how correlated the mean insertion counts are at the gene level to check for consistency/reproducibility
+
+ * make a :ref:`correlation plot <corrplot>` (Pre-Processing->Visuals->corrplot) among all samples to see which conditions appear more similar to each other, and to check that replicates are most highly correlated with each other (or check for outlier samples that do not correlate well with other replicates of the same condition, which might suggest they are bad or noisy)
+
+
+Statistical Analysis Methods
+----------------------------
+
+The analysis methods available in Transit are divided into 3 categories:
+
+* Methods for analyzing **single conditions** or datasets and identifying *essential genes*
+
+  * :ref:`Gumbel method <gumbel>` - looks for genes with larges 'gaps', or consecutive sequences of TA sites without insertions
+
+  * :ref:`Hidden Markov Model <HMM>` (HMM) - assigns genes to one of 4 states: ES (essential), GD (growth-defect), NE (non-essential), or GA (growth-advantaged), based on magnitudes of insertion counts (reflecting fitness effects of mutants)
+
+* Methods for **pairwise comparisons of datasets** (e.g. between a treatment and control condition) to identify *conditionally essential genes*
+
+  * :ref:`resampling` - a non-parametric test using permutations of insertion counts to simulate a null distribution of difference in mean counts for each gene
+
+  * :ref:`Mann-Whiney U-test <Utest>` - another non-parametric test based on comparison of rank-ordering of insertion counts in each gene
+
+* Methods for analyzing **multiple conditions** (>=2) to identify genes which exhibit *significant variability* of insertion counts across conditions 
+
+  * :ref:`ANOVA`
+
+  * :ref:`ZINB` - similar to ANOVA, but uses the Zero-Inflated Negative Binomial disribution to model counts; this method has options for testing for *interactions among covariates*
+
+  * :ref:`Genetic Interaction <genetic-interactions>` analysis - this is a special case customized for testing interactions between 2 variables in a 2x2 experimental design (4 conditions)
+
+
+Analyses for Tn5 Datasets
+-------------------------
+
+Although Transit was originally designed for analyzing Himar1 TnSeq datasets,
+many of the methods can be adapted for analyzing datasets that use other transposons like Tn5.
+The main difference is that the Himar1 transposon is restricted to insertions at 
+TA dinucleotide sites, whereas Tn5 is capable of inserting more broadly at any coordinate
+in the genome.
+
+**1/3/2023:** Previously (in Transit versions up through 3.2.7), we
+had a few statistical methods that were customized for analyzing Tn5
+datasets.  These have been temporarily disabled during the transition
+to Transit 4.0.  We will be adding back in the Tn5 analysis methods
+soon... (in a future release, like 4.1)
+
+
+Results and Post-Processing
+---------------------------
+
+Most of the analysis methods in Transit generate output files
+that can be opened as spreadsheets in a program like Excel.
+The output files are generally **tab-separated** text files, with
+header lines demarcated by '#' as prefixes.
+
+For most of the analysis methods, the output file contains 
+a row for each gene in the genome with information relevant to
+the statistical test, usually ending in columns labeled "P-value" and "Adj P-value" (Padj).
+The P-value is calculated based on the statistical test, and then
+all the P-values are adjusted by the Benjamini-Hochberg procedure
+to correct for multiple testing (aiming to limit the false discovery rate to FDR<5%).
+
+In Transit, **hits** (or significant genes in the test) are generally
+defined as those with **Padj<0.05**, which can be identified in the
+output files by sorting on the "Adj P-value" column.
+
+
+After the user runs a TRANSIT Analysis Method, various functions can
+be performed on the output file to better understand the results of
+the analyis performed.  If using the GUI, the output file is visible
+in the *Results Panel*, along with a summary (params and outcomes). 
+Click on the file and
+select one of the following (availablity depends on analysis that was
+run) from the action drop-down:
+
+* Display Table - an external window will appear in an spreadsheet-like format for you to view the file
+
+* Volcano Plot - an external window will appear that displays a plot of the LFCs vs. log10(pvalue) with a horizontal line indicating the thresold of significance
+
+* Display Heatmap - an external window will appear of clustered conditions and significant hits resulting from the analysis. This file will be also saved to your folder of choice
+  and placed in the results pane, which then can be viewed by selection of the "View" option in the action dropdown.
+
+* :ref:`Pathway Enrichment <GSEA>` Analysis - this will search for significantly enriched pathways among the hits (Padj<0.05) in the selected file in the Results Panel (e.g. an output file from an analysis like resampling, ANOVA, etc)
+
 
 
 Command Line
@@ -210,81 +354,6 @@ For example:
     -PC    <N>  := pseudocounts to use for calculating LFCs. Default: -PC 5
     -alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
     --winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-
-
-
-GUI
----
-
-Here is a screenshot of the new GUI in Transit 4.0:
-
-.. image:: _images/Transit4.0_GUI.png
-   :width: 1000
-   :align: center
-
-**(note replace image when we update the version number; show it with an 'resampling' parameters and an output file in Results panel)**
-
-Basic walk-through:
-
-* You start by **loading 3 input files** (in succession): combined_wig, metadata, and annotation. This will populate the upper panel with individual samples, and the middle panel with conditions.
-
-* Next, you can evaluate certain samples by selecting them and then choose an Action from the 'Select Tool' dropdown box above the samples panel, such as displaying track views, making scatter plots, examining chromosomal bias via LOESS plots, and showing plots of read-count distributions (for quality control).
-
-* Next, you can select an analysis method from the menu (under **Methods->himar1**), such as gumbel, HMM, resampling, ZINB...  This will bring up a corresponding **parameter panel** on the right.  You might need to select specific samples or conditions to analyze. You can usually use the defaults for the other parameters. 
-
-* Then you hit 'Run'. You should be able to monitor progress via the Progress Bar.
-
-* Status updates and various messages will be displayed in the Message Bar at the bottom of the GUI window. **Important:** The full list of messages, including error messages will be printed on in the console window from where you started Transit. Check these message if anything goes wrong.
-
-* Usually, an analysis method will generate one or more output files.  These are typically text files in tab-separated format (which could be opened as spreadsheets in Excel). The file will get populated into the **Results Table** (bottom pannel).
-
-* If you select an output file in the panel, it will provide a dropdown with Actions you can perform, including  displaying the file as a table (or figure, if it is an image, such as volcano plots, heatmaps, etc). Some output files have customized Actions, such as making a volcano plot from output of resampling, or making a heatmap from the output file after running ANOVA or ZINB.
-
-* One of the most common and important Actions ('Select Tool' dropdown under Results Files) is to perform is **Pathway Enrichment Analysis** on the genes found to be significant by one of the other analyses (e.g. gumbel, hmm, resampling, ANOVA). Most of these output files have a column with adjusted P-values, and significant "hits" are usually defined as genes with Padj<0.05.  If you have more than about 20 hits, you can use Pathway Enrichment Analysis to determine whether they share functional similarities.  There are several systems of pathways available, including COG categories and GO terms.
-
-
-Pre-Processing
---------------
-
-* tnseq_stats, QQplots, track-view, scatterplots, corrplot, gene_means
-
-* QC - data quality, diagnostics
-
-* normalization (TTR, betageom)
-
-* Analyses (for Himar1 datasets)
-
- * 3 types:
-
- * single
-
- * pairwise 
-
- * multiple
-
- * output files (tab-sep spreadsheets)
-
- * hits are ususally Qval<0.05
-
-* Analysis for Tn5
-
-
-Results and Post-Processing
----------------------------
-
-After the user runs a TRANSIT Analysis Method, various functions can be performed on the output file to better understand the results of the analyis performed.
-If using the GUI, the output file is visible in the results pane, along with a summary. Click on the file and select one of the following (availablity depends on 
-analysis that was run)from the action dropdown:
-
-* Display Table - an external window will appear in an spreadsheet-like format for you to view the file
-
-* Volcano Plot - an external window will appear that displays a plot of the LFCs vs. log10(pvalue) with a horizontal line indicating the thresold of significance
-
-* Display Heatmap - an external window will appear of clustered conditions and significant hits resulting from the analysis. This file will be also saved to your folder of choice
-  and placed in the results pane, which then can be viewed by selection of the "View" option in the action dropdown.
-
-* Pathway Enrichment Analysis - this selection will assume the output file selected is the input file to the Pathway Analysis method (see more details below)
-
 
 
 
