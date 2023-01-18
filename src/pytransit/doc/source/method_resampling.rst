@@ -94,8 +94,6 @@ Usage
         -ez             :=  Exclude rows with zero accross conditions. Default: Turned off
                             (i.e. include rows with zeros).
         -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias.
-                            Default: Turned Off.
         -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
         --ctrl_lib      :=  String of letters representing library of control files in order

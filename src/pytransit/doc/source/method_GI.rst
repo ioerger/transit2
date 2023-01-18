@@ -114,7 +114,6 @@ Usage
         --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
         -n <string>     :=  Normalization method. Default: -n TTR
         -iz             :=  Include rows with zero across conditions.
-        -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
         -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
         -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
         -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
