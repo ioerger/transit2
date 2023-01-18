@@ -46,7 +46,6 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "--iz",
         "-l",
         "-iN",
         "-iC",
@@ -56,7 +55,6 @@ class Method:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
 
         Optional Arguments:
-            --iz            :=  Include rows with zero accross conditions.
             --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
             -n <string>     :=  Normalization method. Default: -n TTR
             -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
