@@ -552,6 +552,7 @@ class Method:
                             self.inputs.pval_col = standardized_headers.index("P Value")
                             self.inputs.qval_col = standardized_headers.index("Adj P Value")
                     w = line.rstrip().split("\t")
+                    if len(w)<len(headers): continue
                     genes.append(w)
                     if "GI" in self.inputs.input_type:
                         interaction = float(w[interactions_col])
