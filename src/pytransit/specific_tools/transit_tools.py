@@ -426,7 +426,7 @@ def get_validated_data(wig_list):
     else:
         return tnseq_tools.CombinedWig.gather_wig_data([])
 
-# input: conditions are per wig; orderingMetdata comes from tnseq_tools.CombinedWigMetadata.read_condition_data()
+# input: conditions are per wig; orderingmetadata comes from tnseq_tools.CombinedWigMetadata.read_condition_data()
 # output: conditionsList is selected subset of conditions (unique, in preferred order)
 def filter_wigs_by_conditions(
     data,

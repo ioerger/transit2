@@ -1,4 +1,5 @@
 import os
+import json
 
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
@@ -317,24 +318,28 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
 
             
         # 
-        # add graphical entries for each condition
+        # add graphical entries for each sample and condition
         # 
-        if True:
+        if len(gui.combined_wigs):
             number_of_new_combined_wigs = len(cwig_paths)
+            combined_wig = gui.combined_wigs[-1]
             if number_of_new_combined_wigs > 0:
                 from pytransit.generic_tools import misc
-                new_samples = misc.flatten_once([ each.samples for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
-                for each_sample in new_samples:
+                for each_sample in combined_wig.samples:
                     # BOOKMARK: here's where "density", "nz_mean", and "total count" can be added (they just need to be calculated)
-                    samples.wig_table.add(dict(
+                    samples.wig_table.add({
                         # add hidden link to object
-                        __wig_obj=each_sample,
+                        "__wig_obj":each_sample,
                         # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
-                        id=each_sample.id,
-                        conditions=(",".join(each_sample.condition_names) or "[None]"),
-                        density=round(each_sample.extra_data.density, 4),
-                        total_insertions=round(each_sample.extra_data.sum),
-                        non_zero_mean=round(each_sample.extra_data.non_zero_mean),
+                        "id":each_sample.id,
+                        "conditions":(",".join(each_sample.condition_names) or "[None]"),
+                        "density":round(each_sample.extra_data.density, 4),
+                        "total_insertions":round(each_sample.extra_data.sum),
+                        "non_zero_mean":round(each_sample.extra_data.non_zero_mean),
+                        # add in multiple columns, one per covariate
+                        **combined_wig.metadata.covariates_dict_for(
+                            wig_fingerprint=each_sample.fingerprint
+                        ),
                         # # uncomment to add additional summary data
                         # non_zero_median=each_sample.extra_data.non_zero_median,
                         # count=each_sample.extra_data.count,
@@ -342,13 +347,18 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
                         # max=each_sample.extra_data.max,
                         # skew=each_sample.extra_data.skew,
                         # kurtosis=each_sample.extra_data.kurtosis,
-                    ))
+                    })
                 
-                new_conditions = misc.flatten_once([ each.conditions for each in gui.combined_wigs[-number_of_new_combined_wigs:] ])
-                for each_condition in new_conditions:
-                    samples.conditions_table.add(dict(
-                        name=each_condition.name,
-                    ))
+                covariate_headers = combined_wig.metadata.covariate_names
+                for each_condition in combined_wig.conditions:
+                    rows_with_condition = [ row for row in gui.combined_wigs[-1].metadata.rows if row["Condition"] == each_condition.name ]
+                    samples.conditions_table.add({
+                        "name": each_condition.name,
+                        **{
+                            each_header: json.dumps([ each_row[each_header] for each_row in rows_with_condition ])
+                                for each_header in covariate_headers
+                        },
+                    })
 
 # should only be called/used by globals.py
 def get_selected_samples():
