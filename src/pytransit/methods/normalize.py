@@ -35,22 +35,22 @@ class Method:
     # newer method
     # 
     menu_prefix = ("Pre-Processing", "Generate",  "A Normalized Combined Wig using ...")
-    @gui.add_menu(*menu_prefix, "Trimmed Total Reads (default)")
+    @gui.add_menu(*menu_prefix, "Trimmed Total Reads Normalization (default)")
     def menu_options(*args): Method.gui_normalize(kind="TTR")
     
-    @gui.add_menu(*menu_prefix, "Non-Zero Mean")
+    @gui.add_menu(*menu_prefix, "Non-Zero Mean Normalization")
     def menu_options(*args): Method.gui_normalize(kind="nzmean")
     
-    @gui.add_menu(*menu_prefix, "Total Reads")
+    @gui.add_menu(*menu_prefix, "Total Reads Normalization")
     def menu_options(*args): Method.gui_normalize(kind="totreads")
     
-    @gui.add_menu(*menu_prefix, "Beta-Geometric Correction (BCG)")
+    @gui.add_menu(*menu_prefix, "Beta-Geometric Correction Normalization (BCG)")
     def menu_options(*args): Method.gui_normalize(kind="betageom")
     
-    @gui.add_menu(*menu_prefix, "Zero-Inflated Negative Binomial (ZINFNB)")
+    @gui.add_menu(*menu_prefix, "Zero-Inflated Negative Binomial Normalization (ZINFNB)")
     def menu_options(*args): Method.gui_normalize(kind="zinfnb")
     
-    @gui.add_menu(*menu_prefix, "Quantile")
+    @gui.add_menu(*menu_prefix, "Quantile Normalization")
     def menu_options(*args): Method.gui_normalize(kind="quantile")
     
     # a helper for all the methods above
