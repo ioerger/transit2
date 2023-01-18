@@ -37,7 +37,7 @@ gui.is_active = False # normally checks sys.argv[] but tests use their own sys.a
 
 class TestMethods(TransitTestCase):
     def test_resampling(self):
-        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--l", "--no-sr"]
+        args = [ctrl_data_txt, exp_data_txt, small_annotation, output, "--no-sr"]
         method_object = None
         try:
             ResamplingMethod.from_args(*console_tools.clean_args(args))
