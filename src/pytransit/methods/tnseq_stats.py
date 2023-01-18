@@ -56,7 +56,7 @@ class Method:
             {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file> <output_file>
     """
     
-    @gui.add_menu("Method", "himar1", menu_name)
+    @gui.add_menu("Pre-Processing", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
