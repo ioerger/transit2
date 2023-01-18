@@ -140,10 +140,10 @@ class Method:
                 normalization=       panel_helpers.create_normalization_input(panel, main_sizer),
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
-                group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group Samples By",           options=metadata_headers, default_option=None, tooltip_text="Select a header (from the metadata file) to use as the primary condition being evaluated. Each label (aka factor level) in the column will be a group. The intention is to test for significant variability of insertion counts among groups."),
-                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covariates to Adjust for",  options=metadata_headers, tooltip_text="Select headers (from the metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjust for differences caused only by the strain."), 
-                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covariates to Test for Interactions", options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. This is analogous to the standard notion of interactions in linear models. This creates terms for the cross product for all combinations of the primary interacting conditions. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
-                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="append Gene Annotation?", default_value=False, tooltip_text="Add an additional column to the output that inlcudes gene descriptions", widget_size=None),
+                group_by=            panel_helpers.create_choice_input(panel, main_sizer, label="Group Samples By", options=metadata_headers, default_option="Condition", tooltip_text="Select a header (from the metadata file) to use as the primary condition being evaluated. Each label (aka factor level) in the column will be a group. The intention is to test for significant variability of insertion counts among groups."),
+                covars=              panel_helpers.create_choice_input(panel, main_sizer, label="Covariates to Adjust for", options=["[None]", *metadata_headers], default_option="[None]", tooltip_text="Select headers (from the metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjust for differences caused only by the strain."),
+                interactions=        panel_helpers.create_choice_input(panel, main_sizer, label="Covariates to Test for Interactions", options=["[None]", *metadata_headers], default_option="[None]", tooltip_text="Select headers (from the metadata file) that interact with the primary condition. This is analogous to the standard notion of interactions in linear models. This creates terms for the cross product for all combinations of the primary interacting conditions. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."),
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Append Gene Annotation?", default_value=True, tooltip_text="Add an additional column to the output that inlcudes gene descriptions"),
             )
             
     @staticmethod
@@ -165,10 +165,6 @@ class Method:
                 arguments[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-        
-        # make sure refs is always a list
-        if isinstance(arguments.refs, str):
-            refs = [ arguments.refs ]
         
         # 
         # ask for output path(s)
@@ -204,7 +200,7 @@ class Method:
         disable_logging=False,
     ): # output()
         # Defaults (even if argument directly provided as None)
-        should_append_gene_descriptions = should_append_gene_descriptions if should_append_gene_descriptions is not None else False
+        should_append_gene_descriptions = should_append_gene_descriptions if should_append_gene_descriptions is not None else True
         group_by                        = group_by                        if group_by                        is not None else "Condition"
         covars                          = covars                          if covars                          is not None else []
         interactions                    = interactions                    if interactions                    is not None else []
@@ -219,13 +215,19 @@ class Method:
         
         transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
-
-            print("ieriowejrijweri: ",combined_wig_path, metadata_path, annotation_path, output_path, should_append_gene_descriptions , group_by, covars ,interactions ,refs ,excluded_conditions  ,included_conditions, winz, pseudocount, normalization, n_terminus, c_terminus, disable_logging)
             
             # 
             # process data
             # 
             if True:
+                # values that can be multi-or-singular
+                if refs         is None or refs         == "[None]": refs         = []
+                if covars       is None or covars       == "[None]": covars       = []
+                if interactions is None or interactions == "[None]": interactions = []
+                if not isinstance(refs        , list): refs         = [ refs         ]
+                if not isinstance(covars      , list): covars       = [ covars       ]
+                if not isinstance(interactions, list): interactions = [ interactions ]
+                
                 # 
                 # create gene_name_to_description from prot_table
                 # 
@@ -492,7 +494,7 @@ class Method:
                     "Status",
                 ]
                 if should_append_gene_descriptions:
-                    column_names.append("Gene Name")
+                    column_names.append("Gene Annotation")
                 
                 # 
                 # extra_info
@@ -597,7 +599,7 @@ class Method:
             FloatVector([float(x) for x in xs])   if misc.str_is_float(xs[0])   else StrVector(xs)
         )
         
-        for progress, gene in informative_iterator.ProgressBar(genes, title="Running ZINB "):
+        for progress, gene in informative_iterator.ProgressBar(genes, title="Running ZINB ", disable_logging=gui.is_active):
             count += 1
             gene_name = gene["rv"]
             
