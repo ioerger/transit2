@@ -1,10 +1,10 @@
 #Gumbel
 #yaml:
-#    date: 2023-01-16 13:30:53
-#    transit_version: v3.2.6
+#    date: 2023-01-18 10:02:42
+#    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'gumbel' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'Cholesterol' './tests/cli_tests/gumbel/0001_basic.sh.1.result'
-#    calculation_time: 62.5seconds
+#    calculation_time: 66.6seconds
 #    analysis_type: Gumbel
 #    files:
 #       combined_wig: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
