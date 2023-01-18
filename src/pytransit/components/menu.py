@@ -17,23 +17,9 @@ def create_menu(frame):
     menu_bar = wx.MenuBar(0)
     frame = gui.frame
     
-    # 
-    # File Menu
-    # 
-    if True:
-        file_menu = wx.Menu()
-    
-        # 
-        # Exit
-        # 
-        if True:
-            exit_option = wx.MenuItem( file_menu, wx.ID_ANY, "&Exit", wx.EmptyString, wx.ITEM_NORMAL )
-            file_menu.Append(exit_option)
-            def when_exit_clicked(event):
-                frame.Close()
-            frame.Bind(wx.EVT_MENU, when_exit_clicked, id=exit_option.GetId())
-        
-        menu_bar.Append(file_menu, "&File")
+    @gui.add_menu("File", "Exit")
+    def on_exit(event):
+        gui.frame.Close()
     
     # 
     # Automated menu creation
