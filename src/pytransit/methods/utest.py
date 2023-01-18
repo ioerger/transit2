@@ -46,7 +46,6 @@ class Method:
     
     valid_cli_flags = [
         "-n",
-        "-l",
         "-iN",
         "-iC",
     ]
@@ -55,7 +54,6 @@ class Method:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
 
         Optional Arguments:
-            --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
             -n <string>     :=  Normalization method. Default: -n TTR
             -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
             -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
@@ -88,7 +86,6 @@ class Method:
             self.value_getters.n_terminus               = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus               = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.normalization            = panel_helpers.create_normalization_input(panel, main_sizer)
-            self.value_getters.LOESS                    = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS. Selecting samples, then using the dropdown near the 'Load CombinedWig' button will show a LOESS option for previewing, which is helpful to visualize the possible bias in the counts.")
             
     
     @staticmethod        
@@ -142,18 +139,16 @@ class Method:
             normalization=kwargs["n"],
             n_terminus=kwargs["iN"],
             c_terminus=kwargs["iC"],
-            LOESS="l" in kwargs,
         )
     
     @staticmethod
-    def output(*, combined_wig, control_condition, experimental_condition, output_path, normalization=None, n_terminus=None, c_terminus=None, LOESS=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
+    def output(*, combined_wig, control_condition, experimental_condition, output_path, normalization=None, n_terminus=None, c_terminus=None, ignore_codon=None, significance_threshold=None, disable_logging=False):
         import scipy.stats
         from pytransit.specific_tools import stat_tools
         # Defaults (even if argument directly provided as None)
         normalization          = normalization          if normalization          is not None else "TTR"
         n_terminus             = n_terminus             if n_terminus             is not None else 0.0
         c_terminus             = c_terminus             if c_terminus             is not None else 0.0
-        LOESS                  = LOESS                  if LOESS                  is not None else False
         ignore_codon           = ignore_codon           if ignore_codon           is not None else True
         significance_threshold = significance_threshold if significance_threshold is not None else 0.05
         
@@ -170,10 +165,6 @@ class Method:
             if normalization != "nonorm":
                 logging.log(f"Normalizing with {normalization}")
                 combined_wig = combined_wig.normalized_with(normalization)
-            
-            if LOESS:
-                logging.log("Performing LOESS Correction")
-                combined_wig = combined_wig.with_loess_correction()
             
             control_samples_by_gene = combined_wig.with_only(condition_names=[control_condition]).get_genes(
                 ignore_codon=ignore_codon,
@@ -283,7 +274,6 @@ class Method:
                         "experimental_condition": experimental_condition,
                         "n_terminus":n_terminus,
                         "c_terminus":c_terminus,
-                        "LOESS":LOESS,
                         "ignore_codon":ignore_codon,
                         "significance_threshold":significance_threshold,
                     },
