@@ -162,6 +162,7 @@ class CombinedWigMetadata:
             new_rows.append(deepcopy(each_row))
         return CombinedWigMetadata(rows=new_rows, headers=self.headers, comments=self.comments)
         
+    # TODO: maybe rename to "select_by"
     def with_only(self, condition_names=None, wig_fingerprints=None):
         from copy import deepcopy
         new_rows = []
