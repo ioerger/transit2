@@ -1,3 +1,4 @@
+.. _Utest:
 
 Mann-Whitney U-test (utest)
 ===========================

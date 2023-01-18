@@ -1,3 +1,4 @@
+.. _gene_means:
 
 Gene Means
 ===========

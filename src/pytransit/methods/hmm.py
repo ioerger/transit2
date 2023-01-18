@@ -63,7 +63,7 @@ class Method:
     
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} hmm <comma-separated .wig files> <annotation_file> <output_file>
+            {console_tools.subcommand_prefix} hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
 
         Optional Arguments:
             -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
@@ -172,26 +172,52 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=5)
         
-        ctrldata        = args[0].split(",")
-        annotation_path = args[1]
-        output_path     = args[2]
+        combined_wig    = args[0]
+        metadata_path   = args[1]
+        annotation_path = args[2]
+        condition       = args[3]
+        output_path     = args[4]
         
         replicates    = kwargs.get("r", Method.inputs.replicates)
         normalization = kwargs.get("n", Method.inputs.normalization)
         loess_correction         = kwargs.get("l", Method.inputs.loess_correction)
         n_terminus    = float(kwargs.get("iN", Method.inputs.n_terminus))
         c_terminus    = float(kwargs.get("iC", Method.inputs.c_terminus))
-        
-        (ctrl_read_counts, ctrl_positions) = transit_tools.get_validated_data(ctrldata)
+
+        ##################
+        # read data      
+        # old way: (ctrl_read_counts, ctrl_positions) = transit_tools.get_validated_data(ctrldata) 
+        # read counts from combined_wig, like gumbel
+        logging.log("Getting Data from %s" % combined_wig)
+        position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(combined_wig)
+        metadata = tnseq_tools.CombinedWigMetadata(metadata_path)
+
+        # now, select the columns in data corresponding to samples that are replicates of desired condition...
+        indexes,ids = [],[]
+        for i,f in enumerate(filenames_in_comb_wig): 
+           cond = metadata.conditions_by_wig_fingerprint.get(f, "FLAG-UNMAPPED-CONDITION-IN-WIG")
+           id = metadata.id_for(f)
+           if cond==condition:
+             indexes.append(i)
+             ids.append(id)
+
+        logging.log("selected samples for gumbel (cond=%s): %s" % (condition,','.join(ids)))
+        data = data[indexes]
+        ctrldata = combined_wig
+        ctrl_read_counts,ctrl_positions = data,position
+        ##################
 
         Method.inputs.update(dict(
+            combined_wig=combined_wig,
+            metadata_path=metadata_path,
+            annotation_path=annotation_path,
+            condition=condition,
+            output_path=output_path,
             data_sources=ctrldata,
             ctrl_read_counts=ctrl_read_counts,
             ctrl_positions=ctrl_positions,
-            annotation_path=annotation_path,
-            output_path=output_path,
             replicates=replicates,
             normalization=normalization,
             loess_correction=loess_correction,
