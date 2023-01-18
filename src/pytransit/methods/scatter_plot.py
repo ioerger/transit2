@@ -21,7 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 @misc.singleton
 class Method:
     name = "Scatter Plot"
-    menu_name = name
+    menu_name = f"{name}"
     identifier = name.replace(" ",'')
     cli_name = identifier.lower()
     
@@ -78,7 +78,7 @@ class Method:
             log_scale="log" in kwargs # bool
         )
         
-    @gui.add_menu("Pre-Processing", "Visuals", cli_name)
+    @gui.add_menu("Pre-Processing", "Visualize", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
@@ -95,7 +95,7 @@ class Method:
 
                     1. Ensure the correct annotation file has been loaded in 
 
-                    2. Select exactly 2 samples from the sample pane
+                    2. Select samples from the sample pane
                     
                     3. Select whether you would like to calculate the mean insertion count within a gene prior to the plot generation
 

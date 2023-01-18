@@ -25,7 +25,7 @@ class Method:
     name = "Gene Means"
     identifier  = name.replace(" ", "")
     cli_name    = name.replace(" ", "_").lower()
-    menu_name   = f"{name} - calculate mean counts at gene level"
+    menu_name   = f"Mean counts at the gene level ({name})"
     description = f"""Calculate mean counts at gene level."""
     
     valid_cli_flags = [
@@ -66,7 +66,7 @@ class Method:
             avg_by_conditions = "cond" in kwargs # boolean
         )
     
-    @gui.add_menu("Pre-Processing", menu_name)
+    @gui.add_menu("Pre-Processing", "Generate", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     

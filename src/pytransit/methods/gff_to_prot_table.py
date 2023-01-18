@@ -12,7 +12,7 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 @misc.singleton
 class Method:
     name = "gff_to_prot"
-    menu_name = "GFF to Prot Table"
+    menu_name = "Prot Table from GFF file"
     usage_string = f"""Usage: {console_tools.subcommand_prefix} convert gff_to_prot_table <gff_file> <output_file>"""
     
     inputs = LazyDict(
@@ -32,7 +32,7 @@ class Method:
         
         Method.Run()
     
-    @gui.add_menu("Pre-Processing", "Convert", menu_name)
+    @gui.add_menu("Pre-Processing", "Generate", menu_name)
     def on_menu_click(event):
         from pytransit.components import pop_up
         from pytransit.components import panel_helpers

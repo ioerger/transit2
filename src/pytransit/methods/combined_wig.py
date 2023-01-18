@@ -15,7 +15,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 @misc.singleton
 class Method:
     identifier = "CombinedWig"
-    menu_name = "Combined Wig"
+    menu_name = "A new Combined Wig file"
     usage_string = f"""
         Usage:
             {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation_file> <output_file> [Optional Arguments]
@@ -69,7 +69,7 @@ class Method:
                         return True
         return False
         
-    @gui.add_menu("Pre-Processing", "Export", menu_name)
+    @gui.add_menu("Pre-Processing", "Generate", menu_name)
     def on_menu_click(event):
         from pytransit.components import pop_up, panel_helpers
         

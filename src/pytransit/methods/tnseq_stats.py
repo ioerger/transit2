@@ -24,7 +24,7 @@ class Method:
     identifier  = "Tnseq Stats"
     cli_name    = identifier.replace(" ","_").lower()
     identifier  = "TnseqStats"
-    menu_name   = f"{identifier} - Analyze statistics of TnSeq datasets"
+    menu_name   = f"Summary statistics ({identifier})"
     description = """Analyze statistics of TnSeq datasets in combined_wig file"""
     
     inputs = LazyDict(
@@ -56,7 +56,7 @@ class Method:
             {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file> <output_file>
     """
     
-    @gui.add_menu("Pre-Processing", menu_name)
+    @gui.add_menu("Pre-Processing", "Generate", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
