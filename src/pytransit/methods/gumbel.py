@@ -180,7 +180,7 @@ class Method:
             normalization=kwargs.get("n", "TTR"),
             samples=int(kwargs.get("s", 10000)),
             burnin=int(kwargs.get("b", 500)),
-            read_count=int(kwargs.get("r", 1)),
+            read_count=int(kwargs.get("m", 1)),
             trim=int(kwargs.get("t", 1)),
             replicates=kwargs.get("r", "Sum"),
             iN=float(kwargs.get("iN", 0.00)), 
