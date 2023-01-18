@@ -336,10 +336,13 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
                         "density":round(each_sample.extra_data.density, 4),
                         "total_insertions":round(each_sample.extra_data.sum),
                         "non_zero_mean":round(each_sample.extra_data.non_zero_mean),
-                        # add in multiple columns, one per covariate
-                        **combined_wig.metadata.covariates_dict_for(
-                            wig_fingerprint=each_sample.fingerprint
-                        ),
+                        
+                        # # uncomment to show covariate values next to each sample
+                        # # add in multiple columns, one per covariate
+                        # **combined_wig.metadata.covariates_dict_for(
+                        #     wig_fingerprint=each_sample.fingerprint
+                        # ),
+                        
                         # # uncomment to add additional summary data
                         # non_zero_median=each_sample.extra_data.non_zero_median,
                         # count=each_sample.extra_data.count,
@@ -352,10 +355,13 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
                 covariate_headers = combined_wig.metadata.covariate_names
                 for each_condition in combined_wig.conditions:
                     rows_with_condition = [ row for row in gui.combined_wigs[-1].metadata.rows if row["Condition"] == each_condition.name ]
+                    
                     samples.conditions_table.add({
-                        "name": each_condition.name,
+                        "Condition": each_condition.name,
                         **{
-                            each_header: json.dumps([ each_row[each_header] for each_row in rows_with_condition ])
+                            each_header: ", ".join(misc.no_duplicates([
+                               f"{each_row[each_header]}" for each_row in rows_with_condition 
+                            ]))
                                 for each_header in covariate_headers
                         },
                     })
