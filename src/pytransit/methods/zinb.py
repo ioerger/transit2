@@ -141,8 +141,8 @@ class Method:
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
                 group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group By",                   options=metadata_headers, default_option=None, tooltip_text="Column name (in samples_metadata) to use as the primary condition being evaluated (to test for significant variability of insertions among groups)."),
-                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjusts for differences caused only the strain."), 
-                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to analyze"   , options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjust for differences caused only by the strain."), 
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions to analyze"   , options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. This is analogous to the standard notion of interactions in linear models. This creates terms for the cross product for all combinations of the primary interacting conditions. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
                 should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="Add an additional column to the output that inlcudes gene descriptions", widget_size=None),
             )
             
@@ -219,6 +219,9 @@ class Method:
         
         transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
+
+            print("ieriowejrijweri: ",combined_wig_path, metadata_path, annotation_path, output_path, should_append_gene_descriptions , group_by, covars ,interactions ,refs ,excluded_conditions  ,included_conditions, winz, pseudocount, normalization, n_terminus, c_terminus, disable_logging)
+            
             # 
             # process data
             # 

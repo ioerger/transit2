@@ -552,6 +552,7 @@ class Method:
                             self.inputs.pval_col = standardized_headers.index("P Value")
                             self.inputs.qval_col = standardized_headers.index("Adj P Value")
                     w = line.rstrip().split("\t")
+                    if len(w)<len(headers): continue
                     genes.append(w)
                     if "GI" in self.inputs.input_type:
                         interaction = float(w[interactions_col])
@@ -1142,13 +1143,15 @@ class ONTResultsFile:
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
 
+        #self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.inputs.input_file)
+
         summary = self.extra_data.get("summary_info", {})
         summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
 
-        parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
-        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+        # parameters = self.extra_data.get("parameters",{})
+        # parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
+        # self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
     def __str__(self):
         return f"""

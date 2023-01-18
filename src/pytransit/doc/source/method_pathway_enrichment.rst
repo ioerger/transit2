@@ -1,7 +1,7 @@
 
 .. _GSEA:
 
-.. rst-class:: transit_clionly
+
 Pathway Enrichment Analysis
 ===========================
 
@@ -21,11 +21,12 @@ and evaluated for overlap with functional categories of genes.
 The GSEA methods use the whole list of genes, ranked in order of statistical significance
 (without requiring a cutoff), to calculate enrichment.
 
+#TODO Links
 Three systems of categories are provided for (but you can add your own):
 the Sanger functional categories of genes determined in the
 original annotation of the H37Rv genome (`Cole et al, 1998 <https://www.ncbi.nlm.nih.gov/pubmed/9634230>`_,
 with subsequent updates),
-COG categories (`Clusters of Orthologous Genes <https://www.ncbi.nlm.nih.gov/pubmed/25428365>`_) and
+COG 20 categories (`Clusters of Orthologous Genes <https://www.ncbi.nlm.nih.gov/pubmed/25428365>`_) and
 also GO terms (Gene Ontology).  The supporting files for *M. tuberculosis*
 H37Rv are in the src/pytransit/data/ directory.
 
@@ -41,7 +42,7 @@ At present, pathway enrichment analysis is only implemented as a command-line fu
 and is not available in the Transit GUI.
 
 
-Usage
+Command Line Usage
 -----
 
 ::
@@ -50,9 +51,7 @@ Usage
 
   Optional parameters:
      -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
-     -Pval_col <int>    : indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)
-     -Qval_col <int>    : indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
- for GSEA...
+  for GSEA...
      -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
      -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
      -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
@@ -96,10 +95,6 @@ Parameters
   I.A.3	Fatty acids
   I.A.4	Phosphorous compounds
   ...
-
-- **\-\-Pval_col <int>**: indicate column with *raw* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for sorting) (default: -2, i.e. second-to-last column)
-
-- **\-\-Qval_col <int>**: indicate column with *adjusted* P-values (starting with 0; can also be negative, i.e. -1 means last col) (used for significant cutoff) (default: -1)
 
 
 - **-M [FET|GSEA|ONT]**
@@ -178,6 +173,7 @@ organisms, one should be able to find GO terms (e.g. on PATRIC,
 Uniprot, or geneontology.org) and COG roles (from
 https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/, `(Galerpin et al, 2021)
 <https://academic.oup.com/nar/article/49/D1/D274/5964069>`_ ).
+For COG p20 athways, there are a list of organisms available ranging various genus.
 
 Pathway association files for *M. smegmatis* mc2 155 are also provided in the table below.
 
@@ -185,8 +181,9 @@ Pathway association files for *M. smegmatis* mc2 155 are also provided in the ta
 +----------+----------+--------------------+--------------------------------------+------------------------------------+
 | system   | num roles| applicable methods | associations of genes with roles     | pathway definitions/role names     |
 +==========+==========+====================+======================================+====================================+
-| COG      | 25       | FET*, GSEA         | H37Rv_COG_roles.dat;                 | COG_roles.dat                      |
-|          |          |                    | smeg_COG_roles.dat                   |                                    |
+| COG_20   | 5236     | FET*, GSEA         | H37Rv_COG_roles.dat;                 | COG_roles.dat                      |
+|          |          |                    | smeg_COG_roles.dat;                  |                                    |
+|          |          |                    | see cog-20.or.csv for all options    |                                    |
 +----------+----------+--------------------+--------------------------------------+------------------------------------+
 | Sanger   | 153      | FET*, GSEA*        | H37Rv_sanger_roles.dat               | sanger_roles.dat                   |
 +----------+----------+--------------------+--------------------------------------+------------------------------------+
@@ -195,6 +192,8 @@ Pathway association files for *M. smegmatis* mc2 155 are also provided in the ta
 +----------+----------+--------------------+--------------------------------------+------------------------------------+
 |          |          | FET, GSEA          | H37Rv_GO_terms.txt;                  | GO_term_names.dat                  |
 |          |          |                    | smeg_GO_terms.txt                    |                                    |
++----------+----------+--------------------+--------------------------------------+------------------------------------+
+| KEGG     | 600      | FET, GSEA          | H37Rv_KEGG_roles.txt                 | KEGG_roles.txt                     |
 +----------+----------+--------------------+--------------------------------------+------------------------------------+
 
 '\*' means *recommended* combination of method with system of functional categories
@@ -205,7 +204,7 @@ Current Recommendations
 
 Here are the recommended combinations of pathway methods to use for different systems of functional categories:
 
- * For COG, use '-M FET'
+ * For COG_20, use '-M FET'
  * For Sanger roles, try both FET and GSEA
  * For GO terms, use 'M -ONT'
 
@@ -221,8 +220,8 @@ Examples
     # can do this with GO terms too
     > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_glyc_chol_GO.txt
 
-    # with COG categories
-    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_COG_roles.dat $DATA/COG_roles.dat pathways_glyc_chol_COG.txt
+    # with COG_20 categories
+    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/Mycobacterium_tuberculosis_H37Rv_COG_20_roles.associations.txt $DATA/COG_20_roles.txt pathways_glyc_chol_COG.txt
 
     # can also do GSEA method (on any system of functional categories)
     > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_Sanger_GSEA.txt -M GSEA
@@ -232,6 +231,57 @@ Examples
 
 The $DATA environment variable in these examples refers to the Transit data directory, e.g. src/pytransit/data/.
 
+GUI Mode
+--------
+|
+Pathway Enrichment can be accessed through the actions dropdown of a valid results file in the results panel
 
+
+.. image:: _images/pathway_enrichment_select_from_results_panel.png
+   :width: 600
+   :align: center
+
+
+or from the "Post-Processing" tab in the File Menu. 
+
+
+.. image:: _images/pathway_enrichment_select_from_file_menu.png
+   :width: 600
+   :align: center
+
+
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we have pre-set some of the common Pathway Systems for ease of the user. 
+
+    .. image:: _images/pathway_enrichment_parameter_panel.png
+       :width: 300
+       :align: center
+
+- **Select Input File**
+    If the Pathway Enrichment action is selected from the results dropdown, the file that the action was performed on is taken as input to the analysis and this button will not be visible. 
+    The input file to this method is the one obtained after using a comparitive analysis method in Transit.  GSEA method makes usage of the last column (adjusted P-value)
+    Valid TRANSIT results file types include : ANOVA, resampling, GI, ZINB, and Utest
+
+- **Select Pathway System**
+    This button allows you to select from a set of pre-loaded pathway systems or upload your own. Each of the dropdowns populates based on the selection of the other. For example, if M.Smegmatis is selected as the organism of interest (Association), 
+    the pathways to select from will be COG_20 and GO along with an option for the user to upload their own.
+
+    .. image:: _images/pathway_enrichment_pathway_system_popup.png
+       :width: 600
+       :align: center
+
+    
+- **-M [FET|GSEA|ONT]**
+    Methodology to be used. FET is used by default. 
+- **-ranking SLPV|LFC**
+    Method used to rank all genes; SLPV is signed-log-p-value (default); Used when GSEA is selected as method.
+- **-p <float>**
+    Exponent to use in calculating enrichment score; recommend trying '-p 0' (default) or '-p 1' (as used in Subramaniam et al, 2005); Used when GSEA is selected as method.
+- **-Nperm <int>**
+    Number of permutations to simulate for null distribution to determine p-value (default=10000); Used when GSEA is selected as method.
+- **\-\-LFC_col <int>**
+    Indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+
+|
 .. rst-class:: transit_sectionend
 ------
