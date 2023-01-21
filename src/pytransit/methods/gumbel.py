@@ -48,7 +48,6 @@ class Method:
         combined_wig = None,
         metadata = None,
         condition = None, # all reps will be combined; later, allow user to select individual wigs files
-        wig_files = None,
         annotation_path = None,
         output_path = None,
         normalization = "TTR",
@@ -134,7 +133,7 @@ class Method:
             # get wig files
             # 
             combined_wig = gui.combined_wigs[-1]
-            Method.inputs.combined_wig = combined_wig.main_path
+            Method.inputs.combined_wig_path = combined_wig.main_path
             # assume all samples are in the same metadata file
             Method.inputs.metadata_path = gui.combined_wigs[-1].metadata_path 
 
@@ -173,7 +172,7 @@ class Method:
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=5)
 
         Method.inputs.update(dict(
-            combined_wig=args[0],
+            combined_wig_path=args[0],
             metadata_path=args[1],
             annotation_path=args[2],
             condition=args[3],
@@ -194,76 +193,33 @@ class Method:
         with gui_tools.nice_error_log:
             logging.log("Starting gumbel analysis")
             self.start_time = time.time()
-
-            #######################
-            # get data
-
-            if self.inputs.combined_wig!=None:  # assume metadata and condition are defined too
-                condition = self.inputs.condition
-                logging.log("Getting Data from %s" % self.inputs.combined_wig)
-                position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
-
-                metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-
-                # now, select the columns in data corresponding to samples that are replicates of desired condition...
-                indexes,ids = [],[]
-                for i,f in enumerate(filenames_in_comb_wig): 
-                  cond = metadata.conditions_by_wig_fingerprint.get(f, "FLAG-UNMAPPED-CONDITION-IN-WIG")
-                  id = metadata.id_for(f)
-                  if cond==condition:
-                    indexes.append(i)
-                    ids.append(id)
-
-                logging.log("selected samples for gumbel (cond=%s): %s" % (condition,','.join(ids)))
-                data = data[indexes]
-
-            elif self.inputs.wig_files!=None:
-                logging.log("Getting Data")
-                (data, position) = transit_tools.get_validated_data( self.inputs.wig_files)
-                
-            else:
-                logging.error("error: must provide either combined_wig or list of wig files")
-            ######################
-
-            (K, N) = data.shape
-            merged = numpy.sum(data, axis=0)
-            self.inputs.nsites, nzeros = (
-                merged.shape[0],
-                numpy.sum(merged == 0),
-            )  # perhaps I should say >minCount
-            self.inputs.sat = (self.inputs.nsites - nzeros) / float(self.inputs.nsites)
-
-            # normalize the counts
-            if self.inputs.normalization and self.inputs.normalization != "nonorm":
-                logging.log("Normalizing using: %s" % self.inputs.normalization)
-                (data, factors) = norm_tools.normalize_data( data, self.inputs.normalization, self.inputs.wig_files, self.inputs.annotation_path )
-                
-                # read-in genes from annotation
-                G = tnseq_tools.Genes(
-                    self.inputs.wig_files,
-                    self.inputs.annotation_path,
-                    data=data,
-                    position=position,
-                    minread=1,  ### add these options?
-                    reps=self.inputs.replicates,
-                    #ignore_codon=self.ignore_codon,
-                    n_terminus=self.inputs.iN, 
-                    c_terminus=self.inputs.iC,
-                )
-                N = len(G)
-
-            # could also read-in gumbel_results_file as csv here
-
-            ###########################
-            # process data
-
-            logging.log("processing data")
-            Z_sample, phi_sample, count, acctot= self.calc_gumbel(G)
-
-            ###########################
-            # write output        
-
-            self.write_gumbel_results(G, Z_sample, phi_sample, count, acctot)
+            logging.log("Processing data from %s" % self.inputs.combined_wig_path)
+            
+            combined_wig = tnseq_tools.CombinedWig(
+                main_path=self.inputs.combined_wig_path,
+                metadata_path=self.inputs.metadata_path,
+                annotation_path=self.inputs.annotation_path,
+            )
+            
+            # make sure selected condition exists
+            if self.inputs.condition not in combined_wig.condition_names:
+                logging.error(f"\n\nThe condition name {self.inputs.condition} is not one of the available conditions: {combined_wig.condition_names}\n")
+            
+            # create combined wig with just the selected condition, normalize it, then organize the data by-genes
+            genes = combined_wig.with_only(
+                condition_names=[self.inputs.condition]
+            ).normalized_with( # good to normalize AFTER filtering out the other conditions
+                kind=self.inputs.normalization
+            ).get_genes(
+                n_terminus=self.inputs.iN,
+                c_terminus=self.inputs.iC,
+                reps=self.inputs.replicates,
+                minread=1,   ### add these options?
+            )
+            
+            logging.log("Computing Gumbel")
+            z_sample, phi_sample, count, acctot = self.calc_gumbel(genes)
+            self.write_gumbel_results(genes, z_sample, phi_sample, count, acctot)
             results_area.add(self.inputs.output_path)
             logging.log(f"Finished running {Method.identifier}")       
 
@@ -304,10 +260,10 @@ class Method:
         N_GOOD = sum(ii_good)
 
         logging.log("Setting Initial Class")
-        Z_sample = numpy.zeros((N_GOOD, self.samples))
+        z_sample = numpy.zeros((N_GOOD, self.samples))
         Z = [self.classify(g.n, g.r, 0.5) for g in G if self.good_orf(g)]
-        Z_sample[:, 0] = Z
-        N_ESS = numpy.sum(Z_sample[:, 0] == 1)
+        z_sample[:, 0] = Z
+        N_ESS = numpy.sum(z_sample[:, 0] == 1)
 
         phi_sample = numpy.zeros(self.samples)  # []
         phi_sample[0] = phi_start
@@ -336,7 +292,7 @@ class Method:
                 # PHI
                 acc = 1.0
                 phi_new = phi_old + random.gauss(mu_c, sigma_c)
-                i0 = Z_sample[:, i - 1] == 0
+                i0 = z_sample[:, i - 1] == 0
                 if (
                     phi_new > 1
                     or phi_new <= 0
@@ -362,7 +318,7 @@ class Method:
 
                 if (count > self.burnin) and (count % self.trim == 0):
                     phi_sample[i] = phi_new
-                    Z_sample[:, i] = Z
+                    z_sample[:, i] = Z
                     i += 1
 
             except ValueError as error:
@@ -381,11 +337,11 @@ class Method:
 
         print() # to clear out iterator that may not finish (because of while-loop instead of for-loop)
         
-        return (Z_sample, phi_sample, count, acctot)
+        return (z_sample, phi_sample, count, acctot)
 
-    def write_gumbel_results(self, G, Z_sample, phi_sample, count, acctot):
+    def write_gumbel_results(self, G, z_sample, phi_sample, count, acctot):
         
-        ZBAR = numpy.apply_along_axis(numpy.mean, 1, Z_sample)
+        ZBAR = numpy.apply_along_axis(numpy.mean, 1, z_sample)
         (ess_t, non_t) = stat_tools.bayesian_essentiality_thresholds(ZBAR)
         binomial_n = math.log10(0.05) / math.log10(G.global_phi())
 
@@ -429,7 +385,7 @@ class Method:
                 calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
                 analysis_type=Method.identifier,
                 files=dict(
-                    combined_wig=Method.inputs.combined_wig,
+                    combined_wig=Method.inputs.combined_wig_path,
                     annotation_path=Method.inputs.annotation_path,
                 ),
                 parameters=dict(

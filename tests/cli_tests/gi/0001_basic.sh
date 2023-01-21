@@ -10,8 +10,8 @@ comwig="./src/pytransit/data/subu_ko.transit/comwig.tsv"
 
 python3 ./src/transit.py gi \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     "H37Rv_day0"\
     "H37Rv_day32" \
     "Rv2680_day0" \

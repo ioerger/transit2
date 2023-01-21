@@ -1,14 +1,14 @@
 #Anova
 #yaml:
-#    date: 2023-01-02 12:37:16
-#    transit_version: v3.2.6
+#    date: 2023-01-18 10:00:00
+#    transit_version: v4.0.0
 #    app_or_command_line: command_line
-#    console_command: python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './tests/cli_tests/anova/0001_basic.sh.1.result'
-#    calculation_time: 2.5seconds
+#    console_command: python3 './src/transit.py' 'anova' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0001_basic.sh.1.result'
+#    calculation_time: 2.8seconds
 #    analysis_type: Anova
 #    files:
 #       combined_wig: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
-#       annotation_path: null
+#       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #    parameters:
 #       conditions_list: [Cholesterol, Glycerol]
 #       normalization: TTR

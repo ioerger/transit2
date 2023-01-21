@@ -10,8 +10,8 @@ comwig="./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 # <combined-wig-path> <annotation .prot_table or GFF3> <metadata path> <condition name for control group> <condition name for experimental group> <output file> [Optional Arguments]
 python3 ./src/transit.py "utest" \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     "Glycerol" \
     "Cholesterol" \
     "$result_file"

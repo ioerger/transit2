@@ -14,8 +14,8 @@ python3 ./src/transit.py resampling \
     -s 1000 \
     --a \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     Glycerol \
     Cholesterol \
     "$result_file"

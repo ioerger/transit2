@@ -7,7 +7,7 @@ comwig="./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 
 python3 ./src/transit.py anova \
     ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv \
-    ./src/pytransit/data/genomes/H37Rv.prot_table \
     ./src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv \
+    ./src/pytransit/data/genomes/H37Rv.prot_table \
     "$result_file" \
     -n TTR

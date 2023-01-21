@@ -53,7 +53,7 @@ class Method:
     ]
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
 
         Optional Arguments:
             --iz            :=  Include rows with zero accross conditions.
@@ -135,8 +135,8 @@ class Method:
         Method.output(
             combined_wig=tnseq_tools.CombinedWig.load(
                 main_path=args[0],
-                annotation_path=args[1],
-                metadata_path=args[2],
+                metadata_path=args[1],
+                annotation_path=args[2],
             ),
             control_condition=args[3],
             experimental_condition=args[4],

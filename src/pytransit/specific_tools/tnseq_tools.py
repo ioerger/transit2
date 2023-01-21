@@ -130,7 +130,7 @@ class CombinedWigMetadata:
             self.comments, self.headers, self.rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
             if any([ each_special_header not in self.headers for each_special_header in CombinedWigMetadata.special_headers]):
                 logging.error(f'''
-                    For metdata file: {path}, I expected (at least) these headers: {CombinedWigMetadata.special_headers}, but got these headers: {self.headers}
+                    For metadataa file: {path}, I expected (at least) these headers: {CombinedWigMetadata.special_headers}, but got these headers: {self.headers}
                 ''')
         
         self.covariate_names = [ each for each in self.headers if each not in CombinedWigMetadata.special_headers ]
@@ -193,10 +193,21 @@ class CombinedWigMetadata:
                     conditions.append(each_row["Condition"])
         return no_duplicates(conditions)
     
-    def id_for(self, wig_fingerprint=None):
+    def row_for(self, wig_fingerprint=None):
         for each_row in self.rows:
             if each_row["Filename"] == wig_fingerprint:
-                return each_row["Id"]
+                return each_row
+    
+    def covariates_dict_for(self, wig_fingerprint=None):
+        row = self.row_for(wig_fingerprint=wig_fingerprint)
+        if row:
+            return {
+                covariate_name : row[covariate_name]
+                    for covariate_name in self.covariate_names
+            }
+    
+    def id_for(self, wig_fingerprint=None):
+        return self.row_for(wig_fingerprint=wig_fingerprint)["Id"]
     
     def fingerprint_for(self, wig_id=None):
         for each_row in self.rows:
@@ -240,8 +251,13 @@ class CombinedWigMetadata:
             lines = file.readlines()
             column_names              = lines[0].split()
             column_names              = [ each.lower() for each in column_names ]
-            index_for_condition       = column_names.index(column_name_for_condition.lower())
-            index_for_wig_fingerprint = column_names.index("Filename".lower())
+            try:
+                index_for_condition       = column_names.index(column_name_for_condition.lower())
+                index_for_wig_fingerprint = column_names.index("Filename".lower())
+            except Exception as error:
+                print(f'''column_names = {column_names}''')
+                print(f'''path = {path}''')
+                raise error
             # validate
             for each in covars_to_read:
                 if each not in column_names:
@@ -823,7 +839,7 @@ class CombinedWig:
     def with_loess_correction(self):
         from pytransit.specific_tools import stat_tools
         new_combined_wig = self.copy()
-        for wig_index, _ in range(new_combined_wig.as_tuple.counts_by_wig):
+        for wig_index, _ in range(len(new_combined_wig.as_tuple.counts_by_wig)):
             new_combined_wig.as_tuple.counts_by_wig[wig_index] = stat_tools.loess_correction(
                 new_combined_wig.ta_sites,
                 new_combined_wig.as_tuple.counts_by_wig[wig_index]

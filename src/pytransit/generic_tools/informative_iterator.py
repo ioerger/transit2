@@ -336,20 +336,23 @@ class ProgressBar:
         self.iterator = iter(generator_func())
 
     def to_time_string(self, secs):
-        secs = int(round(secs))
-        mins = secs // 60
-        secs = secs % 60
-        str_hours = ''
-        if mins >= 60:
-            hours = mins // 60
-            mins = mins % 60
-            mins = "{:02d}".format(mins)
-            str_hours = str(hours) + ':'
-
-        if secs < 10:
-            return str_hours + '{}:0{}'.format(mins, secs)
-        return str_hours + '{}:{}'.format(mins, secs)
-    
+        secs  = int(round(secs))
+        mins  = secs  // 60; secs  = secs  % 60
+        hours = mins  // 60; mins  = mins  % 60
+        days  = hours // 24; hours = hours % 24
+        if days:
+            hours = f"{hours}".rjust(2,"0")
+            mins  = f"{mins}".rjust(2,"0")
+            return f"{days}days, {hours}:{mins}min"
+        elif hours:
+            mins  = f"{mins}".rjust(2,"0")
+            return f"{hours}:{mins}min"
+        elif mins:
+            secs  = f"{secs}".rjust(2,"0")
+            return f"{mins}:{secs}sec"
+        else:
+            return f"{secs}sec"
+            
     def show_spacer(self):
         self.print(self.spacer, end='')
     
@@ -368,13 +371,13 @@ class ProgressBar:
         if self.secs_remaining == math.inf:
             self.print(f'remaining: _______', end='')
         elif self.progress_data.percent != 100:
-            self.print(f'remaining: {self.to_time_string(self.secs_remaining)}sec', end='')
+            self.print(f'remaining: {self.to_time_string(self.secs_remaining)}', end='')
         
     def show_percent(self):
         self.print(f'{self.progress_data.percent:.2f}%'.rjust(6), end='')
     
     def show_duration(self):
-        self.print("elapsed: "+self.to_time_string(self.total_eslaped_time)+"sec", end='')
+        self.print("elapsed: "+self.to_time_string(self.total_eslaped_time), end='')
     
     def show_fraction(self):
         total_str = f"{self.progress_data.total_iterations}"
@@ -409,7 +412,7 @@ class ProgressBar:
         self.progress_data.percent = 100.0
         self.string_buffer = "" # for ipython
         indent = bliss_print.indent.string * bliss_print.indent.size
-        self.print(f'{indent}Done in {duration}sec at {end_time}')
+        self.print(f'{indent}Done in {duration} at {end_time}')
 
     def __iter__(self):
         return self

@@ -21,6 +21,7 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
 
+debugging_enabled = False
 cli_args = LazyDict(
     gene=None, # for debugging
 )
@@ -52,7 +53,7 @@ class Method:
     
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
             -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
@@ -83,8 +84,8 @@ class Method:
         # save the data
         Method.output(
             combined_wig_path=args[0],
-            annotation_path=args[1],
-            metadata_path=args[2],
+            metadata_path=args[1],
+            annotation_path=args[2],
             output_path=args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
             group_by=kwargs.get("-group-by", kwargs["condition"]),
@@ -139,10 +140,10 @@ class Method:
                 normalization=       panel_helpers.create_normalization_input(panel, main_sizer),
                 pseudocount=         panel_helpers.create_pseudocount_input(panel, main_sizer),
                 winz=                panel_helpers.create_winsorize_input(panel, main_sizer),
-                group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group By",                   options=metadata_headers, default_option=None, tooltip_text="Column name (in samples_metadata) to use as the primary condition being evaluated (to test for significant variability of insertions among groups)."),
-                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covars to adjust for",  options=metadata_headers, tooltip_text="Select covariates (columns in metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjust for differences caused only by the strain."), 
-                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Interactions to analyze"   , options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. This is analogous to the standard notion of interactions in linear models. This creates terms for the cross product for all combinations of the primary interacting conditions. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
-                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="should append gene descriptions", default_value=False, tooltip_text="Add an additional column to the output that inlcudes gene descriptions", widget_size=None),
+                group_by=            panel_helpers.create_choice_input(panel, main_sizer,       label="Group Samples By",           options=metadata_headers, default_option=None, tooltip_text="Select a header (from the metadata file) to use as the primary condition being evaluated. Each label (aka factor level) in the column will be a group. The intention is to test for significant variability of insertion counts among groups."),
+                covars=              panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covariates to Adjust for",  options=metadata_headers, tooltip_text="Select headers (from the metadata file) to adjust for in the model (discount the effect of factors we don't care about). For example, suppose you have two treatments with multiple strains. Lets say we don't care about strains themselves, but they may have an affect on the outcome. By selecting strain as a covar it will adjust for differences caused only by the strain."), 
+                interactions=        panel_helpers.create_multiselect_getter(panel, main_sizer, label_text="Covariates to Test for Interactions", options=metadata_headers, tooltip_text="Select headers (from the metadata file) that interact with the primary condition. This is analogous to the standard notion of interactions in linear models. This creates terms for the cross product for all combinations of the primary interacting conditions. For Example, If grouping by condition and media as the interaction, then ZINB will test variability across all possible combinations of strain and media. NOTE: Each combination must have at least one sample in the data provided."), 
+                should_append_gene_descriptions=panel_helpers.create_check_box_getter(panel, main_sizer, label_text="append Gene Annotation?", default_value=False, tooltip_text="Add an additional column to the output that inlcudes gene descriptions", widget_size=None),
             )
             
     @staticmethod
@@ -595,8 +596,8 @@ class Method:
         to_r_float_or_str_vec = lambda xs: (
             FloatVector([float(x) for x in xs])   if misc.str_is_float(xs[0])   else StrVector(xs)
         )
-
-        for gene in genes:
+        
+        for progress, gene in informative_iterator.ProgressBar(genes, title="Running ZINB "):
             count += 1
             gene_name = gene["rv"]
             
@@ -682,7 +683,7 @@ class Method:
 
                     melted = DataFrame(df_args)
                     # r_args = [IntVector(read_counts), StrVector(condition), melted, map(lambda x: StrVector(x), covars), FloatVector(non_zero_mean), FloatVector(logit_z_perc)] + [True]
-                    debugging = debugging_enabled or cli_args.gene
+                    debugging = bool(debugging_enabled or cli_args.gene)
                     pval, msg = r_zinb_signif(
                         melted, zinb_mod1, zinb_mod0, nb_mod1, nb_mod0, debugging
                     )
@@ -699,9 +700,10 @@ class Method:
                     sys.exit(0)
             gene_names.append(gene_name)
             # Update progress
-            percentage = (100.0 * count / len(genes))
-            text = "Running ZINB Method... %5.1f%%" % percentage
-            parameter_panel.progress_update(text, percentage)
+            if gui.is_active:
+                percentage = (100.0 * count / len(genes))
+                text = "Running ZINB Method... %5.1f%%" % percentage
+                parameter_panel.progress_update(text, percentage)
 
         p_values = numpy.array(p_values)
         mask = numpy.isfinite(p_values)

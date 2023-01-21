@@ -7,8 +7,8 @@ comwig="src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 
 python3 ./src/transit.py zinb \
     "$comwig" \
-    "$annotation" \
     "$metadata" \
+    "$annotation" \
     "$result_file" \
     -group-by "Condition" 
     # -interactions "Cholesterol"

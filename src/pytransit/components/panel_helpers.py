@@ -1,4 +1,4 @@
-from pytransit.specific_tools.transit_tools import wx
+from pytransit.specific_tools.transit_tools import wx, GenBitmapTextButton
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, stat_tools
 
@@ -141,7 +141,7 @@ if True:
         return
 
 
-    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
+    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None, alignment=wx.ALIGN_CENTER, size=(-1,-1), color=gui_tools.color.light_gray):
         """
             Example:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
@@ -154,14 +154,17 @@ if True:
             # button
             # 
             if True:
-                add_file_button = wx.Button(
+                add_file_button = GenBitmapTextButton(
                     panel,
                     wx.ID_ANY,
+                    gui_tools.bit_map,
                     button_label,
-                    wx.DefaultPosition,
-                    wx.DefaultSize,
-                    0,
+                    size=wx.Size(*size),
                 )
+                add_file_button.SetMinSize(size)
+                add_file_button.SetMaxSize(size)
+                add_file_button.SetBackgroundColour(color)
+                
                 file_text = None
                 the_file_path = None
                 # whenever the button is clicked, set the file
@@ -179,6 +182,8 @@ if True:
                         file_text.SetLabel(basename(the_file_path or ""))
                         after_select(*args)
             row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
+            # padding
+            row_sizer.Add(20, 1)
             
             # 
             # Text
@@ -186,8 +191,10 @@ if True:
             file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
             row_sizer.Add(file_text, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
         
-        sizer.Add(row_sizer, proportion=0, flag=wx.ALIGN_CENTER, border=gui_tools.default_padding)
-        return lambda *args, **kwargs: the_file_path
+        sizer.Add(row_sizer, proportion=0, flag=alignment, border=gui_tools.default_padding)
+        output = lambda *args, **kwargs: the_file_path
+        output.set_label = lambda text: file_text.SetLabel(text)
+        return output
     
     def create_multi_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None):
         """

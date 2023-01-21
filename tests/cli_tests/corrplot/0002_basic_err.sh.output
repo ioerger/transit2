@@ -2,7 +2,7 @@ Wrong number of arguments (2 != 4), see usage below
 
 
         Usage:
-             python3 ./src/transit.py  corrplot <combined_wig> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
+             python3 ./src/transit.py  corrplot <combined_wig_file> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
         Optional Arguments:
             --avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: false
     

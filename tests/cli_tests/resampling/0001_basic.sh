@@ -9,8 +9,8 @@ comwig="./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 python3 ./src/transit.py resampling \
     -s 1000 \
     ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv \
-    ./src/pytransit/data/genomes/H37Rv.prot_table \
     ./src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv \
+    ./src/pytransit/data/genomes/H37Rv.prot_table \
     Glycerol \
     Cholesterol \
     "$result_file"

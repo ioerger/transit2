@@ -69,7 +69,7 @@ class Method:
     ]
 
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig> <annotation_file> <samples_metadata> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <output_file> [optional arguments]
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <output_file> [optional arguments]
             GI performs a comparison among 2x2=4 groups of datasets, e.g. strains A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
             It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
             Provide replicates in each group as a comma-separated list of wig files.
@@ -186,8 +186,8 @@ class Method:
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=8)
 
         combined_wig_path = args[0]
-        annotation_path   = args[1]
-        metadata_path     = args[2]
+        metadata_path     = args[1]
+        annotation_path   = args[2]
         condA1            = args[3]
         condA2            = args[4]
         condB1            = args[5]
