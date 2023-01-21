@@ -494,12 +494,16 @@ class Method:
         # 
         # write to file
         # 
+        input_column_names, input_rows, input_extra_data, input_comments_string = tnseq_tools.read_results_file(Method.inputs.input_file)
+        print(input_comments_string) 
         transit_tools.write_result(
             path=self.inputs.output_path, # path=None means write to STDOUT
             file_kind=file_output_type,
             rows=self.rows,
             column_names=file_columns,
             extra_info=dict(
+                control_condition = input_extra_data["control_condition"],
+                experimental_condition = input_extra_data["experimental_condition"],
                 calculation_time=f"{(time.time() - start_time):0.1f}seconds",
                 analysis_type=Method.identifier,
                 files=dict(
@@ -1142,9 +1146,7 @@ class ONTResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-
-        #self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.inputs.input_file)
-
+    
         summary = self.extra_data.get("summary_info", {})
         summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })

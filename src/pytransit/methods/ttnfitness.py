@@ -20,6 +20,7 @@ from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.generic_tools.misc import cache
 import pytransit.components.results_area as results_area
+from pytransit.components import parameter_panel
 
 @cache() # cache really only helps for testing, but it helps a lot for testing
 def slow_computation(gene_one_hot_encoded, ttn_vectors, Y):
@@ -52,8 +53,9 @@ class Method:
         normalization = "TTR",
     )
 
+
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <comma-separated .wig files> <annotation_file> <genome .fna> <gumbel_results_file> <genes output_file> <sites output_file>
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <conditio to analyze> <genome .fna> <gumbel_results_file> <genes output_file> <sites output_file>
     """ # FIXME: this is the old way, with multiple wigs as input
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -136,16 +138,25 @@ class Method:
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs): # clean_args() was already called in pytransit/__main__.py
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=6)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=8)
+        console_tools.handle_help_flag(kwargs, Method.usage_string)
         Method.inputs.update(dict(
-            combined_wig = None,
-            metadata = None,
-            wig_files = args[0].split(','),
-            annotation_path = args[1],
-            genome_path = args[2],
-            gumbel_results_path = args[3],
-            genes_output_path = args[4],
-            sites_output_path = args[5],
+            # combined_wig = None,
+            # metadata = None,
+            # wig_files = args[0].split(','),
+            # annotation_path = args[1],
+            # genome_path = args[2],
+            # gumbel_results_path = args[3],
+            # genes_output_path = args[4],
+            # sites_output_path = args[5],
+            combined_wig    = args[0],
+            metadata_path   = args[1],
+            annotation_path = args[2],
+            condition       = args[3],
+            genome_path = args[4],
+            gumbel_results_path = args[5],
+            genes_output_path = args[6],
+            sites_output_path = args[7],
         ))
             
         Method.Run()
@@ -163,16 +174,15 @@ class Method:
                 position, data, filenames_in_comb_wig = tnseq_tools.CombinedWigData.load(self.inputs.combined_wig)
 
                 metadata = tnseq_tools.CombinedWigMetadata(self.inputs.metadata_path)
-                indexes = {}
-                for i,row in enumerate(metadata.rows): 
-                    cond = row["Condition"] 
-                    if cond not in indexes: indexes[cond] = []
-                    indexes[cond].append(i)
-                cond = Method.inputs.condition
-                ids = [metadata.rows[i]["Id"] for i in indexes[cond]]
-                logging.log("selected samples for ttnfitness (cond=%s): %s" % (cond,','.join(ids)))
-                data = data[indexes[cond]] # project array down to samples selected by condition
-
+                indexes,ids = [],[]
+                for i,f in enumerate(filenames_in_comb_wig): 
+                  cond = metadata.conditions_by_wig_fingerprint.get(f, "FLAG-UNMAPPED-CONDITION-IN-WIG")
+                  id = metadata.id_for(f)
+                  if cond==Method.inputs.condition:
+                    indexes.append(i)
+                    ids.append(id)
+                logging.log("selected samples for ttnfitness (cond=%s): %s" % (Method.inputs.condition,','.join(ids)))
+                data = data[indexes]
                 # now, select the columns in data corresponding to samples that are replicates of desired condition...
 
             elif self.inputs.wig_files!=None:
@@ -408,12 +418,15 @@ class Method:
                 ):
                     gene_call = "EB"  # binomial filter
             gumbel_bernoulli_gene_calls[g] = gene_call
+            percentage = _["percent"]
+            if gui.is_active:
+                parameter_panel.progress_update(f"Filtering ES/ESB Genes... {percentage:.2f}%", percentage)
         ess_genes = [
             key
             for key, value in gumbel_bernoulli_gene_calls.items()
             if (value == "E") or (value == "EB")
         ]
-
+        
         logging.log("\t + Filtering Short Genes. Labeling as Uncertain")
         # function to call short genes (1 TA site) with no insertions as Uncertain
         uncertain_genes = []
@@ -424,6 +437,9 @@ class Method:
             saturation = num_insertions / len_of_gene
             if saturation == 0 and len_of_gene <= 1:
                 uncertain_genes.append(g)
+            percentage = _["percent"]
+            if gui.is_active:
+                parameter_panel.progress_update(f"Filtering Short Genes. Labeling as Uncertain... {percentage:.2f}%", percentage)
 
         filtered_ttn_data = ta_sites_df[ta_sites_df["State"] != "ES"]
         filtered_ttn_data = filtered_ttn_data[filtered_ttn_data["Local Average"] != -1]
@@ -460,8 +476,9 @@ class Method:
         Y = old_Y - numpy.mean(old_Y) #centering Y values so we can disregard constant
         #Y = numpy.log10(filtered_ttn_data["Insertion Count"] + 0.5)
 
-
-
+        
+        percentage=50
+        parameter_panel.progress_update(f"Fitting M1... {percentage:.2f}%", percentage)
         logging.log("\t + Fitting M1")
         if True: # NOTE: the block of code in this if statement is what takes up the bulk of the processing time (can't give good ETA/progress cause of this)
             X1, results1 = slow_computation(gene_one_hot_encoded, ttn_vectors, Y) # is a function so that it can be cached
@@ -512,6 +529,10 @@ class Method:
         gene_dict = {}  # dictionary to map information per gene
         ta_sites_df["M1 Predicted Count"] = [None] * len(ta_sites_df)
         for progress, g in informative_iterator.ProgressBar(ta_sites_df["ORF"].unique(), title="Writing To Output"):
+            # Update progress
+            percentage = progress["percent"]
+            if gui.is_active:
+                parameter_panel.progress_update(f"Writing Output Files... {percentage:.2f}%", percentage)
             # ORF Name
             orf_name = gene_obj_dict[g].name
             # ORF Description
@@ -579,8 +600,11 @@ class Method:
                 modified_m1,
                 gene_ttn_call,
             ]
-            
+        
+
         saturation = len(ta_sites_df[ta_sites_df["Insertion Count"] > 0]) / len(ta_sites_df) 
+        
+
         
         # 
         # Write Genes data
@@ -590,42 +614,42 @@ class Method:
         assesment_cnt = output_df["TTN Fitness Assessment"].value_counts()
         genes_out_rows = output_df.values.tolist()
         
+        #in case GA, GD etc. do not exist
+        summary_info={}
+        for ess in ["ES", "ESB","GD","GA","NE","U"]:
+            if ess not in assesment_cnt: summary_info[ess]="0"
+            else: summary_info[ess] = str(assesment_cnt[ess])
+
         logging.log("Writing File: %s" % (self.inputs.genes_output_path))
         transit_tools.write_result(
-            path=self.inputs.genes_output_path,
+            path=Method.inputs.genes_output_path,
             file_kind=Method.identifier+"Genes",
             rows=genes_out_rows,
             column_names=output_df.columns,
             extra_info=dict(
+                condition_selected = Method.inputs.condition,
                 calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
                 saturation= saturation,
                 analysis_type=Method.identifier,
                 files=dict(
-                    combined_wig = self.inputs.combined_wig,
-                    wig_files = self.inputs.wig_files,
-                    metadata = self.inputs.metadata,
-                    annotation_path=self.inputs.annotation_path,
-                    gumbel_results_file = self.inputs.gumbel_results_path,
+                    combined_wig = Method.inputs.combined_wig,
+                    wig_files = Method.inputs.wig_files,
+                    metadata = Method.inputs.metadata,
+                    annotation_path=Method.inputs.annotation_path,
+                    gumbel_results_file = Method.inputs.gumbel_results_path,
                 ),
                 parameters=dict(
                     normalization = self.inputs.normalization,
                 ),
-                summary_info=dict(
-                    ES=  str(assesment_cnt["ES"] ),
-                    ESB= str(assesment_cnt["ESB"]),
-                    GD=  str(assesment_cnt["GD"] ),
-                    GA=  str(assesment_cnt["GA"] ),
-                    NE=  str(assesment_cnt["NE"] ),
-                    U=   str(assesment_cnt["U"]  ),
-                ),
+                summary_info=summary_info,
 
                 naming_reference = dict(
                     ES = "Essential based on Gumbel",
                     ESB = "Essential based on Binomial",
-                    NE = "Non-essential",
-                    U = "Uncertain",
                     GD = "Growth Defect",
+                    NE = "Non-essential",
                     GA = "Growth Advantage",
+                    U = "Uncertain",
                 ),
             ),
         )
@@ -642,6 +666,7 @@ class Method:
             rows=sites_out_rows,
             column_names=ta_sites_df.columns,
             extra_info=dict(
+                condition_selected = Method.inputs.condition,
                 calculation_time=f"{(time.time() - self.start_time):0.1f}seconds",
                 analysis_type=Method.identifier,
                 saturation = saturation,
@@ -658,7 +683,7 @@ class Method:
             ),
         )
 
-        logging.log("")  # Printing empty line to flush stdout
+        logging.log(f"Finished running {Method.identifier}")  # Printing empty line to flush stdout
 
 
             

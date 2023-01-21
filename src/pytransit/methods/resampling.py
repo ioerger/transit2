@@ -473,6 +473,8 @@ class Method:
                 extra_info=dict(
                     calculation_time=f"{(time.time() - start_time):0.1f}seconds",
                     analysis_type=Method.identifier,
+                    control_condition=control_condition,
+                    experimental_condition=experimental_condition,
                     files=dict(
                         combined_wig=Method.inputs.combined_wig_path,
                         annotation_path=Method.inputs.annotation_path,
