@@ -141,7 +141,6 @@ class Method:
                 def when_button_clicked(*args,**kwargs):
                     nonlocal organism_pathway
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
-                    #popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     popup_sizer = wx.GridSizer(rows=3, cols=3, hgap=2, vgap=2) 
                     win.SetSizer(popup_sizer,  wx.EXPAND|wx.ALL)
 
@@ -233,8 +232,7 @@ class Method:
                     win.Layout()
                     popup_sizer.Fit(win)
                     res = win.ShowModal()
-                    
-                    if res == wx.ID_OK:
+                    if res == wx.ID_OK :
                         organism_pathway = association_text.GetLabel() + "-" + pathway_text.GetLabel()
                         display_text= association_text.GetLabel().split("_")[-1]+ "-" + pathway_text.GetLabel()
                         organism_pathway_text.SetLabel(display_text)

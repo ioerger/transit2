@@ -141,14 +141,6 @@ class Method:
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=8)
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         Method.inputs.update(dict(
-            # combined_wig = None,
-            # metadata = None,
-            # wig_files = args[0].split(','),
-            # annotation_path = args[1],
-            # genome_path = args[2],
-            # gumbel_results_path = args[3],
-            # genes_output_path = args[4],
-            # sites_output_path = args[5],
             combined_wig    = args[0],
             metadata_path   = args[1],
             annotation_path = args[2],
@@ -205,11 +197,6 @@ class Method:
                 self.inputs.annotation_path,
                 data=data,
                 position=position,
-                #minread=1,  ### add these options?
-                #reps=self.replicates,
-                #ignore_codon=self.ignore_codon,
-                #n_terminus=self.n_terminus, 
-                #c_terminus=self.c_terminus,
             )
             N = len(G)
     
