@@ -1,107 +1,49 @@
 [pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
-    main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
-    console_mode_start()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
-    transit_cli.find_and_run_subcommand(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 417, in from_args
-    Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 467, in Run
-    "Sig Pathways":self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 936, in Ontologizer
-    logging.warn(
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
-    warnings.warn("\n"+string_output, stacklevel=2)
-  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
-    sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
-    traceback.print_stack(file=log)
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:936: UserWarning: 
+/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/pathway_enrichment.py:938: UserWarning: 
 GO terms with at least one ORF: 3963
 
   logging.warn(
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
-    main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
-    console_mode_start()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
-    transit_cli.find_and_run_subcommand(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 417, in from_args
-    Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 467, in Run
-    "Sig Pathways":self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 941, in Ontologizer
-    logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
-    warnings.warn("\n"+string_output, stacklevel=2)
-  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
-    sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
-    traceback.print_stack(file=log)
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:941: UserWarning: 
+/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/pathway_enrichment.py:943: UserWarning: 
 not found: GO:0030529
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
-    main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
-    console_mode_start()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
-    transit_cli.find_and_run_subcommand(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 417, in from_args
-    Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 467, in Run
-    "Sig Pathways":self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 941, in Ontologizer
-    logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
-    warnings.warn("\n"+string_output, stacklevel=2)
-  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
-    sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
-    traceback.print_stack(file=log)
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:941: UserWarning: 
+/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/pathway_enrichment.py:943: UserWarning: 
 not found: GO:0015197
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
-    main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
-    console_mode_start()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
-    transit_cli.find_and_run_subcommand(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 417, in from_args
-    Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 467, in Run
-    "Sig Pathways":self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 941, in Ontologizer
-    logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
-    warnings.warn("\n"+string_output, stacklevel=2)
-  File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
-    sw(msg.message, msg.category, msg.filename, msg.lineno,
-  File "/opt/homebrew/lib/python3.10/site-packages/blissful_basics/__init__.py", line 179, in warn_with_traceback
-    traceback.print_stack(file=log)
-/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py:941: UserWarning: 
+/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/pathway_enrichment.py:943: UserWarning: 
 not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.4sec 
+#Resampling
+#yaml:
+#    date: 2023-01-21 17:55:59
+#    transit_version: v4.0.0
+#    app_or_command_line: command_line
+#    console_command: python3 './src/transit.py' 'resampling' '-s' '1000' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'Glycerol' 'Cholesterol' './tests/cli_tests/resampling/0001_basic.sh.1.result'
+#    calculation_time: 113.4seconds
+#    analysis_type: Resampling
+#    control_condition: Glycerol
+#    experimental_condition: Cholesterol
+#    files:
+#       combined_wig: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
+#       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
+#    parameters:
+#       samples: 1000
+#       norm: TTR
+#       histograms: false
+#       adaptive: false
+#       pseudocounts: 1.0
+#       n_terminus: 0.0
+#       c_terminus: 0.0
+#       site_restricted: true
+#    summary_info:
+#       Hits: '162'
+#    control_data: Glycerol
+#    experimental_data: Cholesterol
+#    annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
+#    
+#ORF	Gene Name	Description	Sites	Mean Control	Mean Experimental	Log 2 FC	Sum Control	Sum Experimental	Delta Mean	P Value	Adj P Value
+String: {'control_condition': 'Glycerol', 'experimental_condition': 'Cholesterol', 'calculation_time': '2.2seconds', 'analysis_type': 'PathwayEnrichment', 'files': {'input_file': 'tests/cli_tests/resampling/0001_basic.sh.1.result', 'association_path': 'src/pytransit/data//H37Rv_GO_terms.txt', 'pathways_path': 'src/pytransit/data//gene_ontology.1_2.3-11-18.obo'}, 'parameters': {'method': 'ONT', 'ranking': 'SLPV', 'enrichment_exponent': 1, 'num_permutations': 10000, 'pseudocount': 2}, 'summary_info': {'Sig Pathways': 26}}
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 2.2sec 

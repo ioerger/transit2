@@ -5,7 +5,7 @@
 [tnseq_tools:load()] created combined wig data object 
 [anova:Run()] Normalizing using: TTR 
 Traceback (most recent call last):
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 232, in error
+  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/globals.py", line 232, in error
     raise TransitError(error_message)
 pytransit.globals.TransitError: One of the reference conditions ['Untreated'] is not one of the available conditions: ['Cholesterol', 'Glycerol']
 
