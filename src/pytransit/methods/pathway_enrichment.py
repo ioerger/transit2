@@ -493,15 +493,12 @@ class Method:
         # write to file
         # 
         input_column_names, input_rows, input_extra_data, input_comments_string = tnseq_tools.read_results_file(Method.inputs.input_file)
-        print(input_comments_string) 
         transit_tools.write_result(
             path=self.inputs.output_path, # path=None means write to STDOUT
             file_kind=file_output_type,
             rows=self.rows,
             column_names=file_columns,
             extra_info=dict(
-                control_condition = input_extra_data["control_condition"],
-                experimental_condition = input_extra_data["experimental_condition"],
                 calculation_time=f"{(time.time() - start_time):0.1f}seconds",
                 analysis_type=Method.identifier,
                 files=dict(
@@ -510,6 +507,8 @@ class Method:
                     pathways_path=Method.inputs.pathways_file,
                 ),
                 parameters=dict(
+                    conditions_tested_in_input = input_extra_data["conditions"],
+                    input_type = Method.inputs.input_type,
                     method = self.inputs.method,
                     ranking = self.inputs.ranking,
                     enrichment_exponent = self.inputs.enrichment_exponent,
@@ -1061,7 +1060,7 @@ class FETResultsFile:
     
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "conditions_tested_in_input", "input_type"]]
         self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
     def __str__(self):
@@ -1105,8 +1104,8 @@ class GSEAResultsFile:
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = "method : GSEA ;"+" ranking : "+str(parameters["ranking"])+" ; "
-        self.values_for_result_table.update({"parameters": parameters_str })
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking","conditions_tested_in_input", "input_type"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
     
     def __str__(self):
         return f"""
@@ -1149,9 +1148,9 @@ class ONTResultsFile:
         summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
 
-        # parameters = self.extra_data.get("parameters",{})
-        # parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
-        # self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "conditions_tested_in_input", "input_type"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
     def __str__(self):
         return f"""

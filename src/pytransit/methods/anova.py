@@ -470,6 +470,7 @@ class Method:
                     extra_info=dict(
                         calculation_time=f"{timer.duration_in_seconds:0.1f}seconds",
                         analysis_type=Method.identifier,
+                        conditions=", ".join(conditions_list),
                         files=dict(
                             combined_wig=Method.inputs.combined_wig,
                             annotation_path=Method.inputs.annotation_path,
