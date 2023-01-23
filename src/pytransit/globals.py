@@ -33,6 +33,7 @@ class gui:
     combined_wigs = []
     
     menu_heirarchy = LazyDict({
+        "File": {},
         "Pre-Processing": {},
     })
     

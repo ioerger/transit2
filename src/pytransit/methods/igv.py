@@ -11,8 +11,8 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 @misc.singleton
 class Method:
     name = "igv"
-    description = "A method to export and normalized datasets in 'IGV' format."
-    menu_name = f"IGV - {description}"
+    description = "A method to export datasets in 'IGV' format."
+    menu_name = f"IGV file from wig file"
     usage_string = f"""
         Usage:
             {console_tools.subcommand_prefix} export igv <comma-separated .wig files> <annotation_file> <output_file>
@@ -39,7 +39,7 @@ class Method:
         
         Method.Run()
 
-    @gui.add_menu("Pre-Processing", "Export", menu_name)
+    @gui.add_menu("Pre-Processing", "Generate", menu_name)
     def on_menu_click(event):
         from pytransit.components import pop_up
         from pytransit.components import panel_helpers

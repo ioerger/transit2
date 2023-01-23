@@ -369,8 +369,8 @@ combined_wig_object.get_genes( # returns a Genes() object (explained in the Gene
 All methods return a copy (e.g. the comwig object is treated as if it is immutable). This makes it very easy to give a copy to a helper function. For example: 
 
 ```py
-glycerol_comwig    = combined_wig_object.with_only(condition_names=["glycerol"])
-cholesterol_comwig = combined_wig_object.with_only(condition_names=["cholesterol"])
+glycerol_comwig    = combined_wig_object.with_only(condition_names=["Glycerol"])
+cholesterol_comwig = combined_wig_object.with_only(condition_names=["Cholesterol"])
 
 from pytransit.specific_tools.transit_tools import calc_gene_means
 glycerol_means   , _, _ = calc_gene_means(combined_wig=glycerol_comwig)

@@ -30,8 +30,6 @@ Usage
 
   Optional Arguments:
   -n <string>     :=  Normalization method. Default: -n TTR
-  -iz             :=  Include TA sites with zero across conditions.
-  -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Turned Off.
   -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
   -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
 

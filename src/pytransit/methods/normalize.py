@@ -34,8 +34,8 @@ class Method:
     # 
     # newer method
     # 
-    menu_prefix = ("Pre-Processing", "Normalize Combined Wig Using ...")
-    @gui.add_menu(*menu_prefix, "Trimmed Total Reads")
+    menu_prefix = ("Pre-Processing", "Generate",  "A Normalized Combined Wig using ...")
+    @gui.add_menu(*menu_prefix, "Trimmed Total Reads (default)")
     def menu_options(*args): Method.gui_normalize(kind="TTR")
     
     @gui.add_menu(*menu_prefix, "Non-Zero Mean")
@@ -63,7 +63,7 @@ class Method:
                 default_file_name=f"{Method.name}_output.tsv".lower(),
                 output_extensions=transit_tools.result_output_extensions,
             ),
-            infile_path=gui.combined_wigs[-1],
+            infile_path=gui.combined_wigs[-1].main_path,
             normalization=kind,
         )
     

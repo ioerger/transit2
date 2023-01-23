@@ -35,9 +35,17 @@ samples = LazyDict(
         color=gui_tools.color.light_blue,
         size=(200, 40),
     ),
-    button_height=40,
-    clear_button_width=80,
 )
+
+@gui.add_menu("File", "Clear Loaded Data")
+def load_combined_wig_clear_function(event):
+    samples.wig_table.clear()
+    gui.combined_wigs.clear()
+    samples.conditions_table.clear()
+    
+    samples.cwig_getter and samples.cwig_getter.set_label("")
+    samples.metadata_getter and samples.metadata_getter.set_label("")
+    samples.annotation_getter and samples.annotation_getter.set_label("")
 
 # 
 # 
@@ -119,9 +127,9 @@ def create_sample_area(frame):
     wx_object = None
     with Column() as outer_sample_sizer:
         wx_object = outer_sample_sizer.wx_object
-        cwig_getter = None
-        metadata_getter = None
-        annotation_getter = None
+        samples.cwig_getter = None
+        samples.metadata_getter = None
+        samples.annotation_getter = None
         
         with Row() as button_container:
             with Column() as load_button_container:
@@ -131,14 +139,14 @@ def create_sample_area(frame):
                 if True:
                     def update_values(*args):
                         load_combined_wigs_and_metadatas(
-                            cwig_paths=[cwig_getter()],
-                            metadata_paths=[metadata_getter()],
-                            annotation_paths=[annotation_getter()],
+                            cwig_paths=[samples.cwig_getter()],
+                            metadata_paths=[samples.metadata_getter()],
+                            annotation_paths=[samples.annotation_getter()],
                         )
                             
-                    cwig_getter       = create_file_input(frame, load_button_container.wx_object, button_label="Select Combined Wig File", after_select=update_values, **samples.load_button_args)
-                    metadata_getter   = create_file_input(frame, load_button_container.wx_object, button_label="Select Metadata File",     after_select=update_values, **samples.load_button_args)
-                    annotation_getter = create_file_input(frame, load_button_container.wx_object, button_label="Select Annotation File",   after_select=update_values, **samples.load_button_args)
+                    samples.cwig_getter       = create_file_input(frame, load_button_container.wx_object, button_label="Select Combined Wig File", after_select=update_values, **samples.load_button_args)
+                    samples.metadata_getter   = create_file_input(frame, load_button_container.wx_object, button_label="Select Metadata File",     after_select=update_values, **samples.load_button_args)
+                    samples.annotation_getter = create_file_input(frame, load_button_container.wx_object, button_label="Select Annotation File",   after_select=update_values, **samples.load_button_args)
             
             button_container.add(
                 load_button_container,
@@ -151,36 +159,7 @@ def create_sample_area(frame):
             # 
             if True:
                 samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
-                
-                # 
-                # clear button
-                # 
-                if True:
-                    size = (samples.clear_button_width, samples.button_height)
-                    combined_wig_clear_button = GenBitmapTextButton(
-                        frame,
-                        1,
-                        gui_tools.bit_map,
-                        "Clear",
-                        size=wx.Size(*size),
-                    )
-                    combined_wig_clear_button.SetMinSize(size)
-                    combined_wig_clear_button.SetMaxSize(size)
-                    combined_wig_clear_button.SetBackgroundColour(gui_tools.color.light_gray)
-                    # callback
-                    @gui_tools.bind_to(combined_wig_clear_button, wx.EVT_BUTTON)
-                    def load_combined_wig_clear_function(event):
-                        samples.wig_table.clear()
-                        gui.combined_wigs.clear()
-                        samples.conditions_table.clear()
-                        
-                        cwig_getter.set_label("")
-                        metadata_getter.set_label("")
-                        annotation_getter.set_label("")
                     
-                    samples.wig_header_sizer.Add(combined_wig_clear_button, proportion=1, flag=wx.EXPAND, border=0)
-                    # samples.wig_header_sizer.Add(10, 10)
-                
                 button_container.add(
                     samples.wig_header_sizer,
                     expand=True,
@@ -336,10 +315,13 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
                         "density":round(each_sample.extra_data.density, 4),
                         "total_insertions":round(each_sample.extra_data.sum),
                         "non_zero_mean":round(each_sample.extra_data.non_zero_mean),
-                        # add in multiple columns, one per covariate
-                        **combined_wig.metadata.covariates_dict_for(
-                            wig_fingerprint=each_sample.fingerprint
-                        ),
+                        
+                        # # uncomment to show covariate values next to each sample
+                        # # add in multiple columns, one per covariate
+                        # **combined_wig.metadata.covariates_dict_for(
+                        #     wig_fingerprint=each_sample.fingerprint
+                        # ),
+                        
                         # # uncomment to add additional summary data
                         # non_zero_median=each_sample.extra_data.non_zero_median,
                         # count=each_sample.extra_data.count,
@@ -352,10 +334,13 @@ def load_combined_wigs_and_metadatas(cwig_paths, metadata_paths, annotation_path
                 covariate_headers = combined_wig.metadata.covariate_names
                 for each_condition in combined_wig.conditions:
                     rows_with_condition = [ row for row in gui.combined_wigs[-1].metadata.rows if row["Condition"] == each_condition.name ]
+                    
                     samples.conditions_table.add({
-                        "name": each_condition.name,
+                        "Condition": each_condition.name,
                         **{
-                            each_header: json.dumps([ each_row[each_header] for each_row in rows_with_condition ])
+                            each_header: ", ".join(misc.no_duplicates([
+                               f"{each_row[each_header]}" for each_row in rows_with_condition 
+                            ]))
                                 for each_header in covariate_headers
                         },
                     })

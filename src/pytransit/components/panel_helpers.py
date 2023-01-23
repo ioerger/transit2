@@ -458,145 +458,47 @@ if True:
 # 
 # 
 if True:
-    def create_preview_loess_button(panel, sizer, conditions_getter=None, wig_ids_getter=None):
-        conditions_getter = conditions_getter or (lambda *args, **kwargs: None)
-        wig_ids_getter    = wig_ids_getter    or (lambda *args, **kwargs: None)
-        @create_button(panel, sizer, label="Preview LOESS fit")
-        def when_loess_preview_clicked(event):
-            with gui_tools.nice_error_log:
-                import numpy
-                import matplotlib
-                import matplotlib.pyplot as plt
-                from pytransit.specific_tools import stat_tools
-                from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-                from pytransit.specific_tools.tnseq_tools import Wig
-                
-                # 
-                # determine selection method
-                # 
-                conditions = conditions_getter()
-                wig_ids    = wig_ids_getter()
-                use_selected = False
-                if conditions is None or len(conditions) == 0 and (wig_ids is None or len(wig_ids) == 0):
-                    use_selected = True
-                    if not gui.selected_samples:
-                        # NOTE: was a popup
-                        logging.error("Need to select at least one control or experimental dataset.")
-                
-                wig_objects = gui.samples
-                
-                #
-                # get read_counts and positions
-                # 
-                read_counts_per_wig, position_per_line = transit_tools.gather_sample_data_for(conditions=conditions, wig_ids=wig_ids, selected_samples=use_selected)
-                number_of_wigs, number_of_lines = read_counts_per_wig.shape # => number_of_lines = len(position_per_line)
-                window = 100
-                for each_path_index in range(number_of_wigs):
-
-                    number_of_windows = int(number_of_lines / window) + 1  # python3 requires explicit rounding to int
-                    x_w = numpy.zeros(number_of_windows)
-                    y_w = numpy.zeros(number_of_windows)
-                    for window_index in range(number_of_windows):
-                        x_w[window_index] = window * window_index
-                        y_w[window_index] = sum(read_counts_per_wig[each_path_index][window * window_index : window * (window_index + 1)])
-                    
-                    y_smooth = stat_tools.loess(x_w, y_w, h=10000)
-                    plt.plot(x_w, y_w, "g+")
-                    plt.plot(x_w, y_smooth, "b-")
-                    plt.xlabel("Genomic Position (TA sites)")
-                    plt.ylabel("Reads per 100 insertion sites")
-                    
-                    plt.title("LOESS Fit - %s" % wig_objects[each_path_index].id)
-                    plt.show()
-    
     def create_normalization_input(panel, sizer, default="TTR"):
         from pytransit.methods.normalize import Method
-        (
-            label,
-            normalization_wxobj,
-            normalization_choice_sizer,
-        ) = define_choice_box(
+        return create_choice_input(
             panel,
-            label_text="Normalization: ",
+            sizer,
+            label="Normalization: ",
             options=Method.options,
-            tooltip_text="Choice of normalization method. The default choice is TTR (trimmed total reads). See documentation for a description other methods.",
+            tooltip_text="Choice of normalization method. The default choice is TTR (trimmed total reads). See documentation for a description other methods."
         )
-        sizer.Add(normalization_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
-        # return a value-getter
-        normalization_wxobj.SetSelection(normalization_wxobj.FindString(default))
-        return lambda *args: normalization_wxobj.GetString(normalization_wxobj.GetCurrentSelection())
     
-    def create_wig_choice(panel, sizer, *, label_text, tooltip_text="choose wig"):
-        wig_ids = [x.id for x in gui.samples]
-        (
-            label,
-            ref_wig_wxobj,
-            ref_wig_choice_sizer,
-        ) = define_choice_box(
+    def create_wig_choice(panel, sizer, *, label_text, tooltip_text="Pick any wig inside of the combined wig"):
+        samples_at_the_time = gui.samples
+        wig_ids = [ each.id for each in samples_at_the_time ]
+        getter_of_wig_id = create_choice_input(
             panel,
-            label_text=label_text,
+            sizer,
+            label=label_text,
             options=wig_ids,
             tooltip_text=tooltip_text,
         )
-        sizer.Add(ref_wig_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
-        return lambda *args: gui.samples[wig_ids.index(ref_wig_wxobj.GetString(ref_wig_wxobj.GetCurrentSelection()))]
+        return lambda *args: samples_at_the_time[wig_ids.index(getter_of_wig_id(*args))]
     
-    def create_condition_choice(panel, sizer, *, label_text, tooltip_text="choose condition"):
-        (
-            label,
-            ref_condition_wxobj,
-            ref_condition_choice_sizer,
-        ) = define_choice_box(
-            panel,
-            label_text=label_text,
-            options=[x.name for x in gui.conditions],
-            tooltip_text=tooltip_text,
-        )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
-        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
     def create_reference_condition_input(panel, sizer):
-        (
-            label,
-            ref_condition_wxobj,
-            ref_condition_choice_sizer,
-        ) = define_choice_box(
+        return create_choice_input(
             panel,
-            label_text="Ref Condition:",
+            sizer,
+            label="Ref Condition:",
             options=[ "[None]" ] + [ each.name for each in gui.conditions ],
             tooltip_text="Which condition to use as a reference for calculating LFCs. If no ref given, this compares against grand mean of all conditions.",
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
-        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
     
-    def create_condition_input(panel, sizer, label_text="Condition", tooltip_text="choose condition"):
-        (
-            label,
-            ref_condition_wxobj,
-            ref_condition_choice_sizer,
-        ) = define_choice_box(
+    def create_condition_input(panel, sizer, *, label_text="Condition", tooltip_text="choose condition"):
+        return create_choice_input(
             panel,
-            label_text=label_text,
-            options=[ "[None]" ] + [x.name for x in gui.conditions],
+            sizer,
+            label=label_text,
+            options=[ "[None]" ] + [ each.name for each in gui.conditions],
             tooltip_text=tooltip_text,
         )
-        sizer.Add(ref_condition_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
-        return lambda *args: ref_condition_wxobj.GetString(ref_condition_wxobj.GetCurrentSelection())
-    
-    def create_dropdown(panel, sizer, items, label_text="choose", tooltip_text="choose item"):
-        (
-            label,
-            ref_dropdown_wxobj,
-            ref_dropdown_choice_sizer,
-        ) = define_choice_box(
-            panel,
-            label_text=label_text,
-            options=items,
-            tooltip_text=tooltip_text,
-        )
-        sizer.Add(ref_dropdown_choice_sizer, 1, wx.ALIGN_LEFT, gui_tools.default_padding)
-        return lambda *args: ref_dropdown_wxobj.GetString(ref_dropdown_wxobj.GetCurrentSelection())
-    
+        
     def create_include_condition_list_input(panel, sizer):
         (
             _,

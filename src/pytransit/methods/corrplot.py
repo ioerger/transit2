@@ -24,7 +24,7 @@ class Method:
     name = "Corrplot"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Make correlation plot"
+    menu_name   = f"Correlation Plot"
     description = f"""Make correlation plot"""
     
     transposons = [ "himar1" ] # not sure if this is right -- Jeff
@@ -80,7 +80,7 @@ class Method:
     # 
     # Panel method
     # 
-    @gui.add_menu("Pre-Processing", "Visuals", menu_name)
+    @gui.add_menu("Pre-Processing", "Visualize", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     

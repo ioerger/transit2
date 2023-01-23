@@ -180,7 +180,7 @@ class Method:
             normalization=kwargs.get("n", "TTR"),
             samples=int(kwargs.get("s", 10000)),
             burnin=int(kwargs.get("b", 500)),
-            read_count=int(kwargs.get("r", 1)),
+            read_count=int(kwargs.get("m", 1)),
             trim=int(kwargs.get("t", 1)),
             replicates=kwargs.get("r", "Sum"),
             iN=float(kwargs.get("iN", 0.00)), 
@@ -206,11 +206,17 @@ class Method:
                 logging.error(f"\n\nThe condition name {self.inputs.condition} is not one of the available conditions: {combined_wig.condition_names}\n")
             
             # create combined wig with just the selected condition, normalize it, then organize the data by-genes
-            genes = combined_wig.with_only(
+            normalized_combined_wig = tnseq_tools.CombinedWig(
+                main_path=self.inputs.combined_wig_path,
+                metadata_path=self.inputs.metadata_path,
+                annotation_path=self.inputs.annotation_path,
+            ).with_only(
                 condition_names=[self.inputs.condition]
             ).normalized_with( # good to normalize AFTER filtering out the other conditions
                 kind=self.inputs.normalization
-            ).get_genes(
+            )
+            
+            genes_object = normalized_combined_wig.get_genes(
                 n_terminus=self.inputs.iN,
                 c_terminus=self.inputs.iC,
                 reps=self.inputs.replicates,
