@@ -431,17 +431,17 @@ class Method:
                 file_columns = [
                         "Pathway",
                         "Total Genes", 
-                        "Genes In Path",
+                        "Number of Genes in Path",
                         "Significant Genes",
                         "Significent Genes In Path",
                         "Expected", 
                         "K Plus PC",
                         "Number Adjusted By PC",
-                        "Enrichment" , 
+                        "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
-                        "Description", 
-                        "Genes"
+                        "Pathway Description",
+                        "Relevant Genes"
                     ]
             elif self.inputs.method == "GSEA":
                 up,down = self.GSEA()
@@ -453,12 +453,12 @@ class Method:
                 file_columns = [
                         "Pathway",
                         "Pathway Description",
-                        "Genes in Path", 
+                        "Number of Genes in Path", 
                         "Mean Rank",
                         "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
-                        "Genes"
+                        "Relevant Genes"
                     ]
             elif self.inputs.method == "ONT":
                 self.hit_summary = {
@@ -467,18 +467,18 @@ class Method:
                 file_output_type = Method.identifier+"_ONT"
                 file_columns = [
                         "Pathway",
+                        "Pathway Description",
                         "Total Genes", 
-                        "Genes In Path",
+                        "Number of Genes in Path",
                         "Significant Genes",
                         "Significent Genes In Path",
                         "Expected", 
                         "K Plus PC",
                         "Number Adjusted By PC",
-                        "Enrichment" , 
+                        "Enrichment Score" ,  
                         "P Value", 
-                        "Adj P Value", 
-                        "Description", 
-                        "Genes"
+                        "Adj P Value",  
+                        "Relevant Genes"
                     ]
             else:
                 self.inputs.method = "Not a valid method"

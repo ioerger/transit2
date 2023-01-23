@@ -21,7 +21,6 @@ and evaluated for overlap with functional categories of genes.
 The GSEA methods use the whole list of genes, ranked in order of statistical significance
 (without requiring a cutoff), to calculate enrichment.
 
-#TODO Links
 Three systems of categories are provided for (but you can add your own):
 the Sanger functional categories of genes determined in the
 original annotation of the H37Rv genome (`Cole et al, 1998 <https://www.ncbi.nlm.nih.gov/pubmed/9634230>`_,
@@ -47,7 +46,7 @@ Command Line Usage
 
 ::
 
-  > python3 ../../transit.py pathway_enrichment <resampling_file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+  > python3 ../../transit.py pathway_enrichment <input file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
 
   Optional parameters:
      -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
@@ -64,8 +63,8 @@ Command Line Usage
 
 Parameters
 ----------
-- **Resampling File**
-    The resampling file is the one obtained after using the resampling method in Transit. (It is a tab separated file with 11 columns.) GSEA method makes usage of the last column (adjusted P-value)
+- **Input File**
+    The input file is the one obtained after using a comparitive analysis method in Transit (ANOVA, Resampling, GI, ZINB, Utest). GSEA method makes usage of the Adj P-value and Log 2 FC columns.
 - **Associations File**
    This is a tab-separated text file with 2 columns: pathway id, and pathway name. If a gene is in multiple pathways, the associated ids should be listed on separate lines.  It is OK if there are no associations listed for some genes.  Important: if pathways are hierarchical, you should expand this file to explicitly include associations of each gene with all parent nodes. Files with GO term associations will have to be pre-processed this way too.
 
@@ -282,6 +281,36 @@ in the GUI format we have pre-set some of the common Pathway Systems for ease of
 - **\-\-LFC_col <int>**
     Indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
-|
+Interpreting Output of Pathway Enrichment
+--------
+All output files contain the following columns:
+
+
++-------------------------+------------------------------------------------------------------------------------+
+| Column Name             | Column Description                                                                 | 
++=========================+====================================================================================+
+| Pathway                 | The pathways of interest using the pathway file selected                           |
++-------------------------+------------------------------------------------------------------------------------+
+| Pathway Description     | Description of the Pathway of interest                                             |
++-------------------------+------------------------------------------------------------------------------------+
+| Number of Genes in Path | Number of Total Genes in the Pathway, using the associations file selected         |
++-------------------------+------------------------------------------------------------------------------------+
+| Enrichment Score        | Enrichment Score of the Pathway                                                    |
++-------------------------+------------------------------------------------------------------------------------+
+| P Value                 | P Value Determined by the Pathway Enrichment Analysis Method slected               |
++-------------------------+------------------------------------------------------------------------------------+
+| Adj P Value             | FDR-corrected P Value                                                              |
++-------------------------+------------------------------------------------------------------------------------+
+| Relevant Genes          | | In the output files from FET and ONT, these genes are those in the siginificant  |
+|                         | | genes in path column, the overlap of the pathway and the significant genes from  |
+|                         | | the input file (Adj P Value < 0.05). Since GSEA looks at the ranking of genes in |
+|                         | | a pathway using the entire genome, the genes in this column are GSEA calculated  |
+|                         | | hits in the pathway.                                                             |
++-------------------------+------------------------------------------------------------------------------------+
+    
+The files are typically sorted by significance (Adj P Value) or Enrichment Score. There are additional columns in the output files relating to the method used to conduct pathway enrichment. For example,
+GSEA also contains a mean rank column which could be useful to sort by. 
+
+
 .. rst-class:: transit_sectionend
 ------
