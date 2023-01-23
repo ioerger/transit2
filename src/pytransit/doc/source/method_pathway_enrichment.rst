@@ -241,7 +241,7 @@ Pathway Enrichment can be accessed through the actions dropdown of a valid resul
    :align: center
 
 
-or from the "Post-Processing" tab in the File Menu. 
+or from the "Post-Processing" tab in the Menu Bar. 
 
 
 .. image:: _images/pathway_enrichment_select_from_file_menu.png

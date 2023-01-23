@@ -755,7 +755,7 @@ class GenesFile:
                 "U": "y"
             }
             plt.figure()
-            for call in set(ttnfitness_genes_summary["TTN Fitness Assessment"]):
+            for call in ["ES","ESB", "GD","GA", "NE","U"]:
                 sub_summary = ttnfitness_genes_summary[ttnfitness_genes_summary["TTN Fitness Assessment"]==call]
                 coef_vals = sub_summary["Gene Plus TTN M1 Coef"]
                 q_vals = sub_summary["Gene Plus TTN M1 Adj P Value"]
@@ -769,7 +769,7 @@ class GenesFile:
                     log10_q_vals.append(log10_q_value)
                 threshold = 0.05
 
-                plt.scatter(coef_vals, log10_q_vals, c = color_dict[call], marker=".", label=call)
+                plt.scatter(coef_vals, log10_q_vals, c = color_dict[call], marker=".", label=call, alpha=0.5)
             plt.axhline( -math.log(threshold, 10), color="k", linestyle="dashed", linewidth=2)
             plt.axvline(0, color="k", linestyle="dashed", linewidth=2)
             plt.legend()
