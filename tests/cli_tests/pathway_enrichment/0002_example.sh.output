@@ -1,34 +1,9 @@
-Traceback (most recent call last):
-  File "/Users/sanjeevanichoudhery/Projects/transit/./src/transit.py", line 23, in <module>
-    import pytransit.__main__
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/__main__.py", line 8, in <module>
-    import pytransit.methods
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/__init__.py", line 1, in <module>
-    from .anova              import *
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/methods/anova.py", line 13, in <module>
-    from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/gui_tools.py", line 5, in <module>
-    from pytransit.specific_tools.transit_tools import wx
-  File "/Users/sanjeevanichoudhery/Projects/transit/src/pytransit/specific_tools/transit_tools.py", line 28, in <module>
-    import matplotlib.pyplot as plt
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/pyplot.py", line 60, in <module>
-    from matplotlib.figure import Figure, FigureBase, figaspect
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/figure.py", line 26, in <module>
-    from matplotlib import _blocking_input, backend_bases, _docstring, projections
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/projections/__init__.py", line 56, in <module>
-    from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/projections/geo.py", line 15, in <module>
-    class GeoAxes(Axes):
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/axes/_base.py", line 716, in __init_subclass__
-    super().__init_subclass__(**kwargs)
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/artist.py", line 120, in __init_subclass__
-    cls._update_set_signature_and_docstring()
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/artist.py", line 148, in _update_set_signature_and_docstring
-    + kwdoc(cls))
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/artist.py", line 1823, in kwdoc
-    'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/artist.py", line 1584, in pprint_setters
-    accepts = self.get_valid_values(prop)
-  File "/Users/sanjeevanichoudhery/opt/anaconda3/envs/transit_env/lib/python3.9/site-packages/matplotlib-3.6.3-py3.9-macosx-10.9-x86_64.egg/matplotlib/artist.py", line 1458, in get_valid_values
-    match = self._get_valid_values_regex.search(docstring)
-KeyboardInterrupt
+[pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
+[pathway_enrichment:fisher_exact_test()] Running FET 
+[pathway_enrichment:read_input_file()] Reading in Input File tests/cli_tests/resampling/0001_basic.sh.1.result
+[pathway_enrichment:read_associations()] Reading in Associations File 
+[pathway_enrichment:read_pathways()] Reading in Pathways File 
+[pathway_enrichment:fisher_exact_test()] Finishing up FET 
+[pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0002_example.sh.1.result 
+String: {'calculation_time': '0.4seconds', 'analysis_type': 'PathwayEnrichment', 'files': {'input_file': 'tests/cli_tests/resampling/0001_basic.sh.1.result', 'association_path': 'src/pytransit/data//H37Rv_COG_20_roles.txt', 'pathways_path': 'src/pytransit/data//COG_20_roles.txt'}, 'parameters': {'conditions_tested_in_input': 'Glycerol , Cholesterol', 'input_type': 'Resampling\n', 'method': 'FET', 'ranking': 'SLPV', 'enrichment_exponent': 1, 'num_permutations': 10000, 'pseudocount': 2}, 'summary_info': {'Sig Pathways': 2}}
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.4sec 

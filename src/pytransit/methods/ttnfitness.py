@@ -55,7 +55,7 @@ class Method:
 
 
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <conditio to analyze> <genome .fna> <gumbel_results_file> <genes output_file> <sites output_file>
+        Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <condition to analyze> <genome .fna> <gumbel_results_file> <genes output_file> <sites output_file>
     """ # FIXME: this is the old way, with multiple wigs as input
     
     @gui.add_menu("Method", "himar1", menu_name)

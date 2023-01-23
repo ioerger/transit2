@@ -1,11 +1,11 @@
 #CombinedWig
 #yaml:
-#    date: 2023-01-21 18:45:26
+#    date: 2023-01-22 18:32:29
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'normalize' 'src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './tests/cli_tests/normalize/0003_beta_geometric.sh.1.result' '-n' 'betageom'
 #    wig_fingerprints: [src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig, src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig, src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig, src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig, src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig]
-#    time: 106.78602337837219
+#    time: 150.2990288734436
 #    normalization: betageom
 #    original_path: src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
 #    
