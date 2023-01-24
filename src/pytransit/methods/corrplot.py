@@ -166,13 +166,21 @@ class Method:
             for i, col in enumerate(headers):
                 position_hash[col] = FloatVector([x[i] for x in means])
             df = pd.DataFrame.from_dict(position_hash, orient="columns")  
+            
+            clean_columns = [s.split("/")[-1].split(".wig")[0] for s in df.columns]
+            clean_headers = [s.split("/")[-1].split(".wig")[0] for s in headers]
+            df.columns = clean_columns
+
 
             logging.log("Creating the Correlation Plot")
-            corr = df[headers].corr()
-            mask = np.triu(np.ones_like(corr, dtype=bool))
-            #f, ax = plt.subplots(figsize=(11, 9))
+            corr_df = df[clean_headers].corr()
+            lower_corr_df = corr_df.where(np.tril(np.ones(corr_df.shape)).astype(np.bool)) #only plot the bottom triangle
+            
+
             plt.figure()
-            sns.heatmap(corr, mask=mask, cmap=sns.color_palette("bwr", as_cmap=True),  square=True, linewidths=.5, cbar_kws={"shrink": .5})
+            sns.heatmap(lower_corr_df, cmap=sns.color_palette('blend:Red,White,Blue', as_cmap=True),  square=True, linewidths=.5, cbar_kws={"shrink": .5}, vmin=-1, vmax=1)
+
+
             if avg_by_conditions == False:
                 plt.title("Correlations of Genes in Samples")
             else:

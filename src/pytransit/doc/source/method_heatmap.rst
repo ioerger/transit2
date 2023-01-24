@@ -11,10 +11,6 @@ simultaneously clusters the significant genes and clusters the conditions,
 which is especially useful for shedding light on the relationships
 among the conditions apparent in the data.
 
-**Note:** The *heatmap* command calls R, which must be installed on your system,
-and relies on the 'gplots' R package.
-See :ref:`Installation Instructions <install-zinb>`.
-
 Usage:
 ------
 

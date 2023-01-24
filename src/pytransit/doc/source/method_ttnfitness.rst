@@ -207,5 +207,6 @@ When selected, file dialog will appear to save the image and the volcano plot wi
 
 The horizonal line is the log10 adjusted pval, above which genes are marked NE. The vertical line is where the coefficient of the model is 0, 
 below which siginifnicant genes are marked "GD" and above which siginificant genes are marked "GA"
+
 .. rst-class:: transit_sectionend
 ----
