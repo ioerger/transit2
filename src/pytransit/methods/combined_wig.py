@@ -8,6 +8,7 @@ import numpy
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
+from pytransit.generic_tools import csv
 from pytransit.components import samples_area
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.spreadsheet import SpreadSheet
@@ -92,10 +93,11 @@ class Method:
                 close()
     
     @staticmethod
-    def output(*, annotation_path, wig_list, output_path=None, normalization=None, disable_logging=False):
+    def output(*, annotation_path, wig_list, metadata_path=None, output_path=None, normalization=None, disable_logging=False):
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         output_path       = output_path       if output_path       is not None else "latest.comwig.tsv"
+        metadata_path     = metadata_path     if metadata_path     is not None else f"{output_path}".replace(".tsv","")+".metadata.tsv"
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             logging.log("Starting Combined Wig Export")
@@ -176,10 +178,10 @@ class Method:
             # 
             # wig fingerprints
             # 
-            wig_fingerprints = tnseq_tools.filepaths_to_fingerprints(wig_list)
+            wig_fingerprints = wig_list
             
             #
-            # Write to output
+            # Write main file
             #
             transit_tools.write_result(
                 path=output_path,
@@ -204,10 +206,23 @@ class Method:
                     **extra_info,
                 },
             )
-
             logging.log("")  # Printing empty line to flush stdout
             logging.log("Finished Export")
-        
+            
+            # 
+            # metadata template
+            # 
+            if metadata_path:
+                wig_id_suggestions = tnseq_tools.wig_id_suggestions_from_filepaths(wig_list)
+                condition_name_suggestions = [ "CONDITION_NAME_HERE" ] * len(wig_id_suggestions)
+                csv.write(
+                    path=metadata_path,
+                    column_names=["Id", "Condition", "Filename" ],
+                    rows=list(zip(wig_id_suggestions, condition_name_suggestions, wig_fingerprints)),
+                    seperator="\t",
+                )
+                logging.log(f"NOTE:\n    Edit the metadata file at: {metadata_path}")
+
     # 
     # Samples-area button
     # 
