@@ -324,8 +324,11 @@ class Method:
                 Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-
-        if Method.inputs.organism_pathway != "-":
+        
+        #if Method.inputs.organism_pathway != "-":
+        if Method.inputs.associations_file == None or Method.inputs.pathways_file == None :
+            logging.error("Select Association and Pathways File")
+        else:
             organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG":
                 try:
@@ -371,8 +374,6 @@ class Method:
                     logging.log("Loading in Smeg Associations for GO Pathways")
                     Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
                     Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
-        else:
-            logging.error("Select pathway and association files")
             
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
@@ -415,7 +416,7 @@ class Method:
         Method.Run()
         
     def Run(self):
-        self.inputs.input_type = self.inputs.method
+        #self.inputs.input_type = self.inputs.method
         self.rows = []
         with gui_tools.nice_error_log:
             from pytransit.specific_tools import stat_tools
@@ -493,6 +494,9 @@ class Method:
         # write to file
         # 
         input_column_names, input_rows, input_extra_data, input_comments_string = tnseq_tools.read_results_file(Method.inputs.input_file)
+        if len(input_extra_data)==0:
+            conditions = ""
+        else: conditions = input_extra_data["conditions"]
         transit_tools.write_result(
             path=self.inputs.output_path, # path=None means write to STDOUT
             file_kind=file_output_type,
@@ -507,7 +511,7 @@ class Method:
                     pathways_path=Method.inputs.pathways_file,
                 ),
                 parameters=dict(
-                    conditions_tested_in_input = input_extra_data["conditions"],
+                    conditions_tested_in_input = conditions,
                     input_type = Method.inputs.input_type,
                     method = self.inputs.method,
                     ranking = self.inputs.ranking,
