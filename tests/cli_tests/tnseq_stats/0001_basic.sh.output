@@ -2,6 +2,7 @@
 [tnseq_stats:Run()] Getting Data from None 
 [tnseq_stats:Run()] Normalizing using: nonorm 
 [tnseq_stats:Run()] processing read_counts 
+String: {'parameters': {'normalization': 'nonorm'}}
 [tnseq_stats:Run()] Adding File: ./tests/cli_tests/tnseq_stats/0001_basic.sh.1.result 
 [tnseq_stats:Run()] Finished TnseqStats 
 [tnseq_stats:Run()] Time: 0.0s

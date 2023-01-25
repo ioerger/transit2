@@ -54,10 +54,9 @@ Usage
 ------
 
 ::
-
-  python3 transit.py ttnfitness <comma-separated .wig files> <annotation .prot_table> <genome .fna> <gumbel output file> <gene-wise output file> <ta-site wise output file>
+  python3 transit.py ttnfitness <combined wig file> <metadata_file> <annotation_file> <condition to analyze> <genome .fna> <gumbel output file> <gene-wise output file> <ta-site wise output file>
   -  gumbel output file:* The Gumbel method must be run first on the dataset.The output of the Gumbel method is provided as an input
-     to this method. ES (essential by Gumbel) and EB (essential by Binomial) is calculated in the TTN-Fitness method via this files
+     to this method. ES (essential by Gumbel) and EsB (essential by Binomial) is calculated in the TTN-Fitness method via this files
 
 Output
 ------
@@ -158,14 +157,13 @@ The second output file is a tab-seperated file of details of the TTN Fitness met
 
 Example of running the TTN-Fitness methodology on the sample glycerol data
 --------------------------------------------------------------------------
-
 1. Run the Gumbel Analysis
-::
-  python3 transit.py gumbel cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig H37Rv.prot_table gylcerol_H37Rv.gumbel.out
+:: 
+  python3 transit.py gumbel cholesterol_glycerol.transit/comwig.tsv cholesterol_glycerol.transit/metadata.tsv H37Rv.prot_table Glycerol gylcerol_H37Rv.gumbel.out
 
 2. Use the output of the Gumbel Analysis as the input to the TTTN-Fitness method
 ::
-  python3 transit.py ttnfitness cholesterol_glycerol.transit/glycerol_rep1.wig,cholesterol_glycerol.transit/glycerol_rep2.wig H37Rv.prot_table H37Rv.fna glycerol_H37Rv.gumbel.out ttnfitness_glycerol_H37Rv_gene.txt ttnfitness_glycerol_H37Rv_TAsite.txt
+  python3 transit.py ttnfitness cholesterol_glycerol.transit/comwig.tsv cholesterol_glycerol.transit/metadata.tsv H37Rv.prot_table Glycerol H37Rv.fna glycerol_H37Rv.gumbel.out ttnfitness_glycerol_H37Rv_gene.txt ttnfitness_glycerol_H37Rv_TAsite.txt
 
 The resulting ttnfitness_glycerol_H37Rv_gene.txt out should contain TTN Fitness Assessments breakdown similar to:
 
@@ -177,6 +175,38 @@ The resulting ttnfitness_glycerol_H37Rv_gene.txt out should contain TTN Fitness 
 * 72 U
 
 The resulting ttnfitness_glycerol_H37Rv_TAsite.txt should contain 62,622 TA sites
+
+
+GUI Mode
+--------
+|
+TTN Fitness can be access though the "Method" tab in the Menu Bar.
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we name the output files using the prefix passed in.
+    .. image:: _images/ttnfitness_parameter_panel.png
+       :width: 300
+       :align: center
+
+Ensure that the gumbel file uploaded is of the condition selected
+
+Volcano Plot
+--------
+After TTN-Fitness is run, the two output files will appear in the results panel. When selected, both files show Display Table as a
+possible action. The Genes file also has a Display Volcano Plot action. 
+
+    .. image:: _images/ttnfitness_results_area_action.png
+       :width: 600
+       :align: center
+
+When selected, file dialog will appear to save the image and the volcano plot will also be added to the results area. When selected and the 
+"Display Image" action is performed, the folowing image should appear:
+
+    .. image:: _images/ttnfitness_volcano.png
+       :width: 400
+       :align: center
+
+The horizonal line is the log10 adjusted pval, above which genes are marked NE. The vertical line is where the coefficient of the model is 0, 
+below which siginifnicant genes are marked "GD" and above which siginificant genes are marked "GA"
 
 .. rst-class:: transit_sectionend
 ----

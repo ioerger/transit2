@@ -1,11 +1,20 @@
 #GI
 #yaml:
+<<<<<<< HEAD
 #    date: 2023-01-25 11:27:41
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/subu_ko.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
 #    calculation_time: 47.2seconds
+=======
+#    date: 2023-01-22 18:25:28
+#    transit_version: v4.0.0
+#    app_or_command_line: command_line
+#    console_command: python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/subu_ko.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
+#    calculation_time: 119.9seconds
+>>>>>>> sanjee_gui
 #    analysis_type: GI
+#    conditions: H37Rv_day0, H37Rv_day0, Rv2680_day0, Rv2680_day32
 #    files:
 #       combined_wig: ./src/pytransit/data/subu_ko.transit/comwig.tsv
 #       annotation_path: ./src/pytransit/data/genomes/H37Rv_dev.prot_table

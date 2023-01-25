@@ -1,6 +1,10 @@
 #TnseqStats
 #yaml:
+<<<<<<< HEAD
 #    date: 2023-01-25 11:33:28
+=======
+#    date: 2023-01-22 18:37:04
+>>>>>>> sanjee_gui
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'tnseq_stats' './src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig' './tests/cli_tests/tnseq_stats/0001_basic.sh.1.result'
