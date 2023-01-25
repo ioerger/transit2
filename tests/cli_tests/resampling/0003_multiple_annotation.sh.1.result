@@ -1,18 +1,10 @@
 #Resampling
 #yaml:
-<<<<<<< HEAD
-#    date: 2023-01-25 11:33:15
+#    date: 2023-01-25 17:09:13
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'resampling' '--s' '1000' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'Glycerol' 'Cholesterol' './tests/cli_tests/resampling/0003_multiple_annotation.sh.1.result'
-#    calculation_time: 49.7seconds
-=======
-#    date: 2023-01-22 18:36:44
-#    transit_version: v4.0.0
-#    app_or_command_line: command_line
-#    console_command: python3 './src/transit.py' 'resampling' '-s' '1000' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'Glycerol' 'Cholesterol' './tests/cli_tests/resampling/0003_multiple_annotation.sh.1.result'
-#    calculation_time: 104.3seconds
->>>>>>> sanjee_gui
+#    calculation_time: 50.7seconds
 #    analysis_type: Resampling
 #    conditions: Glycerol , Cholesterol
 #    files:

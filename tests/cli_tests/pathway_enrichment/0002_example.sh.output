@@ -5,5 +5,4 @@
 [pathway_enrichment:read_pathways()] Reading in Pathways File 
 [pathway_enrichment:fisher_exact_test()] Finishing up FET 
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0002_example.sh.1.result 
-String: {'calculation_time': '0.4seconds', 'analysis_type': 'PathwayEnrichment', 'files': {'input_file': 'tests/cli_tests/resampling/0001_basic.sh.1.result', 'association_path': 'src/pytransit/data//H37Rv_COG_20_roles.txt', 'pathways_path': 'src/pytransit/data//COG_20_roles.txt'}, 'parameters': {'conditions_tested_in_input': 'Glycerol , Cholesterol', 'input_type': 'Resampling\n', 'method': 'FET', 'ranking': 'SLPV', 'enrichment_exponent': 1, 'num_permutations': 10000, 'pseudocount': 2}, 'summary_info': {'Sig Pathways': 2}}
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.4sec 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.3sec 
