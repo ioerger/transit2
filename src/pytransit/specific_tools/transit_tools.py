@@ -228,7 +228,7 @@ if True:
         
         now = str(datetime.datetime.now())
         todays_date = now[: now.rfind(".")]
-        print("String:", extra_info)
+        
         # 
         # write to file
         # 
