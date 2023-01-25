@@ -1,10 +1,10 @@
-from pytransit.components.parameter_panel import panel, progress_update
 import sys
 import os
 import time
 
 import numpy
 
+from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
@@ -27,6 +27,8 @@ class Method:
     
     valid_cli_flags = [
         "-n",
+        "-template",
+        "--no-template",
     ]
     
     old_file_header = "#File: "
@@ -36,12 +38,13 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
-
+        
         Method.output(
             wig_list=args[0].split(","),
             annotation_path=args[1],
             output_path=args[2],
-            normalization=kwargs.get("n", "TTR"),
+            normalization=kwargs["n"],
+            metadata_path=kwargs["-template"] or (kwargs['no-template'] and ""), # None=default path, empty string=no template at all
         )
     
     @staticmethod
