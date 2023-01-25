@@ -38,10 +38,10 @@ class Method:
     )
     
     valid_cli_flags = [
-        "--avg_by_conditions",
-        "-n",
-        "-iN",
-        "-iC",
+        "-avg_by_conditions",
+        "--n",
+        "--iN",
+        "--iC",
     ]
     #TRI - could add a flag for Adj P Value cutoff (or top n most signif genes)
 
@@ -49,7 +49,7 @@ class Method:
         Usage:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
         Optional Arguments:
-            --avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: false
+            -avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: false
     """
     
     # 

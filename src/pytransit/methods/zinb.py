@@ -35,20 +35,20 @@ class Method:
     description   = f"""Perform {name} analysis"""
     
     valid_cli_flags = [
-        "-n",
-        "-exclude-conditions",
-        "-include-conditions",
-        "-ref",
-        "-iN",
-        "-iC",
-        "--winz",
-        "-PC",
-        "-group-by",
-        "-condition",
-        "-covars",
-        "-interactions",
-        "--append_gene_desc",
-        "-gene",
+        "--n",
+        "--exclude-conditions",
+        "--include-conditions",
+        "--ref",
+        "--iN",
+        "--iC",
+        "-winz",
+        "--PC",
+        "--group-by",
+        "--condition",
+        "--covars",
+        "--interactions",
+        "-append_gene_desc",
+        "--gene",
     ]
     
     usage_string = f"""
@@ -56,20 +56,20 @@ class Method:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
-            -exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
-            -include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
-            -n   <string>        :=  Normalization method. Default: -n TTR
-            -ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
-            -iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 5
-            -iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 5
-            -PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: -PC 5
-            --winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-            -group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-            -condition <string>  := alias for -group-by
-            -covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
-            -interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
-            -gene <RV number or Gene name>   := Run method for one gene and print model output.
-            --append_gene_desc               := the output_file will have column for gene descriptions
+            --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
+            --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
+            --n   <string>        :=  Normalization method. Default: --n TTR
+            --ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+            --iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 5
+            --iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 5
+            --PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: --PC 5
+            -winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            --group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+            --condition <string>  := alias for --group-by
+            --covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
+            --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
+            --gene <RV number or Gene name>   := Run method for one gene and print model output.
+            -append_gene_desc               := the output_file will have column for gene descriptions
     """.replace("\n        ", "\n")
 
     @staticmethod
@@ -79,7 +79,7 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
         
-        cli_args.gene = kwargs["-gene"]
+        cli_args.gene = kwargs["--gene"]
         
         # save the data
         Method.output(
@@ -88,7 +88,7 @@ class Method:
             annotation_path=args[2],
             output_path=args[3],
             should_append_gene_descriptions="append_gene_desc" in kwargs,
-            group_by=kwargs.get("-group-by", kwargs["condition"]),
+            group_by=kwargs.get("--group-by", kwargs["condition"]),
             covars=console_tools.string_arg_to_list(kwargs["covars"]),
             interactions=console_tools.string_arg_to_list(kwargs["interactions"]),
             refs=console_tools.string_arg_to_list(kwargs["ref"]),
@@ -210,8 +210,8 @@ class Method:
         winz                            = winz                            if winz                            is not None else False
         pseudocount                     = pseudocount                     if pseudocount                     is not None else 5.0 
         normalization                   = normalization                   if normalization                   is not None else "TTR"
-        n_terminus                      = n_terminus                      if n_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
-        c_terminus                      = c_terminus                      if c_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 --Jeff
+        n_terminus                      = n_terminus                      if n_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 -- Jeff
+        c_terminus                      = c_terminus                      if c_terminus                      is not None else 0 # TODO: these used to be 5.0 but I would guess they're supposed to be 0 -- Jeff
         
         transit_tools.require_r_to_be_installed(required_r_packages=[ "MASS", "pscl" ])
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
@@ -299,7 +299,7 @@ class Method:
                     condition_names = metadata["Condition"]  # original Condition names for each sample, as ordered list
                     wig_fingerprints = metadata["Filename"]
 
-                    # this is the new way to filter samples, where --include/exclude-conditions refers to Condition column in metadata, regardless of whether --condition was specified
+                    # this is the new way to filter samples, where -include/exclude-conditions refers to Condition column in metadata, regardless of whether -condition was specified
                     (
                         data,
                         wig_fingerprints,
@@ -381,10 +381,10 @@ class Method:
                     c1, i1 = (ic1[0], ic1[1]) if len(ic1) > 1 else (ic1[0], None)
                     c2, i2 = (ic2[0], ic2[1]) if len(ic2) > 1 else (ic2[0], None)
 
-                    # use -include-conditions to determine order of columns in output file
-                    # this only works if an alternative --condition was not specified
+                    # use --include-conditions to determine order of columns in output file
+                    # this only works if an alternative -condition was not specified
                     # otherwise don't try to order them this way because it gets too complicated
-                    # possibly should require -covars and -interactions to be unspecified too
+                    # possibly should require --covars and --interactions to be unspecified too
                     if (
                         group_by == "Condition"
                         and len(included_conditions) > 0

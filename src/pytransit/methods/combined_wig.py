@@ -22,13 +22,13 @@ class Method:
             {console_tools.subcommand_prefix} export combined_wig <comma-separated .wig files> <annotation_file> <output_file> [Optional Arguments]
             
         Optional Arguments:
-            -n <string>     :=  Normalization method. Default: -n TTR
+            --n <string>     :=  Normalization method. Default: --n TTR
     """.replace("\n    ","\n")
     
     valid_cli_flags = [
-        "-n",
-        "-template",
-        "--no-template",
+        "--n",
+        "--template",
+        "-no-template",
     ]
     
     old_file_header = "#File: "
@@ -44,7 +44,7 @@ class Method:
             annotation_path=args[1],
             output_path=args[2],
             normalization=kwargs["n"],
-            metadata_path=kwargs["-template"] or (kwargs['no-template'] and ""), # None=default path, empty string=no template at all
+            metadata_path=kwargs["--template"] or (kwargs['no-template'] and ""), # None=default path, empty string=no template at all
         )
     
     @staticmethod

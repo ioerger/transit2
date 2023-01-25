@@ -54,11 +54,11 @@ class Method:
     )
     
     valid_cli_flags = [
-        "-r",
-        "-n",
-        "--l",
-        "-iN",
-        "-iC",
+        "--r",
+        "--n",
+        "-l",
+        "--iN",
+        "--iC",
     ]
     
     usage_string = f"""
@@ -66,11 +66,11 @@ class Method:
             {console_tools.subcommand_prefix} hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
 
         Optional Arguments:
-            -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
-            -n <string>     :=  Normalization method. Default: -n TTR
-            --l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
-            -iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-            -iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
+            --r <string>     :=  How to handle replicates. Sum, Mean. Default: --r Mean
+            --n <string>     :=  Normalization method. Default: --n TTR
+            -l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            --iN <float>     :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
+            --iC <float>     :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
     """.replace("\n        ", "\n")
     
     column_names = [

@@ -55,7 +55,7 @@ class TestNormMethods(TransitTestCase):
            self.assertNotEqual(numpy.mean(norm_data[k]), raw_means[k])
 
     def test_resampling_nonorm(self):
-        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "nonorm", "--no-sr"]
+        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "--s", "1000", "--n", "nonorm", "-no-sr"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
@@ -64,7 +64,7 @@ class TestNormMethods(TransitTestCase):
 
 
     def test_resampling_ttr(self):
-        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "TTR", "--no-sr"]
+        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "--s", "1000", "--n", "TTR", "-no-sr"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
@@ -73,7 +73,7 @@ class TestNormMethods(TransitTestCase):
 
 
     def test_resampling_nz_mean(self):
-        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "nzmean", "--no-sr"]
+        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "--s", "1000", "--n", "nzmean", "-no-sr"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
@@ -81,7 +81,7 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(qvals), 1)
 
     def test_resampling_tot_reads(self):
-        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "totreads", "--no-sr"]
+        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "--s", "1000", "--n", "totreads", "-no-sr"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
         pvals, qvals = significant_pvals_qvals(output)
@@ -89,7 +89,7 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(qvals), 1)
 
     def test_resampling_quantile(self):
-        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "quantile", "--no-sr"]
+        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "--s", "1000", "--n", "quantile", "-no-sr"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
         hits = count_hits(output)
@@ -98,13 +98,13 @@ class TestNormMethods(TransitTestCase):
         self.assertLessEqual(len(qvals), 1)
 
     def test_resampling_zinfnb(self):
-        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "-s", "1000", "-n", "zinfnb", "--no-sr"]
+        args = [ctrl_rep1, ctrl_rep2, small_annotation, output, "--s", "1000", "--n", "zinfnb", "-no-sr"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
 
     """
     def test_resampling_bgc(self):
-        args = [ctrl_data_txt, exp_data_txt, annotation, output, "-s", "1000", "-n", "betageom"]
+        args = [ctrl_data_txt, exp_data_txt, annotation, output, "--s", "1000", "--n", "betageom"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
         hits = count_hits(output)
@@ -114,7 +114,7 @@ class TestNormMethods(TransitTestCase):
 
     """
     def test_resampling_a_bgc(self):
-        args = [ctrl_data_txt, exp_data_txt, annotation, output, "-s", "1000", "-n", "aBGC"]
+        args = [ctrl_data_txt, exp_data_txt, annotation, output, "--s", "1000", "--n", "aBGC"]
         G = ResamplingMethod.from_args(*console_tools.clean_args(args))
         self.assertTrue(os.path.exists(output))
     """

@@ -11,8 +11,8 @@ wig2="src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig"
 
 # <combined_wig_file> <annotation_file> <metadata_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
 python3 ./src/transit.py resampling \
-    -s 1000 \
-    --a \
+    --s 1000 \
+    -a \
     "$comwig" \
     "$metadata" \
     "$annotation" \

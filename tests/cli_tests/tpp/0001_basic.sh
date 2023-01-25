@@ -6,7 +6,7 @@ metadata="./src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv"
 comwig="./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 
 # if bwa exists
-if [ -n "$(command -v "bwa")" ]
+if [ --n "$(command --v "bwa")" ]
 then
-    tpp -bwa "$(which bwa)" -ref data/genomes/H37Rv.fna -reads1 tests/data/test.fastq -output "$result_file"
+    tpp --bwa "$(which bwa)" --ref data/genomes/H37Rv.fna --reads1 tests/data/test.fastq --output "$result_file"
 fi

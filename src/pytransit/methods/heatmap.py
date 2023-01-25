@@ -32,24 +32,24 @@ class Method:
         low_mean_filter=5,
     )
     valid_cli_flags = [
-        "--anova",
-        "--zinb",
-        "-qval",
-        "-topk",
-        "-low-mean-filter",
+        "-anova",
+        "-zinb",
+        "--qval",
+        "--topk",
+        "--low-mean-filter",
     ]
     usage_string = f"""
         Usage 1:
-            {console_tools.subcommand_prefix} heatmap <anova_output> <heatmap.png> --anova [Optional Arguments]
+            {console_tools.subcommand_prefix} heatmap <anova_output> <heatmap.png> -anova [Optional Arguments]
         Usage 2:
-            {console_tools.subcommand_prefix} heatmap <zinb_output> <heatmap.png> --zinb [Optional Arguments]
+            {console_tools.subcommand_prefix} heatmap <zinb_output> <heatmap.png> -zinb [Optional Arguments]
         
         Optional Arguments:
-            -topk <int>            := number of results
-            -qval <float>          := adjusted p value threshold. Default -qval 0.05
-            -low-mean-filter <int> := Filter out genes with grand mean count (across all conditions) below this threshold
+            --topk <int>            := number of results
+            --qval <float>          := adjusted p value threshold. Default --qval 0.05
+            --low-mean-filter <int> := Filter out genes with grand mean count (across all conditions) below this threshold
                                     (even if adjusted p-value < 0.05)
-                                    Default -low-mean-filter 5
+                                    Default --low-mean-filter 5
     """
     
     @gui.add_menu("Post-Processing", "ANOVA", "Heatmap")
@@ -116,7 +116,7 @@ class Method:
         console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)
         
         if not kwargs["anova"] and not kwargs["zinb"]:
-            logging.error(f"requires --anova or --zinb argument, see usage string below.\n{Method.usage_string}")
+            logging.error(f"requires -anova or -zinb argument, see usage string below.\n{Method.usage_string}")
         
         Method.load_from(
             filetype="anova" if kwargs["anova"] else "zinb",

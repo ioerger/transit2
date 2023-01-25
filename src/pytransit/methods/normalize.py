@@ -17,7 +17,7 @@ class Method:
             {console_tools.subcommand_prefix} norm <wig_file or combined_wig_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
-            -n <string>     :=  Normalization method. Default: -n TTR
+            --n <string>     :=  Normalization method. Default: --n TTR
     """.replace("\n        ","\n")
     
     options = [

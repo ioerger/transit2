@@ -29,18 +29,18 @@ class Method:
     description = f"""Perform {name} analysis"""
     
     valid_cli_flags = [
-        "-n",  # normalization
-        "-iN", # n_terminus
-        "-iC", # c_terminus
+        "--n",  # normalization
+        "--iN", # n_terminus
+        "--iC", # c_terminus
         # HANDLE_THIS
     ]
     usage_string = f"""
         # HANDLE_THIS
         Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments]
         Optional Arguments:
-            -n <string>         :=  Normalization method. Default: -n TTR
-            -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
+            --n <string>         :=  Normalization method. Default: --n TTR
+            --iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+            --iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
     """.replace("\n        ", "\n")
     
     @staticmethod

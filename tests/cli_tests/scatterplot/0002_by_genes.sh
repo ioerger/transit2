@@ -11,7 +11,7 @@ python3 ./src/transit.py scatterplot \
     "$comwig" \
     "$metadata" \
     "$annotation" \
-    -samp "$wig_id1,$wig_id2" \
+    --samp "$wig_id1,$wig_id2" \
     "$result_file.png" \
-    --genes \
-    --log
+    -genes \
+    -log

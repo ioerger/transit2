@@ -55,19 +55,19 @@ class Method:
     ]
     
     valid_cli_flags = [
-        "-c",
-        "-s",
-        "-n",
-        "--h",
-        "--a",
-        "-PC",
-        "-iN",
-        "-iC",
-        "-ctrl_lib",
-        "-exp_lib",
-        "--winz",
-        "--sr",
-        "--no-sr",
+        "--c",
+        "--s",
+        "--n",
+        "-h",
+        "-a",
+        "--PC",
+        "--iN",
+        "--iC",
+        "--ctrl_lib",
+        "--exp_lib",
+        "-winz",
+        "-sr",
+        "-no-sr",
     ]
     
     inputs = LazyDict(
@@ -101,22 +101,22 @@ class Method:
             {console_tools.subcommand_prefix} resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
 
         Optional Arguments:
-            -s <integer>        :=  Number of samples. Default: -s 10000
-            -n <string>         :=  Normalization method. Default: -n TTR
-            --a                 :=  Perform adaptive resampling. Default: Turned Off.
-            -PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
-            -iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: -iN 0
-            -iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: -iC 0
-            -ctrl_lib <string>  :=  String of letters representing library of control files in order
-                                    e.g. 'AABB'. Default empty. Letters used must also be used in -exp_lib
+            --s <integer>        :=  Number of samples. Default: --s 10000
+            --n <string>         :=  Normalization method. Default: --n TTR
+            -a                 :=  Perform adaptive resampling. Default: Turned Off.
+            --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+            --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
+            --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
+            --ctrl_lib <string>  :=  String of letters representing library of control files in order
+                                    e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
                                     If non-empty, resampling will limit permutations to within-libraries.
-            -exp_lib <string>   :=  String of letters representing library of experimental files in order
-                                    e.g. 'ABAB'. Default empty. Letters used must also be used in -ctrl_lib
+            --exp_lib <string>   :=  String of letters representing library of experimental files in order
+                                    e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
                                     If non-empty, resampling will limit permutations to within-libraries.
-            --winz              :=  winsorize insertion counts for each gene in each condition 
+            -winz              :=  winsorize insertion counts for each gene in each condition 
                                     (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-            --sr                :=  use site-restricted resampling (true by default); more sensitive, might find a few more significant conditionally essential genes
-            --no-sr             :=  disable site-restricted resampling
+            -sr                :=  use site-restricted resampling (true by default); more sensitive, might find a few more significant conditionally essential genes
+            -no-sr             :=  disable site-restricted resampling
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -271,7 +271,7 @@ class Method:
         replicates       = kwargs.get("r", Method.inputs.replicates)
         do_histogram     = kwargs.get("h", Method.inputs.do_histogram)
         site_restricted  = not kwargs.get("no-sr", not Method.inputs.site_restricted)
-        pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use -PC (new semantics: for LFCs) instead of -pc (old semantics: fake counts)
+        pseudocount   = float(kwargs.get("PC", Method.inputs.pseudocount))  # use --PC (new semantics: for LFCs) instead of --pc (old semantics: fake counts)
         ignore_codon = True
         n_terminus = float(kwargs.get("iN", 0.00))  # integer interpreted as percentage
         c_terminus = float(kwargs.get("iC", 0.00))
