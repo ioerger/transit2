@@ -54,11 +54,8 @@ def clean_args(raw_args):
     raw_args = list(raw_args)
     while len(raw_args) > 0:
         next_raw_argument = raw_args.pop(0)
-        # is a flag
-        if next_raw_argument.startswith('--'):
-            kwargs[next_raw_argument] = True
         # If the current argument starts with "-", then it's a key
-        elif next_raw_argument.startswith("-") and not misc.str_is_float(next_raw_argument):
+        if next_raw_argument.startswith('--'):
             if len(raw_args) == 0:
                 raise Exception(f'''
                     
@@ -87,6 +84,9 @@ def clean_args(raw_args):
                 ''')
             # consume the next element as the value
             kwargs[next_raw_argument] = raw_args.pop(0)
+        # its a flag
+        elif next_raw_argument.startswith("-") and not misc.str_is_float(next_raw_argument):
+            kwargs[next_raw_argument] = True
         # Else, it's a positional argument without flags
         else:
             args.append(next_raw_argument)

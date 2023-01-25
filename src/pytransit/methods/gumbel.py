@@ -224,8 +224,8 @@ class Method:
             )
             
             logging.log("Computing Gumbel")
-            z_sample, phi_sample, count, acctot = self.calc_gumbel(genes)
-            self.write_gumbel_results(genes, z_sample, phi_sample, count, acctot)
+            z_sample, phi_sample, count, acctot = self.calc_gumbel(genes_object)
+            self.write_gumbel_results(genes_object, z_sample, phi_sample, count, acctot)
             results_area.add(self.inputs.output_path)
             logging.log(f"Finished running {Method.identifier}")       
 
