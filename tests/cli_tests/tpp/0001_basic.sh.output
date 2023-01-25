@@ -1,0 +1,3 @@
+./tests/cli_tests//tpp/0001_basic.sh: line 9: command: --: invalid option
+command: usage: command [-pVv] command [arg ...]
+./tests/cli_tests//tpp/0001_basic.sh: line 9: [: --n: unary operator expected

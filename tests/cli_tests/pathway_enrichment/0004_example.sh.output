@@ -15,7 +15,7 @@
     "Sig Pathways":self.Ontologizer()
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 936, in Ontologizer
     logging.warn(
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 211, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
   File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
@@ -41,7 +41,7 @@ GO terms with at least one ORF: 3963
     "Sig Pathways":self.Ontologizer()
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 941, in Ontologizer
     logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 211, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
   File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
@@ -67,7 +67,7 @@ not found: GO:0030529
     "Sig Pathways":self.Ontologizer()
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 941, in Ontologizer
     logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 211, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
   File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
@@ -93,7 +93,7 @@ not found: GO:0015197
     "Sig Pathways":self.Ontologizer()
   File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 941, in Ontologizer
     logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 210, in warn
+  File "/Users/jeffhykin/repos/transit/src/pytransit/globals.py", line 211, in warn
     warnings.warn("\n"+string_output, stacklevel=2)
   File "/opt/homebrew/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/python3.10/warnings.py", line 109, in _showwarnmsg
     sw(msg.message, msg.category, msg.filename, msg.lineno,
@@ -104,4 +104,4 @@ not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.4sec 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.3sec 
