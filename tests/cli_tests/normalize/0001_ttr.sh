@@ -8,4 +8,4 @@ comwig="src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 python3 ./src/transit.py normalize \
     "$comwig" \
     "$result_file" \
-    -n TTR
+    --n TTR

@@ -334,7 +334,7 @@ class Method:
             else:
                 i += 1
 
-        # getlocal averages --excludes self
+        # getlocal averages -excludes self
         W = 5
         localmeans = []
         for i in range(Nsites):

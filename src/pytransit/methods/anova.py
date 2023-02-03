@@ -48,30 +48,30 @@ class Method:
     )
     
     valid_cli_flags = [
-        "-n",
-        "-include-conditions",
-        "-exclude-conditions",
-        "-ref",
-        "-iN",
-        "-iC",
-        "-PC",
-        "-alpha",
-        "--winz",
+        "--n",
+        "--include-conditions",
+        "--exclude-conditions",
+        "--ref",
+        "--iN",
+        "--iC",
+        "--PC",
+        "--alpha",
+        "-winz",
     ]
     usage_string = f"""
         Usage:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
-            -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-            -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-            -n <string> := Normalization method. Default: -n TTR
-            -ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-            -iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            -iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            -PC    <N>  := pseudocounts to use for calculating LFCs. Default: -PC 5
-            -alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-            --winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            --n <string> := Normalization method. Default: --n TTR
+            --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+            --iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+            --iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+            --PC    <N>  := pseudocounts to use for calculating LFCs. Default: --PC 5
+            --alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: --alpha 1000
+            -winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
@@ -105,13 +105,13 @@ class Method:
             # 
             # parameter inputs
             # 
-            # -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-            # -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-            # -ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
-            # -iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-            # -iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-            # -PC <N> := pseudocounts to use for calculating LFC. Default: -PC 5
-            # --winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+            # --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+            # --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+            # --ref <cond> := which condition(s) to use as a reference for calculating lfc_s (comma-separated if multiple conditions)
+            # --iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+            # --iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+            # --PC <N> := pseudocounts to use for calculating LFC. Default: --PC 5
+            # -winz   := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
             self.value_getters = LazyDict(
                 included_conditions= panel_helpers.create_selected_condition_names_input(panel, main_sizer),

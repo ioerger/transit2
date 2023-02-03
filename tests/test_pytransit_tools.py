@@ -81,36 +81,36 @@ class TestTnSeqTools(TransitTestCase):
         self.assertFalse((factors == numpy.ones(N)).all())
 
     def test_clean_args_negative_arguments(self):
-        TEST_RAWARGS = ["test", "-p", "-10"]
+        TEST_RAWARGS = ["test", "--p", "-10"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(int(kwargs.get("p",0)), -10)
 
     def test_clean_args_flag_without_arguments(self):
-        TEST_RAWARGS = ["test", "--p"]
+        TEST_RAWARGS = ["test", "-p"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertTrue(kwargs.get("p",False))
 
     def test_clean_args_positional_arguments(self):
-        TEST_RAWARGS = ["a", "b", "c", "-d", "1", "e"]
+        TEST_RAWARGS = ["a", "b", "c", "--d", "1", "e"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(args, ["a", "b", "c", "e"])
 
     def test_clean_args_positional_arguments_w_quotes(self):
-        TEST_RAWARGS = ["a", "b", "c", "-d", "1", "test this"]
+        TEST_RAWARGS = ["a", "b", "c", "--d", "1", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(args, ["a", "b", "c", "test this"])
 
     def test_clean_args_flag_arguments_w_quotes(self):
-        TEST_RAWARGS = ["a", "b", "c", "-d", "1", "-p", "test this"]
+        TEST_RAWARGS = ["a", "b", "c", "--d", "1", "--p", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertEqual(kwargs.get("p"), "test this")
 
     def test_clean_args_flag_arguments_with_double_dash(self):
-        TEST_RAWARGS = ["a", "b", "c", "-d", "1", "--p", "test this"]
+        TEST_RAWARGS = ["a", "b", "c", "--d", "1", "-p", "test this"]
         args, kwargs = transit_tools.clean_args(TEST_RAWARGS)
         self.assertTrue("p" in kwargs)
-        self.assertTrue("--p" in kwargs)
         self.assertTrue("-p" in kwargs)
+        self.assertTrue("--p" in kwargs)
 
 if __name__ == '__main__':
     unittest.main()

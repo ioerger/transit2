@@ -47,7 +47,7 @@ class Method:
     ]
     
     valid_cli_flags = [
-        "-n", # normalization flag
+        "--n", # normalization flag
     ]
     
     usage_string = f"""

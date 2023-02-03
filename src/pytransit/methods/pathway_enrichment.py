@@ -49,41 +49,41 @@ class Method:
     default_significance = 0.05
     
     valid_cli_flags = [
-        "-M", 
-        "-p-val-col",
-        "-q-val-col",
-        "-ranking",
-        "-LFC-col",
-        "-p",
-        "-n-perm",
-        "-PC"
+        "--M", 
+        "--p-val-col",
+        "--q-val-col",
+        "--ranking",
+        "--LFC-col",
+        "--p",
+        "--n-perm",
+        "--PC"
     ]
 
 
     usage_string = f"""
-        Usage 1: # -M FET for Fisher's Exact Test (default)
-            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M FET [Optional Arguments]
+        Usage 1: # --M FET for Fisher's Exact Test (default)
+            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> --M FET [Optional Arguments]
             
             Optional Arguments:
-                -PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: -PC 2
-                -LFC-col   <int> := column index (starting at 0) for LFC's
+                --PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: --PC 2
+                --LFC-col   <int> := column index (starting at 0) for LFC's
         
         Usage 2:
             # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
-            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M GSEA [Optional Arguments]
+            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> --M GSEA [Optional Arguments]
             
             Optional Arguments:
-                -ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default -ranking SLPV
-                -p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-                -n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default -n-perm 10000
-                -LFC-col   <int> := column index (starting at 0) for LFC's
+                --ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default --ranking SLPV
+                --p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+                --n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default --n-perm 10000
+                --LFC-col   <int> := column index (starting at 0) for LFC's
             
         Usage 3:
             # ONT for Ontologizer (Grossman et al, 2007)
-            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> -M ONT [Optional Arguments]
+            {console_tools.subcommand_prefix} pathway_enrichment <input_file> <associations> <pathways> <output_file> --M ONT [Optional Arguments]
 
             Optional Arguments:
-                -LFC-col   <int>       := column index (starting at 0) for LFC's
+                --LFC-col   <int>       := column index (starting at 0) for LFC's
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Post-Processing", menu_name)

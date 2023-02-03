@@ -60,12 +60,12 @@ class Method:
     )
     
     valid_cli_flags = [
-        "-n", # normalization flag
-        "-s", # number of samples
-        "-iN", # trimming TA sites at gene termini
-        "-iC", 
-        "-signif", # method to determine genes with significant interaction
-        "-rope", # Region Of Probable Equivalence around 0
+        "--n", # normalization flag
+        "--s", # number of samples
+        "--iN", # trimming TA sites at gene termini
+        "--iC", 
+        "--signif", # method to determine genes with significant interaction
+        "--rope", # Region Of Probable Equivalence around 0
     ]
 
     usage_string = f"""
@@ -77,18 +77,18 @@ class Method:
             Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
             Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
                 By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-                Alternative methods for significance: use -signif key with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+                Alternative methods for significance: use --signif key with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
 
         Optional Arguments:
-            -n <string>     :=  Normalization method. Default: -n TTR
-            -s <integer>    :=  Number of samples. Default: -s 10000
-            -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-            -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
-            -rope <float>   :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: -rope 0.5
-            -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
-            -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<{significance_threshold} (no adjustment)
-            -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<{significance_threshold}
-            -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<{significance_threshold}
+            --n <string>     :=  Normalization method. Default: --n TTR
+            --s <integer>    :=  Number of samples. Default: --s 10000
+            --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: --iN 0
+            --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: --iC 0
+            --rope <float>   :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
+            --signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
+            --signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<{significance_threshold} (no adjustment)
+            --signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<{significance_threshold}
+            --signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<{significance_threshold}
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)

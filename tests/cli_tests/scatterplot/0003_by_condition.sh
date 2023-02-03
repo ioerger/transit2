@@ -11,7 +11,7 @@ python3 ./src/transit.py scatterplot \
     "$comwig" \
     "$metadata" \
     "$annotation" \
-    -cond \
+    --cond \
     "$condition1,$condition2" \
     "$result_file.png" \
-    --genes 
+    -genes 

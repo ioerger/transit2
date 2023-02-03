@@ -8,7 +8,7 @@ comwig="./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 python3 ./src/transit.py heatmap \
     ./tests/cli_tests/zinb/0001_basic.sh.1.result \
     "$result_file.png" \
-    --zinb
-    # -topk <int> \
-    # -qval <float> \
-    # -low_mean_filter <int> \
+    -zinb
+    # --topk <int> \
+    # --qval <float> \
+    # --low_mean_filter <int> \
