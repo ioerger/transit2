@@ -2,7 +2,7 @@
 
 .. _tnseq_stats:
 
-.. rst-class:: transit_clionly
+.. rst-class:: 
 tnseq_stats
 ===========
 

@@ -1,5 +1,5 @@
 
-.. rst-class:: transit_clionly
+.. rst-class:: 
 
 ===========
 TTN-Fitness
@@ -54,9 +54,13 @@ Usage
 ------
 
 ::
-  python3 transit.py ttnfitness <combined wig file> <metadata_file> <annotation_file> <condition to analyze> <genome .fna> <gumbel output file> <gene-wise output file> <ta-site wise output file>
-  -  gumbel output file:* The Gumbel method must be run first on the dataset.The output of the Gumbel method is provided as an input
-     to this method. ES (essential by Gumbel) and EsB (essential by Binomial) is calculated in the TTN-Fitness method via this files
+
+  >  python3 transit.py ttnfitness <combined wig file> <metadata_file> <annotation_file> <condition to analyze> <genome .fna> <gumbel output file> <gene-wise output file> <ta-site wise output file>
+
+    -  gumbel output file:* The Gumbel method must be run first on the dataset.The output of the Gumbel method is provided as an input 
+       to this method. ES (essential by Gumbel) and EsB (essential by Binomial) is calculated in the TTN-Fitness method via this files
+
+
 
 Output
 ------
