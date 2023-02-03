@@ -1,18 +1,10 @@
 #PathwayEnrichment_ONT
 #yaml:
-<<<<<<< HEAD
-#    date: 2023-01-25 11:31:25
+#    date: 2023-02-03 10:16:30
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_GO_terms.txt' 'src/pytransit/data//gene_ontology.1_2.3-11-18.obo' './tests/cli_tests/pathway_enrichment/0004_example.sh.1.result' '--M' 'ONT'
-#    calculation_time: 1.3seconds
-=======
-#    date: 2023-01-22 18:32:54
-#    transit_version: v4.0.0
-#    app_or_command_line: command_line
-#    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_GO_terms.txt' 'src/pytransit/data//gene_ontology.1_2.3-11-18.obo' './tests/cli_tests/pathway_enrichment/0004_example.sh.1.result' '-M' 'ONT'
-#    calculation_time: 1.7seconds
->>>>>>> sanjee_gui
+#    calculation_time: 1.5seconds
 #    analysis_type: PathwayEnrichment
 #    files:
 #       input_file: tests/cli_tests/resampling/0001_basic.sh.1.result
@@ -29,7 +21,7 @@
 #    summary_info:
 #       Sig Pathways: 26
 #    
-#Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
+#Pathway	Pathway Description	Total Genes	Number of Genes in Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment Score	P Value	Adj P Value	Relevant Genes
 GO:0008202	steroid metabolic process	3990	40	162	14	1005	38	2	9.437	0.0	0.0	Rv1129c/-(38),Rv1130/-(39),Rv3526/-(95),Rv3537/-(99),Rv3543c/fadE29(103),Rv3544c/fadE28(104),Rv3545c/cyp125(105),Rv3546/fadA5(106),Rv3561/fadD3(114),Rv3568c/bphC(117),Rv3569c/bphD(118),Rv3570c/-(119),Rv3571/hmp(120),Rv3573c/fadE34(145)
 GO:1901616	organic hydroxy compound catabolic process	3990	23	162	11	262	18	2	6.921	0.0	1e-06	Rv3526/-(95),Rv3537/-(99),Rv3543c/fadE29(103),Rv3544c/fadE28(104),Rv3545c/cyp125(105),Rv3546/fadA5(106),Rv3568c/bphC(117),Rv3570c/-(119),Rv3571/hmp(120),Rv3696c/glpK(122),Rv3573c/fadE34(145)
 GO:0044110	growth involved in symbiotic interaction	3990	100	162	19	919	45	2	3.96	0.0	4e-06	Rv0169/mce1A(4),Rv0170/mce1B(5),Rv0171/mce1C(6),Rv0450c/mmpL4(14),Rv0820/phoT(30),Rv0929/pstC2(32),Rv0930/pstA1(33),Rv1821/secA2(59),Rv2936/drrA(73),Rv2938/drrC(75),Rv2942/mmpL7(76),Rv2945c/lppX(77),Rv3543c/fadE29(103),Rv3544c/fadE28(104),Rv3545c/cyp125(105),Rv3551/-(109),Rv3569c/bphD(118),Rv3570c/-(119),Rv0174/mce1F(127)

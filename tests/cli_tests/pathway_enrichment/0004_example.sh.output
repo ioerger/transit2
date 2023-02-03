@@ -103,27 +103,5 @@ not found: GO:0015197
 not found: GO:2000505
 
   logging.warn("not found: %s" % go)  # also indicate which gene?
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 466, in Run
-    "Sig Pathways":self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 964, in Ontologizer
-    if each_row["Adj P Value"] < Method.default_significance:
-
-'<' not supported between instances of 'NoneType' and 'float'
-Traceback (most recent call last):
-  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
-    pytransit.__main__.run_main()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
-    main(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
-    console_mode_start()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
-    transit_cli.find_and_run_subcommand(args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
-    cli.subcommands[subcommand](subcommand_args, kwargs)
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 416, in from_args
-    Method.Run()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 466, in Run
-    "Sig Pathways":self.Ontologizer()
-  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/pathway_enrichment.py", line 964, in Ontologizer
-    if each_row["Adj P Value"] < Method.default_significance:
-TypeError: '<' not supported between instances of 'NoneType' and 'float'
+[pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0004_example.sh.1.result 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 1.5sec 
