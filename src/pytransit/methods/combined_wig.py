@@ -191,7 +191,7 @@ class Method:
                 file_kind=Method.identifier,
                 rows=rows,
                 comments=[
-                    f"genome:{os.path.basename(annotation_path)}",
+                    f"Genome: {os.path.basename(annotation_path)}",
                     *[ f"File: {each}" for each in wig_fingerprints ],
                 ],
                 column_names=[

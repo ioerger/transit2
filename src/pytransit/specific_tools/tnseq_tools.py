@@ -374,7 +374,8 @@ class CombinedWigData(NamedListBase):
                         if len(yaml_string) > 0:
                             an_object = ez_yaml.to_object(string=yaml_string)
                             extra_data.update(an_object["extra_data"] or {})
-                            wig_fingerprints += extra_data.get('wig_fingerprints',[])
+                            if len(wig_fingerprints) == 0:
+                                wig_fingerprints += extra_data.get('wig_fingerprints',[])
                     # 
                     # handle older file method
                     # 
@@ -386,6 +387,8 @@ class CombinedWigData(NamedListBase):
             # 
             # handle body
             # 
+            if len(set(wig_fingerprints)) != len(wig_fingerprints):
+                logging.warn(f"{file_path} contains duplicate file entries")
             counts_by_wig = [ [] for _ in wig_fingerprints ]
             for index, line in enumerate(lines):
                 if index % 150 == 0: # 150 is arbitrary, bigger = slower visual update but faster read
@@ -402,10 +405,18 @@ class CombinedWigData(NamedListBase):
                 cols = line.split("\t")[0 : 1+len(wig_fingerprints)]
                 cols = cols[: 1+len(wig_fingerprints)]  # additional columns at end could contain gene info
                 # Read in position as int, and readcounts as float
-                cols = [
-                    int(each_t_iv) if index == 0 else float(each_t_iv)
-                        for index, each_t_iv in enumerate(cols)
-                ]
+                try:
+                    cols = [
+                        int(each_t_iv) if index == 0 else float(each_t_iv)
+                            for index, each_t_iv in enumerate(cols)
+                    ]
+                except Exception as error:
+                    print(f'''cols = {cols}''')
+                    print(f'''len(cols) = {len(cols)}''')
+                    print(f'''wig_fingerprints = {wig_fingerprints}''')
+                    print(f'''len(wig_fingerprints) = {len(wig_fingerprints)}''')
+                    import sys
+                    sys.exit()
                 position, wig_counts = cols[0], cols[1:]
                 sites.append(position)
                 for index, count in enumerate(wig_counts):
