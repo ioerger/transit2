@@ -192,7 +192,7 @@ class Method:
                 rows=rows,
                 comments=[
                     f"genome:{os.path.basename(annotation_path)}",
-                    *[ f"file: {each}" for each in wig_fingerprints ],
+                    *[ f"File: {each}" for each in wig_fingerprints ],
                 ],
                 column_names=[
                     "TA Site Position",
