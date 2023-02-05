@@ -27,4 +27,4 @@
 /Users/jeffhykin/repos/transit/src/pytransit/methods/corrplot.py:177: DeprecationWarning: `np.bool` is a deprecated alias for the builtin `bool`. To silence this warning, use `bool` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.bool_` here.
 Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
   lower_corr_df = corr_df.where(np.tril(np.ones(corr_df.shape)).astype(np.bool)) #only plot the bottom triangle
-[transit_tools:__exit__()] Finished Corrplot analysis in 2.2sec 
+[transit_tools:__exit__()] Finished Corrplot analysis in 2.3sec 

@@ -1,10 +1,10 @@
 #PathwayEnrichment_GSEA
 #yaml:
-#    date: 2023-02-03 10:16:27
+#    date: 2023-02-05 14:28:15
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_sanger_roles.dat' 'src/pytransit/data//sanger_roles.dat' './tests/cli_tests/pathway_enrichment/0003_example.sh.1.result' '--LFC-col' '6' '--M' 'GSEA'
-#    calculation_time: 10.5seconds
+#    calculation_time: 10.0seconds
 #    analysis_type: PathwayEnrichment
 #    files:
 #       input_file: tests/cli_tests/resampling/0001_basic.sh.1.result

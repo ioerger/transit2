@@ -1,10 +1,10 @@
 #GI
 #yaml:
-#    date: 2023-01-25 17:03:38
+#    date: 2023-02-05 14:18:03
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
-#    console_command: python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/subu_ko.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_basic.sh.1.result'
-#    calculation_time: 47.3seconds
+#    console_command: python3 './src/transit.py' 'gi' './src/pytransit/data/subu_ko.transit/comwig.tsv' './src/pytransit/data/subu_ko.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv_dev.prot_table' 'H37Rv_day0' 'H37Rv_day32' 'Rv2680_day0' 'Rv2680_day32' './tests/cli_tests/gi/0001_iron_basic.sh.1.result'
+#    calculation_time: 49.1seconds
 #    analysis_type: GI
 #    conditions: H37Rv_day0, H37Rv_day0, Rv2680_day0, Rv2680_day32
 #    files:
@@ -19,7 +19,7 @@
 #       ROPE: 0.5 (region of probable equivalence around 0)
 #       Method_For_Determining_Significance: HDI
 #       Annotation_Path: ./src/pytransit/data/genomes/H37Rv_dev.prot_table
-#       Output_Path: ./tests/cli_tests/gi/0001_basic.sh.1.result
+#       Output_Path: ./tests/cli_tests/gi/0001_iron_basic.sh.1.result
 #    Samples_In_4_Conditions:
 #       Strain_A_Condition_1: H37Rv_day0 = H37Rv_day0_rep1,H37Rv_day0_rep2
 #       Strain_A_Condition_2: H37Rv_day32 = H37Rv_day32_rep1,H37Rv_day32_rep2,H37Rv_day32_rep3
