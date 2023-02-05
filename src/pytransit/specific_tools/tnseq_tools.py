@@ -11,7 +11,7 @@ import scipy.stats
 from pytransit.generic_tools import csv, misc
 from pytransit.generic_tools.lazy_dict import LazyDict, stringify
 from pytransit.generic_tools.named_list import named_list, NamedListBase
-from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, pascal_case_with_spaces, cache
+from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, cache
 from pytransit.globals import logging
 
 try:
@@ -2342,7 +2342,7 @@ def read_results_file(path):
     if len(comments) == 0:
         raise Exception(f'''No comments in file, and I expected the last comment to be the column names, while trying to load file "{path}"''')
     column_names = comments[-1].split("\t")
-    standardized_column_names = [pascal_case_with_spaces(col) for col in column_names]
+    standardized_column_names = [ col for col in column_names]
     
     extra_data = extract_yaml_data([ "#"+each for each in comments])
     
