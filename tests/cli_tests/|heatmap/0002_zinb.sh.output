@@ -1,0 +1,16 @@
+self.rows[0] = {
+    'Rv': 'Rv0001', 
+    'Gene': 'dnaA', 
+    'TA Sites': 31, 
+    'Mean Cholesterol': 0.0, 
+    'Mean Glycerol': 0.0, 
+    'Log 2 FC Cholesterol': 0.0, 
+    'Log 2 FC Glycerol': 0.0, 
+    'Non Zero Mean Cholesterol': 0.0, 
+    'Non Zero Mean Glycerol': 0.0, 
+    'Non Zero Percentage Cholesterol': 0.0, 
+    'Non Zero Percentage Glycerol': 0.0, 
+    'P Value': 1.0, 
+    'Adj P Value': 1.0, 
+    'Status': 'pan-essential (no counts in all conditions) - not analyzed', 
+}
