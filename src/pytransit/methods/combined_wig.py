@@ -100,7 +100,7 @@ class Method:
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         output_path       = output_path       if output_path       is not None else "latest.comwig.tsv"
-        metadata_path     = metadata_path     if metadata_path     is not None else output_path.split(".")[0]+".metadata.tsv"
+        metadata_path     = metadata_path     if metadata_path     is not None else os.path.dirname(output_path)+"/"+os.path.basename(output_path).split(".")[0]+".metadata.tsv"
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             logging.log("Starting Combined Wig Export")
@@ -216,8 +216,8 @@ class Method:
             # metadata template
             # 
             if metadata_path:
-                wig_id_suggestions = tnseq_tools.wig_id_suggestions_from_filepaths(wig_list)
-                condition_name_suggestions = [ "CONDITION_NAME_HERE" ] * len(wig_id_suggestions)
+                wig_id_suggestions         = [ "REPLICATE_NAME_HERE" ] * len(wig_fingerprints)
+                condition_name_suggestions = [ "CONDITION_NAME_HERE" ] * len(wig_fingerprints)
                 csv.write(
                     path=metadata_path,
                     column_names=["Id", "Condition", "Filename" ],
