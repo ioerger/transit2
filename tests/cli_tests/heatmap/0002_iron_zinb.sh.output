@@ -1,0 +1,26 @@
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 940, in create_heatmap
+    formatted_rows=tuple(
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 942, in <genexpr>
+    gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+
+Gene
+Traceback (most recent call last):
+  File "/Users/jeffhykin/repos/transit/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/transit_cli.py", line 26, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 121, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/heatmap.py", line 137, in load_from
+    ZinbFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 940, in create_heatmap
+    formatted_rows=tuple(
+  File "/Users/jeffhykin/repos/transit/src/pytransit/methods/zinb.py", line 942, in <genexpr>
+    gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+KeyError: 'Gene'
