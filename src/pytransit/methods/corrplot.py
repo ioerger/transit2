@@ -91,7 +91,7 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        #console_tools.enforce_number_of_args(args, Method.usage_string)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
 
 
         if not kwargs["anova"] and not kwargs["zinb"]:
@@ -129,7 +129,7 @@ class Method:
             AnovaFile(path=input_path).create_corrplot(output_path, combined_wig_path,metadata_path, annotation_path, top_k=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
         elif filetype == "zinb":
             from pytransit.methods.zinb import File as ZinbFile
-            ZinbFile(path=input_path).create_corrplot(output_path, combined_wig_path,metadata_path, annotation_path, top_k=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+            ZinbFile(path=input_path).create_corrplot(output_path, combined_wig_path,metadata_path, annotation_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
       
     
     # 
