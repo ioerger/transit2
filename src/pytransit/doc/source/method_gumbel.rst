@@ -159,7 +159,7 @@ defined as follows:
 +-----------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 |
-|  Note: Technically, Bayesian models are used to calculate posterior
+| Note: Technically, Bayesian models are used to calculate posterior
   probabilities, not p-values (which is a concept associated with the
   frequentist framework). However, we have implemented a method for
   computing the approximate false-discovery rate (FDR) that serves a
@@ -173,17 +173,61 @@ defined as follows:
   insertion\_density is too low (< ~30%), the method may not work as
   well, and might indicate an unusually large number of Uncertain or
   Essential genes.
+|
+
+GUI Mode
+------
+| 
+The gumbel analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/gumbel_method_tab.png
+   :width: 600
+   :align: center
 
 |
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/gumbel_parameter_panel.png
+   :width: 400
+   :align: center
+
+-  **Condition:** Of the conditions metadata, gumbel analysis will be run on selected method.
+
+-  **Normalization** Determines which normalization method to
+   use when comparing datasets. Default: -n TTR
+
+-  **Samples:** Gumbel uses Metropolis-Hastings (MH) to generate samples
+   of posterior distributions. Default: 10,000 iterations. 
+
+-  **Burn-In:** Because the MH sampler many not have stabilized in the
+   first few iterations, a "burn-in" period is defined. Samples obtained
+   in this "burn-in" period are discarded, and do not count towards
+   estimates.
+
+-  **Trim:** The MH sampler produces Markov samples that are correlated.
+   This parameter dictates how many samples must be attempted for every
+   sampled obtained. Default : 1
+
+-  **Ignore N-Terminus % :** Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: 0
+
+-  **Ignore C-Terminus % :** Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: 0 
+
+-  **Minimum Read:** The minimum read count that is considered a true
+   read. The default value of 1 will consider all reads as true
+   reads. 
+
+-  **Replicates:** Determines how to deal with replicates by averaging
+   the read-counts or summing read counts across datasets. 
+
+The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
 
 Run-time
 --------
-
+|
 The Gumbel method takes on the order of 10 minutes for 10,000 samples.
 Run-time is linearly proportional to the 'samples' parameter, or length
 of MH sampling trajectory. Other notes: Gumbel can be run on multiple
 replicates; replicate datasets will be automatically merged.
-
 |
 
 .. rst-class:: transit_sectionend

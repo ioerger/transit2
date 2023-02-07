@@ -304,8 +304,9 @@ class Method:
 
             plt.figure()
             g = sns.heatmap(lower_corr_df, cmap=sns.color_palette('blend:Red,White,Blue', as_cmap=True),  square=True, linewidths=.5, cbar_kws={"shrink": .5}, vmin=-1, vmax=1)
-
-            if avg_by_conditions == False:
+            if Method.is_post_processing:
+                plt.title("Correlations of Genes in Conditions in output of "+Method.prev_menu_choice)
+            elif avg_by_conditions == False:
                 plt.title("Correlations of Genes in Samples")
             else:
                 plt.title("Correlations of Genes in Conditions")
