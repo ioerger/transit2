@@ -13,7 +13,12 @@ Command Line Usage:
 
 ::
 
-  python3 src/transit.py heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb [-topk <int>] [-qval <float] [-low_mean_filter <int>]
+  >python3 src/transit.py heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb 
+   Optional parameters:
+    --topk <int>            := number of results
+    --qval <float>          := adjusted p value threshold. Default --qval 0.05
+    --low-mean-filter <int> := Filter out genes with grand mean count (across all conditions) below this threshold(even if adjusted p-value < 0.05). Default --low-mean-filter 5
+
 
 Note that the **third argument is required to be either '-anova' or '-zinb'**, 
 which is a flag to indicate the type of file being provided as the second argument.
@@ -25,13 +30,13 @@ However, the user may change the selection of genes through 2 flags:
  * **-topk <int>**: select top k genes ranked by significance (qval)
  * **-low_mean_filter <int>**: filter out genes with grand mean count (across all conditions) below this threshold (even if qval<0.05); default is to exclude genes with mean count<5
 
-Here is an example which generates a heatmap of the results of ANOVA, where no reference condition was selected.
+Here is an example which generates a heatmap of the results of ANOVA, where no reference condition was selected in the iron dataset
 
 ::
 
-  > python3 src/transit.py heatmap anova_gly_chol.txt heatmap_gly_chol_anova.png -anova
+  > python3 src/transit.py heatmap iron_anova_out.txt heatmap_iron_anova.png -anova
 
-.. image:: _images/gly_chol_heatmap_anova.png
+.. image:: _images/iron_heatmap_anova.png
    :width: 300
    :align: center
 

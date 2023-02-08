@@ -78,15 +78,15 @@ Usage
 
 ::
 
-  > python3 transit.py gumbel <combined wig file> <metadata file> <annotation .prot_table or GFF3> <condition_to_analyze> <output file> [Optional Arguments]
+  > python3 transit.py gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -b <integer>    :=  Number of Burn-in samples. Default -b 500
-        -m <integer>    :=  Smallest read-count to consider. Default: -m 1
-        -t <integer>    :=  Trims all but every t-th value. Default: -t 1
-        -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
-        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+        --s <integer>    :=  Number of samples. Default: -s 10000
+        --b <integer>    :=  Number of Burn-in samples. Default -b 500
+        --m <integer>    :=  Smallest read-count to consider. Default: -m 1
+        --t <integer>    :=  Trims all but every t-th value. Default: -t 1
+        --r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
+        --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+        --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
 
 
 
@@ -154,27 +154,29 @@ Alternatively, the file can be opened in a spreadsheet software like
 Excel as a tab-separated file. The columns of the output file are
 defined as follows:
 
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Column Header   | Column Definition                                                                                                             |
-+=================+===============================================================================================================================+
-| ORF             | Gene ID.                                                                                                                      |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Name            | Name of the gene.                                                                                                             |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Description     | Gene description.                                                                                                             |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| k               | Number of Transposon Insertions Observed within the ORF.                                                                      |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| n               | Total Number of TA dinucleotides within the ORF.                                                                              |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| r               | Length of the Maximum Run of Non-Insertions observed.                                                                         |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| s               | Span of nucleotides for the Maximum Run of Non-Insertions.                                                                    |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| zbar            | Posterior Probability of Essentiality.                                                                                        |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Call            | Essentiality call for the gene. Depends on FDR corrected thresholds. E=Essential U=Uncertain, NE=Non-Essential, S=too short   |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Column Header                                      | Column Definition                                                                                                             |
++====================================================+===============================================================================================================================+
+| ORF                                                | Gene ID.                                                                                                                      |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Name                                               | Name of the gene.                                                                                                             |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Description                                        | Gene description.                                                                                                             |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Number Of Insertions Within ORF                    | Number of Transposon Insertions Observed within the ORF.                                                                      |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Total Number Of TA Sites Within ORF                | Total Number of TA dinucleotides within the ORF.                                                                              |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Length Of Maximum Run Of Non Insertions            | Length of the Maximum Run of Non-Insertions observed.                                                                         |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Nucleotide Span For Maximum Run Of Non Insertions  | Span of nucleotides for the Maximum Run of Non-Insertions.                                                                    |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Posterior Probability Of Essentiality              | Posterior Probability of Essentiality.                                                                                        |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Essentiality Call                                  | Essentiality call for the gene. Depends on FDR corrected thresholds. E=Essential U=Uncertain, NE=Non-Essential, S=too short   |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+
+
 
 |
 | Note: Technically, Bayesian models are used to calculate posterior

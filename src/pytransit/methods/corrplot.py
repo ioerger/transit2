@@ -67,6 +67,9 @@ class Method:
             {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
         Optional Arguments:
             -avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: false
+            --n <string> := Normalization method. Default: --n TTR
+            --iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+            --iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
 
         
         As a post processing visualization on ANOVA and ZINB output (avg_by_conditions = True)
