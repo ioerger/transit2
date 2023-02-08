@@ -25,13 +25,13 @@ Example
 
 ::
 
-
-  python3 transit.py hmm <comma-separated .wig files> <annotation .prot_table or GFF3> <output file>
+  python3 transit.py hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
         Optional Arguments:
-            -r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
+            --r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
+            --n <string>     :=  Normalization method. Default: --n TTR
             -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
-            -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-            -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+            --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+            --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
 
 
 Parameters
@@ -46,9 +46,24 @@ replicate datasets:
    datasets. For regular datasets (i.e. mean-read count > 100) the
    recommended setting is to average read-counts together. For sparse
    datasets, it summing read-counts may produce more accurate results.
-
 |
 
+GUI Mode
+--------
+The HMM analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/hmm_selection_gui.png
+   :width: 1000
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/hmm_parameter_panel.png
+   :width: 1000
+   :align: center
+
+The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
 Output and Diagnostics
 ----------------------
 
@@ -59,26 +74,26 @@ Output and Diagnostics
   addition, the output includes the probability of the particular site
   belonging to the given state. The columns of this file are defined as
   follows:
-
-+------------+-----------------------------------------------------------------------------------------------------+
-| Column #   | Column Definition                                                                                   |
-+============+=====================================================================================================+
-| 1          | Coordinate of TA site                                                                               |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 2          | Observed Read Counts                                                                                |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 3          | Probability for ES state                                                                            |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 4          | Probability for GD state                                                                            |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 5          | Probability for NE state                                                                            |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 6          | Probability for GA state                                                                            |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 7          | State Classification (ES = Essential, GD = Growth Defect, NE = Non-Essential, GA = Growth-Defect)   |
-+------------+-----------------------------------------------------------------------------------------------------+
-| 8          | Gene(s) that share(s) the TA site.                                                                  |
-+------------+-----------------------------------------------------------------------------------------------------+
+						
++----------------+-----------------------------------------------------------------------------------------------------+
+| Column Header  | Column Definition                                                                                   |
++================+=====================================================================================================+
+| Location       | Coordinate of TA site                                                                               |
++----------------+-----------------------------------------------------------------------------------------------------+
+| Read Count     | Observed Read Counts                                                                                |
++----------------+-----------------------------------------------------------------------------------------------------+
+| Probability ES | Probability for ES state                                                                            |
++----------------+-----------------------------------------------------------------------------------------------------+
+| Probability GD | Probability for GD state                                                                            |
++----------------+-----------------------------------------------------------------------------------------------------+
+| Probability NE | Probability for NE state                                                                            |
++----------------+-----------------------------------------------------------------------------------------------------+
+| Probability GA | Probability for GA state                                                                            |
++----------------+-----------------------------------------------------------------------------------------------------+
+| State          | State Classification (ES = Essential, GD = Growth Defect, NE = Non-Essential, GA = Growth-Defect)   |
++----------------+-----------------------------------------------------------------------------------------------------+
+| Gene           | Gene(s) that share(s) the TA site.                                                                  |
++----------------+-----------------------------------------------------------------------------------------------------+
 
 |
 |  The second file provides a gene-level classification for all the
@@ -92,23 +107,23 @@ Output and Diagnostics
 +===================+=====================================================================================================+
 | Orf               | Gene ID                                                                                             |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| Name              | Gene Name                                                                                           |
+| Gene Name         | Gene Name                                                                                           |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| Desc              | Gene Description                                                                                    |
+| Description       | Gene Description                                                                                    |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| N                 | Number of TA sites                                                                                  |
+| Total Sites       | Number of TA sites                                                                                  |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| n0                | Number of sites labeled ES (Essential)                                                              |
+| ES Count          | Number of sites labeled ES (Essential)                                                              |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| n1                | Number of sites labeled GD (Growth-Defect)                                                          |
+| GD Count          | Number of sites labeled GD (Growth-Defect)                                                          |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| n2                | Number of sites labeled NE (Non-Essential)                                                          |
+| NE Count          | Number of sites labeled NE (Non-Essential)                                                          |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| n3                | Number of sites labeled GA (Growth-Advantage)                                                       |
+| GA Count          | Number of sites labeled GA (Growth-Advantage)                                                       |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| Avg. Insertions   | Mean insertion rate within the gene                                                                 |
+| Mean Insertions   | Mean insertion rate within the gene                                                                 |
 +-------------------+-----------------------------------------------------------------------------------------------------+
-| Avg. Reads        | Mean read count within the gene                                                                     |
+| Mean Reads        | Mean read count within the gene                                                                     |
 +-------------------+-----------------------------------------------------------------------------------------------------+
 | State Call        | State Classification (ES = Essential, GD = Growth Defect, NE = Non-Essential, GA = Growth-Defect)   |
 +-------------------+-----------------------------------------------------------------------------------------------------+

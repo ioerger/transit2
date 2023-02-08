@@ -9,6 +9,7 @@
 #    conditions: Cholesterol, Glycerol
 #    files:
 #       combined_wig: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
+#       metadata_path: ./src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv
 #       annotation_path: ./src/pytransit/data/genomes/H37Rv.prot_table
 #    parameters:
 #       conditions_list: [Cholesterol, Glycerol]

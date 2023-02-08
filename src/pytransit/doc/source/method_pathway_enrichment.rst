@@ -46,17 +46,17 @@ Command Line Usage
 
 ::
 
-  > python3 ../../transit.py pathway_enrichment <input file> <associations> <pathways> <output_file> [-M <FET|GSEA|GO>] [-PC <int>] [-ranking SLPV|LFC] [-p <float>] [-Nperm <int>] [-Pval_col <int>] [-Qval_col <int>]  [-LFC_col <int>]
+  > python3 ../../transit.py pathway_enrichment <input file> <associations> <pathways> <output_file> 
 
   Optional parameters:
-     -M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
+     --M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
   for GSEA...
-     -ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
-     -LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
-     -p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-     -Nperm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
+     --ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
+     --LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
+     --p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+     --n-perm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
  for FET...
-     -PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
+     --PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
 
 |
 
@@ -230,57 +230,6 @@ Examples
 
 The $DATA environment variable in these examples refers to the Transit data directory, e.g. src/pytransit/data/.
 
-GUI Mode
---------
-|
-Pathway Enrichment can be accessed through the actions dropdown of a valid results file in the results panel
-
-
-.. image:: _images/pathway_enrichment_select_from_results_panel.png
-   :width: 600
-   :align: center
-
-
-or from the "Post-Processing" tab in the Menu Bar. 
-
-
-.. image:: _images/pathway_enrichment_select_from_file_menu.png
-   :width: 600
-   :align: center
-
-
-The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
-in the GUI format we have pre-set some of the common Pathway Systems for ease of the user. 
-
-    .. image:: _images/pathway_enrichment_parameter_panel.png
-       :width: 300
-       :align: center
-
-- **Select Input File**
-    If the Pathway Enrichment action is selected from the results dropdown, the file that the action was performed on is taken as input to the analysis and this button will not be visible. 
-    The input file to this method is the one obtained after using a comparitive analysis method in Transit.  GSEA method makes usage of the last column (adjusted P-value)
-    Valid TRANSIT results file types include : ANOVA, resampling, GI, ZINB, and Utest
-
-- **Select Pathway System**
-    This button allows you to select from a set of pre-loaded pathway systems or upload your own. Each of the dropdowns populates based on the selection of the other. For example, if M.Smegmatis is selected as the organism of interest (Association), 
-    the pathways to select from will be COG_20 and GO along with an option for the user to upload their own.
-
-    .. image:: _images/pathway_enrichment_pathway_system_popup.png
-       :width: 600
-       :align: center
-
-    
-- **-M [FET|GSEA|ONT]**
-    Methodology to be used. FET is used by default. 
-- **-ranking SLPV|LFC**
-    Method used to rank all genes; SLPV is signed-log-p-value (default); Used when GSEA is selected as method.
-- **-p <float>**
-    Exponent to use in calculating enrichment score; recommend trying '-p 0' (default) or '-p 1' (as used in Subramaniam et al, 2005); Used when GSEA is selected as method.
-- **-Nperm <int>**
-    Number of permutations to simulate for null distribution to determine p-value (default=10000); Used when GSEA is selected as method.
-- **\-\-LFC_col <int>**
-    Indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
-
 Interpreting Output of Pathway Enrichment
 --------
 All output files contain the following columns:
@@ -311,6 +260,31 @@ All output files contain the following columns:
 The files are typically sorted by significance (Adj P Value) or Enrichment Score. There are additional columns in the output files relating to the method used to conduct pathway enrichment. For example,
 GSEA also contains a mean rank column which could be useful to sort by. 
 
+GUI Mode
+--------
+|
+Pathway Enrichment can be accessed from the "Post-Processing" tab in the Menu Bar (1. in figure below) of through the actions dropdown of a valid results file in the results panel (2. in figure below).
+
+
+.. image:: _images/pathway_enrichment_selection_gui.png
+   :width: 1000
+   :align: center
+
+
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we have pre-set some of the common Pathway Systems for ease of the user. 
+
+    .. image:: _images/pathway_parameter_panel.png
+       :width: 1000
+       :align: center
+   
+- **Select Pathway System Button **
+    This button allows you to select from a set of pre-loaded pathway systems or upload your own. Each of the dropdowns populates based on the selection of the other. For example, if M.Smegmatis is selected as the organism of interest (Association), 
+    the pathways to select from will be COG_20 and GO along with an option for the user to upload their own.
+
+    .. image:: _images/pathway_enrichment_parameter_popup.png
+       :width: 1000
+       :align: center
 
 .. rst-class:: transit_sectionend
 ------

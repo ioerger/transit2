@@ -26,17 +26,17 @@ Example
 
 ::
 
-  > python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
+  > python3 transit.py anova <combined_wig_file> <metadata_file> <annotation_file> <output_file> 
         Optional Arguments:
-        -n <string>         :=  Normalization method. Default: -n TTR
-        --exclude-conditions <cond1,...> :=  Comma separated list of conditions to ignore for the analysis. Default: None
-        --include-conditions <cond1,...> :=  Comma separated list of conditions to include for the analysis. Default: All
-        --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions) (by default, LFCs for each condition are computed relative to the grandmean across all condintions)
-        -iN <float> :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float> :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: -iC 0
-        -PC <N>     := Pseudocounts to use in calculating LFCs. Default: -PC 5
-        -alpha <N>  := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-        -winz       :=  winsorize insertion counts for each gene in each condition 
+         --n <string>         :=  Normalization method. Default: -n TTR
+         --exclude-conditions <cond1,...> :=  Comma separated list of conditions to ignore for the analysis. Default: None
+         --include-conditions <cond1,...> :=  Comma separated list of conditions to include for the analysis. Default: All
+         --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions) (by default, LFCs for each condition are computed relative to the grandmean across all condintions)
+         --iN <float> :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: -iN 0
+         --iC <float> :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: -iC 0
+         --PC <N>     := Pseudocounts to use in calculating LFCs. Default: -PC 5
+         --alpha <N>  := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
+         -winz        :=  winsorize insertion counts for each gene in each condition 
                         (replace max count in each gene with 2nd highest; helps mitigate effect of outliers)
 
 
@@ -137,6 +137,21 @@ Changing the pseudocounts will not affect the analysis of statistical significan
 
 
 |
+
+GUI Mode
+-------
+The Anova analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/anova_method_tab.png
+   :width: 1000
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/anova_parameter_panel.png
+   :width: 1000
+   :align: center
 
 Run-time
 --------

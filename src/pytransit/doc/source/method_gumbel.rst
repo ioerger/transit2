@@ -78,15 +78,15 @@ Usage
 
 ::
 
-  > python3 transit.py gumbel <combined wig file> <metadata file> <annotation .prot_table or GFF3> <condition_to_analyze> <output file> [Optional Arguments]
+  > python3 transit.py gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -b <integer>    :=  Number of Burn-in samples. Default -b 500
-        -m <integer>    :=  Smallest read-count to consider. Default: -m 1
-        -t <integer>    :=  Trims all but every t-th value. Default: -t 1
-        -r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
-        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+        --s <integer>    :=  Number of samples. Default: -s 10000
+        --b <integer>    :=  Number of Burn-in samples. Default -b 500
+        --m <integer>    :=  Smallest read-count to consider. Default: -m 1
+        --t <integer>    :=  Trims all but every t-th value. Default: -t 1
+        --r <string>     :=  How to handle replicates. Sum or Mean. Default: -r Sum
+        --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
+        --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
 
 
 
@@ -126,6 +126,24 @@ Parameters
 
 |
 
+GUI Mode
+------
+| 
+The gumbel analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/gumbel_method_tab.png
+   :width: 600
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/gumbel_parameter_panel.png
+   :width: 1000
+   :align: center
+
+The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
+
 Outputs and diagnostics
 -----------------------
 
@@ -136,30 +154,32 @@ Alternatively, the file can be opened in a spreadsheet software like
 Excel as a tab-separated file. The columns of the output file are
 defined as follows:
 
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Column Header   | Column Definition                                                                                                             |
-+=================+===============================================================================================================================+
-| ORF             | Gene ID.                                                                                                                      |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Name            | Name of the gene.                                                                                                             |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Description     | Gene description.                                                                                                             |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| k               | Number of Transposon Insertions Observed within the ORF.                                                                      |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| n               | Total Number of TA dinucleotides within the ORF.                                                                              |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| r               | Length of the Maximum Run of Non-Insertions observed.                                                                         |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| s               | Span of nucleotides for the Maximum Run of Non-Insertions.                                                                    |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| zbar            | Posterior Probability of Essentiality.                                                                                        |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Call            | Essentiality call for the gene. Depends on FDR corrected thresholds. E=Essential U=Uncertain, NE=Non-Essential, S=too short   |
-+-----------------+-------------------------------------------------------------------------------------------------------------------------------+
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Column Header                                      | Column Definition                                                                                                             |
++====================================================+===============================================================================================================================+
+| ORF                                                | Gene ID.                                                                                                                      |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Name                                               | Name of the gene.                                                                                                             |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Description                                        | Gene description.                                                                                                             |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Number Of Insertions Within ORF                    | Number of Transposon Insertions Observed within the ORF.                                                                      |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Total Number Of TA Sites Within ORF                | Total Number of TA dinucleotides within the ORF.                                                                              |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Length Of Maximum Run Of Non Insertions            | Length of the Maximum Run of Non-Insertions observed.                                                                         |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Nucleotide Span For Maximum Run Of Non Insertions  | Span of nucleotides for the Maximum Run of Non-Insertions.                                                                    |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Posterior Probability Of Essentiality              | Posterior Probability of Essentiality.                                                                                        |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Essentiality Call                                  | Essentiality call for the gene. Depends on FDR corrected thresholds. E=Essential U=Uncertain, NE=Non-Essential, S=too short   |
++----------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+
+
 
 |
-|  Note: Technically, Bayesian models are used to calculate posterior
+| Note: Technically, Bayesian models are used to calculate posterior
   probabilities, not p-values (which is a concept associated with the
   frequentist framework). However, we have implemented a method for
   computing the approximate false-discovery rate (FDR) that serves a
@@ -173,17 +193,15 @@ defined as follows:
   insertion\_density is too low (< ~30%), the method may not work as
   well, and might indicate an unusually large number of Uncertain or
   Essential genes.
-
 |
 
 Run-time
 --------
-
+|
 The Gumbel method takes on the order of 10 minutes for 10,000 samples.
 Run-time is linearly proportional to the 'samples' parameter, or length
 of MH sampling trajectory. Other notes: Gumbel can be run on multiple
 replicates; replicate datasets will be automatically merged.
-
 |
 
 .. rst-class:: transit_sectionend
