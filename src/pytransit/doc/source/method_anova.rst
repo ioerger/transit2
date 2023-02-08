@@ -143,14 +143,14 @@ GUI Mode
 The Anova analysis method can be selected from the "Method" tab in the Menu Bar. 
 
 .. image:: _images/anova_method_tab.png
-   :width: 600
+   :width: 1000
    :align: center
 
 |
 The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
 
 .. image:: _images/anova_parameter_panel.png
-   :width: 400
+   :width: 1000
    :align: center
 
 -  **Use only selected conditions:**  Select Conditions in the Conditions panel using Command + click or Control + click to select multiple conditions. 
@@ -160,6 +160,9 @@ The parameters to input through the parameter panel for the method is equivalent
    If None is selected, LFCs for each gene in each condition are calculated with respect
    to the *grand mean* count across all conditions (so conditions with higher counts will be balanced
    with conditions with lower counts). In this case, only a single reference case may be used.
+-  **Ignore N-Terminus % :** Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: 0
+
+-  **Ignore C-Terminus % :** Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: 0 
 
 -  **-n**: Normalization Method. Determines which normalization method to
    use when comparing datasets. Default: -n TTR

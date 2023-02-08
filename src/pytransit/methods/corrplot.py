@@ -179,8 +179,7 @@ class Method:
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
-                    The output of ANOVA or ZINB can be used to generate a heatmap that simultaneously clusters the significant genes and clusters the conditions, which is especially useful for shedding light on the relationships among the conditions apparent in the data.
-                    Note: The heatmap command calls R, which must be installed on your system, and relies on the 'gplots' R package.
+                    The output of ANOVA or ZINB can be used to generate a corrplot that shows the correlation of the original counts of significant genes conditions-wise, which is s useful for shedding light on the relationships among the conditions apparent in the data.
                 """.replace("\n                    ","\n"),
             )
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)
@@ -190,7 +189,9 @@ class Method:
             self.value_getters.q_value_threshold = panel_helpers.create_float_getter(panel, main_sizer, label_text="Adj P Value Cutoff", default_value=Method.defaults.q_value_threshold, tooltip_text="Change adjusted p-value threshold for selecting genes")
             self.value_getters.top_k             = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Top K",              default_value=Method.defaults.top_k,             tooltip_text="(-1 means all) Sometimes there are so many genes it is hard to see the heatmap top genes. This allows limiting to the top K genes (ranked by significance; adjusted p-value)")
             self.value_getters.low_mean_filter   = panel_helpers.create_float_getter(panel, main_sizer, label_text="Low Mean Filter",    default_value=Method.defaults.low_mean_filter,   tooltip_text="Filter out genes with grand mean count (across all conditions) below this threshold (even if adjusted p-value < 0.05)")
-   
+            self.value_getters.normalization     = panel_helpers.create_normalization_input(panel, main_sizer)
+            self.value_getters.n_terminus      = panel_helpers.create_n_terminus_input(panel, main_sizer)
+            self.value_getters.c_terminus      = panel_helpers.create_c_terminus_input(panel, main_sizer)
 
     @staticmethod
     def from_gui(frame):

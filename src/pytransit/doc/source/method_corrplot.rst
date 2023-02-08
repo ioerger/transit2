@@ -1,6 +1,6 @@
 .. _corrplot:
 
-corrplot
+Corrplot
 ========
 
 A useful tool when evaluating the quality of a collection of TnSeq datasets is to make a
@@ -10,11 +10,6 @@ how much correlation there should be between samples from different conditions
 (or even between replicates of the same condition),
 the corrplot can often reveal individual samples which stand out as being far less
 correlated with all the others (which subsequently might be excluded from analyses).
-
-
-
-NEW: how to select samples in CLI or GUI...
-
 
 Command Line Usage
 ------
@@ -28,7 +23,6 @@ Command Line Usage
 
 With the --avg_by_conditions flag, counts are averaged for each TA site across conditions and the corrplot is generated on those values.
 Without the flag, a correaltion of the wig files is performed. 
-# DOC NOTE : normalized before? 
 
 
 Here is an example of making a corrplot:
@@ -77,37 +71,21 @@ several different growth conditions:
 
 GUI Mode
 ------
-The Correlation Plot can be selected from the Visualize Option in the Pre-Processing Tab of the File Menu. The checkbox in the parameter panel is equivalent to the --avg_by_conditions flag. 
-The combined_wig, metadata and annotation files used will be those uploaded into the application (see example below)
-
-.. image:: _images/corrplot_gui.png
-   :width: 600
-   :align: center
-
-
-
-Generating a corrplot on the output of ANOVA or ZINB, can be selected "Post-Processing" tab in the Menu Bar or as an action on the ANOVA/ZINB output. If corrplot is run through results action on the ANOVA/ZINB
+The Correlation Plot can be selected from the Visualize Option in the Pre-Processing Tab of the File Menu (1. in the example below), The checkbox in the parameter panel is equivalent to the --avg_by_conditions flag. 
+Generating a corrplot on the output of ANOVA or ZINB, can be selected "Post-Processing" tab in the Menu Bar (2. in the example below) or as an action on the ANOVA/ZINB output (3. in the example below). If corrplot is run through results action on the ANOVA/ZINB
 output, the corrplot is generated using the default parameters. If the corrplot action is selected from the Menu Bar, various parameters can be set.
 
-.. image:: _images/corrplot_postprocessing_gui.png
-   :width: 600
+.. image:: _images/corrplot_selection_gui.png
+   :width: 1000
    :align: center
 
+The parameter panels for the two are equivalent to their relative command line usage Left is the preproccesing corrplot parameter panel whereas the right is the post-processing corrplot parameter panel:
 
-The parameter panel is equivalent to the command line usage:
+.. image:: _images/corrplot_parameter_panel.png
+   :width: 1000
+   :align: center
 
-- **Select ANOVA|ZINB File**
-    Select the output of the the selected method type. Ensure the correct file is selected. If the button reads "Select anova file",
-    select an ANOVA output file and if the button reads "Select ZINB file", select an ZINB file as the input.
-
-- **Adjusted P Value Cut-off**
-    Qval threshold for selecting genes (default=0.05)
-
-- **Top K**
-    Select top k genes ranked by significance (default = -1; display all significant genes)
-
-- **Low Mean Filter**
-    Filter genes with grand mean count (across all conditions) below this threshold (even if qval<0.05); default is to exclude genes with mean count<5
+The combined_wig, metadata and annotation files used will be those uploaded into the application (see example below)
 
 .. rst-class:: transit_sectionend
 ----

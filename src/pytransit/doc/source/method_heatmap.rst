@@ -47,35 +47,21 @@ which usually do not exhibit significant variation in counts.
 GUI:
 ------
 |
-Heatmap can be accessed through the actions dropdown of an ANOVA or ZINB file in the results panel
-
-.. image:: _images/heatmap_select_from_results_panel.png
-   :width: 600
-   :align: center
+Heatmap can be accessed through the actions dropdown (1. in the figure) of an ANOVA or ZINB file in the results panel or the "Post-Processing" tab in the Menu Bar (2. in the figure below).
 
 When Display Heatmap is selected from the results action dropdown on a file, the heatmap function is run with default parameters.
 A file dialog box appears to save the heatmap. The heatmap is added to the results area and shows up as pop-ups.
 
-Heatmap can also be selected from the "Post-Processing" tab in the Menu Bar. 
 
-.. image:: _images/heatmap_select_from_file_menu.png
-   :width: 600
+.. image:: _images/heatmap_selection_gui.png
+   :width: 1000
    :align: center
 
 When Heatmap is selected from the File Menu, the parameter panel is equivalent to the command line usage:
 
-- **Select ANOVA|ZINB File**
-    Select the output of the the selected method type. Ensure the correct file is selected. If the button reads "Select anova file",
-    select an ANOVA output file and if the button reads "Select ZINB file", select an ZINB file as the input.
-
-- **Adjusted P Value Cut-off**
-    Qval threshold for selecting genes (default=0.05)
-
-- **Top K**
-    Select top k genes ranked by significance (default = -1; display all significant genes)
-
-- **Low Mean Filter**
-    Filter genes with grand mean count (across all conditions) below this threshold (even if qval<0.05); default is to exclude genes with mean count<5
+.. image:: _images/heatmap_parameter_panel.png
+   :width: 1000
+   :align: center
 
 .. rst-class:: transit_sectionend
 ----
