@@ -1,0 +1,8 @@
+[pathway_enrichment:Run()] Starting PathwayEnrichment analysis 
+[pathway_enrichment:fisher_exact_test()] Running FET 
+[pathway_enrichment:read_input_file()] Reading in Input File tests/cli_tests/resampling/0001_basic.sh.1.result
+[pathway_enrichment:read_associations()] Reading in Associations File 
+[pathway_enrichment:read_pathways()] Reading in Pathways File 
+[pathway_enrichment:fisher_exact_test()] Finishing up FET 
+[pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0002_iron_example.sh.1.result 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.2sec 

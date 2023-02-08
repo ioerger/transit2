@@ -1,0 +1,6 @@
+Id	Condition	Filename
+REPLICATE_NAME_HERE	CONDITION_NAME_HERE	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig
+REPLICATE_NAME_HERE	CONDITION_NAME_HERE	src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig
+REPLICATE_NAME_HERE	CONDITION_NAME_HERE	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig
+REPLICATE_NAME_HERE	CONDITION_NAME_HERE	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig
+REPLICATE_NAME_HERE	CONDITION_NAME_HERE	src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig

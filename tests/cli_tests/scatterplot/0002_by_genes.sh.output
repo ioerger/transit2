@@ -532,8 +532,8 @@
 [tnseq_tools:_load_main_path()] formatting data 60% 
 [tnseq_tools:_load_main_path()] formatting data 62% 
 [tnseq_tools:_load_main_path()] formatting data 64% 
-[tnseq_tools:_load_main_path()] formatting data 65% 
 [tnseq_tools:_load_main_path()] formatting data 66% 
+[tnseq_tools:_load_main_path()] formatting data 68% 
 [tnseq_tools:_load_main_path()] formatting data 68% 
 [tnseq_tools:_load_main_path()] formatting data 70% 
 [tnseq_tools:_load_main_path()] formatting data 72% 
@@ -581,4 +581,4 @@
     traceback.print_stack(file=log)
 /opt/homebrew/lib/python3.10/site-packages/pandas/core/internals/blocks.py:352: RuntimeWarning: divide by zero encountered in log10
   result = func(self.values, **kwargs)
-[transit_tools:__exit__()] Finished ScatterPlot analysis in 2.2sec 
+[transit_tools:__exit__()] Finished ScatterPlot analysis in 2.1sec 

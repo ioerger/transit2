@@ -1,10 +1,10 @@
 #PathwayEnrichment_ONT
 #yaml:
-#    date: 2023-02-03 10:16:30
+#    date: 2023-02-05 14:28:28
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_GO_terms.txt' 'src/pytransit/data//gene_ontology.1_2.3-11-18.obo' './tests/cli_tests/pathway_enrichment/0004_example.sh.1.result' '--M' 'ONT'
-#    calculation_time: 1.5seconds
+#    calculation_time: 1.3seconds
 #    analysis_type: PathwayEnrichment
 #    files:
 #       input_file: tests/cli_tests/resampling/0001_basic.sh.1.result
