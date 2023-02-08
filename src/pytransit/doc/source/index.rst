@@ -80,7 +80,7 @@ TRANSIT offers a variety of features including:
    tnseq_stats_method
    scatterplot_method
    corrplot_method
-   normalization_method
+   normalize_method
    gene_means_method
    method_track_view
    method_conversions
