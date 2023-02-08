@@ -66,7 +66,6 @@ class Method:
         "--ctrl_lib",
         "--exp_lib",
         "-winz",
-        "-sr",
         "-no-sr",
     ]
     
@@ -115,8 +114,7 @@ class Method:
                                     If non-empty, resampling will limit permutations to within-libraries.
             -winz              :=  winsorize insertion counts for each gene in each condition 
                                     (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-            -sr                :=  use site-restricted resampling (true by default); more sensitive, might find a few more significant conditionally essential genes
-            -no-sr             :=  disable site-restricted resampling
+            -no-sr             :=  disable site-restricted resampling; less sensitive, might be more conservative for finding significant conditionally essential genes
     """.replace("\n        ", "\n")
     
     @gui.add_menu("Method", "himar1", menu_name)
