@@ -126,6 +126,24 @@ Parameters
 
 |
 
+GUI Mode
+------
+| 
+The gumbel analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/gumbel_method_tab.png
+   :width: 600
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/gumbel_parameter_panel.png
+   :width: 1000
+   :align: center
+
+The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
+
 Outputs and diagnostics
 -----------------------
 
@@ -174,24 +192,6 @@ defined as follows:
   well, and might indicate an unusually large number of Uncertain or
   Essential genes.
 |
-
-GUI Mode
-------
-| 
-The gumbel analysis method can be selected from the "Method" tab in the Menu Bar. 
-
-.. image:: _images/gumbel_method_tab.png
-   :width: 600
-   :align: center
-
-|
-The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
-
-.. image:: _images/gumbel_parameter_panel.png
-   :width: 1000
-   :align: center
-
-The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
 
 Run-time
 --------

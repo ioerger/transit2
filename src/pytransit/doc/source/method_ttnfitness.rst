@@ -183,8 +183,11 @@ The resulting ttnfitness_glycerol_H37Rv_TAsite.txt should contain 62,622 TA site
 
 GUI Mode
 --------
-|
 TTN Fitness can be access though the "Method" tab in the Menu Bar.
+    .. image:: _images/ttnfitness_selection_gui.png
+       :width: 1000
+       :align: center
+
 The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
 in the GUI format we name the output files using the prefix passed in.
     .. image:: _images/ttnfitness_parameter_panel.png

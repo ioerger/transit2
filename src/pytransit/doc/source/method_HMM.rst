@@ -46,9 +46,24 @@ replicate datasets:
    datasets. For regular datasets (i.e. mean-read count > 100) the
    recommended setting is to average read-counts together. For sparse
    datasets, it summing read-counts may produce more accurate results.
-
 |
 
+GUI Mode
+--------
+The HMM analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/hmm_selection_gui.png
+   :width: 1000
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/hmm_parameter_panel.png
+   :width: 1000
+   :align: center
+
+The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
 Output and Diagnostics
 ----------------------
 

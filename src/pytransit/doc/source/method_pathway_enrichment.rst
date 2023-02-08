@@ -230,32 +230,6 @@ Examples
 
 The $DATA environment variable in these examples refers to the Transit data directory, e.g. src/pytransit/data/.
 
-GUI Mode
---------
-|
-Pathway Enrichment can be accessed from the "Post-Processing" tab in the Menu Bar (1. in figure below) of through the actions dropdown of a valid results file in the results panel (2. in figure below).
-
-
-.. image:: _images/pathway_enrichment_selection_gui.png
-   :width: 1000
-   :align: center
-
-
-The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
-in the GUI format we have pre-set some of the common Pathway Systems for ease of the user. 
-
-    .. image:: _images/pathway_parameter_panel.png
-       :width: 1000
-       :align: center
-   
-- **Select Pathway System Button **
-    This button allows you to select from a set of pre-loaded pathway systems or upload your own. Each of the dropdowns populates based on the selection of the other. For example, if M.Smegmatis is selected as the organism of interest (Association), 
-    the pathways to select from will be COG_20 and GO along with an option for the user to upload their own.
-
-    .. image:: _images/pathway_enrichment_parameter_popup.png
-       :width: 1000
-       :align: center
-
 Interpreting Output of Pathway Enrichment
 --------
 All output files contain the following columns:
@@ -286,6 +260,31 @@ All output files contain the following columns:
 The files are typically sorted by significance (Adj P Value) or Enrichment Score. There are additional columns in the output files relating to the method used to conduct pathway enrichment. For example,
 GSEA also contains a mean rank column which could be useful to sort by. 
 
+GUI Mode
+--------
+|
+Pathway Enrichment can be accessed from the "Post-Processing" tab in the Menu Bar (1. in figure below) of through the actions dropdown of a valid results file in the results panel (2. in figure below).
+
+
+.. image:: _images/pathway_enrichment_selection_gui.png
+   :width: 1000
+   :align: center
+
+
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we have pre-set some of the common Pathway Systems for ease of the user. 
+
+    .. image:: _images/pathway_parameter_panel.png
+       :width: 1000
+       :align: center
+   
+- **Select Pathway System Button **
+    This button allows you to select from a set of pre-loaded pathway systems or upload your own. Each of the dropdowns populates based on the selection of the other. For example, if M.Smegmatis is selected as the organism of interest (Association), 
+    the pathways to select from will be COG_20 and GO along with an option for the user to upload their own.
+
+    .. image:: _images/pathway_enrichment_parameter_popup.png
+       :width: 1000
+       :align: center
 
 .. rst-class:: transit_sectionend
 ------

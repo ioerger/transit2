@@ -1,7 +1,6 @@
-
-
 .. _heatmap:
-heatmap
+
+Heatmap
 =======
 
 The output of ANOVA or ZINB can be used to generate a heatmap that
