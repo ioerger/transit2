@@ -188,7 +188,7 @@ TTN Fitness can be access though the "Method" tab in the Menu Bar.
 The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
 in the GUI format we name the output files using the prefix passed in.
     .. image:: _images/ttnfitness_parameter_panel.png
-       :width: 300
+       :width: 1000
        :align: center
 
 Ensure that the gumbel file uploaded is of the condition selected

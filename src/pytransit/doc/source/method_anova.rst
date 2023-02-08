@@ -153,26 +153,6 @@ The parameters to input through the parameter panel for the method is equivalent
    :width: 1000
    :align: center
 
--  **Use only selected conditions:**  Select Conditions in the Conditions panel using Command + click or Control + click to select multiple conditions. 
-   This checkbox will only use those conditions in the ANOVA analysis. if the checkbox is not clicked, all conditions will be used. 
-
--  **Ref Condition:** Specify which condition (as per the metadata file passed in) to use as a reference for computing LFCs.
-   If None is selected, LFCs for each gene in each condition are calculated with respect
-   to the *grand mean* count across all conditions (so conditions with higher counts will be balanced
-   with conditions with lower counts). In this case, only a single reference case may be used.
--  **Ignore N-Terminus % :** Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: 0
-
--  **Ignore C-Terminus % :** Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: 0 
-
--  **-n**: Normalization Method. Determines which normalization method to
-   use when comparing datasets. Default: -n TTR
-
--  **-PC <N>**: Pseudocounts to use in calculating LFCs (see below). Default: -PC 5
-
--  **-alpha <N>**:  Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha).  Default: -alpha 1000
-
--  **-winz**: whether or not to `winsorize <https://en.wikipedia.org/wiki/Winsorizing>`_ insertion counts for each gene in each condition. 
-   Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.
 Run-time
 --------
 
