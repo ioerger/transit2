@@ -85,27 +85,30 @@ Usage
 
 ::
 
-  python3 transit.py resampling <comma-separated .wig control files> <comma-separated .wig experimental files> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-        Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -h              :=  Output histogram of the permutations for each gene. Default: Turned Off.
-        -a              :=  Perform adaptive resampling. Default: Turned Off.
-        -ez             :=  Exclude rows with zero accross conditions. Default: Turned off
-                            (i.e. include rows with zeros).
-        -PC <float>     :=  Pseudocounts used in calculating LFC. (default: 1)
-        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
-        --ctrl_lib      :=  String of letters representing library of control files in order
-                            e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
-
-        --exp_lib       :=  String of letters representing library of experimental files in order
-                            e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                            If non-empty, resampling will limit permutations to within-libraries.
-        -winz           :=  winsorize insertion counts for each gene in each condition 
-                            (replace max count in each gene with 2nd highest; helps mitigate effect of outliers)
-
+  Usage 1:
+      transit resampling <combined_wig_file> <metadata_file> <annotation_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+      Note: The ctrl and exp condition names need to match Condition names in metadata_file
+  
+  Usage 2:
+      transit resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
+  
+  Optional Arguments:
+      --s <integer>        :=  Number of samples. Default: --s 10000
+      --n <string>         :=  Normalization method. Default: --n TTR
+      -a                   :=  Perform adaptive resampling. Default: Turned Off.
+      --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+      --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
+      --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
+      --ctrl_lib <string>  :=  String of letters representing library of control files in order
+                              e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
+                              If non-empty, resampling will limit permutations to within-libraries.
+      --exp_lib <string>   :=  String of letters representing library of experimental files in order
+                              e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
+                              If non-empty, resampling will limit permutations to within-libraries.
+      -winz              :=  winsorize insertion counts for each gene in each condition 
+                              (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+      -no-sr             :=  disable site-restricted resampling; less sensitive, might be more conservative for finding significant conditionally essential genes
+    
 
 Parameters
 ----------
@@ -150,9 +153,7 @@ parameters are available for the method:
    if you want to trim TA sites within 5% of the termini, you would
    add the flags '-iN 5 -iC 5' (not 0.05).
 
--  **--Pval_col <int>**: index of column with P-values (starting from 0)
-
--  **-PC**: Pseudocounts used in calculation of LFCs (log-fold-changes, see Output and Diagnostics) in
+-  **\-\-PC**: Pseudocounts used in calculation of LFCs (log-fold-changes, see Output and Diagnostics) in
    resampling output file.
    To suppress the appearance of artifacts due to high-magnitude of LFCs from
    genes with low insertion counts (which
@@ -165,6 +166,7 @@ parameters are available for the method:
 -  **-winz**: `winsorize <https://en.wikipedia.org/wiki/Winsorizing>`_ insertion counts for each gene in each condition. 
    Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.
 
+-  **-no-sr**: FIXME
 
 |
 
