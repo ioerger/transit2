@@ -42,7 +42,7 @@ try:
     import wx.lib.scrolledpanel
     import wx.lib.mixins.listctrl as listmix
     from wx.lib.buttons import GenBitmapTextButton
-    from pubsub import pub
+    #from pubsub import pub
 
     WX_VERSION = int(wx.version()[0])
     HAS_WX = True
