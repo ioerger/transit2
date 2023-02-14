@@ -1,1 +1,37 @@
-../../../.git/config
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[remote "origin"]
+	url = git@github.tamu.edu:ioerger/transit.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+[branch "tom_gui"]
+	remote = origin
+	merge = refs/heads/tom_gui
+[branch "jeff/debug"]
+	remote = origin
+	merge = refs/heads/jeff/debug
+[branch "jeff/backup"]
+	remote = origin
+	merge = refs/heads/jeff/backup
+[branch "jeff/explore"]
+	remote = origin
+	merge = refs/heads/jeff/explore
+[branch "jeff/tom_gui"]
+	remote = origin
+	merge = refs/heads/jeff/tom_gui
+[branch "jeff/stable"]
+	remote = origin
+	merge = refs/heads/jeff/stable
+[branch "sanjee_gui"]
+	remote = origin
+	merge = refs/heads/sanjee_gui
+[branch "nova"]
+	remote = origin
+	merge = refs/heads/nova

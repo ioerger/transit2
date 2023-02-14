@@ -1,0 +1,1 @@
+../../../src/pytransit/doc/source/pathway_enrichment_method.rst

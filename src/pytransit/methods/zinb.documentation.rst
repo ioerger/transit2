@@ -1,0 +1,1 @@
+../../../src/pytransit/doc/source/zinb_method.rst

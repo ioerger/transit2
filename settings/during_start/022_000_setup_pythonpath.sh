@@ -1,1 +1,4 @@
-../extensions/python/commands/add_project_to_pythonpath
+# 
+# add pythonpath
+# 
+export PYTHONPATH="$PYTHONPATH:$FORNIX_FOLDER:$FORNIX_FOLDER/main"

@@ -216,7 +216,7 @@ class Method:
             # metadata template
             # 
             if metadata_path:
-                wig_id_suggestions         = [ "REPLICATE_NAME_HERE" ] * len(wig_fingerprints)
+                wig_id_suggestions         = [ "ADD_UNIQUE_ID_HERE" ] * len(wig_fingerprints)
                 condition_name_suggestions = [ "CONDITION_NAME_HERE" ] * len(wig_fingerprints)
                 csv.write(
                     path=metadata_path,

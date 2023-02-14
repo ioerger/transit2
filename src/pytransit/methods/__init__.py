@@ -12,7 +12,7 @@ from .pathway_enrichment import *
 from .resampling         import *
 from .ttnfitness         import *
 from .zinb               import *
-from .scatter_plot       import *
+from .scatterplot        import *
 from .corrplot           import *
 from .corrplot           import *
 from .track_view         import *

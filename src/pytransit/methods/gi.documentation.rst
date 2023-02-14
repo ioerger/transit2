@@ -1,0 +1,1 @@
+../../../src/pytransit/doc/source/gi_method.rst

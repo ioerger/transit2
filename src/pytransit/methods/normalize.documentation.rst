@@ -1,0 +1,1 @@
+../../../src/pytransit/doc/source/normalize_method.rst
