@@ -11,7 +11,6 @@ strain backgrounds under different conditions, and identifies significantly
 large changes in enrichment (delta_logFC) to identify those genes
 that imply a genetic interaction.
 
-
 .. NOTE::
    Can be used for both **Himar1** and **Tn5** datasets
 
@@ -98,28 +97,18 @@ Usage
 
 ::
 
-  python3 /pacific/home/ioerger/transit/src/transit.py GI <wigs_for_strA_cond1> <wigs_for_strA_cond2> <wigs_for_strB_cond1> <wigs_for_strB_cond2> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-
-        GI performs a comparison among 4 groups of datasets, strain A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
-        It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
-        Provide replicates in each group as a comma-separated list of wig files.
-        HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
-        Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
-        Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
-          By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
-          Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
+  python3 transit.py GI <combined_wig_file> <metadata_file> <annotation_file> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <output_file> [optional arguments]
 
         Optional Arguments:
-        -s <integer>    :=  Number of samples. Default: -s 10000
-        --rope <float>  :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
-        -n <string>     :=  Normalization method. Default: -n TTR
-        -iz             :=  Include rows with zero across conditions.
-        -iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
-        -signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
-        -signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
-        -signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
-        -signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05
+            --n <string>     :=  Normalization method. Default: --n TTR
+            --s <integer>    :=  Number of samples. Default: --s 10000
+            --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: --iN 0
+            --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: --iC 0
+            --rope <float>   :=  Region of Practical Equivalence. Area around 0 (i.e. 0 +/- ROPE) that is NOT of interest. Can be thought of similar to the area of the null-hypothesis. Default: --rope 0.5
+            --signif HDI     :=  (default) Significant if HDI does not overlap ROPE; if HDI overlaps ROPE, 'Type of Interaction' is set to 'No Interaction'
+            --signif prob    :=  Optionally, significant hits are re-defined based on probability (degree) of overlap of HDI with ROPE, prob<0.05 (no adjustment)
+            --signif BFDR    :=  Apply "Bayesian" FDR correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as BFDR<0.05
+            --signif FWER    :=  Apply "Bayesian" FWER correction (see doc) to adjust HDI-ROPE overlap probabilities so that significant hits are re-defined as FWER<0.05
 
 
 Example
@@ -133,6 +122,16 @@ Note there are 2 replicates in each of the 4 groups of datasets.
 ::
 
   python3 transit/src/transit.py GI WT_untreated1.wig,WT_untreated2.wig WT_INH_1.wig,WT_INH_2.wig delta_SigB_untreated1.wig,delta_SigB_untreated2.wig delta_SigB_INH_1.wig,delta_SigB_INH_2.wig mc2_155_tamu.prot_table GI_delta_SigB_INH.txt
+
+
+GI performs a comparison among 4 groups of datasets, strain A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
+It looks for interactions where the response to the treatment (i.e. effect on insertion counts) depends on the strain (output variable: delta_LFC).
+Provide replicates in each group as a comma-separated list of wig files.
+HDI is highest density interval for posterior distribution of delta_LFC, which is like a confidence interval on difference of slopes.
+Genes are sorted by probability of HDI overlapping with ROPE. (genes with the highest abs(mean_delta_logFC) are near the top, approximately)
+Significant genes are indicated by 'Type of Interaction' column (No Interaction, Aggravating, Alleviating, Suppressive).
+By default, hits are defined as "Is HDI outside of ROPE?"=TRUE (i.e. non-overlap of delta_LFC posterior distritbuion with Region of Probably Equivalence around 0)
+Alternative methods for significance: use -signif flag with prob, BFDR, or FWER. These affect 'Type of Interaction' (i.e. which genes are labeled 'No Interaction')
 
 
 Parameters
@@ -175,6 +174,23 @@ parameters are available for the method:
  * -signif FWER: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the FWER method
 
 
+Gui Mode
+----------------------
+
+The Genetic Interactions analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/gi_selection_gui.png
+   :width: 1000
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/gi_parameter_panel.png
+   :width: 1000
+   :align: center
+
+The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
 
 Output and Diagnostics
 ----------------------
@@ -185,49 +201,49 @@ All genes are sorted by significance using the probability that the HDI overlaps
 Significant genes are those NOT marked with 'No Interaction' in the last column.
 
 
-+-----------------------------------------+----------------------------------------------------+
-| Column Header                           | Column Definition                                  |
-+=========================================+====================================================+
-| Orf                                     | Gene ID.                                           |
-+-----------------------------------------+----------------------------------------------------+
-| Name                                    | Name of the gene.                                  |
-+-----------------------------------------+----------------------------------------------------+
-| Number of TA Sites                      | Number of TA sites in the gene.                    |
-+-----------------------------------------+----------------------------------------------------+
-| Mean count (Strain A Condition 1)       | Mean read count in strain A, condition 1           |
-+-----------------------------------------+----------------------------------------------------+
-| Mean count (Strain A Condition 2)       | Mean read count in strain A, condition 2           |
-+-----------------------------------------+----------------------------------------------------+
-| Mean count (Strain B Condition 1)       | Mean read count in strain B, condition 1           |
-+-----------------------------------------+----------------------------------------------------+
-| Mean count (Strain B Condition 2)       | Mean read count in strain B, condition 2           |
-+-----------------------------------------+----------------------------------------------------+
-| Mean logFC (Strain A)                   | The log2 fold-change in read-count for strain A    |
-+-----------------------------------------+----------------------------------------------------+
-| Mean logFC (Strain B)                   | The log2 fold-change in read-count for strain B    |
-+-----------------------------------------+----------------------------------------------------+
-| Mean delta logFC                        | The difference in log2 fold-change between B and A |
-+-----------------------------------------+----------------------------------------------------+
-| Lower Bound delta logFC                 | Lower bound of the difference (delta logFC)        |
-+-----------------------------------------+----------------------------------------------------+
-| Upper Bound delta logFC                 | Upper bound of the difference (delta logFC)        |
-+-----------------------------------------+----------------------------------------------------+
-| Prob. of delta-logFC being within ROPE  | Portion of the delta-logFC within ROPE             |
-+-----------------------------------------+----------------------------------------------------+
-| Adjusted Probability (BFDR)             | Posterior probability adjusted for comparisons     |
-+-----------------------------------------+----------------------------------------------------+
-| Is HDI outside ROPE?                    | True/False whether the delta-logFC overlaps ROPE   |
-+-----------------------------------------+----------------------------------------------------+
-| Type of Interaction                     | Final classification.                              |
-+-----------------------------------------+----------------------------------------------------+
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Column Header                                    | Column Definition                                                          |
++==================================================+============================================================================+
+| ORF                                              | Gene ID.                                                                   |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Gene                                             | Name of the gene.                                                          |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Annotation                                       | Description of gene per annotation_file                                    |
++--------------------------------------------------+----------------------------------------------------------------------------+
+|TA Sites                                          | Number of TA sites in the gene.                                            |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| A1 Mean Count                                    | Mean read count in strain A, condition 1                                   |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| A2 Mean Count                                    | Mean read count in strain A, condition 2                                   |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| B1 Mean Count                                    | Mean read count in strain B, condition 1                                   |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| B2 Mean Count                                    | Mean read count in strain B, condition 2                                   |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Log 2 FC Strain A                                | The log2 fold-change in read-count for strain A                            |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Log 2 FC Strain B                                | The log2 fold-change in read-count for strain B                            |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Delta Log 2 FC                                   | The difference in log2 fold-change between B and A                         |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Lower Bound Delta Log 2 FC                       | Lower bound of the difference (delta logFC)                                |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Upper Bound Delta Log 2 FC                       | Upper bound of the difference (delta logFC)                                |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Probability of Delta Log 2 FC Being Within ROPE  | Portion of the delta-logFC within ROPE                                     |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| {Type} Adj P Value                               | Posterior probability adjusted for comparisons using {type} adjustment     |
++--------------------------------------------------+----------------------------------------------------------------------------+
+| Type of Interaction                              | Final classification.                                                      |
++--------------------------------------------------+----------------------------------------------------------------------------+
 
 |
-
 **To Do: (TRI, 12/19/22)**
 
 * explain the 3 types of interactions
-* tell users this is what they should primarily look at
+* tell users this is what they should primarily look at---------
 * if they want a quantitative score for ranking/sorting, they could use either 'mean delta logFC' or 'prob of delta_logFC being within ROPE'.
+
 
 
 .. rst-class:: transit_sectionend

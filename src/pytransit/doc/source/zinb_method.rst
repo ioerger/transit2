@@ -42,20 +42,20 @@ Example
 
   > python3 transit.py zinb <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
         Optional Arguments:
-        -n <string>                 :=  Normalization method. Default: -n TTR
-        --prot_table <filename>     := for appending annotations of genes
-        --condition                 :=  columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-        --covars <covar1,...>       :=  Comma separated list of covariates (in metadata file) to include, for the analysis.
-        --interactions <covar1,...> :=  Comma separated list of covariates to include, that interact with the condition for the analysis.
-        --exclude-conditions <cond1,...> :=  Comma separated list of conditions to ignore for the analysis. Default: None
-        --include-conditions <cond1,...> :=  Comma separated list of conditions to include for the analysis. Default: All
-        --ref <cond>                := which condition(s) to use as a reference for calculating LFCs (comma-separated if more than one) (by default, LFCs for each condition are computed relative to the grandmean across all condintions)
-        -iN <float>                 :=  Ignore TAs occuring within given percentage of the N terminus. Default: -iN 5
-        -iC <float>                 :=  Ignore TAs occuring within given percentage of the C terminus. Default: -iC 5
-        -PC <N>                     :=  Pseudocounts used in calculating LFCs in output file. Default: -PC 5
-        -winz                       := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-        -v                          := verbose, print out the model coefficients for each gene.
-        --gene <Orf id or Gene name>:= Run method for one gene and print model output.
+        --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
+        --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
+        --n   <string>        :=  Normalization method. Default: --n TTR
+        --ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+        --iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 5
+        --iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 5
+        --PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: --PC 5
+        -winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+        --group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+        --condition <string>  := alias for --group-by
+        --covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
+        --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
+        --gene <RV number or Gene name>   := Run method for one gene and print model output.
+        -append_gene_desc               := the output_file will have column for gene descriptions
 
 
 Input files
@@ -71,7 +71,6 @@ Parameters
 
 The following parameters are available for the ZINB method:
 
--  **\-\-prot_table <filename>:** for appending annotations of genes
 -  **\-\-include-conditions <cond1,...>:** Includes the given set of conditions from the ZINB test. Conditions not in this list are ignored. Note: this is useful for specifying the order in which the columns are listed in the output file.
 -  **\-\-exclude-conditions <cond1,...>:** Ignores the given set of conditions from the ZINB test.
 -  **\-\-ref <cond>:** which condition to use as a reference when computing LFCs in the output file. By default, LFCs for each condition are computed relative to the grandmean across all condintions.
@@ -279,34 +278,36 @@ gene in the genome. P-values are adjusted for multiple comparisons using
 the Benjamini-Hochberg procedure (called "q-values" or "p-adj."). A
 typical threshold for conditional essentiality on is q-value < 0.05.
 
-+---------------------+-----------------------------------------------------------------+
-| Column Header       | Column Definition                                               |
-+=====================+=================================================================+
-| Orf                 | Gene ID.                                                        |
-+---------------------+-----------------------------------------------------------------+
-| Name                | Name of the gene.                                               |
-+---------------------+-----------------------------------------------------------------+
-| TAs                 | Number of TA sites in Gene                                      |
-+---------------------+-----------------------------------------------------------------+
-| Means...            | Mean read-counts for each condition                             |
-+---------------------+-----------------------------------------------------------------+
-| LFCs...             | Log-fold-change (base 2) of mean insertion count relative to    |
-|                     | mean across all conditions. Pseudo-counts of 5 are added.       |
-|                     | If only 2 conditions, LFC is based on ratio of second to first. |
-+---------------------+-----------------------------------------------------------------+
-| NZmeans...          | Mean read-counts at non-zero zites for each condition           |
-+---------------------+-----------------------------------------------------------------+
-| NZpercs...          | Saturation (percentage of non-zero sites) for each condition    |
-+---------------------+-----------------------------------------------------------------+
-| p-value             | P-value calculated by the ZINB test.                            |
-+---------------------+-----------------------------------------------------------------+
-| p-adj               | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
-+---------------------+-----------------------------------------------------------------+
-| status              | Diagnostic information (explanation for genes not analyzed)     |
-+---------------------+-----------------------------------------------------------------+
++-------------------------+-----------------------------------------------------------------+
+| Column Header           | Column Definition                                               |
++=========================+=================================================================+
+| Rv                      | Gene ID.                                                        |
++-------------------------+-----------------------------------------------------------------+
+| Gene                    | Name of the gene.                                               |
++-------------------------+-----------------------------------------------------------------+
+| TA Sites                | Number of TA sites in Gene                                      |
++-------------------------+-----------------------------------------------------------------+
+| Means...                | Mean read-counts for each condition                             |
++-------------------------+-----------------------------------------------------------------+
+| Log 2 FC...             | Log-fold-change (base 2) of mean insertion count relative to    |
+|                         | mean across all conditions. Pseudo-counts of 5 are added.       |
+|                         | If only 2 conditions, LFC is based on ratio of second to first. |
++-------------------------+-----------------------------------------------------------------+
+| Non Zero means...       | Mean read-counts at non-zero zites for each condition           |
++-------------------------+-----------------------------------------------------------------+
+| Non Zero percentages... | Saturation (percentage of non-zero sites) for each condition    |
++-------------------------+-----------------------------------------------------------------+
+| P Value                 | P-value calculated by the ZINB test.                            |
++-------------------------+-----------------------------------------------------------------+
+| Adj P Value             | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
++-------------------------+-----------------------------------------------------------------+
+| Status                  | Diagnostic information (explanation for genes not analyzed)     |
++-------------------------+-----------------------------------------------------------------+
+| Gene Annotation         | Annotation of the gene following the annotation file passed in  |
++-------------------------+-----------------------------------------------------------------+
 
 
-**LFCs** (log-fold-changes):
+**Log 2 FC** (log-fold-changes):
 For each condition, the LFC is calculated as the log-base-2 of the
 ratio of mean insertion count in that condition **relative to the
 mean of means across all the conditions** (by default).
@@ -324,6 +325,19 @@ Changing the pseudocounts will not affect the analysis of statistical significan
   LFC = log2((mean_insertions_in_condition + PC)/(mean_of_means_across_all_conditions + PC))
 
 |
+
+GUI Mode
+-------
+ZINB can be access though the "Method" tab in the Menu Bar.
+    .. image:: _images/zinb_selection_gui.png
+       :width: 1000
+       :align: center 
+
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we name the output files using the prefix passed in.
+    .. image:: _images/zinb_parameter_panel.png
+       :width: 1000
+       :align: center
 
 Run-time
 --------

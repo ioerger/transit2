@@ -46,7 +46,7 @@ Command Line Usage
 
 ::
 
-  > python3 ../../transit.py pathway_enrichment <input file> <associations> <pathways> <output_file> 
+  > python3 ../../transit.py pathway_enrichment <input file> <associations> <pathways> <output_file> [Optional Arguments]
 
   Optional parameters:
      --M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)

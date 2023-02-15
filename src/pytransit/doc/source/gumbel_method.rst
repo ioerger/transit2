@@ -78,7 +78,7 @@ Usage
 
 ::
 
-  > python3 transit.py gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
+  > python3 transit.py gumbel <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>  [Optional Arguments]
         Optional Arguments:
         --s <integer>    :=  Number of samples. Default: -s 10000
         --b <integer>    :=  Number of Burn-in samples. Default -b 500

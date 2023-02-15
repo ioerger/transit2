@@ -13,7 +13,7 @@ Command Line Usage:
 
 ::
 
-  >python3 src/transit.py heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb 
+  >python3 src/transit.py heatmap <anova_or_zinb_output> <heatmap.png> -anova|-zinb [Optional Arguments]
    Optional parameters:
     --topk <int>            := number of results
     --qval <float>          := adjusted p value threshold. Default --qval 0.05

@@ -26,7 +26,7 @@ Example
 
 ::
 
-  > python3 transit.py anova <combined_wig_file> <metadata_file> <annotation_file> <output_file> 
+  > python3 transit.py anova <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
         Optional Arguments:
          --n <string>         :=  Normalization method. Default: -n TTR
          --exclude-conditions <cond1,...> :=  Comma separated list of conditions to ignore for the analysis. Default: None

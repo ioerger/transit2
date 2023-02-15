@@ -15,7 +15,7 @@ Command Line Usage
 ------
 **As a Pre-Processing Step:**
 ::
-    > python3 transit.py  corrplot <combined_wig_file> <metadata_file> <annotation_file> <output.png>
+    > python3 transit.py  corrplot <combined_wig_file> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
     
     Optional parameters:
      --avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: False

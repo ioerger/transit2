@@ -20,12 +20,12 @@ How does it work?
 |
 
 
-Example
+Usage
 -------
 
 ::
 
-  python3 transit.py hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file>
+  python3 transit.py hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file> [Optional Arguments]
         Optional Arguments:
             --r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
             --n <string>     :=  Normalization method. Default: --n TTR
@@ -64,6 +64,8 @@ The parameters to input through the parameter panel for the method is equivalent
    :align: center
 
 The method is run using the combined wig, metadata, and annotation uploaded into TRANSIT.
+
+
 Output and Diagnostics
 ----------------------
 

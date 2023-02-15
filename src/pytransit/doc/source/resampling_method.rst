@@ -93,22 +93,22 @@ Usage
       transit resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
   
   Optional Arguments:
-      --s <integer>        :=  Number of samples. Default: --s 10000
-      --n <string>         :=  Normalization method. Default: --n TTR
-      -a                   :=  Perform adaptive resampling. Default: Turned Off.
-      --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
-      --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
-      --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
-      --ctrl_lib <string>  :=  String of letters representing library of control files in order
-                              e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                              If non-empty, resampling will limit permutations to within-libraries.
-      --exp_lib <string>   :=  String of letters representing library of experimental files in order
-                              e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                              If non-empty, resampling will limit permutations to within-libraries.
-      -winz              :=  winsorize insertion counts for each gene in each condition 
-                              (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-      -no-sr             :=  disable site-restricted resampling; less sensitive, might be more conservative for finding significant conditionally essential genes
-    
+      Optional Arguments:
+            --s <integer>        :=  Number of samples. Default: --s 10000
+            --n <string>         :=  Normalization method. Default: --n TTR
+            -a                   :=  Perform adaptive resampling. Default: Turned Off.
+            --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+            --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
+            --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
+            --ctrl_lib <string>  :=  String of letters representing library of control files in order
+                                     e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
+                                     If non-empty, resampling will limit permutations to within-libraries.
+            --exp_lib <string>   :=  String of letters representing library of experimental files in order
+                                     e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
+                                     If non-empty, resampling will limit permutations to within-libraries.
+            -winz                :=  winsorize insertion counts for each gene in each condition 
+                                    (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+            -no-sr               :=  disable site-restricted resampling; less sensitive, might be more conservative for finding significant conditionally essential genes
 
 Parameters
 ----------
@@ -122,9 +122,9 @@ parameters are available for the method:
    calculated will have, at the expense of longer computation time. The
    resampling method runs on 10,000 samples by default.
 
--  **Output Histograms:** Determines whether to output .png images of
-   the histograms obtained from resampling the difference in
-   read-counts.
+.. -  **Output Histograms:** Determines whether to output .png images of
+..    the histograms obtained from resampling the difference in
+..    read-counts.
 
 -  **Adaptive Resampling:** An optional "adaptive" version of resampling
    which accelerates the calculation by terminating early for genes
@@ -166,7 +166,8 @@ parameters are available for the method:
 -  **-winz**: `winsorize <https://en.wikipedia.org/wiki/Winsorizing>`_ insertion counts for each gene in each condition. 
    Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.
 
--  **-no-sr**: FIXME
+-  **-no-sr**: Turn off site based resampling. It makes the method less sensitive, reporting less significantly conditionally essential genes. 
+   It also the user to permute counts over all TA sites pooled rather than restrict permutations of insertion counts in a gene to each individual TA site
 
 |
 
@@ -305,9 +306,9 @@ typical threshold for conditional essentiality on is q-value < 0.05.
 +-----------------+-----------------------------------------------------------------+
 | Column Header   | Column Definition                                               |
 +=================+=================================================================+
-| Orf             | Gene ID.                                                        |
+| ORF             | Gene ID.                                                        |
 +-----------------+-----------------------------------------------------------------+
-| Name            | Name of the gene.                                               |
+| Gene Name       | Name of the gene.                                               |
 +-----------------+-----------------------------------------------------------------+
 | Description     | Gene description.                                               |
 +-----------------+-----------------------------------------------------------------+
@@ -317,7 +318,7 @@ typical threshold for conditional essentiality on is q-value < 0.05.
 +-----------------+-----------------------------------------------------------------+
 | Mean Exp        | Mean of read counts in condition 2.                             |
 +-----------------+-----------------------------------------------------------------+
-| log2FC          | Log-fold-change of exp (treatment) over ctrl (untreated)        |
+| Log 2 FC        | Log-fold-change of exp (treatment) over ctrl (untreated)        |
 +-----------------+-----------------------------------------------------------------+
 | Sum Ctrl        | Sum of read counts in condition 1.                              |
 +-----------------+-----------------------------------------------------------------+
@@ -325,9 +326,9 @@ typical threshold for conditional essentiality on is q-value < 0.05.
 +-----------------+-----------------------------------------------------------------+
 | Delta Mean      | Difference in the MEAN insertion counts.                        |
 +-----------------+-----------------------------------------------------------------+
-| p-value         | P-value calculated by the permutation test.                     |
+| P Value         | P-value calculated by the permutation test.                     |
 +-----------------+-----------------------------------------------------------------+
-| Adj. p-value    | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
+| Adj P Value     | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
 +-----------------+-----------------------------------------------------------------+
 
 
@@ -346,6 +347,21 @@ changed using the -PC flag (above).
 
 
 |
+
+GUI Mode
+-------
+The Anova analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/resampling_gui_selection.png
+   :width: 1000
+   :align: center
+
+|
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/resampling_parameter_panel.png
+   :width: 1000
+   :align: center
 
 Run-time
 --------

@@ -26,21 +26,21 @@ Usage
 
 ::
 
-  > python3 /pacific/home/ioerger/transit/src/transit.py  utest <combined-wig-path> <annotation .prot_table or GFF3> <metadata path> <condition name for control group> <condition name for experimental group> <output file> [Optional Arguments]
+  > python3 transit.py utest <combined_wig_file> <metadata_file> <annotation_file> <condition_for_control> <condition_for_experimental> <output_file> [Optional Arguments]
 
   Optional Arguments:
-  -n <string>     :=  Normalization method. Default: -n TTR
-  -iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: -iN 0
-  -iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: -iC 0
+    --n <string>     :=  Normalization method. Default: --n TTR
+    --iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: --iN 0
+    --iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: --iC 0
 
 
-[Note to Jeff: we should probably get rid of -l, since LOESS is not relevant for U-test.]
+.. [Note to Jeff: we should probably get rid of -l, since LOESS is not relevant for U-test.]
 
-[Note to Jeff: isn't -iz true by default?]
+.. [Note to Jeff: isn't -iz true by default?]
 
-[Note to Jeff: normally I would includes a section explaining the parameters, but they are so obvious in this case.]
+.. [Note to Jeff: normally I would includes a section explaining the parameters, but they are so obvious in this case.]
 
-[Note to Jeff: change the order of CL args: <combined_wig> <metadata> <annotation> - it should be like this for all methods.  Check the usage() strings and from_args().  Also, can you update the usage blocks in each method in the documentation?]
+.. [Note to Jeff: change the order of CL args: <combined_wig> <metadata> <annotation> - it should be like this for all methods.  Check the usage() strings and from_args().  Also, can you update the usage blocks in each method in the documentation?]
 
 
 Output
@@ -55,7 +55,7 @@ The output file is tab-separated text file (spreadsheet) with the following colu
 +-----------------+-----------------------------------------------------------------+
 | Name            | Name of the gene.                                               |
 +-----------------+-----------------------------------------------------------------+
-| Description     | Gene description.                                               |
+| Desc            | Gene description.                                               |
 +-----------------+-----------------------------------------------------------------+
 | Sites           | Number of TA sites in the gene.                                 |
 +-----------------+-----------------------------------------------------------------+
@@ -63,16 +63,16 @@ The output file is tab-separated text file (spreadsheet) with the following colu
 +-----------------+-----------------------------------------------------------------+
 | Mean Exp        | Mean of read counts in condition 2.                             |
 +-----------------+-----------------------------------------------------------------+
-| log2FC          | Log-fold-change of exp (treatment) over ctrl (untreated)        |
+| Log 2 FC        | Log-fold-change of exp (treatment) over ctrl (untreated)        |
 +-----------------+-----------------------------------------------------------------+
-| u_stat          | test statistic reflecting which condition has higher counts     |
+| U Statistic     | test statistic reflecting which condition has higher counts     |
 +-----------------+-----------------------------------------------------------------+
-| p-value         | 2-tailed P-value of u_stat based on Mann-Whitney                |
+| P Value         | 2-tailed P-value of u_stat based on Mann-Whitney                |
 +-----------------+-----------------------------------------------------------------+
-| Adj. p-value    | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
+| Adj P Value     | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
 +-----------------+-----------------------------------------------------------------+
 
-The u_stat is the statistic of U-test reflecting whether insertion counts at TA sites in control samples are higer on average than counts in the experimental samples.
+The U statistic is the statistic of U-test reflecting whether insertion counts at TA sites in control samples are higer on average than counts in the experimental samples.
 
 *Important:* The significant genes are those with Padj<0.05.*
 

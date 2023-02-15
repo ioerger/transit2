@@ -241,7 +241,7 @@ class Method:
         else:
         # run the core function directly
             Method.output(
-                combined_wig_path = combined_wig.combined_wig.main_path,
+                combined_wig_path = combined_wig.main_path,
                 metadata_path     = combined_wig.metadata_path,
                 annotation_path   = gui.annotation_path,
                 avg_by_conditions=arguments.avg_by_conditions, # bool
