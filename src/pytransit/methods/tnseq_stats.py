@@ -51,9 +51,7 @@ class Method:
     ]
     
     usage_string = f"""
-        Usage:
-            {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file>
-            {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file> <output_file>
+        Usage: {console_tools.subcommand_prefix} tnseq_stats <wig_file or combined_wig_file> [<output_file>]
     """
     
     @gui.add_menu("Pre-Processing", "Generate", menu_name)
@@ -101,6 +99,7 @@ class Method:
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
+        if len(args)==0: print(Method.usage_string); sys.exit() # TRI
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         
