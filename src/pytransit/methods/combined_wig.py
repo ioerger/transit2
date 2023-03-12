@@ -216,7 +216,8 @@ class Method:
             # metadata template
             # 
             if metadata_path:
-                wig_id_suggestions = tnseq_tools.wig_id_suggestions_from_filepaths(wig_list)
+                #wig_id_suggestions = tnseq_tools.wig_id_suggestions_from_filepaths(wig_list)
+                wig_id_suggestions = [os.path.splitext(os.path.basename(x))[0].replace(' ','_') for x in wig_list] # strip off path and extension
                 condition_name_suggestions = [ "CONDITION_NAME_HERE" ] * len(wig_id_suggestions)
                 csv.write(
                     path=metadata_path,
