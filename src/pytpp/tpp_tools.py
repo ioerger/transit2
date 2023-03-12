@@ -857,7 +857,8 @@ def driver(vars):
 
 
 def uncompress(filename):
-    outfil = open(filename[0:-3], "w+")
+    message("uncompressing %s" % filename)
+    outfil = open(filename[0:-3], "wb+")
     for line in gzip.open(filename):
         outfil.write(line)
     return filename[0:-3]
@@ -884,6 +885,12 @@ def copy_fasta(infile, outfile, maxreads=-1):
 def extract_reads(vars):
     message("extracting reads...")
 
+    if vars.fq1.endswith(".gz"):
+        vars.fq1 = uncompress(vars.fq1)
+
+    if vars.fq2.endswith(".gz"):
+        vars.fq2 = uncompress(vars.fq2)
+
     flag = ["", ""]
     for idx, name in enumerate([vars.fq1, vars.fq2]):
         if idx == 1 and vars.single_end == True:
@@ -896,12 +903,6 @@ def extract_reads(vars):
             flag[idx] = "FASTQ"
             break
         fil.close()
-
-    if vars.fq1.endswith(".gz"):
-        vars.fq1 = uncompress(vars.fq1)
-
-    if vars.fq2.endswith(".gz"):
-        vars.fq2 = uncompress(vars.fq2)
 
     if flag[0] == "FASTQ":
         message("fastq2reads: %s -> %s" % (vars.fq1, vars.reads1))
