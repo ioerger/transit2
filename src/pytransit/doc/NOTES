@@ -1,0 +1,20 @@
+3/13/23
+-------
+
+docs are .rst files in doc/source/
+figs are in doc/source/_images/   (not doc/images)
+
+> pip3 install sphinx
+> pip3 
+
+
+in src/pytransit/doc/...
+
+> make html
+compiles .html files into build/html
+
+
+> cd build/html
+
+> python -m SimpleHTTPServer 
+localhost:8000
