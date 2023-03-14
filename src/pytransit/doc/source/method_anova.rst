@@ -28,16 +28,15 @@ Example
 
   > python3 transit.py anova <combined wig file> <samples_metadata file> <annotation .prot_table> <output file> [Optional Arguments]
         Optional Arguments:
-        -n <string>         :=  Normalization method. Default: -n TTR
-        --exclude-conditions <cond1,...> :=  Comma separated list of conditions to ignore for the analysis. Default: None
-        --include-conditions <cond1,...> :=  Comma separated list of conditions to include for the analysis. Default: All
-        --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions) (by default, LFCs for each condition are computed relative to the grandmean across all condintions)
-        -iN <float> :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: -iN 0
-        -iC <float> :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: -iC 0
-        -PC <N>     := Pseudocounts to use in calculating LFCs. Default: -PC 5
-        -alpha <N>  := value added to MSE in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-        -winz       :=  winsorize insertion counts for each gene in each condition 
-                        (replace max count in each gene with 2nd highest; helps mitigate effect of outliers)
+        --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+        --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+        --n <string> := Normalization method. Default: --n TTR
+        --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+        --iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+        --iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+        --PC    <N>  := pseudocounts to use for calculating LFCs. Default: --PC 5
+        --alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: --alpha 1000
+        -winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
 
 
 Input files

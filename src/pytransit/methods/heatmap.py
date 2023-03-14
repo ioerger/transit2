@@ -70,7 +70,6 @@ class Method:
                 sub_text="",
                 method_specific_instructions="""
                     The output of ANOVA or ZINB can be used to generate a heatmap that simultaneously clusters the significant genes and clusters the conditions, which is especially useful for shedding light on the relationships among the conditions apparent in the data.
-                    Note: The heatmap command calls R, which must be installed on your system, and relies on the 'gplots' R package.
                 """.replace("\n                    ","\n"),
             )
             panel_helpers.create_run_button(panel, main_sizer, from_gui_function=self.from_gui)

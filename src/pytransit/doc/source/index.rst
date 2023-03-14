@@ -67,7 +67,6 @@ TRANSIT offers a variety of features including:
    :caption: TRANSIT MANUAL
 
    transit_overview
-   transit_overview2
    transit_install
    transit_running
    input_files

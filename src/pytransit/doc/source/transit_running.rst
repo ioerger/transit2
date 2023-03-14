@@ -23,11 +23,11 @@ GUI mode is simply to type the following into a console:
 
 ::
 
-    transit
+    > transit
 
 
 .. NOTE::
-    In windows, you will likely have to navigate to C:\\Python2.7\\Scripts to be able to recognize the transit.exe file.
+    In windows, you will likely have to navigate to C:\\Python3.X\\Scripts to be able to recognize the transit.exe file.
 
 
 
@@ -35,7 +35,7 @@ If, however, you installed transit by downloading and extracting the source-code
 
 ::
 
-    python PATH/src/transit.py
+    > python3 PATH/src/transit.py
 
 where PATH is the path to the TRANSIT installation directory. You might be able to double-click on icon for transit.py, if your OS associates .py files with python and automatically runs them.
 
@@ -55,14 +55,14 @@ If you installed TRANSIT as a python package, you can get a list of possible arg
 
 ::
 
-    transit -h
+    > transit -h
 
 
 Or if you installed it by downloading and extracting an archive with the source code:
 
 ::
 
-    python PATH/src/transit.py -h
+    > python3 PATH/src/transit.py -h
 
 
 
@@ -74,14 +74,14 @@ If you installed TRANSIT as a python package, you can achieve this by typing:
 
 ::
 
-    transit gumbel -h
+    > transit gumbel -h
 
 
 Or if you installed it by downloading and extracting an archive with the source code:
 
 ::
 
-    python PATH/src/transit.py gumbel -h
+    > python3 PATH/src/transit.py gumbel -h
 
 
 |
@@ -90,68 +90,68 @@ See example usages of supported methods in :ref:`Analysis Methods <analysis_meth
 
 |
 
-Prot_tables (Annotations)
--------------------------
+.. Prot_tables (Annotations)
+.. -------------------------
 
-Most of the methods in Transit use a custom format for genome annotations called a '.prot_table'.
-It is a simple tab-separated text file with specific columns, as originally defined for genomes
-in Genbank many years ago.
+.. Most of the methods in Transit use a custom format for genome annotations called a '.prot_table'.
+.. It is a simple tab-separated text file with specific columns, as originally defined for genomes
+.. in Genbank many years ago.
 
-The required columns are:
+.. The required columns are:
 
-1. gene function description
-2. start coordinate
-3. end coordinate
-4. strand
-5. length of protein product (in amino acids)
-6. don't care
-7. don't care
-8. gene name (like "dnaA")
-9. ORF id (like Rv0001)
+.. 1. gene function description
+.. 2. start coordinate
+.. 3. end coordinate
+.. 4. strand
+.. 5. length of protein product (in amino acids)
+.. 6. don't care
+.. 7. don't care
+.. 8. gene name (like "dnaA")
+.. 9. ORF id (like Rv0001)
 
-It is crucial to use the same .prot_table corresponding to the genome sequence that was
-used to generate the wig file (count insertions) by TPP.  This is because the
-coordinates of TA sites in the wig file and the coordinates of ORF boundaries
-must use the same coordinate system (which can be thrown out of register by indels).
+.. It is crucial to use the same .prot_table corresponding to the genome sequence that was
+.. used to generate the wig file (count insertions) by TPP.  This is because the
+.. coordinates of TA sites in the wig file and the coordinates of ORF boundaries
+.. must use the same coordinate system (which can be thrown out of register by indels).
 
-Suppose you have a .prot_table for genome A, and you want to map reads to 
-another genome B which is closely related, but for which you do not have an annotation.
-You can use the following web-app ( `Prot_table Adjustment Tool <http://saclab.tamu.edu/cgi-bin/iutils/app.cgi>`_ ) 
-to convert the annotation for A to B
-by adjusting all the coordinates of ORFs from A to B according to a genome alignment.
-For example, you could use this to map known ORFs in H37Rv to sequences of other strains, like HN878 or CDC1551.
-(Even though they have their own annotations, it might be helpful to use the genes as defined in H37Rv)
+.. Suppose you have a .prot_table for genome A, and you want to map reads to 
+.. another genome B which is closely related, but for which you do not have an annotation.
+.. You can use the following web-app ( `Prot_table Adjustment Tool <http://saclab.tamu.edu/cgi-bin/iutils/app.cgi>`_ ) 
+.. to convert the annotation for A to B
+.. by adjusting all the coordinates of ORFs from A to B according to a genome alignment.
+.. For example, you could use this to map known ORFs in H37Rv to sequences of other strains, like HN878 or CDC1551.
+.. (Even though they have their own annotations, it might be helpful to use the genes as defined in H37Rv)
 
-While some Transit methods can also work with .gff (or .gff3) files,
-the flexibility of the .gff format makes it difficult to anticipate all possible encoding schemes.
-Therefore, to simplify things, we recommend you convert your .gff file to .prot_table format
-once at the beginning and then use that for all work with Transit,
-which can be done through the GUI (under 'Convert' in menu), or on the command-line as follows:
-
-
-::
-
-  > python transit.py convert gff_to_prot_table <.gff> <.prot_table>
-
-|
+.. While some Transit methods can also work with .gff (or .gff3) files,
+.. the flexibility of the .gff format makes it difficult to anticipate all possible encoding schemes.
+.. Therefore, to simplify things, we recommend you convert your .gff file to .prot_table format
+.. once at the beginning and then use that for all work with Transit,
+.. which can be done through the GUI (under 'Convert' in menu), or on the command-line as follows:
 
 
-.. _tn5-main-overview:
+.. ::
 
-Tn5 Datasets
-------------
+..   > python3 transit.py convert gff_to_prot_table <.gff> <.prot_table>
 
-Transit can now process and analyze Tn5 datasets  This is a different transposon than Himar1.
-The major difference is Tn5 can insert at any site in the genome, and is not restricted
-to TA dinucleotides (and saturation is typically much lower).  This affects
-the statistical analyses (which were originally designed for Himar1 and can't directly
-be applied to Tn5). Therefore, :ref:`Resampling <resampling>` was extended to handle Tn5 for comparative analysis, and
-:ref:`Tn5Gaps <tn5gaps>` is a new statistical model for identifying essential genes in single Tn5 datasets.
-Amplification of Tn5 libraries
-uses different primers, and this affects the pre-processing by TPP.  But TPP has
-be modified to recognize the primer sequence for the most widely
-used protocol for Tn5.  Furthermore, TPP now has an option for users to define their
-own primer sequences, if they use a different sample prep protocol.
+.. |
+
+
+.. .. _tn5-main-overview:
+
+.. Tn5 Datasets
+.. ------------
+
+.. Transit can now process and analyze Tn5 datasets  This is a different transposon than Himar1.
+.. The major difference is Tn5 can insert at any site in the genome, and is not restricted
+.. to TA dinucleotides (and saturation is typically much lower).  This affects
+.. the statistical analyses (which were originally designed for Himar1 and can't directly
+.. be applied to Tn5). Therefore, :ref:`Resampling <resampling>` was extended to handle Tn5 for comparative analysis, and
+.. :ref:`Tn5Gaps <tn5gaps>` is a new statistical model for identifying essential genes in single Tn5 datasets.
+.. Amplification of Tn5 libraries
+.. uses different primers, and this affects the pre-processing by TPP.  But TPP has
+.. be modified to recognize the primer sequence for the most widely
+.. used protocol for Tn5.  Furthermore, TPP now has an option for users to define their
+.. own primer sequences, if they use a different sample prep protocol.
 
 
 

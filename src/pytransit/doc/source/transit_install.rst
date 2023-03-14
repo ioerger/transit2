@@ -18,7 +18,7 @@ If you know how to utilize git, you can clone the git respository as follows:
 ::
 
 
-    git clone https://github.com/mad-lab/transit/
+    > git clone https://github.com/mad-lab/transit/
 
 
 TRANSIT is python-based You must have python installed (installed by
@@ -35,29 +35,29 @@ Requirements
 
 TRANSIT runs on both python2.7 and python3. But the dependencies vary slightly.
 
-Python 2.7:
------------
+.. Python 2.7:
+.. -----------
 
-The following libraries/modules are required to run TRANSIT:
+.. The following libraries/modules are required to run TRANSIT:
 
-+ `Python 2.7 <http://www.python.org>`_
-+ `Numpy <http://www.numpy.org/>`_ (tested on 1.15.0)
-+ `Statsmodels <https://pypi.org/project/statsmodels/>`_ (tested on 0.9.0)
-+ `Scipy <http://www.scipy.org/>`_ (tested on 1.1)
-+ `matplotlib <http://matplotlib.org/users/installing.html>`_ (tested on 2.2)
-+ `Pillow 5.0 <https://github.com/python-pillow/Pillow>`_
-+ `wxpython 4+ <http://www.wxpython.org/>`_
-+ `PyPubSub 3.3 <https://pypi.org/project/PyPubSub/>`_ (Version 4.0 does not support python2 `Github Issue <https://github.com/schollii/pypubsub/issues/9>`_)
+.. + `Python 2.7 <http://www.python.org>`_
+.. + `Numpy <http://www.numpy.org/>`_ (tested on 1.15.0)
+.. + `Statsmodels <https://pypi.org/project/statsmodels/>`_ (tested on 0.9.0)
+.. + `Scipy <http://www.scipy.org/>`_ (tested on 1.1)
+.. + `matplotlib <http://matplotlib.org/users/installing.html>`_ (tested on 2.2)
+.. + `Pillow 5.0 <https://github.com/python-pillow/Pillow>`_
+.. + `wxpython 4+ <http://www.wxpython.org/>`_
+.. + `PyPubSub 3.3 <https://pypi.org/project/PyPubSub/>`_ (Version 4.0 does not support python2 `Github Issue <https://github.com/schollii/pypubsub/issues/9>`_)
 
-All of these dependencies can be installed using the following command.
+.. All of these dependencies can be installed using the following command.
 
-::
+.. ::
 
-   pip install numpy scipy pillow "pypubsub<4.0" "matplotlib<3.0" statsmodels wxPython
+..    pip install numpy scipy pillow "pypubsub<4.0" "matplotlib<3.0" statsmodels wxPython
 
-Pip and Python are usually preinstalled in most modern operating systems.
+.. Pip and Python are usually preinstalled in most modern operating systems.
 
-|
+.. |
 
 Python 3:
 -----------
@@ -77,7 +77,7 @@ All of these dependencies can be installed using the following command.
 
 ::
 
-   pip3 install numpy scipy pillow pypubsub matplotlib statsmodels wxPython
+   > pip3 install numpy scipy pillow pypubsub matplotlib statsmodels wxPython
 
 Pip and Python are usually preinstalled in most modern operating systems.
 
@@ -93,30 +93,30 @@ As of now, installing R is optional, and requires these additional steps...
 Additional Installation Requirements for R:
 
  - install `R <https://www.r-project.org/>`_ (tested on v3.5.2)
- - R packages: **MASS, pscl, corrplot, gplots** (run "install.packages(MASS)" etc. in R console)
+ - R packages: **MASS, pscl** (run "install.packages(MASS)" etc. in R console)
  - Python packages (for python3): rpy2 (v>=3.0) (run "pip3 install rpy2" on command line) 
- - Python packages (for python2.7): rpy2 (v<2.9.0) (run "pip install 'rpy2<2.9.0' " on command line)
+ .. - Python packages (for python2.7): rpy2 (v<2.9.0) (run "pip install 'rpy2<2.9.0' " on command line)
 
 
 
-Use as a Python Package
------------------------------------------------------
+.. Use as a Python Package
+.. -----------------------------------------------------
 
 
-TRANSIT can be (optionally) installed as a python package. This can simplify the installation process as it will automatically install most of the requirements. In addition, it will allow users to use some of transit functions in their own scripts if they desire. Below is a brief example of importing transit functions into python. In this example, pair of .wig files are parsed into their read-counts (data) and genomic positions (position), and then normalization factors are calculated. See the documentation of the package for further examples:
+.. TRANSIT can be (optionally) installed as a python package. This can simplify the installation process as it will automatically install most of the requirements. In addition, it will allow users to use some of transit functions in their own scripts if they desire. Below is a brief example of importing transit functions into python. In this example, pair of .wig files are parsed into their read-counts (data) and genomic positions (position), and then normalization factors are calculated. See the documentation of the package for further examples:
 
-::
+.. ::
 
-        >>> import pytransit.norm_tools as norm_tools
-        >>> import pytransit.tnseq_tools as tnseq_tools
-        >>> (data, position) = tnseq_tools.get_data(["transit/data/cholesterol_glycerol.transit/glycerol_rep1.wig", "transit/data/cholesterol_glycerol.transit/glycerol_rep2.wig"])
-        >>> print(data)
-        array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
-               [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
-        >>> factors = norm_tools.TTR_factors(data)
-        >>> print(factors)
-        array([[ 1.        ],
-               [ 0.62862886]])
+..         >>> import pytransit.norm_tools as norm_tools
+..         >>> import pytransit.tnseq_tools as tnseq_tools
+..         >>> (data, position) = tnseq_tools.get_data(["transit/data/cholesterol_glycerol.transit/glycerol_rep1.wig", "transit/data/cholesterol_glycerol.transit/glycerol_rep2.wig"])
+..         >>> print(data)
+..         array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
+..                [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
+..         >>> factors = norm_tools.TTR_factors(data)
+..         >>> print(factors)
+..         array([[ 1.        ],
+..                [ 0.62862886]])
 
 
 
@@ -124,9 +124,9 @@ You can use pip to install the TRANSIT package.
 
 ::
 
-    sudo pip install tnseq-transit
+    > sudo pip3 install tnseq-transit
 
-This will automatically download and install TRANSIT as a package, and all remaining required python packages. Once TRANSIT is installed as a package, it can be executed as
+This will automatically download and install TRANSIT as a package, and all remaining required python packages. Once TRANSIT is installed as a package, it can be executed as a command ('transit').
 
 
 .. NOTE::
@@ -161,7 +161,7 @@ Extract the files:
 ::
 
 
-    tar -xvjf bwa-0.7.12.tar.bz2
+    > tar -xvjf bwa-0.7.12.tar.bz2
 
 
 Go to the directory with the extracted source-code, and run make to create the executable files:
@@ -169,8 +169,8 @@ Go to the directory with the extracted source-code, and run make to create the e
 ::
 
 
-    cd bwa-0.7.12
-    make
+    > cd bwa-0.7.12
+    > make
 
 
 .. _bwa-win:
@@ -206,7 +206,7 @@ If you installed TRANSIT as a package, then to upgrade, simply use pip to instal
 
 ::
 
-    sudo pip install tnseq-transit --upgrade
+    > sudo pip install tnseq-transit --upgrade
 
 This will automatically download and install the latest version of TRANSIT, as well as upgrade any of its requirements if necessary for compatability.
 
@@ -218,7 +218,9 @@ If you installed TRANSIT by downloading the raw source, then you can upgrade TRA
 
 https://github.com/mad-lab/transit/archive/master.zip
 
-Simply exctract the code, and replace your existing files or delete the directory with the old source doe and use the newest version.
+Simply extract the code, and replace your existing files or delete the directory with the old source doe and use the newest version.
+
+Or you may perform a 'git pull'
 
 |
 
@@ -236,7 +238,7 @@ wxPython 4+ can be installed using pip
 
 ::
 
-   pip install wxPython
+   > pip3 install wxPython
 
 If the above command fails and you already have wxPython < 4.0 installed, you may have to manually remove it.
 See https://stackoverflow.com/questions/50688630/cannot-uninstall-wxpython-3-0-2-0-macos for details.
@@ -255,11 +257,11 @@ Please upgrade matplotlib to the latest version using:
 
 ::
 
-    pip install 'matplotlib' --upgrade
+    > pip3 install 'matplotlib' --upgrade
 
 |
 
-2. pip: SystemError: Cannot compile 'Python.h'.
+2. pip3: SystemError: Cannot compile 'Python.h'.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This occurs when you do not have the development libraries for python. You can fix this by installing the python-dev packages:
@@ -267,7 +269,7 @@ This occurs when you do not have the development libraries for python. You can f
 
 ::
 
-    sudo apt-get install python-dev
+    > sudo apt-get install python-dev
 
 
 |
@@ -279,12 +281,12 @@ This occurs when you do not have some dependencies that are necessary to build s
 
 ::
 
-    sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev
+    > sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev
 
 
 |
 
-4. pip: "No lapack/blas resources found"
+4. pip3: "No lapack/blas resources found"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This occurs when you do not have some dependencies that are necessary to build some of the python modules TRANSIT requires (usually numpy/scipy). Installing the following linux dependencies should fix this:
@@ -292,7 +294,7 @@ This occurs when you do not have some dependencies that are necessary to build s
 
 ::
 
-    sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran
+    > sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran
 
 
 |
@@ -305,4 +307,4 @@ This occurs some of the python modules are out of date. You can use pip to upgra
 
 ::
 
-    sudo pip install six --upgrade
+    > sudo pip3 install six --upgrade

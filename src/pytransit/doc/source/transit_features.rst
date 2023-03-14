@@ -17,6 +17,13 @@ However, TRANSIT provides more in-depth statistics in the Quality Control
 window. To use this feature, add the annotation file for your organism
 (in .prot_table or GFF3 format). Next, add and highlight/select the desired
 read-count datasets in .wig format. Finally, click on View -> Quality Control.
+
+TODO: ADD in GUI HERE to get to the window
+.. image:: _images/transit_select_quality_control_window.png
+   :width: 600
+   :align: center
+
+
 This will open up a new window containing a table of metrics for the datasets
 as well as figures corresponding to whatever dataset is currently highlighted.
 

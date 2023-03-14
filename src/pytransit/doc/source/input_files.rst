@@ -87,7 +87,9 @@ samples in a combined_wig file.
 
 Format of the *samples_metadata* file: a tab-separated file (which you
 can edit in Excel) with 3 columns: Id, Condition, and Filename (it
-must have these headers).  You can include other columns of info, but
+must have these headers). The Condition column should be as specific
+as possible, indicating **how to group replicates**.
+You can include other columns of info, but
 do not include additional rows.  Individual rows can be commented out
 by prefixing them with a '#'.  Here is an example of a samples
 metadata file: The filenames should match what is shown in the header
@@ -101,7 +103,7 @@ treatment, etc), they could be included as **additional columns**
 
 ::
 
-  ID      Condition    Filename
+  Id      Condition    Filename
   glyc1   glycerol     /Users/example_data/glycerol_rep1.wig
   glyc2   glycerol     /Users/example_data/glycerol_rep2.wig
   chol1   cholesterol  /Users/example_data/cholesterol_rep1.wig

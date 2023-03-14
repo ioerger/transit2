@@ -42,10 +42,16 @@ Typical Workflow
 
 A typical workflow follows 3 phases, illustrated below.
 
-1. First, the user runs TPP on raw sequence files (.fastq) to produce .wig files with insertion counts at coordinates of TA sites for each sample.
-2. Second, the user runs a command to merge the .wig files into a single combined_wig file, and prepares a corresponding metadata file describing the samples.
-3. Third, the user runs various statistical analysis methods in Transit, using the combined_wig and metadata files as inputs.
+1. **First**, the user runs TPP on raw sequence files (.fastq) to produce .wig files with insertion counts at coordinates of TA sites for each sample.
+2. **Second**, the user runs a command to merge the .wig files into a single combined_wig file, and prepares a corresponding metadata file describing the samples.
+3. **Third**, the user runs various statistical analysis methods in Transit, using the combined_wig and metadata files as inputs.
 
+.. NOTE::
+    Sequencing Recommendations
+        1. Read Length : 75 x 75 bp paired-end reads 
+        2. Sequencing Depth: 5-10 million reads per sample (for *M. tuberculosis* libraries) to get sufficient dynamic range of counts 
+        3. Ideally, 3 replicates per condition
+        
 Most of the analyses in Transit produce an **output file in tab-separated format that can be 
 opened as a spreadsheet**.  For example, 'resampling' generates an output file
 that lists the data (mean insertion counts in 2 conditions being compared) and statistics (log-fold-change, p-value, adjusted p-value)
@@ -68,10 +74,10 @@ simply contain a pair of columns: 1) coordinates of TA sites,
 and 2) counts of insertions observed at each site.
 
 If Himar1 Tn libraries are prepared according to standard protocols,
-such as `(Long et al, 2015) <https://pubmed.ncbi.nlm.nih.gov/25636614/>`_, 
+such as `(Long et al. 2015) <https://pubmed.ncbi.nlm.nih.gov/25636614/>`_, 
 then the sequencing reads will have a prefix
 correspond to the transposon terminus, followed by genomic DNA (along with template barcodes in read 2).
-(See XXXXX for recommendations on sequencing parameters (length, depth), also replicates.)
+
 TPP removes the prefix and maps the genomic portion of the read into
 the genome (using BWA, `Li and Durbin, 2009 <https://pubmed.ncbi.nlm.nih.gov/19451168/>`_).  
 It also reduces counts to unqiue
@@ -85,7 +91,7 @@ primer, adapter, or vectors sequences, which can be useful for diagnosing proble
 
 
 For Tn5 datasets (e.g. generated the MmeI restriction enzyme, 
-`van Opijnen et al, (2015) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4696536/>`_), 
+`van Opijnen et al. (2015) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4696536/>`_), 
 the differences in running TPP are: 
 1) there is no prefix, since the transposon terminus does not appear in the reads, 
 and 2) the .wig files contain coordinates and counts for all sites in the 
@@ -334,27 +340,26 @@ If you run 'python TRANSIT_PATH/src/transit.py --help', it will print out the fu
      ...
 
 The arguments would be whatever input files, options, and flags are appropriate for a given command.
+Generally, flags with "--" require an argument, whereas flags with "-" do not.
 
 If you want a reminder of the **usage** for given command, use run that command without any arguments.
 For example:
 
 ::
 
-  > python TRANSIT_PATH/src/transit.py anova
-  Usage:
-     python src/transit.py anova <combined_wig_file> <annotation_file> <metadata_file> <output_file> [Optional Arguments]
+  > python3 TRANSIT_PATH/src/transit.py anova
+    Usage: python3 src/transit.py  anova <combined_wig_file> <metadata_file> <annotation_file> <output_file> [Optional Arguments]
 
-  Optional Arguments:
-    -include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
-    -exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
-    -n <string> := Normalization method. Default: -n TTR
-    -ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
-    -iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: -iN 0
-    -iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: -iC 0
-    -PC    <N>  := pseudocounts to use for calculating LFCs. Default: -PC 5
-    -alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: -alpha 1000
-    --winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-
+    Optional Arguments:
+        --include-conditions <cond1,...> := Comma-separated list of conditions to use for analysis (Default: all)
+        --exclude-conditions <cond1,...> := Comma-separated list of conditions to exclude (Default: none)
+        --n <string> := Normalization method. Default: --n TTR
+        --ref <cond> := which condition(s) to use as a reference for calculating LFCs (comma-separated if multiple conditions)
+        --iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+        --iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+        --PC    <N>  := pseudocounts to use for calculating LFCs. Default: --PC 5
+        --alpha <N>  := value added to mse in F-test for moderated anova (makes genes with low counts less significant). Default: --alpha 1000
+        -winz      := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
 
 
 
