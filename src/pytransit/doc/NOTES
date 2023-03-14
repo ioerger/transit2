@@ -5,7 +5,7 @@ docs are .rst files in doc/source/
 figs are in doc/source/_images/   (not doc/images)
 
 > pip3 install sphinx
-> pip3 
+> pip3 install sphinx-rtd-theme
 
 
 in src/pytransit/doc/...
@@ -18,3 +18,7 @@ compiles .html files into build/html
 
 > python -m SimpleHTTPServer 
 localhost:8000
+
+or 
+
+> python3 -m http.server
