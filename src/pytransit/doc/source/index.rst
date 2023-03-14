@@ -117,25 +117,26 @@ TRANSIT offers a variety of features including:
    method_volcano_plot
 
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Tn5 METHODS
+.. .. toctree::
+..    :maxdepth: 3
+..    :caption: Tn5 METHODS
 
-   method_tn5gaps
+..    method_tn5gaps
 
-.. _tutorial-link:
 
-.. toctree::
-   :maxdepth: 3
-   :caption: TRANSIT Tutorials
+.. .. _tutorial-link:
 
-   transit_essentiality_tutorial
-   transit_genome_tutorial
-   transit_comparative_tutorial
-   transit_interactions_tutorial
-   transit_normalization_tutorial
-   transit_export_tutorial
-   transit_console_cheatsheet
+.. .. toctree::
+..    :maxdepth: 3
+..    :caption: TRANSIT Tutorials
+
+..    transit_essentiality_tutorial
+..    transit_genome_tutorial
+..    transit_comparative_tutorial
+..    transit_interactions_tutorial
+..    transit_normalization_tutorial
+..    transit_export_tutorial
+..    transit_console_cheatsheet
 
 .. _tpp-link:
 
