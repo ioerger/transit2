@@ -13,12 +13,10 @@ determine if the hits are associated with a particular functional catogory
 of genes or known biological pathway.
 
 
-.. NOTE::
-   Can be used for both **Himar1** and **Tn5** datasets
-
+.. .. NOTE::
+..    Can be used for both **Himar1** and **Tn5** datasets
 
 |
-
 How does it work?
 -----------------
 
@@ -85,30 +83,30 @@ Usage
 
 ::
 
-  Usage 1:
-      transit resampling <combined_wig_file> <metadata_file> <annotation_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
-      Note: The ctrl and exp condition names need to match Condition names in metadata_file
-  
-  Usage 2:
-      transit resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
-  
-  Optional Arguments:
-      Optional Arguments:
-            --s <integer>        :=  Number of samples. Default: --s 10000
-            --n <string>         :=  Normalization method. Default: --n TTR
-            -a                   :=  Perform adaptive resampling. Default: Turned Off.
-            --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
-            --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
-            --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
-            --ctrl_lib <string>  :=  String of letters representing library of control files in order
-                                     e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
-                                     If non-empty, resampling will limit permutations to within-libraries.
-            --exp_lib <string>   :=  String of letters representing library of experimental files in order
-                                     e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
-                                     If non-empty, resampling will limit permutations to within-libraries.
-            -winz                :=  winsorize insertion counts for each gene in each condition 
-                                    (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
-            -no-sr               :=  disable site-restricted resampling; less sensitive, might be more conservative for finding significant conditionally essential genes
+    Usage 1:
+        > python3 src/transit.py  resampling <combined_wig_file> <metadata_file> <annotation_file> <ctrl_condition> <exp_condition> <output_file> [Optional Arguments]
+          Note: The ctrl and exp condition names need to match Condition names in metadata_file
+
+    Usage 2:
+        > python3 src/transit.py  resampling <comma-separated .wig files (control group)> <comma-separated .wig files (experimental group)> <annotation_file> <output_file> [Optional Arguments]
+
+    Optional Arguments:
+        --s <integer>        :=  Number of samples. Default: --s 10000
+        --n <string>         :=  Normalization method. Default: --n TTR
+        -a                   :=  Perform adaptive resampling. Default: Turned Off.
+        --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
+        --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
+        --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
+        --ctrl_lib <string>  :=  String of letters representing library of control files in order
+                                 e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
+                                 If non-empty, resampling will limit permutations to within-libraries.
+        --exp_lib <string>   :=  String of letters representing library of experimental files in order
+                                 e.g. 'ABAB'. Default empty. Letters used must also be used in --ctrl_lib
+                                 If non-empty, resampling will limit permutations to within-libraries.
+        -winz                :=  winsorize insertion counts for each gene in each condition 
+                                (replace max cnt in each gene with 2nd highest; helps mitigate effect of outliers)
+        -no-sr               :=  disable site-restricted resampling; less sensitive, might be more conservative for finding significant conditionally essential genes
+
 
 Parameters
 ----------
@@ -121,10 +119,6 @@ parameters are available for the method:
    larger the number of samples, the more resolution the p-values
    calculated will have, at the expense of longer computation time. The
    resampling method runs on 10,000 samples by default.
-
-.. -  **Output Histograms:** Determines whether to output .png images of
-..    the histograms obtained from resampling the difference in
-..    read-counts.
 
 -  **Adaptive Resampling:** An optional "adaptive" version of resampling
    which accelerates the calculation by terminating early for genes
@@ -146,18 +140,18 @@ parameters are available for the method:
 
 -  **\-\-ctrl_lib, \-\-exp_lib:** These are for doing resampling with datasets from multiple libraries, see below.
 
--  **-iN, -iC:** Trimming of TA sites near N- and C-terminus.
+-  **--iN, --iC:** Trimming of TA sites near N- and C-terminus.
    The default for trimming TA sites in the termini of ORFs is 0.
    However, TA sites in the stop codon (e.g. TAG) are automatically excluded.
    Trimming is specified as a percentage (as an integer), so, for example,
    if you want to trim TA sites within 5% of the termini, you would
-   add the flags '-iN 5 -iC 5' (not 0.05).
+   add the flags '--iN 5 --iC 5' (not 0.05).
 
 -  **\-\-PC**: Pseudocounts used in calculation of LFCs (log-fold-changes, see Output and Diagnostics) in
    resampling output file.
    To suppress the appearance of artifacts due to high-magnitude of LFCs from
    genes with low insertion counts (which
-   are more susceptible to noise), one can increase the pseudocounts using `-PC'.
+   are more susceptible to noise), one can increase the pseudocounts using `--PC'.
    Increasing PC to a value like 5 (which is
    reasonable, given that TTR normalization scales data so average insertion counts is around 100)
    can further reduce the appearance of artifacts (genes with low counts but large LFCs).
@@ -173,9 +167,9 @@ parameters are available for the method:
 
 Notes
 -----
-
-I recommend using -a (adaptive resampling). It runs much faster, and the p-values
-will be very close to a full non-adaptive run (all 10,000 samples).
+.. NOTE::
+    I recommend using **-a (adaptive resampling)**. It runs much faster, and the p-values
+    will be very close to a full non-adaptive run (all 10,000 samples).
 
 Occasionally, people ask if resampling can be done on intergenic regions as well.
 It could be done pretty easily (for example by making a prot_table with coordinates
@@ -184,28 +178,28 @@ intergenic regions are small (<100 bp) contain very few TA sites (often 0-2),
 making it difficult to make confident calls on essentiality.
 
 
-Doing resampling with a combined_wig file
+Command Line Examples
 -----------------------------------------
 
 Resampling can also now take a combined_wig_ file as input (containing insertion counts
 for multiple sample), along with a samples_metadata_ file
-that describes the samples. This mode is indicated with a '-c' flag.
+that describes the samples. 
 If you want to compare more than two conditions, see :ref:`ZINB <zinb>`.
 
 
+Run Resampling with a Combined Wig File:
 ::
+  > python3 transit.py resampling antibiotic_combined_wig.txt antibiotic_samples_metadata.txt Untreated Isoniazid H37Rv.prot_table results.txt -a
 
-  usage:
+Run Resampling with Individual Wig Files:
+::
+  > python3 transit.py resampling glycerol_rep1.txt,glycerol_rep2.txt cholesterol_rep1.txt,cholesterol_rep2.txt H37Rv.prot_table results.txt -a
 
-  python3 transit.py resampling -c <combined_wig> <samples_metadata> <control_condition_name> <experimental_condition_name> <annotation .prot_table or GFF3> <output file> [Optional Arguments]
-
-  example:
-
-  python3 transit.py resampling -c antibiotic_combined_wig.txt antibiotic_samples_metadata.txt Untreated Isoniazid H37Rv.prot_table results.txt -a
-
-
-Doing resampling with datasets from different libraries.
+Doing resampling with datasets from different libraries 
 --------------------------------------------------------
+
+.. NOTE::
+    **Currently supported only in TRANSIT 3.2.X**
 
 In most cases, comparisons are done among samples (replicates) from
 the same library evaluated in two different conditions.  But if the
@@ -222,8 +216,11 @@ from each library in each condition.
 |
 
 
-Doing resampling between different strains.
--------------------------------------------
+Doing resampling between different strains
+------------------------------------------
+
+.. NOTE::
+    **Currently supported only in TRANSIT 3.2.X**
 
 The most common case is that resampling is done among replicates all
 from the same Tn library, and hence all the datasets (fastq files) are
@@ -258,11 +255,8 @@ to do a comparison between conditions for a gene, Transit needs to be
 able to determine which TA sites fall in that gene for each strain.
 This can be achieved by producing a "modified" prot_table, where the
 START and END coordinates of each ORF in strain B have been adjusted
-according to an alignment between genome A and genome B.  You can use
-this web app: `Prot_table Adjustment Tool
-<http://saclab.tamu.edu/cgi-bin/iutils/app.cgi/>`__, to create a
-modifed prot_table, given the prot_table for one strain and the fasta
-files for both genomes (which will be aligned).  In other words, the
+according to an alignment between genome A and genome B. (If you need
+help with this step, contact: ioerger@cs.tamu.edu).  In other words, the
 app allows you to create 'B.prot_table' from 'A.prot_table' (and 'A.fna'
 and 'B.fna').
 
@@ -367,7 +361,7 @@ Run-time
 --------
 
 A typical run of the resampling method with 10,000 samples will take
-around 45 minutes (with the histogram option ON). Using the *adaptive
+around 45 minutes (with the histogram option ON [GUI only]). Using the *adaptive
 resampling* option (-a), the run-time is reduced to around 10 minutes.
 
 |

@@ -72,9 +72,9 @@ The output file is tab-separated text file (spreadsheet) with the following colu
 | Adj P Value     | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)   |
 +-----------------+-----------------------------------------------------------------+
 
-The U statistic is the statistic of U-test reflecting whether insertion counts at TA sites in control samples are higer on average than counts in the experimental samples.
+The U-test statistic is a value reflecting whether insertion counts at TA sites in control samples are higher on average than counts in the experimental samples.
 
-*Important:* The significant genes are those with Padj<0.05.*
+*Important:* The significant genes (conditionally essential) are those with Padj<0.05.
 
 The significant genes should be comparable with those from resampling.
 

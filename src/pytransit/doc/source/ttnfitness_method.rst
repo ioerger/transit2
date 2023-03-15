@@ -47,8 +47,6 @@ TTN-Fitness is more sensitive to deviations in insertion counts
 more GD and GA genes than other analysis methods.
 
 
-On an average machine, running this methodology on a dataset takes about 5 minutes
-
 
 Usage
 ------
@@ -57,8 +55,8 @@ Usage
 
   >  python3 transit.py ttnfitness <combined wig file> <metadata_file> <annotation_file> <condition to analyze> <genome .fna> <gumbel output file> <gene-wise output file> <ta-site wise output file>
 
-    -  gumbel output file:* The Gumbel method must be run first on the dataset.The output of the Gumbel method is provided as an input 
-       to this method. ES (essential by Gumbel) and EsB (essential by Binomial) is calculated in the TTN-Fitness method via this files
+    -  gumbel output file: The Gumbel method must be run first on the dataset. The output of the Gumbel method is provided as an input 
+       to this method. ES (essential by Gumbel) and ESB (essential by Binomial) is calculated in the TTN-Fitness method via this files
 
 
 
@@ -108,6 +106,8 @@ as NE have a peak at 1 and are restricted to the center of the plot.
 The Fitness Ratio quantifies the qualitative calls seen in the TTN-Fitness Calls Column. These two columns are the last two
 columns in the output file and are the primary columns per gene reflecting the assessments made by our model.
 
+Genes Output File:
+~~~~~~~~~~~~~~~~~~
 +---------------------------+----------------------------------------------------------------------+
 | Column Header             | Column Definition                                                    |
 +===========================+======================================================================+
@@ -136,6 +136,8 @@ columns in the output file and are the primary columns per gene reflecting the a
 
 The second output file is a tab-seperated file of details of the TTN Fitness method per TA Site.
 
+Sites Output File:
+~~~~~~~~~~~~~~~~~~
 +---------------------------+-------------------------------------------------------------------------------+
 | Column Header             | Column Definition                                                             |
 +===========================+===============================================================================+
@@ -165,7 +167,7 @@ Example of running the TTN-Fitness methodology on the sample glycerol data
 :: 
   python3 transit.py gumbel cholesterol_glycerol.transit/comwig.tsv cholesterol_glycerol.transit/metadata.tsv H37Rv.prot_table Glycerol gylcerol_H37Rv.gumbel.out
 
-2. Use the output of the Gumbel Analysis as the input to the TTTN-Fitness method
+2. Use the output of the Gumbel Analysis as the input to the TTN-Fitness method
 ::
   python3 transit.py ttnfitness cholesterol_glycerol.transit/comwig.tsv cholesterol_glycerol.transit/metadata.tsv H37Rv.prot_table Glycerol H37Rv.fna glycerol_H37Rv.gumbel.out ttnfitness_glycerol_H37Rv_gene.txt ttnfitness_glycerol_H37Rv_TAsite.txt
 
@@ -214,6 +216,12 @@ When selected, file dialog will appear to save the image and the volcano plot wi
 
 The horizonal line is the log10 adjusted pval, above which genes are marked NE. The vertical line is where the coefficient of the model is 0, 
 below which siginifnicant genes are marked "GD" and above which siginificant genes are marked "GA"
+
+
+
+Run-time
+--------
+On an average machine, running this methodology on a dataset takes about 5 minutes. (TTN Fitness does not give progress updates, so be patient.)
 
 .. rst-class:: transit_sectionend
 ----
