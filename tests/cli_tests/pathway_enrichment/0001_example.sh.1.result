@@ -1,6 +1,6 @@
 #PathwayEnrichment_FET
 #yaml:
-#    date: 2023-01-25 11:31:11
+#    date: 2023-02-05 14:28:00
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_sanger_roles.dat' 'src/pytransit/data//sanger_roles.dat' './tests/cli_tests/pathway_enrichment/0001_example.sh.1.result'
@@ -11,6 +11,8 @@
 #       association_path: src/pytransit/data//H37Rv_sanger_roles.dat
 #       pathways_path: src/pytransit/data//sanger_roles.dat
 #    parameters:
+#       conditions_tested_in_input: Glycerol , Cholesterol
+#       input_type: "Resampling\n"
 #       method: FET
 #       ranking: SLPV
 #       enrichment_exponent: 1
@@ -19,7 +21,7 @@
 #    summary_info:
 #       Sig Pathways: 6
 #    
-#Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
+#Pathway	Total Genes	Number of Genes in Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment Score	P Value	Adj P Value	Pathway Description	Relevant Genes
 IV.A	3990	38	162	12	1.54	14	87	3.955	1.4558311041749007e-06	0.00017324390139681318	Virulence	Rv0168/yrbE1B Rv0169/mce1A Rv0170/mce1B Rv0171/mce1C Rv0174/mce1F Rv3494c/mce4F Rv3496c/mce4D Rv3497c/mce4C Rv3498c/mce4B Rv3499c/mce4A Rv3500c/yrbE4B Rv3501c/yrbE4A
 I.A.3	3990	119	162	15	4.83	17	168	2.489	0.0001220989766370642	0.00726488910990532	Fatty acids	Rv0244c/fadE5 Rv1185c/fadD21 Rv1193/fadD36 Rv1206/fadD6 Rv3274c/fadE25 Rv3543c/fadE29 Rv3544c/fadE28 Rv3546/fadA5 Rv3556c/fadA6 Rv3560c/fadE30 Rv3561/fadD3 Rv3562/fadE31 Rv3563/fadE32 Rv3564/fadE33 Rv3573c/fadE34
 I.A	3990	163	162	17	6.62	19	212	2.204	0.00029526552214053655	0.01171219904490795	Degradation	Rv0244c/fadE5 Rv1185c/fadD21 Rv1193/fadD36 Rv1206/fadD6 Rv3274c/fadE25 Rv3543c/fadE29 Rv3544c/fadE28 Rv3546/fadA5 Rv3551/- Rv3556c/fadA6 Rv3560c/fadE30 Rv3561/fadD3 Rv3562/fadE31 Rv3563/fadE32 Rv3564/fadE33 Rv3573c/fadE34 Rv3696c/glpK

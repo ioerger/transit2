@@ -100,7 +100,7 @@ class Method:
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         output_path       = output_path       if output_path       is not None else "latest.comwig.tsv"
-        metadata_path     = metadata_path     if metadata_path     is not None else f"{output_path}".replace(".tsv","")+".metadata.tsv"
+        metadata_path     = metadata_path     if metadata_path     is not None else os.path.dirname(output_path)+"/"+os.path.basename(output_path).split(".")[0]+".metadata.tsv"
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             logging.log("Starting Combined Wig Export")
@@ -191,8 +191,8 @@ class Method:
                 file_kind=Method.identifier,
                 rows=rows,
                 comments=[
-                    f"genome:{os.path.basename(annotation_path)}",
-                    *[ f"file: {each}" for each in wig_fingerprints ],
+                    f"Genome: {os.path.basename(annotation_path)}",
+                    *[ f"File: {each}" for each in wig_fingerprints ],
                 ],
                 column_names=[
                     "TA Site Position",

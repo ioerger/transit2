@@ -1,8 +1,24 @@
-Wrong number of arguments (2 != 4), see usage below
+Wrong number of arguments (2 < 3), see usage below
 
 
         Usage:
+        As a Pre-processing visualization:
+
              python3 ./src/transit.py  corrplot <combined_wig_file> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
         Optional Arguments:
             -avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: false
+
+        
+        As a post processing visualization on ANOVA and ZINB output (avg_by_conditions = True)
+        Usage 1:
+             python3 ./src/transit.py  corrplot <combined_wig_file> <metadata_file> <annotation_file> <anova_output> <output.png> -anova [Optional Arguments]
+        Usage 2:
+             python3 ./src/transit.py  corrplot<combined_wig_file> <metadata_file> <annotation_file>  <zinb_output> <heatmap.png> -zinb [Optional Arguments]
+        
+        Optional Arguments:
+            --topk <int>            := number of results
+            --qval <float>          := adjusted p value threshold. Default --qval 0.05
+            --low-mean-filter <int> := Filter out genes with grand mean count (across all conditions) below this threshold
+                                    (even if adjusted p-value < 0.05)
+                                    Default --low-mean-filter 5
     

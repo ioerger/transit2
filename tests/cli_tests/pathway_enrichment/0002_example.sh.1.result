@@ -1,16 +1,18 @@
 #PathwayEnrichment_FET
 #yaml:
-#    date: 2023-01-25 11:31:12
+#    date: 2023-02-05 14:28:03
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_COG_20_roles.txt' 'src/pytransit/data//COG_20_roles.txt' './tests/cli_tests/pathway_enrichment/0002_example.sh.1.result'
-#    calculation_time: 0.1seconds
+#    calculation_time: 0.2seconds
 #    analysis_type: PathwayEnrichment
 #    files:
 #       input_file: tests/cli_tests/resampling/0001_basic.sh.1.result
 #       association_path: src/pytransit/data//H37Rv_COG_20_roles.txt
 #       pathways_path: src/pytransit/data//COG_20_roles.txt
 #    parameters:
+#       conditions_tested_in_input: Glycerol , Cholesterol
+#       input_type: "Resampling\n"
 #       method: FET
 #       ranking: SLPV
 #       enrichment_exponent: 1
@@ -19,7 +21,7 @@
 #    summary_info:
 #       Sig Pathways: 2
 #    
-#Pathway	Total Genes	Genes In Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment	P Value	Adj P Value	Description	Genes
+#Pathway	Total Genes	Number of Genes in Path	Significant Genes	Significent Genes In Path	Expected	K Plus PC	Number Adjusted By PC	Enrichment Score	P Value	Adj P Value	Pathway Description	Relevant Genes
 COG1463	3990	23	162	10	0.93	12	72	4.096	4.440510635399346e-06	0.002055956424189897	Cell wall/membrane/envelope biogenesis	Rv0169/mce1A Rv0170/mce1B Rv0171/mce1C Rv0174/mce1F Rv3494c/mce4F Rv3495c/lprN Rv3496c/mce4D Rv3497c/mce4C Rv3498c/mce4B Rv3499c/mce4A
 COG1960	3990	35	162	10	1.42	12	84	3.509	2.561271675493444e-05	0.005929343928767323	Fatty acid biosynthesis	Rv0244c/fadE5 Rv3274c/fadE25 Rv3543c/fadE29 Rv3544c/fadE28 Rv3560c/fadE30 Rv3562/fadE31 Rv3563/fadE32 Rv3564/fadE33 Rv3570c/- Rv3573c/fadE34
 COG2409	3990	14	162	5	0.57	7	63	2.724	0.0035807025670735637	0.41123650329505873	General function prediction only	Rv0202c/mmpL11 Rv0450c/mmpL4 Rv0676c/mmpL5 Rv1183/mmpL10 Rv2942/mmpL7

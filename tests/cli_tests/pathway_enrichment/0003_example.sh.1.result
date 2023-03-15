@@ -1,6 +1,6 @@
 #PathwayEnrichment_GSEA
 #yaml:
-#    date: 2023-01-25 11:31:23
+#    date: 2023-02-05 14:28:15
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_sanger_roles.dat' 'src/pytransit/data//sanger_roles.dat' './tests/cli_tests/pathway_enrichment/0003_example.sh.1.result' '--LFC-col' '6' '--M' 'GSEA'
@@ -11,6 +11,8 @@
 #       association_path: src/pytransit/data//H37Rv_sanger_roles.dat
 #       pathways_path: src/pytransit/data//sanger_roles.dat
 #    parameters:
+#       conditions_tested_in_input: Glycerol , Cholesterol
+#       input_type: "Resampling\n"
 #       method: GSEA
 #       ranking: SLPV
 #       enrichment_exponent: 1
@@ -19,7 +21,7 @@
 #    summary_info:
 #       Sig Pathways: 2 enriched;1 depleted
 #    
-#Pathway	Pathway Description	Genes in Path	Mean Rank	Enrichment Score	P Value	Adj P Value	Genes
+#Pathway	Pathway Description	Number of Genes in Path	Mean Rank	Enrichment Score	P Value	Adj P Value	Relevant Genes
 III.A.5	Fatty acid transport	2	386.5	0.915383	0.070968	0.358827	Rv3540c/ltp2 (1) Rv2790c/ltp1 (772)
 IV.B.1.b	IS1081	6	502.7	0.779500	0.082090	0.390746	Rv2512c/- (226) Rv1199c/- (351) Rv2666/- (405) Rv3023c/- (455) Rv3115/- (622) Rv1047/- (957)
 I.F.5	Miscellaneous nucleoside/nucleotide reactions	9	1170.9	0.792686	0.027431	0.217623	Rv2404c/lepA (23) Rv2344c/dgt (253) Rv2727c/miaA (430) Rv2583c/relA (759) Rv1712/cmk (991) Rv2445c/ndk (1859) Rv0733/adk (1959) Rv2440c/obgE (2125) Rv2364c/era (2139)

@@ -50,8 +50,8 @@ class Method:
     
     valid_cli_flags = [
         "--M", 
-        "--p-val-col",
-        "--q-val-col",
+        #"--p-val-col",
+        #"--q-val-col",
         "--ranking",
         "--LFC-col",
         "--p",
@@ -141,7 +141,6 @@ class Method:
                 def when_button_clicked(*args,**kwargs):
                     nonlocal organism_pathway
                     win = wx.Dialog(panel,wx.FRAME_FLOAT_ON_PARENT)
-                    #popup_sizer = wx.BoxSizer(wx.VERTICAL)
                     popup_sizer = wx.GridSizer(rows=3, cols=3, hgap=2, vgap=2) 
                     win.SetSizer(popup_sizer,  wx.EXPAND|wx.ALL)
 
@@ -233,8 +232,7 @@ class Method:
                     win.Layout()
                     popup_sizer.Fit(win)
                     res = win.ShowModal()
-                    
-                    if res == wx.ID_OK:
+                    if res == wx.ID_OK :
                         organism_pathway = association_text.GetLabel() + "-" + pathway_text.GetLabel()
                         display_text= association_text.GetLabel().split("_")[-1]+ "-" + pathway_text.GetLabel()
                         organism_pathway_text.SetLabel(display_text)
@@ -326,8 +324,11 @@ class Method:
                 Method.inputs[each_key] = each_getter()
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
-
-        if Method.inputs.organism_pathway != "-":
+        
+        #if Method.inputs.organism_pathway != "-":
+        if Method.inputs.associations_file == None or Method.inputs.pathways_file == None :
+            logging.error("Select Association and Pathways File")
+        else:
             organism,pathway = Method.inputs.organism_pathway.split("-")
             if pathway == "COG":
                 try:
@@ -373,8 +374,6 @@ class Method:
                     logging.log("Loading in Smeg Associations for GO Pathways")
                     Method.inputs.associations_file = root_folder+"src/pytransit/data/smeg_GO_terms.txt"
                     Method.inputs.pathways_file = root_folder+"src/pytransit/data/GO_term_names.dat"  
-        else:
-            logging.error("Select pathway and association files")
             
         Method.inputs.output_path = gui_tools.ask_for_output_file_path(
             default_file_name=f"{Method.cli_name}_output.tsv",
@@ -417,7 +416,7 @@ class Method:
         Method.Run()
         
     def Run(self):
-        self.inputs.input_type = self.inputs.method
+        #self.inputs.input_type = self.inputs.method
         self.rows = []
         with gui_tools.nice_error_log:
             from pytransit.specific_tools import stat_tools
@@ -433,17 +432,17 @@ class Method:
                 file_columns = [
                         "Pathway",
                         "Total Genes", 
-                        "Genes In Path",
+                        "Number of Genes in Path",
                         "Significant Genes",
                         "Significent Genes In Path",
                         "Expected", 
                         "K Plus PC",
                         "Number Adjusted By PC",
-                        "Enrichment" , 
+                        "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
-                        "Description", 
-                        "Genes"
+                        "Pathway Description",
+                        "Relevant Genes"
                     ]
             elif self.inputs.method == "GSEA":
                 up,down = self.GSEA()
@@ -455,12 +454,12 @@ class Method:
                 file_columns = [
                         "Pathway",
                         "Pathway Description",
-                        "Genes in Path", 
+                        "Number of Genes in Path", 
                         "Mean Rank",
                         "Enrichment Score" , 
                         "P Value", 
                         "Adj P Value", 
-                        "Genes"
+                        "Relevant Genes"
                     ]
             elif self.inputs.method == "ONT":
                 self.hit_summary = {
@@ -469,18 +468,18 @@ class Method:
                 file_output_type = Method.identifier+"_ONT"
                 file_columns = [
                         "Pathway",
+                        "Pathway Description",
                         "Total Genes", 
-                        "Genes In Path",
+                        "Number of Genes in Path",
                         "Significant Genes",
                         "Significent Genes In Path",
                         "Expected", 
                         "K Plus PC",
                         "Number Adjusted By PC",
-                        "Enrichment" , 
+                        "Enrichment Score" ,  
                         "P Value", 
-                        "Adj P Value", 
-                        "Description", 
-                        "Genes"
+                        "Adj P Value",  
+                        "Relevant Genes"
                     ]
             else:
                 self.inputs.method = "Not a valid method"
@@ -494,6 +493,10 @@ class Method:
         # 
         # write to file
         # 
+        input_column_names, input_rows, input_extra_data, input_comments_string = tnseq_tools.read_results_file(Method.inputs.input_file)
+        if len(input_extra_data)==0:
+            conditions = ""
+        else: conditions = input_extra_data["conditions"]
         transit_tools.write_result(
             path=self.inputs.output_path, # path=None means write to STDOUT
             file_kind=file_output_type,
@@ -508,6 +511,8 @@ class Method:
                     pathways_path=Method.inputs.pathways_file,
                 ),
                 parameters=dict(
+                    conditions_tested_in_input = conditions,
+                    input_type = Method.inputs.input_type,
                     method = self.inputs.method,
                     ranking = self.inputs.ranking,
                     enrichment_exponent = self.inputs.enrichment_exponent,
@@ -1059,7 +1064,7 @@ class FETResultsFile:
     
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "conditions_tested_in_input", "input_type"]]
         self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
     def __str__(self):
@@ -1103,8 +1108,8 @@ class GSEAResultsFile:
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
 
         parameters = self.extra_data.get("parameters",{})
-        parameters_str = "method : GSEA ;"+" ranking : "+str(parameters["ranking"])+" ; "
-        self.values_for_result_table.update({"parameters": parameters_str })
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking","conditions_tested_in_input", "input_type"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
     
     def __str__(self):
         return f"""
@@ -1142,16 +1147,14 @@ class ONTResultsFile:
         )
         
         self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-
-        #self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.inputs.input_file)
-
+    
         summary = self.extra_data.get("summary_info", {})
         summary_str = [str(summary[key])+" "+str(key) for key in sorted(summary.keys())] 
         self.values_for_result_table.update({"summary": "; ".join(summary_str) })
 
-        # parameters = self.extra_data.get("parameters",{})
-        # parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "ranking"]]
-        # self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
+        parameters = self.extra_data.get("parameters",{})
+        parameters_str = [str(key)+" : "+str(parameters[key]) for key in ["method", "conditions_tested_in_input", "input_type"]]
+        self.values_for_result_table.update({"parameters": "; ".join(parameters_str) })
 
     def __str__(self):
         return f"""

@@ -470,8 +470,10 @@ class Method:
                     extra_info=dict(
                         calculation_time=f"{timer.duration_in_seconds:0.1f}seconds",
                         analysis_type=Method.identifier,
+                        conditions=", ".join(conditions_list),
                         files=dict(
                             combined_wig=Method.inputs.combined_wig,
+                            metadata_path=Method.inputs.metadata,
                             annotation_path=Method.inputs.annotation_path,
                         ),
                         parameters=dict(
@@ -510,6 +512,7 @@ class File:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(title=Method.name,heading=misc.human_readable_data(self.extra_data),column_names=self.column_names,rows=self.rows, sort_by=["Adj P Value", "P Value"]).Show(),
                 "Display Heatmap": lambda *args: self.create_heatmap(output_path=self.path+".heatmap.png"),
+                "Display Corrplot": lambda *args: self.create_corrplot(output_path=self.path+".corrplot.png", combined_wig_path = self.extra_data["files"]["combined_wig"],  metadata_path = self.extra_data["files"]["metadata_path"], annotation_path = self.extra_data["files"]["annotation_path"]),
                 "Pathway Enrichment": lambda *args: PathwayEnrichment.call_from_results_panel(path),
             })
         )
@@ -529,7 +532,7 @@ class File:
                 column_names: {self.column_names}
         """.replace('\n            ','\n').strip()
     
-    def create_heatmap(self, output_path, topk=None, qval=None, low_mean_filter=None):
+    def create_heatmap(self, output_path,  topk=None, qval=None, low_mean_filter=None):
         from pytransit.methods.heatmap import Method as HeatmapMethod
         with gui_tools.nice_error_log:
             # 
@@ -554,3 +557,34 @@ class File:
             # add it as a result
             results_area.add(output_path)
             gui_tools.show_image(output_path)
+
+
+    def create_corrplot(self, output_path, combined_wig_path, metadata_path, annotation_path, top_k=None, qval=None, low_mean_filter=None):
+        from pytransit.methods.corrplot import Method as CorrplotMethod
+        with gui_tools.nice_error_log:
+            # 
+            # specific to anova
+            # 
+            CorrplotMethod.output(
+                combined_wig_path=combined_wig_path,
+                metadata_path=metadata_path, 
+                annotation_path=annotation_path, 
+                combined_wig=None,
+                normalization=None, 
+                avg_by_conditions=True, 
+                output_path=output_path, 
+                n_terminus=None, 
+                c_terminus=None, 
+                disable_logging=False,
+                top_k=top_k,
+                q_value_threshold=qval,
+                low_mean_filter=low_mean_filter,
+                formatted_rows=tuple(
+                    dict(
+                        gene_name=f'''{each_row["Rv"]}/{each_row["Gene"]}''',
+                        means=[ each_row[each_column_name] for each_column_name in self.extra_data["mean_columns"] ],
+                        q_value=each_row["Adj P Value"],
+                    )
+                        for each_row in self.rows
+                ),
+            )

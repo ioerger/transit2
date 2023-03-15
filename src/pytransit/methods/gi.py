@@ -656,6 +656,7 @@ class Method:
             extra_info=dict(
                 calculation_time=f"{time.time() - self.start_time:0.1f}seconds",
                 analysis_type=Method.identifier,
+                conditions=", ".join([condA1,condA1,condB1,condB2]),
                 files=dict(
                     combined_wig=Method.inputs.combined_wig_path,
                     annotation_path=Method.inputs.annotation_path,

@@ -1,11 +1,12 @@
 #Resampling
 #yaml:
-#    date: 2023-01-25 11:32:25
+#    date: 2023-02-05 14:30:27
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'resampling' '--s' '1000' '-a' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/cholesterol_glycerol.transit/annotation.H37Rv.prot_table' 'Glycerol' 'Cholesterol' './tests/cli_tests/resampling/0002_adaptive.sh.1.result'
-#    calculation_time: 7.8seconds
+#    calculation_time: 7.7seconds
 #    analysis_type: Resampling
+#    conditions: Glycerol , Cholesterol
 #    files:
 #       combined_wig: ./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv
 #       annotation_path: ./src/pytransit/data/cholesterol_glycerol.transit/annotation.H37Rv.prot_table

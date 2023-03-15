@@ -1,0 +1,1 @@
+../../../src/pytransit/doc/source/resampling_method.rst
