@@ -77,9 +77,9 @@ Here is an example which generates the following image showing the corrplot amon
 
 GUI Mode
 ------
-The Correlation Plot can be selected from the Visualize Option in the Pre-Processing Tab of the File Menu (1. in the example below), The checkbox in the parameter panel is equivalent to the --avg_by_conditions flag. 
-Generating a corrplot on the output of ANOVA or ZINB, can be selected "Post-Processing" tab in the Menu Bar (2. in the example below) or as an action on the ANOVA/ZINB output (3. in the example below). If corrplot is run through results action on the ANOVA/ZINB
-output, the corrplot is generated using the default parameters. If the corrplot action is selected from the Menu Bar, various parameters can be set.
+The Correlation Plot can be selected from the Visualize Option in the Pre-Processing Tab of the File Menu ("1." in the example below), The checkbox in the parameter panel is equivalent to the --avg_by_conditions flag. 
+Generating a corrplot on the output of ANOVA or ZINB, can be selected from the "Post-Processing" tab in the Menu Bar ("2." in the example below) or as an action on the ANOVA/ZINB output ("3." in the example below). 
+If corrplot is run through the dropdown on the selected ANOVA/ZINB output, the corrplot is generated using the default parameters. If the corrplot action is selected from the Menu Bar, various parameters can be set.
 
 .. image:: _images/corrplot_selection_gui.png
    :width: 1000

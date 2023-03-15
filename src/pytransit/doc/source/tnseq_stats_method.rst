@@ -11,7 +11,7 @@ from the command-line using the 'tnseq_stats' command.  Here is an example:
 
 ::
 
-  > python3 src/transit.py tnseq_stats --help
+  > python3 src/transit.py tnseq_stats -help
 
   usage: python3 src/transit.py tnseq_stats <file.wig>+ [-o <output_file>]
          python3 src/transit.py tnseq_stats -c <combined_wig> [-o <output_file>]
@@ -69,12 +69,12 @@ how to interpret these metrics, and what to do if you have noisy samples.
 
 
 
-**To Do: (TRI, 12/19/22)**
+.. **To Do: (TRI, 12/19/22)**
 
- * explain PTI
- * check for PTI in output files and usage()
- * check headers in output file (does it match what is here?)
- * add PTI to transit-quality-control (in transit_features.rst)
+..  * explain PTI
+..  * check for PTI in output files and usage()
+..  * check headers in output file (does it match what is here?)
+..  * add PTI to transit-quality-control (in transit_features.rst)
 
 
 .. rst-class:: transit_sectionend

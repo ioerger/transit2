@@ -17,7 +17,10 @@ How does it work?
 |
 |  DeJesus, M.A., Ioerger, T.R. `A Hidden Markov Model for identifying essential and growth-defect regions in bacterial genomes from transposon insertion sequencing data. <http://www.ncbi.nlm.nih.gov/pubmed/24103077>`_ *BMC Bioinformatics.* 2013. 14:303
 
-|
+
+The HMM method automatically estimates the necessary internal statistical
+parameters from the datasets (adjusts for global saturation 
+and read counts). 
 
 
 Usage
@@ -25,20 +28,18 @@ Usage
 
 ::
 
-  python3 transit.py hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file> [Optional Arguments]
+  > python3 transit.py hmm <combined_wig_file> <metadata_file> <annotation_file> <condition_to_analyze> <output_file> [Optional Arguments]
         Optional Arguments:
-            --r <string>     :=  How to handle replicates. Sum, Mean. Default: -r Mean
+            --r <string>     :=  How to handle replicates. Sum, Mean. Default: --r Mean
             --n <string>     :=  Normalization method. Default: --n TTR
-            -l              :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
-            --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: -iN 0
-            --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: -iC 0
+            -l               :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            --iN <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: --iN 0
+            --iC <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: --iC 0
 
 
 Parameters
 ----------
-
-The HMM method automatically estimates the necessary statistical
-parameters from the datasets. You can change how the method handles
+You can change how the method handles
 replicate datasets:
 
 -  **Replicates:** Determines how the HMM deals with replicate datasets
@@ -69,14 +70,20 @@ The method is run using the combined wig, metadata, and annotation uploaded into
 Output and Diagnostics
 ----------------------
 
-| The HMM method outputs two files. The first file provides the most
+| The HMM method outputs two files. One with statistics for individual TA sites, and one
+  with summaries for genes.
+
+  The first file provides the most
   likely assignment of states for all the TA sites in the genome. Sites
   can belong to one of the following states: "E" (Essential), "GD"
   (Growth-Defect), "NE" (Non-Essential), or "GA" (Growth-Advantage). In
   addition, the output includes the probability of the particular site
   belonging to the given state. The columns of this file are defined as
   follows:
-						
+
+Sites Output File:
+~~~~~~~~~~~~~~~~~~
+
 +----------------+-----------------------------------------------------------------------------------------------------+
 | Column Header  | Column Definition                                                                                   |
 +================+=====================================================================================================+
@@ -97,12 +104,14 @@ Output and Diagnostics
 | Gene           | Gene(s) that share(s) the TA site.                                                                  |
 +----------------+-----------------------------------------------------------------------------------------------------+
 
-|
 |  The second file provides a gene-level classification for all the
   genes in the genome. Genes are classified as "E" (Essential), "GD"
   (Growth-Defect), "NE" (Non-Essential), or "GA" (Growth-Advantage)
   depending on the number of sites within the gene that belong to those
   states.
+
+Genes Output File:
+~~~~~~~~~~~~~~~~~~
 
 +-------------------+-----------------------------------------------------------------------------------------------------+
 | Column Header     | Column Definition                                                                                   |

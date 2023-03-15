@@ -15,12 +15,13 @@ max read-count to give you an idea of how the quality of the dataset.
 
 However, TRANSIT provides more in-depth statistics in the Quality Control
 window. To use this feature, add the annotation file for your organism
-(in .prot_table or GFF3 format). Next, add and highlight/select the desired
-read-count datasets in .wig format. Finally, click on View -> Quality Control.
+(in .prot_table or GFF3 format). Next, highlight/select the desired
+read-count datasets in .wig format. Finally, select the "Quality Control" option
+in the dropdown.
 
-TODO: ADD in GUI HERE to get to the window
+
 .. image:: _images/transit_select_quality_control_window.png
-   :width: 600
+   :width: 1000
    :align: center
 
 
@@ -117,8 +118,8 @@ In a nutshell, we look at statistics like saturation, and mean read count,
 but also things like max count and skewness.
 
 There are two ways to do QC in Transit - via the GUI and command-line.  
-In the GUI, one can load a set of
-wig files a select "View->Quality Control" in the menu; this will
+In the GUI, one can load a set of wig files, hihglight the samples from the panel and 
+select "Quality Control" from the drop-down; this will
 display some plots of read-count distribution.  Ideally, you want most of
 your datasets to fall along the diagonal on a QQ-plot.  Real data will
 often deviate somewhat (I will try to be more quantitative about this in the future),
