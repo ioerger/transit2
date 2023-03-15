@@ -49,20 +49,31 @@ The output file is tab-separated text file (spreadsheet) with the following colu
 +----------------------+-----------------------------------------------------------------+
 | Kurtosis             | 4th-order moment of read count distribution                     |
 +----------------------+-----------------------------------------------------------------+
-| Pickand's Tail Index | ???                                                             |
+| Pickands Tail Index  | another measure of skewness of read count distributions         |
 +----------------------+-----------------------------------------------------------------+
 
 
 **Signs of potential problems with a dataset:**
 
  * low density (<30%)
- * low NZmean (<10) - note: this can be affected by normalization of input combined_wig file (might need to re-run 'export combined_wig' with '-n nonorm' to see means of raw data)
+ * low NZmean (<10) - note: this can be affected by normalization of input combined_wig file (might need to re-run 'export combined_wig' with '\-\-n nonorm' to see means of raw data)
  * max_ct: in most datasets, this is usually in the range of thousands to tens of thousands; if it is over a million, this could be an outlier (super-high counts at one or a few sites, possibly due to positive selection), which could be throwing the rest of the counts off
  * skewness: it is difficult to give a hard cutoff, but skewness > 50 could be a sign that a sample is noisy
- * Pickand's Tail Index: it is difficult to give a hard cutoff, but PTI>0.5 could be a sign that a sample is noisy
+ * Pickands Tail Index: it is difficult to give a hard cutoff, but PTI>0.5 could be a sign that a sample is noisy (skewed), and PTI>1 is bad.
 
-The analysis methods in Transit will work with noisy samples, but the results could be affected (e.g. reduced sensitivity of detecting conditionally essential genes).
-Two options to consider are: 1) dropping the noisiest samples, 2) applying a non-linear normalization like the Beta-Geometric Correction (BGC) (-n betagenom).
+Picands Tail Index (PTI) is defined in: `James Pickands III. (1975) 
+"Statistical Inference Using Extreme Order Statistics."
+Ann. Statist. 3(1):119-131. <https://doi.org/10.1214/aos/1176343003>`_
+It is calculated using a formula based on the order statistics of the
+distribution of counts (highest counts in sorted order), and increases for
+distributions with heavier tails (outliers).  In Transit, the PTI is
+calculated over the highest counts, with ranks 10-100.
+
+The analysis methods in Transit will work with noisy samples, but the
+results could be affected (e.g. reduced sensitivity of detecting
+conditionally essential genes).  Two options to consider are: 1)
+dropping the noisiest samples, 2) applying a non-linear normalization
+like the Beta-Geometric Correction (BGC) ('\-\-n betagenom').
 
 See also :ref:`Quality Control <transit_quality_control>` for a discussion of
 how to interpret these metrics, and what to do if you have noisy samples.
