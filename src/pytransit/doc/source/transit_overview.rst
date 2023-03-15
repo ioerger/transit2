@@ -36,6 +36,17 @@ the multiple .wig file are combined together in a single combined_wig file
 with multiple columns.  This makes it much more convenient to 
 manage and analyze large datasets.
 
+Transit 4.0 represents a complete overhaul of the software and GUI interface.
+The commands and flags have changed, and the python API (internal data structures
+and functions) have changed substantially.  The new GUI is more integrated for ease-of-use,
+has some new features (like ANOVA and ZINB), and will make it easier to add new features
+in the future.
+
+However, for previous users of Transit who prefer backwards compatibility,
+we will continue to maintain the old branch of Transit as version 3.2.x.
+
+(*add a link to 3.2.x documentation??? how to checkout latest of old branch?*)
+
 
 Typical Workflow
 ----------------
@@ -48,7 +59,7 @@ A typical workflow follows 3 phases, illustrated below.
 
 .. NOTE::
     Sequencing Recommendations
-        1. Read Length : 75 x 75 bp paired-end reads 
+        1. Read Length: at least 75 x 75 bp paired-end reads 
         2. Sequencing Depth: 5-10 million reads per sample (for *M. tuberculosis* libraries) to get sufficient dynamic range of counts 
         3. Ideally, 3 replicates per condition
         
