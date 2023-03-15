@@ -44,18 +44,18 @@ Example
         Optional Arguments:
         --exclude-conditions <cond1,cond2> :=  Comma separated list of conditions to exclude, for the analysis.
         --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
-        --n   <string>        :=  Normalization method. Default: --n TTR
-        --ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
-        --iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 5
-        --iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 5
-        --PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: --PC 5
-        -winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
-        --group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
-        --condition <string>  := alias for --group-by
+        --n   <string>                    :=  Normalization method. Default: --n TTR
+        --ref <cond>                      := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
+        --iN  <float>                     := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 5
+        --iC  <float>                     := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 5
+        --PC  <N>                         := pseudocounts to use for calculating log_fold_changes. Default: --PC 5
+        -winz                             := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
+        --group-by  <string>              := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
+        --condition <string>              := alias for --group-by
         --covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
         --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
         --gene <RV number or Gene name>   := Run method for one gene and print model output.
-        -append_gene_desc               := the output_file will have column for gene descriptions
+        -append_gene_desc                 := the output_file will have column for gene descriptions
 
 
 Input files
@@ -74,15 +74,15 @@ The following parameters are available for the ZINB method:
 -  **\-\-include-conditions <cond1,...>:** Includes the given set of conditions from the ZINB test. Conditions not in this list are ignored. Note: this is useful for specifying the order in which the columns are listed in the output file.
 -  **\-\-exclude-conditions <cond1,...>:** Ignores the given set of conditions from the ZINB test.
 -  **\-\-ref <cond>:** which condition to use as a reference when computing LFCs in the output file. By default, LFCs for each condition are computed relative to the grandmean across all condintions.
--  **-n <TTR|betageom|nonorm...>:** Determines which Normalization method to 
-   use when comparing datasets (Default: -n TTR). Proper normalization is important as it
+-  **\-\-n <TTR|betageom|nonorm...>:** Determines which Normalization method to 
+   use when comparing datasets (Default: \-\-n TTR). Proper normalization is important as it
    ensures that other sources of variability are not mistakenly treated
    as real differences. See the :ref:`Normalization <normalization>` section for a description
    of normalization method available in TRANSIT.
 -  **\-\-condition <covar>:** column name (in samples_metadata) to use as the primary Condition being evaluated (to test for significant variability of insertions among conditions). Default: "Condition" (column name in metadata)
 -  **\-\-covars <covar1,...>:** Comma separated list of covariates (columns in metadata file) to include, for the analysis.  If additional covariates distinguishing the samples are available, such as library, timepoint, or genotype, they may be "factored out" of the test of the primary condition. (variation due to covars is accounted for in the model, but not considered in evaluating the effect on variability due to the primary condition)
 -  **\-\-interactions <covar1,...>:** Comma separated list of covariates (cols in metadata) to include, that interact with the condition for the analysis. (variation due to these variables *is* included in testing the effect of the main condition)
--  **-PC <N>:** Pseudocounts used in calculating LFCs in output file. (Default: -PC 5)
+-  **\-\-PC <N>:** Pseudocounts used in calculating LFCs in output file. (Default: \-\-PC 5)
 -  **-winz**: `winsorize <https://en.wikipedia.org/wiki/Winsorizing>`_ insertion counts for each gene in each condition. 
    Replace max count in each gene with 2nd highest.  This can help mitigate effect of outliers.
 
@@ -128,7 +128,7 @@ the **\-\-covars** flag.
 
 ::
 
- python3 transit.py zinb combined.wig samples.metadata prot.table output.file --covars Batch
+ > python3 transit.py zinb combined.wig samples.metadata prot.table output.file --covars Batch
 
 
 Similarly, an interaction variable may be included in the model.
@@ -145,7 +145,7 @@ differs depending on the strain, we could do this:
 
 ::
 
- python3 transit.py zinb combined.wig samples.metadata prot.table output.file --interactions Strain
+ > python3 transit.py zinb combined.wig samples.metadata prot.table output.file --interactions Strain
 
 In this case, the condition is implicitly assumed to be the column in the samples metadata file
 labeled 'Condition'.  If you want to specify a different column to use as the primary condition to
@@ -153,7 +153,7 @@ test (for example, if Treatment were a distinct column), you can use the **\-\-c
 
 ::
 
- python3 transit.py zinb combined.wig samples.metadata prot.table output.file --condition Treatment --interactions Strain
+ > python3 transit.py zinb combined.wig samples.metadata prot.table output.file --condition Treatment --interactions Strain
 
 
 
@@ -289,7 +289,7 @@ typical threshold for conditional essentiality on is q-value < 0.05.
 +-------------------------+-----------------------------------------------------------------+
 | Means...                | Mean read-counts for each condition                             |
 +-------------------------+-----------------------------------------------------------------+
-| Log 2 FC...             | Log-fold-change (base 2) of mean insertion count relative to    |
+| Log 2 FCs...            | Log-fold-change (base 2) of mean insertion count relative to    |
 |                         | mean across all conditions. Pseudo-counts of 5 are added.       |
 |                         | If only 2 conditions, LFC is based on ratio of second to first. |
 +-------------------------+-----------------------------------------------------------------+

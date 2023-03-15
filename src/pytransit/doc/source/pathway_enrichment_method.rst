@@ -46,17 +46,27 @@ Command Line Usage
 
 ::
 
-  > python3 ../../transit.py pathway_enrichment <input file> <associations> <pathways> <output_file> [Optional Arguments]
+    Usage 1: # --M FET for Fisher's Exact Test (default)
+        > python3 transit.py  pathway_enrichment <input_file> <associations> <pathways> <output_file> --M FET [Optional Arguments]
+        
+        Optional Arguments:
+            --PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: --PC 2
+            --LFC-col   <int> := column index (starting at 0) for LFC's
 
-  Optional parameters:
-     --M FET|GSEA|ONT:     method to use, FET for Fisher's Exact Test (default), GSEA for Gene Set Enrichment Analysis (Subramaniam et al, 2005), or ONT for Ontologizer (Grossman et al, 2007)
-  for GSEA...
-     --ranking SLPV|LFC  : SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling 
-     --LFC_col <int>     : indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
-     --p <float>         : exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-     --n-perm <int>       : number of permutations to simulate for null distribution to determine p-value (default=10000)
- for FET...
-     --PC <int>          :  pseudo-counts to use in calculating p-value based on hypergeometric distribution (default=2)
+    Usage 2: # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
+        > python3 transit.py  pathway_enrichment <input_file> <associations> <pathways> <output_file> --M GSEA [Optional Arguments]
+        
+        Optional Arguments:
+            --ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default --ranking SLPV
+            --p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+            --n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default --n-perm 10000
+            --LFC-col   <int> := column index (starting at 0) for LFC's
+    
+    Usage 3: # ONT for Ontologizer (Grossman et al, 2007)
+        > python3 transit.py  pathway_enrichment <input_file> <associations> <pathways> <output_file> --M ONT [Optional Arguments]
+
+        Optional Arguments:
+            --LFC-col   <int>       := column index (starting at 0) for LFC's
 
 |
 
@@ -96,21 +106,21 @@ Parameters
   ...
 
 
-- **-M [FET|GSEA|ONT]**
+- **\-\-M [FET|GSEA|ONT]**
     Methodology to be used. FET is used by default (even without specifying -M).
 
-  **-M FET**
+  **\-\-M FET**
     This implements Fisher's Exact Test (hypergeometric distribution) to determine a p-value for each pathway, based on the proportion of pathway member observed in list of hits (conditionally essential gene by resampling, padj<0.05) compared to the background proportion in the overall genome, and p-values are adjusted post-hoc by the Benjamini-Hochberg procedure to limit the FDR to 5%.
 
-    In the output file, an "enrichment score" is reported, which is the ratio of the observed number of pathway members among the hits to the expected number.  Pseudocounts of 2 are included in the calculation to reduce the bias toward small pathways with only a few genes; this can be adjusted with the -PC flag (below).
+    In the output file, an "enrichment score" is reported, which is the ratio of the observed number of pathway members among the hits to the expected number.  Pseudocounts of 2 are included in the calculation to reduce the bias toward small pathways with only a few genes; this can be adjusted with the \-\-PC flag (below).
 
     FET can be used with GO terms.
 
     Additional flags for FET:
 
-    - **-PC <int>**: Pseudocounts used in calculating the enrichment score and p-value by hypergeometic distribution. Default: PC=2.
+    - **\-\-PC <int>**: Pseudocounts used in calculating the enrichment score and p-value by hypergeometic distribution. Default: PC=2.
 
-  **-M GSEA**
+  **\-\-M GSEA**
     Gene Set Enrichment Analysis. GSEA assess the significance of a pathway by looking at how the members fall in the ranking of all genes.  The genes are first ranked by significance from resampling.  Specifically, they are sorted by signed-log-p-value, SLPV=sign(LFC)*(log(pval)), which puts them in order so that the most significant genes with negative LFC are at the top, the most significant with positive LFC are at the bottom, and insignificant genes fall in the middle.  Roughly, GSEA computes the mean rank of pathway members, and evaluates significance based on a simulated a null distribution.  p-values are again adjusted at the end by BH.
 
     `Subramanian, A., Tamayo, P., Mootha, V. K., Mukherjee, S., Ebert, B. L., Gillette, M. A., ... & Mesirov, J. P. (2005).  `ene set enrichment analysis: a knowledge-based approach for interpreting genome-wide expression profiles. Proceedings of the National Academy of Sciences, 102(43), 15545-15550. <http://www.pnas.org/content/102/43/15545.short>`_
@@ -119,16 +129,16 @@ Parameters
 
     Additional flags for GSEA:
 
-    - **-ranking SLPV|LFC**: method used to rank all genes; SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling
+    - **\-\-ranking SLPV|LFC**: method used to rank all genes; SLPV is signed-log-p-value (default); LFC is log2-fold-change from resampling
 
-    - **-p <float>**: exponent to use in calculating enrichment score; recommend trying '-p 0' (default) or '-p 1' (as used in Subramaniam et al, 2005)
+    - **\-\-p <float>**: exponent to use in calculating enrichment score; recommend trying '\-\-p 0' (default) or '\-\-p 1' (as used in Subramaniam et al, 2005)
 
-    - **-Nperm <int>**: number of permutations to simulate for null distribution to determine p-value (default=10000)
+    - **\-\-Nperm <int>**: number of permutations to simulate for null distribution to determine p-value (default=10000)
 
     - **\-\-LFC_col <int>**: indicate column with log2FC (starting with 0; can also be negative, i.e. -1 means last col) (used for ranking genes by SLPV or LFC) (default: 6)
 
 
-  **-M ONT**
+  **\-\-M ONT**
     Ontologizer is a specialized method for GO terms that takes parent-child relationships into account among nodes in the GO hierarchy.  This can enhance the specificity of pathways detected as significant.  (The problem is that there are many GO terms in the hierarchy covering similar or identical sets of genes, and often, if one node is significantly enriched, then several of its ancestors will be too, which obscures the results with redundant hits; Ontologizer reduces the significance of nodes if their probability distribution among hits can be explained by their parents.) Hierarhical relationships among GO terms are encoded in an OBO file, which is included in the src/pytransit/data/ directory.
 
     `Grossmann S, Bauer S, Robinson PN, Vingron M. Improved detection of overrepresentation of Gene-Ontology annotations with parent child analysis. Bioinformatics. 2007 Nov 15;23(22):3024-31. <https://www.ncbi.nlm.nih.gov/pubmed/17848398>`_
@@ -203,9 +213,9 @@ Current Recommendations
 
 Here are the recommended combinations of pathway methods to use for different systems of functional categories:
 
- * For COG_20, use '-M FET'
+ * For COG_20, use '\-\-M FET'
  * For Sanger roles, try both FET and GSEA
- * For GO terms, use 'M -ONT'
+ * For GO terms, use '\-\-M ONT'
 
 
 Examples
@@ -214,19 +224,19 @@ Examples
 ::
 
     # uses Fisher's exact test by default (with PC=2 as pseudocounts)
-    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_glyc_chol_Sanger.txt
+    > python3 transit.py pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_glyc_chol_Sanger.txt
 
     # can do this with GO terms too
-    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_glyc_chol_GO.txt
+    > python3 transit.py pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_glyc_chol_GO.txt
 
     # with COG_20 categories
-    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/Mycobacterium_tuberculosis_H37Rv_COG_20_roles.associations.txt $DATA/COG_20_roles.txt pathways_glyc_chol_COG.txt
+    > python3 transit.py pathway_enrichment resampling_glyc_chol.txt $DATA/Mycobacterium_tuberculosis_H37Rv_COG_20_roles.associations.txt $DATA/COG_20_roles.txt pathways_glyc_chol_COG.txt
 
     # can also do GSEA method (on any system of functional categories)
-    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_Sanger_GSEA.txt -M GSEA
+    > python3 transit.py pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_sanger_roles.dat $DATA/sanger_roles.dat pathways_Sanger_GSEA.txt --M GSEA
 
     # Ontologizer is a specialized method for GO terms
-    > transit pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_Ontologizer.txt -M ONT
+    > python3 transit.py pathway_enrichment resampling_glyc_chol.txt $DATA/H37Rv_GO_terms.txt $DATA/GO_term_names.dat pathways_Ontologizer.txt --M ONT
 
 The $DATA environment variable in these examples refers to the Transit data directory, e.g. src/pytransit/data/.
 
@@ -263,7 +273,7 @@ GSEA also contains a mean rank column which could be useful to sort by.
 GUI Mode
 --------
 |
-Pathway Enrichment can be accessed from the "Post-Processing" tab in the Menu Bar (1. in figure below) of through the actions dropdown of a valid results file in the results panel (2. in figure below).
+Pathway Enrichment can be accessed from the "Post-Processing" tab in the Menu Bar ("1." in figure below) of through the actions dropdown of a valid results file in the results panel ("2." in figure below).
 
 
 .. image:: _images/pathway_enrichment_selection_gui.png
@@ -278,7 +288,7 @@ in the GUI format we have pre-set some of the common Pathway Systems for ease of
        :width: 1000
        :align: center
    
-- **Select Pathway System Button **
+- **Select Pathway System Button**
     This button allows you to select from a set of pre-loaded pathway systems or upload your own. Each of the dropdowns populates based on the selection of the other. For example, if M.Smegmatis is selected as the organism of interest (Association), 
     the pathways to select from will be COG_20 and GO along with an option for the user to upload their own.
 

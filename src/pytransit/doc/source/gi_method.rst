@@ -11,8 +11,8 @@ strain backgrounds under different conditions, and identifies significantly
 large changes in enrichment (delta_logFC) to identify those genes
 that imply a genetic interaction.
 
-.. NOTE::
-   Can be used for both **Himar1** and **Tn5** datasets
+.. .. NOTE::
+..    Can be used for both **Himar1** and **Tn5** datasets
 
 
 |
@@ -81,12 +81,12 @@ genes are classified as interacting (1 of 3 types) or  marked as "No Interaction
 In order to enable users to evaluate these various methods for determining significance of interactions,
 a '-signif' flag is provided for the GI method.  The options are:
 
- * **-signif HDI**: significant genes are those for which the HDI does not overlap the ROPE
- * **-signif prob**: significant genes are those with prob < 0.05, where 'prob' is probability that HDI overlaps the ROPE (default)
- * **-signif BFDR**: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the BFDR method
- * **-signif FWER**: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the FWER method
+ * **--signif HDI**: significant genes are those for which the HDI does not overlap the ROPE
+ * **--signif prob**: significant genes are those with prob < 0.05, where 'prob' is probability that HDI overlaps the ROPE (default)
+ * **--signif BFDR**: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the BFDR method
+ * **--signif FWER**: significant genes are those with adjusted prob < 0.05, where prob is adjusted by the FWER method
 
-'-signif prob' is the default method.
+'--signif prob' is the default method.
 
 In the output file, the genes are sorted by the probability that the HDI overlaps the ROPE.
 The genes at the top are rougly the genes with the highest absolute value of mean_delta_LFC.
@@ -97,7 +97,7 @@ Usage
 
 ::
 
-  python3 transit.py GI <combined_wig_file> <metadata_file> <annotation_file> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <output_file> [optional arguments]
+    > python3 transit.py GI <combined_wig_file> <metadata_file> <annotation_file> <conditionA1> <conditionB1> <conditionA2> <conditionB2> <output_file> [optional arguments]
 
         Optional Arguments:
             --n <string>     :=  Normalization method. Default: --n TTR
@@ -117,11 +117,12 @@ Example
 In this example, the effect of a knockout of SigB is being evaluated for its effect on tolerance of isoniazid.
 Some genes may become more essential (or less) in the presence of INH in the wild-type strain.
 The genes implied to interact with SigB are those whose response to INH changes in the knock-out strain compared to the wild-type.
-Note there are 2 replicates in each of the 4 groups of datasets.
+Note the metadata file describes the grouping of multiple replicates in conditions
+representing different combinations of strains and drug treatments (including WT_Untreated, SigB_Untreated, WT_INH, SigB_INH).
 
 ::
 
-  python3 transit/src/transit.py GI WT_untreated1.wig,WT_untreated2.wig WT_INH_1.wig,WT_INH_2.wig delta_SigB_untreated1.wig,delta_SigB_untreated2.wig delta_SigB_INH_1.wig,delta_SigB_INH_2.wig mc2_155_tamu.prot_table GI_delta_SigB_INH.txt
+    > python3 transit/src/transit.py GI antibiotics.combined_wig antibiotics.metadata mc2_155_tamu.prot_table WT_Untreated SigB_Untreated WT_INH SigB_INH results.txt
 
 
 GI performs a comparison among 4 groups of datasets, strain A and B assessed in conditions 1 and 2 (e.g. control vs treatment).
@@ -230,21 +231,25 @@ Significant genes are those NOT marked with 'No Interaction' in the last column.
 +--------------------------------------------------+----------------------------------------------------------------------------+
 | Upper Bound Delta Log 2 FC                       | Upper bound of the difference (delta logFC)                                |
 +--------------------------------------------------+----------------------------------------------------------------------------+
+| Is HDI Outside ROPE?                             | T/F value of whether Delta LFC distribution does not overlap 0             |
++--------------------------------------------------+----------------------------------------------------------------------------+
 | Probability of Delta Log 2 FC Being Within ROPE  | Portion of the delta-logFC within ROPE                                     |
 +--------------------------------------------------+----------------------------------------------------------------------------+
-| {Type} Adj P Value                               | Posterior probability adjusted for comparisons using {type} adjustment     |
+| Adjusted P Value                                 | Posterior probability adjusted for comparisons using --signif method       |
 +--------------------------------------------------+----------------------------------------------------------------------------+
-| Type of Interaction                              | Final classification.                                                      |
+| Type of Interaction                              | Suppressive, Alleviating, Aggravating, No Interaction                      |
 +--------------------------------------------------+----------------------------------------------------------------------------+
 
 |
-**To Do: (TRI, 12/19/22)**
 
-* explain the 3 types of interactions
-* tell users this is what they should primarily look at---------
-* if they want a quantitative score for ranking/sorting, they could use either 'mean delta logFC' or 'prob of delta_logFC being within ROPE'.
+* If '--signif HDI' is selected (default), then only genes where "Is HDI Outside ROPE?" is TRUE (delta LFC significantly different from 0) is categorized as an interaction (otherwise, 'No Interaction').
+* Interacting Genes can be **ranked** by strength of effect using the "Delta Log 2 FC" column.
+* Alternatively, users can sort by "Probability of Delta Log 2 FC Being Within ROPE", where lower values indicate more significant interactions.
+* If other --signif options are selected, the genes categorized as interections depend on "Adjusted P Value".
 
-
+Run-time
+--------
+On an average machine, running this methodology on a dataset takes about ~15 minutes.
 
 .. rst-class:: transit_sectionend
 ----

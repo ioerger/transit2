@@ -66,15 +66,15 @@ The following parameters are available for the ANOVA method:
    counts are higher or lower than the reference condition.  If there is more than one
    condition to use as reference (i.e. pooled), they may be given as a comma-separated list.
 
--  **-n**: Normalization Method. Determines which normalization method to
+-  **--n**: Normalization Method. Determines which normalization method to
    use when comparing datasets. Proper normalization is important as it
    ensures that other sources of variability are not mistakenly treated
    as real differences. See the :ref:`Normalization <normalization>` section for a description
    of normalization method available in TRANSIT. Default: -n TTR
 
--  **-PC <N>**: Pseudocounts to use in calculating LFCs (see below). Default: -PC 5
+-  **--PC <N>**: Pseudocounts to use in calculating LFCs (see below). Default: -PC 5
 
--  **-alpha <N>**:  Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha).
+-  **--alpha <N>**:  Value added to MSE in F-test for moderated ANOVA: F = MSR/(MSE+alpha).
    This is helpful because genes with very low counts are occasionally ranked as significant
    by traditional ANOVA, even though the apparent variability is probably due to noise.
    Setting alpha to a number like 1000 helps filter out these irrelevant genes 
@@ -107,27 +107,29 @@ typical threshold for conditional essentiality on is q-value < 0.05.
 +-----------------+----------------------------------------------------------------------------+
 | Means...        | Mean readcounts for each condition                                         |
 +-----------------+----------------------------------------------------------------------------+
-| LFCs...         | Log-fold-changes of counts in each condition vs mean across all conditions |
+| Log 2 FCs...    | Log-fold-changes of counts in each condition vs mean across all conditions |
 +-----------------+----------------------------------------------------------------------------+
 | MSR             | Mean-squared residual                                                      |
 +-----------------+----------------------------------------------------------------------------+
-| MSE+alpha       | Mean-squared error, plus moderation value                                  |
+| MSE With Alpha  | Mean-squared error, plus moderation value                                  |
 +-----------------+----------------------------------------------------------------------------+
-| p-value         | P-value calculated by the Anova test.                                      |
+| Fstat           | Ratio of variance between groups vs. within groups (MSR/(MSE+alpha))       |
 +-----------------+----------------------------------------------------------------------------+
-| p-adj           | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)              |
+| P Value         | P-value calculated by the Anova test.                                      |
 +-----------------+----------------------------------------------------------------------------+
-| status          | Debug information (If any)                                                 |
+| Adj P Value     | Adjusted p-value controlling for the FDR (Benjamini-Hochberg)              |
++-----------------+----------------------------------------------------------------------------+
+| Status          | Debug information (If any)                                                 |
 +-----------------+----------------------------------------------------------------------------+
 
 
 **LFCs** (log-fold-changes):
 For each condition, the LFC is calculated as the log-base-2 of the
 ratio of mean insertion count in that condition **relative to the mean of means across all the conditions**.
-You can use the '--ref' flag to designate a specific condition as a reference for computing LFCs.
+You can use the **'\-\-ref' flag** to designate a specific condition as a reference for computing LFCs.
 Pseudocount are incorporated to reduce the impact of noise on LFCs, based on the formula below.
-The pseudocounts can be adjusted using the -PC flag.
-Changing the pseudocounts (via -PC) can reduce the artifactual appearance of genes with
+The pseudocounts can be adjusted using the '\-\-PC' flag.
+Changing the pseudocounts (via \-\-PC) can reduce the artifactual appearance of genes with
 high-magnitude LFCs but that have small overall counts (which are susceptible to noise).
 Changing the pseudocounts will not affect the analysis of statistical significance and hence number of varying genes, however.
 
