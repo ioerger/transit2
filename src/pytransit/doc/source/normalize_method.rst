@@ -54,26 +54,35 @@ briefly described below:
 Command-line
 ------------
 
-In addition to choosing normalization for various analyses in the GUI,
-you can also call Transit to normalize wig files from the command-line,
-as shown in this example:
+You can call Transit to normalize wig files or combined_wig files from the command-line.
+(It will automatically determine the type of input file.)
 
-Example
+::
+
+ Usage:
+     > python3 transit.py normalize <wig_file or combined_wig_file> <output_file> [Optional Arguments]
+
+     Optional Arguments:
+     --n <string>  :=  Normalization method (e.g. TTR, betageom, etc). Default: --n TTR
+
+
+
+GUI
+---
+
+Normalization may be applied to combined_wig files loaded into the GUI 
+by selecting the following sequence of menu items:
+'Pre-processing'->'Generate'->'A normalized combined_wig file using...'
+
+
+Examples
 -------
 
 ::
 
-  > python3 src/transit.py normalize --help
-
-  usage: python3 src/transit.py normalize <input.wig> <output.wig> [-n TTR|betageom]
-     or: python3 src/transit.py normalize -c <combined_wig> <output> [-n TTR|betageom]
-
   > python3 src/transit.py normalize Rv_1_H37RvRef.wig Rv_1_H37RvRef_TTR.wig -n TTR
 
   > python3 src/transit.py normalize Rv_1_H37RvRef.wig Rv_1_H37RvRef_BG.wig -n betageom
-
-The normalize command now also works on combined_wig_ files too.
-If the input file is a combined_wig file, indicate it with a '-c' flag.
 
 
 

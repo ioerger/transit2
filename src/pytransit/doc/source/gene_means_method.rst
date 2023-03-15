@@ -6,7 +6,8 @@ Gene Means
 It is often useful to reduce a combined_wig file (with insertion counts at each TA site)
 to a summary of mean counts for each *gene* in each condition,
 which can be done with the 'gene_means' command (in console mode),
-or by selecting 'Gene Means' in the menu under 'Pre-processing' in the GUI.
+or by the following sequence of menu items 
+in the GUI: 'Pre-processing'->'Generate'->'Gene Means'.
 
 By default, the gene means are calculated for each individual sample
 (column) in the combined_wig file.  However, if desired, the user can

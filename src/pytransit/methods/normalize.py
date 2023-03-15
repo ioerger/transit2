@@ -14,7 +14,7 @@ class Method:
     description = "Method for normalizing datasets and outputting into CombinedWig file."
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} norm <wig_file or combined_wig_file> <output_file> [Optional Arguments]
+            {console_tools.subcommand_prefix} normalize <wig_file or combined_wig_file> <output_file> [Optional Arguments]
         
         Optional Arguments:
             --n <string>     :=  Normalization method. Default: --n TTR
@@ -69,7 +69,7 @@ class Method:
     
     @staticmethod
     @cli.add_command("normalize")
-    @cli.add_command("export", "norm")
+    #@cli.add_command("export", "norm")
     def from_args(args, kwargs):
         from pytransit.methods.combined_wig import Method as CombinedWigMethod
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=2)
