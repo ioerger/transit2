@@ -64,10 +64,10 @@ class Method:
         Method.himar1 = True
         Method.define_panel(event)
     
-    @gui.add_menu("Method", "tn5", menu_name)
-    def on_menu_click(event):
-        Method.himar1 = False
-        Method.define_panel(event)
+    #@gui.add_menu("Method", "tn5", menu_name)
+    #def on_menu_click(event):
+    #    Method.himar1 = False
+    #    Method.define_panel(event)
     
     def define_panel(self, _):
         from pytransit.components import panel_helpers

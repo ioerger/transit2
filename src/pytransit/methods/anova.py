@@ -27,7 +27,7 @@ class Method:
     menu_name   = f"{name} - analysis of variance"
     description = """Perform Anova analysis"""
     
-    transposons = ["himar1", "tn5"]
+    transposons = ["himar1"]
     significance_threshold = 0.05
     
     inputs = LazyDict(
@@ -78,9 +78,9 @@ class Method:
     def on_menu_click(event):
         Method.define_panel(event)
     
-    @gui.add_menu("Method", "tn5", menu_name)
-    def on_menu_click(event):
-        Method.define_panel(event)
+    #@gui.add_menu("Method", "tn5", menu_name)
+    #def on_menu_click(event):
+    #    Method.define_panel(event)
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers

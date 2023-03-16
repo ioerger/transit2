@@ -7,7 +7,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton
 
-debugging_enabled = True
+debugging_enabled = False
 root_folder       = path.join(path.dirname(__file__),"../../")
 
 # 
@@ -139,7 +139,7 @@ class gui:
         from pytransit.components import results_area
         return results_area.add(*args, **kwargs)
     
-    debug_wx_python = True
+    debug_wx_python = False
     def debug_wx_if_needed(self):
         if self.debug_wx_python:
             import wx.lib.inspection
