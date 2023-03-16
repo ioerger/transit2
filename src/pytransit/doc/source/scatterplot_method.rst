@@ -12,7 +12,7 @@ Command Line Usage
 ------
 ::
 
-   > python3 ../../Projects/transit/src/transit.py  scatterplot <combined_wig_file> <metadata_file> <annotation_file> --samp <comma-separated sample ID's> <output.png> [Optional Arguments]
+   > python3 ../../Projects/transit/src/transit.py  scatterplot <combined_wig_file> <metadata_file> <annotation_file> --samp <comma-separated sample IDs> <output.png> [Optional Arguments]
 
    Optional Arguments:
    -genes      := If set, this shows the scatterplot of mean insertion counts in a gene. Otherwise, the scatterplot is shown for individual TA sites
@@ -37,7 +37,7 @@ The scatter plot with the same set of samples as above, averaged by genes, but w
    :width: 500
    :align: center
 
-TODO : Pros and con of Log scale
+If distribution of counts is skewed, the relationship between samples might be easier to see on a log scale. However, it can exaggerate differences amoung low counts.
 
 GUI Mode
 ------
