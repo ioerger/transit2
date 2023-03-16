@@ -95,8 +95,8 @@ Usage
         --n <string>         :=  Normalization method. Default: --n TTR
         -a                   :=  Perform adaptive resampling. Default: Turned Off.
         --PC <float>         :=  Pseudocounts used in calculating LFC. (default: 1)
-        --iN <int>           :=  Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 0
-        --iC <int>           :=  Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 0
+        --iN <int>           :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: --iN 0
+        --iC <int>           :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: --iC 0
         --ctrl_lib <string>  :=  String of letters representing library of control files in order
                                  e.g. 'AABB'. Default empty. Letters used must also be used in --exp_lib
                                  If non-empty, resampling will limit permutations to within-libraries.

@@ -30,8 +30,8 @@ Usage
 
   Optional Arguments:
     --n <string>     :=  Normalization method. Default: --n TTR
-    --iN <float>     :=  Ignore TAs occuring at given fraction (as integer) of the N terminus. Default: --iN 0
-    --iC <float>     :=  Ignore TAs occuring at given fraction (as integer) of the C terminus. Default: --iC 0
+    --iN <float>     :=  Ignore TAs occurring at given fraction (as integer) of the N terminus. Default: --iN 0
+    --iC <float>     :=  Ignore TAs occurring at given fraction (as integer) of the C terminus. Default: --iC 0
 
 
 .. [Note to Jeff: we should probably get rid of -l, since LOESS is not relevant for U-test.]

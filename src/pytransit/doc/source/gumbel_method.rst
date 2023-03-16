@@ -85,8 +85,8 @@ Usage
         --m  <integer>    :=  Smallest read-count to consider. Default: --m 1
         --t  <integer>    :=  Trims all but every t-th value. Default: --t 1
         --r  <string>     :=  How to handle replicates. Sum or Mean. Default: --r Sum
-        --iN  <float>     :=  Ignore TAs occuring at given percentage (as integer) of the N terminus. Default: --iN 0
-        --iC  <float>     :=  Ignore TAs occuring at given percentage (as integer) of the C terminus. Default: --iC 0
+        --iN  <float>     :=  Ignore TAs occurring at given percentage (as integer) of the N terminus. Default: --iN 0
+        --iC  <float>     :=  Ignore TAs occurring at given percentage (as integer) of the C terminus. Default: --iC 0
 
 
 

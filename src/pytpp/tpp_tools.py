@@ -410,7 +410,7 @@ def get_id(line):
     return line[a:b]
 
 
-# select the reads from infile that have headers occuring in goodreads
+# select the reads from infile that have headers occurring in goodreads
 
 
 def select_reads(goodreads, infile, outfile):

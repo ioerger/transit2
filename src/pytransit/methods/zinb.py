@@ -60,8 +60,8 @@ class Method:
             --include-conditions <cond1,cond2> :=  Comma separated list of conditions to include, for the analysis. Conditions not in this list, will be excluded.
             --n   <string>        :=  Normalization method. Default: --n TTR
             --ref <cond>          := which condition(s) to use as a reference for calculating log_fold_changes (comma-separated if multiple conditions)
-            --iN  <float>         := Ignore TAs occuring within given percentage (as integer) of the N terminus. Default: --iN 5
-            --iC  <float>         := Ignore TAs occuring within given percentage (as integer) of the C terminus. Default: --iC 5
+            --iN  <float>         := Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: --iN 5
+            --iC  <float>         := Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: --iC 5
             --PC  <N>             := pseudocounts to use for calculating log_fold_changes. Default: --PC 5
             -winz               := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
             --group-by  <string>  := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
