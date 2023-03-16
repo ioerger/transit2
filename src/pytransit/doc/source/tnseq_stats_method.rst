@@ -1,9 +1,7 @@
-
-
 .. _tnseq_stats:
 
 .. rst-class:: 
-tnseq_stats
+Tnseq_stats
 ===========
 
 You can generate the same table to statistics as on the Quality Control panel in the GUI
@@ -61,7 +59,7 @@ The output file is tab-separated text file (spreadsheet) with the following colu
  * skewness: it is difficult to give a hard cutoff, but skewness > 50 could be a sign that a sample is noisy
  * Pickands Tail Index: it is difficult to give a hard cutoff, but PTI>0.5 could be a sign that a sample is noisy (skewed), and PTI>1 is bad.
 
-Picands Tail Index (PTI) is defined in: `James Pickands III. (1975) 
+Pickands Tail Index (PTI) is defined in: `James Pickands III. (1975) 
 "Statistical Inference Using Extreme Order Statistics."
 Ann. Statist. 3(1):119-131. <https://doi.org/10.1214/aos/1176343003>`_
 It is calculated using a formula based on the order statistics of the
