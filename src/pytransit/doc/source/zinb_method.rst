@@ -52,7 +52,7 @@ Example
         -winz                             := winsorize insertion counts for each gene in each condition (replace max cnt with 2nd highest; helps mitigate effect of outliers)
         --group-by  <string>              := columnname (in samples_metadata) to use as the Condition. Default: "Condition"
         --condition <string>              := alias for --group-by
-        --covars       <covar1,covar2...> := Comma separated list of covariates (in metadata file) to include, for the analysis.
+        --covars <covar1,covar2...>       := Comma separated list of covariates (in metadata file) to include, for the analysis.
         --interactions <covar1,covar2...> := Comma separated list of covariates to include, that interact with the condition for the analysis. Must be factors
         --gene <RV number or Gene name>   := Run method for one gene and print model output.
         -append_gene_desc                 := the output_file will have column for gene descriptions
@@ -268,7 +268,19 @@ and this would be compared to the following null model (without the interaction 
   m_0: ln \ \mu = \alpha_0 + \alpha_1 WT  + \alpha_2 mutant + \beta_1 control + \beta_2 treated
 
 
+GUI Mode
+-------
+ZINB can be access though the "Method" tab in the Menu Bar.
+    .. image:: _images/zinb_selection_gui.png
+       :width: 1000
+       :align: center 
 
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we name the output files using the prefix passed in.
+    .. image:: _images/zinb_parameter_panel.png
+       :width: 1000
+       :align: center
+       
 
 Output and Diagnostics
 ----------------------
@@ -326,18 +338,7 @@ Changing the pseudocounts will not affect the analysis of statistical significan
 
 |
 
-GUI Mode
--------
-ZINB can be access though the "Method" tab in the Menu Bar.
-    .. image:: _images/zinb_selection_gui.png
-       :width: 1000
-       :align: center 
 
-The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
-in the GUI format we name the output files using the prefix passed in.
-    .. image:: _images/zinb_parameter_panel.png
-       :width: 1000
-       :align: center
 
 Run-time
 --------

@@ -18,10 +18,10 @@ Command Line Usage
     > python3 transit.py  corrplot <combined_wig_file> <metadata_file> <annotation_file> <output.png> [Optional Arguments]
     
     Optional parameters:
-     --avg_by_conditions := groups by conditions, take the mean, then show correlation between conditions. Default: False
-     --n <string> := Normalization method. Default: --n TTR
-     --iN    <N>  := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
-     --iC    <N>  := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+     -avg_by_conditions  := groups by conditions, take the mean, then show correlation between conditions. Default: False
+     --n <string>        := Normalization method. Default: --n TTR
+     --iN <N>            := Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+     --iC <N>            := Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
 
 With the --avg_by_conditions flag, counts are averaged for each TA site across conditions and the corrplot is generated on those values.
 Without the flag, a correaltion of the wig files is performed. 
@@ -59,11 +59,11 @@ washed out by the rest of the genes in the genome, the majority of which usually
     > python3 transit.py corrplot <combined_wig_file> <metadata_file> <annotation_file> <anova|zinb output > <output.png> -anova|-zinb
     
     Optional parameters:
-     --topk <int>            := number of results
-     --qval <float>          := adjusted p value threshold. Default --qval 0.05
-     --low-mean-filter <int> := Filter out genes with grand mean count (across all conditions) below this threshold(even if adjusted p-value < 0.05). Default --low-mean-filter 5
+     --topk            <int>  := number of results
+     --qval           <float> := adjusted p value threshold. Default --qval 0.05
+     --low-mean-filter <int>  := Filter out genes with grand mean count (across all conditions) below this threshold(even if adjusted p-value < 0.05). Default --low-mean-filter 5
 
-In this case, the --avg_by_conditions flagis set to True, where counts are averaged for each TA site across conditions and the corrplot is generated on those values.
+In this case, the --avg_by_conditions flag is set to True, where counts are averaged for each TA site across conditions and the corrplot is generated on those values.
 Here is an example which generates the following image showing the corrplot among several different growth conditions:
 ::
     > python3 src/transit.py corrplot iron.transit/comwig.tsv iron.transit/metadata.tsv H37Rv.prot_table iron_anova.out iron_anova_out.png -anova --top_k 20
@@ -91,7 +91,11 @@ The parameter panels for the two are equivalent to their relative command line u
    :width: 1000
    :align: center
 
-The combined_wig, metadata and annotation files used will be those uploaded into the application (see example below)
+The combined_wig, metadata and annotation files used will be those uploaded into the application
+
+Runtime
+------
+This should be relatively fast, takes ~1 minute for to make one corrplot for all samples in the iron dataset
 
 .. rst-class:: transit_sectionend
 ----

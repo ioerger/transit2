@@ -42,6 +42,19 @@ Usage
 
 .. [Note to Jeff: change the order of CL args: <combined_wig> <metadata> <annotation> - it should be like this for all methods.  Check the usage() strings and from_args().  Also, can you update the usage blocks in each method in the documentation?]
 
+GUI Mode
+-------
+
+Utest can be access though the "Method" tab in the Menu Bar.
+    .. image:: _images/utest_selection_gui.png
+       :width: 1000
+       :align: center 
+
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we name the output files using the prefix passed in.
+    .. image:: _images/utest_parameter_panel.png
+       :width: 1000
+       :align: center
 
 Output
 ------

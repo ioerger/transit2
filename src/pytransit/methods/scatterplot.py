@@ -28,17 +28,19 @@ class Method:
     valid_cli_flags = [
         "-log",
         "-genes",
-        "--cond",
+        #"--cond",
         "--samp",
     ]
 
     usage_string = f"""
         Usage:
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> --samp <comma-separated sample ID's> <output.png> [-genes -log]
-            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> --cond <comma-separated condition names> <output.png> [-genes -log]
+            {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> --samp <comma-separated sample ID's> <output.png> [Optional Arguments]
+            Optional Arguments:
+                -genes         := If set, this shows the scatterplot of mean insertion counts in a gene. Otherwise, the scatterplot is shown for individual TA sites
+                -log           := If set, this shows the axes of the scatterplot on log scale
     """.replace("\n        ","\n     ")
     
-    # usage: scatterplot <combined_wig> <metadata_file> <sample_id_or_condition1> <sample_id_or_condition2> <annotation_file> <output.png>
+    # usage removed above: {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> --cond <comma-separated condition names> <output.png> [-genes -log]
     @staticmethod
     @cli.add_command(cli_name)
     def from_args(args, kwargs):

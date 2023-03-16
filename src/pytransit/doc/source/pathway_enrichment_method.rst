@@ -51,22 +51,22 @@ Command Line Usage
         
         Optional Arguments:
             --PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: --PC 2
-            --LFC-col   <int> := column index (starting at 0) for LFC's
+            --LFC-col <int>   := column index (starting at 0) for LFC's
 
     Usage 2: # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
         > python3 transit.py  pathway_enrichment <input_file> <associations> <pathways> <output_file> --M GSEA [Optional Arguments]
         
         Optional Arguments:
             --ranking <SLPV or LFC> := SLPV is signed-log-p-value, LFC is log2-fold-change from input. Default --ranking SLPV
-            --p         <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
-            --n-perm    <int>       := number of permutations to simulate for null distribution to determine p-value. Default --n-perm 10000
-            --LFC-col   <int> := column index (starting at 0) for LFC's
+            --p <float>     := exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005)
+            --n-perm <int>  := number of permutations to simulate for null distribution to determine p-value. Default --n-perm 10000
+            --LFC-col<int>  := column index (starting at 0) for LFC's
     
     Usage 3: # ONT for Ontologizer (Grossman et al, 2007)
         > python3 transit.py  pathway_enrichment <input_file> <associations> <pathways> <output_file> --M ONT [Optional Arguments]
 
         Optional Arguments:
-            --LFC-col   <int>       := column index (starting at 0) for LFC's
+            --LFC-col <int>  := column index (starting at 0) for LFC's
 
 |
 
@@ -240,35 +240,6 @@ Examples
 
 The $DATA environment variable in these examples refers to the Transit data directory, e.g. src/pytransit/data/.
 
-Interpreting Output of Pathway Enrichment
---------
-All output files contain the following columns:
-
-
-+-------------------------+------------------------------------------------------------------------------------+
-| Column Name             | Column Description                                                                 | 
-+=========================+====================================================================================+
-| Pathway                 | The pathways of interest using the pathway file selected                           |
-+-------------------------+------------------------------------------------------------------------------------+
-| Pathway Description     | Description of the Pathway of interest                                             |
-+-------------------------+------------------------------------------------------------------------------------+
-| Number of Genes in Path | Number of Total Genes in the Pathway, using the associations file selected         |
-+-------------------------+------------------------------------------------------------------------------------+
-| Enrichment Score        | Enrichment Score of the Pathway                                                    |
-+-------------------------+------------------------------------------------------------------------------------+
-| P Value                 | P Value Determined by the Pathway Enrichment Analysis Method slected               |
-+-------------------------+------------------------------------------------------------------------------------+
-| Adj P Value             | FDR-corrected P Value                                                              |
-+-------------------------+------------------------------------------------------------------------------------+
-| Relevant Genes          | | In the output files from FET and ONT, these genes are those in the siginificant  |
-|                         | | genes in path column, the overlap of the pathway and the significant genes from  |
-|                         | | the input file (Adj P Value < 0.05). Since GSEA looks at the ranking of genes in |
-|                         | | a pathway using the entire genome, the genes in this column are GSEA calculated  |
-|                         | | hits in the pathway.                                                             |
-+-------------------------+------------------------------------------------------------------------------------+
-    
-The files are typically sorted by significance (Adj P Value) or Enrichment Score. There are additional columns in the output files relating to the method used to conduct pathway enrichment. For example,
-GSEA also contains a mean rank column which could be useful to sort by. 
 
 GUI Mode
 --------
@@ -295,6 +266,41 @@ in the GUI format we have pre-set some of the common Pathway Systems for ease of
     .. image:: _images/pathway_enrichment_parameter_popup.png
        :width: 1000
        :align: center
+
+
+Output and Diagnostics
+----------------------
+All output files contain the following columns:
+
++-------------------------+------------------------------------------------------------------------------------+
+| Column Name             | Column Description                                                                 | 
++=========================+====================================================================================+
+| Pathway                 | The pathways of interest using the pathway file selected                           |
++-------------------------+------------------------------------------------------------------------------------+
+| Pathway Description     | Description of the Pathway of interest                                             |
++-------------------------+------------------------------------------------------------------------------------+
+| Number of Genes in Path | Number of Total Genes in the Pathway, using the associations file selected         |
++-------------------------+------------------------------------------------------------------------------------+
+| Enrichment Score        | Enrichment Score of the Pathway                                                    |
++-------------------------+------------------------------------------------------------------------------------+
+| P Value                 | P Value Determined by the Pathway Enrichment Analysis Method slected               |
++-------------------------+------------------------------------------------------------------------------------+
+| Adj P Value             | FDR-corrected P Value                                                              |
++-------------------------+------------------------------------------------------------------------------------+
+| Relevant Genes          | | In the output files from FET and ONT, these genes are those in the siginificant  |
+|                         | | genes in path column, the overlap of the pathway and the significant genes from  |
+|                         | | the input file (Adj P Value < 0.05). Since GSEA looks at the ranking of genes in |
+|                         | | a pathway using the entire genome, the genes in this column are GSEA calculated  |
+|                         | | hits in the pathway.                                                             |
++-------------------------+------------------------------------------------------------------------------------+
+    
+The files are typically sorted by significance (Adj P Value) or Enrichment Score. There are additional columns in the output files relating to the method used to conduct pathway enrichment. For example,
+GSEA also contains a mean rank column which could be useful to sort by. 
+
+Run-time
+--------
+
+A typical run of the pathway enrichment method takes less than 1 minute.
 
 .. rst-class:: transit_sectionend
 ------

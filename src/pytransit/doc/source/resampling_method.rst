@@ -286,7 +286,24 @@ in condition A will be from one library (and one strain), and all
 replicates in condition B will be from another library (another strain).
 
 
+
+GUI Mode
+-------
+The resampling analysis method can be selected from the "Method" tab in the Menu Bar. 
+
+.. image:: _images/resampling_gui_selection.png
+   :width: 1000
+   :align: center
+
 |
+The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
+
+.. image:: _images/resampling_parameter_panel.png
+   :width: 1000
+   :align: center
+   
+|
+
 
 Output and Diagnostics
 ----------------------
@@ -341,21 +358,6 @@ changed using the -PC flag (above).
 
 
 |
-
-GUI Mode
--------
-The Anova analysis method can be selected from the "Method" tab in the Menu Bar. 
-
-.. image:: _images/resampling_gui_selection.png
-   :width: 1000
-   :align: center
-
-|
-The parameters to input through the parameter panel for the method is equivalent to the command line usage (see parameter descriptions above for full detail): 
-
-.. image:: _images/resampling_parameter_panel.png
-   :width: 1000
-   :align: center
 
 Run-time
 --------

@@ -59,6 +59,40 @@ Usage
        to this method. ES (essential by Gumbel) and ESB (essential by Binomial) is calculated in the TTN-Fitness method via this files
 
 
+GUI Mode
+--------
+TTN Fitness can be access though the "Method" tab in the Menu Bar.
+    .. image:: _images/ttnfitness_selection_gui.png
+       :width: 1000
+       :align: center
+
+The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
+in the GUI format we name the output files using the prefix passed in.
+    .. image:: _images/ttnfitness_parameter_panel.png
+       :width: 1000
+       :align: center
+
+Ensure that the gumbel file uploaded is of the condition selected
+
+Volcano Plot
+--------
+After TTN-Fitness is run, the two output files will appear in the results panel. When selected, both files show Display Table as a
+possible action. The Genes file also has a Display Volcano Plot action. 
+
+    .. image:: _images/ttnfitness_results_area_action.png
+       :width: 600
+       :align: center
+
+When selected, file dialog will appear to save the image and the volcano plot will also be added to the results area. When selected and the 
+"Display Image" action is performed, the folowing image should appear:
+
+    .. image:: _images/ttnfitness_volcano.png
+       :width: 400
+       :align: center
+
+The horizonal line is the log10 adjusted pval, above which genes are marked NE. The vertical line is where the coefficient of the model is 0, 
+below which siginifnicant genes are marked "GD" and above which siginificant genes are marked "GA"
+
 
 Output
 ------
@@ -181,42 +215,6 @@ The resulting ttnfitness_glycerol_H37Rv_gene.txt out should contain TTN Fitness 
 * 72 U
 
 The resulting ttnfitness_glycerol_H37Rv_TAsite.txt should contain 62,622 TA sites
-
-
-GUI Mode
---------
-TTN Fitness can be access though the "Method" tab in the Menu Bar.
-    .. image:: _images/ttnfitness_selection_gui.png
-       :width: 1000
-       :align: center
-
-The parameters to input through the parameter panel for the method is equivalent to the command line usage, except
-in the GUI format we name the output files using the prefix passed in.
-    .. image:: _images/ttnfitness_parameter_panel.png
-       :width: 1000
-       :align: center
-
-Ensure that the gumbel file uploaded is of the condition selected
-
-Volcano Plot
---------
-After TTN-Fitness is run, the two output files will appear in the results panel. When selected, both files show Display Table as a
-possible action. The Genes file also has a Display Volcano Plot action. 
-
-    .. image:: _images/ttnfitness_results_area_action.png
-       :width: 600
-       :align: center
-
-When selected, file dialog will appear to save the image and the volcano plot will also be added to the results area. When selected and the 
-"Display Image" action is performed, the folowing image should appear:
-
-    .. image:: _images/ttnfitness_volcano.png
-       :width: 400
-       :align: center
-
-The horizonal line is the log10 adjusted pval, above which genes are marked NE. The vertical line is where the coefficient of the model is 0, 
-below which siginifnicant genes are marked "GD" and above which siginificant genes are marked "GA"
-
 
 
 Run-time
