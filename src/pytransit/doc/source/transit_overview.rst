@@ -42,10 +42,12 @@ and functions) have changed substantially.  The new GUI is more integrated for e
 has some new features (like ANOVA and ZINB), and will make it easier to add new features
 in the future.
 
-However, for previous users of Transit who prefer backwards compatibility,
-we will continue to maintain the old branch of Transit as version 3.2.x.
 
-(*add a link to 3.2.x documentation??? how to checkout latest of old branch?*)
+.. Note::
+
+  For previous users of Transit who prefer backwards compatibility,
+  we will continue to maintain the original version of Transit (3.2.x). 
+  See the `documentation and installation instructions <https://transit.readthedocs.io/en/latest/transit_overview.html>`_
 
 
 Typical Workflow
