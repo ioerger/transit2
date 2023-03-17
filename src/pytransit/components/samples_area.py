@@ -144,9 +144,12 @@ def create_sample_area(frame):
                             annotation_paths=[samples.annotation_getter()],
                         )
                             
-                    samples.cwig_getter       = create_file_input(frame, load_button_container.wx_object, button_label="Select Combined Wig File", after_select=update_values, **samples.load_button_args)
-                    samples.metadata_getter   = create_file_input(frame, load_button_container.wx_object, button_label="Select Metadata File",     after_select=update_values, **samples.load_button_args)
-                    samples.annotation_getter = create_file_input(frame, load_button_container.wx_object, button_label="Select Annotation File",   after_select=update_values, **samples.load_button_args)
+                    samples.cwig_getter       = create_file_input(frame, load_button_container.wx_object, button_label="Select Combined Wig File", after_select=update_values, **samples.load_button_args, init_file_text="Must Select File",
+                                                                  tooltip_text="Multiple .wig files are combined into a single combined_wig file using the **'transit export combined_wig'** command on the command line.")
+                    samples.metadata_getter   = create_file_input(frame, load_button_container.wx_object, button_label="Select Metadata File",     after_select=update_values, **samples.load_button_args, init_file_text="Must Select File",
+                                                                  tooltip_text="File describing each of the samples (as a spreadsheet, e.g. in Excel, which is then saved in tab-separted format).  Most commonly, there will be several replicates associated with each condition.")
+                    samples.annotation_getter = create_file_input(frame, load_button_container.wx_object, button_label="Select Annotation File",   after_select=update_values, **samples.load_button_args, init_file_text="Must Select File",
+                                                                   tooltip_text="Tab-separated text files containing the information on each gene, such as coordinates, strand, ORF id, and gene name.")
             
             button_container.add(
                 load_button_container,

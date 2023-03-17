@@ -141,7 +141,7 @@ if True:
         return
 
 
-    def create_file_input(panel, sizer, *, button_label, tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None, alignment=wx.ALIGN_CENTER, size=(-1,-1), color=gui_tools.color.light_gray):
+    def create_file_input(panel, sizer, *, button_label, init_file_text="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None, alignment=wx.ALIGN_CENTER, size=(-1,-1), color=gui_tools.color.light_gray):
         """
             Example:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
@@ -188,7 +188,7 @@ if True:
             # 
             # Text
             # 
-            file_text = wx.StaticText(panel, wx.ID_ANY, label="", style=wx.ALIGN_LEFT)
+            file_text = wx.StaticText(panel, wx.ID_ANY, label=init_file_text, style=wx.ALIGN_LEFT)
             row_sizer.Add(file_text, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
         
         sizer.Add(row_sizer, proportion=0, flag=alignment, border=gui_tools.default_padding)
