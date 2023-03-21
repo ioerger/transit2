@@ -22,6 +22,7 @@ except: pass
 
 import pytransit.components.view_trash as view_trash
 import pytransit.components.draw_trash as draw_trash
+from pytransit.globals import logging
 from math import *
 import os
 import ntpath
