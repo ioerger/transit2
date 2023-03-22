@@ -17,6 +17,15 @@ def parse_global_flags(args, kwargs):
         sys.argv.remove("--debug")
         kwargs.pop("-debug")
     
+    # 
+    # special options
+    # 
+    if len(args) == 0 and len(kwargs) > 1:
+        if "help" in kwargs or "h" in kwargs:
+            intentional_help_command([], kwargs)
+        elif "version" in kwargs or "v" in kwargs:
+            version_command([],kwargs)
+    
 def find_and_run_subcommand(args, kwargs):
     length_of_longest_subcommand = max(len(each) for each in cli.subcommands.keys())
     for each_length in reversed(range(1, length_of_longest_subcommand+1)):
@@ -26,9 +35,7 @@ def find_and_run_subcommand(args, kwargs):
             cli.subcommands[subcommand](subcommand_args, kwargs)
             exit(0)
 
-@cli.add_command("-h")
 @cli.add_command("help")
-@cli.add_command("-help")
 def intentional_help_command(args, kwargs):
     help_command(args, kwargs)
     exit(0)
@@ -91,9 +98,7 @@ def help_command(args=[], kwargs={}):
             no_traceback=True,
         )
 
-@cli.add_command("-v")
-@cli.add_command("-version")
-@cli.add_command("--version")
+@cli.add_command("version")
 def version_command(args, kwargs):
     import pytransit
     print("Version: {0}".format(pytransit.__version__))
