@@ -1,0 +1,25 @@
+
+The available subcommands are:
+    help 
+    version 
+    export combined_wig 
+    convert gff_to_prot 
+    export igv 
+    normalize 
+    tnseq_stats 
+    gene_means 
+    anova 
+    pathway_enrichment 
+    gi 
+    gumbel 
+    hmm 
+    resampling 
+    ttnfitness 
+    zinb 
+    scatterplot 
+    corrplot 
+    heatmap 
+    utest 
+
+Run a subcommand with no arguments to get subcommand-specific usage/examples
+            
