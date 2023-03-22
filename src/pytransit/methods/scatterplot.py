@@ -28,7 +28,7 @@ class Method:
     valid_cli_flags = [
         "-log",
         "-genes",
-        #"--cond",
+        "--cond",
         "--samp",
     ]
 
