@@ -213,7 +213,7 @@ class logging:
         set_status(last_line)
 
     @staticmethod
-    def error(*args, no_traceback=False, **kwargs):
+    def error(*args, no_traceback=False, exit_code=1, **kwargs):
         import traceback
         if gui.is_active:
             from pytransit.specific_tools.gui_tools import set_status
@@ -224,7 +224,7 @@ class logging:
         if no_traceback and not gui.is_active:
             import sys
             print(*args, file=sys.stderr, **kwargs)
-            exit(1)
+            exit(exit_code)
         else:
             error_message = _print_to_string(*args, **kwargs)
             last_line = error_message.strip().split("\n")[-1]
@@ -239,7 +239,7 @@ class logging:
                     set_status(last_line)
                     raise TransitError(error_message)
                 else:
-                    exit(1)
+                    exit(exit_code)
     @staticmethod
     def progress_update(text, percent):
         if gui.is_active:

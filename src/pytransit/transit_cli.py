@@ -78,6 +78,7 @@ def help_command(args=[], kwargs={}):
                 Run a subcommand with no arguments to get subcommand-specific usage/examples
             """.replace("\n                ","\n"),
             no_traceback=True,
+            exit_code=0,
         )
     # 
     # user failed at something, and we are trying to help
