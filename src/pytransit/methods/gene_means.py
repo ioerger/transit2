@@ -47,6 +47,7 @@ class Method:
     
     @staticmethod
     @cli.add_command(cli_name)
+    @cli.add_command("export", "gene_means")
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
@@ -126,13 +127,15 @@ class Method:
         column_names = [
             "ORF",
             "Gene Name",
+            "numTAs",
             *labels,
         ]
-        
-        rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name]+["%0.1f" % x for x in means[i,:]])))
+
+        rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name,genes[i].n]+["%0.1f" % x for x in means[i,:]])))
             [
                 genes[row_index].orf,
                 genes[row_index].name,
+                genes[row_index].n,
                 *[
                     "%0.1f" % x 
                         for x in means[row_index,:]
@@ -160,7 +163,7 @@ class Method:
                 n_terminus=n_terminus,
                 c_terminus=c_terminus,
             )
-            
+
             logging.log(f"Writing output file: {output_path}")
             transit_tools.write_result(
                 path=output_path, # path=None means write to STDOUT
