@@ -678,7 +678,7 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
         n_terminus=n_terminus,
         c_terminus=c_terminus,
     )
-    
+
     # calculate gene means 
     means = []
     if combined_wig.metadata_path:
@@ -689,6 +689,7 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
     for gene in genes:
         if gene.n>=1:
             means.append(numpy.mean(gene.reads,axis=1)) # samples are in rows; columns are TA sites in gene
+        else: means.append([0]*len(labels))
     means = numpy.vstack(means)
     
     if avg_by_conditions:
@@ -704,7 +705,7 @@ def calc_gene_means(combined_wig_path=None, metadata_path=None, annotation_path=
         for each_condition_name in combined_wig.metadata.condition_names:
             count_lists.append(
                 # pick columns corresponding to condition; avg across rows (genes)
-                numpy.mean(means[:,conditions_array==each_condition_name],axis=1) # TODO: isn't this an issue taking a mean of means? --Jeff
+                numpy.mean(means[:,conditions_array==each_condition_name],axis=1) 
             )
         means = numpy.array(count_lists).transpose()
     

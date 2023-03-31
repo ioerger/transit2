@@ -150,7 +150,7 @@ class Method:
         output_path       = output_path       if output_path       is not None else None
         n_terminus        = n_terminus        if n_terminus        is not None else 0.0
         c_terminus        = c_terminus        if c_terminus        is not None else 0.0
-        
+
         from pytransit.specific_tools import stat_tools
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             (column_names, rows), (means, genes, labels) = Method.calculate(
