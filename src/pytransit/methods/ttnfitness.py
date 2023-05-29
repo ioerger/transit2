@@ -29,7 +29,7 @@ def slow_computation(gene_one_hot_encoded, ttn_vectors, Y):
     import statsmodels.api as sm
     X1 = pandas.concat([gene_one_hot_encoded, ttn_vectors], axis=1)
     #X1 = sm.add_constant(X1)
-    return X1, sm.OLS(Y, X1).fit()
+    return X1, sm.OLS(Y.astype(float), X1.astype(float)).fit()
 
 @misc.singleton
 class Method:
