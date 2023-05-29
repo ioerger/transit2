@@ -1,6 +1,6 @@
 #UTest
 #yaml:
-#    date: 2023-03-22 09:23:00
+#    date: 2023-05-29 13:16:56
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'utest' './src/pytransit/data/iron.transit/comwig.tsv' './src/pytransit/data/iron.transit/metadata.tsv' './src/pytransit/data/iron.transit/annotation.H37Rv.prot_table' 'HighFeMBT' 'LowFeMBT' './tests/cli_tests/utest/0001_iron_basic.sh.1.result'
