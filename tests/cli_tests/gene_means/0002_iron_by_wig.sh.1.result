@@ -1,10 +1,10 @@
 #GeneMeans
 #yaml:
-#    date: 2023-05-29 13:04:13
+#    date: 2023-05-29 13:35:41
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'gene_means' './src/pytransit/data/iron.transit/comwig.tsv' './src/pytransit/data/iron.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gene_means/0002_iron_by_wig.sh.1.result'
-#    time: 2.743023157119751
+#    time: 2.9355721473693848
 #    
 #ORF	Gene Name	FeCMBT.wig	FeCMBT2b.wig	HighFeMBT.wig	HighFeMBT2.wig	HighFeMBT3.wig	LowFeMBT.wig	LowFeMBT2.wig	Hemin.wig	Hemin2b.wig	Hemin3b.wig	Hemoglobin.wig	Hemoglobin2b.wig	HeminMBT.wig	HeminMBT2.wig
 Rv0001	dnaA	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.4	0.0	0.0	0.3	0.0	0.0

@@ -1,6 +1,6 @@
 #HMM_Genes
 #yaml:
-#    date: 2023-05-29 13:07:02
+#    date: 2023-05-29 13:38:33
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'hmm' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'Cholesterol' './tests/cli_tests/hmm/0001_basic.sh.1.result'
