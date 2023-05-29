@@ -194,7 +194,7 @@ if True:
         assert file_kind.isidentifier(), f"The file_kind {file_kind} must not contain whitespace or anything else that makes it an invalid var name"
         
         import datetime
-        import ez_yaml
+        from pytransit.__dependencies__ import ez_yaml
         import pytransit
         import pytransit.generic_tools.csv as csv
         from pytransit.globals import logging, gui

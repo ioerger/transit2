@@ -1,10 +1,10 @@
 #GeneMeans
 #yaml:
-#    date: 2023-03-22 08:54:18
+#    date: 2023-05-29 13:04:04
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'gene_means' './src/pytransit/data/iron.transit/comwig.tsv' './src/pytransit/data/iron.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/gene_means/0001_iron_basic.sh.1.result' '-cond'
-#    time: 2.8002538681030273
+#    time: 2.7600162029266357
 #    
 #ORF	Gene Name	HighFeMBT	LowFeMBT	FeCMBT	Hemin	Hemoglobin	HeminMBT
 Rv0001	dnaA	0.0	0.0	0.0	0.1	0.1	0.0
