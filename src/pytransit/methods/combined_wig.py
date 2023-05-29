@@ -9,7 +9,6 @@ from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, nor
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.generic_tools import csv
-from pytransit.components import samples_area
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.spreadsheet import SpreadSheet
 

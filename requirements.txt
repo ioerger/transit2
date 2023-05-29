@@ -1,9 +1,8 @@
 matplotlib==3.3.3
-Pypubsub==4.0.3
 statsmodels==0.13.2
 wxPython==4.1.1
 Pillow==8.1.0
 numpy==1.19.5
 scikit-learn==1.1.1
-scipy==1.6.0
+scipy==1.10.1
 seaborn==0.11.2

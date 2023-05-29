@@ -72,22 +72,30 @@ class gui:
     
     @property
     def selected_samples(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        if not gui.is_active:
+            return []
         from pytransit.components.samples_area import get_selected_samples
         return get_selected_samples()
     
     @property
     def selected_condition_names(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        if not gui.is_active:
+            return []
         from pytransit.components.samples_area import get_selected_condition_names
         return get_selected_condition_names()
     
     @property
     def selected_conditions(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        if not gui.is_active:
+            return []
         from pytransit.components.samples_area import get_selected_condition_names
         names = get_selected_condition_names()
         return [ each for each in self.conditions if each.name in names ]
     
     @property
     def wigs_in_selected_conditions(self): # this wrapper is here as an intentional design choice. Data access is done through a central place (this file) to allow for changing the implementation later without updating all the individual methods
+        if not gui.is_active:
+            return []
         selected_condition_names = set(self.selected_condition_names)
         selected_wigs = [ each for each in self.samples if len(set(each.condition_names) & selected_condition_names) > 0 ]
         return selected_wigs
@@ -99,6 +107,8 @@ class gui:
             def on_menu_click():
                 print("Menu item was clicked")
         """
+        if not gui.is_active:
+            return lambda func: func
         if len(args) <= 1:
             raise Exception(f'''When calling @gui.add_menu({args}), there needs to be at least two args (and all args need to be strings)''')
         
@@ -124,23 +134,33 @@ class gui:
         return decorator
 
     def add_wig_area_dropdown_option(self, *args, **kwargs):
+        if not gui.is_active:
+            return lambda func: func
         from pytransit.components import samples_area
         return samples_area.add_wig_area_dropdown_option(*args, **kwargs)
     
     def add_condition_area_dropdown_option(self, *args, **kwargs):
+        if not gui.is_active:
+            return lambda func: func
         from pytransit.components import samples_area
         return samples_area.add_condition_area_dropdown_option(*args, **kwargs)
     
     def add_wig_area_button(self, *args, **kwargs):
+        if not gui.is_active:
+            return lambda func: func
         from pytransit.components import samples_area
         return samples_area.add_wig_area_button(*args, **kwargs)
     
     def add_result(self, *args, **kwargs):
+        if not gui.is_active:
+            return []
         from pytransit.components import results_area
         return results_area.add(*args, **kwargs)
     
     debug_wx_python = False
     def debug_wx_if_needed(self):
+        if not gui.is_active:
+            return []
         if self.debug_wx_python:
             import wx.lib.inspection
             wx.lib.inspection.InspectionTool().Show()

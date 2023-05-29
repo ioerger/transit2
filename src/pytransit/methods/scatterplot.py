@@ -15,7 +15,6 @@ from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
 from pytransit.specific_tools.transit_tools import calc_gene_means, wx, basename
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-from pytransit.components import samples_area, file_display, results_area, parameter_panel
 from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
@@ -85,7 +84,7 @@ class Method:
         Method.define_panel(event)
     
     def define_panel(self, _):
-        from pytransit.components import panel_helpers
+        from pytransit.components import panel_helpers, parameter_panel
         Method.value_getters = LazyDict()
         Method.by_condition = False
         with panel_helpers.NewPanel() as (panel, main_sizer):
