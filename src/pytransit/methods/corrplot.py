@@ -9,6 +9,7 @@ import collections
 import heapq
 
 import numpy
+numpy.bool = bool
 
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
