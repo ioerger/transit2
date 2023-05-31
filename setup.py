@@ -76,8 +76,10 @@ class UploadCommand(Command):
             self.status('Adding and pushing git tags to origin and public...')
             os.system('git tag v{0}'.format(version))
             os.system('git push origin --tags')
-            os.system('git push https://github.com/mad-lab/transit master')
-            os.system('git push https://github.com/mad-lab/transit --tags')
+            #os.system('git push https://github.com/mad-lab/transit master')
+            #os.system('git push https://github.com/mad-lab/transit --tags')
+            os.system('git push https://github.com/ioerger/transit2 master')
+            os.system('git push https://github.com/ioerger/transit2 --tags')
         else:
             self.status("Exiting...")
             sys.exit()
@@ -92,24 +94,24 @@ class UploadCommand(Command):
         sys.exit()
 
 setup(
-    name='tnseq-transit',
+    name='transit2',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version=version,
 
-    description='TRANSIT is a tool for the analysis of Tn-Seq data. It provides an easy to use graphical interface and access to three different analysis methods that allow the user to determine essentiality in a single condition as well as between conditions.',
+    description='TRANSIT2 is a tool for the analysis of Tn-Seq data. It provides an easy to use graphical interface and access to three different analysis methods that allow the user to determine essentiality in a single condition as well as between conditions.',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/mad-lab/transit',
-    download_url='https://github.com/mad-lab/transit',
+    url='https://orca1.tamu.edu/essentiality/transit/index.html',
+    download_url='https://github.com/ioerger/transit2',
 
     # Author details
-    author='Michael A. DeJesus',
-    author_email='mad@cs.tamu.edu',
+    author='Thomas R. Ioerger',
+    author_email='ioerger@cs.tamu.edu',
 
     # Choose your license
     license='GNU GPL',
@@ -129,8 +131,6 @@ setup(
 
     # What does your project relate to?
     keywords=['tnseq', 'analysis', 'biology', 'genome'],
-
-    #package_dir = {'tnseq-transit': 'src/pytransit'},
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
