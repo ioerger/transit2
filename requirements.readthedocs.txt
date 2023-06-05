@@ -1,0 +1,2 @@
+# this is here to tell readthedocs that it doesn't have to
+# import requirements.txt just to build the docs
