@@ -1,24 +1,24 @@
 # TRANSIT
 
-[![Version](https://img.shields.io/github/tag/mad-lab/transit.svg)](https://github.com/mad-lab/transit)   [![Build Status](https://travis-ci.org/mad-lab/transit.svg?branch=master)](https://travis-ci.org/mad-lab/transit)   [![Documentation Status](https://readthedocs.org/projects/transit/badge/?version=latest)](http://transit.readthedocs.io/en/latest/?badge=latest)   [![Downloads](https://pepy.tech/badge/tnseq-transit)](https://pepy.tech/project/tnseq-transit)
+[![Version](https://img.shields.io/github/tag/ioerger/transit2.svg)](https://github.com/ioerger/transit2)   [![Build Status](https://travis-ci.org/ioerger/transit2.svg?branch=master)](https://travis-ci.org/ioerger/transit2)   [![Documentation Status](https://readthedocs.org/projects/transit2/badge/?version=latest)](http://transit2.readthedocs.io/en/latest/?badge=latest)   [![Downloads](https://pepy.tech/badge/transit2)](https://pepy.tech/project/transit2)
 
 
-**NOTE: TRANSIT v3.0+ now requires python3.6+. If you want to use TRANSIT with python2, use version < 3.0.**
+**NOTE: TRANSIT2 requires python3.6+.**
 
-Welcome! This is the distribution for the TRANSIT and TPP tools developed by the [Ioerger Lab](http://orca2.tamu.edu/tom/iLab.html) at Texas A&M University.
+Welcome! This is the distribution for the TRANSIT2 and TPP tools developed by the [Ioerger Lab](http://orca2.tamu.edu/tom/iLab.html) at Texas A&M University.
 
-TRANSIT is a tool for processing and statistical analysis of Tn-Seq data.
+TRANSIT2 is a tool for processing and statistical analysis of Tn-Seq data.
 It provides an easy to use graphical interface and access to three different analysis methods that allow the user to determine essentiality in a single condition as well as between conditions.
 
-TRANSIT Home page: http://saclab.tamu.edu/essentiality/transit/index.html
+TRANSIT2 Home page: http://saclab.tamu.edu/essentiality/transit/index_transit2.html
 
-TRANSIT Documentation: https://transit.readthedocs.io/en/latest/transit_overview.html
+TRANSIT2 Documentation: https://transit2.readthedocs.io/en/latest/transit_overview.html
 
-[Changelog](https://github.com/mad-lab/transit/blob/master/CHANGELOG.md)
+[Changelog](https://github.com/ioerger/transit2/blob/master/CHANGELOG.md)
 
 
 ## Features
-TRANSIT offers a variety of features including:
+TRANSIT2 offers a variety of features including:
 
 -   More than **10 analysis methods**, including methods for determining **conditional essentiality** as well as **genetic interactions**.
 
@@ -45,10 +45,11 @@ For any questions or comments, please contact Dr. Thomas Ioerger, ioerger@cs.tam
 
 ## Instructions
 
-For full instructions on how to install and run TRANSIT (and the optional pre-processor, TPP), please see the documentation included in this distribution ("src/pytransit/doc" folder) or visit the following web page:
+For full instructions on how to install and run TRANSIT2 (and the optional pre-processor, TPP), 
+please see the documentation included in this distribution ("src/pytransit/doc" folder) or visit the following web page:
 
 
-https://transit.readthedocs.io/en/latest/
+https://transit2.readthedocs.io/en/latest/
 
 
 ## Datasets
@@ -60,7 +61,7 @@ http://saclab.tamu.edu/essentiality/transit/genomes/
 
 ## Copyright Information
 
-Source code for TRANSIT and TPP are available open source under the terms of the GNU General Public License (Version 3.0) as published by the Free Software Foundation. For more information on this license, please see the included LICENSE.md file or visit their website at:
+Source code for TRANSIT2 and TPP are available open source under the terms of the GNU General Public License (Version 3.0) as published by the Free Software Foundation. For more information on this license, please see the included LICENSE.md file or visit their website at:
 
 http://www.gnu.org/licenses/gpl.html
 
