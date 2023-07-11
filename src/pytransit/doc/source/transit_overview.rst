@@ -2,11 +2,11 @@
 
 
 
-TRANSIT Overview (4.0)
-======================
+TRANSIT2 Overview
+=================
 
 
-Transit is a python-based software system that combines statistical
+Transit2 is a python-based software system that combines statistical
 algorithms for analyzing TnSeq data (from sequencing transposon-mutant
 libraries).  It has GUI (graphical-user interface) to make it easy for
 users to process their data, conduct essentiality analyses, and visualize results.
@@ -15,7 +15,7 @@ Linux, MacOS, and Windows.  Transit requires various python
 packages to be installed, as well as R (a statistical program that Transit calls for
 some analyses).
 
-Transit has two main phases: 
+Transit2 has two main phases: 
 
  * a **pre-processing phase** (called TPP) which analyzes raw sequencing data (fastq files) and extracts transposon insertion counts at genomic coordinates (i.e. TA dinucleotides, for the Himar1 transposon), and   
 

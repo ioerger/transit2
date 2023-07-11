@@ -1,20 +1,30 @@
 .. transit documentation master file, created by
    sphinx-quickstart on Wed May  4 13:37:43 2016.
 
-Welcome to TRANSIT's documentation!
+Welcome to TRANSIT2's documentation!
 ===================================
 
-.. image:: https://img.shields.io/github/tag/mad-lab/transit.svg
-    :target: https://github.com/mad-lab/transit
+.. image:: https://img.shields.io/github/tag/ioerger/transit2.svg
+    :target: https://github.com/ioerger/transit2
     :alt: GitHub last tag
 
-Transit is python-based software for analyzing TnSeq data
+Transit2 is python-based software for analyzing TnSeq data
 (sequencing data from transposon mutant libraries)
 to determine essentiality of bacterial genes under different conditions.
 
-This page contains the documentation for TRANSIT. Below are a few
+This page contains the documentation for TRANSIT2. Below are a few
 quick links to some of the most important sections of the
-documentation, followed by a brief overview of TRANSIT's features.
+documentation, followed by a brief overview of TRANSIT2's features.
+
+
+.. NOTE::
+
+  TRANSIT2 is a re-implementation of the `original version of TRANSIT
+  <https://transit.readthedocs.io/en/latest/>`_,
+  which is still being maintained for backwards-compatibility.
+  TRANSIT2 has most of the same analytical methods, but it has an enhanced GUI.
+  Also, some of the command-line arguments and flags have changed.
+
 
 Quick Links
 ~~~~~~~~~~~
@@ -26,11 +36,10 @@ Quick Links
 * :ref:`tutorial-link`
 * :ref:`tpp-link`
 * :ref:`code-link`
-* `PDF manual with overview of analysis methods in Transit <https://orca1.tamu.edu/essentiality/transit/transit-manual.pdf>`_
 
 Features
 ~~~~~~~~
-TRANSIT offers a variety of features including:
+TRANSIT2 offers a variety of features including:
  
 *   More than **8 analysis methods**, including methods for determining **conditional essentiality** as well as **genetic interactions**.
 
@@ -64,7 +73,7 @@ TRANSIT offers a variety of features including:
 
 .. toctree::
    :maxdepth: 3
-   :caption: TRANSIT MANUAL
+   :caption: TRANSIT2 MANUAL
 
    transit_overview
    transit_install
