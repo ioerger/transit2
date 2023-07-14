@@ -4,28 +4,32 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+import sys
+import os
+from os import path
+import glob
+import shutil
+from pathlib import Path
+from shutil import rmtree
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages, Command
 # To use a consistent encoding
 from codecs import open
-from os import path
-from shutil import rmtree
 
-import os
+import pytransit
+from pytransit.generic_tools import file_system_py as FS
+version =  pytransit.__version__[1:]
 
-here = path.abspath(path.dirname(__file__))
-
+package_name = "pytransit"
 
 # Get the long description from the README file
+here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Get current version
-import sys
 sys.path.insert(1, "src/")
-import pytransit
-version =  pytransit.__version__[1:]
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -181,7 +185,11 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'pytransit': ['pytransit/data/*', 'pytransit/doc/*.*', 'pytransit/doc/images/*', ]
+        # include all files/folders in the module (recursively)
+        package_name: [
+            each[len(package_name)+1:]
+                for each in FS.iterate_paths_in(package_name, recursively=True)
+        ],
     },
 
     #scripts=['src/tpp.py', 'src/transit.py'],
@@ -205,4 +213,3 @@ setup(
         'upload': UploadCommand,
     },
 )
-
