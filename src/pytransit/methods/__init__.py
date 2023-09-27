@@ -20,4 +20,4 @@ from .quality_control    import *
 from .loess              import *
 from .heatmap            import *
 from .utest              import *
-from .CGI                import *
+from .cgi_                import *
