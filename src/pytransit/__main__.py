@@ -53,7 +53,7 @@ def main(args, kwargs):
     # 
     # Choose Mode
     # 
-    if args:
+    if args or len(kwargs) > 0:
         console_mode_start()
     else:
         import pytransit.specific_tools.console_tools as console_tools
