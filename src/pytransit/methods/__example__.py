@@ -20,6 +20,8 @@ from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
 
+# HANDLE_THIS: edit the __init__.py file to import the new method name
+
 @misc.singleton
 class Method:
     name = "Example" # HANDLE_THIS
