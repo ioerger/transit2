@@ -3,6 +3,9 @@ transit package
 
 |
 
+`API <https://github.com/ioerger/transit2/blob/master/src/pytransit/README.md>`_
+(guide to pytransit python package for developers)
+
 Submodules
 ----------
 
