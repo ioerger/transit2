@@ -193,8 +193,6 @@ Here is a screenshot of the new GUI in Transit 4.0:
    :width: 1000
    :align: center
 
-**(note replace image when we update the version number; show it with an 'resampling' parameters and an output file in Results panel)**
-
 Basic walk-through:
 
 * You start by **loading 3 input files** (in succession): combined_wig, metadata, and annotation. This will populate the upper panel with individual samples, and the middle panel with conditions.
