@@ -441,8 +441,9 @@ class Method:
 
         ##########################################################################################
         # Linear Regression
-        gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="")
+        gene_one_hot_encoded = pandas.get_dummies(filtered_ttn_data["ORF"], prefix="").astype(int)
         #gene_one_hot_encoded.replace(to_replace = 0, value = -1/(len(gene_one_hot_encoded.columns)-1), inplace=True)
+
         columns_to_drop = [
             "Coordinates",
             "Insertion Count",

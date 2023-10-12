@@ -50,7 +50,8 @@ class UploadCommand(Command):
 
     def yes_or_no(self, question):
         while True:
-            reply = str(raw_input(question +' (y/n): ')).lower().strip()
+            #reply = str(raw_input(question +' (y/n): ')).lower().strip() # python2
+            reply = str(input(question +' (y/n): ')).lower().strip()
             if reply == 'y':
                 return True
             return False
