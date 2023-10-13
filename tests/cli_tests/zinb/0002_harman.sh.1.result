@@ -1,10 +1,10 @@
 #Zinb
 #yaml:
-#    date: 2023-05-29 14:24:45
-#    transit_version: v4.0.0
+#    date: 2023-10-13 14:14:06
+#    transit_version: v1.0.2
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'zinb' './src/pytransit/data/randomized_harman.transit/comwig.tsv' './src/pytransit/data/randomized_harman.transit/metadata.tsv' './src/pytransit/data/genomes/mc2_155_tamu.prot_table' './tests/cli_tests/zinb/0002_harman.sh.1.result' '--include-conditions' 'WT_Starved_d28,rel_Starved_d28,5849_Starved_d28,DKO_Starved_d28' '--group-by' 'KO_rel' '--interactions' 'KO_5849'
-#    calculation_time: 152.8seconds
+#    calculation_time: 108.7seconds
 #    analysis_type: Zinb
 #    conditions: x_KO5849,x_x,KOrel_KO5849,KOrel_x
 #    files:

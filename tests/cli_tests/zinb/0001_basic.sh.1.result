@@ -1,10 +1,10 @@
 #Zinb
 #yaml:
-#    date: 2023-05-29 14:20:18
-#    transit_version: v4.0.0
+#    date: 2023-10-13 14:11:02
+#    transit_version: v1.0.2
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'zinb' 'src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' 'src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/zinb/0001_basic.sh.1.result' '--group-by' 'Condition'
-#    calculation_time: 54.2seconds
+#    calculation_time: 35.7seconds
 #    analysis_type: Zinb
 #    conditions: Cholesterol,Glycerol
 #    files:

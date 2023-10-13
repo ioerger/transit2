@@ -1,8 +1,696 @@
 [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 0.0%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 0.2%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 0.4%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 0.6%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 0.8%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 1.0%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 1.21%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 1.41%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 1.61%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 1.81%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 2.01%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 2.21%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 2.41%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 2.61%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 2.81%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 3.01%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 3.22%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 3.42%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 3.62%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 3.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 4.02%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 4.22%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 4.42%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 4.62%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 4.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 5.02%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 5.23%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 5.43%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 5.63%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 5.83%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 6.03%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 6.23%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 6.43%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 6.63%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 6.83%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 7.03%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 7.24%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 7.44%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 7.64%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 7.84%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 8.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 8.24%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 8.44%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 8.64%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 8.84%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 9.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 9.25%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 9.45%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 9.65%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 9.85%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 10.05%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 10.25%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 10.45%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 10.65%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 10.85%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 11.05%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 11.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 11.46%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 11.66%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 11.86%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 12.06%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 12.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 12.46%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 12.66%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 12.86%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 13.06%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 13.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 13.47%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 13.67%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 13.87%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 14.07%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 14.27%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 14.47%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 14.67%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 14.87%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 15.07%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 15.27%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 15.48%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 15.68%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 15.88%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 16.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 16.28%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 16.48%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 16.68%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 16.88%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 17.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 17.28%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 17.49%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 17.69%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 17.89%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 18.09%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 18.29%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 18.49%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 18.69%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 18.89%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 19.09%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 19.29%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 19.5%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 19.7%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 19.9%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 20.1%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 20.3%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 20.5%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 20.7%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 20.9%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 21.1%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 21.3%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 21.51%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 21.71%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 21.91%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 22.11%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 22.31%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 22.51%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 22.71%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 22.91%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 23.11%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 23.31%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 23.52%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 23.72%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 23.92%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 24.12%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 24.32%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 24.52%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 24.72%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 24.92%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 25.12%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 25.32%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 25.52%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 25.73%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 25.93%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 26.13%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 26.33%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 26.53%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 26.73%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 26.93%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 27.13%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 27.33%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 27.53%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 27.74%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 27.94%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 28.14%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 28.34%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 28.54%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 28.74%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 28.94%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 29.14%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 29.34%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 29.54%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 29.75%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 29.95%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 30.15%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 30.35%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 30.55%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 30.75%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 30.95%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 31.15%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 31.35%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 31.55%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 31.76%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 31.96%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 32.16%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 32.36%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 32.56%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 32.76%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 32.96%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 33.16%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 33.36%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 33.56%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 33.77%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 33.97%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 34.17%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 34.37%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 34.57%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 34.77%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 34.97%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 35.17%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 35.37%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 35.57%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 35.78%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 35.98%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 36.18%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 36.38%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 36.58%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 36.78%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 36.98%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 37.18%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 37.38%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 37.58%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 37.78%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 37.99%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 38.19%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 38.39%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 38.59%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 38.79%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 38.99%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 39.19%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 39.39%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 39.59%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 39.79%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 40.0%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 40.2%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 40.4%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 40.6%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 40.8%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 41.0%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 41.2%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 41.4%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 41.6%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 41.8%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 42.01%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 42.21%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 42.41%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 42.61%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 42.81%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 43.01%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 43.21%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 43.41%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 43.61%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 43.81%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 44.02%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 44.22%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 44.42%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 44.62%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 44.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 45.02%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 45.22%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 45.42%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 45.62%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 45.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 46.03%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 46.23%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 46.43%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 46.63%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 46.83%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 47.03%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 47.23%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 47.43%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 47.63%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 47.83%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 48.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 48.24%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 48.44%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 48.64%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 48.84%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 49.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 49.24%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 49.44%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 49.64%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 49.84%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 50.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 50.25%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 50.45%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 50.65%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 50.85%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 51.05%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 51.25%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 51.45%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 51.65%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 51.85%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 52.05%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 52.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 52.46%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 52.66%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 52.86%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 53.06%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 53.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 53.46%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 53.66%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 53.86%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 54.06%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 54.27%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 54.47%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 54.67%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 54.87%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 55.07%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 55.27%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 55.47%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 55.67%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 55.87%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 56.07%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 56.28%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 56.48%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 56.68%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 56.88%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 57.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 57.28%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 57.48%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 57.68%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 57.88%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 58.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 58.29%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 58.49%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 58.69%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 58.89%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 59.09%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 59.29%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 59.49%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 59.69%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 59.89%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 60.09%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 60.3%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 60.5%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 60.7%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 60.9%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 61.1%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 61.3%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 61.5%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 61.7%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 61.9%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 62.1%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 62.3%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 62.51%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 62.71%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 62.91%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 63.11%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 63.31%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 63.51%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 63.71%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 63.91%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 64.11%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 64.31%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 64.52%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 64.72%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 64.92%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 65.12%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 65.32%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 65.52%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 65.72%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 65.92%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 66.12%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 66.32%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 66.53%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 66.73%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 66.93%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 67.13%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 67.33%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 67.53%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 67.73%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 67.93%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 68.13%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 68.33%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 68.54%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 68.74%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 68.94%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 69.14%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 69.34%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 69.54%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 69.74%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 69.94%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 70.14%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 70.34%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 70.55%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 70.75%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 70.95%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 71.15%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 71.35%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 71.55%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 71.75%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 71.95%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 72.15%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 72.35%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 72.56%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 72.76%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 72.96%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 73.16%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 73.36%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 73.56%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 73.76%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 73.96%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 74.16%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 74.36%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 74.56%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 74.77%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 74.97%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 75.17%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 75.37%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 75.57%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 75.77%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 75.97%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 76.17%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 76.37%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 76.57%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 76.78%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 76.98%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 77.18%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 77.38%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 77.58%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 77.78%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 77.98%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 78.18%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 78.38%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 78.58%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 78.79%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 78.99%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 79.19%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 79.39%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 79.59%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 79.79%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 79.99%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 80.19%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 80.39%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 80.59%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 80.8%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 81.0%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 81.2%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 81.4%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 81.6%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 81.8%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 82.0%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 82.2%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 82.4%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 82.6%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 82.81%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 83.01%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 83.21%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 83.41%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 83.61%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 83.81%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 84.01%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 84.21%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 84.41%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 84.61%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 84.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 85.02%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 85.22%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 85.42%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 85.62%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 85.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 86.02%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 86.22%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 86.42%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 86.62%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 86.82%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 87.03%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 87.23%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 87.43%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 87.63%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 87.83%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 88.03%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 88.23%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 88.43%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 88.63%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 88.83%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 89.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 89.24%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 89.44%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 89.64%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 89.84%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 90.04%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 90.24%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 90.44%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 90.64%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 90.84%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 91.05%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 91.25%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 91.45%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 91.65%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 91.85%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 92.05%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 92.25%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 92.45%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 92.65%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 92.85%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 93.06%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 93.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 93.46%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 93.66%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 93.86%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 94.06%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 94.26%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 94.46%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 94.66%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 94.86%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 95.07%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 95.27%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 95.47%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 95.67%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 95.87%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 96.07%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 96.27%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 96.47%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 96.67%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 96.87%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 97.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 97.28%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 97.48%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 97.68%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 97.88%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 98.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 98.28%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 98.48%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 98.68%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 98.88%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 99.08%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 99.29%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 99.49%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 99.69%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 99.89%           [tnseq_tools:load()] [tnseq_tools:load()] reading lines: 100%           
 [tnseq_tools:load()] created combined wig data object 
-[tnseq_tools:_load_main_path()] formatting data 0% [tnseq_tools:_load_main_path()] formatting data 2% [tnseq_tools:_load_main_path()] formatting data 4% [tnseq_tools:_load_main_path()] formatting data 6% [tnseq_tools:_load_main_path()] formatting data 8% [tnseq_tools:_load_main_path()] formatting data 10% [tnseq_tools:_load_main_path()] formatting data 12% [tnseq_tools:_load_main_path()] formatting data 14% [tnseq_tools:_load_main_path()] formatting data 16% [tnseq_tools:_load_main_path()] formatting data 18% [tnseq_tools:_load_main_path()] formatting data 20% [tnseq_tools:_load_main_path()] formatting data 22% [tnseq_tools:_load_main_path()] formatting data 24% [tnseq_tools:_load_main_path()] formatting data 26% [tnseq_tools:_load_main_path()] formatting data 28% [tnseq_tools:_load_main_path()] formatting data 30% [tnseq_tools:_load_main_path()] formatting data 32% [tnseq_tools:_load_main_path()] formatting data 34% [tnseq_tools:_load_main_path()] formatting data 36% [tnseq_tools:_load_main_path()] formatting data 38% [tnseq_tools:_load_main_path()] formatting data 40% [tnseq_tools:_load_main_path()] formatting data 42% [tnseq_tools:_load_main_path()] formatting data 44% [tnseq_tools:_load_main_path()] formatting data 46% [tnseq_tools:_load_main_path()] formatting data 48% [tnseq_tools:_load_main_path()] formatting data 50% [tnseq_tools:_load_main_path()] formatting data 52% [tnseq_tools:_load_main_path()] formatting data 54% [tnseq_tools:_load_main_path()] formatting data 56% [tnseq_tools:_load_main_path()] formatting data 56% [tnseq_tools:_load_main_path()] formatting data 58% [tnseq_tools:_load_main_path()] formatting data 60% [tnseq_tools:_load_main_path()] formatting data 62% [tnseq_tools:_load_main_path()] formatting data 64% [tnseq_tools:_load_main_path()] formatting data 66% [tnseq_tools:_load_main_path()] formatting data 68% [tnseq_tools:_load_main_path()] formatting data 70% [tnseq_tools:_load_main_path()] formatting data 72% [tnseq_tools:_load_main_path()] formatting data 74% [tnseq_tools:_load_main_path()] formatting data 76% [tnseq_tools:_load_main_path()] formatting data 78% [tnseq_tools:_load_main_path()] formatting data 80% [tnseq_tools:_load_main_path()] formatting data 82% [tnseq_tools:_load_main_path()] formatting data 84% [tnseq_tools:_load_main_path()] formatting data 86% [tnseq_tools:_load_main_path()] formatting data 88% [tnseq_tools:_load_main_path()] formatting data 90% [tnseq_tools:_load_main_path()] formatting data 92% [tnseq_tools:_load_main_path()] formatting data 94% [tnseq_tools:_load_main_path()] formatting data 96% [tnseq_tools:_load_main_path()] formatting data 98% 
+[tnseq_tools:_load_main_path()] formatting data 0% [tnseq_tools:_load_main_path()] formatting data 2% [tnseq_tools:_load_main_path()] formatting data 4% [tnseq_tools:_load_main_path()] formatting data 6% [tnseq_tools:_load_main_path()] formatting data 8% [tnseq_tools:_load_main_path()] formatting data 10% [tnseq_tools:_load_main_path()] formatting data 12% [tnseq_tools:_load_main_path()] formatting data 14% [tnseq_tools:_load_main_path()] formatting data 16% [tnseq_tools:_load_main_path()] formatting data 18% [tnseq_tools:_load_main_path()] formatting data 20% [tnseq_tools:_load_main_path()] formatting data 22% [tnseq_tools:_load_main_path()] formatting data 24% [tnseq_tools:_load_main_path()] formatting data 26% [tnseq_tools:_load_main_path()] formatting data 28% [tnseq_tools:_load_main_path()] formatting data 30% [tnseq_tools:_load_main_path()] formatting data 30% [tnseq_tools:_load_main_path()] formatting data 32% [tnseq_tools:_load_main_path()] formatting data 34% [tnseq_tools:_load_main_path()] formatting data 36% [tnseq_tools:_load_main_path()] formatting data 38% [tnseq_tools:_load_main_path()] formatting data 40% [tnseq_tools:_load_main_path()] formatting data 42% [tnseq_tools:_load_main_path()] formatting data 44% [tnseq_tools:_load_main_path()] formatting data 46% [tnseq_tools:_load_main_path()] formatting data 48% [tnseq_tools:_load_main_path()] formatting data 50% [tnseq_tools:_load_main_path()] formatting data 52% [tnseq_tools:_load_main_path()] formatting data 54% [tnseq_tools:_load_main_path()] formatting data 56% [tnseq_tools:_load_main_path()] formatting data 58% [tnseq_tools:_load_main_path()] formatting data 60% [tnseq_tools:_load_main_path()] formatting data 62% [tnseq_tools:_load_main_path()] formatting data 64% [tnseq_tools:_load_main_path()] formatting data 66% [tnseq_tools:_load_main_path()] formatting data 68% [tnseq_tools:_load_main_path()] formatting data 70% [tnseq_tools:_load_main_path()] formatting data 72% [tnseq_tools:_load_main_path()] formatting data 74% [tnseq_tools:_load_main_path()] formatting data 76% [tnseq_tools:_load_main_path()] formatting data 78% [tnseq_tools:_load_main_path()] formatting data 80% [tnseq_tools:_load_main_path()] formatting data 82% [tnseq_tools:_load_main_path()] formatting data 84% [tnseq_tools:_load_main_path()] formatting data 86% [tnseq_tools:_load_main_path()] formatting data 88% [tnseq_tools:_load_main_path()] formatting data 90% [tnseq_tools:_load_main_path()] formatting data 92% [tnseq_tools:_load_main_path()] formatting data 94% [tnseq_tools:_load_main_path()] formatting data 96% [tnseq_tools:_load_main_path()] formatting data 98% 
 [tnseq_tools:_load_main_path()] formatting data 100% [transit_tools:__enter__()] Starting Corrplot analysis 
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 2, in <module>
+    from .rcmod import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/rcmod.py", line 82, in <module>
+    if LooseVersion(mpl.__version__) >= "3.0":
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 55, in __init__
+    warnings.warn(
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/rcmod.py:82: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if LooseVersion(mpl.__version__) >= "3.0":
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 2, in <module>
+    from .rcmod import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/rcmod.py", line 82, in <module>
+    if LooseVersion(mpl.__version__) >= "3.0":
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 90, in __ge__
+    c = self._cmp(other)
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 345, in _cmp
+    other = LooseVersion(other)
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 55, in __init__
+    warnings.warn(
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py:345: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  other = LooseVersion(other)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 101, in from_args
+    Method.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/corrplot.py", line 269, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
 [transit_tools:calc_gene_means()] Normalizing using: TTR 
 [corrplot:output()] Filtering Rows to include 
 [corrplot:output()] Creating the Correlation Plot 
-[transit_tools:__exit__()] Finished Corrplot analysis in 3.1sec 
+[transit_tools:__exit__()] Finished Corrplot analysis in 2.9sec 

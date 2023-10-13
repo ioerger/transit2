@@ -6,8 +6,8 @@
 #File: src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig
 #File: src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig
 #yaml:
-#    date: 2023-05-29 13:35:19
-#    transit_version: v4.0.0
+#    date: 2023-10-12 19:11:16
+#    transit_version: v1.0.2
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'export' 'combined_wig' 'src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep1.wig,src/pytransit/data/cholesterol_glycerol.transit/glycerol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep3.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep2.wig,src/pytransit/data/cholesterol_glycerol.transit/cholesterol_rep1.wig' './src/pytransit/data/genomes/H37Rv.prot_table' '-no-template' './tests/cli_tests/create_combined_wig/0002_template_test.sh.1.result'
 #    normalization: TTR

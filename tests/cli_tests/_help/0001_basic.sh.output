@@ -7,6 +7,7 @@ The available subcommands are:
     export igv 
     normalize 
     tnseq_stats 
+    export gene_means 
     gene_means 
     anova 
     pathway_enrichment 
@@ -20,6 +21,7 @@ The available subcommands are:
     corrplot 
     heatmap 
     utest 
+    cgi 
 
 Run a subcommand with no arguments to get subcommand-specific usage/examples
             
