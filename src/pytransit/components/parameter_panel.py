@@ -139,7 +139,7 @@ def create_panel_area(_):
             
         panel.sizer.Add(
             panel.method_sizer,
-            proportion=panel.parameter_proportion,
+            proportion=int(panel.parameter_proportion),
             flag=wx.EXPAND,
             border=panel.parameter_padding,
         )

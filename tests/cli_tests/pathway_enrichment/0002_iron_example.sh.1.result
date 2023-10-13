@@ -1,6 +1,6 @@
 #PathwayEnrichment_FET
 #yaml:
-#    date: 2023-02-05 14:28:04
+#    date: 2023-03-22 09:06:11
 #    transit_version: v4.0.0
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'pathway_enrichment' 'tests/cli_tests/resampling/0001_basic.sh.1.result' 'src/pytransit/data//H37Rv_COG_20_roles.txt' 'src/pytransit/data//COG_20_roles.txt' './tests/cli_tests/pathway_enrichment/0002_iron_example.sh.1.result'

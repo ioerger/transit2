@@ -22,9 +22,6 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.components.parameter_panel import progress_update, set_instructions
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import csv
-import pytransit.components.file_display as file_display
-import pytransit.components.samples_area as samples_area
-import pytransit.components.results_area as results_area
 import pytransit.generic_tools.misc as misc
 
 
@@ -228,6 +225,7 @@ class Method:
 
     def Run(self):
         with gui_tools.nice_error_log:
+            import pytransit.components.results_area as results_area
             # 
             # Calculations
             # 
