@@ -13,35 +13,48 @@ import numpy
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
+from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
 
-# HANDLE_THIS: edit the __init__.py file to import the new method name
+
 
 @misc.singleton
 class Method:
-    name = "Example" # HANDLE_THIS
+    name = "CGI" # HANDLE_THIS
     identifier  = name
     cli_name    = name.lower()
     menu_name   = f"{name} - Perform {name} analysis"
     description = f"""Perform {name} analysis"""
-    
+
+    column_names=[]
+
     valid_cli_flags = [
         "--n",  # normalization
         "--iN", # n_terminus
         "--iC", # c_terminus
         # HANDLE_THIS
     ]
+    # usage_string = f"""
+    #     # HANDLE_THIS
+    #     Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments]
+    #     Optional Arguments:
+    #         --n <string>         :=  Normalization method. Default: --n TTR
+    #         --iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
+    #         --iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+    # """.replace("\n        ", "\n")
+
     usage_string = f"""
-        # HANDLE_THIS
-        Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments]
-        Optional Arguments:
-            --n <string>         :=  Normalization method. Default: --n TTR
-            --iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
-            --iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
+        Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments] (6 sub-commands):
+        {console_tools.subcommand_prefix} CGI extract_counts <fastq file> <ids file> > <counts file>
+        {console_tools.subcommand_prefix} CGI create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> > <combined counts file>
+        {console_tools.subcommand_prefix} CGI extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  >  <fractional abundundance file>
+        {console_tools.subcommand_prefix} CGI run_model <fractional abundundance file>  >  <CRISPRi DR results file>
+        {console_tools.subcommand_prefix} CGI visualize <fractional abundance> <gene> <output figure location>
+        note: redirect output from stdout to output files as shown above
     """.replace("\n        ", "\n")
     
     @staticmethod
@@ -73,7 +86,7 @@ class Method:
         Method.define_panel(event)
     
     def define_panel(self, _):
-        from pytransit.components import panel_helpers, parameter_panel
+        from pytransit.components import panel_helpers
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
                 title_text=self.name,
@@ -206,7 +219,7 @@ class Method:
             # process data
             # 
             if True:
-                rows, summary_info = compute stuff here # HANDLE_THIS
+                rows, summary_info = ""#compute stuff here # HANDLE_THIS
             
             # 
             # write output

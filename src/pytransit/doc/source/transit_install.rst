@@ -4,26 +4,56 @@
 
 Installation
 ============
-TRANSIT can be downloaded from the public GitHub server,
-`http://github.com/mad-lab/transit <http://github.com/mad-lab/transit>`_. It is released under a GPL
-License. An archive with the lastest version fo the source code can be downloaded at the following link:
 
 
-`Source code.zip <https://github.com/mad-lab/transit/archive/master.zip>`_
+Installing Transit2 using Pip
+-----------------------------
 
-
-
-If you know how to utilize git, you can clone the git respository as follows:
+You can use pip to install the TRANSIT package.
 
 ::
 
+    > sudo pip3 install transit2
 
-    > git clone https://github.com/mad-lab/transit/
+This will automatically download and install TRANSIT as a package (from PyPi), 
+and all remaining required python packages. Once TRANSIT is installed as a package, 
+it can be executed as a command ('transit').
 
 
-TRANSIT is python-based You must have python installed (installed by
-default on most systems). In addition, TRANSIT relies on some python
+.. NOTE::
+   If you will be using the pre-processor, TPP, you will also need to install :ref:`install BWA <bwa-unix>`.
+
+.. NOTE::
+   The Transit package *does not* install wxPython. For graphical interface usage, this has to be done by the user. See :ref:`install wxPython <install-wxpython>`
+
+|
+
+Installing Transit2 using Git
+-----------------------------
+
+Alternatively, TRANSIT2 can be downloaded from the public GitHub server,
+`http://github.com/ioerger/transit2 <http://github.com/ioerger/transit2>`_. 
+It is released under a GPL License.  An archive 
+with the lastest version of the source code can be downloaded at the following link:
+`Source code.zip <https://github.com/ioerger/transit2/archive/master.zip>`_
+
+
+You can clone the git respository as  follows:   
+
+::
+
+  > git clone https://github.com/ioerger/transit2/
+
+
+TRANSIT2 is python-based. You must have **python3** installed (installed by
+default on most systems). In addition, TRANSIT relies on some python 
 packages/libraries/modules that you might need to install (see `Requirements`_).
+
+You should be able to run it like this:
+
+::
+
+  > python3 <TRANSIT_PATH>/src/transit.py
 
 If you encounter problems, please :ref:`contact us <developers>` or head to the :ref:`Troubleshooting section <transit-troubleshoot>`.
 
@@ -32,35 +62,6 @@ If you encounter problems, please :ref:`contact us <developers>` or head to the 
 
 Requirements
 ------------
-
-TRANSIT runs on both python2.7 and python3. But the dependencies vary slightly.
-
-.. Python 2.7:
-.. -----------
-
-.. The following libraries/modules are required to run TRANSIT:
-
-.. + `Python 2.7 <http://www.python.org>`_
-.. + `Numpy <http://www.numpy.org/>`_ (tested on 1.15.0)
-.. + `Statsmodels <https://pypi.org/project/statsmodels/>`_ (tested on 0.9.0)
-.. + `Scipy <http://www.scipy.org/>`_ (tested on 1.1)
-.. + `matplotlib <http://matplotlib.org/users/installing.html>`_ (tested on 2.2)
-.. + `Pillow 5.0 <https://github.com/python-pillow/Pillow>`_
-.. + `wxpython 4+ <http://www.wxpython.org/>`_
-.. + `PyPubSub 3.3 <https://pypi.org/project/PyPubSub/>`_ (Version 4.0 does not support python2 `Github Issue <https://github.com/schollii/pypubsub/issues/9>`_)
-
-.. All of these dependencies can be installed using the following command.
-
-.. ::
-
-..    pip install numpy scipy pillow "pypubsub<4.0" "matplotlib<3.0" statsmodels wxPython
-
-.. Pip and Python are usually preinstalled in most modern operating systems.
-
-.. |
-
-Python 3:
------------
 
 The following libraries/modules are required to run TRANSIT:
 
@@ -119,23 +120,6 @@ Additional Installation Requirements for R:
 ..                [ 0.62862886]])
 
 
-
-You can use pip to install the TRANSIT package.
-
-::
-
-    > sudo pip3 install tnseq-transit
-
-This will automatically download and install TRANSIT as a package, and all remaining required python packages. Once TRANSIT is installed as a package, it can be executed as a command ('transit').
-
-
-.. NOTE::
-   If you will be using the pre-processor, TPP, you will also need to install :ref:`install BWA <bwa-unix>`.
-
-.. NOTE::
-   The Transit package *does not* install wxPython. For graphical interface usage, this has to be done by the user. See :ref:`install wxPython <install-wxpython>`
-
-|
 
 Optional: Install BWA to use with TPP pre-processor
 ---------------------------------------------------
@@ -206,7 +190,7 @@ If you installed TRANSIT as a package, then to upgrade, simply use pip to instal
 
 ::
 
-    > sudo pip install tnseq-transit --upgrade
+    > sudo pip install transit2 --upgrade
 
 This will automatically download and install the latest version of TRANSIT, as well as upgrade any of its requirements if necessary for compatability.
 

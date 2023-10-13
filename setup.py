@@ -4,28 +4,32 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+import sys
+import os
+from os import path
+import glob
+import shutil
+from pathlib import Path
+from shutil import rmtree
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages, Command
 # To use a consistent encoding
 from codecs import open
-from os import path
-from shutil import rmtree
 
-import os
+import pytransit
+from pytransit.generic_tools import file_system_py as FS
+version =  pytransit.__version__[1:]
 
-here = path.abspath(path.dirname(__file__))
-
+package_name = "pytransit"
 
 # Get the long description from the README file
+here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Get current version
-import sys
 sys.path.insert(1, "src/")
-import pytransit
-version =  pytransit.__version__[1:]
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -76,8 +80,10 @@ class UploadCommand(Command):
             self.status('Adding and pushing git tags to origin and public...')
             os.system('git tag v{0}'.format(version))
             os.system('git push origin --tags')
-            os.system('git push https://github.com/mad-lab/transit master')
-            os.system('git push https://github.com/mad-lab/transit --tags')
+            #os.system('git push https://github.com/mad-lab/transit master')
+            #os.system('git push https://github.com/mad-lab/transit --tags')
+            os.system('git push https://github.com/ioerger/transit2 master')
+            os.system('git push https://github.com/ioerger/transit2 --tags')
         else:
             self.status("Exiting...")
             sys.exit()
@@ -92,24 +98,24 @@ class UploadCommand(Command):
         sys.exit()
 
 setup(
-    name='tnseq-transit',
+    name='transit2',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version=version,
 
-    description='TRANSIT is a tool for the analysis of Tn-Seq data. It provides an easy to use graphical interface and access to three different analysis methods that allow the user to determine essentiality in a single condition as well as between conditions.',
+    description='TRANSIT2 is a tool for the analysis of Tn-Seq data. It provides an easy to use graphical interface and access to three different analysis methods that allow the user to determine essentiality in a single condition as well as between conditions.',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/mad-lab/transit',
-    download_url='https://github.com/mad-lab/transit',
+    url='https://orca1.tamu.edu/essentiality/transit/index.html',
+    download_url='https://github.com/ioerger/transit2',
 
     # Author details
-    author='Michael A. DeJesus',
-    author_email='mad@cs.tamu.edu',
+    author='Thomas R. Ioerger',
+    author_email='ioerger@cs.tamu.edu',
 
     # Choose your license
     license='GNU GPL',
@@ -129,8 +135,6 @@ setup(
 
     # What does your project relate to?
     keywords=['tnseq', 'analysis', 'biology', 'genome'],
-
-    #package_dir = {'tnseq-transit': 'src/pytransit'},
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -180,7 +184,11 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'pytransit': ['pytransit/data/*', 'pytransit/doc/*.*', 'pytransit/doc/images/*', ]
+        # include all files/folders in the module (recursively)
+        package_name: [
+            each[len(package_name)+1:]
+                for each in FS.iterate_paths_in(package_name, recursively=True)
+        ],
     },
 
     #scripts=['src/tpp.py', 'src/transit.py'],
@@ -204,4 +212,3 @@ setup(
         'upload': UploadCommand,
     },
 )
-

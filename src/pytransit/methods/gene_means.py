@@ -46,6 +46,7 @@ class Method:
     
     @staticmethod
     @cli.add_command(cli_name)
+    @cli.add_command("export", "gene_means")
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
@@ -125,13 +126,15 @@ class Method:
         column_names = [
             "ORF",
             "Gene Name",
+            "numTAs",
             *labels,
         ]
-        
-        rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name]+["%0.1f" % x for x in means[i,:]])))
+
+        rows = [ # expanded version of: for i in range(means.shape[0]): output.write("%s\n" % ('\t'.join([genes[i].orf,genes[i].name,genes[i].n]+["%0.1f" % x for x in means[i,:]])))
             [
                 genes[row_index].orf,
                 genes[row_index].name,
+                genes[row_index].n,
                 *[
                     "%0.1f" % x 
                         for x in means[row_index,:]
@@ -149,7 +152,7 @@ class Method:
         output_path       = output_path       if output_path       is not None else None
         n_terminus        = n_terminus        if n_terminus        is not None else 0.0
         c_terminus        = c_terminus        if c_terminus        is not None else 0.0
-        
+
         from pytransit.specific_tools import stat_tools
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             (column_names, rows), (means, genes, labels) = Method.calculate(
@@ -159,7 +162,7 @@ class Method:
                 n_terminus=n_terminus,
                 c_terminus=c_terminus,
             )
-            
+
             logging.log(f"Writing output file: {output_path}")
             transit_tools.write_result(
                 path=output_path, # path=None means write to STDOUT
