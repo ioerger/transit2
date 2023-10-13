@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "super_hash"
+version = "1.2.8"
+description = "hash the unhashable, hash everything"
+authors=[]
+
+[tool.extra]
+author='Jeff Hykin'
+author_email='jeff.hykin@gmail.com'
+url='https://github.com/jeff-hykin/super_hash.git'
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.10"
+
+[tool.poetry.dev-dependencies]
+twine = "3.4.1"
+"keyrings.alt" = "4.0.2"
+toml = "^0.10.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,10 @@
+{
+    "pure_python_packages": {
+        "ez_yaml": {
+            "path": "__sources__/ez_yaml/main/ez_yaml"
+        },
+        "super_hash": {
+            "path": "__sources__/super_hash/main/super_hash"
+        }
+    }
+}

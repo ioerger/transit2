@@ -5,4 +5,4 @@
 [pathway_enrichment:read_pathways()] Reading in Pathways File 
 [pathway_enrichment:fisher_exact_test()] Finishing up FET 
 [pathway_enrichment:Run()] Adding File: ./tests/cli_tests/pathway_enrichment/0002_example.sh.1.result 
-[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.3sec 
+[pathway_enrichment:Run()] Finished PathwayEnrichment analysis in 0.2sec 

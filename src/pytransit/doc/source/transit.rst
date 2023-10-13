@@ -9,34 +9,34 @@ transit package
 Submodules
 ----------
 
-pytransit.norm_tools module
+pytransit.specific_tools.norm_tools module
 ---------------------------
 
-.. automodule:: pytransit.norm_tools
+.. automodule:: pytransit.specific_tools.norm_tools
     :members:
     :undoc-members:
     :show-inheritance:
 
-pytransit.stat_tools module
+pytransit.specific_tools.stat_tools module
 -------------------------
 
-.. automodule:: pytransit.stat_tools
+.. automodule:: pytransit.specific_tools.stat_tools
     :members:
     :undoc-members:
     :show-inheritance:
 
-pytransit.tnseq_tools module
+pytransit.specific_tools.tnseq_tools module
 --------------------------
 
-.. automodule:: pytransit.tnseq_tools
+.. automodule:: pytransit.specific_tools.tnseq_tools
     :members:
     :undoc-members:
     :show-inheritance:
 
-pytransit.transit_tools module
+pytransit.specific_tools.transit_tools module
 ----------------------------
 
-.. automodule:: pytransit.transit_tools
+.. automodule:: pytransit.specific_tools.transit_tools
     :members:
     :undoc-members:
     :show-inheritance:

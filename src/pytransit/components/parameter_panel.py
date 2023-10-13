@@ -7,7 +7,6 @@ from pytransit.generic_tools import misc
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.specific_tools.transit_tools import HAS_WX, wx, GenBitmapTextButton, basename
 from pytransit.specific_tools import  gui_tools, transit_tools
-import pytransit.components.images as images
 import pytransit
 
 from pytransit.components.generic.box import Column, Row
@@ -47,6 +46,7 @@ class panel:
         gui.frame.Refresh()
         
 def create_panel_area(_):
+    import pytransit.components.images as images
     panel.progress_percent = 0
     
     # 

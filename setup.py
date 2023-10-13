@@ -164,7 +164,6 @@ setup(
         'scikit-learn',
         'statsmodels~=0.9',
         'wxPython',
-        'ez-yaml>=1.2.0',
         'pandas',
         'seaborn'
     ],

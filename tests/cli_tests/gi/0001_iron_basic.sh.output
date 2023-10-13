@@ -63,6 +63,6 @@
 [gi:print_gi_results()] Adding File: ./tests/cli_tests/gi/0001_iron_basic.sh.1.result 
 [gi:print_gi_results()] Finished Genetic Interactions Method 
 [gi:Run()] Summary of genetic interactions: aggravating=0, alleviating=0, suppressive=0 
-[gi:Run()] Time: 47.7s
+[gi:Run()] Time: 1.4s
 [gi:Run()]  
 [gi:Run()] Finished Genetic Interaction analysis 

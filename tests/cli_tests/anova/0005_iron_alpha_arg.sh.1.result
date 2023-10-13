@@ -1,7 +1,7 @@
 #Anova
 #yaml:
-#    date: 2023-03-22 08:53:25
-#    transit_version: v4.0.0
+#    date: 2023-10-12 19:10:33
+#    transit_version: v1.0.2
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'anova' './src/pytransit/data/iron.transit/comwig.tsv' './src/pytransit/data/iron.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' './tests/cli_tests/anova/0005_iron_alpha_arg.sh.1.result' '--alpha' '100'
 #    calculation_time: 4.2seconds

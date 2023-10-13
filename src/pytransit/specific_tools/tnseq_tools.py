@@ -13,6 +13,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify
 from pytransit.generic_tools.named_list import named_list, NamedListBase
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, cache
 from pytransit.globals import logging
+from pytransit.__dependencies__.super_hash import super_hash
 
 try:
     from pytransit.specific_tools import norm_tools
@@ -48,8 +49,7 @@ class Wig:
         self.fingerprint     = fingerprint or self.path
         self.column_index    = column_index
         self.condition_names = condition_names
-        self.id              = id or f"{basename(fingerprint)}_" + (f"{random()}".replace(".", ""))[0:4]
-        # TODO: use super_hash instead of random so the id's dont change with every run
+        self.id              = id or f"{basename(fingerprint)}_" + f"{super_hash((fingerprint, rows))}"[0:6]
 
         self.ta_sites         = [ each[0] for each in self.rows ]
         self.insertion_counts = [ each[1] for each in self.rows ]
@@ -345,7 +345,7 @@ class CombinedWigData(NamedListBase):
             WigData :: [Number]
             Filename :: String
         """
-        import ez_yaml
+        from pytransit.__dependencies__ import ez_yaml
         from pytransit.specific_tools import transit_tools
         
         sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
@@ -883,7 +883,7 @@ class CombinedWig:
     
     def _load_main_path(self):
         from pytransit.generic_tools.informative_iterator import ProgressBar
-        import ez_yaml
+        from pytransit.__dependencies__ import ez_yaml
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
 
@@ -2306,7 +2306,7 @@ def rv_site_indexes_map(genes, ta_site_index_map, n_terminus=0.0, c_terminus=0.0
     return rv_site_indexes_map
 
 def extract_yaml_data(comment_lines):
-    import ez_yaml
+    from pytransit.__dependencies__ import ez_yaml
     
     extra_data = {}
     contained_yaml_data = False

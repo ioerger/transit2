@@ -1,10 +1,10 @@
 #Gumbel
 #yaml:
-#    date: 2023-03-22 08:58:29
-#    transit_version: v4.0.0
+#    date: 2023-10-12 19:13:55
+#    transit_version: v1.0.2
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'gumbel' './src/pytransit/data/iron.transit/comwig.tsv' './src/pytransit/data/iron.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'HighFeMBT' './tests/cli_tests/gumbel/0001_iron_basic.sh.1.result'
-#    calculation_time: 70.6seconds
+#    calculation_time: 64.3seconds
 #    analysis_type: Gumbel
 #    files:
 #       combined_wig: ./src/pytransit/data/iron.transit/comwig.tsv
@@ -1381,7 +1381,7 @@ Rv1322A	-	hypothetical protein Rv1322A 	6	6	0	0.00	0.0	NE
 Rv1323	fadA4	acetyl-CoA acetyltransferase 	13	14	1	2.00	0.0	NE
 Rv1324	-	POSSIBLE THIOREDOXIN 	4	6	1	2.00	0.0	NE
 Rv1325c	PE_PGRS24	PE-PGRS FAMILY PROTEIN 	8	10	2	35.00	0.0	NE
-Rv1326c	glgB	glycogen branching enzyme 	0	42	42	1998.00	0.5	EB
+Rv1326c	glgB	glycogen branching enzyme 	0	42	42	1998.00	0.6	EB
 Rv1327c	glgE	PROBABLE GLUCANASE GLGE 	0	39	39	1981.00	1.0	EB
 Rv1328	glgP	PROBABLE GLYCOGEN PHOSPHORYLASE GLGP 	42	45	1	2.00	0.0	NE
 Rv1329c	dinG	PROBABLE ATP-DEPENDENT HELICASE DING 	20	24	1	2.00	0.0	NE
@@ -1465,7 +1465,7 @@ Rv1406	fmt	methionyl-tRNA formyltransferase 	6	9	1	2.00	0.0	NE
 Rv1407	fmu	PROBABLE FMU PROTEIN (SUN PROTEIN) 	18	21	1	2.00	0.0	NE
 Rv1408	rpe	ribulose-phosphate 3-epimerase 	11	13	1	2.00	0.0	NE
 Rv1409	ribG	PROBABLE BIFUNCTIONAL riboflavin biosynthesis protein RIBG : Diaminohydroxyphosphoribosylaminopyrimidine deaminase (Riboflavin-specific deaminase) + 5-amino-6-(5-phosphoribosylamino) uracil reductase (HTP reductase) 	0	13	13	875.00	1.0	E
-Rv1410c	-	AMINOGLYCOSIDES/TETRACYCLINE-TRANSPORT INTEGRAL MEMBRANE PROTEIN 	22	30	7	227.00	0.2	U
+Rv1410c	-	AMINOGLYCOSIDES/TETRACYCLINE-TRANSPORT INTEGRAL MEMBRANE PROTEIN 	22	30	7	227.00	0.3	U
 Rv1411c	lprG	PROBABLE CONSERVED LIPOPROTEIN LPRG 	5	9	1	2.00	0.0	NE
 Rv1412	ribC	riboflavin synthase subunit alpha 	1	7	6	483.00	1.0	E
 Rv1413	-	hypothetical protein Rv1413 	6	6	0	0.00	0.0	NE
@@ -1528,7 +1528,7 @@ Rv1469	ctpD	PROBABLE CATION TRANSPORTER P-TYPE ATPASE D CTPD 	18	20	1	2.00	0.0	N
 Rv1470	trxA	PROBABLE THIOREDOXIN TRXA 	5	5	0	0.00	0.0	NE
 Rv1471	trxB1	PROBABLE THIOREDOXIN TRXB1 	3	3	0	0.00	0.0	NE
 Rv1472	echA12	enoyl-CoA hydratase 	14	15	1	2.00	0.0	NE
-Rv1473	-	PROBABLE MACROLIDE-TRANSPORT ATP-BINDING PROTEIN ABC TRANSPORTER 	25	25	0	0.00	0.4	U
+Rv1473	-	PROBABLE MACROLIDE-TRANSPORT ATP-BINDING PROTEIN ABC TRANSPORTER 	25	25	0	0.00	0.5	U
 Rv1473A	-	POSSIBLE TRANSCRIPTIONAL REGULATORY PROTEIN 	4	4	0	0.00	-1.0	S
 Rv1474c	-	PROBABLE TRANSCRIPTIONAL REGULATORY PROTEIN 	6	8	1	2.00	0.0	NE
 Rv1475c	acn	aconitate hydratase 	2	56	54	2738.00	0.5	U
@@ -1600,7 +1600,7 @@ Rv1536	ileS	isoleucyl-tRNA synthetase 	0	79	79	3100.00	0.5	EB
 Rv1537	dinX	DNA polymerase IV 	13	14	1	2.00	0.0	NE
 Rv1538c	ansA	Probable L-aparaginase ansA 	14	14	0	0.00	0.0	NE
 Rv1539	lspA	lipoprotein signal peptidase 	5	9	3	231.00	0.0	NE
-Rv1540	-	CONSERVED HYPOTHETICAL PROTEIN MEMBER OF yabO/yceC/yfiI FAMILY 	6	14	4	242.00	0.0	U
+Rv1540	-	CONSERVED HYPOTHETICAL PROTEIN MEMBER OF yabO/yceC/yfiI FAMILY 	6	14	4	242.00	0.1	U
 Rv1541c	lprI	Possible lipoprotein lprI 	9	9	0	0.00	0.0	NE
 Rv1542c	glbN	Probable hemoglobin glbN 	7	8	1	2.00	0.0	NE
 Rv1543	-	POSSIBLE FATTY ACYL-CoA REDUCTASE 	11	15	2	6.00	0.0	NE
@@ -1677,11 +1677,11 @@ Rv1613	trpA	tryptophan synthase subunit alpha 	3	19	16	667.00	1.0	E
 Rv1614	lgt	prolipoprotein diacylglyceryl transferase 	2	27	24	794.00	0.7	U
 Rv1615	-	Probable hypothetical membrane protein 	9	9	0	0.00	0.0	NE
 Rv1616	-	hypothetical protein Rv1616 	11	11	0	0.00	0.0	NE
-Rv1617	pykA	pyruvate kinase 	8	13	4	611.00	1.0	U
+Rv1617	pykA	pyruvate kinase 	8	13	4	611.00	0.9	U
 Rv1618	tesB1	Probable acyl-CoA thioesterase II tesB1 	18	18	0	0.00	0.0	NE
 Rv1619	-	hypothetical protein Rv1619 	21	23	1	2.00	0.0	NE
 Rv1620c	cydC	PROBABLE 'COMPONENT LINKED WITH THE ASSEMBLY OF CYTOCHROME' TRANSPORT TRANSMEMBRANE ATP-BINDING PROTEIN ABC TRANSPORTER CYDC 	18	19	1	2.00	0.0	NE
-Rv1621c	cydD	PROBABLE 'COMPONENT LINKED WITH THE ASSEMBLY OF CYTOCHROME' TRANSPORT TRANSMEMBRANE ATP-BINDING PROTEIN ABC TRANSPORTER CYDD 	20	20	0	0.00	0.1	U
+Rv1621c	cydD	PROBABLE 'COMPONENT LINKED WITH THE ASSEMBLY OF CYTOCHROME' TRANSPORT TRANSMEMBRANE ATP-BINDING PROTEIN ABC TRANSPORTER CYDD 	20	20	0	0.00	0.0	U
 Rv1622c	cydB	Probable integral membrane cytochrome D ubiquinol oxidase (subunit II) cydB (Cytochrome BD-I oxidase subunit II) 	20	22	1	2.00	0.0	NE
 Rv1623c	cydA	Probable integral membrane cytochrome D ubiquinol oxidase (subunit I) cydA (Cytochrome BD-I oxidase subunit I) 	22	23	1	2.00	0.0	NE
 Rv1624c	-	Probable conserved membrane protein 	3	5	2	203.00	0.0	NE
@@ -1715,7 +1715,7 @@ Rv1650	pheT	phenylalanyl-tRNA synthetase subunit beta 	1	37	31	2194.00	1.0	E
 Rv1651c	PE_PGRS30	PE-PGRS FAMILY PROTEIN 	49	54	1	2.00	0.0	NE
 Rv1652	argC	N-acetyl-gamma-glutamyl-phosphate reductase 	0	15	15	782.00	1.0	E
 Rv1653	argJ	bifunctional ornithine acetyltransferase/N-acetylglutamate synthase protein 	5	5	0	0.00	0.0	NE
-Rv1654	argB	acetylglutamate kinase 	0	4	4	554.00	1.0	E
+Rv1654	argB	acetylglutamate kinase 	0	4	4	554.00	1.0	EB
 Rv1655	argD	acetylornithine aminotransferase 	1	10	9	825.00	1.0	E
 Rv1656	argF	ornithine carbamoyltransferase 	0	5	5	509.00	1.0	E
 Rv1657	argR	arginine repressor 	2	3	1	2.00	-1.0	S
@@ -1892,7 +1892,7 @@ Rv1826	gcvH	glycine cleavage system protein H 	5	9	3	156.00	0.0	NE
 Rv1827	cfp17	CONSERVED HYPOTHETICAL PROTEIN CFP17 	1	8	4	264.00	0.7	U
 Rv1828	-	hypothetical protein Rv1828 	6	14	3	78.00	0.0	NE
 Rv1829	-	hypothetical protein Rv1829 	8	9	1	2.00	0.0	NE
-Rv1830	-	hypothetical protein Rv1830 	3	11	6	242.00	0.8	U
+Rv1830	-	hypothetical protein Rv1830 	3	11	6	242.00	0.9	U
 Rv1831	-	hypothetical protein Rv1831 	5	5	0	0.00	-1.0	S
 Rv1832	gcvB	glycine dehydrogenase 	31	57	6	195.00	0.0	NE
 Rv1833c	-	haloalkane dehalogenase 	13	14	1	2.00	0.0	NE
@@ -3369,7 +3369,7 @@ Rv3276c	purK	phosphoribosylaminoimidazole carboxylase ATPase subunit 	1	10	8	981
 Rv3277	-	PROBABLE CONSERVED TRANSMEMBRANE PROTEIN 	6	13	7	364.00	1.0	E
 Rv3278c	-	PROBABLE CONSERVED TRANSMEMBRANE PROTEIN 	7	8	1	2.00	0.0	NE
 Rv3279c	birA	biotin--protein ligase 	0	6	6	610.00	1.0	E
-Rv3280	accD5	PROBABLE PROPIONYL-CoA CARBOXYLASE BETA CHAIN 5 ACCD5 (PCCASE) (PROPANOYL-COA:CARBON DIOXIDE LIGASE) 	0	32	32	1557.00	1.0	EB
+Rv3280	accD5	PROBABLE PROPIONYL-CoA CARBOXYLASE BETA CHAIN 5 ACCD5 (PCCASE) (PROPANOYL-COA:CARBON DIOXIDE LIGASE) 	0	32	32	1557.00	1.0	E
 Rv3281	-	hypothetical protein Rv3281 	0	3	3	130.00	-1.0	EB
 Rv3282	maf	Maf-like protein 	10	11	1	2.00	0.0	NE
 Rv3283	sseA	PROBABLE THIOSULFATE SULFURTRANSFERASE SSEA (RHODANESE) (THIOSULFATE CYANIDE TRANSSULFURASE) (THIOSULFATE THIOTRANSFERASE) 	20	20	0	0.00	0.1	U
@@ -3893,7 +3893,7 @@ Rv3792	-	PROBABLE CONSERVED TRANSMEMBRANE PROTEIN 	3	33	26	1315.00	1.0	E
 Rv3793	embC	INTEGRAL MEMBRANE INDOLYLACETYLINOSITOL ARABINOSYLTRANSFERASE EMBC (ARABINOSYLINDOLYLACETYLINOSITOL SYNTHASE) 	6	52	41	2630.00	1.0	E
 Rv3794	embA	INTEGRAL MEMBRANE INDOLYLACETYLINOSITOL ARABINOSYLTRANSFERASE EMBA (ARABINOSYLINDOLYLACETYLINOSITOL SYNTHASE) 	2	55	30	1748.00	1.0	E
 Rv3795	embB	INTEGRAL MEMBRANE INDOLYLACETYLINOSITOL ARABINOSYLTRANSFERASE EMBB (ARABINOSYLINDOLYLACETYLINOSITOL SYNTHASE) 	1	49	27	1214.00	1.0	U
-Rv3796	-	hypothetical protein Rv3796 	25	25	0	0.00	0.5	U
+Rv3796	-	hypothetical protein Rv3796 	25	25	0	0.00	0.4	U
 Rv3797	fadE35	PROBABLE ACYL-CoA DEHYDROGENASE FADE35 	23	25	1	2.00	0.0	NE
 Rv3798	-	PROBABLE TRANSPOSASE 	15	16	1	2.00	0.0	NE
 Rv3799c	accD4	PROBABLE PROPIONYL-CoA CARBOXYLASE BETA CHAIN 4 ACCD4 (PCCASE) (PROPANOYL-COA:CARBON DIOXIDE LIGASE) 	0	17	17	1377.00	1.0	E
