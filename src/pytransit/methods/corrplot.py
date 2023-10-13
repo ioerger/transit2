@@ -8,6 +8,8 @@ import datetime
 import collections
 import heapq
 
+import numpy
+
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
