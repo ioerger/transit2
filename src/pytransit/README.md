@@ -1,40 +1,66 @@
 # What is this for?
 
-This is a document about how to make changes to the pytransit codebase.
-
-Read this before doing tasks such as:
-
-- adding a new command line option
-- adding a new input to a method
-- creating a new preprocessing method
-- adding a new analysis method entirely
-- adding a new test for an analysis method
+- How to make changes to the pytransit codebase
+- What to NOT change
+- What tools are available
 
 # Overview
 
-- Creating a new CLI method
-- Global Interface
-- Folder Structure
-- Data structures
+- TLDR; adding a CLI or GUI method
+- How does the system work?
+    - Where does everything start? Entrypoint
+    - What is `global.py`?
+    - Whats the difference between specific_tools and generic_tools?
+    - Folder Structure
+    - How to Manipulate Data (Data structures)
+        - CombinedWig
+        - Metadata
+        - AnnotationFile
+        - Gene
+        - Genes
+- How to make a CLI Method (Tooling)
 - Editing a GUI method
-- Creating a new GUI method
 - Testing
 
-## Adding a new command line option
+## TLDR; How to add a new method (CLI or GUI)
 
-Adding ONE new command is easy to hack in.<br>But adding many (while staying sane) requires some design, which is what this is going to cover.
+1. Copy `src/pytransit/methods/__example__.py` and name it something (I'll call mine `ex1`)
+2. Edit `src/pytransit/methods/__init__.py` to import the method, for example I would add `from .ex1 import *` 
+3. You *can* (not necessarily should) delete all the example lines and add the following:
 
-Lets start with the **folder structure**. Everything I talk about will be within `src/pytransit/`.
+```py
+from pytransit.globals import logging, cli, gui
 
-### The Entrypoint: `__main__.py`
+# example
+@cli.add_command("blah_blah")
+def the_blah_blah_command(args, kwargs):
+    logging.log(f"you ran the blah_blah command with these args {args}")
+```
+
+Running `transit blah_blah` will now print out that message.
+
+NOTE: See the "How to make a CLI Method (Tooling)" section for helper tools, and explaination of args/kwargs.
+
+4. If adding a GUI method
+- keep the example code
+- search (ctrl/cmd + f) for all the `HANDLE_THIS` comments in the example code
+- handle/remove each of the ,HANDLE_THIS comments
+- read:
+    - the "How to Manipulate Data" section in this guide
+    - "Editing a GUI method" section
+- done!
+
+## How does the system work?
+
+### Where does everything start? `__main__.py` Explained
 
 All pytransit tasks (gui or cli) start with `__main__.py`
 The main things that get run are:
-0. `import pytransit.globals`
-1. `import pytransit.transit_cli`
-2. `run_main()`
-3. `clean_args(sys.argv[1:])`
-4. `main(args, kwargs)`
+0. `import pytransit.globals` e.g. the globals.py code runs first
+1. `import pytransit.transit_cli` then the transit cli code
+2. `run_main()` then the run_main function (which is a small wrapper)
+3. `clean_args(sys.argv[1:])` how args are handles
+4. `main(args, kwargs)` then the actual main function is called
 
 The `__main__.py` will end up triggering one of two things:
 - A CLI command (just a regular python function)
@@ -59,20 +85,7 @@ This is the most important file for adding user interfaces to the CLI or GUI.
 
 ```py
 from pytransit.globals import logging, cli, gui
-
-# example
-@cli.add_command("blah_blah")
-def the_blah_blah_command(args, kwargs):
-    print(f"you ran the blah_blah command with these args {args}")
 ```
-
-The code above is a fully-functional hello-world for adding a command to transit.
-Whenever a user runs `transit blah_blah` it will print out that message.
-
-BUT there are several problems:
-- we need to know how `args`, and `kwargs` have been created
-- we shouldn't be using `print`
-- we need to pick a good file/folder for this code
 
 WHEN SHOULD `globals.py` BE EDITED:
 - (Very rarely in general)
@@ -86,57 +99,6 @@ WHEN SHOULD `globals.py` NOT BE EDITED:
 - adding a new CLI command
 - updating the default help message
 
-### `globals.py` - Tooling
-
-Avaiable tools:
-
-```py
-from pytransit.globals import logging, cli, gui, debugging_enabled, root_folder
-
-logging.log("Howdy")     # use instead of print: it updates GUI if GUI is active
-logging.warn("Message")  # does not throw an error, uses stderr in CLI
-logging.error("Message") # will exit CLI. In GUI it only throws an error (doesn't crash GUI interface)
-
-gui.is_active     # boolean
-root_folder       # absolute path to root folder of transit
-debugging_enabled # boolean that is usually used for enabling verbose output
-```
-
-Please use `logging.log` instead of `print`. 
-
-Updated CLI example:
-
-```py
-from pytransit.globals import logging, cli, gui
-
-# example
-@cli.add_command("blah_blah")
-def the_blah_blah_command(args, kwargs):
-    logging.log(f"you ran the blah_blah command with these args {args}")
-```
-
-### CLI tooling: Arguments
-
-What is the difference between `transit_cli.py` and `specific_tools/console_tools.py`?<br>Conceptually EITHER `transit_cli.py` OR `transit_gui.py` is the star of the show.<br>In contrast `console_tools.py` can be used by both `transit_gui.py` and `transit_cli.py`.<br>In practice, the line is somewhat blurry.
-
-The `args` and `kwargs` values are created by the `clean_args()` function.
-All arguments that look like an int are converted to an int.
-All arguments that look like an float are converted to an float.
-(despite this you may see unnecessary conversions like `int(args[0])` in the codebase)
-
-#### args
-- Is a python list
-- It will not contain the name of the program (e.g. `arg[0]` is the first normal/regular arugment)
-- All keyword args (and their values) will NOT be inside this list
-
-#### kwargs
-- `kwargs` is a dictionary, but instead of throwing an error, it will return `None` if given a key that doesn't exist. This makes boolean checks a lot easier.
-- There are two types of keyword arguments:
-    - `--flag` a flag has two dashes and is always a boolean value
-    - `-full-arg value` a "full" keyword argument has only one dash is a key-value pair. It always consumes the following argument. If there is no next argument `clean_args` will throw an error explaining the problem.
-- For a keword argument like `--help` there are multiple valid keys. For example: `kwargs["help"]`, `kwargs["-help"]`, `kwargs["--help"]` will all be the same value. NOTE: as consquence, using the same name for both a flag and full keyword (e.g. `--kwarg` and a `-kwarg` in one commmand) does not work.
-- EDGECASE: As a consequence of using a dictionary, if a command repeats a full keyword argument, no error will be thrown. The last version of the kwarg will overwrite the other ones.
-
 ### Generic VS Specific Tools
 
 Generic tools are any python helpers that would be useful on a project unrelated to transit.
@@ -144,100 +106,7 @@ For example, removing duplicates from a list (while preserving order) is not spe
 
 In contrast, something like parsing a `.wig` is highly specific to transit. Usually specific tools will utilize the generic tools, and then add in logic specific to transit. Thats why something like `CombinedWig.load` is inside of `specific_tools/tnseq_tools.py`
 
-### CLI tooling: `console_tools.py`
-
-Basically all transit CLI functions should use these helpers:
-- `handle_help_flag()`
-- `handle_unrecognized_flags()`
-- `enforce_number_of_args()`
-
-Lets add them to a hello world example:
-
-```py
-from pytransit.globals import logging, cli, gui
-from pytransit.specific_tools import console_tools
-
-# what flags are allowed
-valid_cli_flags = [ "--excited", ]
-# the help message
-usage_string = f"""
-    {console_tools.subcommand_prefix} hello_world <name>
-"""
-@cli.add_command("hello_world")
-def the_hello_world_command(args, kwargs):
-    # checks
-    console_tools.handle_help_flag(kwargs, usage_string)
-    console_tools.handle_unrecognized_flags(valid_cli_flags, kwargs, usage_string)
-    console_tools.enforce_number_of_args(args, usage_string, at_least=1)
-    
-    # actual hello world
-    name = args[0]
-    logging.log(f"Hello {name}")
-```
-
-### CLI tooling: Sub Commands
-
-Creating sub command is trivial, simply add another string
-
-```py
-@cli.add_command("export", "hello_world")
-@cli.add_command("hello_world")
-def the_hello_world_command(args, kwargs):
-    name      = args[0]
-    file_path = kwargs["path"]
-    # write to file
-    with open(file_path, 'w') as the_file:
-        the_file.write(f"Hello {name}")
-```
-
-This will work for both:
-- `python ./src/transit.py hello_world        jeff -path file.txt`
-- `python ./src/transit.py export hello_world jeff -path file.txt`
-
-### CLI tooling: The Order of Listed Commands
-
-Lets say we want 'hello_world' to be the first command shown whenever the list of of all commands is printed.
-The default order is the order they are imported (mostly inside the `methods/__init__.py` file)
-
-However, there is a more direct way to control the order, and to use that we would up the `globals.py` file, and find this part:
-
-```py
-@singleton
-class cli:
-    # the order subcommands are shown can be defined here
-    subcommands = {
-        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code"
-    }
-```
-
-Editing it to look something like this will make the `hello_world` command be listed first.
-
-```py
-@singleton
-class cli:
-    # the order subcommands are shown can be defined here
-    subcommands = {
-        ("hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
-        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code",
-    }
-```
-
-If we had subcommands, such as `export hello_world` then we would could change there order like this:
-
-```py
-@singleton
-class cli:
-    # the order subcommands are shown can be defined here
-    subcommands = {
-        ("hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
-        ("export", "hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
-        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code",
-    }
-```
-
-NOTE: This does mean, if a command is renamed, you'll have to remember to rename it here as well.
-
-### Running a Hello World: Folder Structure
+### What is the basic Folder Structure?
 
 The most important part of the folder structure for a hello world will be this:
 
@@ -493,6 +362,139 @@ TODO:
 
 TODO:
 
+## How to make a CLI Method (Tooling)
+
+### Global Tools
+
+```py
+from pytransit.globals import logging, cli, gui, debugging_enabled, root_folder
+
+logging.log("Howdy")     # use instead of print: it updates GUI if GUI is active
+logging.warn("Message")  # does not throw an error, uses stderr in CLI
+logging.error("Message") # will exit CLI. In GUI it only throws an error (doesn't crash GUI interface)
+
+gui.is_active     # boolean
+root_folder       # absolute path to root folder of transit
+debugging_enabled # boolean that is usually used for enabling verbose output
+```
+
+Please use `logging.log` instead of `print`
+
+### Argument Tools
+
+What is the difference between `transit_cli.py` and `specific_tools/console_tools.py`?<br>Both `transit_gui.py` and `transit_cli.py` use `console_tools.py`. And `transit_gui.py` and `transit_cli.py` will never be running at the same time (either CLI or GUI)
+
+The `args` and `kwargs` values are created by the `clean_args()` function.
+All arguments that look like an int are converted to an int.
+All arguments that look like an float are converted to an float.
+(despite this you may see unnecessary conversions like `int(args[0])` in the codebase)
+
+#### args
+- Is a python list
+- It will not contain the name of the program (e.g. `arg[0]` is the first normal/regular arugment)
+- All keyword args (and their values) will NOT be inside this list
+
+#### kwargs
+- `kwargs` is a dictionary, but instead of throwing an error, it will return `None` if given a key that doesn't exist. This makes boolean checks a lot easier.
+- There are two types of keyword arguments:
+    - `--flag` a flag has two dashes and is always a boolean value
+    - `-full-arg value` a "full" keyword argument has only one dash is a key-value pair. It always consumes the following argument. If there is no next argument `clean_args` will throw an error explaining the problem.
+- For a keword argument like `--help` there are multiple valid keys. For example: `kwargs["help"]`, `kwargs["-help"]`, `kwargs["--help"]` will all be the same value. NOTE: as consquence, using the same name for both a flag and full keyword (e.g. `--kwarg` and a `-kwarg` in one commmand) does not work.
+- EDGECASE: As a consequence of using a dictionary, if a command repeats a full keyword argument, no error will be thrown. The last version of the kwarg will overwrite the other ones.
+
+### CLI tooling: `console_tools.py`
+
+Basically all transit CLI functions should use these helpers:
+- `handle_help_flag()`
+- `handle_unrecognized_flags()`
+- `enforce_number_of_args()`
+
+Lets add them to a hello world example:
+
+```py
+from pytransit.globals import logging, cli, gui
+from pytransit.specific_tools import console_tools
+
+# what flags are allowed
+valid_cli_flags = [ "--excited", ]
+# the help message
+usage_string = f"""
+    {console_tools.subcommand_prefix} hello_world <name>
+"""
+@cli.add_command("hello_world")
+def the_hello_world_command(args, kwargs):
+    # checks
+    console_tools.handle_help_flag(kwargs, usage_string)
+    console_tools.handle_unrecognized_flags(valid_cli_flags, kwargs, usage_string)
+    console_tools.enforce_number_of_args(args, usage_string, at_least=1)
+    
+    # actual hello world
+    name = args[0]
+    logging.log(f"Hello {name}")
+```
+
+### CLI tooling: Sub Commands
+
+Creating sub command is trivial, simply add another string
+
+```py
+@cli.add_command("export", "hello_world")
+@cli.add_command("hello_world")
+def the_hello_world_command(args, kwargs):
+    name      = args[0]
+    file_path = kwargs["path"]
+    # write to file
+    with open(file_path, 'w') as the_file:
+        the_file.write(f"Hello {name}")
+```
+
+This will work for both:
+- `python ./src/transit.py hello_world        jeff -path file.txt`
+- `python ./src/transit.py export hello_world jeff -path file.txt`
+
+### CLI tooling: The Order of Listed Commands
+
+Lets say we want 'hello_world' to be the first command shown whenever the list of of all commands is printed.
+The default order is the order they are imported (mostly inside the `methods/__init__.py` file)
+
+However, there is a more direct way to control the order, and to use that we would up the `globals.py` file, and find this part:
+
+```py
+@singleton
+class cli:
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code"
+    }
+```
+
+Editing it to look something like this will make the `hello_world` command be listed first.
+
+```py
+@singleton
+class cli:
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code",
+    }
+```
+
+If we had subcommands, such as `export hello_world` then we would could change there order like this:
+
+```py
+@singleton
+class cli:
+    # the order subcommands are shown can be defined here
+    subcommands = {
+        ("hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
+        ("export", "hello_world",): "This should (and likely is) be replaced by a function elsewhere in the code",
+        ("help",): "This should (and likely is) be replaced by a function elsewhere in the code",
+    }
+```
+
+NOTE: This does mean, if a command is renamed, you'll have to remember to rename it here as well.
+
 ## Editing a GUI method
 
 Lets start with trying to edit `methods/resampling.py`
@@ -550,26 +552,18 @@ TODO: convention:
     from_gui
         panel helpers
 
-## Creating a new GUI method
-
-TODO:
-- adding a menu item
-- result files
-
 ## Testing
 
-TODO
 
-## Documentation
+### Running tests
+- run `commands/test/all` to simply test everything
+- run `commands/test/all resampling` to test just the CLI tests of resampling
+- git add and git commit 
 
-- Most things get documented inside the code (docstring)
-- Tutorials for developers are added to this document
-- TODO: 
+### Adding cli tests
+- lets say we're adding one to `resampling`
+- copy an example such as `tests/cli_tests/resampling/0001_basic.sh`
+- edit it to be the CLI you want to try
+- thats
 
-## Where is Everything: Folder Structure
-
-- `./data` 
-- `./data/NAME.transit` 
-- `./testing/cli_tests/001_THING.sh` 
-- `./commands` 
-- `./doc` 
+Note: the `|` in `|heapmap` is a hack to get heatmap cli tests to run first
