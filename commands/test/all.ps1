@@ -13,8 +13,10 @@ const logsFolder = `${FileSystem.thisFolder}/../logs`
 
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 const flags = parse(Deno.args, {
-    boolean: ["save"],
-    default: { color: true },
+    boolean: ["dontSave"],
+    default: {
+
+    },
 })
 
 const runASpecificTest = flags._.length > 0
@@ -48,7 +50,7 @@ for (const eachItem of await FileSystem.listItemsIn("tests/cli_tests/")) {
             continue
         }
         let outputPath
-        if (flags.save) {
+        if (!flags.dontSave) {
             outputPath = `${eachFile.path}.output`
         } else {
             outputPath = `${eachFile.path}.ignore.output`
