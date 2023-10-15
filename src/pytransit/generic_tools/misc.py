@@ -176,7 +176,7 @@ def singleton(my_class):
     return my_class()
 
 def human_readable_data(obj):
-    import ez_yaml
+    from pytransit.__dependencies__ import ez_yaml
     import json
     ez_yaml.yaml.version = None
     try:

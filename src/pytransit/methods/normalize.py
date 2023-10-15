@@ -127,7 +127,7 @@ class Method:
                     extra_info={
                         **combined_wig.extra_data,
                         **dict(
-                            time=(time.time() - start_time),
+                            calculation_time=(time.time() - start_time),
                             normalization=normalization,
                             original_path=infile_path,
                         ),

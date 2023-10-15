@@ -164,7 +164,6 @@ setup(
         'scikit-learn',
         'statsmodels~=0.9',
         'wxPython',
-        'ez-yaml>=1.2.0',
         'pandas',
         'seaborn>=0.11.2',
         'rpy2'
@@ -191,6 +190,7 @@ setup(
         package_name: [
             each[len(package_name)+1:]
                 for each in FS.iterate_paths_in(package_name, recursively=True)
+                    if '/__pycache__/' not in each
         ],
     },
 

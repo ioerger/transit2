@@ -13,14 +13,13 @@ from statsmodels.stats import multitest
 
 from pytransit.specific_tools.transit_tools import wx
 from pytransit.components.spreadsheet import SpreadSheet
-from pytransit.components.parameter_panel import panel,progress_update, set_instructions
+from pytransit.components.parameter_panel import panel, progress_update, set_instructions
 
 from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import csv, misc
 from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-from pytransit.components import file_display, results_area, parameter_panel, panel_helpers
 
 @misc.singleton
 class Method:
@@ -419,6 +418,7 @@ class Method:
         #self.inputs.input_type = self.inputs.method
         self.rows = []
         with gui_tools.nice_error_log:
+            from pytransit.components import results_area
             from pytransit.specific_tools import stat_tools
             logging.log(f"Starting {Method.identifier} analysis")
             start_time = time.time()

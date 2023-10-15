@@ -12,7 +12,10 @@ import unittest
 
 from transit_test import basedir, ctrl_rep1, ctrl_rep2, ctrl_data_txt, mini_wig, combined_wig, samples_metadata, samples_metadata_covariates, samples_metadata_interactions, KO_combined_wig, KO_samples_metadata, exp_rep1, exp_rep2, exp_rep3, exp_data_txt, all_data_list, annotation, small_annotation, output, hist_path, tpp_output_base, tpp_output_paths, reads1, test_multicontig, test_multicontig_reads1, test_multicontig_reads2, h37fna, TransitTestCase, count_hits, significant_pvals_qvals
 
-import pytransit
+# fake setup for testing
+from pytransit.globals import logging, gui
+gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
+
 from pytransit.specific_tools import norm_tools
 from pytransit.specific_tools import tnseq_tools
 from pytransit.specific_tools import console_tools
@@ -31,9 +34,7 @@ from pytransit.methods.utest      import Method as UTestMethod
 # Genetic Interactions
 from pytransit.methods.gi import Method as GIMethod
 
-# fake setup for testing
-from pytransit.globals import logging, gui
-gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
+
 
 class TestMethods(TransitTestCase):
     def test_resampling(self):

@@ -13,21 +13,16 @@ import scipy
 import scipy.stats
 import heapq
 import math
-from pytransit.components.parameter_panel import set_instructions
+
 from pytransit.methods.pathway_enrichment import Method as PathwayEnrichment
-
 from pytransit.generic_tools.lazy_dict import LazyDict
-
-from pytransit.specific_tools.transit_tools import wx, basename
+from pytransit.specific_tools.transit_tools import basename
 from pytransit.specific_tools.tnseq_tools import Wig
-import pytransit
-import pytransit.components.file_display as file_display
-from pytransit.generic_tools import csv, misc, informative_iterator
+
+from pytransit.generic_tools import misc, informative_iterator
 import pytransit.components.results_area as results_area
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-from pytransit.components import parameter_panel
-from pytransit.components.spreadsheet import SpreadSheet
 
 
 @misc.singleton
@@ -126,7 +121,7 @@ class Method:
     #    Method.define_panel(event)
 
     def define_panel(self, _):
-        from pytransit.components import panel_helpers
+        from pytransit.components import panel_helpers, set_instructions
         with panel_helpers.NewPanel() as (panel, main_sizer):
             set_instructions(
                 title_text=self.name,
@@ -572,6 +567,7 @@ class Method:
         self, g_ctrl, g_exp=None, do_library_resampling=False
     ):
         from pytransit.specific_tools import stat_tools
+        from pytransit.components import parameter_panel
         
         data = []
         control_group_size = len(g_ctrl)
@@ -728,6 +724,7 @@ class ResultFileType1:
         return transit_tools.file_starts_with(path, '#'+Method.identifier)
     
     def __init__(self, path=None):
+        from pytransit.components.spreadsheet import SpreadSheet
         self.wxobj = None
         self.path  = path
         self.values_for_result_table = LazyDict(

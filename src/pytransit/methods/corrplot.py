@@ -13,10 +13,8 @@ import numpy
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, r, basename, FloatVector, DataFrame, StrVector, globalenv
 from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
@@ -143,7 +141,7 @@ class Method:
         Method.define_pre_processing_panel(event)
     
     def define_pre_processing_panel(self, _):
-        from pytransit.components import panel_helpers
+        from pytransit.components import panel_helpers, parameter_panel
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
                 title_text= self.name,
@@ -176,7 +174,7 @@ class Method:
 
     def define_postprocessing_panel(self, _):
         Method.is_post_processing = True
-        from pytransit.components import panel_helpers
+        from pytransit.components import panel_helpers, parameter_panel
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
                 title_text=self.name,
@@ -276,7 +274,7 @@ class Method:
             
             position_hash = {}
             for i, col in enumerate(headers):
-                position_hash[col] = FloatVector([x[i] for x in means])
+                position_hash[col] = [x[i] for x in means]
             df = pd.DataFrame.from_dict(position_hash, orient="columns") 
             df.index=[genes[i].orf+"/"+genes[i].name for i in range(len(df))]
 

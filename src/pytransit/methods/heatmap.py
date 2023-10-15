@@ -10,7 +10,6 @@ import time
 
 import numpy
 
-from pytransit.components import file_display, parameter_panel, results_area, samples_area
 from pytransit.components.spreadsheet import SpreadSheet
 from pytransit.generic_tools import csv, informative_iterator, misc
 from pytransit.generic_tools.lazy_dict import LazyDict
@@ -63,7 +62,7 @@ class Method:
         Method.define_panel(event)
     
     def define_panel(self, _):
-        from pytransit.components import panel_helpers
+        from pytransit.components import panel_helpers, parameter_panel
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
                 title_text=self.name,

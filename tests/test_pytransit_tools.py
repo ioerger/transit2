@@ -15,6 +15,10 @@ import numpy
 
 from transit_test import *
 
+# fake setup for testing
+from pytransit.globals import logging, gui
+gui.is_active = False # normally checks sys.argv[] but tests use their own sys.argv
+
 import pytransit.specific_tools.norm_tools as norm_tools
 import pytransit.specific_tools.tnseq_tools as tnseq_tools
 import pytransit.specific_tools.stat_tools as stat_tools
