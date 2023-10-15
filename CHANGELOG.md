@@ -3,9 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.0.4 2023-10-15
+#### TRANSIT2:
+
+Minor changes:
+  - fix docs on readthedocs by adding config file
+
+	
 ## Version 1.0.3 2023-10-13
 #### TRANSIT2:
 
+Minor changes:
   - Minor bugfix in ttnfitness
 
 	
