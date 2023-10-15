@@ -4,14 +4,11 @@ import time
 
 import numpy
 
-from pytransit.components.parameter_panel import panel, progress_update
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.generic_tools import misc, informative_iterator
 from pytransit.generic_tools import csv
-from pytransit.components import samples_area
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
 class Method:
@@ -97,6 +94,7 @@ class Method:
     
     @staticmethod
     def output(*, annotation_path, wig_list, metadata_path=None, output_path=None, normalization=None, disable_logging=False):
+        from pytransit.components.parameter_panel import progress_update
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
         output_path       = output_path       if output_path       is not None else "latest.comwig.tsv"
@@ -233,6 +231,7 @@ class Method:
     @staticmethod
     @gui.add_wig_area_dropdown_option(name="Show Table")
     def click_show_table(event):
+        from pytransit.components.spreadsheet import SpreadSheet
         selected_wigs = gui.selected_samples or gui.samples
         
         # 

@@ -1,0 +1,832 @@
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 2, in <module>
+    from .rcmod import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/rcmod.py", line 82, in <module>
+    if LooseVersion(mpl.__version__) >= "3.0":
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 55, in __init__
+    warnings.warn(
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/rcmod.py:82: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if LooseVersion(mpl.__version__) >= "3.0":
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 2, in <module>
+    from .rcmod import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/rcmod.py", line 82, in <module>
+    if LooseVersion(mpl.__version__) >= "3.0":
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 90, in __ge__
+    c = self._cmp(other)
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 345, in _cmp
+    other = LooseVersion(other)
+  File "/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py", line 55, in __init__
+    warnings.warn(
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/setuptools/_distutils/version.py:345: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  other = LooseVersion(other)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1582, in <module>
+    mpl_cm.register_cmap(_name, _cmap)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1582: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name, _cmap)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 144, in output
+    import seaborn as sns
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/__init__.py", line 9, in <module>
+    from .matrix import *  # noqa: F401,F403
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 12, in <module>
+    from . import cm
+  File "<frozen importlib._bootstrap>", line 1234, in _handle_fromlist
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py", line 1583, in <module>
+    mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 199, in wrapper
+    emit_warning()
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 193, in emit_warning
+    warn_deprecated(
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/deprecation.py", line 96, in warn_deprecated
+    warn_external(warning, category=MatplotlibDeprecationWarning)
+  File "/opt/homebrew/lib/python3.11/site-packages/matplotlib/_api/__init__.py", line 388, in warn_external
+    warnings.warn(message, category, stacklevel)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/cm.py:1583: MatplotlibDeprecationWarning: The register_cmap function was deprecated in Matplotlib 3.7 and will be removed two minor releases later. Use ``matplotlib.colormaps.register(name)`` instead.
+  mpl_cm.register_cmap(_name + "_r", _cmap_r)
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 181, in output
+    basic_heatmap(column_to_lfcs, row_names=gene_names, output_path=output_path)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 200, in basic_heatmap
+    clustermap_plot = sns.clustermap(
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/_decorators.py", line 46, in inner_f
+    return f(**kwargs)
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 1406, in clustermap
+    return plotter.plot(metric=metric, method=method,
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 1219, in plot
+    self.plot_dendrograms(row_cluster, col_cluster, metric, method,
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 1064, in plot_dendrograms
+    self.dendrogram_row = dendrogram(
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/_decorators.py", line 46, in inner_f
+    return f(**kwargs)
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 779, in dendrogram
+    plotter = _DendrogramPlotter(data, linkage=linkage, axis=axis,
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 589, in __init__
+    self.linkage = self.calculated_linkage
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 651, in calculated_linkage
+    if np.product(self.shape) >= 10000:
+  File "/opt/homebrew/lib/python3.11/site-packages/numpy/core/fromnumeric.py", line 3826, in _product_dispatcher
+    warnings.warn("`product` is deprecated as of NumPy 1.25.0, and will be "
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py:589: DeprecationWarning: `product` is deprecated as of NumPy 1.25.0, and will be removed in NumPy 2.0. Please use `prod` instead.
+  self.linkage = self.calculated_linkage
+  File "/Users/jeffhykin/repos/transit2/./src/transit.py", line 27, in <module>
+    pytransit.__main__.run_main()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 92, in run_main
+    main(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 57, in main
+    console_mode_start()
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/__main__.py", line 35, in console_mode_start
+    transit_cli.find_and_run_subcommand(args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/transit_cli.py", line 35, in find_and_run_subcommand
+    cli.subcommands[subcommand](subcommand_args, kwargs)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 119, in from_args
+    Method.load_from(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 132, in load_from
+    AnovaFile(path=input_path).create_heatmap(output_path, topk=top_k, qval=q_value_threshold, low_mean_filter=low_mean_filter)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/anova.py", line 541, in create_heatmap
+    HeatmapMethod.output(
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 181, in output
+    basic_heatmap(column_to_lfcs, row_names=gene_names, output_path=output_path)
+  File "/Users/jeffhykin/repos/transit2/src/pytransit/methods/heatmap.py", line 200, in basic_heatmap
+    clustermap_plot = sns.clustermap(
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/_decorators.py", line 46, in inner_f
+    return f(**kwargs)
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 1406, in clustermap
+    return plotter.plot(metric=metric, method=method,
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 1219, in plot
+    self.plot_dendrograms(row_cluster, col_cluster, metric, method,
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 1074, in plot_dendrograms
+    self.dendrogram_col = dendrogram(
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/_decorators.py", line 46, in inner_f
+    return f(**kwargs)
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 779, in dendrogram
+    plotter = _DendrogramPlotter(data, linkage=linkage, axis=axis,
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 589, in __init__
+    self.linkage = self.calculated_linkage
+  File "/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py", line 651, in calculated_linkage
+    if np.product(self.shape) >= 10000:
+  File "/opt/homebrew/lib/python3.11/site-packages/numpy/core/fromnumeric.py", line 3826, in _product_dispatcher
+    warnings.warn("`product` is deprecated as of NumPy 1.25.0, and will be "
+  File "/opt/homebrew/Cellar/python@3.11/3.11.3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/warnings.py", line 109, in _showwarnmsg
+    sw(msg.message, msg.category, msg.filename, msg.lineno,
+  File "/opt/homebrew/lib/python3.11/site-packages/blissful_basics/__init__.py", line 176, in warn_with_traceback
+    traceback.print_stack(file=log)
+/opt/homebrew/lib/python3.11/site-packages/seaborn/matrix.py:589: DeprecationWarning: `product` is deprecated as of NumPy 1.25.0, and will be removed in NumPy 2.0. Please use `prod` instead.
+  self.linkage = self.calculated_linkage

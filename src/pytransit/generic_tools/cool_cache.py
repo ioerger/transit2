@@ -2,9 +2,6 @@
 # (MIT License on PyPi)
 # has been modified to use super_hash and work on python3.8
 
-import dis
-import hashlib
-import inspect
 import pickle
 import queue
 import threading
@@ -12,23 +9,17 @@ from os import path
 from threading import Thread
 
 # from super_hash import super_hash, hash_file
-# from super_map import LazyDict
-from pytransit.generic_tools.super_hash import super_hash, hash_file
-from pytransit.generic_tools.lazy_dict import LazyDict
+from pytransit.__dependencies__.super_hash import super_hash, hash_file
 
-try:
-    # use dill if its available
-    import dill as pickle
-except ImportError as error:
+class Object:
     pass
-
-settings = LazyDict(
-    default_folder="cache.ignore/",
-    worker_que_size=100,
-)
 
 class NotGiven:
     pass
+
+settings = Object()
+settings.default_folder = "cache.ignore/"
+settings.worker_que_size = 1000
 
 class CacheData:
     calculated = False
@@ -151,13 +142,17 @@ def cache(folder=NotGiven, depends_on=lambda:None, watch_attributes=[], watch_fi
                 else:
                     result = input_func(*args, **kwargs)
                     data.cache[arg_hash] = result # save the output for next time
-                    worker_que.put(data, block=False) # use a different process for saving to disk to prevent slowdown
+                    data_to_push = CacheData()
+                    data_to_push.calculated      = deepcopy(data.calculated)
+                    data_to_push.cache_file_name = deepcopy(data.cache_file_name)
+                    data_to_push.deep_hash       = deepcopy(data.deep_hash)
+                    data_to_push.cache           = deepcopy(data.cache)
+                    worker_que.put(data_to_push, block=False) # use a different process for saving to disk to prevent slowdown
                     return result
             return wrapper
         return real_decorator
 
 def worker():
-    import file_system_py as FS
     global worker_que
     while threading.main_thread().is_alive():
         try:

@@ -83,7 +83,7 @@ class Box:
         # help(self.wx_object.Add)    
         self.wx_object.Add(
             wx_object,
-            proportion,
+            int(proportion),
             flag=(side or 0) | (expand or 0) | (horizontal_alignment or 0),
             border=border,
         )
