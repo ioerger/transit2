@@ -15,7 +15,6 @@ from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, nor
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 from pytransit.generic_tools.lazy_dict import LazyDict
-from pytransit.specific_tools.transit_tools import wx, r, basename, FloatVector, DataFrame, StrVector, globalenv
 from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
@@ -275,7 +274,7 @@ class Method:
             
             position_hash = {}
             for i, col in enumerate(headers):
-                position_hash[col] = FloatVector([x[i] for x in means])
+                position_hash[col] = [x[i] for x in means]
             df = pd.DataFrame.from_dict(position_hash, orient="columns") 
             df.index=[genes[i].orf+"/"+genes[i].name for i in range(len(df))]
 
