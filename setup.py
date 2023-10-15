@@ -189,6 +189,7 @@ setup(
         package_name: [
             each[len(package_name)+1:]
                 for each in FS.iterate_paths_in(package_name, recursively=True)
+                    if '/__pycache__/' not in each
         ],
     },
 
