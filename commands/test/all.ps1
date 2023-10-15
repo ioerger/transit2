@@ -43,6 +43,13 @@ for (const eachItem of await FileSystem.listItemsIn("tests/cli_tests/")) {
     if (runASpecificTest && FileSystem.basename(eachItem.path) != flags._[0]) {
         continue
     }
+    // clear outputs and results
+    for (const eachFile of await FileSystem.listFileItemsIn(eachItem.path)) {
+        if (eachFile.basename.match(/\.output|.+\.result($|\.)/)) {
+            await FileSystem.remove(eachFile.path)
+        }
+    }
+    // run all the tests
     for (const eachFile of await FileSystem.listFileItemsIn(eachItem.path)) {
         const permissions = await FileSystem.getPermissions({path:eachFile.path})
         const isExecutable = (permissions.owner.canExecute || permissions.group.canExecute || permissions.others.canExecute)
