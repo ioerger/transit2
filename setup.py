@@ -166,7 +166,8 @@ setup(
         'wxPython',
         'ez-yaml>=1.2.0',
         'pandas',
-        'seaborn'
+        'seaborn>=0.11.2',
+        'rpy2'
     ],
 
     #dependency_links = [
