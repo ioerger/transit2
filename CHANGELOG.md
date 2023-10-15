@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.0.5 2023-10-15
+#### TRANSIT2:
+
+Minor changes:
+  - fix something in .readthedocs.taml
+
+	
 ## Version 1.0.4 2023-10-15
 #### TRANSIT2:
 
