@@ -112,11 +112,6 @@ package_data = {
                         # only files
                         ) or (
                             os.path.isdir(each)
-                        ) or (
-                            '/__dependencies__/' in each and not (each.endswith(".py") or each.endswith(".json") or each.endswith(".yaml"))
-                        # no test files
-                        ) or (
-                            "/ruamel/yaml/_test/" in each
                         )
                     ) 
     ]))),
@@ -179,18 +174,18 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     # 'wxPython' is needed for GUI only, but go ahead and install them
     install_requires=[
-        'attrdict',
         'setuptools',
+        'wxPython',
+        'attrdict~=2.0.1',
         'numpy~=1.16',
         'scipy~=1.2',
         'matplotlib~=3.0',
-        'pillow',
-        'scikit-learn',
+        'scikit-learn~=1.1.3',
         'statsmodels~=0.9',
-        'wxPython',
-        'pandas',
+        'pandas~=2.0.2',
         'seaborn>=0.11.2',
-        'rpy2'
+        'ez-yaml==2.0.2',
+        'super-hash==1.2.8',
     ],
 
     #dependency_links = [

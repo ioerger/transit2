@@ -9,7 +9,7 @@ from os import path
 from threading import Thread
 
 # from super_hash import super_hash, hash_file
-from pytransit.__dependencies__.super_hash import super_hash, hash_file
+from super_hash import super_hash, hash_file
 
 class Object:
     pass
