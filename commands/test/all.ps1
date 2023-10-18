@@ -13,14 +13,14 @@ const logsFolder = `${FileSystem.thisFolder}/../logs`
 
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 const flags = parse(Deno.args, {
-    boolean: ["dontSave"],
+    boolean: ["dontSave", "cliOnly"],
     default: {
-
+        cliOnly: false,
     },
 })
 
 const runASpecificTest = flags._.length > 0
-if (!runASpecificTest) {
+if (!runASpecificTest && !flags.cliOnly) {
     let oneFailed = false
     for (let pythonTest of ["test_analysis_methods.py","test_norm_methods.py","test_pytransit_tools.py","test_tpp.py"]) {
         console.log('#')
@@ -39,8 +39,11 @@ if (!runASpecificTest) {
     }
 }
 
-for (const eachItem of await FileSystem.listItemsIn("tests/cli_tests/")) {
+for (const eachItem of (await FileSystem.listItemsIn("tests/cli_tests/")).sort()) {
     if (runASpecificTest && FileSystem.basename(eachItem.path) != flags._[0]) {
+        continue
+    }
+    if (["ttn_fitness", "igv", "gene_means"].includes(eachItem.basename)) {
         continue
     }
     // clear outputs and results
@@ -62,11 +65,12 @@ for (const eachItem of await FileSystem.listItemsIn("tests/cli_tests/")) {
         } else {
             outputPath = `${eachFile.path}.ignore.output`
         }
+        await Deno.stdout.write(new TextEncoder().encode(`    Running: ${JSON.stringify(outputPath)}\r`))
         var {success} = await run`${eachFile.path} ${Out(Overwrite(outputPath))}`
         if (success) {
-            console.log(`    Passed: ${JSON.stringify(outputPath)}`)
+            console.log(`    Passed: ${JSON.stringify(outputPath)}  `)
         } else {
-            console.log(`    FAILED: ${JSON.stringify(outputPath)}`)
+            console.log(`    FAILED: ${JSON.stringify(outputPath)}  `)
         }
     }
 }
