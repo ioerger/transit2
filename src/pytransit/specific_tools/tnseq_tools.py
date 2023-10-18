@@ -13,6 +13,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify
 from pytransit.generic_tools.named_list import named_list, NamedListBase
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, cache
 from pytransit.globals import logging
+from super_hash import super_hash
 
 try:
     from pytransit.specific_tools import norm_tools
@@ -48,8 +49,7 @@ class Wig:
         self.fingerprint     = fingerprint or self.path
         self.column_index    = column_index
         self.condition_names = condition_names
-        self.id              = id or f"{basename(fingerprint)}_" + (f"{random()}".replace(".", ""))[0:4]
-        # TODO: use super_hash instead of random so the id's dont change with every run
+        self.id              = id or f"{basename(fingerprint)}_" + f"{super_hash((fingerprint, rows))}"[0:6]
 
         self.ta_sites         = [ each[0] for each in self.rows ]
         self.insertion_counts = [ each[1] for each in self.rows ]

@@ -147,7 +147,7 @@ if HAS_WX:
                 panel, value=vars.replicon_ids, size=(400, 30)
             )
             sizer_replicon_ids.Add(
-                self.replicon_ids, proportion=1.0, flag=wx.EXPAND | wx.ALL, border=5
+                self.replicon_ids, proportion=1, flag=wx.EXPAND | wx.ALL, border=5
             )
             sizer_replicon_ids.Add(
                 TPPIcon(
@@ -237,7 +237,7 @@ if HAS_WX:
             )
             sizer5.Add(label5, 0, wx.ALIGN_CENTER_VERTICAL, 0)
             self.base = wx.TextCtrl(panel, value=vars.base, size=(400, 30))
-            sizer5.Add(self.base, proportion=1.0, flag=wx.EXPAND | wx.ALL, border=5)
+            sizer5.Add(self.base, proportion=1, flag=wx.EXPAND | wx.ALL, border=5)
             sizer5.Add(
                 TPPIcon(
                     panel,
@@ -456,7 +456,7 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
             else:
                 self.bwa_alg.SetSelection(1)  # default
             sizer0.Add(
-                self.bwa_alg, proportion=0.5, flag=wx.EXPAND | wx.ALL, border=5
+                self.bwa_alg, proportion=0, flag=wx.EXPAND | wx.ALL, border=5
             )  ##
             self.bwa_alg.Bind(
                 wx.EVT_COMBOBOX, self.OnBwaAlgSelection, id=self.bwa_alg.GetId()
@@ -509,7 +509,7 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
             )  ## # does a BoxSizer use wx.HORIZONTAL, not wx.EXPAND?
             self.barseq_select.SetSelection(0)
             sizer9.Add(
-                self.barseq_select, proportion=0.5, flag=wx.EXPAND | wx.ALL, border=5
+                self.barseq_select, proportion=0, flag=wx.EXPAND | wx.ALL, border=5
             )  ##
 
             self.picker9 = wx.lib.filebrowsebutton.FileBrowseButton(

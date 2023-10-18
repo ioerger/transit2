@@ -13,7 +13,6 @@ import numpy
 from pytransit.generic_tools import csv, misc, informative_iterator
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
-from pytransit.components import samples_area, results_area, parameter_panel, file_display
 
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename
@@ -74,7 +73,7 @@ class Method:
         Method.define_panel(event)
     
     def define_panel(self, _):
-        from pytransit.components import panel_helpers
+        from pytransit.components import panel_helpers, parameter_panel
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
                 title_text=self.name,
