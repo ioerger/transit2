@@ -112,11 +112,6 @@ package_data = {
                         # only files
                         ) or (
                             os.path.isdir(each)
-                        ) or (
-                            '/__dependencies__/' in each and not (each.endswith(".py") or each.endswith(".json") or each.endswith(".yaml"))
-                        # no test files
-                        ) or (
-                            "/ruamel/yaml/_test/" in each
                         )
                     ) 
     ]))),

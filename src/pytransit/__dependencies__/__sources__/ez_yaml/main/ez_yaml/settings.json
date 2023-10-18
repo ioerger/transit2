@@ -1,7 +1,0 @@
-{
-    "pure_python_packages": {
-        "ruamel": {
-            "path": "__sources__/ruamel/"
-        }
-    }
-}

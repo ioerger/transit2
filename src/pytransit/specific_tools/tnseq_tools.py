@@ -13,7 +13,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify
 from pytransit.generic_tools.named_list import named_list, NamedListBase
 from pytransit.generic_tools.misc import line_count_of, flatten_once, no_duplicates, indent, cache
 from pytransit.globals import logging
-from pytransit.__dependencies__.super_hash import super_hash
+from super_hash import super_hash
 
 try:
     from pytransit.specific_tools import norm_tools
@@ -345,7 +345,7 @@ class CombinedWigData(NamedListBase):
             WigData :: [Number]
             Filename :: String
         """
-        from pytransit.__dependencies__ import ez_yaml
+        import ez_yaml
         from pytransit.specific_tools import transit_tools
         
         sites, counts_by_wig, wig_fingerprints, extra_data = [], [], [], {}
@@ -883,7 +883,7 @@ class CombinedWig:
     
     def _load_main_path(self):
         from pytransit.generic_tools.informative_iterator import ProgressBar
-        from pytransit.__dependencies__ import ez_yaml
+        import ez_yaml
         comments, headers, rows = csv.read(self.main_path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
         comment_string = "\n".join(comments)
 
@@ -2306,7 +2306,7 @@ def rv_site_indexes_map(genes, ta_site_index_map, n_terminus=0.0, c_terminus=0.0
     return rv_site_indexes_map
 
 def extract_yaml_data(comment_lines):
-    from pytransit.__dependencies__ import ez_yaml
+    import ez_yaml
     
     extra_data = {}
     contained_yaml_data = False
