@@ -98,6 +98,28 @@ class UploadCommand(Command):
 
         sys.exit()
 
+package_data = {
+    # include all files/folders in the module (recursively)
+    package_name: sorted(list(set([
+        each[len(package_name)+1:]
+            for each in FS.iterate_paths_in(package_name, recursively=True)
+                if not (
+                        # no __pycache__ folders
+                        (
+                            '/__pycache__/' in each
+                            or each.startswith('__pycache__/')
+                            or each.endswith('/__pycache__')
+                        # only py/json files of dependencies
+                        ) or (
+                            '/__dependencies__/' in each and not (each.endswith(".py") or each.endswith(".json") or each.endswith(".yaml"))
+                        # no test files
+                        ) or (
+                            "/ruamel/yaml/_test/" in each
+                        )
+                    ) 
+    ]))),
+}
+
 setup(
     name='transit2',
 
@@ -185,14 +207,7 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-    package_data={
-        # include all files/folders in the module (recursively)
-        package_name: [
-            each[len(package_name)+1:]
-                for each in FS.iterate_paths_in(package_name, recursively=True)
-                    if '/__pycache__/' not in each
-        ],
-    },
+    package_data=package_data,
 
     #scripts=['src/tpp.py', 'src/transit.py'],
 
