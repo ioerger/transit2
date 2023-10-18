@@ -109,7 +109,9 @@ package_data = {
                             '/__pycache__/' in each
                             or each.startswith('__pycache__/')
                             or each.endswith('/__pycache__')
-                        # only py/json files of dependencies
+                        # only files
+                        ) or (
+                            os.path.isdir(each)
                         ) or (
                             '/__dependencies__/' in each and not (each.endswith(".py") or each.endswith(".json") or each.endswith(".yaml"))
                         # no test files
