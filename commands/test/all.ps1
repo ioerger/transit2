@@ -5,6 +5,7 @@ echo "1.36.1"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 import { FileSystem } from "https://deno.land/x/quickr@0.6.46/main/file_system.js"
 import { Console, bold, lightRed, yellow, gray } from "https://deno.land/x/quickr@0.6.46/main/console.js"
 import { run, Timeout, Env, Cwd, Stdin, Stdout, Stderr, Out, Overwrite, AppendTo, throwIfFails, returnAsString, zipInto, mergeInto } from "https://deno.land/x/quickr@0.6.46/main/run.js"
+import { recursivelyOwnKeysOf, get, set, hasKeyList, hasDirectKeyList, remove, merge, compareProperty, recursivelyIterateOwnKeysOf } from "https://deno.land/x/good@1.5.0.2/object.js"
 
 const argsWereGiven = Deno.args.length > 0
 
@@ -13,14 +14,16 @@ const logsFolder = `${FileSystem.thisFolder}/../logs`
 
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 const flags = parse(Deno.args, {
-    boolean: ["dontSave"],
+    boolean: ["dontSave", "cliOnly"],
+    string: ["exclude"],
     default: {
-
+        exclude: "",
+        cliOnly: false,
     },
 })
 
 const runASpecificTest = flags._.length > 0
-if (!runASpecificTest) {
+if (!runASpecificTest && !flags.cliOnly) {
     let oneFailed = false
     for (let pythonTest of ["test_analysis_methods.py","test_norm_methods.py","test_pytransit_tools.py","test_tpp.py"]) {
         console.log('#')
@@ -39,8 +42,14 @@ if (!runASpecificTest) {
     }
 }
 
-for (const eachItem of await FileSystem.listItemsIn("tests/cli_tests/")) {
+const paths = (await FileSystem.listItemsIn("tests/cli_tests/")).sort(
+    compareProperty({keyList:["basename"]})
+)
+for (const eachItem of paths) {
     if (runASpecificTest && FileSystem.basename(eachItem.path) != flags._[0]) {
+        continue
+    }
+    if (flags.exclude.split(",").includes(eachItem.basename)) {
         continue
     }
     // clear outputs and results
@@ -62,11 +71,12 @@ for (const eachItem of await FileSystem.listItemsIn("tests/cli_tests/")) {
         } else {
             outputPath = `${eachFile.path}.ignore.output`
         }
+        await Deno.stdout.write(new TextEncoder().encode(`    Running: ${JSON.stringify(outputPath)}\r`))
         var {success} = await run`${eachFile.path} ${Out(Overwrite(outputPath))}`
         if (success) {
-            console.log(`    Passed: ${JSON.stringify(outputPath)}`)
+            console.log(`    Passed: ${JSON.stringify(outputPath)}  `)
         } else {
-            console.log(`    FAILED: ${JSON.stringify(outputPath)}`)
+            console.log(`    FAILED: ${JSON.stringify(outputPath)}  `)
         }
     }
 }
