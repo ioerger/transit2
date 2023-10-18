@@ -5,6 +5,7 @@ echo "1.36.1"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 import { FileSystem } from "https://deno.land/x/quickr@0.6.46/main/file_system.js"
 import { Console, bold, lightRed, yellow, gray } from "https://deno.land/x/quickr@0.6.46/main/console.js"
 import { run, Timeout, Env, Cwd, Stdin, Stdout, Stderr, Out, Overwrite, AppendTo, throwIfFails, returnAsString, zipInto, mergeInto } from "https://deno.land/x/quickr@0.6.46/main/run.js"
+import { recursivelyOwnKeysOf, get, set, hasKeyList, hasDirectKeyList, remove, merge, compareProperty, recursivelyIterateOwnKeysOf } from "https://deno.land/x/good@1.5.0.2/object.js"
 
 const argsWereGiven = Deno.args.length > 0
 
@@ -14,7 +15,9 @@ const logsFolder = `${FileSystem.thisFolder}/../logs`
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 const flags = parse(Deno.args, {
     boolean: ["dontSave", "cliOnly"],
+    string: ["exclude"],
     default: {
+        exclude: "",
         cliOnly: false,
     },
 })
@@ -39,11 +42,14 @@ if (!runASpecificTest && !flags.cliOnly) {
     }
 }
 
-for (const eachItem of (await FileSystem.listItemsIn("tests/cli_tests/")).sort()) {
+const paths = (await FileSystem.listItemsIn("tests/cli_tests/")).sort(
+    compareProperty({keyList:["basename"]})
+)
+for (const eachItem of paths) {
     if (runASpecificTest && FileSystem.basename(eachItem.path) != flags._[0]) {
         continue
     }
-    if (["ttn_fitness", "igv", "gene_means"].includes(eachItem.basename)) {
+    if (flags.exclude.split(",").includes(eachItem.basename)) {
         continue
     }
     // clear outputs and results
