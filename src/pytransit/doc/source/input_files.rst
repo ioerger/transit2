@@ -65,11 +65,15 @@ information about each sample in the metadata file (see below).
 
 (DnaA is essential, which is why there are no insertion counts in this example)
 
-(The '#genome' is extracted from information in the individual .wig files,
-which records the reference genome sequence that was used with TPP; 
-the coordinates of TA sites are determined from the genome sequence.)
+Note that the ORF id and gene names are appended for TA sites in CDS regions, for convenience.
+If you open a combined_wig file in Excel (with tab as separator character), you will
+see the last line of the header (starting with "TAcoord...") provides the input wig filenames as column headers.
 
-**This needs to be updated for header info in YAML format!**
+The '#genome' is extracted from information in the individual .wig files,
+which records the reference genome sequence that was used with TPP; 
+the coordinates of TA sites are determined from the genome sequence.
+The **reference genome must be the same for all wigs** being combined.
+
 
 |
 
@@ -118,8 +122,6 @@ treatment, etc), they could be included as **additional columns**
 Genome Annotations (.prot_tables and .gff files)
 ------------------
 
-**(this used to be documented on the Running_Transit page, which can probably now be deleted?)**
-
 The annotation of a genome contains information about genes, such as
 coordinates, strand, locus tag, gene name, and functional description.
 Transit uses a custom format for annotations called "prot_table"s,
@@ -138,14 +140,28 @@ containing the gene information in 9 specific columns:
 8. gene name (like "dnaA")
 9. ORF id (like Rv0001)
 
-(should we put details like file formats and export/convert commands on another page???)
+Here is an example (transit/src/pytransit/genomes/H37Rv.prot_table):
 
-*It is crucial* that the annotation file (.prot_table) used for
-analyses in Transit corresponds to exactly the same genome sequence
-(.fasta or .fna) that was used to generate the .wig files with TPP,
-because it is used to determine which TA sites are contained in which
-genes (by coordinates). For example, H37Rv.fna is paired with
-H37Rv.prot_table, both derived from GenBank sequence NC_000962.3.
+::
+
+  chromosomal replication initiation protein 	1	1524	+	507	15607143	885041	dnaA	Rv0001
+  DNA polymerase III subunit beta 	2052	3260	+	402	15607144	887092	dnaN	Rv0002
+  recombination protein F 	3280	4437	+	385	15607145	887089	recF	Rv0003
+  hypothetical protein Rv0004 	4434	4997	+	187	15607146	887088	-	Rv0004
+  DNA gyrase subunit B 	5123	7267	+	714	15607147	887081	gyrB	Rv0005
+  DNA gyrase subunit A 	7302	9818	+	838	15607148	887105	gyrA	Rv0006
+  ... 
+
+  (full file has ~4000 lines)
+  
+.. NOTE::
+
+  *It is crucial* that the annotation file (.prot_table) used for
+  analyses in Transit corresponds to exactly the same genome sequence
+  (.fasta or .fna) that was used to generate the .wig files with TPP,
+  because it is used to determine which TA sites are contained in which
+  genes (by coordinates). For example, **H37Rv.fna** is paired with
+  **H37Rv.prot_table**, both derived from GenBank sequence NC_000962.3.
 
 In many cases, users might often obtain annotations for their genome
 in **.gff (or .gff3)** file format, such as downloaded from NCBI.  .gff
@@ -165,6 +181,7 @@ tags in info field of CDS records.)
 ::
 
   > python3 transit.py convert gff_to_prot_table <input.gff_file> <output.prot_table>
+
 
 
 
