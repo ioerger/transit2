@@ -3,7 +3,7 @@ include README.md
 include LICENSE.md
 include VERSION
 recursive-include src/pytransit/data *
-recursive-include src/pytransit/doc/build/html *.html
-recursive-include src/pytransit/doc/build/html/_images *.png
-recursive-include src/pytransit/doc/build/html/_modules *
-recursive-include src/pytransit/doc/build/html/_static *
+recursive-include src/pytransit/doc *
+recursive-exclude src/pytransit/doc/build *
+global-exclude */__pycache__/*
+global-exclude *.pyc

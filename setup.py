@@ -23,6 +23,39 @@ version =  pytransit.__version__[1:]
 
 package_name = "pytransit"
 
+def file_exclusion_function(file_path):
+    """
+        Summary:
+            this is supposed to return True if the file should be excluded from the pypi upload
+            HOWEVER for some reason some files can still be included, partly because of the MANIFEST.in file
+            The process is rather mysterious
+            
+    """
+    # no folders
+    if os.path.isdir(file_path):
+        return True
+    
+    # no __pycache__ folders
+    if (
+        '/__pycache__/' in file_path
+        or file_path.startswith('__pycache__/')
+        or file_path.endswith('/__pycache__')
+    ):
+        return True
+        
+    # only .py, .json, and .yaml from the __dependencies__ folders
+    if '/__dependencies__/' in file_path and not (file_path.endswith(".py") or file_path.endswith(".json") or file_path.endswith(".yaml")):
+        return True
+    # no test files
+    if "/ruamel/yaml/_test/" in file_path:
+        return True
+    
+    if "/doc/" in file_path:
+        return True
+    
+    
+    return False
+
 # Get the long description from the README file
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -103,17 +136,7 @@ package_data = {
     package_name: sorted(list(set([
         each[len(package_name)+1:]
             for each in FS.iterate_paths_in(package_name, recursively=True)
-                if not (
-                        # no __pycache__ folders
-                        (
-                            '/__pycache__/' in each
-                            or each.startswith('__pycache__/')
-                            or each.endswith('/__pycache__')
-                        # only files
-                        ) or (
-                            os.path.isdir(each)
-                        )
-                    ) 
+                if not file_exclusion_function(each)
     ]))),
 }
 
@@ -158,7 +181,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages = find_packages('src', exclude=['contrib', 'tests']),
+    packages = ['pytransit.specific_tools' ] + find_packages('src', exclude=['contrib', 'tests']),
     #packages = ['pytransit'],
     package_dir = {'pytransit': 'src/pytransit',  'pytpp': 'src/pytpp'},
     include_package_data=True,
