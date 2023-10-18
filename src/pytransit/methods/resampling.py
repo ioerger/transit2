@@ -121,9 +121,13 @@ class Method:
     #    Method.define_panel(event)
 
     def define_panel(self, _):
-        from pytransit.components import panel_helpers, set_instructions
+        import pytransit
+        import pytransit.components
+        import pytransit.components.panel_helpers
+        from pytransit.components import panel_helpers
+        from pytransit.components import parameter_panel
         with panel_helpers.NewPanel() as (panel, main_sizer):
-            set_instructions(
+            parameter_panel.set_instructions(
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
