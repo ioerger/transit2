@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.0.7 2023-10-19
+#### TRANSIT2:
+
+Minor changes:
+  - bug fix in GUI for resampling
+
+
 ## Version 1.0.6 2023-10-18
 #### TRANSIT2:
 
