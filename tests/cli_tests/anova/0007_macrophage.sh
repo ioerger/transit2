@@ -6,7 +6,7 @@ metadata="./src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv"
 comwig="./src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv"
 
 # check if file exists (macrophages isnt in the git repo)
-if [ --f "src/pytransit/data.ignore/macrophages.comwig" ]
+if [ -f "src/pytransit/data.ignore/macrophages.comwig" ]
 then
     python3 ./src/transit.py anova \
         ./src/pytransit/data.ignore/macrophages.comwig \

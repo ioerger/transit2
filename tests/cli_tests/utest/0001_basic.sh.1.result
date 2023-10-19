@@ -1,10 +1,10 @@
 #UTest
 #yaml:
-#    date: 2023-02-05 14:43:16
-#    transit_version: v4.0.0
+#    date: 2023-10-13 14:10:15
+#    transit_version: v1.0.2
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'utest' './src/pytransit/data/cholesterol_glycerol.transit/comwig.tsv' './src/pytransit/data/cholesterol_glycerol.transit/metadata.tsv' './src/pytransit/data/cholesterol_glycerol.transit/annotation.H37Rv.prot_table' 'Glycerol' 'Cholesterol' './tests/cli_tests/utest/0001_basic.sh.1.result'
-#    calculation_time: 5.2seconds
+#    calculation_time: 5.1seconds
 #    analysis_type: UTest
 #    stats:
 #       number_of_significant_genes: 71
