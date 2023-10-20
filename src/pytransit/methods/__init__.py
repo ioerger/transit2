@@ -20,4 +20,5 @@ from .quality_control    import *
 from .loess              import *
 from .heatmap            import *
 from .utest              import *
-from .cgi                import *
+from .fastq_to_counts    import *
+#from .cgi                import *

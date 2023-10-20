@@ -24,54 +24,36 @@ from pytransit.components.spreadsheet import SpreadSheet
 
 @misc.singleton
 class Method:
-    name = "CGI" # HANDLE_THIS
-    identifier  = name
-    cli_name    = name.lower()
-    menu_name   = f"{name} - Perform {name} analysis"
-    description = f"""Perform {name} analysis"""
+    name= "fastq_to_counts"
+    menu_name   = f"Convert a FastQ file to a counts file"
 
-    column_names=[]
-
-    valid_cli_flags = [
-        "--n",  # normalization
-        "--iN", # n_terminus
-        "--iC", # c_terminus
-        # HANDLE_THIS
-    ]
-    # usage_string = f"""
-    #     # HANDLE_THIS
-    #     Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments]
-    #     Optional Arguments:
-    #         --n <string>         :=  Normalization method. Default: --n TTR
-    #         --iN <N> :=  Ignore TAs within given percentage (e.g. 5) of N terminus. Default: --iN 0
-    #         --iC <N> :=  Ignore TAs within given percentage (e.g. 5) of C terminus. Default: --iC 0
-    # """.replace("\n        ", "\n")
-
+    inputs = LazyDict(
+            fastq_file = None,
+            sgRNA_ids_file = None,
+            output_path=None,
+        )
+    
     usage_string = f"""
-        Usage: {console_tools.subcommand_prefix} {cli_name} [Optional Arguments] (6 sub-commands):
-        {console_tools.subcommand_prefix} CGI extract_counts <fastq file> <ids file> > <counts file>
-        {console_tools.subcommand_prefix} CGI create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> > <combined counts file>
-        {console_tools.subcommand_prefix} CGI extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  >  <fractional abundundance file>
-        {console_tools.subcommand_prefix} CGI run_model <fractional abundundance file>  >  <CRISPRi DR results file>
-        {console_tools.subcommand_prefix} CGI visualize <fractional abundance> <gene> <output figure location>
-        note: redirect output from stdout to output files as shown above
+        {console_tools.subcommand_prefix} covert fastq_to_counts <fastq file> <ids file> <output counts file>
     """.replace("\n        ", "\n")
     
     @staticmethod
-    @cli.add_command(cli_name)
+    @cli.add_command("convert", name.lower())
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
-        console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
 
+        #extract counts from fastQ command
+
         # save the data
-        Method.output(
-            output_path=args[0],
-            normalization=kwargs["n"],
-            n_terminus=kwargs["iN"],
-            c_terminus=kwargs["iC"],
+        Method.inputs.update(dict(
+            fastq_file = args[0],
+            sgRNA_ids_file = args[1],
+            output_path=args[2],
             # HANDLE_THIS
-        )
+        ))
+
+        Method.Run()
     
     @gui.add_wig_area_dropdown_option(name=name)
     def on_wig_option_click():
@@ -245,57 +227,45 @@ class Method:
                         ),
                     ),
                 )
-            
-@transit_tools.ResultsFile
-class ResultFileType1:
-    @staticmethod
-    def can_load(path):
-        return transit_tools.file_starts_with(path, '#'+Method.identifier)
-    
-    def __init__(self, path=None):
-        self.wxobj = None
-        self.path  = path
-        self.values_for_result_table = LazyDict(
-            name=basename(self.path),
-            type=Method.identifier,
-            path=self.path,
-            # anything with __ is not shown in the table
-            __dropdown_options=LazyDict({
-                "Display Table": lambda *args: SpreadSheet(
-                    title=Method.identifier,
-                    heading=self.comments_string or misc.human_readable_data(self.extra_data),
-                    column_names=self.column_names,
-                    rows=self.rows,
-                    sort_by=[
-                        # HANDLE_THIS
-                    ],
-                ).Show(),
-            })
-        )
-        
-        # 
-        # read in data
-        # 
-        self.column_names, self.rows, self.extra_data, self.comments_string = tnseq_tools.read_results_file(self.path)
-        self.values_for_result_table.update(self.extra_data.get("parameters", {}))
-        
-        # 
-        # get summary stats
-        #
-        self.values_for_result_table.update({
-            # HANDLE_THIS (additional summary_info for results table)
-            # examples:
-                # f"Gene Count": len(self.rows),
-                # f"Adj P Value < {Method.significance_threshold}": len([
-                #     1 for each in self.rows
-                #         if each.get("Adj P Value", 0) < Method.significance_threshold 
-                # ]),
-        })
-    
-    def __str__(self):
-        return f"""
-            File for {Method.identifier}
-                path: {self.path}
-                column_names: {self.column_names}
-        """.replace('\n            ','\n').strip()
+    def Run(self):
+        IDs = []
+        barcodemap = {} # hash from barcode to full ids
+        for line in open(self.inputs.ids_file):
+            w = line.rstrip().split('\t')
+            id = w[0]
+            v = id.split('_')
+            if len(v)<3: continue
+            barcode = v[2]
+            IDs.append(id)
+            # reverse-complement of barcodes appears in reads, so hash them that way
+            barcodemap[self.reverse_complement(barcode)] = id
 
+        counts = {}
+
+        #A,B = "AGCTTCTTTCGAGTACAAAAAC","TCCCAGATTATATCTATCACTGA"
+        A,B = "GTACAAAAAC","TCCCAGATTA"
+        lenA = len(A)
+        cnt,nreads,recognized = 0,0,0
+        for line in open(self.inputs.fastq_file):
+            cnt += 1
+            if cnt%4==2:
+                nreads += 1
+                if (nreads%1000000==0): sys.stderr.write("reads=%s, recognized barcodes=%s (%0.1f%%)\n" % (nreads,recognized,100.*recognized/float(nreads)))
+                seq = line.rstrip()
+                a = seq.find(A)
+                if a==-1: continue
+                b = seq.find(B)
+                if b==-1: continue
+                sz = b-(a+lenA)
+                if sz<10 or sz>30: continue
+                barcode = seq[a+lenA:b] # these are reverse-complements, but rc(barcodes) stored in hash too
+                if barcode not in barcodemap: continue
+                id = barcodemap[barcode]
+                if id not in counts: counts[id] = 0
+                counts[id] += 1
+                recognized += 1
+        output_file = open(self.inputs.output_file, "w")
+        for id in IDs:
+            vals = [id,counts.get(id,0)]
+            output_file.write('\t'.join([str(x) for x in vals]))
+        output_file.close()
