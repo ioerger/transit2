@@ -240,8 +240,8 @@ class Method:
 
         abund_df = pd.concat([sgRNA_strength, no_dep_df,combined_counts_df], axis=1)
         abund_df= abund_df[~(abund_df.index.str.contains("Negative") | abund_df.index.str.contains("Empty"))]
-        logging.log("Disregarding Empty or Negative sgRNAs\n")
-        logging.log("%d sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file\n"%len(abund_df))
+        logging.log("Disregarding Empty or Negative sgRNAs")
+        logging.log("%d sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file"%len(abund_df))
 
         f = open(fractional_abundance_file, 'w')
         headers = ["sgRNA strength","uninduced ATC values"]
@@ -324,9 +324,9 @@ class Method:
         n = len(drug_out_df[drug_out_df["Significant Interactions"]!=0])
         depl_n = len(drug_out_df[drug_out_df["Significant Interactions"]== -1])
         enrich_n = len(drug_out_df[drug_out_df["Significant Interactions"]==1])
-        logging.log("%d Total Significant Gene Interactions\n"%n)
-        logging.log("%d Significant Gene Depletions\n"%depl_n)
-        logging.log("%d Significant Gene Enrichments\n"%enrich_n)
+        logging.log("%d Total Significant Gene Interactions"%n)
+        logging.log("%d Significant Gene Depletions"%depl_n)
+        logging.log("%d Significant Gene Enrichments"%enrich_n)
     
         drug_out_df  = drug_out_df.replace(r'\s+',np.nan,regex=True).replace('',np.nan)
         drug_out_df.to_csv(cdr_output_file,sep="\t", index=False)
