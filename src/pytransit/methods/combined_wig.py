@@ -93,7 +93,7 @@ class Method:
                 close()
     
     @staticmethod
-    def output(*, annotation_path, wig_list, metadata_path=None, output_path=None, normalization=None, disable_logging=False):
+    def zoutput(*, annotation_path, wig_list, metadata_path=None, output_path=None, normalization=None, disable_logging=False):
         from pytransit.components.parameter_panel import progress_update
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"

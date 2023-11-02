@@ -21,4 +21,4 @@ from .loess              import *
 from .heatmap            import *
 from .utest              import *
 from .fastq_to_counts    import *
-#from .cgi                import *
+from .cgi                import *
