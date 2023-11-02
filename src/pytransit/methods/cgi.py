@@ -38,9 +38,13 @@ class Method:
     Usage (6 sub-commands):
 
     {console_tools.subcommand_prefix} {cli_name} extract_counts <fastq file> <ids file> <output counts file>
+    
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
+    
     {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  <fractional abundundance file>
+    
     {console_tools.subcommand_prefix} {cli_name} run_model <fractional abundundance file>  <CRISPRi DR results file>
+    
     {console_tools.subcommand_prefix} {cli_name} visualize <fractional abundance> <gene> <output figure location> [Optional Arguments]
         Optional Arguments: 
             -fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
@@ -48,6 +52,12 @@ class Method:
             -origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
     """.replace("\n        ", "\n")
     
+    @staticmethod
+    @cli.add_command(cli_name)
+    def from_args(args, kwargs):
+        logging.log("Please provide a subcommand for cgi")
+        print(Method.usage_string)
+
     @staticmethod
     @cli.add_command(cli_name, "extract_counts")
     def from_args(args, kwargs):
