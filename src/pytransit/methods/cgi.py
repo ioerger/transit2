@@ -88,7 +88,7 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=7)
+        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=8)
 
         combined_counts_file = args[0]
         metadata_file = args[1]
@@ -159,7 +159,7 @@ class Method:
             cnt += 1
             if cnt%4==2:
                 nreads += 1
-                if (nreads%1000000==0): sys.stderr.write("reads=%s, recognized barcodes=%s (%0.1f%%)\n" % (nreads,recognized,100.*recognized/float(nreads)))
+                if (nreads%1000000==0): logging.log("reads=%s, recognized barcodes=%s (%0.1f%%)\n" % (nreads,recognized,100.*recognized/float(nreads)))
                 seq = line.rstrip()
                 a = seq.find(A)
                 if a==-1: continue
@@ -185,7 +185,7 @@ class Method:
         import pandas as pd
         df_list =[]
         for f in counts_list:
-            sys.stderr.write("Adding in file # %s \n"%f)
+            logging.log("Adding in file # %s \n"%f)
             counts_df = pd.read_csv(f, sep="\t")
             counts_df["sgRNA"]=counts_df[counts_df.columns[0]].str.split("_v", expand=True)[0]
             counts_df = counts_df.drop(columns=[counts_df.columns[0]])
@@ -193,8 +193,8 @@ class Method:
             df_list.append(counts_df)
         combined_df = pd.concat(df_list, axis=1)
         combined_df.columns = headers
-        combined_df_text = combined_df.to_csv(combined_counts_file, sep="\t")
-        sys.stderr.write("Number of sgRNAs in combined counts file (present in all counts files): %d \n"%len(combined_df))
+        combined_df.to_csv(combined_counts_file, sep="\t")
+        logging.log("Number of sgRNAs in combined counts file (present in all counts files): %d \n"%len(combined_df))
 
    
     def extract_abund(self,combined_counts_file,metadata_file,control_condition,sgRNA_strength_file,no_dep_abund,drug,days,fractional_abundance_file, PC=1e-8):  
@@ -202,31 +202,26 @@ class Method:
         metadata = pd.read_csv(metadata_file, sep="\t")
         metadata = metadata[((metadata["drug"]==drug) | (metadata["drug"]==control_condition)) & (metadata["days_predepletion"]==int(days))]
         if(len(metadata)==0):
-            sys.stderr.write("This combination of conditions does not exist in your metadata file. Please select one that does")
-            sys.exit(0)
+            logging.error("This combination of conditions does not exist in your metadata file. Please select one that does")
         elif (drug not in metadata["drug"].values.tolist()):
-            sys.stderr.write("%s is not found in your metadata. Add the drug's information in the metadata file or select a different drug"%drug)
-            sys.exit(0)
+            logging.error("%s is not found in your metadata. Add the drug's information in the metadata file or select a different drug"%drug)
         elif (int(days) not in metadata["days_predepletion"].values.tolist()):
-            sys.stderr.write("%d is not found in your metadata days of predepletion column. Add the day's information in the metadata file or select a different day"%days)
-            sys.exit(0)
+            logging.error("%d is not found in your metadata days of predepletion column. Add the day's information in the metadata file or select a different day"%days)
         elif (control_condition not in metadata["drug"].values.tolist()):
-            sys.stderr.write("%s is not found in your metadata. Add the corresponding information in the metadata file or select a different control"%control_condition)
-            sys.exit(0)
+            logging.error("%s is not found in your metadata. Add the corresponding information in the metadata file or select a different control"%control_condition)
         metadata = metadata.sort_values(by=["conc_xMIC"])
         column_names = metadata["column_name"].values.tolist()
         concs_list = metadata["conc_xMIC"].values.tolist()
         
-        logging.log("# Condition Tested : "+drug+" D"+days)
+        logging.log("# Condition Tested : "+str(drug)+" D"+str(days))
         headers = []
         combined_counts_df = pd.read_csv(combined_counts_file,sep="\t", index_col=0)
         combined_counts_df = combined_counts_df[column_names]
 
         if(len(combined_counts_df.columns)==0):
-            sys.stderr.write("The samples assocaited with the selected drugs do not exist in your combined counts file. Please select one that does and check your metadata file has corresponding column names")
-            sys.exit(0)
+            logging.error("The samples assocaited with the selected drugs do not exist in your combined counts file. Please select one that does and check your metadata file has corresponding column names")
         elif(len(combined_counts_df.columns)<len(metadata)):
-            sys.stderr.write("WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file")
+            logging.log("WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file")
       
         sgRNA_strength = pd.read_csv(sgRNA_strength_file,sep="\t", index_col=0)
         sgRNA_strength = sgRNA_strength.iloc[:,-1:]
@@ -245,15 +240,16 @@ class Method:
 
         abund_df = pd.concat([sgRNA_strength, no_dep_df,combined_counts_df], axis=1)
         abund_df= abund_df[~(abund_df.index.str.contains("Negative") | abund_df.index.str.contains("Empty"))]
-        sys.stderr.write("Disregarding Empty or Negative sgRNAs\n")
-        sys.stderr.write("%d sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file\n"%len(abund_df))
+        logging.log("Disregarding Empty or Negative sgRNAs\n")
+        logging.log("%d sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file\n"%len(abund_df))
 
+        f = open(fractional_abundance_file, 'w')
         headers = ["sgRNA strength","uninduced ATC values"]
         for i,col in enumerate(column_names):
             abund_df[col] = abund_df[col]/abund_df[col].sum()
             abund_df[col] = (abund_df[col]+PC)/(abund_df["uninduced ATC values"]+PC)
             headers.append(str(concs_list[i])+"_"+str(i))
-            print("# "+str(concs_list[i])+" conc_xMIC"+" - "+col)
+            f.write("# "+str(concs_list[i])+" conc_xMIC"+" - "+col+"\n")
 
         abund_df.columns = headers
         abund_df["sgRNA"] = abund_df.index.values.tolist()
@@ -268,7 +264,7 @@ class Method:
         abund_df.insert(0, 'orf', abund_df.pop('orf'))
         abund_df.insert(0, 'sgRNA', abund_df.pop('sgRNA'))
 
-        abund_df.to_csv(fractional_abundance_file, sep="\t", index=False)
+        abund_df.to_csv(f, sep="\t", index=False)
 
 
 
@@ -283,7 +279,7 @@ class Method:
         drug_output = []
         for i,gene in enumerate(set(frac_abund_df["gene"])):
             #print(i,gene)
-            sys.stderr.write("Analyzing Gene # %d \n"%i)
+            logging.log("Analyzing Gene # %d \n"%i)
             gene_df = frac_abund_df[frac_abund_df["gene"]==gene]
             orf = gene_df["orf"].iloc[0]
             gene_df = gene_df.drop(columns=["orf","gene","uninduced ATC values"])
@@ -310,7 +306,6 @@ class Method:
             coeffs = results.params
             pvals = results.pvalues
             drug_output.append([orf,gene,len(gene_df)]+coeffs.values.tolist()+pvals.values.tolist())
-            sys.stderr.flush()
 
         drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","ceofficient sgRNA_strength","ceofficient concentration dependence","pval intercept","pval pred_logFC","pval concentration dependence"])
     
@@ -329,9 +324,9 @@ class Method:
         n = len(drug_out_df[drug_out_df["Significant Interactions"]!=0])
         depl_n = len(drug_out_df[drug_out_df["Significant Interactions"]== -1])
         enrich_n = len(drug_out_df[drug_out_df["Significant Interactions"]==1])
-        sys.stderr.write("%d Total Significant Gene Interactions\n"%n)
-        sys.stderr.write("%d Significant Gene Depletions\n"%depl_n)
-        sys.stderr.write("%d Significant Gene Enrichments\n"%enrich_n)
+        logging.log("%d Total Significant Gene Interactions\n"%n)
+        logging.log("%d Significant Gene Depletions\n"%depl_n)
+        logging.log("%d Significant Gene Enrichments\n"%enrich_n)
     
         drug_out_df  = drug_out_df.replace(r'\s+',np.nan,regex=True).replace('',np.nan)
         drug_out_df.to_csv(cdr_output_file,sep="\t", index=False)
@@ -355,14 +350,13 @@ class Method:
 
         abund_df = abund_df[(abund_df["gene"]==gene)| (abund_df["orf"]==gene)]
         if len(abund_df)==0:
-            sys.stderr.write("Gene not found : %d \n"%idx)
-            sys.exit(0)
+            logging.error("Gene not found : %d \n"%idx)
         abund_df = abund_df.reset_index(drop=True)
         all_slopes = []
 
         df_list = []
         for idx,row in abund_df.iterrows():
-            sys.stderr.write("Fitting sgRNA # : %d \n"%idx)
+            logging.log("Fitting sgRNA # : %d \n"%idx)
             raw_Y= row[5:].values
             Y = [max(0.01,x) for x in raw_Y]
             Y = [np.log10(x) for x in Y]
@@ -418,31 +412,31 @@ class Method:
         range_values = fixed.split(",")
 
         xmin_list = [x for x in range_values if re.search("xmin=", x)]
-        if len(xmin_list)>1: print("You have provided more than one xmin value. Figure will be created using flexible xmin")
+        if len(xmin_list)>1: logging.log("You have provided more than one xmin value. Figure will be created using flexible xmin")
         elif len(xmin_list)==1: 
             xmin_temp = float(xmin_list[0].split("=")[1])
-            if xmin_temp > xmax: print("You have provided an xmin value greater than the xmax value. Figure will be created using flexible xmin")
+            if xmin_temp > xmax: logging.log("You have provided an xmin value greater than the xmax value. Figure will be created using flexible xmin")
             else: xmin = xmin_temp
         
         xmax_list = [x for x in range_values if re.search("xmax=", x)]
-        if len(xmax_list)>1: print("You have provided more than one xmax value. Figure will be created using flexible xmax")
+        if len(xmax_list)>1: logging.log("You have provided more than one xmax value. Figure will be created using flexible xmax")
         elif len(xmax_list)==1: 
             xmax_temp = float(xmax_list[0].split("=")[1])
-            if xmax_temp<xmin: print("You have provided an xmax value less than the xmin value. Figure will be created using flexible xmax")
+            if xmax_temp<xmin: logging.log("You have provided an xmax value less than the xmin value. Figure will be created using flexible xmax")
             else: xmax=xmax_temp
         
         ymin_list = [x for x in range_values if re.search("ymin=", x)]
-        if len(ymin_list)>1:print("You have provided more than one ymin value. Figure will be created using flexible ymin")
+        if len(ymin_list)>1:logging.log("You have provided more than one ymin value. Figure will be created using flexible ymin")
         elif len(ymin_list)==1: 
             ymin_temp = float(ymin_list[0].split("=")[1])
-            if ymin_temp<ymax: print("You have provided an ymin value greater than the ymax value. Figure will be created using flexible ymin")
+            if ymin_temp<ymax: logging.log("You have provided an ymin value greater than the ymax value. Figure will be created using flexible ymin")
             else: ymin= ymin_temp
         
         ymax_list = [x for x in range_values if re.search("ymax=", x)]
-        if len(ymax_list)>1:print("You have provided more than one ymax value. Figure will be created using flexible ymax")
+        if len(ymax_list)>1:logging.log("You have provided more than one ymax value. Figure will be created using flexible ymax")
         elif len(ymax_list)==1: 
             ymax_temp = float(ymax_list[0].split("=")[1])
-            if ymax_temp < ymin: print("You have provided an ymax value less than the ymin value. Figure will be created using flexible ymax")
+            if ymax_temp < ymin: logging.log("You have provided an ymax value less than the ymin value. Figure will be created using flexible ymax")
             else: ymax=ymax_temp
 
        
@@ -455,7 +449,7 @@ class Method:
 
     @gui.add_wig_area_dropdown_option(name=name)
     def on_wig_option_click():
-        print("You clicked a dropdown option")
+        logging.log("You clicked a dropdown option")
     
     @gui.add_menu("Method", "himar1", menu_name)
     def on_menu_click(event):
