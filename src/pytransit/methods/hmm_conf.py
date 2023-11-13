@@ -27,17 +27,26 @@ def get_rows(genes_file_path):
         rows.append(row_elements)
     
     return rows
+
+def process_rows(rows):
+    consistency_values = []
+    orf_ids            = []
+    mean_insertions_per_gene    = {}
+    nz_means_per_gene           = {}
+    calls_per_gene              = {}
+    for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
+        total_sites     = int(total_sites)
+        votes           = [ int(es_count), int(gd_count), int(ne_count), int(ga_count) ]
+        mean_insertions_per_gene[orf] = float(mean_insertions)
+        nz_means_per_gene[orf]        = float(mean_reads)
+        calls_per_gene[orf]           = state_call
+        if total_sites == 0:
             continue
-        votes = [int(x) for x in row_elements[4:8]]
-        consistency = max(votes) / float(number_of_ta_sites)
-        id = row_elements[0]
-        sats[id] = float(row_elements[-3])
-        nz_means[id] = float(row_elements[-2])
-        calls[id] = row_elements[-1]
-        all.append(consistency)
-        data.append(row_elements)
+        orf_ids.append(orf)
+        consistency = max(votes) / float(total_sites)
+        consistency_values.append(consistency)
     
-    return all, calls, data, headers, nz_means, sats
+    return consistency_values, calls_per_gene, orf_ids, nz_means_per_gene, mean_insertions_per_gene
 
 def first_pass(all, calls, data, headers, nz_means, sats):
     print("# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(all), 4)))
