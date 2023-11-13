@@ -1,6 +1,6 @@
 #HMM_Genes
 #yaml:
-#    date: 2023-11-13 15:32:40
+#    date: 2023-11-13 15:40:41
 #    transit_version: v1.0.7
 #    app_or_command_line: command_line
 #    console_command: python3 './src/transit.py' 'hmm' './src/pytransit/data/iron.transit/comwig.tsv' './src/pytransit/data/iron.transit/metadata.tsv' './src/pytransit/data/genomes/H37Rv.prot_table' 'HighFeMBT' './tests/cli_tests/hmm/0001_iron_basic.sh.1.result'
