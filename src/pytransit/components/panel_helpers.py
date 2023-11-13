@@ -99,7 +99,7 @@ if True:
         On "OK", it will return the value you pass in
         """
 
-        from os.path import basename
+        from os.path import basename, dirname
         row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
             # the button to click on in passed in panel to get a popup
@@ -147,7 +147,7 @@ if True:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
                 file_path_or_none = file_path_getter()
         """
-        from os.path import basename
+        from os.path import basename, dirname
         row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
             # 
@@ -179,7 +179,11 @@ if True:
                             default_file_name=default_file_name,
                             allowed_extensions=allowed_extensions,
                         )
-                        file_text.SetLabel(basename(the_file_path or ""))
+                        name = basename(the_file_path or "")
+                        parent_name = dirname(the_file_path or "")
+                        if parent_name != "." and parent_name != "":
+                            name = basename(parent_name)+"/"+name
+                        file_text.SetLabel(name)
                         after_select(*args)
             row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
             # padding
