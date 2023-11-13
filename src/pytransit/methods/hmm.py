@@ -540,120 +540,118 @@ class Method:
         return sum([1 for rd in non_ess_reads if rd >= 1]) / float(len(non_ess_reads))
 
     def post_process_genes(self, data, position, states, output_path):
-        # 
-        # organize data
-        # 
-        if True:
-            pos2state = dict([(position[t], states[t]) for t in range(len(states))])
-            theta = numpy.mean(data > 0)
-            genes = tnseq_tools.Genes(
-                tnseq_tools.CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
-                self.inputs.annotation_path,
-                data=data,
-                position=position,
-                ignore_codon=False,
-                n_terminus=self.inputs.n_terminus,
-                c_terminus=self.inputs.c_terminus,
-            )
-
-            num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
-
-            rows = []
-            gene_calls = {
-                "ES":0,
-                "GD":0,
-                "NE":0,
-                "GA":0,
-                "N/A":0
-            }
-            for each_gene in genes:
-                reads_nz = [c for c in each_gene.reads.flatten() if c > 0]
-                avg_read_nz = 0
-                if len(reads_nz) > 0:
-                    avg_read_nz = numpy.average(reads_nz)
-
-                # State
-                gene_states = [pos2state[p] for p in each_gene.position]
-                statedist = {}
-                for st in gene_states:
-                    if st not in statedist:
-                        statedist[st] = 0
-                    statedist[st] += 1
-
-                # State gene_calls
-                n0 = statedist.get(0, 0)
-                n1 = statedist.get(1, 0)
-                n2 = statedist.get(2, 0)
-                n3 = statedist.get(3, 0)
-
-                if each_gene.n > 0:
-                    # this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive
-                    # E = tnseq_tools.expected_runs(each_gene.n,   1.0 - theta)
-                    # V = tnseq_tools.variance_run(each_gene.n,   1.0 - theta)
-                    if n0 == each_gene.n:
-                        gene_category = "ES"
-                    # elif n0 >= int(E+(3*math.sqrt(V))): gene_category = "ES"
-                    else:
-                        temp = max([(statedist.get(s, 0), s) for s in [0, 1, 2, 3]])[1]
-                        gene_category = num2label[temp]
-                else:
-                    E = 0.0
-                    V = 0.0
-                    gene_category = "N/A"
-                
-                
-                rows.append(
-                    (
-                        each_gene.orf,
-                        each_gene.name,
-                        each_gene.desc,
-                        each_gene.n,
-                        n0,
-                        n1,
-                        n2,
-                        n3,
-                        "%1.4f" % each_gene.theta(),
-                        "%1.2f" % avg_read_nz,
-                        gene_category,
-                    )
+        with gui_tools.nice_error_log:
+            # 
+            # organize data
+            # 
+            if True:
+                pos2state = dict([(position[t], states[t]) for t in range(len(states))])
+                theta = numpy.mean(data > 0)
+                genes = tnseq_tools.Genes(
+                    tnseq_tools.CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
+                    self.inputs.annotation_path,
+                    data=data,
+                    position=position,
+                    ignore_codon=False,
+                    n_terminus=self.inputs.n_terminus,
+                    c_terminus=self.inputs.c_terminus,
                 )
-                if gene_category not in gene_calls:
-                    gene_calls[gene_category] = 0
-                gene_calls[gene_category] += 1
-            
-            if 
-        # 
-        # Write data
-        # 
-        transit_tools.write_result(
-            path=output_path, # path=None means write to STDOUT
-            file_kind=GeneFile.identifier,
-            rows=rows,
-            column_names=GeneFile.column_names,
-            extra_info={
-                "Summary Of Gene Calls": gene_calls,
-                "Naming Reference": {
-                    "ES": "essential",
-                    "GD": "insertions cause growth-defect",
-                    "NE": "non-essential",
-                    "GA": "insertions confer growth-advantage",
-                    "N/A": "not analyzed (genes with 0 TA sites)",
+
+                num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
+
+                rows = []
+                gene_calls = {
+                    "ES":0,
+                    "GD":0,
+                    "NE":0,
+                    "GA":0,
+                    "N/A":0
+                }
+                for each_gene in genes:
+                    reads_nz = [c for c in each_gene.reads.flatten() if c > 0]
+                    avg_read_nz = 0
+                    if len(reads_nz) > 0:
+                        avg_read_nz = numpy.average(reads_nz)
+
+                    # State
+                    gene_states = [pos2state[p] for p in each_gene.position]
+                    statedist = {}
+                    for st in gene_states:
+                        if st not in statedist:
+                            statedist[st] = 0
+                        statedist[st] += 1
+
+                    # State gene_calls
+                    n0 = statedist.get(0, 0)
+                    n1 = statedist.get(1, 0)
+                    n2 = statedist.get(2, 0)
+                    n3 = statedist.get(3, 0)
+
+                    if each_gene.n > 0:
+                        # this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive
+                        # E = tnseq_tools.expected_runs(each_gene.n,   1.0 - theta)
+                        # V = tnseq_tools.variance_run(each_gene.n,   1.0 - theta)
+                        if n0 == each_gene.n:
+                            gene_category = "ES"
+                        # elif n0 >= int(E+(3*math.sqrt(V))): gene_category = "ES"
+                        else:
+                            temp = max([(statedist.get(s, 0), s) for s in [0, 1, 2, 3]])[1]
+                            gene_category = num2label[temp]
+                    else:
+                        E = 0.0
+                        V = 0.0
+                        gene_category = "N/A"
+                    
+                    
+                    rows.append(
+                        (
+                            each_gene.orf,
+                            each_gene.name,
+                            each_gene.desc,
+                            each_gene.n,
+                            n0,
+                            n1,
+                            n2,
+                            n3,
+                            "%1.4f" % each_gene.theta(),
+                            "%1.2f" % avg_read_nz,
+                            gene_category,
+                        )
+                    )
+                    if gene_category not in gene_calls:
+                        gene_calls[gene_category] = 0
+                    gene_calls[gene_category] += 1
+                
+                # 
+                # add confidence values if needed
+                # 
+                if self.inputs.include_confidences:
+                    row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
+                    for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
+                        rows[index] = tuple(each_row) + tuple(each_extension)
+            # 
+            # Write data
+            # 
+            transit_tools.write_result(
+                path=output_path, # path=None means write to STDOUT
+                file_kind=GeneFile.identifier,
+                rows=rows,
+                column_names=GeneFile.column_names,
+                extra_info={
+                    "Summary Of Gene Calls": gene_calls,
+                    "Naming Reference": {
+                        "ES": "essential",
+                        "GD": "insertions cause growth-defect",
+                        "NE": "non-essential",
+                        "GA": "insertions confer growth-advantage",
+                        "N/A": "not analyzed (genes with 0 TA sites)",
+                    },
                 },
-            },
-        )
+            )
 
 
 class HmmConfidenceHelper:
     states = ["ES","GD","NE","GA"]
-    new_column_names = [
-        "consis",
-        "probES",
-        "probGD",
-        "probNE",
-        "probGA",
-        "conf",
-        "flag",
-    ]
     
     @staticmethod
     def extract_data_from_rows(rows):
@@ -676,7 +674,7 @@ class HmmConfidenceHelper:
     
     @staticmethod
     def first_pass(rows, debug=False):
-        consistency_values, calls_per_gene, data, nz_means_per_gene, mean_insertions_per_gene = HmmConfidenceHelper.extract_data_from_rows(rows)
+        consistency_values, calls_per_gene, orf_ids, nz_means_per_gene, mean_insertions_per_gene = HmmConfidenceHelper.extract_data_from_rows(rows)
         
         debug and print("# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(consistency_values), 4)))
         mean_sats, mean_non_zero_means = {}, {}
@@ -684,11 +682,12 @@ class HmmConfidenceHelper:
         
         debug and print("# state posterior probability distributions:")
         for each_state in ["ES", "GD", "NE", "GA"]:
-            relevent_orf_ids = [ each_orf_id for each_orf_id in orf_ids if calls_per_gene[orf_id] == each_state ]
-            mean_sat            = numpy.mean([mean_insertions_per_gene[orf_id] for orf_id in relevent_orf_ids])
-            mean_non_zero_mean  = numpy.mean([nz_means_per_gene[orf_id]        for orf_id in relevent_orf_ids])
-            stdev_sat           = numpy.std([mean_insertions_per_gene[orf_id]  for orf_id in relevent_orf_ids])
-            stdev_non_zero_mean = numpy.std([nz_means_per_gene[orf_id]         for orf_id in relevent_orf_ids])
+            relevent_orf_ids = [ each_orf_id for each_orf_id in orf_ids if calls_per_gene[each_orf_id] == each_state ]
+            from statistics import stdev, mean
+            mean_sat            = mean([mean_insertions_per_gene[orf_id] for orf_id in relevent_orf_ids])
+            mean_non_zero_mean  = mean([nz_means_per_gene[orf_id]        for orf_id in relevent_orf_ids])
+            stdev_sat           = stdev([mean_insertions_per_gene[orf_id]  for orf_id in relevent_orf_ids])
+            stdev_non_zero_mean = stdev([nz_means_per_gene[orf_id]         for orf_id in relevent_orf_ids])
             debug and print(
                 "#  %s: genes=%s, meanSat=%s, stdSat=%s, meanNZmean=%s, stdNZmean=%s"
                 % (
@@ -717,7 +716,7 @@ class HmmConfidenceHelper:
         low_confidence_threshold=0.5,
         max_probability_threshold=0.7,
         relative_probability_threshold=0.25,
-        precision_of_consistency=3,
+        precision_of_consistency=3, 
         precision_of_confidence=4,
         precision_of_probabilities=6,
     ):
@@ -771,6 +770,8 @@ class HmmConfidenceHelper:
                 round(confidence, precision_of_confidence),
                 flag,
             ))
+        
+        return row_extensions
     
     @staticmethod
     def calc_probability(sat, non_zero_mean, mean_sat, stdev_sat, mean_non_zero_mean, stdev_non_zero_mean,):
@@ -788,6 +789,23 @@ class HmmConfidenceHelper:
         precision_of_confidence=4,
         precision_of_probabilities=6,
     ):
+        # convert some row elements to numbers
+        rows = [
+            (
+                orf,
+                gene_name,
+                description,
+                int(total_sites),
+                int(es_count),
+                int(gd_count),
+                int(ne_count),
+                int(ga_count),
+                float(mean_insertions),
+                float(mean_reads),
+                state_call
+            )
+                for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows
+        ]
         mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means = HmmConfidenceHelper.first_pass(
             rows
         )
@@ -875,6 +893,13 @@ class GeneFile:
         "Mean Insertions",
         "Mean Reads",
         "State Call",
+        "Consistency",
+        "ES Probability",
+        "GD Probability",
+        "NE Probability",
+        "GA Probability",
+        "Confidence",
+        "Flag",
     ]
     
     @classmethod
