@@ -674,6 +674,7 @@ class HmmConfidenceHelper:
     
     @staticmethod
     def first_pass(rows, debug=False):
+        from statistics import stdev, mean
         consistency_values, calls_per_gene, orf_ids, nz_means_per_gene, mean_insertions_per_gene = HmmConfidenceHelper.extract_data_from_rows(rows)
         
         debug and print("# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(consistency_values), 4)))
@@ -683,11 +684,14 @@ class HmmConfidenceHelper:
         debug and print("# state posterior probability distributions:")
         for each_state in ["ES", "GD", "NE", "GA"]:
             relevent_orf_ids = [ each_orf_id for each_orf_id in orf_ids if calls_per_gene[each_orf_id] == each_state ]
-            from statistics import stdev, mean
-            mean_sat            = mean([mean_insertions_per_gene[orf_id] for orf_id in relevent_orf_ids])
-            mean_non_zero_mean  = mean([nz_means_per_gene[orf_id]        for orf_id in relevent_orf_ids])
-            stdev_sat           = stdev([mean_insertions_per_gene[orf_id]  for orf_id in relevent_orf_ids])
-            stdev_non_zero_mean = stdev([nz_means_per_gene[orf_id]         for orf_id in relevent_orf_ids])
+            
+            mean_insertions = tuple(mean_insertions_per_gene[orf_id] for orf_id in relevent_orf_ids)
+            mean_sat        = mean(mean_insertions)
+            stdev_sat       = stdev(mean_insertions)
+            
+            nz_means            = tuple(nz_means_per_gene[orf_id] for orf_id in relevent_orf_ids)
+            mean_non_zero_mean  = mean(nz_means)
+            stdev_non_zero_mean = stdev(nz_means)
             debug and print(
                 "#  %s: genes=%s, meanSat=%s, stdSat=%s, meanNZmean=%s, stdNZmean=%s"
                 % (
