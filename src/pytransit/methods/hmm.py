@@ -48,7 +48,6 @@ class Method:
         loess_correction=False,
         n_terminus=0.0,
         c_terminus=0.0,
-        include_confidences=True,
     )
     
     valid_cli_flags = [
@@ -625,10 +624,9 @@ class Method:
                 # 
                 # add confidence values if needed
                 # 
-                if self.inputs.include_confidences:
-                    row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
-                    for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
-                        rows[index] = tuple(each_row) + tuple(each_extension)
+                row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
+                for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
+                    rows[index] = tuple(each_row) + tuple(each_extension)
             # 
             # Write data
             # 
