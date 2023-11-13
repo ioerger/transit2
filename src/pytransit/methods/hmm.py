@@ -437,13 +437,13 @@ class Method:
                 alpha[:, t] = 0.0000000000001
 
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM forward_procedure... %1.1f%%" % percentage
+            text = "Running HMM forward_procedure... %1.1f%% (process 2/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
         
         percentage = 100
-        text = "Running HMM forward_procedure... %1.1f%%" % percentage
+        text = "Running HMM forward_procedure... %1.1f%% (process 2/3)" % percentage
         progress_update(text, percentage)
         
         log_prob_obs = -(numpy.sum(numpy.log(C)))
@@ -473,7 +473,7 @@ class Method:
                 beta[:, t] = beta[:, t] * C[t]
             
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM backward_procedure ... %1.1f%%" % percentage
+            text = "Running HMM backward_procedure ... %1.1f%% (process 3/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -500,7 +500,7 @@ class Method:
             Q[:, t] = nus.argmax(1)
             
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM viterbi... %5.1f%%" % percentage
+            text = "Running HMM viterbi... %5.1f%% (process 1/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -510,14 +510,14 @@ class Method:
             Q_opt.insert(0, Q[Q_opt[0], t + 1])
 
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM viterbi... %5.1f%%" % percentage
+            text = "Running HMM viterbi... %5.1f%% (process 1/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
 
         numpy.seterr(divide="warn")
         percentage = (100.0 * self.count / self.max_iterations)
-        text = "Running HMM viterbi... %5.1f%%" % percentage
+        text = "Running HMM viterbi... %5.1f%% (process 1/3)" % percentage
         if self.count % 1000 == 0:
             progress_update(text, percentage)
 
