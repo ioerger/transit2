@@ -892,7 +892,7 @@ class GeneFile:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
                     title=self.identifier,
-                    heading=self.comments,
+                    heading=self.comments_string,
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[
