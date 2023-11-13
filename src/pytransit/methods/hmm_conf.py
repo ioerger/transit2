@@ -28,7 +28,7 @@ def get_rows(genes_file_path):
     
     return rows
 
-def process_rows(rows):
+def extract_data_from_rows(rows):
     consistency_values = []
     orf_ids            = []
     mean_insertions_per_gene    = {}
@@ -48,24 +48,24 @@ def process_rows(rows):
     
     return consistency_values, calls_per_gene, orf_ids, nz_means_per_gene, mean_insertions_per_gene
 
-def first_pass(all, calls, data, headers, nz_means, sats):
-    print("# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(all), 4)))
-    id_s = [x[0] for x in data]
-
+def first_pass(rows, debug=False):
+    consistency_values, calls_per_gene, data, nz_means_per_gene, mean_insertions_per_gene = extract_data_from_rows(rows)
+    
+    debug and print("# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(consistency_values), 4)))
     mean_sats, mean_non_zero_means = {}, {}
     std_sats, stdev_non_zero_means = {}, {}
-
-    print("# state posterior probability distributions:")
-    for st in ["ES", "GD", "NE", "GA"]:
-        sub                 = list(filter(lambda id: calls[id] == st, id_s))
-        mean_sat            = numpy.mean([sats[id] for id in sub])
-        mean_non_zero_mean  = numpy.mean([nz_means[id] for id in sub])
-        stdev_sat           = numpy.std([sats[id] for id in sub])
-        stdev_non_zero_mean = numpy.std([nz_means[id] for id in sub])
-        print(
+    
+    debug and print("# state posterior probability distributions:")
+    for each_state in ["ES", "GD", "NE", "GA"]:
+        sub                 = list(filter(lambda orf_id: calls_per_gene[orf_id] == each_state, orf_ids))
+        mean_sat            = numpy.mean([mean_insertions_per_gene[orf_id] for orf_id in sub])
+        mean_non_zero_mean  = numpy.mean([nz_means_per_gene[orf_id]        for orf_id in sub])
+        stdev_sat           = numpy.std([mean_insertions_per_gene[orf_id]  for orf_id in sub])
+        stdev_non_zero_mean = numpy.std([nz_means_per_gene[orf_id]         for orf_id in sub])
+        debug and print(
             "#  %s: genes=%s, meanSat=%s, stdSat=%s, meanNZmean=%s, stdNZmean=%s"
             % (
-                st,
+                each_state,
                 len(sub),
                 round(mean_sat, 3),
                 round(stdev_sat, 3),
@@ -73,19 +73,18 @@ def first_pass(all, calls, data, headers, nz_means, sats):
                 round(stdev_non_zero_mean, 1),
             )
         )
-        mean_sats[st] = mean_sat
-        mean_non_zero_means[st] = mean_non_zero_mean
-        std_sats[st] = mean_sat
-        stdev_non_zero_means[st] = mean_non_zero_mean
+        mean_sats[each_state]            = mean_sat
+        mean_non_zero_means[each_state]  = mean_non_zero_mean
+        std_sats[each_state]             = mean_sat
+        stdev_non_zero_means[each_state] = mean_non_zero_mean
     
     return mean_non_zero_means, mean_sats, std_sats, stdev_non_zero_means
     
 # first pass...
-def compute(genes_file_path):
-    all, calls, data, headers, nz_means, sats = read_hmm_genes_file(genes_file_path)
-    
-    mean_non_zero_means, mean_sats, std_sats, stdev_non_zero_means = first_pass(all, calls, data, headers, nz_means, sats)
-    
+def compute(genes_file_path, column_names):
+    mean_non_zero_means, mean_sats, std_sats, stdev_non_zero_means = first_pass(
+        get_rows(genes_file_path)
+    )
     
     new_rows = []
     # second pass...
