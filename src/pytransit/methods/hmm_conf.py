@@ -17,21 +17,16 @@ def calc_probability(sat, non_zero_mean, mean_sat, stdev_sat, mean_non_zero_mean
     return a * b
 
 
-def read_hmm_genes_file(genes_file_path):
-    headers  = []
-    data     = []
-    all      = []
-    sats     = {}
-    nz_means = {}
-    calls    = {}
+def get_rows(genes_file_path):
+    rows = []
     for line in open(genes_file_path):
         line = line.strip()
         if line[0] == "#":
-            headers.append(line)
             continue
         row_elements = line.split("\t")
-        number_of_ta_sites = int(row_elements[3])
-        if number_of_ta_sites == 0:
+        rows.append(row_elements)
+    
+    return rows
             continue
         votes = [int(x) for x in row_elements[4:8]]
         consistency = max(votes) / float(number_of_ta_sites)
