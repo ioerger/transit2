@@ -85,13 +85,25 @@ class HmmConfidenceHelper:
             )
             mean_sats[each_state]            = mean_sat
             mean_non_zero_means[each_state]  = mean_non_zero_mean
-            stdev_sats[each_state]           = stdev_sat # NOTE: original was being assigned to mean_sat (pretty sure it was a bug)
+            stdev_sats[each_state]           = stdev_sat # NOTE: original was being assigned to mean_sat (pretty sure it was a bug) --Jeff
             stdev_non_zero_means[each_state] = stdev_non_zero_mean
         
         return mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means
 
     @staticmethod
-    def second_pass(rows, mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means):
+    def second_pass(
+        rows,
+        mean_non_zero_means,
+        mean_sats,
+        stdev_sats,
+        stdev_non_zero_means,
+        low_confidence_threshold=0.5,
+        max_probability_threshold=0.7,
+        relative_probability_threshold=0.25,
+        precision_of_consistency=3,
+        precision_of_confidence=4,
+        precision_of_probabilities=6,
+    ):
         row_extensions = []
         for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
             if total_sites == 0:
@@ -113,29 +125,33 @@ class HmmConfidenceHelper:
             relative_probabilites = [each / to_t_prob for each in probabilities]
             confidence = relative_probabilites[HmmConfidenceHelper.states.index(state_call)]
             flag = ""
-            if confidence < 0.5:
+            if confidence < low_confidence_threshold:
                 flag = "low-confidence"
-            if max(relative_probabilites) < 0.7:
+            
+            # NOTE: should this if be an elif? --Jeff
+            if max(relative_probabilites) < max_probability_threshold:
+                probability_of_es, probability_of_gd, probability_of_ne, probability_of_ga = relative_probabilites
+                
                 if (state_call == "ES" or state_call == "GD") and (
-                    relative_probabilites[0] > 0.25 and relative_probabilites[1] > 0.25
+                    probability_of_es > relative_probability_threshold and probability_of_gd > relative_probability_threshold
                 ):
                     flag = "ambiguous"
                 if (state_call == "GD" or state_call == "NE") and (
-                    relative_probabilites[1] > 0.25 and relative_probabilites[2] > 0.25
+                    probability_of_gd > relative_probability_threshold and probability_of_ne > relative_probability_threshold
                 ):
                     flag = "ambiguous"
                 if (state_call == "NE" or state_call == "GA") and (
-                    relative_probabilites[2] > 0.25 and relative_probabilites[3] > 0.25
+                    probability_of_ne > relative_probability_threshold and probability_of_ga > relative_probability_threshold
                 ):
                     flag = "ambiguous"
             
             consistency = max([ es_count, gd_count, ne_count, ga_count ]) / float(total_sites)
-            rounded_relative_probabilites = [ round(each, 6) for each in relative_probabilites ]
+            rounded_relative_probabilites = [ round(each, precision_of_probabilities) for each in relative_probabilites ]
             
             row_extensions.append((
-                round(consistency, 3),
+                round(consistency, precision_of_consistency),
                 *rounded_relative_probabilites,
-                round(confidence, 4),
+                round(confidence, precision_of_confidence),
                 flag,
             ))
     
@@ -146,7 +162,15 @@ class HmmConfidenceHelper:
         return a * b
             
     @staticmethod
-    def compute_row_extensions(rows):
+    def compute_row_extensions(
+        rows,
+        low_confidence_threshold=0.5,
+        max_probability_threshold=0.7,
+        relative_probability_threshold=0.25,
+        precision_of_consistency=3,
+        precision_of_confidence=4,
+        precision_of_probabilities=6,
+    ):
         mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means = HmmConfidenceHelper.first_pass(
             rows
         )
@@ -155,7 +179,13 @@ class HmmConfidenceHelper:
             mean_non_zero_means,
             mean_sats,
             stdev_sats,
-            stdev_non_zero_means
+            stdev_non_zero_means,
+            low_confidence_threshold=low_confidence_threshold,
+            max_probability_threshold=max_probability_threshold,
+            relative_probability_threshold=relative_probability_threshold,
+            precision_of_consistency=precision_of_consistency,
+            precision_of_confidence=precision_of_confidence,
+            precision_of_probabilities=precision_of_probabilities,
         )
         return row_extensions
 
