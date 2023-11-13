@@ -75,8 +75,8 @@ def first_pass(rows, debug=False):
         )
         mean_sats[each_state]            = mean_sat
         mean_non_zero_means[each_state]  = mean_non_zero_mean
-        std_sats[each_state]             = mean_sat
-        stdev_non_zero_means[each_state] = mean_non_zero_mean
+        std_sats[each_state]             = stdev_sat
+        stdev_non_zero_means[each_state] = stdev_non_zero_mean
     
     return mean_non_zero_means, mean_sats, std_sats, stdev_non_zero_means
     
