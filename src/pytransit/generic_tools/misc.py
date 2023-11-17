@@ -318,7 +318,7 @@ def inject_path_extension(path, *, extension):
     full_name = os.path.basename(path)
     parts = full_name.split(".")
     parts.insert(1,extension)
-    return ".".join(parts)
+    return parent_folders+".".join(parts)
 
 from pytransit.generic_tools.cool_cache import cache, settings
 settings.default_folder = None # use in-memory storage

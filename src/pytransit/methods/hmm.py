@@ -57,7 +57,7 @@ class Method:
         "-l",
         "--iN",
         "--iC",
-        "-conf-off",
+        "-conf-on",
     ]
     
     usage_string = f"""
