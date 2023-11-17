@@ -56,6 +56,7 @@ class Method:
         "-l",
         "--iN",
         "--iC",
+        "--",
     ]
     
     usage_string = f"""
@@ -350,11 +351,16 @@ class Method:
                 # confidences
                 # 
             # 
-            # Write output
+            # Write outputs
             # 
             if True:
+                base_path = self.inputs.output_path
+                if base_path: # path=None means write to STDOUT
+                    output_path = misc.inject_extension("sites")
+                    genes_path = misc.inject_extension("genes")
+                
                 transit_tools.write_result(
-                    path=self.inputs.output_path, # path=None means write to STDOUT
+                    path=output_path, # path=None means write to STDOUT
                     file_kind=SitesFile.identifier,
                     rows=rows,
                     column_names=SitesFile.column_names,
@@ -383,32 +389,28 @@ class Method:
                             n_terminus=self.inputs.n_terminus,
                             c_terminus=self.inputs.c_terminus,
                             annotation_path=self.inputs.annotation_path,
-                            output_path=self.inputs.output_path,
+                            output_path=output_path,
                         ),
 
 
                     ),
                 )
-                logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
-                results_area.add(self.inputs.output_path)
-            # 
-            # Gene Files
-            # 
-            if True:
-                logging.log("Creating HMM Genes Level Output")
-                genes_path = (
-                    ".".join(self.inputs.output_path.split(".")[:-1])
-                    + "_genes."
-                    + self.inputs.output_path.split(".")[-1]
-                )
-
-                temp_obs = numpy.zeros((1, len(O)))
-                temp_obs[0, :] = O - 1
-                self.post_process_genes(temp_obs, position, states, genes_path)
-
-                logging.log("Adding File: %s" % (genes_path))
-                results_area.add(genes_path)
-                logging.log("Finished HMM Method")
+                logging.log(f"Finished HMM - Sites: {output_path}")
+                results_area.add(output_path)
+                
+                # 
+                # Gene Files
+                # 
+                if True:
+                    logging.log("Creating HMM Genes Level Output")
+                    
+                    temp_obs = numpy.zeros((1, len(O)))
+                    temp_obs[0, :] = O - 1
+                    self.post_process_genes(temp_obs, position, states, genes_path)
+                    
+                    logging.log("Adding File: %s" % (genes_path))
+                    results_area.add(genes_path)
+                    logging.log("Finished HMM Method")
 
     def forward_procedure(self, A, B, PI, O):
         logging.log("Starting HMM forward_procedure")
