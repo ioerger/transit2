@@ -48,7 +48,7 @@ class Method:
         loess_correction=False,
         n_terminus=0.0,
         c_terminus=0.0,
-        conf_off=False,
+        conf_on=True,
     )
     
     valid_cli_flags = [
@@ -70,7 +70,7 @@ class Method:
             -l               :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
             --iN <float>     :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: --iN 0
             --iC <float>     :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: --iC 0
-            -conf-off        :=  disable calculation of the confidence information
+            -conf-on         :=  enable additional columns with confidence information
     """.replace("\n        ", "\n")
     
     column_names = [
@@ -118,7 +118,7 @@ class Method:
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-                
+            self.value_getters.conf_on                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Add confidence info columns", default_value=True, tooltip_text="")
         
     @staticmethod
     def from_gui(frame):
@@ -185,7 +185,7 @@ class Method:
         loess_correction         = kwargs.get("l", Method.inputs.loess_correction)
         n_terminus    = float(kwargs.get("iN", Method.inputs.n_terminus))
         c_terminus    = float(kwargs.get("iC", Method.inputs.c_terminus))
-        conf_off      = float(kwargs.get("conf-off", Method.inputs.conf_off))
+        conf_on      = float(kwargs.get("conf-on", False))
 
         ##################
         # read data      
@@ -224,7 +224,7 @@ class Method:
             loess_correction=loess_correction,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
-            conf_off=conf_off,
+            conf_on=conf_on,
         ))
         Method.Run()
 
@@ -630,7 +630,7 @@ class Method:
                 # 
                 # add confidence values if needed
                 # 
-                if not self.inputs.conf_off:
+                if not self.inputs.conf_on:
                     row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
                     for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
                         rows[index] = tuple(each_row) + tuple(each_extension)
