@@ -630,10 +630,15 @@ class Method:
                 # 
                 # add confidence values if needed
                 # 
+                column_names = GeneFile.column_names
+                extra_data_info = {}
                 if not self.inputs.conf_on:
-                    row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
+                    column_names = column_names + HmmConfidenceHelper.column_names
+                    row_extensions, header_info = HmmConfidenceHelper.compute_row_extensions(rows)
+                    from collections import Counter
                     for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
                         rows[index] = tuple(each_row) + tuple(each_extension)
+                    extra_data_info["Confidence Summary"] = header_info
             # 
             # Write data
             # 
@@ -657,6 +662,15 @@ class Method:
 
 class HmmConfidenceHelper:
     states = ["ES","GD","NE","GA"]
+    column_names = [
+        "Consistency",
+        "ES Probability",
+        "GD Probability",
+        "NE Probability",
+        "GA Probability",
+        "Confidence",
+        "Flag",
+    ]
     
     @staticmethod
     def extract_data_from_rows(rows):
@@ -686,6 +700,8 @@ class HmmConfidenceHelper:
         mean_sats, mean_non_zero_means = {}, {}
         stdev_sats, stdev_non_zero_means = {}, {}
         
+        header_info = {}
+        
         debug and print("# state posterior probability distributions:")
         for each_state in ["ES", "GD", "NE", "GA"]:
             relevent_orf_ids = [ each_orf_id for each_orf_id in orf_ids if calls_per_gene[each_orf_id] == each_state ]
@@ -697,23 +713,13 @@ class HmmConfidenceHelper:
             nz_means            = tuple(nz_means_per_gene[orf_id] for orf_id in relevent_orf_ids)
             mean_non_zero_mean  = mean(nz_means)
             stdev_non_zero_mean = stdev(nz_means)
-            debug and print(
-                "#  %s: genes=%s, meanSat=%s, stdSat=%s, meanNZmean=%s, stdNZmean=%s"
-                % (
-                    each_state,
-                    len(relevent_orf_ids),
-                    round(mean_sat, 3),
-                    round(stdev_sat, 3),
-                    round(mean_non_zero_mean, 1),
-                    round(stdev_non_zero_mean, 1),
-                )
-            )
+            header_info[each_state] = f"{each_state}: genes={len(relevent_orf_ids)}, mean_sat={round(mean_sat, 3)}, std_sat={round(stdev_sat, 3)}, mean_nz_mean={round(mean_non_zero_mean, 1)}, stdev_nz_mean={round(stdev_non_zero_mean, 1)}"
             mean_sats[each_state]            = mean_sat
             mean_non_zero_means[each_state]  = mean_non_zero_mean
             stdev_sats[each_state]           = stdev_sat # NOTE: original was being assigned to mean_sat (pretty sure it was a bug) --Jeff
             stdev_non_zero_means[each_state] = stdev_non_zero_mean
         
-        return mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means
+        return mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means, header_info
 
     @staticmethod
     def second_pass(
@@ -815,7 +821,7 @@ class HmmConfidenceHelper:
             )
                 for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows
         ]
-        mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means = HmmConfidenceHelper.first_pass(
+        mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means, header_info = HmmConfidenceHelper.first_pass(
             rows
         )
         row_extensions = HmmConfidenceHelper.second_pass(
@@ -831,7 +837,7 @@ class HmmConfidenceHelper:
             precision_of_confidence=precision_of_confidence,
             precision_of_probabilities=precision_of_probabilities,
         )
-        return row_extensions
+        return row_extensions, header_info
 
 
 @transit_tools.ResultsFile
@@ -902,13 +908,6 @@ class GeneFile:
         "Mean Insertions",
         "Mean Reads",
         "State Call",
-        "Consistency",
-        "ES Probability",
-        "GD Probability",
-        "NE Probability",
-        "GA Probability",
-        "Confidence",
-        "Flag",
     ]
     
     @classmethod
