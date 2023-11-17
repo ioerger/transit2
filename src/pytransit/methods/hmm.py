@@ -360,8 +360,8 @@ class Method:
             if True:
                 base_path = self.inputs.output_path
                 if base_path: # path=None means write to STDOUT
-                    output_path = misc.inject_extension("sites")
-                    genes_path = misc.inject_extension("genes")
+                    output_path = misc.inject_path_extension(base_path, extension="sites")
+                    genes_path = misc.inject_path_extension(base_path, extension="genes")
                 
                 transit_tools.write_result(
                     path=output_path, # path=None means write to STDOUT

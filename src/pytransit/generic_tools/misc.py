@@ -312,7 +312,7 @@ def invert_dict(existing_dict):
         new_dict[each_value].append(each_key)
     return new_dict
 
-def inject_extension(path, extension):
+def inject_path_extension(path, *, extension):
     import os
     parent_folders = os.path.dirname(path)
     full_name = os.path.basename(path)
