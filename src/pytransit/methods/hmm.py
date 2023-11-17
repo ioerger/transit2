@@ -639,6 +639,10 @@ class Method:
                     for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
                         rows[index] = tuple(each_row) + tuple(each_extension)
                     extra_data_info["Confidence Summary"] = header_info
+                    # TODO:
+                        # add metrics: 
+                        # - low-confidence count (flags count)
+                        # - ambiguous count (flags count)
             # 
             # Write data
             # 
