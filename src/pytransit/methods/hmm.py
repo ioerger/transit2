@@ -48,6 +48,7 @@ class Method:
         loess_correction=False,
         n_terminus=0.0,
         c_terminus=0.0,
+        conf_off=False,
     )
     
     valid_cli_flags = [
@@ -56,7 +57,7 @@ class Method:
         "-l",
         "--iN",
         "--iC",
-        "--",
+        "-conf-off",
     ]
     
     usage_string = f"""
@@ -66,9 +67,10 @@ class Method:
         Optional Arguments:
             --r <string>     :=  How to handle replicates. Sum, Mean. Default: --r Mean
             --n <string>     :=  Normalization method. Default: --n TTR
-            -l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            -l               :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
             --iN <float>     :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: --iN 0
             --iC <float>     :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: --iC 0
+            -conf-off        :=  disable calculation of the confidence information
     """.replace("\n        ", "\n")
     
     column_names = [
@@ -183,6 +185,7 @@ class Method:
         loess_correction         = kwargs.get("l", Method.inputs.loess_correction)
         n_terminus    = float(kwargs.get("iN", Method.inputs.n_terminus))
         c_terminus    = float(kwargs.get("iC", Method.inputs.c_terminus))
+        conf_off      = float(kwargs.get("conf-off", Method.inputs.conf_off))
 
         ##################
         # read data      
@@ -221,6 +224,7 @@ class Method:
             loess_correction=loess_correction,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
+            conf_off=conf_off,
         ))
         Method.Run()
 
@@ -626,9 +630,10 @@ class Method:
                 # 
                 # add confidence values if needed
                 # 
-                row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
-                for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
-                    rows[index] = tuple(each_row) + tuple(each_extension)
+                if not self.inputs.conf_off:
+                    row_extensions = HmmConfidenceHelper.compute_row_extensions(rows)
+                    for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
+                        rows[index] = tuple(each_row) + tuple(each_extension)
             # 
             # Write data
             # 
