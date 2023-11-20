@@ -1,0 +1,12 @@
+combined_counts_file = data/CGI/RIF_D1_combined_counts.txt
+metadata_file = data/CGI/samples_metadata.txt
+control_condition = RIF
+sgRNA_strength_file = data/CGI/sgRNA_info.txt
+no_dep_abund = data/CGI/uninduced_ATC_counts.txt
+drug = RIF
+days = 1.0
+args = ['data/CGI/RIF_D1_combined_counts.txt', 'data/CGI/samples_metadata.txt', 'RIF', 'data/CGI/sgRNA_info.txt', 'data/CGI/uninduced_ATC_counts.txt', 'RIF', 1.0, './tests/cli_tests/cgi/0001_basic.sh.1.result']
+kwargs = defaultdict(<function main.<locals>.<lambda> at 0x100b8f240>, {<class 'pytransit.specific_tools.console_tools.RawKwargs'>: {<class 'pytransit.specific_tools.console_tools.RawKwargs'>: {}}})
+[cgi:extract_abund()] # Condition Tested : RIF D1.0 
+[cgi:extract_abund()] Disregarding Empty or Negative sgRNAs 
+[cgi:extract_abund()] 97542 sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file 
