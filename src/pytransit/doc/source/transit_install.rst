@@ -73,6 +73,7 @@ The following libraries/modules are required to run TRANSIT:
 + `Pillow 6.0 <https://github.com/python-pillow/Pillow>`_
 + `wxpython 4+ <http://www.wxpython.org/>`_
 + `PyPubSub 4+ <https://pypi.org/project/PyPubSub/>`_ (tested on 4.0.3)
++ `Mne 1`_ (tested on mne==1.5.1)
 
 All of these dependencies can be installed using the following command.
 
