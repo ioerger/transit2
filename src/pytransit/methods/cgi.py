@@ -630,7 +630,8 @@ class Method:
                 )
             
 @transit_tools.ResultsFile
-class ResultFileType1:
+class CgiResult:
+    column_names = ["Position","Reads","Genes"] 
     @staticmethod
     def can_load(path):
         return transit_tools.file_starts_with(path, '#'+Method.identifier)
