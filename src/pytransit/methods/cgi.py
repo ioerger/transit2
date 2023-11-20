@@ -18,12 +18,9 @@ from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
 
-
-# HANDLE_THIS: edit the __init__.py file to import the new method name
-
 @misc.singleton
 class Method:
-    name = "CGI" # HANDLE_THIS
+    name = "CGI"
     identifier  = name
     cli_name    = name.lower()
     menu_name   = f"{name} - Perform {name} analysis"
@@ -90,16 +87,15 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=8)
 
-        combined_counts_file = args[0]
-        metadata_file = args[1]
-        control_condition=args[2]
-        sgRNA_strength_file = args[3]
-        no_dep_abund = args[4]
-        drug = args[5]
-        days = args[6]
+        combined_counts_file      = args[0]
+        metadata_file             = args[1]
+        control_condition         = args[2]
+        sgRNA_strength_file       = args[3]
+        no_dep_abund              = args[4]
+        drug                      = args[5]
+        days                      = args[6]
         fractional_abundance_file = args[7]
         Method.extract_abund(combined_counts_file,metadata_file,control_condition,sgRNA_strength_file,no_dep_abund,drug,days, fractional_abundance_file)
-
 
     @staticmethod
     @cli.add_command(cli_name, "run_model")
@@ -628,7 +624,7 @@ class Method:
                         ),
                     ),
                 )
-            
+
 @transit_tools.ResultsFile
 class CgiResult:
     column_names = ["Position","Reads","Genes"] 
