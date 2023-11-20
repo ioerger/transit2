@@ -200,15 +200,24 @@ class Method:
     def extract_abund(self,combined_counts_file,metadata_file,control_condition,sgRNA_strength_file,no_dep_abund,drug,days,fractional_abundance_file, PC=1e-8):  
         import pandas as pd
         metadata = pd.read_csv(metadata_file, sep="\t")
+        available_drugs = misc.no_duplicates(metadata["drug"].values.tolist())
+        available_days  = misc.no_duplicates(metadata["days_predepletion"].values.tolist())
+        
+        # Misnamed args check
+        assert drug in available_drugs             , logging.error(f"{repr(drug)} is not one of the valid drug options from your metadata file ({repr(available_drugs)}). Add the drug's information in the metadata file or select a different drug")
+        assert int(days) in available_days         , logging.error(f"{repr(days)} is not one of the valid 'days' options in your metadata days of predepletion column ({repr(available_days)}). Add the day's information in the metadata file or select a different day")
+        assert control_condition in available_drugs, logging.error(f"{repr(control_condition)} is not one of the valid control_condition options from your metadata file ({repr(available_drugs)}). Add the corresponding information in the metadata file or select a different control")
+        
         metadata = metadata[((metadata["drug"]==drug) | (metadata["drug"]==control_condition)) & (metadata["days_predepletion"]==int(days))]
-        if(len(metadata)==0):
-            logging.error("This combination of conditions does not exist in your metadata file. Please select one that does")
-        elif (drug not in metadata["drug"].values.tolist()):
-            logging.error("%s is not found in your metadata. Add the drug's information in the metadata file or select a different drug"%drug)
-        elif (int(days) not in metadata["days_predepletion"].values.tolist()):
-            logging.error("%d is not found in your metadata days of predepletion column. Add the day's information in the metadata file or select a different day"%days)
-        elif (control_condition not in metadata["drug"].values.tolist()):
-            logging.error("%s is not found in your metadata. Add the corresponding information in the metadata file or select a different control"%control_condition)
+        available_drugs = misc.no_duplicates(metadata["drug"].values.tolist())
+        available_days  = misc.no_duplicates(metadata["days_predepletion"].values.tolist())
+        
+        # Bad combinations check
+        assert len(metadata)!=0                    , logging.error(f"This combination (drug={drug}, control_condition={control_condition}, days={days}) of conditions does not exist in your metadata file. Please select one that does")
+        assert drug in available_drugs             , logging.error(f"{repr(drug)} is not one of the valid options from your metadata file ({repr(available_drugs)}). Add the drug's information in the metadata file or select a different drug")
+        assert int(days) in available_days         , logging.error(f"{repr(days)} is not found in your metadata days of predepletion column (repr({available_days})). Add the day's information in the metadata file or select a different day")
+        assert control_condition in available_drugs, logging.error(f"{repr(control_condition)} is not one of the valid options from your metadata file ({repr(available_drugs)}). Add the corresponding information in the metadata file or select a different control")
+        
         metadata = metadata.sort_values(by=["conc_xMIC"])
         column_names = metadata["column_name"].values.tolist()
         concs_list = metadata["conc_xMIC"].values.tolist()
