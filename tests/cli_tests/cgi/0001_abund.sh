@@ -25,7 +25,7 @@ control_condition="RIF"
 # transit cgi extract_counts "$fastq_file" "$ids_file" "$output_counts_file"
 # transit cgi create_combined_counts "$headers_comma_separated" "$counts_file1" "$counts_file1" "$combined_counts_file"
 python3 ./src/transit.py cgi extract_abund "$combined_counts_file" "$metadata_file" "$control_condition" "$sg_rna_strength_file" "$uninduced_atc_file" "$drug" "$days" "$result_file"
-# transit cgi run_model "$fractional_abundance_file"  "$crispri_dr_results_file"
+# transit cgi run_model "$fractional_abundance_file"  "$ids_file"
 # transit cgi visualize "$fractional_abundance_file" "$gene" "$output_figure_location"
 
 # Optional Arguments: 
