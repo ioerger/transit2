@@ -60,8 +60,8 @@ def clean_args(raw_args):
                 raise Exception(f'''
                     
                     This argument: {next_raw_argument}
-                    expects a value after it (-key value), however it was the last argument
-                    Maybe you meant: -{next_raw_argument}
+                    expects a value after it (ex: --key value), however it was the last argument
+                    Maybe you meant: {next_raw_argument[1:]}
                     (which is just a flag, e.g. no value)
                     
                 ''')
