@@ -101,6 +101,23 @@ def ask_for_file(
         file_dialog.Destroy()
         return path
 
+def ask_for_folder(
+        message, 
+        *,
+        default_folder=None,
+    ):
+        path = None
+        folder_dialog = wx.DirDialog(
+            gui.frame,
+            message=message,
+            defaultPath=default_folder or os.getcwd(),
+            style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST,
+        )
+        if folder_dialog.ShowModal() == wx.ID_OK:
+            path = folder_dialog.GetPath()
+        folder_dialog.Destroy()
+        return path
+
 def ask_for_output_file_path(
         default_folder=None,
         default_file_name="",

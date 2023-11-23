@@ -91,12 +91,21 @@ class Method:
         combined_counts_file      = args[0]
         metadata_file             = args[1]
         control_condition         = args[2]
-        sgRNA_strength_file       = args[3]
-        no_dep_abund              = args[4]
+        sg_rna_strength_file      = args[3]
+        uninduced_atc_file        = args[4]
         drug                      = args[5]
         days                      = args[6]
         fractional_abundance_file = args[7]
-        Method.extract_abund(combined_counts_file,metadata_file,control_condition,sgRNA_strength_file,no_dep_abund,drug,days, fractional_abundance_file)
+        Method.extract_abund(
+            combined_counts_file,
+            metadata_file,
+            control_condition,
+            sg_rna_strength_file,
+            uninduced_atc_file,
+            drug,
+            days,
+            fractional_abundance_file,
+        )
 
     @staticmethod
     @cli.add_command(cli_name, "run_model")
@@ -214,8 +223,8 @@ class Method:
         combined_counts_file,
         metadata_file,
         control_condition,
-        sgRNA_strength_file,
-        no_dep_abund,
+        sg_rna_strength_file,
+        uninduced_atc_file,
         drug,
         days,
         fractional_abundance_file,
@@ -281,7 +290,7 @@ class Method:
                 "WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file"
             )
 
-        sgRNA_strength = pd.read_csv(sgRNA_strength_file, sep="\t", index_col=0)
+        sgRNA_strength = pd.read_csv(sg_rna_strength_file, sep="\t", index_col=0)
         sgRNA_strength = sgRNA_strength.iloc[:, -1:]
         sgRNA_strength.columns = ["sgRNA strength"]
         sgRNA_strength["sgRNA"] = sgRNA_strength.index
@@ -290,7 +299,7 @@ class Method:
         ]
         sgRNA_strength.set_index("sgRNA", inplace=True)
 
-        no_dep_df = pd.read_csv(no_dep_abund, sep="\t", index_col=0, header=None)
+        no_dep_df = pd.read_csv(uninduced_atc_file, sep="\t", index_col=0, header=None)
         no_dep_df = no_dep_df.iloc[:, -1:]
         no_dep_df.columns = ["uninduced ATC values"]
         no_dep_df["uninduced ATC values"] = (
@@ -313,15 +322,17 @@ class Method:
             % len(abund_df)
         )
 
-        f = open(fractional_abundance_file, "w")
         headers = ["sgRNA strength", "uninduced ATC values"]
+        if fractional_abundance_file != None:
+            f = open(fractional_abundance_file, "w")
         for i, col in enumerate(column_names):
             abund_df[col] = abund_df[col] / abund_df[col].sum()
             abund_df[col] = (abund_df[col] + PC) / (
                 abund_df["uninduced ATC values"] + PC
             )
             headers.append(str(concs_list[i]) + "_" + str(i))
-            f.write("# " + str(concs_list[i]) + " conc_xMIC" + " - " + col + "\n")
+            if fractional_abundance_file != None:
+                f.write("# " + str(concs_list[i]) + " conc_xMIC" + " - " + col + "\n")
 
         abund_df.columns = headers
         abund_df["sgRNA"] = abund_df.index.values.tolist()
@@ -337,8 +348,11 @@ class Method:
         abund_df.insert(0, "gene", abund_df.pop("gene"))
         abund_df.insert(0, "orf", abund_df.pop("orf"))
         abund_df.insert(0, "sgRNA", abund_df.pop("sgRNA"))
-
-        abund_df.to_csv(f, sep="\t", index=False)
+        
+        if fractional_abundance_file != None:
+            abund_df.to_csv(f, sep="\t", index=False)
+        
+        return abund_df
 
     def run_model(self, frac_abund_file, cdr_output_file):
         from pytransit.components import panel_helpers, parameter_panel
@@ -346,8 +360,11 @@ class Method:
         import numpy as np
         from mne.stats import fdr_correction
         import statsmodels.api as sm
-
-        frac_abund_df = pd.read_csv(frac_abund_file, sep="\t", comment="#")
+        
+        if type(frac_abund_file) == str:
+            frac_abund_df = pd.read_csv(frac_abund_file, sep="\t", comment="#")
+        else:
+            frac_abund_df = frac_abund_file
         
         items = set(frac_abund_df["gene"])
         total = len(items)
@@ -452,8 +469,23 @@ class Method:
         drug_out_df = drug_out_df.replace(r"\s+", np.nan, regex=True).replace(
             "", np.nan
         )
-        drug_out_df.to_csv(cdr_output_file, sep="\t", index=False)
-        logging.log("Done")
+        try:
+            transit_tools.write_result(
+                path=cdr_output_file,  # path=None means write to STDOUT
+                file_kind=Method.identifier,
+                rows=tuple(each.tolist() for each in drug_out_df.iloc),
+                column_names=drug_out_df.columns,
+                extra_info=dict(
+                    stats=dict(),  # HANDLE_THIS
+                    parameters=dict(
+                    ),
+                ),
+            )
+        except Exception as error:
+            import code; code.interact(local={**globals(),**locals()})
+        # drug_out_df.to_csv(cdr_output_file, sep="\t", index=False)
+        
+        # logging.log("Done")
 
     def visualize(
         self, fractional_abundances_file, gene, fig_location, fixed, origx, origy
@@ -676,7 +708,16 @@ class Method:
                 ),
             )
             self.value_getters = LazyDict()
-            self.value_getters.ifile_path = panel_helpers.create_file_input(panel, main_sizer, button_label="ifile path", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            # self.value_getters.ifile_path           = panel_helpers.create_file_input(panel, main_sizer, button_label="ifile path", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            
+            self.value_getters.cgi_folder                = panel_helpers.create_folder_input(panel, main_sizer, button_label="CGI Folder", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='*')
+            self.value_getters.combined_counts_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="Combined counts file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.sg_rna_strength_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA strength file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.uninduced_atc_file        = panel_helpers.create_file_input(panel, main_sizer, button_label="uninduced ATC file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.control_condition         = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Control condition", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            self.value_getters.drug                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Drug", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            self.value_getters.days                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Days", default_value="", tooltip_text="", label_size=None, widget_size=None,)
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
             )
@@ -805,7 +846,26 @@ class Method:
         if not arguments.output_path:
             return None
         
-        Method.run_model(arguments.ifile_path, arguments.output_path)
+        with transit_tools.TimerAndOutputs(
+            method_name=Method.identifier,
+            output_paths=[arguments.output_path],
+            disable=False,
+        ) as timer:
+            df = Method.extract_abund(
+                combined_counts_file=arguments.combined_counts_file or f"{arguments.cgi_folder}/combined_counts.txt",
+                metadata_file=arguments.metadata_file or f"{arguments.cgi_folder}/samples_metadata.txt",
+                sg_rna_strength_file=arguments.sg_rna_strength_file or f"{arguments.cgi_folder}/sgRNA_info.txt",
+                uninduced_atc_file=arguments.uninduced_atc_file or f"{arguments.cgi_folder}/uninduced_ATC_counts.txt",
+                control_condition=arguments.control_condition,
+                drug=arguments.drug,
+                days=arguments.days,
+                fractional_abundance_file=None,
+            )
+            print(f'''df = {df}''')
+            Method.run_model(
+                df,
+                arguments.output_path,
+            )
 
     @staticmethod
     def output(

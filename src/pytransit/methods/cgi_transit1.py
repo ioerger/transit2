@@ -31,10 +31,7 @@ short_desc = "CGI Analysis of CRISPRi libraries"
 long_desc = "CGI Analysis of CRISPRi libraries"
 transposons = []
 
-columns = ["Position", "Reads", "Genes"]  # ???
-
-# there is no output file that could be loaded into the GUI
-
+columns = ["Position", "Reads", "Genes"]
 
 class CGI_Method(base.SingleConditionMethod):
     def __init__(self):
