@@ -17,6 +17,7 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 from pytransit.generic_tools.lazy_dict import LazyDict
 from pytransit.specific_tools.transit_tools import wx, basename
 from pytransit.components.spreadsheet import SpreadSheet
+from pytransit.generic_tools.informative_iterator import ProgressBar
 
 @misc.singleton
 class Method:
@@ -340,17 +341,22 @@ class Method:
         abund_df.to_csv(f, sep="\t", index=False)
 
     def run_model(self, frac_abund_file, cdr_output_file):
+        from pytransit.components import panel_helpers, parameter_panel
         import pandas as pd
         import numpy as np
         from mne.stats import fdr_correction
         import statsmodels.api as sm
 
         frac_abund_df = pd.read_csv(frac_abund_file, sep="\t", comment="#")
-
+        
+        items = set(frac_abund_df["gene"])
+        total = len(items)
         drug_output = []
-        for i, gene in enumerate(set(frac_abund_df["gene"])):
-            # print(i,gene)
-            logging.log("Analyzing Gene # %d \n" % i)
+        for progress, gene in ProgressBar(items, title="Analyzing Genes"):
+            gene_index = progress.index
+            percentage = (100.0 * gene_index / (total-1))
+            if gui.is_active:
+                parameter_panel.progress_update(f"Analyzing Genes  {percentage:.2f}%", percentage)
             gene_df = frac_abund_df[frac_abund_df["gene"] == gene]
             orf = gene_df["orf"].iloc[0]
             gene_df = gene_df.drop(columns=["orf", "gene", "uninduced ATC values"])
@@ -447,6 +453,7 @@ class Method:
             "", np.nan
         )
         drug_out_df.to_csv(cdr_output_file, sep="\t", index=False)
+        logging.log("Done")
 
     def visualize(
         self, fractional_abundances_file, gene, fig_location, fixed, origx, origy
@@ -460,13 +467,23 @@ class Method:
         import re
 
         abund_df = pd.read_csv(fractional_abundances_file, sep="\t", comment="#")
+        available_genes = list(set(abund_df["gene"].values.tolist())) + list(set(abund_df["orf"].values.tolist()))
+        assert gene in available_genes, f"Gene {gene}, was not one of the available genes: {repr(available_genes)}"
+        
+        # with open(fractional_abundances_file) as f:
+        #     while 1:
+        #         first_line = f.readline()
+        #         if first_line.startswith("#"):
+        #             continue
+        #         break
+        #     condition = first_line.split(" : ")[1]
         with open(fractional_abundances_file) as f:
             first_line = f.readline()
             condition = first_line.split(" : ")[1]
 
         abund_df = abund_df[(abund_df["gene"] == gene) | (abund_df["orf"] == gene)]
         if len(abund_df) == 0:
-            logging.error("Gene not found : %d \n" % idx)
+            logging.error(f"Gene not found : {idx}\n")
         abund_df = abund_df.reset_index(drop=True)
         all_slopes = []
 
@@ -658,10 +675,11 @@ class Method:
                     "\n                    ", "\n"
                 ),
             )
+            self.value_getters = LazyDict()
+            self.value_getters.ifile_path = panel_helpers.create_file_input(panel, main_sizer, button_label="ifile path", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
             )
-            self.value_getters = LazyDict()
             # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
             # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
@@ -681,16 +699,6 @@ class Method:
             #         def when_button_clicked(event):
             #             print("do stuff")
 
-            self.value_getters.n_terminus = panel_helpers.create_n_terminus_input(
-                panel, main_sizer
-            )
-            self.value_getters.c_terminus = panel_helpers.create_c_terminus_input(
-                panel, main_sizer
-            )
-            self.value_getters.normalization = panel_helpers.create_normalization_input(
-                panel, main_sizer
-            )
-
     @staticmethod
     def from_gui(frame):
         arguments = LazyDict()
@@ -698,82 +706,82 @@ class Method:
         #
         # global data
         #
-        # HANDLE_THIS
-        gui.is_active  # false if using command line
-        gui.frame  # self.wxobj equivalent
-        gui.busy_running_method  # Boolean, is true when any run-button function is started but not finished
-        gui.samples  # list of Wig objects
-        gui.conditions  # list of Condition objects
-        gui.selected_samples  # list of Wig objects
-        gui.selected_conditions  # list of Condition objects
-        gui.selected_condition_names  # list of strings
-        gui.conditions[0].name  # string
-        gui.conditions[
-            0
-        ].extra_data  # dict (currently unused, but would show up as columns in the condition GUI table)
-        gui.wigs_in_selected_conditions  # list of Wig objects
-        gui.combined_wigs  # list of CombinedWig objects
-        gui.combined_wigs[-1].main_path
-        gui.combined_wigs[-1].metadata_path
-        gui.combined_wigs[-1].annotation_path
-        gui.combined_wigs[
-            -1
-        ].rows  # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
-        gui.combined_wigs[
-            -1
-        ].as_tuple  # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
-        gui.combined_wigs[-1].ta_sites
-        gui.combined_wigs[-1].read_counts_array[row_index, wig_index]
-        gui.combined_wigs[-1].read_counts_by_wig_fingerprint[wig_index, row_index]
-        gui.combined_wigs[-1].wig_ids  # same order as columns/wig_fingerprints
-        gui.combined_wigs[-1].wig_fingerprints  # same order as #File: columns
-        gui.combined_wigs[-1].condition_names  # list of condition strings
-        gui.combined_wigs[-1].conditions  # list of condition objects
-        gui.combined_wigs[-1].with_only(
-            condition_names=[], wig_fingerprints=[], wig_ids=[]
-        )  # returns a copy that has columns/rows filtered out
-        gui.combined_wigs[-1].samples  # list of Wig objects
-        gui.combined_wigs[-1].samples[0].id  # id from the metadata file
-        gui.combined_wigs[-1].samples[
-            0
-        ].fingerprint  # the "File" column from the metadata
-        gui.combined_wigs[-1].samples[0].condition_names  # a list of strings
-        gui.combined_wigs[-1].samples[0].ta_sites  # list of ints
-        gui.combined_wigs[-1].samples[0].insertion_counts  # list of numbers
-        gui.combined_wigs[-1].samples[
-            0
-        ].rows  # each element is always [position_number, insertion_count]
-        gui.combined_wigs[-1].samples[
-            0
-        ].column_index  # int (column inside combined wig)
-        gui.combined_wigs[-1].samples[0].extra_data.count
-        gui.combined_wigs[-1].samples[0].extra_data.sum
-        gui.combined_wigs[-1].samples[0].extra_data.non_zero_mean
-        gui.combined_wigs[-1].samples[0].extra_data.non_zero_median
-        gui.combined_wigs[-1].samples[0].extra_data.density
-        gui.combined_wigs[-1].samples[0].extra_data.mean
-        gui.combined_wigs[-1].samples[0].extra_data.max
-        gui.combined_wigs[-1].samples[0].extra_data.skew
-        gui.combined_wigs[-1].samples[0].extra_data.kurtosis
-        gui.combined_wigs[-1].metadata  # CombinedWigMetadata object
-        gui.combined_wigs[-1].metadata.path
-        gui.combined_wigs[-1].metadata.headers
-        gui.combined_wigs[-1].metadata.rows
-        gui.combined_wigs[-1].metadata.conditions
-        gui.combined_wigs[-1].metadata.condition_names
-        gui.combined_wigs[-1].metadata.wig_ids
-        gui.combined_wigs[-1].metadata.wig_fingerprints
-        gui.combined_wigs[-1].metadata.with_only(
-            condition_names=[], wig_fingerprints=[]
-        )
-        gui.combined_wigs[-1].metadata.condition_for(
-            wig_fingerprint
-        )  # will need to change to "conditions" instead of "condition"
-        gui.combined_wigs[-1].metadata.condition_for(
-            wig_id
-        )  # will need to change to "conditions" instead of "condition"
-        gui.combined_wigs[-1].metadata.id_for(wig_fingerprint)
-        gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
+            # # HANDLE_THIS
+            # gui.is_active  # false if using command line
+            # gui.frame  # self.wxobj equivalent
+            # gui.busy_running_method  # Boolean, is true when any run-button function is started but not finished
+            # gui.samples  # list of Wig objects
+            # gui.conditions  # list of Condition objects
+            # gui.selected_samples  # list of Wig objects
+            # gui.selected_conditions  # list of Condition objects
+            # gui.selected_condition_names  # list of strings
+            # gui.conditions[0].name  # string
+            # gui.conditions[
+            #     0
+            # ].extra_data  # dict (currently unused, but would show up as columns in the condition GUI table)
+            # gui.wigs_in_selected_conditions  # list of Wig objects
+            # gui.combined_wigs  # list of CombinedWig objects
+            # gui.combined_wigs[-1].main_path
+            # gui.combined_wigs[-1].metadata_path
+            # gui.combined_wigs[-1].annotation_path
+            # gui.combined_wigs[
+            #     -1
+            # ].rows  # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
+            # gui.combined_wigs[
+            #     -1
+            # ].as_tuple  # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
+            # gui.combined_wigs[-1].ta_sites
+            # gui.combined_wigs[-1].read_counts_array[row_index, wig_index]
+            # gui.combined_wigs[-1].read_counts_by_wig_fingerprint[wig_index, row_index]
+            # gui.combined_wigs[-1].wig_ids  # same order as columns/wig_fingerprints
+            # gui.combined_wigs[-1].wig_fingerprints  # same order as #File: columns
+            # gui.combined_wigs[-1].condition_names  # list of condition strings
+            # gui.combined_wigs[-1].conditions  # list of condition objects
+            # gui.combined_wigs[-1].with_only(
+            #     condition_names=[], wig_fingerprints=[], wig_ids=[]
+            # )  # returns a copy that has columns/rows filtered out
+            # gui.combined_wigs[-1].samples  # list of Wig objects
+            # gui.combined_wigs[-1].samples[0].id  # id from the metadata file
+            # gui.combined_wigs[-1].samples[
+            #     0
+            # ].fingerprint  # the "File" column from the metadata
+            # gui.combined_wigs[-1].samples[0].condition_names  # a list of strings
+            # gui.combined_wigs[-1].samples[0].ta_sites  # list of ints
+            # gui.combined_wigs[-1].samples[0].insertion_counts  # list of numbers
+            # gui.combined_wigs[-1].samples[
+            #     0
+            # ].rows  # each element is always [position_number, insertion_count]
+            # gui.combined_wigs[-1].samples[
+            #     0
+            # ].column_index  # int (column inside combined wig)
+            # gui.combined_wigs[-1].samples[0].extra_data.count
+            # gui.combined_wigs[-1].samples[0].extra_data.sum
+            # gui.combined_wigs[-1].samples[0].extra_data.non_zero_mean
+            # gui.combined_wigs[-1].samples[0].extra_data.non_zero_median
+            # gui.combined_wigs[-1].samples[0].extra_data.density
+            # gui.combined_wigs[-1].samples[0].extra_data.mean
+            # gui.combined_wigs[-1].samples[0].extra_data.max
+            # gui.combined_wigs[-1].samples[0].extra_data.skew
+            # gui.combined_wigs[-1].samples[0].extra_data.kurtosis
+            # gui.combined_wigs[-1].metadata  # CombinedWigMetadata object
+            # gui.combined_wigs[-1].metadata.path
+            # gui.combined_wigs[-1].metadata.headers
+            # gui.combined_wigs[-1].metadata.rows
+            # gui.combined_wigs[-1].metadata.conditions
+            # gui.combined_wigs[-1].metadata.condition_names
+            # gui.combined_wigs[-1].metadata.wig_ids
+            # gui.combined_wigs[-1].metadata.wig_fingerprints
+            # gui.combined_wigs[-1].metadata.with_only(
+            #     condition_names=[], wig_fingerprints=[]
+            # )
+            # gui.combined_wigs[-1].metadata.condition_for(
+            #     wig_fingerprint
+            # )  # will need to change to "conditions" instead of "condition"
+            # gui.combined_wigs[-1].metadata.condition_for(
+            #     wig_id
+            # )  # will need to change to "conditions" instead of "condition"
+            # gui.combined_wigs[-1].metadata.id_for(wig_fingerprint)
+            # gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
 
         #
         # call all GUI getters, puts results into respective arguments key-value
@@ -796,8 +804,8 @@ class Method:
         # if user didn't select an output path
         if not arguments.output_path:
             return None
-
-        Method.output(**arguments)
+        
+        Method.run_model(arguments.ifile_path, arguments.output_path)
 
     @staticmethod
     def output(
