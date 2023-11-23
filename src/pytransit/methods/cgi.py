@@ -653,7 +653,7 @@ class Method:
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
-                    HANDLE_THIS
+                    CRISPRi-DR is designed to analyze CRISPRi libraries from CGI experiments and identify significant CGIs ie genes that affect sensitivity to the drug when depleted.
                 """.replace(
                     "\n                    ", "\n"
                 ),
