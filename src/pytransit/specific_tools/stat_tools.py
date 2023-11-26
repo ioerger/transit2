@@ -383,6 +383,8 @@ def loess(X, Y, h=10000):
         smoothed[i] = B * x + A
     return smoothed
 
+# X is coords, Y is counts
+
 def loess_correction(X, Y, h=10000, window=100):
     Y = numpy.array(Y)
     size = int(len(X) / window) + 1
@@ -394,13 +396,10 @@ def loess_correction(X, Y, h=10000, window=100):
 
     ysmooth = loess(x_w, y_w, h)
     mline = numpy.mean(y_w)
-    y_w * (ysmooth / mline)
 
     normalized_Y = numpy.zeros(len(Y))
     for i in range(size):
-        normalized_Y[window * i : window * (i + 1)] = Y[
-            window * i : window * (i + 1)
-        ] * (ysmooth[i] / mline)
+      normalized_Y[window*i:window*(i+1)] = Y[window*i:window*(i+1)] / (ysmooth[i]/mline)
 
     return normalized_Y
 
