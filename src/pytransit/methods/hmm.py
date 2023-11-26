@@ -909,8 +909,8 @@ class GeneFile:
         "GD Count",
         "NE Count",
         "GA Count",
-        "Mean Insertions",
-        "Mean Reads",
+        "Saturation"
+        "NZmean",
         "State Call",
     ]
     
