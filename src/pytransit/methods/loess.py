@@ -57,24 +57,37 @@ class Method:
             Xbp = [x*win for x in X]
             fit = lowess(exog=Xbp,endog=Y) # using statsmodels; note: previously, stat_tools.loess(x_w, y_w, h=10000) was being called
 
-            fig, (ax1, ax2) = plt.subplots(1, 2)
-            fig.set_figheight(5)
+            fig, ((ax3, ax4), (ax1, ax2)) = plt.subplots(2, 2)
+            fig.set_figheight(9)
             fig.set_figwidth(10)
 
-            ax1.plot(Xbp,Y, "g+")
-            ax1.plot(fit[:,0],fit[:,1], "b-")
+            ax1.plot(Xbp,Y, "y+")
             ax1.set_xlabel("Genomic Position (bp)")
             ax1.set_ylabel("mean insertion count over %sbp windows" % win)
             ax1.set_yscale("log")
-            ax1.set_title("LOESS Fit (log-scale)")
+            ax1.set_title("Fit Before Correction (log-scale)")
 
-            ax2.plot(Xbp,Y, "g+")
-            ax2.plot(fit[:,0],fit[:,1], "b-")
+            ax2.plot(Xbp,Y, "y+")
             ax2.set_xlabel("Genomic Position (bp)")
             ax2.set_ylabel("mean insertion count over %sbp windows" % win)
-            ax2.set_title("LOESS Fit")
+            ax2.set_title("Fit Before Correction")
+            
+            ax3.plot(Xbp,Y, "g+")
+            ax3.plot(fit[:,0],fit[:,1], "b-")
+            ax3.set_xlabel("Genomic Position (bp)")
+            ax3.set_ylabel("mean insertion count over %sbp windows" % win)
+            ax3.set_yscale("log")
+            ax3.set_title("LOESS Fit (log-scale)")
+
+            ax4.plot(Xbp,Y, "g+")
+            ax4.plot(fit[:,0],fit[:,1], "b-")
+            ax4.set_xlabel("Genomic Position (bp)")
+            ax4.set_ylabel("mean insertion count over %sbp windows" % win)
+            ax4.set_title("LOESS Fit")
+            
             m,s = numpy.max(fit[:,1]),numpy.std(Y)
             ax2.set_ylim(0,m+2*s)
+            ax4.set_ylim(0,m+2*s)
 
             plt.show()
 
