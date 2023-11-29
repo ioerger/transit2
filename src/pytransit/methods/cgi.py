@@ -696,6 +696,7 @@ class Method:
 
     def define_panel(self, _):
         from pytransit.components import panel_helpers, parameter_panel
+        import pandas as pd
 
         with panel_helpers.NewPanel() as (panel, main_sizer):
             parameter_panel.set_instructions(
@@ -709,15 +710,65 @@ class Method:
             )
             self.value_getters = LazyDict()
             # self.value_getters.ifile_path           = panel_helpers.create_file_input(panel, main_sizer, button_label="ifile path", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            def visulize_combined_counts(*args):
+                the_file_path = args[-1]
+                from pytransit.components.samples_area import samples
+                from pytransit.generic_tools import misc
+                df = pd.read_csv(the_file_path, sep="\t", comment="#")
+                summary_entries = []
+                for each in df.columns:
+                    if each == "sgRNA":
+                        continue
+                    samples.wig_table.add({
+                        # add hidden link to object
+                        "__wig_obj":df[each],
+                        # NOTE: all of these names are used by other parts of the code (caution when removing or renaming them)
+                        "name": each,
+                        "count": len(df),
+                        "sum": df[each].values.sum(),
+                        "average": round(df[each].values.mean()),
+                    })
             
-            self.value_getters.cgi_folder                = panel_helpers.create_folder_input(panel, main_sizer, button_label="CGI Folder", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='*')
-            self.value_getters.combined_counts_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="Combined counts file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            def visulize_metadata(*args):
+                metadata_file = args[-1]
+                from pytransit.components.samples_area import samples
+                from pytransit.generic_tools import misc
+                df = pd.read_csv(metadata_file, sep="\t")
+                conditions = misc.no_duplicates(df["column_name"].values.tolist())
+                other_columns = [ column for column in df.columns if column != "column_name" ]
+                for each in conditions:
+                    samples.conditions_table.add({
+                        "Condition": each,
+                        **{
+                            other_column: ", ".join(
+                               f"{each}" for each in misc.no_duplicates(df[df["column_name"] == each][other_column].values.tolist()) 
+                            )
+                                for other_column in other_columns
+                        },
+                    })
+                
+                # condition_choices = [ str(each) for each in misc.no_duplicates(df["column_name"].values.tolist())       ] 
+                drug_choices =      [ str(each) for each in misc.no_duplicates(df["drug"].values.tolist())              ] 
+                days_choices =      [ str(each) for each in misc.no_duplicates(df["days_predepletion"].values.tolist()) ] 
+                
+                self.value_getters.control_condition = panel_helpers.create_choice_input(panel, main_sizer, label="Control condition", options=drug_choices, default_option=None, tooltip_text="")
+                self.value_getters.drug = panel_helpers.create_choice_input(panel, main_sizer, label="Drug", options=drug_choices, default_option=None, tooltip_text="")
+                self.value_getters.days = panel_helpers.create_choice_input(panel, main_sizer, label="Days", options=days_choices, default_option=None, tooltip_text="")
+                panel_helpers.NewPanel.recent.refresh()
+            
+            def load_folder(*args):
+                folder_path = args[-1]
+                visulize_combined_counts(f"{folder_path}/combined_counts.txt")
+                visulize_metadata(f"{folder_path}/samples_metadata.txt")
+            
+            self.value_getters.cgi_folder                = panel_helpers.create_folder_input(panel, main_sizer, button_label="CGI Folder", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='*', after_select=load_folder)
+            self.value_getters.combined_counts_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="Combined counts file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_combined_counts)
+            self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_metadata)
             self.value_getters.sg_rna_strength_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA strength file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.uninduced_atc_file        = panel_helpers.create_file_input(panel, main_sizer, button_label="uninduced ATC file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            self.value_getters.control_condition         = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Control condition", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            self.value_getters.drug                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Drug", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            self.value_getters.days                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Days", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            # self.value_getters.control_condition         = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Control condition", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            # self.value_getters.drug                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Drug", default_value="", tooltip_text="", label_size=None, widget_size=None,)
+            # self.value_getters.days                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Days", default_value="", tooltip_text="", label_size=None, widget_size=None,)
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
             )
@@ -742,6 +793,7 @@ class Method:
 
     @staticmethod
     def from_gui(frame):
+        import pandas as pd
         arguments = LazyDict()
 
         #

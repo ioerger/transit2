@@ -27,6 +27,7 @@ if True:
             )
             # self.wx_panel.SetMaxSize((width + (width - width_2) + dx, -1)) # Trying to limit the width of our frame
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
+            NewPanel.recent = self
             return (self.wx_panel, self.main_sizer)
         
         def __exit__(self, _, error, traceback_obj):
@@ -37,13 +38,17 @@ if True:
                 if frame and hasattr(frame, "status_bar"):
                     frame.status_bar.SetStatusText("Error: "+str(error.args))
             else:
-                from pytransit.components import parameter_panel
-                parameter_panel.set_panel(self.wx_panel)
-                self.wx_panel.SetSizer(self.main_sizer)
-                self.wx_panel.Layout()
-                self.main_sizer.Fit(self.wx_panel)
-                self.wx_panel.SetupScrolling()
-                gui.frame.Layout()
+                self.refresh()
+        
+        def refresh(self):
+            from pytransit.components import parameter_panel
+            parameter_panel.set_panel(self.wx_panel)
+            self.wx_panel.SetSizer(self.main_sizer)
+            self.wx_panel.Layout()
+            self.main_sizer.Fit(self.wx_panel)
+            self.wx_panel.SetupScrolling()
+            gui.frame.Layout()
+            
     
     def create_tooltip_and_label(panel, tooltip_text, label_text=None):
         from pytransit.components.icon import InfoIcon
@@ -178,7 +183,7 @@ if True:
                             default_folder=default_folder,
                         )
                         folder_text.SetLabel(basename(the_folder_path or ""))
-                        after_select(*args)
+                        after_select(*args, the_folder_path)
             row_sizer.Add(add_folder_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
             # padding
             row_sizer.Add(20, 1)
