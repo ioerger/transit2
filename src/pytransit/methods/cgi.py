@@ -422,8 +422,8 @@ class Method:
                 "Gene",
                 "Nobs",
                 "intercept",
-                "ceofficient sgRNA_strength",
-                "ceofficient concentration dependence",
+                "coefficient sgRNA_strength",
+                "coefficient concentration dependence",
                 "pval intercept",
                 "pval pred_logFC",
                 "pval concentration dependence",
@@ -441,9 +441,9 @@ class Method:
         drug_out_df = drug_out_df.replace(np.nan, 1)
 
         drug_out_df["Z"] = (
-            drug_out_df["ceofficient concentration dependence"]
-            - drug_out_df["ceofficient concentration dependence"].mean()
-        ) / drug_out_df["ceofficient concentration dependence"].std()
+            drug_out_df["coefficient concentration dependence"]
+            - drug_out_df["coefficient concentration dependence"].mean()
+        ) / drug_out_df["coefficient concentration dependence"].std()
         drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
         drug_out_df.loc[
             (drug_out_df["qval concentration dependence"] < 0.05)

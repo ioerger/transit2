@@ -7,7 +7,7 @@
 #    stats: {}
 #    parameters: {}
 #    
-#Significant Interactions	Orf	Gene	Nobs	intercept	ceofficient sgRNA_strength	ceofficient concentration dependence	pval intercept	pval pred_logFC	pval concentration dependence	qval concentration dependence	Z
+#Significant Interactions	Orf	Gene	Nobs	intercept	coefficient sgRNA_strength	coefficient concentration dependence	pval intercept	pval pred_logFC	pval concentration dependence	qval concentration dependence	Z
 0	RVBD2043c	pncA	7	1.0717647132852857	0.49496966775923784	-0.00412302639024646	3.231677663973958e-32	2.1243799017106826e-23	0.7623964669783408	0.8216394936192087	-0.031226263145229423
 0	RVBD1229c	mrp	103	1.732616119463318	0.13972786835975798	0.16063972064863136	6.320115204220725e-267	1.1429870439804713e-280	1.3228087009026025e-52	3.644066160979635e-51	1.036025038905357
 -1	RVBD1221	sigE	5	-1.1619581586100596	0.17024077935056117	-0.37278180984014486	1.3952952219991315e-08	0.003143713089197662	2.374336505196539e-16	1.9528796367894643e-15	-2.4192148935875792
