@@ -142,7 +142,8 @@ def change_file_action_choices(new_choices):
             def _(event):
                 choice = results.file_action_choice_element.GetString(results.file_action_choice_element.GetCurrentSelection())
                 # run the callback that corrisponds the the choice
-                new_choices[choice](event)
+                with gui_tools.nice_error_log:
+                    new_choices[choice](event)
     
 
 def add(path):

@@ -170,7 +170,6 @@ def ask_for_choose_one(items):
     
     return results
 
-
 def ask_for_text(tooltip_text="", label_text="",default_value=""):
     with nice_error_log:
         win = wx.Dialog(gui.frame, wx.FRAME_FLOAT_ON_PARENT)
@@ -243,6 +242,34 @@ def ask_for_text(tooltip_text="", label_text="",default_value=""):
         win.Destroy()
         
         return results
+
+class PopUp(object):
+    def __init__(self, *args, **kwargs):
+        self.win = wx.Dialog(gui.frame, wx.FRAME_FLOAT_ON_PARENT)
+        self.popup_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.win.SetSizer(popup_sizer)
+        self.value_getters = LazyDict()
+        self.values = LazyDict()
+    
+    def __enter__(self):
+        return self.win, self.popup_sizer, self.value_getters
+    
+    def __exit__(self, _, error, traceback):
+        win.Layout()
+        popup_sizer.Fit(win)
+        res = win.ShowModal()
+        if res == wx.ID_OK:
+            for key, getter in self.value_getters.items():
+                with nice_error_log:
+                    self.values[key] = getter()
+        win.Destroy()
+        
+        # normal cleanup HERE
+        should_suppress_error = False
+        if error is not None:
+            # error cleanup HERE
+            pass
+        return should_suppress_error
 
 class color(NamedTuple):
     black          =  rgba(0, 0, 0)

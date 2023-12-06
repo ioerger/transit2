@@ -11,7 +11,7 @@ import heapq
 import numpy
 
 from pytransit.generic_tools import csv, misc, informative_iterator
-from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
+from pytransit.specific_tools import gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools
 from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 from pytransit.generic_tools.lazy_dict import LazyDict
@@ -673,7 +673,10 @@ class Method:
         g.set(ylim=(ymin, ymax), xlim=(xmin, xmax))
         plt.gca().set_title(gene, wrap=True)
         plt.tight_layout()
-        plt.savefig(fig_location+".png")
+        if not fig_location:
+            plt.show()
+        else:
+            plt.savefig(fig_location+".png")
 
     @gui.add_wig_area_dropdown_option(name=name)
     def on_wig_option_click():
@@ -987,6 +990,16 @@ class CgiResult:
                         # HANDLE_THIS
                     ],
                 ).Show(),
+                "Display Heatmap": lambda *args: (
+                    Method.visualize(
+                        frac_abund_file=self.values_for_result_table.get("frac_abund_file", None),
+                        gene=gui_tools.ask_for_text(label_text="Gene name"),
+                        fig_location=None,
+                        fixed="",
+                        origx=False,
+                        origy=False,
+                    )
+                ),
             })
         )
         
