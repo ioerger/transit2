@@ -545,7 +545,6 @@ class Method:
 
         plot_df = pd.concat(df_list)
 
-        plt.figure()
         cmap = mpl.colors.LinearSegmentedColormap.from_list(
             "", ["#8ecae6", "#219ebc", "#023047", "#ffb703", "#fb8500"], N=len(abund_df)
         )
