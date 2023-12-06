@@ -506,7 +506,10 @@ class Method:
         available_genes = list(set(abund_df["gene"].values.tolist())) + list(set(abund_df["orf"].values.tolist()))
         assert gene in available_genes, f"Gene {gene}, was not one of the available genes: {repr(available_genes)}"
         
-        abund_df_filtered = abund_df[(abund_df["gene"] == gene) | (abund_df["orf"] == gene)]
+        abund_df["gene"] = tuple(each.lower() for each in abund_df["gene"].values)
+        abund_df["orf"] = tuple(each.lower() for each in abund_df["orf"].values)
+        gene_no_case = gene.lower()
+        abund_df_filtered = abund_df[(abund_df["gene"] == gene_no_case) | (abund_df["orf"] == gene_no_case)]
         if len(abund_df_filtered) == 0:
             logging.error(f"Gene not found : {gene}\n")
         abund_df = abund_df_filtered.reset_index(drop=True)
