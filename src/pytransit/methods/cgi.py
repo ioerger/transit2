@@ -716,6 +716,7 @@ class Method:
                         "count": len(df),
                         "sum": df[each].values.sum(),
                         "average": round(df[each].values.mean()),
+                        "max": round(df[each].values.max()),
                     })
             
             def visulize_metadata(*args):
@@ -740,6 +741,7 @@ class Method:
                 drug_choices =      [ str(each) for each in misc.no_duplicates(df["drug"].values.tolist())              ] 
                 days_choices =      [ str(each) for each in misc.no_duplicates(df["days_predepletion"].values.tolist()) ] 
                 
+                # NOTE: this dynamically adds more textboxes
                 self.value_getters.control_condition = panel_helpers.create_choice_input(panel, main_sizer, label="Control condition", options=drug_choices, default_option=None, tooltip_text="")
                 self.value_getters.drug = panel_helpers.create_choice_input(panel, main_sizer, label="Drug", options=drug_choices, default_option=None, tooltip_text="")
                 self.value_getters.days = panel_helpers.create_choice_input(panel, main_sizer, label="Days", options=days_choices, default_option=None, tooltip_text="")

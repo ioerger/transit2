@@ -18,7 +18,7 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 @misc.singleton
 class Method:
-    name = "LOESS"
+    name = "LOESS Plot"
     
     # 
     # LOESS

@@ -143,8 +143,6 @@ if True:
         sizer.Add(row_sizer, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args, **kwargs: results
 
-        return
-
 
     def create_folder_input(panel, sizer, *, button_label, init_folder_text="", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='All folders (*.*)|*.*', after_select=lambda *args: None, alignment=wx.ALIGN_CENTER, size=(-1,-1), color=gui_tools.color.light_gray):
         """
