@@ -502,17 +502,6 @@ class Method:
         available_genes = list(set(abund_df["gene"].values.tolist())) + list(set(abund_df["orf"].values.tolist()))
         assert gene in available_genes, f"Gene {gene}, was not one of the available genes: {repr(available_genes)}"
         
-        # with open(fractional_abundances_file) as f:
-        #     while 1:
-        #         first_line = f.readline()
-        #         if first_line.startswith("#"):
-        #             continue
-        #         break
-        #     condition = first_line.split(" : ")[1]
-        with open(fractional_abundances_file) as f:
-            first_line = f.readline()
-            condition = first_line.split(" : ")[1]
-
         abund_df = abund_df[(abund_df["gene"] == gene) | (abund_df["orf"] == gene)]
         if len(abund_df) == 0:
             logging.error(f"Gene not found : {idx}\n")
@@ -682,9 +671,9 @@ class Method:
         )
         g.figure.colorbar(sm1, shrink=0.8, aspect=50, label="sgRNA strength")
         g.set(ylim=(ymin, ymax), xlim=(xmin, xmax))
-        plt.gca().set_title(gene + "\n" + condition, wrap=True)
+        plt.gca().set_title(gene, wrap=True)
         plt.tight_layout()
-        plt.savefig(fig_location)
+        plt.savefig(fig_location+".png")
 
     @gui.add_wig_area_dropdown_option(name=name)
     def on_wig_option_click():
