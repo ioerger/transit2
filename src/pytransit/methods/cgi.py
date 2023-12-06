@@ -203,7 +203,7 @@ class Method:
         df_list = []
         for f in counts_list:
             logging.log("Adding in file # %s \n" % f)
-            counts_df = pd.read_csv(f, sep="\t")
+            counts_df = pd.read_csv(f, sep="\t", comment="#")
             counts_df["sgRNA"] = counts_df[counts_df.columns[0]].str.split(
                 "_v", expand=True
             )[0]
@@ -232,7 +232,7 @@ class Method:
     ):
         import pandas as pd
 
-        metadata = pd.read_csv(metadata_file, sep="\t")
+        metadata = pd.read_csv(metadata_file, sep="\t", comment="#")
         available_drugs = misc.no_duplicates(metadata["drug"].values.tolist())
         available_days = misc.no_duplicates(
             metadata["days_predepletion"].values.tolist()
@@ -278,7 +278,7 @@ class Method:
 
         logging.log("# Condition Tested : " + str(drug) + " D" + str(days))
         headers = []
-        combined_counts_df = pd.read_csv(combined_counts_file, sep="\t", index_col=0)
+        combined_counts_df = pd.read_csv(combined_counts_file, sep="\t", index_col=0, comment="#")
         combined_counts_df = combined_counts_df[column_names]
 
         if len(combined_counts_df.columns) == 0:
@@ -290,7 +290,7 @@ class Method:
                 "WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file"
             )
 
-        sgRNA_strength = pd.read_csv(sg_rna_strength_file, sep="\t", index_col=0)
+        sgRNA_strength = pd.read_csv(sg_rna_strength_file, sep="\t", index_col=0, comment="#")
         sgRNA_strength = sgRNA_strength.iloc[:, -1:]
         sgRNA_strength.columns = ["sgRNA strength"]
         sgRNA_strength["sgRNA"] = sgRNA_strength.index
@@ -299,7 +299,7 @@ class Method:
         ]
         sgRNA_strength.set_index("sgRNA", inplace=True)
 
-        no_dep_df = pd.read_csv(uninduced_atc_file, sep="\t", index_col=0, header=None)
+        no_dep_df = pd.read_csv(uninduced_atc_file, sep="\t", index_col=0, header=None, comment="#")
         no_dep_df = no_dep_df.iloc[:, -1:]
         no_dep_df.columns = ["uninduced ATC values"]
         no_dep_df["uninduced ATC values"] = (
@@ -354,17 +354,15 @@ class Method:
         
         return abund_df
 
-    def run_model(self, frac_abund_file, cdr_output_file):
+    def run_model(self, frac_abund_file, cdr_output_file, disable_logging=False, frac_abund_df=None):
         from pytransit.components import panel_helpers, parameter_panel
         import pandas as pd
         import numpy as np
         from mne.stats import fdr_correction
         import statsmodels.api as sm
         
-        if type(frac_abund_file) == str:
+        if type(frac_abund_df) == type(None):
             frac_abund_df = pd.read_csv(frac_abund_file, sep="\t", comment="#")
-        else:
-            frac_abund_df = frac_abund_file
         
         items = set(frac_abund_df["gene"])
         total = len(items)
@@ -372,8 +370,6 @@ class Method:
         for progress, gene in ProgressBar(items, title="Analyzing Genes"):
             gene_index = progress.index
             percentage = (100.0 * gene_index / (total-1))
-            if gui.is_active:
-                parameter_panel.progress_update(f"Analyzing Genes  {percentage:.2f}%", percentage)
             gene_df = frac_abund_df[frac_abund_df["gene"] == gene]
             orf = gene_df["orf"].iloc[0]
             gene_df = gene_df.drop(columns=["orf", "gene", "uninduced ATC values"])
@@ -381,10 +377,13 @@ class Method:
             melted_df = gene_df.melt(
                 id_vars=["sgRNA", "sgRNA strength"], var_name="conc", value_name="abund"
             )
-            melted_df["conc"] = (
-                melted_df["conc"].str.split("_", expand=True)[0].astype(float)
-            )
-            min_conc = min(melted_df[melted_df["conc"] > 0]["conc"])
+            try:
+                melted_df["conc"] = (
+                    melted_df["conc"].str.split("_", expand=True)[0].astype(float)
+                )
+                min_conc = min(melted_df[melted_df["conc"] > 0]["conc"])
+            except Exception as error:
+                import code; code.interact(local={**globals(),**locals()})
             melted_df.loc[melted_df["conc"] == 0, "conc"] = min_conc / 2
             melted_df["abund"] = [
                 0.01
@@ -414,6 +413,8 @@ class Method:
                 + coeffs.values.tolist()
                 + pvals.values.tolist()
             )
+            if gui.is_active:
+                parameter_panel.progress_update(f"Analyzing Genes  {percentage:.2f}%\r", percentage)
 
         drug_out_df = pd.DataFrame(
             drug_output,
@@ -476,16 +477,19 @@ class Method:
                 rows=tuple(each.tolist() for each in drug_out_df.iloc),
                 column_names=drug_out_df.columns,
                 extra_info=dict(
-                    stats=dict(),  # HANDLE_THIS
+                    stats=dict(),
                     parameters=dict(
+                        frac_abund_file=frac_abund_file,
+                        # TODO: add the other parameters
                     ),
                 ),
             )
         except Exception as error:
+            print("error", error)
             import code; code.interact(local={**globals(),**locals()})
         # drug_out_df.to_csv(cdr_output_file, sep="\t", index=False)
-        
-        # logging.log("Done")
+    
+    # logging.log("Done")
 
     def visualize(
         self, fractional_abundances_file, gene, fig_location, fixed, origx, origy
@@ -502,37 +506,42 @@ class Method:
         available_genes = list(set(abund_df["gene"].values.tolist())) + list(set(abund_df["orf"].values.tolist()))
         assert gene in available_genes, f"Gene {gene}, was not one of the available genes: {repr(available_genes)}"
         
-        abund_df = abund_df[(abund_df["gene"] == gene) | (abund_df["orf"] == gene)]
-        if len(abund_df) == 0:
-            logging.error(f"Gene not found : {idx}\n")
-        abund_df = abund_df.reset_index(drop=True)
+        abund_df_filtered = abund_df[(abund_df["gene"] == gene) | (abund_df["orf"] == gene)]
+        if len(abund_df_filtered) == 0:
+            logging.error(f"Gene not found : {gene}\n")
+        abund_df = abund_df_filtered.reset_index(drop=True)
         all_slopes = []
+        
 
         df_list = []
         for idx, row in abund_df.iterrows():
-            logging.log("Fitting sgRNA # : %d \n" % idx)
-            raw_Y = row[5:].values
-            Y = [max(0.01, x) for x in raw_Y]
-            Y = [np.log10(x) for x in Y]
+            try:
+                logging.log("Fitting sgRNA # : %d \n" % idx)
+                raw_Y = row[5:].values
+                Y = [max(0.01, x) for x in raw_Y]
+                Y = [np.log10(x) for x in Y]
+            
+                raw_X = abund_df.columns[5:]
+                raw_X = [float(i.split("_")[0]) for i in raw_X]
+                min_conc = min([i for i in raw_X if i > 0])
+                X = [min_conc / 2 if i == 0 else i for i in raw_X]
+                X = [np.log2(float(x)) for x in X]
 
-            raw_X = abund_df.columns[5:]
-            raw_X = [float(i.split("_")[0]) for i in raw_X]
-            min_conc = min([i for i in raw_X if i > 0])
-            X = [min_conc / 2 if i == 0 else i for i in raw_X]
-            X = [np.log2(float(x)) for x in X]
-
-            data = pd.DataFrame(
-                {"Log (Concentration)": X, "Log (Relative Abundance)": Y}
-            )
-            X = pd.DataFrame({"log concentration": X})
-            X_in = sm.add_constant(X, has_constant="add")
-            results = sm.OLS(Y, X_in).fit()
-            all_slopes.append(results.params[1])
-            data["sgRNA strength"] = [row["sgRNA strength"]] * len(data)
-            data["slope"] = [results.params[1]] * len(data)
-            data["Concentration"] = raw_X
-            data["Relative Abundance"] = raw_Y
-            df_list.append(data)
+                data = pd.DataFrame(
+                    {"Log (Concentration)": X, "Log (Relative Abundance)": Y}
+                )
+                X = pd.DataFrame({"log concentration": X})
+                X_in = sm.add_constant(X, has_constant="add")
+                results = sm.OLS(Y, X_in).fit()
+                all_slopes.append(results.params[1])
+                data["sgRNA strength"] = [row["sgRNA strength"]] * len(data)
+                data["slope"] = [results.params[1]] * len(data)
+                data["Concentration"] = raw_X
+                data["Relative Abundance"] = raw_Y
+                df_list.append(data)
+            except Exception as error:
+                print(error)
+                import code; code.interact(local={**globals(),**locals()})
 
         plot_df = pd.concat(df_list)
 
@@ -726,7 +735,7 @@ class Method:
                 metadata_file = args[-1]
                 from pytransit.components.samples_area import samples
                 from pytransit.generic_tools import misc
-                df = pd.read_csv(metadata_file, sep="\t")
+                df = pd.read_csv(metadata_file, sep="\t", comment="#")
                 conditions = misc.no_duplicates(df["column_name"].values.tolist())
                 other_columns = [ column for column in df.columns if column != "column_name" ]
                 for each in conditions:
@@ -761,116 +770,15 @@ class Method:
             self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_metadata)
             self.value_getters.sg_rna_strength_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA strength file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.uninduced_atc_file        = panel_helpers.create_file_input(panel, main_sizer, button_label="uninduced ATC file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # self.value_getters.control_condition         = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Control condition", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # self.value_getters.drug                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Drug", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # self.value_getters.days                      = panel_helpers.create_text_box_getter(panel, main_sizer, label_text="Days", default_value="", tooltip_text="", label_size=None, widget_size=None,)
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
             )
-            # panel_helpers.create_float_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_int_getter(panel, main_sizer, label_text="", default_value=0, tooltip_text="")
-            # panel_helpers.create_file_input(panel, main_sizer, button_label="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
-            # panel_helpers.create_choice_input(panel, main_sizer, label="", options=[], default_option=None, tooltip_text="")
-            # panel_helpers.create_text_box_getter(panel, main_sizer, label_text="", default_value="", tooltip_text="", label_size=None, widget_size=None,)
-            # panel_helpers.create_check_box_getter(panel, main_sizer, label_text="", default_value=False, tooltip_text="", widget_size=None)
-            # @panel_helpers.create_button(panel, main_sizer, label="")
-            # def when_button_clicked(event):
-            #     print("do stuff")
-            # @panel_helpers.create_button(panel, main_sizer, label="Show pop up")
-            # def when_button_clicked(event):
-            #     from pytransit.components import pop_up
-            #     @pop_up.create_pop_up(panel)
-            #     def create_pop_up_contents(pop_up_panel, sizer, refresh, close):
-            #
-            #         @panel_helpers.create_button(pop_up_panel, sizer, label="Click me for pop up")
-            #         def when_button_clicked(event):
-            #             print("do stuff")
+            
 
     @staticmethod
     def from_gui(frame):
         import pandas as pd
         arguments = LazyDict()
-
-        #
-        # global data
-        #
-            # # HANDLE_THIS
-            # gui.is_active  # false if using command line
-            # gui.frame  # self.wxobj equivalent
-            # gui.busy_running_method  # Boolean, is true when any run-button function is started but not finished
-            # gui.samples  # list of Wig objects
-            # gui.conditions  # list of Condition objects
-            # gui.selected_samples  # list of Wig objects
-            # gui.selected_conditions  # list of Condition objects
-            # gui.selected_condition_names  # list of strings
-            # gui.conditions[0].name  # string
-            # gui.conditions[
-            #     0
-            # ].extra_data  # dict (currently unused, but would show up as columns in the condition GUI table)
-            # gui.wigs_in_selected_conditions  # list of Wig objects
-            # gui.combined_wigs  # list of CombinedWig objects
-            # gui.combined_wigs[-1].main_path
-            # gui.combined_wigs[-1].metadata_path
-            # gui.combined_wigs[-1].annotation_path
-            # gui.combined_wigs[
-            #     -1
-            # ].rows  # equivalent to the CSV rows of .comwig file; a list of lists, can contain numbers and strings
-            # gui.combined_wigs[
-            #     -1
-            # ].as_tuple  # (numpy.array(sites), numpy.array(counts_by_wig), wig_fingerprints)
-            # gui.combined_wigs[-1].ta_sites
-            # gui.combined_wigs[-1].read_counts_array[row_index, wig_index]
-            # gui.combined_wigs[-1].read_counts_by_wig_fingerprint[wig_index, row_index]
-            # gui.combined_wigs[-1].wig_ids  # same order as columns/wig_fingerprints
-            # gui.combined_wigs[-1].wig_fingerprints  # same order as #File: columns
-            # gui.combined_wigs[-1].condition_names  # list of condition strings
-            # gui.combined_wigs[-1].conditions  # list of condition objects
-            # gui.combined_wigs[-1].with_only(
-            #     condition_names=[], wig_fingerprints=[], wig_ids=[]
-            # )  # returns a copy that has columns/rows filtered out
-            # gui.combined_wigs[-1].samples  # list of Wig objects
-            # gui.combined_wigs[-1].samples[0].id  # id from the metadata file
-            # gui.combined_wigs[-1].samples[
-            #     0
-            # ].fingerprint  # the "File" column from the metadata
-            # gui.combined_wigs[-1].samples[0].condition_names  # a list of strings
-            # gui.combined_wigs[-1].samples[0].ta_sites  # list of ints
-            # gui.combined_wigs[-1].samples[0].insertion_counts  # list of numbers
-            # gui.combined_wigs[-1].samples[
-            #     0
-            # ].rows  # each element is always [position_number, insertion_count]
-            # gui.combined_wigs[-1].samples[
-            #     0
-            # ].column_index  # int (column inside combined wig)
-            # gui.combined_wigs[-1].samples[0].extra_data.count
-            # gui.combined_wigs[-1].samples[0].extra_data.sum
-            # gui.combined_wigs[-1].samples[0].extra_data.non_zero_mean
-            # gui.combined_wigs[-1].samples[0].extra_data.non_zero_median
-            # gui.combined_wigs[-1].samples[0].extra_data.density
-            # gui.combined_wigs[-1].samples[0].extra_data.mean
-            # gui.combined_wigs[-1].samples[0].extra_data.max
-            # gui.combined_wigs[-1].samples[0].extra_data.skew
-            # gui.combined_wigs[-1].samples[0].extra_data.kurtosis
-            # gui.combined_wigs[-1].metadata  # CombinedWigMetadata object
-            # gui.combined_wigs[-1].metadata.path
-            # gui.combined_wigs[-1].metadata.headers
-            # gui.combined_wigs[-1].metadata.rows
-            # gui.combined_wigs[-1].metadata.conditions
-            # gui.combined_wigs[-1].metadata.condition_names
-            # gui.combined_wigs[-1].metadata.wig_ids
-            # gui.combined_wigs[-1].metadata.wig_fingerprints
-            # gui.combined_wigs[-1].metadata.with_only(
-            #     condition_names=[], wig_fingerprints=[]
-            # )
-            # gui.combined_wigs[-1].metadata.condition_for(
-            #     wig_fingerprint
-            # )  # will need to change to "conditions" instead of "condition"
-            # gui.combined_wigs[-1].metadata.condition_for(
-            #     wig_id
-            # )  # will need to change to "conditions" instead of "condition"
-            # gui.combined_wigs[-1].metadata.id_for(wig_fingerprint)
-            # gui.combined_wigs[-1].metadata.fingerprints_for(condition_name)
-
         #
         # call all GUI getters, puts results into respective arguments key-value
         #
@@ -894,7 +802,7 @@ class Method:
             return None
         
         with transit_tools.TimerAndOutputs(
-            method_name=Method.identifier,
+            method_name=f"{Method.identifier} extracting abundance",
             output_paths=[arguments.output_path],
             disable=False,
         ) as timer:
@@ -908,62 +816,15 @@ class Method:
                 days=arguments.days,
                 fractional_abundance_file=None,
             )
+            frac_abund_file = misc.inject_path_extension(path=arguments.output_path, extension="abundances")
+            df.to_csv(frac_abund_file, sep="\t", encoding='utf-8', index=False)
+        
             print(f'''df = {df}''')
             Method.run_model(
-                df,
-                arguments.output_path,
+                frac_abund_file=frac_abund_file,
+                frac_abund_df=df,
+                cdr_output_file=arguments.output_path,
             )
-
-    @staticmethod
-    def output(
-        *,
-        combined_wig,
-        output_path,
-        normalization=None,
-        n_terminus=None,
-        c_terminus=None,
-        disable_logging=False,
-    ):
-        # Defaults (even if argument directly provided as None)
-        normalization = normalization if normalization is not None else "TTR"
-        n_terminus = n_terminus if n_terminus is not None else 0.0
-        c_terminus = c_terminus if c_terminus is not None else 0.0
-
-        with transit_tools.TimerAndOutputs(
-            method_name=Method.identifier,
-            output_paths=[output_path],
-            disable=disable_logging,
-        ) as timer:
-            #
-            # process data
-            #
-            if True:
-                rows, summary_info = [], []  # compute stuff here # HANDLE_THIS
-
-            #
-            # write output
-            #
-            if True:
-                logging.log(f"Adding File: {output_path}")
-                #
-                # write to file
-                #
-                transit_tools.write_result(
-                    path=output_path,  # path=None means write to STDOUT
-                    file_kind=Method.identifier,
-                    rows=rows,
-                    column_names=[
-                        # HANDLE_THIS
-                    ],
-                    extra_info=dict(
-                        stats=dict(summary_info),  # HANDLE_THIS
-                        parameters=dict(
-                            normalization=normalization,
-                            n_terminus=n_terminus,
-                            c_terminus=c_terminus,
-                        ),
-                    ),
-                )
 
 @transit_tools.ResultsFile
 class CgiResult:
@@ -986,13 +847,11 @@ class CgiResult:
                     heading=self.comments_string or misc.human_readable_data(self.extra_data),
                     column_names=self.column_names,
                     rows=self.rows,
-                    sort_by=[
-                        # HANDLE_THIS
-                    ],
+                    sort_by=[],
                 ).Show(),
-                "Display Heatmap": lambda *args: (
+                "Display Gene": lambda *args: (
                     Method.visualize(
-                        frac_abund_file=self.values_for_result_table.get("frac_abund_file", None),
+                        fractional_abundances_file=self.values_for_result_table.get("frac_abund_file", None),
                         gene=gui_tools.ask_for_text(label_text="Gene name"),
                         fig_location=None,
                         fixed="",
