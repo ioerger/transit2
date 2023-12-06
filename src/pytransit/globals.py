@@ -1,5 +1,5 @@
 from random import random, seed
-from os import getcwd, path
+from os import getcwd, path, getenv
 import sys
 
 import numpy
@@ -10,7 +10,7 @@ from pytransit.generic_tools.lazy_dict import LazyDict, stringify, indent
 from pytransit.generic_tools.named_list import named_list
 from pytransit.generic_tools.misc import flatten_once, no_duplicates, singleton
 
-debugging_enabled = False
+debugging_enabled = not not getenv("DEBUG")
 root_folder       = path.join(path.dirname(__file__),"../../")
 
 # 
