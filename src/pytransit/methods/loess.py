@@ -46,48 +46,50 @@ class Method:
             TAsites = position_per_line 
             counts = numpy.mean(read_counts_per_wig,axis=0)
             win = 1000 # 1kb
+            rounded_ta_sites = (TAsites/win).astype(int)*win
             buckets = {}
-            for i in range(len(TAsites)):
-              coord,cnt = TAsites[i],counts[i]
-              b = int(coord/float(win))
-              if b not in buckets: buckets[b] = []
-              buckets[b].append(cnt)
-            X = sorted(buckets.keys())
-            Y = [numpy.mean(buckets[x]) for x in X]
-            Xbp = [x*win for x in X]
-            fit = lowess(exog=Xbp,endog=Y) # using statsmodels; note: previously, stat_tools.loess(x_w, y_w, h=10000) was being called
+            for b, cnt in zip(rounded_ta_sites, counts):
+                if b not in buckets:
+                    buckets[b] = []
+                buckets[b].append(cnt)
+            sorted_keys = tuple(sorted(buckets.keys()))
+            Y = [numpy.mean(buckets[key]) for key in sorted_keys]
+            X = tuple(sorted_keys)
+            Y_normalized = stat_tools.loess_correction(X=X,Y=Y)
 
-            fig, ((ax3, ax4), (ax1, ax2)) = plt.subplots(2, 2)
-            fig.set_figheight(9)
+            fit = lowess(exog=X,endog=Y_normalized) # using statsmodels; note: previously, stat_tools.loess(x_w, y_w, h=10000) was being called
+            fit_no_correction = lowess(exog=X,endog=Y)
+
+            fig, ((ax1, ax3)) = plt.subplots(1, 2)
+            # fig, ((ax1, ax3), (ax2, ax4)) = plt.subplots(2, 2)
+            fig.set_figheight(5)
             fig.set_figwidth(10)
 
-            ax1.plot(Xbp,Y, "y+")
+            ax1.plot(X,Y, "g+")
+            ax1.plot(fit_no_correction[:,0],fit_no_correction[:,1], "b-")
             ax1.set_xlabel("Genomic Position (bp)")
-            ax1.set_ylabel("mean insertion count over %sbp windows" % win)
+            ax1.set_ylabel("(log-scale) mean insertion count over %sbp windows" % win)
             ax1.set_yscale("log")
-            ax1.set_title("Fit Before Correction (log-scale)")
+            ax1.set_title("Before Correction")
 
-            ax2.plot(Xbp,Y, "y+")
-            ax2.set_xlabel("Genomic Position (bp)")
-            ax2.set_ylabel("mean insertion count over %sbp windows" % win)
-            ax2.set_title("Fit Before Correction")
+            # ax2.plot(X,Y, "g+")
+            # ax2.plot(fit_no_correction[:,0],fit_no_correction[:,1], "b-")
+            # ax2.set_xlabel("Genomic Position (bp)")
+            # ax2.set_ylabel("mean insertion count over %sbp windows" % win)
+            # ax2.set_title("Fit Before Correction")
             
-            ax3.plot(Xbp,Y, "g+")
+            ax3.plot(X,Y, "y+")
             ax3.plot(fit[:,0],fit[:,1], "b-")
             ax3.set_xlabel("Genomic Position (bp)")
-            ax3.set_ylabel("mean insertion count over %sbp windows" % win)
+            # ax3.set_ylabel("mean insertion count over %sbp windows" % win)
             ax3.set_yscale("log")
-            ax3.set_title("LOESS Fit (log-scale)")
+            ax3.set_title("After LOESS Correction")
 
-            ax4.plot(Xbp,Y, "g+")
-            ax4.plot(fit[:,0],fit[:,1], "b-")
-            ax4.set_xlabel("Genomic Position (bp)")
-            ax4.set_ylabel("mean insertion count over %sbp windows" % win)
-            ax4.set_title("LOESS Fit")
+            # ax4.plot(X,Y, "y+")
+            # ax4.plot(fit[:,0],fit[:,1], "b-")
+            # ax4.set_xlabel("Genomic Position (bp)")
+            # ax4.set_ylabel("mean insertion count over %sbp windows" % win)
+            # ax4.set_title("LOESS Fit")
             
-            m,s = numpy.max(fit[:,1]),numpy.std(Y)
-            ax2.set_ylim(0,m+2*s)
-            ax4.set_ylim(0,m+2*s)
-
             plt.show()
 
