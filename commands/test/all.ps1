@@ -61,23 +61,27 @@ for (const eachItem of paths) {
     }
     // run all the tests
     for (const eachFile of await FileSystem.listFileItemsIn(eachItem.path)) {
-        const permissions = await FileSystem.getPermissions({path:eachFile.path})
-        const isExecutable = (permissions.owner.canExecute || permissions.group.canExecute || permissions.others.canExecute)
-        if (!isExecutable) {
-            continue
-        }
-        let outputPath
-        if (!flags.dontSave) {
-            outputPath = `${eachFile.path}.output`
-        } else {
-            outputPath = `${eachFile.path}.ignore.output`
-        }
-        await Deno.stdout.write(new TextEncoder().encode(`    Running: ${JSON.stringify(outputPath)}\r`))
-        var {success} = await run`${eachFile.path} ${Out(Overwrite(outputPath))}`
-        if (success) {
-            console.log(`    Passed: ${JSON.stringify(outputPath)}  `)
-        } else {
-            console.log(`    FAILED: ${JSON.stringify(outputPath)}  `)
+        try {
+            const permissions = await FileSystem.getPermissions({path:eachFile.path})
+            const isExecutable = (permissions.owner.canExecute || permissions.group.canExecute || permissions.others.canExecute)
+            if (!isExecutable) {
+                continue
+            }
+            let outputPath
+            if (!flags.dontSave) {
+                outputPath = `${eachFile.path}.output`
+            } else {
+                outputPath = `${eachFile.path}.ignore.output`
+            }
+            await Deno.stdout.write(new TextEncoder().encode(`    Running: ${JSON.stringify(outputPath)}\r`))
+            var {success} = await run`${eachFile.path} ${Out(Overwrite(outputPath))}`
+            if (success) {
+                console.log(`    Passed: ${JSON.stringify(outputPath)}  `)
+            } else {
+                console.log(`    FAILED: ${JSON.stringify(outputPath)}  `)
+            }
+        } catch (error) {
+            console.error(`    Error running: ${eachFile}`)
         }
     }
 }
