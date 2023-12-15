@@ -42,7 +42,7 @@ class Method:
             # get read_counts and positions
             # 
             window = 100
-            h      = 20_000
+            h      = 1000
             X, Y = Method.bucketize1(ta_sites=ta_sites, insertion_counts=insertion_counts, window=window)
             smooth      = lambda y_values: stat_tools.smooth_for_loess(X=X, Y=y_values, h=h)
             correct     = lambda y_values: stat_tools.loess_correction2(X=X, Y=y_values, h=h, window=window, should_bucketize=True, should_smooth=False)
@@ -129,11 +129,11 @@ class Method:
             
             ax1.plot(X,Y, "y+")
             ax1.plot(X,Y_smoothed, "b-", label='Before Correction',color="blue")
-            ax1.plot(X,Y_corrected, "g-", label='After Correction',color="green")
+            ax1.plot(X,Y_corrected_and_smoothed, "g-", label='After Correction',color="green")
             ax1.set_xlabel("Genomic Position (bp)")
             ax1.set_ylabel("(log-scale) mean insertion count over %sbp windows" % window)
             ax1.set_yscale("log")
-            ax1.set_title("Before Correction")
+            ax1.set_title("LOESS Correction")
             plt.legend()
             
             # ax2.plot(X,Y, "g+")
