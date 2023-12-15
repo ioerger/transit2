@@ -704,10 +704,6 @@ class Method:
         else:
             plt.savefig(fig_location+".png")
 
-    @gui.add_wig_area_dropdown_option(name=name)
-    def on_wig_option_click():
-        logging.log("You clicked a dropdown option")
-
     @gui.add_menu("Method", "CRISPRi", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
