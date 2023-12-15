@@ -96,6 +96,11 @@ class Wig:
         positions = wig_objects[0].ta_sites
         read_counts_per_wig = [ each_wig.insertion_counts for each_wig in wig_objects ]
         return numpy.array(read_counts_per_wig), numpy.array(positions)
+    
+    @staticmethod
+    def read(path):
+        comments, headers, rows = csv.read(self.path, seperator="\t", first_row_is_column_names=True, comment_symbol="#")
+        return Wig(rows=rows, id=None, fingerprint=None, condition_names=tuple(), column_index=None, extra_data=None)
 
 class Condition:
     def __init__(self, name, extra_data=None):
