@@ -517,17 +517,18 @@ class Method:
             return
 
         abund_df = pd.read_csv(fractional_abundances_file, sep="\t", comment="#")
-        available_genes = list(set(abund_df["gene"].values.tolist())) + list(set(abund_df["orf"].values.tolist()))
-        assert gene in available_genes, f"Gene {gene}, was not one of the available genes: {repr(available_genes)}"
         
-        abund_df["gene"] = tuple(each.lower() for each in abund_df["gene"].values)
-        abund_df["orf"] = tuple(each.lower() for each in abund_df["orf"].values)
+        abund_df_lowercased = pd.DataFrame(abund_df)
+        abund_df_lowercased["gene"] = tuple(each.lower() for each in abund_df["gene"].values)
+        abund_df_lowercased["orf"] = tuple(each.lower() for each in abund_df["orf"].values)
         gene_no_case = gene.lower()
-        abund_df_filtered = abund_df[(abund_df["gene"] == gene_no_case) | (abund_df["orf"] == gene_no_case)]
+        abund_df_filtered = abund_df_lowercased[(abund_df_lowercased["gene"] == gene_no_case) | (abund_df_lowercased["orf"] == gene_no_case)]
         if len(abund_df_filtered) == 0:
-            logging.error(f"Gene not found : {gene}\n")
+            available_genes = list(set(abund_df["gene"].tolist()+abund_df["orf"].tolist()))
+            logging.error(f"Gene {gene}, was not one of the available genes: {repr(available_genes)}")
         abund_df = abund_df_filtered.reset_index(drop=True)
         all_slopes = []
+        
         
 
         df_list = []
@@ -868,7 +869,7 @@ class CgiResult:
                 "Display Gene": lambda *args: (
                     Method.visualize(
                         fractional_abundances_file=self.values_for_result_table.get("frac_abund_file", None),
-                        gene=gui_tools.ask_for_text(label_text="Gene name"),
+                        gene=gui_tools.ask_for_text(label_text="Gene name(s) or ORF Id"),
                         fig_location=None,
                         fixed="",
                         origx=False,
