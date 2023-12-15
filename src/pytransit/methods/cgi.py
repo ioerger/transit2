@@ -505,6 +505,7 @@ class Method:
         # if given multiple genes, call self with each
         if "," in gene:
             for each_gene in gene.split(","):
+                each_gene = each_gene.strip()
                 self.visualize(
                     fractional_abundances_file=fractional_abundances_file,
                     gene=each_gene,
