@@ -186,7 +186,7 @@ def ask_for_text(tooltip_text="", label_text="",default_value=""):
                 border=default_padding,
             )
             # a spacer because the border doesn't seem to actually work
-            inner_sizer.Add(10, default_padding)
+            inner_sizer.Add(1, default_padding)
             if label_text != None:
                 label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, default_label_size, 0)
                 label.Wrap(-1)
@@ -196,6 +196,7 @@ def ask_for_text(tooltip_text="", label_text="",default_value=""):
                     flag=wx.ALIGN_CENTER_VERTICAL,
                     border=default_padding,
                 )
+            
             return inner_sizer
         
         def define_text_box(
@@ -236,6 +237,7 @@ def ask_for_text(tooltip_text="", label_text="",default_value=""):
         
         win.Layout()
         popup_sizer.Fit(win)
+        win.DoSetSize(100, 100, 320, 100, 0)
         res = win.ShowModal()
         if res == wx.ID_OK:
             results = text_wxobj.GetValue()
