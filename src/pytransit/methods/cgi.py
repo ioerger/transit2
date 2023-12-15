@@ -512,7 +512,7 @@ class Method:
                     fig_location=fig_location,
                     fixed=fixed,
                     origx=origx,
-                    orig=origy
+                    origy=origy,
                 )
             return
 
