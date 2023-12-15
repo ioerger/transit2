@@ -501,6 +501,19 @@ class Method:
         import numpy as np
         import statsmodels.api as sm
         import re
+        
+        # if given multiple genes, call self with each
+        if "," in gene:
+            for each_gene in gene.split(","):
+                self.visualize(
+                    fractional_abundances_file=fractional_abundances_file,
+                    gene=each_gene,
+                    fig_location=fig_location,
+                    fixed=fixed,
+                    origx=origx,
+                    orig=origy
+                )
+            return
 
         abund_df = pd.read_csv(fractional_abundances_file, sep="\t", comment="#")
         available_genes = list(set(abund_df["gene"].values.tolist())) + list(set(abund_df["orf"].values.tolist()))
