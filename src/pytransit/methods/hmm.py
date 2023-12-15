@@ -633,13 +633,13 @@ class Method:
                 # 
                 column_names = GeneFile.column_names
                 extra_data_info = {}
-                if not self.inputs.conf_on:
+                if self.inputs.conf_on:
                     column_names = column_names + HmmConfidenceHelper.column_names
-                    row_extensions, header_info = HmmConfidenceHelper.compute_row_extensions(rows)
+                    row_extensions, conf_comments = HmmConfidenceHelper.compute_row_extensions(rows)
                     from collections import Counter
                     for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
                         rows[index] = tuple(each_row) + tuple(each_extension)
-                    extra_data_info["Confidence Summary"] = header_info
+                    extra_data_info["Confidence Summary"] = conf_comments
                     # TODO:
                         # add metrics: 
                         # - low-confidence count (flags count)
@@ -661,10 +661,12 @@ class Method:
                         "GA": "insertions confer growth-advantage",
                         "N/A": "not analyzed (genes with 0 TA sites)",
                     },
+                    **extra_data_info,
                 },
             )
 
 
+import numpy
 class HmmConfidenceHelper:
     states = ["ES","GD","NE","GA"]
     column_names = [
@@ -676,174 +678,141 @@ class HmmConfidenceHelper:
         "Confidence",
         "Flag",
     ]
-    
-    @staticmethod
-    def extract_data_from_rows(rows):
-        consistency_values = []
-        orf_ids            = []
-        mean_insertions_per_gene    = {}
-        nz_means_per_gene           = {}
-        calls_per_gene              = {}
-        for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
-            mean_insertions_per_gene[orf] = mean_insertions
-            nz_means_per_gene[orf]        = mean_reads
-            calls_per_gene[orf]           = state_call
-            if total_sites == 0:
-                continue
-            orf_ids.append(orf)
-            consistency = max([ es_count, gd_count, ne_count, ga_count ]) / float(total_sites)
-            consistency_values.append(consistency)
-        
-        return consistency_values, calls_per_gene, orf_ids, nz_means_per_gene, mean_insertions_per_gene
-    
-    @staticmethod
-    def first_pass(rows, debug=False):
-        from statistics import stdev, mean
-        consistency_values, calls_per_gene, orf_ids, nz_means_per_gene, mean_insertions_per_gene = HmmConfidenceHelper.extract_data_from_rows(rows)
-        
-        debug and print("# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(consistency_values), 4)))
-        mean_sats, mean_non_zero_means = {}, {}
-        stdev_sats, stdev_non_zero_means = {}, {}
-        
-        header_info = {}
-        
-        debug and print("# state posterior probability distributions:")
-        for each_state in ["ES", "GD", "NE", "GA"]:
-            relevent_orf_ids = [ each_orf_id for each_orf_id in orf_ids if calls_per_gene[each_orf_id] == each_state ]
-            
-            mean_insertions = tuple(mean_insertions_per_gene[orf_id] for orf_id in relevent_orf_ids)
-            mean_sat        = mean(mean_insertions)
-            stdev_sat       = stdev(mean_insertions)
-            
-            nz_means            = tuple(nz_means_per_gene[orf_id] for orf_id in relevent_orf_ids)
-            mean_non_zero_mean  = mean(nz_means)
-            stdev_non_zero_mean = stdev(nz_means)
-            header_info[each_state] = f"{each_state}: genes={len(relevent_orf_ids)}, mean_sat={round(mean_sat, 3)}, std_sat={round(stdev_sat, 3)}, mean_nz_mean={round(mean_non_zero_mean, 1)}, stdev_nz_mean={round(stdev_non_zero_mean, 1)}"
-            mean_sats[each_state]            = mean_sat
-            mean_non_zero_means[each_state]  = mean_non_zero_mean
-            stdev_sats[each_state]           = stdev_sat # NOTE: original was being assigned to mean_sat (pretty sure it was a bug) --Jeff
-            stdev_non_zero_means[each_state] = stdev_non_zero_mean
-        
-        return mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means, header_info
 
-    @staticmethod
-    def second_pass(
-        rows,
-        mean_non_zero_means,
-        mean_sats,
-        stdev_sats,
-        stdev_non_zero_means,
-        low_confidence_threshold=0.5,
-        max_probability_threshold=0.7,
-        relative_probability_threshold=0.25,
-        precision_of_consistency=3, 
-        precision_of_confidence=4,
-        precision_of_probabilities=6,
-    ):
-        row_extensions = []
+    def calc_probs(nzmean, mean_params, sat):
+        probs = []
+        for state in HmmConfidenceHelper.states:
+            mean_means, std_means = mean_params[state]
+            probs.append(
+                0
+                if mean_means < 0
+                else scipy.stats.norm.pdf(sat * nzmean, loc=mean_means, scale=std_means)
+            )
+        
+        def normalize(L):
+            tot = float(sum(L))
+            return [x / tot for x in L]
+        
+        return normalize(probs)
+    
+    def first_pass(rows):
+        consistency_values = []
+        mean_insertions_per_gene = {}
+        nz_means_per_gene = {}
+        calls_per_gene = {}
+        mean_something_per_gene = {}
+        ta_site_count_per_gene = {}
         for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
+            total_sites = int(total_sites)
             if total_sites == 0:
-                row_extensions.append(tuple())
                 continue
             
-            probabilities = [
-                HmmConfidenceHelper.calc_probability(
-                    sat=mean_insertions,
-                    non_zero_mean=mean_reads,
-                    mean_sat=mean_sats[each_state],
-                    stdev_sat=stdev_sats[each_state],
-                    mean_non_zero_mean=mean_non_zero_means[each_state],
-                    stdev_non_zero_mean=stdev_non_zero_means[each_state],
-                )
-                    for each_state in HmmConfidenceHelper.states
-            ]
-            to_t_prob = float(sum(probabilities))
-            relative_probabilites = [each / to_t_prob for each in probabilities]
-            confidence = relative_probabilites[HmmConfidenceHelper.states.index(state_call)]
-            flag = ""
-            if confidence < low_confidence_threshold:
-                flag = "low-confidence"
-            
-            # NOTE: should this if be an elif? --Jeff
-            if max(relative_probabilites) < max_probability_threshold:
-                probability_of_es, probability_of_gd, probability_of_ne, probability_of_ga = relative_probabilites
-                
-                if (state_call == "ES" or state_call == "GD") and (
-                    probability_of_es > relative_probability_threshold and probability_of_gd > relative_probability_threshold
-                ):
-                    flag = "ambiguous"
-                if (state_call == "GD" or state_call == "NE") and (
-                    probability_of_gd > relative_probability_threshold and probability_of_ne > relative_probability_threshold
-                ):
-                    flag = "ambiguous"
-                if (state_call == "NE" or state_call == "GA") and (
-                    probability_of_ne > relative_probability_threshold and probability_of_ga > relative_probability_threshold
-                ):
-                    flag = "ambiguous"
-            
-            consistency = max([ es_count, gd_count, ne_count, ga_count ]) / float(total_sites)
-            rounded_relative_probabilites = [ round(each, precision_of_probabilities) for each in relative_probabilites ]
-            
-            row_extensions.append((
-                round(consistency, precision_of_consistency),
-                *rounded_relative_probabilites,
-                round(confidence, precision_of_confidence),
-                flag,
-            ))
-        
-        return row_extensions
+            mean_insertions_per_gene[orf] = float(mean_insertions)
+            nz_means_per_gene[orf]        = float(mean_reads)
+            mean_something_per_gene[orf]  = mean_insertions_per_gene[orf] * nz_means_per_gene[orf]
+            ta_site_count_per_gene[orf]   = total_sites
+            calls_per_gene[orf]           = state_call
+            votes = [int(x) for x in [ es_count, gd_count, ne_count, ga_count ]]
+            consistency = max(votes) / float(total_sites)
+            consistency_values.append(consistency)
+
+        return consistency_values, calls_per_gene, nz_means_per_gene, mean_insertions_per_gene, mean_something_per_gene, ta_site_count_per_gene
     
-    @staticmethod
-    def calc_probability(sat, non_zero_mean, mean_sat, stdev_sat, mean_non_zero_mean, stdev_non_zero_mean,):
-        a = scipy.stats.norm.pdf(sat, loc=mean_sat, scale=stdev_sat)
-        b = scipy.stats.norm.pdf(non_zero_mean, loc=mean_non_zero_mean, scale=stdev_non_zero_mean)
-        return a * b
-            
-    @staticmethod
     def compute_row_extensions(
         rows,
-        low_confidence_threshold=0.5,
-        max_probability_threshold=0.7,
-        relative_probability_threshold=0.25,
-        precision_of_consistency=3,
-        precision_of_confidence=4,
-        precision_of_probabilities=6,
+        pseudo_count=0.01, # shrink range of saturation form [0,1] to [0.01,0.99] to prevent nan's from Beta
     ):
-        # convert some row elements to numbers
-        rows = [
-            (
-                orf,
-                gene_name,
-                description,
-                int(total_sites),
-                int(es_count),
-                int(gd_count),
-                int(ne_count),
-                int(ga_count),
-                float(mean_insertions),
-                float(mean_reads),
-                state_call
-            )
-                for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows
-        ]
-        mean_non_zero_means, mean_sats, stdev_sats, stdev_non_zero_means, header_info = HmmConfidenceHelper.first_pass(
-            rows
+        consistency_values, calls_per_gene, nz_means_per_gene, mean_insertions_per_gene, mean_something_per_gene, ta_site_count_per_gene = HmmConfidenceHelper.first_pass(rows)
+        
+        output_comments = ["# HMM confidence info:"]
+        output_comments.append(
+            "# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(consistency_values), 4))
         )
-        row_extensions = HmmConfidenceHelper.second_pass(
-            rows,
-            mean_non_zero_means,
-            mean_sats,
-            stdev_sats,
-            stdev_non_zero_means,
-            low_confidence_threshold=low_confidence_threshold,
-            max_probability_threshold=max_probability_threshold,
-            relative_probability_threshold=relative_probability_threshold,
-            precision_of_consistency=precision_of_consistency,
-            precision_of_confidence=precision_of_confidence,
-            precision_of_probabilities=precision_of_probabilities,
-        )
-        return row_extensions, header_info
 
+        orf_ids = [x[0] for x in rows]
+
+        sat_params = {}
+        nz_mean_params = {}
+        mean_params = {}
+
+        output_comments.append("# state posterior probability distributions:")
+        for state in HmmConfidenceHelper.states:
+            sub = [ orf for orf in orf_ids if calls_per_gene.get(orf) == state ]
+            nzmeans = [nz_means_per_gene[orf] for orf in sub]
+            sats = [mean_insertions_per_gene[orf] for orf in sub]
+            means = [mean_something_per_gene[orf] for orf in sub]
+
+            mean_sat = numpy.mean(sats)
+            std_sat = numpy.std(sats)
+            med_nz_means = numpy.median(nzmeans)
+            iqr_nz_means = scipy.stats.iqr(nzmeans)
+            mean_means = (
+                -999 if len(means) == 0 else numpy.median(means)
+            )  # -999 if there are no GA genes, for example
+            std_means = max(
+                1.0, 0.7314 * scipy.stats.iqr(means)
+            )  # don't let stdev collapse to 0 for ES
+
+            # model nz_mean with robust Normal distribution: use median and IQR
+            sigma = 0.7413 * iqr_nz_means
+            sigma = max(0.01, sigma)  # don't let it collapse to 0
+            nz_mean_params[state] = (med_nz_means, sigma)
+
+            # model saturation as Beta distribution, fit by method of moments:
+            # https://real-statistics.com/distribution-fitting/method-of-moments/method-of-moments-beta-distribution/
+            alpha = mean_sat * ((mean_sat * (1.0 - mean_sat) / (std_sat * std_sat) - 1.0))
+            beta = alpha * (1.0 - mean_sat) / mean_sat
+            sat_params[state] = (alpha, beta)
+            mean_params[state] = (mean_means, std_means)
+
+            # output_comments.append("#   Sat[%s]:    Beta(alpha=%s,beta=%s), E[sat]=%s" % (state,round(alpha,2),round(beta,2),round(alpha/(alpha+beta),3)))
+            # output_comments.append("#   nz_mean[%s]: Norm(mean=%s,stdev=%s)" % (state,round(nz_mean_params[state][0],2),round(nz_mean_params[state][1],2)))
+            output_comments.append(
+                "#   Mean[%s]:   Norm(mean=%s,stdev=%s)"
+                % (state, round(mean_params[state][0], 2), round(mean_params[state][1], 2))
+            )
+
+        # prob of each state is based Gaussian density for Mean count for each gene (combines Sat and nz_mean)
+
+        # second pass...
+        num_low_conf, num_ambig = 0, 0
+        row_extensions = []
+        for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
+            total_sites = int(total_sites)
+            if total_sites == 0:
+                continue
+            
+            votes = [int(x) for x in [es_count, gd_count, ne_count, ga_count]]
+            consistency = max(votes) / float(total_sites)
+            sat, nz_mean = float(mean_insertions), float(mean_reads)
+            sat = max(pseudo_count, min(1.0 - pseudo_count, sat))
+            probs = HmmConfidenceHelper.calc_probs(nz_mean, mean_params, sat)  # normalized
+            conf = probs[HmmConfidenceHelper.states.index(state_call)]
+            
+            flag = ""
+
+            if conf < 0.2:
+                flag = "low-confidence"
+            if conf >= 0.2 and conf != max(probs):
+                flag = "ambiguous"
+
+            if flag == "ambiguous":
+                num_ambig += 1
+            if flag == "low-confidence":
+                num_low_conf += 1
+
+            row_extension = (
+                [round(sat * nz_mean, 1), round(consistency, 3)]
+                + [round(x, 6) for x in probs]
+            )
+            row_extension += [round(conf, 4), flag]
+            row_extensions.append(row_extension)
+
+        output_comments.append(
+            "# num low-confidence genes=%s, num ambiguous genes=%s" % (num_low_conf, num_ambig)
+        )
+        
+        return row_extensions, output_comments
 
 @transit_tools.ResultsFile
 class SitesFile:

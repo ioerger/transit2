@@ -20,11 +20,7 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 class Method:
     name = "LOESS Plot"
     
-    # 
-    # LOESS
-    # 
-    @gui.add_wig_area_dropdown_option(name=name)
-    def click_show_loess(event):
+    def compute_for(read_counts_per_wig, position_per_line):
         with gui_tools.nice_error_log:
             import numpy
             import matplotlib
@@ -93,3 +89,10 @@ class Method:
             
             plt.show()
 
+    # 
+    # LOESS
+    # 
+    @gui.add_wig_area_dropdown_option(name=name)
+    def click_show_loess(event):
+        read_counts_per_wig, position_per_line = Wig.selected_as_gathered_data(wig_objects)
+        Method.compute_for(read_counts_per_wig, position_per_line)
