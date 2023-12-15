@@ -369,31 +369,32 @@ def tri_cube(X):
     result[ii] = numpy.power(1 - numpy.power(numpy.abs(X[ii]), 3), 3)
     return result
 
-def loess(X, Y, h=10000):
+def smooth_for_loess(X, Y, h=10000):
     """
-    Perform Locally Weighted Scatterplot Smoothing (LOESS) regression.
+        Perform Locally Weighted Scatterplot Smoothing (LOESS) regression.
 
-    Parameters:
-    - X (array-like): The independent variable values.
-    - Y (array-like): The dependent variable values.
-    - h (float, optional): The smoothing parameter (bandwidth). Default is 10000.
+        Parameters:
+        - X (array-like): The independent variable values.
+        - Y (array-like): The dependent variable values.
+        - h (float, optional): The smoothing parameter (bandwidth). Default is 10000.
 
-    Returns:
-    - numpy.ndarray: The Y values after applying LOESS smoothing.
+        Returns:
+        - numpy.ndarray: The Y values after applying LOESS smoothing.
 
-    Notes:
-    - This function implements the LOESS algorithm to fit a local regression line to the input data.
-    - The bandwidth (h) controls the size of the local neighborhood for each data point.
-    - Returns a smoothed version of the input Y values, capturing local trends in the data.
+        Notes:
+        - This function implements the LOESS algorithm to fit a local regression line to the input data.
+        - The bandwidth (h) controls the size of the local neighborhood for each data point.
+        - Returns a smoothed version of the input Y values, capturing local trends in the data.
 
-    Example:
-    >>> X = [1, 2, 3, 4, 5]
-    >>> Y = [3, 5, 8, 12, 9]
-    >>> smoothed_Y = loess(X, Y, h=2)
+        Example:
+        >>> X = [1, 2, 3, 4, 5]
+        >>> Y = [3, 5, 8, 12, 9]
+        >>> smoothed_Y = smooth_for_loess(X, Y, h=2)
     """
     smoothed = numpy.zeros(len(Y))
+    X = numpy.array(X)
     for i, x in enumerate(X):
-        W = tricube((X - x) / float(h))
+        W = tri_cube((X - x) / float(h))
         sW = numpy.sum(W)
         wsX = numpy.sum(W * X)
         wsY = numpy.sum(W * Y)
@@ -404,46 +405,97 @@ def loess(X, Y, h=10000):
         smoothed[i] = B * x + A
     return smoothed
 
-# X is coords, Y is counts
-def loess_correction(X, Y, h=10000, window=100):
+import numpy as np
+from scipy.stats import norm
+
+def loess_correction1(X, Y, h=10000, window=100, should_bucketize=True, should_smooth=True, anti_correction=False):
     """
-    Apply Locally Weighted Scatterplot Smoothing (LOESS) correction to the input data.
+        Apply Locally Weighted Scatterplot Smoothing (LOESS) correction to the input data.
 
-    Parameters:
-    - X (array-like): The independent variable values.
-    - Y (array-like): The dependent variable values.
-    - h (float, optional): The smoothing parameter (bandwidth). Default is 10000.
-    - window (int, optional): The size of the moving window for local regression. Default is 100.
+        Parameters:
+        - X (array-like): The independent variable values.
+        - Y (array-like): The dependent variable values.
+        - h (float, optional): The smoothing parameter (bandwidth). Default is 10000.
+        - window (int, optional): The size of the moving window for local regression. Default is 100.
 
-    Returns:
-    - numpy.ndarray: The Y values after applying LOESS correction.
+        Returns:
+        - numpy.ndarray: The Y values after applying LOESS correction.
 
-    Notes:
-    - This function performs LOESS correction on the input data to address local variations.
-    - The LOESS algorithm is applied using the specified bandwidth (h) and moving window size (window).
-    - The result is a smoothed version of the input Y values, which can help mitigate noise and improve trend visibility.
+        Notes:
+        - This function performs LOESS correction on the input data to address local variations.
+        - The LOESS algorithm is applied using the specified bandwidth (h) and moving window size (window).
+        - The result is a smoothed version of the input Y values, which can help mitigate noise and improve trend visibility.
 
-    Example:
-    >>> X = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    >>> Y = [3, 5, 8, 12, 9, 7, 6, 4, 2, 1]
-    >>> corrected_Y = loess_correction(X, Y, h=5000, window=3)
+        Example:
+        >>> X = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        >>> Y = [3, 5, 8, 12, 9, 7, 6, 4, 2, 1]
+        >>> corrected_Y = loess_correction(X, Y, h=5000, window=3)
     """
     Y = numpy.array(Y)
     size = int(len(X) / window) + 1
-    x_w = numpy.zeros(size)
-    y_w = numpy.zeros(size)
-    for i in range(size):
-        x_w[i] = window * i
-        y_w[i] = sum(Y[window * i : window * (i + 1)])
-
-    ysmooth = loess(x_w, y_w, h)
+    if not should_bucketize:
+        x_w = X
+        y_w = Y
+    else:
+        x_w = numpy.zeros(size)
+        y_w = numpy.zeros(size)
+        for i in range(size):
+            x_w[i] = window * i
+            y_w[i] = sum(Y[window * i : window * (i + 1)])
+        
+    if should_smooth:
+        y_w = smooth_for_loess(x_w, y_w, h)
+    
     mline = numpy.mean(y_w)
 
     normalized_Y = numpy.zeros(len(Y))
     for i in range(size):
-        normalized_Y[window * i : window * (i + 1)] = Y[window * i : window * (i + 1)] / (ysmooth[i] / mline)
+        if anti_correction:
+            normalized_Y[window * i : window * (i + 1)] = Y[window * i : window * (i + 1)] * (y_w[i] / mline)
+        else:
+            normalized_Y[window * i : window * (i + 1)] = Y[window * i : window * (i + 1)] / (y_w[i] / mline)
 
     return normalized_Y
+
+def loess_correction2(X, Y, h=10000, window=100, should_bucketize=False, should_smooth=False, anti_correction=False):
+    """
+        Perform LOESS correction on the input data.
+
+        Parameters:
+        - X: numpy array, input coordinates
+        - Y: numpy array, input counts
+        - h: float, smoothing parameter (bandwidth)
+        - window: int, number of neighboring points to consider in each local fit
+
+        Returns:
+        - numpy array, corrected Y values
+    """
+
+    n = len(X)
+    corrected_Y = np.zeros_like(Y, dtype=float)
+
+    for i in range(n):
+        # Calculate weights based on the distance between X[i] and other points
+        weights = np.exp(-(X - X[i]) ** 2 / (2 * h ** 2))
+        
+        # Get the indices of the closest neighbors
+        neighbors_indices = np.argsort(np.abs(X - X[i]))[:window]
+        neighbors_indices = neighbors_indices.astype(int)
+
+        # Apply the weights only to the neighboring points
+        weights = weights[neighbors_indices]
+        neighbors_Y = Y[neighbors_indices]
+
+        # Perform the local linear fit
+        A = np.vstack([np.ones(window), X[neighbors_indices] - X[i]]).T
+        w = np.diag(weights)
+        beta = np.linalg.inv(A.T @ w @ A) @ A.T @ w @ neighbors_Y
+
+        # Use the local fit to predict the corrected value for X[i]
+        corrected_Y[i] = beta[0] + beta[1] * (X[i] - X[i])
+
+    return corrected_Y
+
 
 def f_mean_diff_flat(*args, **kwargs):
     A = args[0]

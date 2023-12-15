@@ -325,3 +325,11 @@ def inject_path_extension(path, *, extension):
 
 from pytransit.generic_tools.cool_cache import cache, settings
 settings.default_folder = None # use in-memory storage
+
+
+
+go = None
+try:
+    import plotly.graph_objs as go
+except Exception as error:
+    pass
