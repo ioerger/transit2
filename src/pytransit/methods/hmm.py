@@ -636,6 +636,7 @@ class Method:
                     column_names = column_names + HmmConfidenceHelper.column_names
                     row_extensions, conf_comments = HmmConfidenceHelper.compute_row_extensions(rows)
                     from collections import Counter
+                    assert len(rows)==len(row_extensions),"row_extensions should match number of rows"
                     for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
                         rows[index] = tuple(each_row) + tuple(each_extension)
                     conf_info = {}
@@ -781,8 +782,9 @@ class HmmConfidenceHelper:
         for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
             total_sites = int(total_sites)
             if total_sites == 0:
+                row_extensions.append([""]*7) # blanks, to keep in register with rows (genes from HMM)
                 continue
-            
+
             votes = [int(x) for x in [es_count, gd_count, ne_count, ga_count]]
             consistency = max(votes) / float(total_sites)
             sat, nz_mean = float(mean_insertions), float(mean_reads)
@@ -811,8 +813,8 @@ class HmmConfidenceHelper:
 
         output_comments.append("# num low-confidence genes: %s" % num_low_conf)
         output_comments.append("# num ambiguous genes: %s" % num_ambig)
-        
-        return row_extensions, output_comments
+
+        return row_extensions, output_comments # it would have been safer to output extensions appended onto rows
 
 @transit_tools.ResultsFile
 class SitesFile:
