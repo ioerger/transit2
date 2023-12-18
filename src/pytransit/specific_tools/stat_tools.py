@@ -408,7 +408,7 @@ def smooth_for_loess(X, Y, h=10000):
 import numpy as np
 from scipy.stats import norm
 
-def loess_correction1(X, Y, h=10000, window=100, should_bucketize=True, should_smooth=True, anti_correction=False):
+def loess_correction(X, Y, h=10000, window=100, should_bucketize=True, should_smooth=True):
     """
         Apply Locally Weighted Scatterplot Smoothing (LOESS) correction to the input data.
 
@@ -450,51 +450,9 @@ def loess_correction1(X, Y, h=10000, window=100, should_bucketize=True, should_s
 
     normalized_Y = numpy.zeros(len(Y))
     for i in range(size):
-        if anti_correction:
-            normalized_Y[window * i : window * (i + 1)] = Y[window * i : window * (i + 1)] * (y_w[i] / mline)
-        else:
-            normalized_Y[window * i : window * (i + 1)] = Y[window * i : window * (i + 1)] / (y_w[i] / mline)
+       normalized_Y[window * i : window * (i + 1)] = Y[window * i : window * (i + 1)] / (y_w[i] / mline)
 
     return normalized_Y
-
-def loess_correction2(X, Y, h=10000, window=100, should_bucketize=False, should_smooth=False, anti_correction=False):
-    """
-        Perform LOESS correction on the input data.
-
-        Parameters:
-        - X: numpy array, input coordinates
-        - Y: numpy array, input counts
-        - h: float, smoothing parameter (bandwidth)
-        - window: int, number of neighboring points to consider in each local fit
-
-        Returns:
-        - numpy array, corrected Y values
-    """
-
-    n = len(X)
-    corrected_Y = np.zeros_like(Y, dtype=float)
-
-    for i in range(n):
-        # Calculate weights based on the distance between X[i] and other points
-        weights = np.exp(-(X - X[i]) ** 2 / (2 * h ** 2))
-        
-        # Get the indices of the closest neighbors
-        neighbors_indices = np.argsort(np.abs(X - X[i]))[:window]
-        neighbors_indices = neighbors_indices.astype(int)
-
-        # Apply the weights only to the neighboring points
-        weights = weights[neighbors_indices]
-        neighbors_Y = Y[neighbors_indices]
-
-        # Perform the local linear fit
-        A = np.vstack([np.ones(window), X[neighbors_indices] - X[i]]).T
-        w = np.diag(weights)
-        beta = np.linalg.inv(A.T @ w @ A) @ A.T @ w @ neighbors_Y
-
-        # Use the local fit to predict the corrected value for X[i]
-        corrected_Y[i] = beta[0] + beta[1] * (X[i] - X[i])
-
-    return corrected_Y
 
 
 def f_mean_diff_flat(*args, **kwargs):
