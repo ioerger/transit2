@@ -118,7 +118,6 @@ class Method:
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
             self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="LOESS Correction", default_value=False, tooltip_text="This adjusts insertion counts to correct for genome positional bias. Check to correct read-counts for possible regional biase using LOESS correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-            self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
             self.value_getters.conf_on                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Add confidence info columns", default_value=True, tooltip_text="")
         
     @staticmethod
@@ -334,7 +333,7 @@ class Method:
                 last_orf = ""
                 for t in range(T):
                     percentage = (t/T)*100
-                    progress_update(f"Generating lines: {percentage:3.2f}%", percentage)
+                    progress_update(f"Generating output: {percentage:3.1f}%", percentage)
                     s_lab = label.get(states[t], "Unknown State")
                     gamma_t = (alpha[:, t] * beta[:, t]) / numpy.sum(alpha[:, t] * beta[:, t])
                     genes_at_site = hash.get(position[t], [""])
@@ -639,7 +638,10 @@ class Method:
                     from collections import Counter
                     for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
                         rows[index] = tuple(each_row) + tuple(each_extension)
-                    extra_data_info["Confidence Summary"] = conf_comments
+                    conf_info = {}
+                    for x in conf_comments: y = x.split(":"); conf_info[y[0]] = y[1]
+                    extra_data_info["Confidence Summary"] = conf_info
+                    
                     # TODO:
                         # add metrics: 
                         # - low-confidence count (flags count)
@@ -651,7 +653,7 @@ class Method:
                 path=output_path, # path=None means write to STDOUT
                 file_kind=GeneFile.identifier,
                 rows=rows,
-                column_names=GeneFile.column_names,
+                column_names=column_names,
                 extra_info={
                     "Summary Of Gene Calls": gene_calls,
                     "Naming Reference": {
@@ -670,6 +672,7 @@ import numpy
 class HmmConfidenceHelper:
     states = ["ES","GD","NE","GA"]
     column_names = [
+        "Mean",
         "Consistency",
         "ES Probability",
         "GD Probability",
@@ -765,8 +768,6 @@ class HmmConfidenceHelper:
             sat_params[state] = (alpha, beta)
             mean_params[state] = (mean_means, std_means)
 
-            # output_comments.append("#   Sat[%s]:    Beta(alpha=%s,beta=%s), E[sat]=%s" % (state,round(alpha,2),round(beta,2),round(alpha/(alpha+beta),3)))
-            # output_comments.append("#   nz_mean[%s]: Norm(mean=%s,stdev=%s)" % (state,round(nz_mean_params[state][0],2),round(nz_mean_params[state][1],2)))
             output_comments.append(
                 "#   Mean[%s]:   Norm(mean=%s,stdev=%s)"
                 % (state, round(mean_params[state][0], 2), round(mean_params[state][1], 2))
@@ -808,9 +809,8 @@ class HmmConfidenceHelper:
             row_extension += [round(conf, 4), flag]
             row_extensions.append(row_extension)
 
-        output_comments.append(
-            "# num low-confidence genes=%s, num ambiguous genes=%s" % (num_low_conf, num_ambig)
-        )
+        output_comments.append("# num low-confidence genes: %s" % num_low_conf)
+        output_comments.append("# num ambiguous genes: %s" % num_ambig)
         
         return row_extensions, output_comments
 
@@ -879,7 +879,7 @@ class GeneFile:
         "GD Count",
         "NE Count",
         "GA Count",
-        "Saturation"
+        "Saturation",
         "NZmean",
         "State Call",
     ]
