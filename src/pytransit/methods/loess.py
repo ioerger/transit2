@@ -21,7 +21,7 @@ class Method:
     name = "LOESS Plot"
     usage_string = f"""
         Usage:
-                {console_tools.subcommand_prefix} loess <wig_file> <where_to_save.png>
+            {console_tools.subcommand_prefix} loess <wig_file> <where_to_save.png>
     """.replace("\n        ", "\n")
     
     # 
@@ -135,27 +135,3 @@ class Method:
             insertion_counts=numpy.mean(insertion_counts_matrix,axis=0),
             ta_sites=ta_sites,
         )
-    
-    # helper
-    @staticmethod
-    def bucketize1(ta_sites, insertion_counts, window=1000):
-            number_of_windows = int(len(ta_sites) / window) + 1  # python3 requires explicit rounding to int
-            x_w = numpy.zeros(number_of_windows)
-            y_w = numpy.zeros(number_of_windows)
-            for window_index in range(number_of_windows):
-                x_w[window_index] = window * window_index
-                y_w[window_index] = sum(insertion_counts[window * window_index : window * (window_index + 1)])
-            return x_w, y_w
-            
-    @staticmethod
-    def bucketize2(x, y, window=1000):
-        rounded_x = (x/win).astype(int)*win
-        buckets = {}
-        for each_bucket, each_count in zip(rounded_x, y):
-            if each_bucket not in buckets:
-                buckets[each_bucket] = []
-            buckets[each_bucket].append(each_count)
-        sorted_keys = tuple(sorted(buckets.keys()))
-        Y = numpy.array(tuple(numpy.mean(buckets[key]) for key in sorted_keys))
-        X = numpy.array(tuple(sorted_keys))
-        return X, Y
