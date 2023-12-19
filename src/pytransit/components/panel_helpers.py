@@ -240,7 +240,7 @@ if True:
                         if parent_name != "." and parent_name != "":
                             name = basename(parent_name)+"/"+name
                         file_text.SetLabel(name)
-                        after_select(*args)
+                        after_select(*args, the_file_path)
             row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
             # padding
             row_sizer.Add(20, 1)
