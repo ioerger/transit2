@@ -110,16 +110,17 @@ class Wig:
             rows = rows[1:]
         
         # if they used spaces instead of tabs, change it, then reload the file
-        if len(f"""{rows[0][1]}""") == 1 and " " in f"""{rows[0][1]}""":
+        if len(rows[0]) == 1 and " " in f"""{rows[0][0]}""":
             with open(path,'r') as f:
                 output = f.read()
             
             lines = output.split("\n")
             output = ""
-            for each in output:
-                if not each.startswith("#"):
-                    each = each.replace(" ", "\t")
-                output += f"{each}\n"
+            for each_line in lines:
+                if not each_line.startswith("#"):
+                    each_line = each_line.replace(" ", "\t")
+                output += f"{each_line}\n"
+            
             with open(path, 'w') as the_file:
                 the_file.write(output)
             return Wig.read(path)
