@@ -58,7 +58,7 @@ class Method:
             --iC <float>     :=  Ignore TAs occurring at given fraction (as integer) of the C terminus. Default: --iC 0
     """.replace("\n        ", "\n")
     
-    @gui.add_menu("Method", "himar1", menu_name)
+    @gui.add_menu("Method", "Himar1", menu_name)
     def on_menu_click(event):
         Method.himar1 = True
         Method.define_panel(event)

@@ -24,7 +24,7 @@ class Method:
     name = "CGI"
     identifier  = name
     cli_name    = name.lower()
-    menu_name   = f"{name} - Perform {name} analysis"
+    menu_name   = f"{name} - use CRISPRi-DR to analyze Chemical-Genetic Interactions"
     description = f"""Perform {name} analysis"""
     
     valid_cli_flags = [
@@ -717,7 +717,7 @@ class Method:
                 title_text=self.name,
                 sub_text="",
                 method_specific_instructions="""
-                    CRISPRi-DR is designed to analyze CRISPRi libraries from CGI experiments and identify significant CGIs ie genes that affect sensitivity to the drug when depleted.
+                    The CRISPRi-DR methods is designed to analyze CRISPRi libraries from Chemical-Genetic Interation (CGI) experiments and identify significant CGIs, i.e. genes that affect sensitivity to the drug when depleted.  Dropdown boxes to select Drug and Control will appear after the metadata is loaded.
                 """.replace(
                     "\n                    ", "\n"
                 ),
