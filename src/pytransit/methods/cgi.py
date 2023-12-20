@@ -722,8 +722,16 @@ class Method:
                     "\n                    ", "\n"
                 ),
             )
-            self.value_getters = LazyDict()
-            # self.value_getters.ifile_path           = panel_helpers.create_file_input(panel, main_sizer, button_label="ifile path", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters = LazyDict(
+                control_condition=lambda : None,
+                drug=lambda : None,
+                days=lambda : None,
+                cgi_folder=lambda : None,
+                combined_counts_file=lambda : None,
+                metadata_file=lambda : None,
+                sg_rna_strength_file=lambda : None,
+                uninduced_atc_file=lambda : None,
+            )
             def visulize_combined_counts(*args):
                 the_file_path = args[-1]
                 from pytransit.components.samples_area import samples
@@ -748,6 +756,7 @@ class Method:
                 metadata_file = args[-1]
                 from pytransit.components.samples_area import samples
                 from pytransit.generic_tools import misc
+                print(f'''args = {args}''')
                 df = pd.read_csv(metadata_file, sep="\t", comment="#")
                 conditions = misc.no_duplicates(df["column_name"].values.tolist())
                 other_columns = [ column for column in df.columns if column != "column_name" ]
