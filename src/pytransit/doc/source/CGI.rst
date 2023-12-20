@@ -113,31 +113,66 @@ This process is fairly quick, taking less than a minute to run. This figure visu
     If comparing plots from different genes, note the scale of sgRNA strength shown in the plots.
 
 
+.. rst-class:: transit_sectionend
+----
+
 GUI
 ---
 
-There is a menu item in the GUI for analyzing CRISPRi CGI data using the CRISPRi-DR method.
+There is a menu item in the GUI (under Methods) 
+for analyzing CRISPRi CGI data using the CRISPRi-DR method.
 
-You first have to run the 'extract_counts' and 'combine_counts'
-commands (above) at the command line to convert .fastq files to
-combined_counts files.  The combined_counts and other input files can then be
-provided through the GUI, which does the 'extract_abund' and
-'run_model' steps above.
 
-Note: The *input files* for CRISPRi-DR analysis are specified in the
-parameters panel on the right-hand side.  You do not have to load
+.. NOTE::
+ You first have to run the '**extract_counts**' and '**combine_counts**'
+ commands (above) **at the command line** to convert .fastq files to a
+ combined_counts file.  The combined_counts and other input files can then be
+ provided through the GUI, which does the '**extract_abund**' and
+ '**run_model**' steps above.
+
+Note: The input files for CRISPRi-DR analysis are specified in the
+parameters panel on the right-hand side (4 filenames).  You do not have to load
 anything into the Samples or Conditions windows.
+Dropdowns for selecting Drug and Control will appear AFTER loading metadata.
+
+
+.. image:: _images/CGI_GUI.png
+  :width: 700
+  :alt: Alternative text
+
 
 When the method finishes, you can look at the output file in the Results window.
-Genes that represent statistically significant interactions will be those
-that have Qvalue<0.05 and |Zscore|>2.0
+Click on the output file in the Results window, and actions 'Display Table'
+and 'Display Gene' will appear in a dropdown.
 
-If you click on the results file in the Results window
-and select the 'Visualize' action, you can generate plots of the 
-regression lines of abundance of each sgRNA for a gene of interest, showing
-their slopes against drug concentration.
+ * **Display Table**. The first column indicates 'Significant Interactions' (-1 for depleted genes, +1 for enriched). Genes that represent statistically significant interactions are defined as those that have Qvalue<0.05 and |Zscore|>2.0.
+
+ * **Display Gene**.  Show a plot of slopes for sgRNAs (regressions of abundance vs drug concentration), colored by sgRNA strength (see the example Visualization above).  User can specify genes by ORF id or gene name; multiple genes can be given via a comma-separated list.
+
+Example Data
+------------
+
+If you want to test-run this analysis, you can load example files in the data directory:
+transit/src/pytransit/data/CGI/.  This is for an experiment where an *M. tuberculosis*
+CRISPRi library was treated with rifampicin (data from Jeremy Rock's lab;
+`Li et al, 2022 <https://pubmed.ncbi.nlm.nih.gov/35637331/>`_).
+
++----------------------------------+-----------------------------------------------------------------------------------------------+
+|                                  | in transit/src/pytransit/data/CGI/                                                            |
++==================================+===============================================================================================+
+| Combined counts file:            | `RIF_D1_combined_counts.txt <https://orca1.tamu.edu/CRISPRi-DR/RIF_D1_combined_counts.txt>`_  |
++----------------------------------+-----------------------------------------------------------------------------------------------+
+| Metadata file:                   | `samples_metadata.txt <https://orca1.tamu.edu/CRISPRi-DR/samples_metadata.txt>`_              |
++----------------------------------+-----------------------------------------------------------------------------------------------+
+| sgRNA strengths:                 | `sgRNA_info.txt <https://orca1.tamu.edu/CRISPRi-DR/sgRNA_info.txt>`_                          |
++----------------------------------+-----------------------------------------------------------------------------------------------+
+| Uninduced counts (-ATC control): | `uninduced_ATC_counts.txt <https://orca1.tamu.edu/CRISPRi-DR/uninduced_ATC_counts.txt>`_      |
++----------------------------------+-----------------------------------------------------------------------------------------------+
 
 
+
+.. rst-class:: transit_sectionend
+----
 
 Tutorial
 -------

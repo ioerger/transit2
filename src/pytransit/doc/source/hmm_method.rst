@@ -44,9 +44,9 @@ replicate datasets:
 
 -  **Replicates:** Determines how the HMM deals with replicate datasets
    by either averaging the read-counts or summing read counts across
-   datasets. For regular datasets (i.e. mean-read count > 100) the
+   datasets. For regular datasets (i.e. mean read-count > 100) the
    recommended setting is to average read-counts together. For sparse
-   datasets, it summing read-counts may produce more accurate results.
+   datasets, summing read-counts may produce more accurate results.
 |
 
 GUI Mode
@@ -161,7 +161,10 @@ Run-time
 
 |
 
-HMM Confidence Scores 
+.. rst-class:: transit_sectionend
+----
+
+HMM Confidence Scores
 ---------------------
 
 .. NOTE::
@@ -275,6 +278,7 @@ obviating the need for a second step.)
 
 The script adds the following columns:
 
+ * **Mean** - the mean insertion count over *all* TA sites in the gene.
  * **consis** - consistency (proportion of TA sites representing the majority essentiality state)
   - If consistency<1.0, it means not all the TA sites in the gene agree with the essentiality call, which is made by majority vote. It is OK if a small fraction of TA sites in a gene are labeled otherwise. If it is a large fraction (consistency close to 50%), it might be a 'domain-essential' (multi-domain gene where one domain is ES and the other is NE). 
  * **probES** - conditional probability (normalized) of the mean insertion count if the gene were essential 

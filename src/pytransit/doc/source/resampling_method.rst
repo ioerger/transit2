@@ -199,7 +199,7 @@ Doing resampling with datasets from different libraries
 --------------------------------------------------------
 
 .. NOTE::
-    **Currently supported only in TRANSIT 3.2.X**
+    **Currently supported only in Transit1** (This is Transit2)
 
 In most cases, comparisons are done among samples (replicates) from
 the same library evaluated in two different conditions.  But if the
