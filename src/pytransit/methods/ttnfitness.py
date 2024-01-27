@@ -58,7 +58,7 @@ class Method:
         Usage: {console_tools.subcommand_prefix} {cli_name} <combined_wig_file> <metadata_file> <annotation_file> <condition to analyze> <genome .fna> <gumbel_results_file> <genes output_file> <sites output_file>
     """
     
-    @gui.add_menu("Method", "himar1", menu_name)
+    @gui.add_menu("Method", "Himar1", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     

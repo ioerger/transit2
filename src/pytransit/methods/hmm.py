@@ -48,6 +48,7 @@ class Method:
         loess_correction=False,
         n_terminus=0.0,
         c_terminus=0.0,
+        conf_on=True,
     )
     
     valid_cli_flags = [
@@ -56,6 +57,7 @@ class Method:
         "-l",
         "--iN",
         "--iC",
+        "-conf-on",
     ]
     
     usage_string = f"""
@@ -65,9 +67,10 @@ class Method:
         Optional Arguments:
             --r <string>     :=  How to handle replicates. Sum, Mean. Default: --r Mean
             --n <string>     :=  Normalization method. Default: --n TTR
-            -l             :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
+            -l               :=  Perform LOESS Correction; Helps remove possible genomic position bias. Default: Off.
             --iN <float>     :=  Ignore TAs occurring within given percentage (as integer) of the N terminus. Default: --iN 0
             --iC <float>     :=  Ignore TAs occurring within given percentage (as integer) of the C terminus. Default: --iC 0
+            -conf-on         :=  enable additional columns with confidence information
     """.replace("\n        ", "\n")
     
     column_names = [
@@ -84,7 +87,7 @@ class Method:
         "Call",
     ]
     
-    @gui.add_menu("Method", "himar1", menu_name)
+    @gui.add_menu("Method", "Himar1", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
@@ -114,8 +117,8 @@ class Method:
             self.value_getters.replicates             = panel_helpers.create_choice_input(panel, main_sizer, label="Replicates:", options=["Mean", "Sum", "TTRMean"], tooltip_text="Determines how to handle replicates, and their read-counts. When using many replicates, using 'Mean' may be recommended over 'Sum'")
             self.value_getters.n_terminus             = panel_helpers.create_n_terminus_input(panel, main_sizer)
             self.value_getters.c_terminus             = panel_helpers.create_c_terminus_input(panel, main_sizer)
-            self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Correct for Genome Positional Bias", default_value=False, tooltip_text="Check to correct read-counts for possible regional biase using LOESS correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
-                
+            self.value_getters.loess_correction       = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="LOESS Correction", default_value=False, tooltip_text="This adjusts insertion counts to correct for genome positional bias. Check to correct read-counts for possible regional biase using LOESS correction. Clicking on the button below will plot a preview, which is helpful to visualize the possible bias in the counts.")
+            self.value_getters.conf_on                = panel_helpers.create_check_box_getter(panel, main_sizer, label_text="Add confidence info columns", default_value=True, tooltip_text="")
         
     @staticmethod
     def from_gui(frame):
@@ -182,6 +185,7 @@ class Method:
         loess_correction         = kwargs.get("l", Method.inputs.loess_correction)
         n_terminus    = float(kwargs.get("iN", Method.inputs.n_terminus))
         c_terminus    = float(kwargs.get("iC", Method.inputs.c_terminus))
+        conf_on      = float(kwargs.get("conf-on", False))
 
         ##################
         # read data      
@@ -220,6 +224,7 @@ class Method:
             loess_correction=loess_correction,
             n_terminus=n_terminus,
             c_terminus=c_terminus,
+            conf_on=conf_on,
         ))
         Method.Run()
 
@@ -328,7 +333,7 @@ class Method:
                 last_orf = ""
                 for t in range(T):
                     percentage = (t/T)*100
-                    progress_update(f"Generating lines: {percentage:3.2f}%", percentage)
+                    progress_update(f"Generating output: {percentage:3.1f}%", percentage)
                     s_lab = label.get(states[t], "Unknown State")
                     gamma_t = (alpha[:, t] * beta[:, t]) / numpy.sum(alpha[:, t] * beta[:, t])
                     genes_at_site = hash.get(position[t], [""])
@@ -345,12 +350,21 @@ class Method:
                         s_lab,
                         genestr,
                     ))
+                
+                # 
+                # confidences
+                # 
             # 
-            # Write output
+            # Write outputs
             # 
             if True:
+                base_path = self.inputs.output_path
+                if base_path: # path=None means write to STDOUT
+                    output_path = misc.inject_path_extension(base_path, extension="sites")
+                    genes_path = misc.inject_path_extension(base_path, extension="genes")
+                
                 transit_tools.write_result(
-                    path=self.inputs.output_path, # path=None means write to STDOUT
+                    path=output_path, # path=None means write to STDOUT
                     file_kind=SitesFile.identifier,
                     rows=rows,
                     column_names=SitesFile.column_names,
@@ -379,32 +393,28 @@ class Method:
                             n_terminus=self.inputs.n_terminus,
                             c_terminus=self.inputs.c_terminus,
                             annotation_path=self.inputs.annotation_path,
-                            output_path=self.inputs.output_path,
+                            output_path=output_path,
                         ),
 
 
                     ),
                 )
-                logging.log(f"Finished HMM - Sites: {self.inputs.output_path}")
-                results_area.add(self.inputs.output_path)
-            # 
-            # Gene Files
-            # 
-            if True:
-                logging.log("Creating HMM Genes Level Output")
-                genes_path = (
-                    ".".join(self.inputs.output_path.split(".")[:-1])
-                    + "_genes."
-                    + self.inputs.output_path.split(".")[-1]
-                )
-
-                temp_obs = numpy.zeros((1, len(O)))
-                temp_obs[0, :] = O - 1
-                self.post_process_genes(temp_obs, position, states, genes_path)
-
-                logging.log("Adding File: %s" % (genes_path))
-                results_area.add(genes_path)
-                logging.log("Finished HMM Method")
+                logging.log(f"Finished HMM - Sites: {output_path}")
+                results_area.add(output_path)
+                
+                # 
+                # Gene Files
+                # 
+                if True:
+                    logging.log("Creating HMM Genes Level Output")
+                    
+                    temp_obs = numpy.zeros((1, len(O)))
+                    temp_obs[0, :] = O - 1
+                    self.post_process_genes(temp_obs, position, states, genes_path)
+                    
+                    logging.log("Adding File: %s" % (genes_path))
+                    results_area.add(genes_path)
+                    logging.log("Finished HMM Method")
 
     def forward_procedure(self, A, B, PI, O):
         logging.log("Starting HMM forward_procedure")
@@ -432,13 +442,13 @@ class Method:
                 alpha[:, t] = 0.0000000000001
 
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM forward_procedure... %1.1f%%" % percentage
+            text = "Running HMM forward_procedure... %1.1f%% (process 2/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
         
         percentage = 100
-        text = "Running HMM forward_procedure... %1.1f%%" % percentage
+        text = "Running HMM forward_procedure... %1.1f%% (process 2/3)" % percentage
         progress_update(text, percentage)
         
         log_prob_obs = -(numpy.sum(numpy.log(C)))
@@ -468,7 +478,7 @@ class Method:
                 beta[:, t] = beta[:, t] * C[t]
             
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM backward_procedure ... %1.1f%%" % percentage
+            text = "Running HMM backward_procedure ... %1.1f%% (process 3/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -495,7 +505,7 @@ class Method:
             Q[:, t] = nus.argmax(1)
             
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM viterbi... %5.1f%%" % percentage
+            text = "Running HMM viterbi... %5.1f%% (process 1/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
@@ -505,14 +515,14 @@ class Method:
             Q_opt.insert(0, Q[Q_opt[0], t + 1])
 
             percentage = (100.0 * self.count / self.max_iterations)
-            text = "Running HMM viterbi... %5.1f%%" % percentage
+            text = "Running HMM viterbi... %5.1f%% (process 1/3)" % percentage
             if self.count % 1000 == 0:
                 progress_update(text, percentage)
             self.count += 1
 
         numpy.seterr(divide="warn")
         percentage = (100.0 * self.count / self.max_iterations)
-        text = "Running HMM viterbi... %5.1f%%" % percentage
+        text = "Running HMM viterbi... %5.1f%% (process 1/3)" % percentage
         if self.count % 1000 == 0:
             progress_update(text, percentage)
 
@@ -535,105 +545,276 @@ class Method:
         return sum([1 for rd in non_ess_reads if rd >= 1]) / float(len(non_ess_reads))
 
     def post_process_genes(self, data, position, states, output_path):
-        # 
-        # organize data
-        # 
-        if True:
-            pos2state = dict([(position[t], states[t]) for t in range(len(states))])
-            theta = numpy.mean(data > 0)
-            genes = tnseq_tools.Genes(
-                tnseq_tools.CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
-                self.inputs.annotation_path,
-                data=data,
-                position=position,
-                ignore_codon=False,
-                n_terminus=self.inputs.n_terminus,
-                c_terminus=self.inputs.c_terminus,
+        with gui_tools.nice_error_log:
+            # 
+            # organize data
+            # 
+            if True:
+                pos2state = dict([(position[t], states[t]) for t in range(len(states))])
+                theta = numpy.mean(data > 0)
+                genes = tnseq_tools.Genes(
+                    tnseq_tools.CombinedWig.PositionsAndReads((self.inputs.ctrl_read_counts, self.inputs.ctrl_positions)),
+                    self.inputs.annotation_path,
+                    data=data,
+                    position=position,
+                    ignore_codon=False,
+                    n_terminus=self.inputs.n_terminus,
+                    c_terminus=self.inputs.c_terminus,
+                )
+
+                num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
+
+                rows = []
+                gene_calls = {
+                    "ES":0,
+                    "GD":0,
+                    "NE":0,
+                    "GA":0,
+                    "N/A":0
+                }
+                for each_gene in genes:
+                    reads_nz = [c for c in each_gene.reads.flatten() if c > 0]
+                    avg_read_nz = 0
+                    if len(reads_nz) > 0:
+                        avg_read_nz = numpy.average(reads_nz)
+
+                    # State
+                    gene_states = [pos2state[p] for p in each_gene.position]
+                    statedist = {}
+                    for st in gene_states:
+                        if st not in statedist:
+                            statedist[st] = 0
+                        statedist[st] += 1
+
+                    # State gene_calls
+                    n0 = statedist.get(0, 0)
+                    n1 = statedist.get(1, 0)
+                    n2 = statedist.get(2, 0)
+                    n3 = statedist.get(3, 0)
+
+                    if each_gene.n > 0:
+                        # this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive
+                        # E = tnseq_tools.expected_runs(each_gene.n,   1.0 - theta)
+                        # V = tnseq_tools.variance_run(each_gene.n,   1.0 - theta)
+                        if n0 == each_gene.n:
+                            gene_category = "ES"
+                        # elif n0 >= int(E+(3*math.sqrt(V))): gene_category = "ES"
+                        else:
+                            temp = max([(statedist.get(s, 0), s) for s in [0, 1, 2, 3]])[1]
+                            gene_category = num2label[temp]
+                    else:
+                        E = 0.0
+                        V = 0.0
+                        gene_category = "N/A"
+                    
+                    
+                    rows.append(
+                        (
+                            each_gene.orf,
+                            each_gene.name,
+                            each_gene.desc,
+                            each_gene.n,
+                            n0,
+                            n1,
+                            n2,
+                            n3,
+                            "%1.4f" % each_gene.theta(),
+                            "%1.2f" % avg_read_nz,
+                            gene_category,
+                        )
+                    )
+                    if gene_category not in gene_calls:
+                        gene_calls[gene_category] = 0
+                    gene_calls[gene_category] += 1
+                
+                # 
+                # add confidence values if needed
+                # 
+                column_names = GeneFile.column_names
+                extra_data_info = {}
+                if self.inputs.conf_on:
+                    column_names = column_names + HmmConfidenceHelper.column_names
+                    row_extensions, conf_comments = HmmConfidenceHelper.compute_row_extensions(rows)
+                    from collections import Counter
+                    assert len(rows)==len(row_extensions),"row_extensions should match number of rows"
+                    for index, (each_row, each_extension) in enumerate(zip(rows, row_extensions)):
+                        rows[index] = tuple(each_row) + tuple(each_extension)
+                    conf_info = {}
+                    for x in conf_comments: y = x.split(":"); conf_info[y[0]] = y[1]
+                    extra_data_info["Confidence Summary"] = conf_info
+                    
+                    # TODO:
+                        # add metrics: 
+                        # - low-confidence count (flags count)
+                        # - ambiguous count (flags count)
+            # 
+            # Write data
+            # 
+            transit_tools.write_result(
+                path=output_path, # path=None means write to STDOUT
+                file_kind=GeneFile.identifier,
+                rows=rows,
+                column_names=column_names,
+                extra_info={
+                    "Summary Of Gene Calls": gene_calls,
+                    "Naming Reference": {
+                        "ES": "essential",
+                        "GD": "insertions cause growth-defect",
+                        "NE": "non-essential",
+                        "GA": "insertions confer growth-advantage",
+                        "N/A": "not analyzed (genes with 0 TA sites)",
+                    },
+                    **extra_data_info,
+                },
             )
 
-            num2label = {0: "ES", 1: "GD", 2: "NE", 3: "GA"}
 
-            rows = []
-            gene_calls = {
-                "ES":0,
-                "GD":0,
-                "NE":0,
-                "GA":0,
-                "N/A":0
-            }
-            for each_gene in genes:
-                reads_nz = [c for c in each_gene.reads.flatten() if c > 0]
-                avg_read_nz = 0
-                if len(reads_nz) > 0:
-                    avg_read_nz = numpy.average(reads_nz)
+import numpy
+class HmmConfidenceHelper:
+    states = ["ES","GD","NE","GA"]
+    column_names = [
+        "Mean",
+        "Consistency",
+        "ES Probability",
+        "GD Probability",
+        "NE Probability",
+        "GA Probability",
+        "Confidence",
+        "Flag",
+    ]
 
-                # State
-                gene_states = [pos2state[p] for p in each_gene.position]
-                statedist = {}
-                for st in gene_states:
-                    if st not in statedist:
-                        statedist[st] = 0
-                    statedist[st] += 1
+    def calc_probs(nzmean, mean_params, sat):
+        probs = []
+        for state in HmmConfidenceHelper.states:
+            mean_means, std_means = mean_params[state]
+            probs.append(
+                0
+                if mean_means < 0
+                else scipy.stats.norm.pdf(sat * nzmean, loc=mean_means, scale=std_means)
+            )
+        
+        def normalize(L):
+            tot = float(sum(L))
+            return [x / tot for x in L]
+        
+        return normalize(probs)
+    
+    def first_pass(rows):
+        consistency_values = []
+        mean_insertions_per_gene = {}
+        nz_means_per_gene = {}
+        calls_per_gene = {}
+        mean_something_per_gene = {}
+        ta_site_count_per_gene = {}
+        for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
+            total_sites = int(total_sites)
+            if total_sites == 0:
+                continue
+            
+            mean_insertions_per_gene[orf] = float(mean_insertions)
+            nz_means_per_gene[orf]        = float(mean_reads)
+            mean_something_per_gene[orf]  = mean_insertions_per_gene[orf] * nz_means_per_gene[orf]
+            ta_site_count_per_gene[orf]   = total_sites
+            calls_per_gene[orf]           = state_call
+            votes = [int(x) for x in [ es_count, gd_count, ne_count, ga_count ]]
+            consistency = max(votes) / float(total_sites)
+            consistency_values.append(consistency)
 
-                # State gene_calls
-                n0 = statedist.get(0, 0)
-                n1 = statedist.get(1, 0)
-                n2 = statedist.get(2, 0)
-                n3 = statedist.get(3, 0)
-
-                if each_gene.n > 0:
-                    # this was intended to call genes ES if have sufficiently long run, but n0 (#ES) not even consecutive
-                    # E = tnseq_tools.expected_runs(each_gene.n,   1.0 - theta)
-                    # V = tnseq_tools.variance_run(each_gene.n,   1.0 - theta)
-                    if n0 == each_gene.n:
-                        gene_category = "ES"
-                    # elif n0 >= int(E+(3*math.sqrt(V))): gene_category = "ES"
-                    else:
-                        temp = max([(statedist.get(s, 0), s) for s in [0, 1, 2, 3]])[1]
-                        gene_category = num2label[temp]
-                else:
-                    E = 0.0
-                    V = 0.0
-                    gene_category = "N/A"
-                
-                
-                rows.append(
-                    (
-                        each_gene.orf,
-                        each_gene.name,
-                        each_gene.desc,
-                        each_gene.n,
-                        n0,
-                        n1,
-                        n2,
-                        n3,
-                        "%1.4f" % each_gene.theta(),
-                        "%1.2f" % avg_read_nz,
-                        gene_category,
-                    )
-                )
-                if gene_category not in gene_calls:
-                    gene_calls[gene_category] = 0
-                gene_calls[gene_category] += 1
-        # 
-        # Write data
-        # 
-        transit_tools.write_result(
-            path=output_path, # path=None means write to STDOUT
-            file_kind=GeneFile.identifier,
-            rows=rows,
-            column_names=GeneFile.column_names,
-            extra_info={
-                "Summary Of Gene Calls": gene_calls,
-                "Naming Reference": {
-                    "ES": "essential",
-                    "GD": "insertions cause growth-defect",
-                    "NE": "non-essential",
-                    "GA": "insertions confer growth-advantage",
-                    "N/A": "not analyzed (genes with 0 TA sites)",
-                },
-            },
+        return consistency_values, calls_per_gene, nz_means_per_gene, mean_insertions_per_gene, mean_something_per_gene, ta_site_count_per_gene
+    
+    def compute_row_extensions(
+        rows,
+        pseudo_count=0.01, # shrink range of saturation form [0,1] to [0.01,0.99] to prevent nan's from Beta
+    ):
+        consistency_values, calls_per_gene, nz_means_per_gene, mean_insertions_per_gene, mean_something_per_gene, ta_site_count_per_gene = HmmConfidenceHelper.first_pass(rows)
+        
+        output_comments = ["# HMM confidence info:"]
+        output_comments.append(
+            "# avg gene-level consistency of HMM states: %s" % (round(numpy.mean(consistency_values), 4))
         )
+
+        orf_ids = [x[0] for x in rows]
+
+        sat_params = {}
+        nz_mean_params = {}
+        mean_params = {}
+
+        output_comments.append("# state posterior probability distributions:")
+        for state in HmmConfidenceHelper.states:
+            sub = [ orf for orf in orf_ids if calls_per_gene.get(orf) == state ]
+            nzmeans = [nz_means_per_gene[orf] for orf in sub]
+            sats = [mean_insertions_per_gene[orf] for orf in sub]
+            means = [mean_something_per_gene[orf] for orf in sub]
+
+            mean_sat = numpy.mean(sats)
+            std_sat = numpy.std(sats)
+            med_nz_means = numpy.median(nzmeans)
+            iqr_nz_means = scipy.stats.iqr(nzmeans)
+            mean_means = (
+                -999 if len(means) == 0 else numpy.median(means)
+            )  # -999 if there are no GA genes, for example
+            std_means = max(
+                1.0, 0.7314 * scipy.stats.iqr(means)
+            )  # don't let stdev collapse to 0 for ES
+
+            # model nz_mean with robust Normal distribution: use median and IQR
+            sigma = 0.7413 * iqr_nz_means
+            sigma = max(0.01, sigma)  # don't let it collapse to 0
+            nz_mean_params[state] = (med_nz_means, sigma)
+
+            # model saturation as Beta distribution, fit by method of moments:
+            # https://real-statistics.com/distribution-fitting/method-of-moments/method-of-moments-beta-distribution/
+            alpha = mean_sat * ((mean_sat * (1.0 - mean_sat) / (std_sat * std_sat) - 1.0))
+            beta = alpha * (1.0 - mean_sat) / mean_sat
+            sat_params[state] = (alpha, beta)
+            mean_params[state] = (mean_means, std_means)
+
+            output_comments.append(
+                "#   Mean[%s]:   Norm(mean=%s,stdev=%s)"
+                % (state, round(mean_params[state][0], 2), round(mean_params[state][1], 2))
+            )
+
+        # prob of each state is based Gaussian density for Mean count for each gene (combines Sat and nz_mean)
+
+        # second pass...
+        num_low_conf, num_ambig = 0, 0
+        row_extensions = []
+        for orf, gene_name, description, total_sites, es_count, gd_count, ne_count, ga_count, mean_insertions, mean_reads, state_call in rows:
+            total_sites = int(total_sites)
+            if total_sites == 0:
+                row_extensions.append([""]*7) # blanks, to keep in register with rows (genes from HMM)
+                continue
+
+            votes = [int(x) for x in [es_count, gd_count, ne_count, ga_count]]
+            consistency = max(votes) / float(total_sites)
+            sat, nz_mean = float(mean_insertions), float(mean_reads)
+            sat = max(pseudo_count, min(1.0 - pseudo_count, sat))
+            probs = HmmConfidenceHelper.calc_probs(nz_mean, mean_params, sat)  # normalized
+            conf = probs[HmmConfidenceHelper.states.index(state_call)]
+            
+            flag = ""
+
+            if conf < 0.2:
+                flag = "low-confidence"
+            if conf >= 0.2 and conf != max(probs):
+                flag = "ambiguous"
+
+            if flag == "ambiguous":
+                num_ambig += 1
+            if flag == "low-confidence":
+                num_low_conf += 1
+
+            row_extension = (
+                [round(sat * nz_mean, 1), round(consistency, 3)]
+                + [round(x, 6) for x in probs]
+            )
+            row_extension += [round(conf, 4), flag]
+            row_extensions.append(row_extension)
+
+        output_comments.append("# num low-confidence genes: %s" % num_low_conf)
+        output_comments.append("# num ambiguous genes: %s" % num_ambig)
+
+        return row_extensions, output_comments # it would have been safer to output extensions appended onto rows
 
 @transit_tools.ResultsFile
 class SitesFile:
@@ -700,8 +881,8 @@ class GeneFile:
         "GD Count",
         "NE Count",
         "GA Count",
-        "Mean Insertions",
-        "Mean Reads",
+        "Saturation",
+        "NZmean",
         "State Call",
     ]
     
@@ -720,7 +901,7 @@ class GeneFile:
             __dropdown_options=LazyDict({
                 "Display Table": lambda *args: SpreadSheet(
                     title=self.identifier,
-                    heading=self.comments,
+                    heading=self.comments_string,
                     column_names=self.column_names,
                     rows=self.rows,
                     sort_by=[

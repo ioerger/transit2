@@ -311,7 +311,25 @@ def invert_dict(existing_dict):
             new_dict[each_value] = []
         new_dict[each_value].append(each_key)
     return new_dict
-    
+
+def inject_path_extension(path, *, extension):
+    import os
+    parent_folders = os.path.dirname(path)
+    full_name = os.path.basename(path)
+    parts = full_name.split(".")
+    parts.insert(1,extension)
+    if parent_folders:
+        return parent_folders+"/"+".".join(parts)
+    else:
+        return ".".join(parts)
 
 from pytransit.generic_tools.cool_cache import cache, settings
 settings.default_folder = None # use in-memory storage
+
+
+
+go = None
+try:
+    import plotly.graph_objs as go
+except Exception as error:
+    pass

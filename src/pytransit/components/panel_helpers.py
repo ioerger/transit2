@@ -27,6 +27,7 @@ if True:
             )
             # self.wx_panel.SetMaxSize((width + (width - width_2) + dx, -1)) # Trying to limit the width of our frame
             self.main_sizer = wx.BoxSizer(wx.VERTICAL)
+            NewPanel.recent = self
             return (self.wx_panel, self.main_sizer)
         
         def __exit__(self, _, error, traceback_obj):
@@ -37,13 +38,17 @@ if True:
                 if frame and hasattr(frame, "status_bar"):
                     frame.status_bar.SetStatusText("Error: "+str(error.args))
             else:
-                from pytransit.components import parameter_panel
-                parameter_panel.set_panel(self.wx_panel)
-                self.wx_panel.SetSizer(self.main_sizer)
-                self.wx_panel.Layout()
-                self.main_sizer.Fit(self.wx_panel)
-                self.wx_panel.SetupScrolling()
-                gui.frame.Layout()
+                self.refresh()
+        
+        def refresh(self):
+            from pytransit.components import parameter_panel
+            parameter_panel.set_panel(self.wx_panel)
+            self.wx_panel.SetSizer(self.main_sizer)
+            self.wx_panel.Layout()
+            self.main_sizer.Fit(self.wx_panel)
+            self.wx_panel.SetupScrolling()
+            gui.frame.Layout()
+            
     
     def create_tooltip_and_label(panel, tooltip_text, label_text=None):
         from pytransit.components.icon import InfoIcon
@@ -99,7 +104,7 @@ if True:
         On "OK", it will return the value you pass in
         """
 
-        from os.path import basename
+        from os.path import basename, dirname
         row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
             # the button to click on in passed in panel to get a popup
@@ -138,16 +143,67 @@ if True:
         sizer.Add(row_sizer, 0, wx.ALIGN_LEFT, gui_tools.default_padding)
         return lambda *args, **kwargs: results
 
-        return
 
-
+    def create_folder_input(panel, sizer, *, button_label, init_folder_text="", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='All folders (*.*)|*.*', after_select=lambda *args: None, alignment=wx.ALIGN_CENTER, size=(-1,-1), color=gui_tools.color.light_gray):
+        """
+            Example:
+                folder_path_getter = create_folder_input(self.panel, main_sizer, button_label="Add context folder", allowed_extensions='All folders (*.*)|*.*')
+                folder_path_or_none = folder_path_getter()
+        """
+        from os.path import basename
+        row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
+        if True:
+            # 
+            # button
+            # 
+            if True:
+                add_folder_button = GenBitmapTextButton(
+                    panel,
+                    wx.ID_ANY,
+                    gui_tools.bit_map,
+                    button_label,
+                    size=wx.Size(*size),
+                )
+                add_folder_button.SetMinSize(size)
+                add_folder_button.SetMaxSize(size)
+                add_folder_button.SetBackgroundColour(color)
+                
+                folder_text = None
+                the_folder_path = None
+                # whenever the button is clicked, set the folder
+                @gui_tools.bind_to(add_folder_button, wx.EVT_BUTTON)
+                def when_button_clicked(*args,**kwargs):
+                    nonlocal the_folder_path
+                    with gui_tools.nice_error_log:
+                        # set the folder path variable
+                        the_folder_path = gui_tools.ask_for_folder(
+                            message=popup_title,
+                            default_folder=default_folder,
+                        )
+                        folder_text.SetLabel(basename(the_folder_path or ""))
+                        after_select(*args, the_folder_path)
+            row_sizer.Add(add_folder_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
+            # padding
+            row_sizer.Add(20, 1)
+            
+            # 
+            # Text
+            # 
+            folder_text = wx.StaticText(panel, wx.ID_ANY, label=init_folder_text, style=wx.ALIGN_LEFT)
+            row_sizer.Add(folder_text, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
+        
+        sizer.Add(row_sizer, proportion=0, flag=alignment, border=gui_tools.default_padding)
+        output = lambda *args, **kwargs: the_folder_path
+        output.set_label = lambda text: folder_text.SetLabel(text)
+        return output
+    
     def create_file_input(panel, sizer, *, button_label, init_file_text="", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=lambda *args: None, alignment=wx.ALIGN_CENTER, size=(-1,-1), color=gui_tools.color.light_gray):
         """
             Example:
                 file_path_getter = create_file_input(self.panel, main_sizer, button_label="Add context file", allowed_extensions='All files (*.*)|*.*')
                 file_path_or_none = file_path_getter()
         """
-        from os.path import basename
+        from os.path import basename, dirname
         row_sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text)
         if True:
             # 
@@ -179,8 +235,12 @@ if True:
                             default_file_name=default_file_name,
                             allowed_extensions=allowed_extensions,
                         )
-                        file_text.SetLabel(basename(the_file_path or ""))
-                        after_select(*args)
+                        name = basename(the_file_path or "")
+                        parent_name = dirname(the_file_path or "")
+                        if parent_name != "." and parent_name != "":
+                            name = basename(parent_name)+"/"+name
+                        file_text.SetLabel(name)
+                        after_select(*args, the_file_path)
             row_sizer.Add(add_file_button, 0, wx.ALIGN_CENTER, gui_tools.default_padding)
             # padding
             row_sizer.Add(20, 1)

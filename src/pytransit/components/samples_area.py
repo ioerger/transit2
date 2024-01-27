@@ -18,7 +18,7 @@ from pytransit.components.generic.table import Table
 # data shared between functions
 # 
 samples = LazyDict(
-    wig_header_sizer=None,
+    sample_sizer=None,
     wig_dropdown_wxobj=None,
     wig_table=None,
     wig_dropdown_options={},
@@ -125,8 +125,8 @@ def create_sample_area(frame):
     from pytransit.components.panel_helpers import create_file_input
     
     wx_object = None
-    with Column() as outer_sample_sizer:
-        wx_object = outer_sample_sizer.wx_object
+    with Column() as samples.sample_sizer:
+        wx_object = samples.sample_sizer.wx_object
         samples.cwig_getter = None
         samples.metadata_getter = None
         samples.annotation_getter = None
@@ -157,33 +157,28 @@ def create_sample_area(frame):
                 proportion=4,
             )
         
-            # 
-            # input row
-            # 
-            if True:
-                samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL)
-                    
-                button_container.add(
-                    samples.wig_header_sizer,
-                    expand=True,
-                    proportion=1,
-                )
                 
-                
-            outer_sample_sizer.add(
+            samples.sample_sizer.add(
                 button_container,
                 expand=True,
                 proportion=0,
             )
         
         # padding
-        outer_sample_sizer.wx_object.Add(10, 10)
+        samples.sample_sizer.wx_object.Add(10, 10)
         
         # 
         # text
         # 
-        outer_sample_sizer.add(
+        samples.sample_sizer.add(
             Text("Samples"),
+            proportion=0,
+        )
+        
+        samples.wig_header_sizer = wx.BoxSizer(wx.HORIZONTAL) 
+        samples.sample_sizer.add(
+            samples.wig_header_sizer,
+            expand=True,
             proportion=0,
         )
         
@@ -203,14 +198,14 @@ def create_sample_area(frame):
                     with gui_tools.nice_error_log:
                         each(samples.wig_table, samples.wig_header_sizer)
             
-            outer_sample_sizer.add(
+            samples.sample_sizer.add(
                 samples.wig_table.wx_object,
                 proportion=1, # 29 does something strange
                 border=5,
                 expand=True,
             )
         
-        outer_sample_sizer.add(
+        samples.sample_sizer.add(
             Text("Conditions"),
             proportion=0,
         )
@@ -219,7 +214,7 @@ def create_sample_area(frame):
         # condition_header
         #
         samples.condition_header_sizer = wx.BoxSizer(wx.HORIZONTAL) 
-        outer_sample_sizer.add(
+        samples.sample_sizer.add(
             samples.condition_header_sizer,
             expand=True,
             proportion=0,
@@ -243,7 +238,7 @@ def create_sample_area(frame):
                         each(samples.conditions_table, samples.condition_header_sizer)
                         
             
-            outer_sample_sizer.add(
+            samples.sample_sizer.add(
                 samples.conditions_table.wx_object,
                 proportion=1, # 29 does something strange
                 border=5,

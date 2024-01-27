@@ -41,20 +41,20 @@ class Wig:
         self.extra_data.skew
         self.extra_data.kurtosis
     '''
-    def __init__(self, *, rows=None, id=None, fingerprint=None, condition_names=tuple(), column_index=None, extra_data=None):
+    def __init__(self, *, rows=None, id=None, fingerprint=None, condition_names=tuple(), column_index=None, extra_data=None, path=None):
         from random import random
         self.rows            = rows or []
         self.comments        = []
         
-        self.fingerprint     = fingerprint or self.path
+        self.fingerprint     = fingerprint or path or self.path
         self.column_index    = column_index
         self.condition_names = condition_names
-        self.id              = id or f"{basename(fingerprint)}_" + f"{super_hash((fingerprint, rows))}"[0:6]
+        self.id              = id or f"{basename(self.fingerprint)}_" + f"{super_hash((self.fingerprint, rows))}"[0:6]
 
         self.ta_sites         = [ each[0] for each in self.rows ]
         self.insertion_counts = [ each[1] for each in self.rows ]
 
-        self.extra_data = LazyDict(extra_data)
+        self.extra_data = LazyDict(extra_data or {})
         density, mean_reads, non_zero_mean_reads, non_zero_median_reads, max_reads, sum_of_reads, skew, kurtosis = get_data_stats(numpy.array(self.insertion_counts))
         self.extra_data.update(dict(
             count=len(self.rows),
@@ -85,6 +85,10 @@ class Wig:
 
     @staticmethod
     def selected_as_gathered_data(wig_objects):
+        """
+            Returns:
+                insertion_counts, ta_sites
+        """
         import numpy
         from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
         
@@ -96,6 +100,32 @@ class Wig:
         positions = wig_objects[0].ta_sites
         read_counts_per_wig = [ each_wig.insertion_counts for each_wig in wig_objects ]
         return numpy.array(read_counts_per_wig), numpy.array(positions)
+    
+    @staticmethod
+    def read(path):
+        comments, headers, rows = csv.read(path, seperator="\t", first_row_is_column_names=False, comment_symbol="#")
+        rows = tuple( each_row for each_row in rows if len(each_row) != 0 )
+        assert len(rows) > 1, f"it looks like the wig file is empty (no rows): {path}"
+        if rows[0][0].startswith("variableStep"):
+            rows = rows[1:]
+        
+        # if they used spaces instead of tabs, change it, then reload the file
+        if len(rows[0]) == 1 and " " in f"""{rows[0][0]}""":
+            with open(path,'r') as f:
+                output = f.read()
+            
+            lines = output.split("\n")
+            output = ""
+            for each_line in lines:
+                if not each_line.startswith("#"):
+                    each_line = each_line.replace(" ", "\t")
+                output += f"{each_line}\n"
+            
+            with open(path, 'w') as the_file:
+                the_file.write(output)
+            return Wig.read(path)
+        
+        return Wig(rows=rows, id=None, fingerprint=None, condition_names=tuple(), column_index=None, extra_data=None, path=path)
 
 class Condition:
     def __init__(self, name, extra_data=None):

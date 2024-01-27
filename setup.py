@@ -209,6 +209,7 @@ setup(
         'seaborn>=0.11.2',
         'ez-yaml==2.0.2',
         'super-hash==1.2.8',
+        'mne==1.5.1',
     ],
 
     #dependency_links = [

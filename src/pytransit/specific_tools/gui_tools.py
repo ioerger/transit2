@@ -9,7 +9,8 @@ from pytransit.globals import logging, gui, cli, root_folder, debugging_enabled
 
 bit_map = None
 default_padding = 5
-
+default_label_size = (220, -1)
+default_widget_size = (100, -1)
 
 def rgba(*args):
     return tuple(args)
@@ -101,6 +102,23 @@ def ask_for_file(
         file_dialog.Destroy()
         return path
 
+def ask_for_folder(
+        message, 
+        *,
+        default_folder=None,
+    ):
+        path = None
+        folder_dialog = wx.DirDialog(
+            gui.frame,
+            message=message,
+            defaultPath=default_folder or os.getcwd(),
+            style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST,
+        )
+        if folder_dialog.ShowModal() == wx.ID_OK:
+            path = folder_dialog.GetPath()
+        folder_dialog.Destroy()
+        return path
+
 def ask_for_output_file_path(
         default_folder=None,
         default_file_name="",
@@ -129,6 +147,131 @@ def ask_for_output_file_path(
             path = file_dialog.GetPath()
         file_dialog.Destroy()
         return path
+
+def ask_for_choose_one(items):
+    win = wx.Dialog(gui.frame, wx.FRAME_FLOAT_ON_PARENT)
+    popup_sizer = wx.BoxSizer(wx.VERTICAL)
+    win.SetSizer(popup_sizer)
+    
+    dropdown_label_text= wx.StaticText(win, wx.ID_ANY, label="Select One : ", style=wx.ALIGN_LEFT)
+    popup_sizer.Add(dropdown_label_text, 0, wx.ALL, default_padding)
+    dropdown_selection = wx.ComboBox(win,choices = items)
+    popup_sizer.Add(dropdown_selection, wx.ALL, default_padding)
+
+    ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+    popup_sizer.Add(ok_btn,wx.ALL, default_padding)
+    
+    win.Layout()
+    popup_sizer.Fit(win)
+    res = win.ShowModal()
+    if res == wx.ID_OK:
+        results = dropdown_selection.GetValue()
+    win.Destroy()
+    
+    return results
+
+def ask_for_text(tooltip_text="", label_text="",default_value=""):
+    with nice_error_log:
+        win = wx.Dialog(gui.frame, wx.FRAME_FLOAT_ON_PARENT)
+        popup_sizer = wx.BoxSizer(wx.VERTICAL)
+        win.SetSizer(popup_sizer)
+        
+        def create_tooltip_and_label(panel, tooltip_text, label_text=None):
+            from pytransit.components.icon import InfoIcon
+            inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
+            inner_sizer.Add(
+                InfoIcon(panel, wx.ID_ANY, tooltip=tooltip_text),
+                proportion=0,
+                flag=wx.ALIGN_CENTER_VERTICAL,
+                border=default_padding,
+            )
+            # a spacer because the border doesn't seem to actually work
+            inner_sizer.Add(1, default_padding)
+            if label_text != None:
+                label = wx.StaticText(panel, wx.ID_ANY, label_text, wx.DefaultPosition, default_label_size, 0)
+                label.Wrap(-1)
+                inner_sizer.Add(
+                    label,
+                    proportion=0,
+                    flag=wx.ALIGN_CENTER_VERTICAL,
+                    border=default_padding,
+                )
+            
+            return inner_sizer
+        
+        def define_text_box(
+            panel,
+            label_text="",
+            default_value="",
+            tooltip_text="",
+            label_size=None,
+            widget_size=None,
+        ):
+            from pytransit.components.icon import InfoIcon
+            if not label_size:
+                label_size = default_label_size
+            if not widget_size:
+                widget_size = default_widget_size
+
+            sizer = create_tooltip_and_label(panel, tooltip_text=tooltip_text, label_text=label_text)
+            text_box = wx.TextCtrl(panel, wx.ID_ANY, f"{default_value}", wx.DefaultPosition, widget_size, 0)
+            sizer.Add(text_box, 0,  wx.ALIGN_CENTER_VERTICAL, default_padding)
+            sizer.Layout()
+            
+            return None, text_box, sizer
+        
+        (
+            _,
+            text_wxobj,
+            text_wrapper_sizer,
+        ) = define_text_box(
+            win,
+            label_text=label_text,
+            default_value=str(default_value),
+            tooltip_text=tooltip_text,
+        )
+        popup_sizer.Add(text_wrapper_sizer, 1, wx.ALIGN_LEFT, default_padding)
+        
+        ok_btn = wx.Button(win, wx.ID_OK, label = "Ok", size = (50,20), pos = (75,50))
+        popup_sizer.Add(ok_btn,wx.ALL, default_padding)
+        
+        win.Layout()
+        popup_sizer.Fit(win)
+        win.DoSetSize(100, 100, 320, 100, 0)
+        res = win.ShowModal()
+        if res == wx.ID_OK:
+            results = text_wxobj.GetValue()
+        win.Destroy()
+        
+        return results
+
+class PopUp(object):
+    def __init__(self, *args, **kwargs):
+        self.win = wx.Dialog(gui.frame, wx.FRAME_FLOAT_ON_PARENT)
+        self.popup_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.win.SetSizer(popup_sizer)
+        self.value_getters = LazyDict()
+        self.values = LazyDict()
+    
+    def __enter__(self):
+        return self.win, self.popup_sizer, self.value_getters
+    
+    def __exit__(self, _, error, traceback):
+        win.Layout()
+        popup_sizer.Fit(win)
+        res = win.ShowModal()
+        if res == wx.ID_OK:
+            for key, getter in self.value_getters.items():
+                with nice_error_log:
+                    self.values[key] = getter()
+        win.Destroy()
+        
+        # normal cleanup HERE
+        should_suppress_error = False
+        if error is not None:
+            # error cleanup HERE
+            pass
+        return should_suppress_error
 
 class color(NamedTuple):
     black          =  rgba(0, 0, 0)

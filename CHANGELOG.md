@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.0.8 2023-12-20
+#### TRANSIT2:
+
+Major changes:
+  - added CRISPRi-DR method for analyzing CGI data (Chemical-Genetic Interactions)
+    - includes GUI interface
+    - see documentation
+  - added confidence scores to HMM output
+
+Minor changes:
+  - fixed LOESS plots to show genome positional bias before and after correction
+
+
 ## Version 1.0.7 2023-10-19
 #### TRANSIT2:
 

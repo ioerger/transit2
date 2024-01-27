@@ -1,0 +1,2 @@
+args = ['./tests/data/test.wig', './tests/cli_tests/loess/0001_basic.sh.1.result.png']
+saving to: ./tests/cli_tests/loess/0001_basic.sh.1.result.png

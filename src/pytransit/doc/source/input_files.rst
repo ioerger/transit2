@@ -54,7 +54,7 @@ information about each sample in the metadata file (see below).
  #File: src/pytransit/data/cholesterol_rep1.wig
  #File: src/pytransit/data/cholesterol_rep2.wig
  #File: src/pytransit/data/cholesterol_rep3.wig
- #normalizatin: TTR
+ #normalization: TTR
  #Normalization factors: 1.89 2.01 0.97 1.15 1.06
  #TA  glycerol_rep1  glycerol_rep2  cholesterol_rep1  cholesterol_rep2  cholesterol_rep3  annot
  60	0.0	0.0	0.0	0.0	0.0	Rv0001 (dnaA)

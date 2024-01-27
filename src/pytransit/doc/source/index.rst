@@ -83,6 +83,12 @@ TRANSIT2 offers a variety of features including:
 
 .. toctree::
    :maxdepth: 3
+   :caption: [** NEW **] CRISRPi ANALYSIS METHODS 
+
+   CGI
+
+.. toctree::
+   :maxdepth: 3
    :caption: PRE-PROCESSING
 
    tnseq_stats_method

@@ -102,11 +102,11 @@ class Method:
         )
 
     
-    @gui.add_menu("Method", "himar1", menu_name)
+    @gui.add_menu("Method", "Himar1", menu_name)
     def on_menu_click(event):
         Method.define_panel(event)
     
-    #@gui.add_menu("Method", "tn5", menu_name)
+    #@gui.add_menu("Method", "Tn5", menu_name)
     #def on_menu_click(event):
     #    Method.define_panel(event)
     

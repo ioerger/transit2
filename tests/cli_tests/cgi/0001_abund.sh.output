@@ -1,0 +1,3 @@
+[cgi:extract_abund()] # Condition Tested : RIF D1.0 
+[cgi:extract_abund()] Disregarding Empty or Negative sgRNAs 
+[cgi:extract_abund()] 97542 sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file 
