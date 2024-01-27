@@ -7,6 +7,7 @@ import random
 import datetime
 import collections
 import heapq
+import numpy as np
 
 import numpy
 
@@ -30,6 +31,7 @@ class Method:
     description = f"""Perform {name} analysis"""
     
     valid_cli_flags = [
+        "-use_negatives", #use negative controls to calculate pvalues
         "--fixed",  # fixed axes
         "-origx", # non-log axes
         "-origy", # non-log axes
@@ -42,14 +44,16 @@ class Method:
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
     
     {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  <fractional abundundance file>
-    
+        
     {console_tools.subcommand_prefix} {cli_name} run_model <fractional abundundance file>  <CRISPRi DR results file>
-    
+        Optional Arguements:
+            -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
+
     {console_tools.subcommand_prefix} {cli_name} visualize <fractional abundance> <gene> <output figure location> [Optional Arguments]
         Optional Arguments: 
-            -fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
-            -origx := flag to turn on original scale axes rather than log scale for Concentration default=off
-            -origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
+            --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
+            --origx := flag to turn on original scale axes rather than log scale for Concentration default=off
+            --origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
     """.replace("\n        ", "\n")
     
     @staticmethod
@@ -106,11 +110,12 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=2)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=2)
 
         ifile_path = args[0]
         cdr_output_file = args[1]
-        Method.run_model(ifile_path, cdr_output_file)
+        use_negatives = True if "use_negatives" in kwargs else False
+        Method.run_model(ifile_path, cdr_output_file, use_negatives=use_negatives)
 
     @staticmethod
     @cli.add_command(cli_name, "visualize")
@@ -213,13 +218,17 @@ class Method:
         column_names = metadata["column_name"].values.tolist()
         concs_list = metadata["conc_xMIC"].values.tolist()
         
-        logging.log("# Condition Tested : "+str(drug)+" D"+str(days))
+        logging.log("# Condition Tested : "+str(drug)+"-"+str(days))
         headers = []
-        combined_counts_df = pd.read_csv(combined_counts_file,sep="\t", index_col=0)
+        combined_counts_df = pd.read_csv(combined_counts_file,sep="\t")
+        out_val=combined_counts_df["sgRNA"].str.split("_")
+        combined_counts_df["sgRNA"] = out_val.str[:-1].str.join("_")
+        combined_counts_df.set_index("sgRNA",inplace=True)
         combined_counts_df = combined_counts_df[column_names]
 
+
         if(len(combined_counts_df.columns)==0):
-            logging.error("The samples assocaited with the selected drugs do not exist in your combined counts file. Please select one that does and check your metadata file has corresponding column names")
+            logging.error("The samples associated with the selected drugs do not exist in your combined counts file. Please select one that does and check your metadata file has corresponding column names")
         elif(len(combined_counts_df.columns)<len(metadata)):
             logging.log("WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file")
       
@@ -227,7 +236,8 @@ class Method:
         sgRNA_strength = sgRNA_strength.iloc[:,-1:]
         sgRNA_strength.columns = ["sgRNA strength"]
         sgRNA_strength["sgRNA"] = sgRNA_strength.index
-        sgRNA_strength["sgRNA"]=sgRNA_strength["sgRNA"].str.split("_v", expand=True)[0]
+        out_val=sgRNA_strength["sgRNA"].str.split("_")
+        sgRNA_strength["sgRNA"] = out_val.str[:-2].str.join("_")
         sgRNA_strength.set_index("sgRNA",inplace=True)
 
         no_dep_df = pd.read_csv(no_dep_abund, sep="\t", index_col=0, header=None)
@@ -235,13 +245,17 @@ class Method:
         no_dep_df.columns = ["uninduced ATC values"] 
         no_dep_df["uninduced ATC values"] = no_dep_df["uninduced ATC values"]/ no_dep_df["uninduced ATC values"].sum()
         no_dep_df["sgRNA"] = no_dep_df.index
+        out_val=no_dep_df["sgRNA"].str.split("_")
+        no_dep_df["sgRNA"] = out_val.str[:-2].str.join("_")
         no_dep_df["sgRNA"]=no_dep_df["sgRNA"].str.split("_v", expand=True)[0]
         no_dep_df.set_index("sgRNA",inplace=True)
 
         abund_df = pd.concat([sgRNA_strength, no_dep_df,combined_counts_df], axis=1)
-        abund_df= abund_df[~(abund_df.index.str.contains("Negative") | abund_df.index.str.contains("Empty"))]
-        logging.log("Disregarding Empty or Negative sgRNAs")
-        logging.log("%d sgRNAs are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file"%len(abund_df))
+        #abund_df= abund_df[~(abund_df.index.str.contains("Negative") | abund_df.index.str.contains("Empty"))]
+        abund_df= abund_df[~abund_df.index.str.contains("Empty")]
+        logging.log("Disregarding Empty sgRNAs")
+        logging.log("%d usable sgRNAs (including Negatives) are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file"%len(abund_df))
+        abund_df["uninduced ATC values"] = abund_df["uninduced ATC values"].replace(np.nan,1)
 
         f = open(fractional_abundance_file, 'w')
         headers = ["sgRNA strength","uninduced ATC values"]
@@ -256,7 +270,7 @@ class Method:
         abund_df[["orf-gene","remaining"]] = abund_df["sgRNA"].str.split('_',n=1,expand=True)
         abund_df[["orf","gene"]]= abund_df["orf-gene"].str.split(':',expand=True)
         abund_df = abund_df.drop(columns=["orf-gene","remaining"])
-        abund_df = abund_df.dropna()
+        #abund_df = abund_df.dropna()
         
         abund_df.insert(0, "sgRNA strength", abund_df.pop("sgRNA strength"))
         abund_df.insert(0, "uninduced ATC values", abund_df.pop("uninduced ATC values"))
@@ -268,7 +282,7 @@ class Method:
 
 
 
-    def run_model(self, frac_abund_file, cdr_output_file):
+    def run_model(self, frac_abund_file, cdr_output_file, use_negatives=False):
         import pandas as pd
         import numpy as np
         from mne.stats import fdr_correction
@@ -276,10 +290,25 @@ class Method:
         
         frac_abund_df = pd.read_csv(frac_abund_file, sep="\t",comment='#')
 
+
+        if use_negatives:
+            logging.log("Alert : -use_negatives flag has been provided, signifincance of genes will be calculated using Negative controls")
+            frac_abund_df= frac_abund_df[~(frac_abund_df["sgRNA"].str.contains("Empty"))]
+            frac_abund_df = frac_abund_df[~frac_abund_df["sgRNA strength"].isna()]
+            total_neg_genes= int(np.sqrt(len(frac_abund_df[frac_abund_df["orf"].str.contains("Negative")])))
+            counter =0
+            for neg_sgRNA in set(frac_abund_df[frac_abund_df["orf"].str.contains("Negative")]["sgRNA"]):
+                
+                neg_gene = counter%total_neg_genes
+                counter= counter+1
+                frac_abund_df.loc[frac_abund_df["sgRNA"]==neg_sgRNA,"gene"] = "Negative_"+str(neg_gene)
+        else: 
+            frac_abund_df= frac_abund_df[~(frac_abund_df["sgRNA"].str.contains("Negative") | frac_abund_df["sgRNA"].str.contains("Empty"))]
+        
+        frac_abund_df = frac_abund_df.dropna()
         drug_output = []
         for i,gene in enumerate(set(frac_abund_df["gene"])):
-            #print(i,gene)
-            logging.log("Analyzing Gene # %d \n"%i)
+            logging.log("Analyzing Gene #"+str(i)+" - "+str(gene))
             gene_df = frac_abund_df[frac_abund_df["gene"]==gene]
             orf = gene_df["orf"].iloc[0]
             gene_df = gene_df.drop(columns=["orf","gene","uninduced ATC values"])
@@ -307,7 +336,7 @@ class Method:
             pvals = results.pvalues
             drug_output.append([orf,gene,len(gene_df)]+coeffs.values.tolist()+pvals.values.tolist())
 
-        drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","ceofficient sgRNA_strength","ceofficient concentration dependence","pval intercept","pval pred_logFC","pval concentration dependence"])
+        drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","coefficient sgRNA_strength","coefficient concentration dependence","pval intercept","pval pred_logFC","pval concentration dependence"])
     
         mask = np.isfinite(drug_out_df["pval concentration dependence"])
         pval_corrected = np.full(drug_out_df["pval concentration dependence"].shape, np.nan)
@@ -315,10 +344,21 @@ class Method:
         drug_out_df["qval concentration dependence"] = pval_corrected
         drug_out_df = drug_out_df.replace(np.nan,1)
 
-        drug_out_df["Z"] = (drug_out_df["ceofficient concentration dependence"] - drug_out_df["ceofficient concentration dependence"].mean())/drug_out_df["ceofficient concentration dependence"].std()
+
+
+        if use_negatives==True:
+            negatives_output = drug_out_df[drug_out_df["Gene"].str.contains("Negative")]
+            neg_mean = negatives_output["coefficient concentration dependence"].mean()
+            neg_stdev = negatives_output["coefficient concentration dependence"].std()
+            drug_out_df["Z"] = (drug_out_df["coefficient concentration dependence"] - neg_mean)/neg_stdev
+        else:
+            drug_out_df["Z"] = (drug_out_df["coefficient concentration dependence"] - drug_out_df["coefficient concentration dependence"].mean())/drug_out_df["coefficient concentration dependence"].std()
+        
+        
         drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
         drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z"]<-2),"Significant Interactions"]=-1
         drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z"]>2),"Significant Interactions"]=1
+
         drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
 
         n = len(drug_out_df[drug_out_df["Significant Interactions"]!=0])
