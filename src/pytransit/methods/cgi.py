@@ -37,7 +37,6 @@ class Method:
     usage_string = f"""
         Usage (6 sub-commands):
 
-<<<<<<< HEAD
     {console_tools.subcommand_prefix} {cli_name} extract_counts <fastq file> <ids file> <output counts file>
     
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
@@ -49,17 +48,6 @@ class Method:
             -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
 
     {console_tools.subcommand_prefix} {cli_name} visualize <fractional abundance> <gene> <output figure location> [Optional Arguments]
-=======
-        {console_tools.subcommand_prefix} {cli_name} extract_counts <fastq file> <ids file> <output counts file>
-        
-        {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
-        
-        {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  <fractional abundundance file>
-        
-        {console_tools.subcommand_prefix} {cli_name} run_model <fractional abundundance file>  <CRISPRi DR results file>
-        
-        {console_tools.subcommand_prefix} {cli_name} visualize <fractional abundance> <gene> <output figure location> [Optional Arguments]
->>>>>>> master
         Optional Arguments: 
             --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
             --origx := flag to turn on original scale axes rather than log scale for Concentration default=off
@@ -107,7 +95,7 @@ class Method:
         combined_counts_file      = args[0]
         metadata_file             = args[1]
         control_condition         = args[2]
-        sg_rna_strength_file      = args[3]
+        sgrna_efficacy_file      = args[3]
         uninduced_atc_file        = args[4]
         drug                      = args[5]
         days                      = args[6]
@@ -116,7 +104,7 @@ class Method:
             combined_counts_file,
             metadata_file,
             control_condition,
-            sg_rna_strength_file,
+            sgrna_efficacy_file,
             uninduced_atc_file,
             drug,
             days,
@@ -240,7 +228,7 @@ class Method:
         combined_counts_file,
         metadata_file,
         control_condition,
-        sgRNA_strength_file,
+        sgrna_efficacy_file,
         uninduced_atc_file,
         drug,
         days,
@@ -307,13 +295,13 @@ class Method:
         elif(len(combined_counts_df.columns)<len(metadata)):
             logging.log("WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file")
       
-        sgRNA_strength = pd.read_csv(sgRNA_strength_file,sep="\t", index_col=0)
-        sgRNA_strength = sgRNA_strength.iloc[:,-1:]
-        sgRNA_strength.columns = ["sgRNA strength"]
-        sgRNA_strength["sgRNA"] = sgRNA_strength.index
-        out_val=sgRNA_strength["sgRNA"].str.split("_")
-        sgRNA_strength["sgRNA"] = out_val.str[:-2].str.join("_")
-        sgRNA_strength.set_index("sgRNA",inplace=True)
+        sgrna_efficacy = pd.read_csv(sgrna_efficacy_file,sep="\t", index_col=0)
+        sgrna_efficacy = sgrna_efficacy.iloc[:,-1:]
+        sgrna_efficacy.columns = ["sgRNA strength"]
+        sgrna_efficacy["sgRNA"] = sgrna_efficacy.index
+        out_val=sgrna_efficacy["sgRNA"].str.split("_")
+        sgrna_efficacy["sgRNA"] = out_val.str[:-2].str.join("_")
+        sgrna_efficacy.set_index("sgRNA",inplace=True)
 
         no_dep_df = pd.read_csv(uninduced_atc_file, sep="\t", index_col=0, header=None, comment="#")
         no_dep_df = no_dep_df.iloc[:, -1:]
@@ -327,7 +315,7 @@ class Method:
         no_dep_df["sgRNA"]=no_dep_df["sgRNA"].str.split("_v", expand=True)[0]
         no_dep_df.set_index("sgRNA",inplace=True)
 
-        abund_df = pd.concat([sgRNA_strength, no_dep_df,combined_counts_df], axis=1)
+        abund_df = pd.concat([sgrna_efficacy, no_dep_df,combined_counts_df], axis=1)
         #abund_df= abund_df[~(abund_df.index.str.contains("Negative") | abund_df.index.str.contains("Empty"))]
         abund_df= abund_df[~abund_df.index.str.contains("Empty")]
         logging.log("Disregarding Empty sgRNAs")
@@ -373,6 +361,7 @@ class Method:
         import numpy as np
         from mne.stats import fdr_correction
         import statsmodels.api as sm
+        from pytransit.components import parameter_panel
         
         frac_abund_df = pd.read_csv(frac_abund_file, sep="\t",comment='#')
 
@@ -438,6 +427,7 @@ class Method:
                 + coeffs.values.tolist()
                 + pvals.values.tolist()
             )
+            percentage = (100.0 * i / len(set(frac_abund_df["gene"])))
             if gui.is_active:
                 parameter_panel.progress_update(f"Analyzing Genes  {percentage:.2f}%\r", percentage)
 
@@ -448,7 +438,7 @@ class Method:
                 "Gene",
                 "Nobs",
                 "intercept",
-                "coefficient sgRNA_strength",
+                "coefficient sgrna_efficacy",
                 "coefficient concentration dependence",
                 "pval intercept",
                 "pval pred_logFC",
@@ -456,7 +446,7 @@ class Method:
             ],
         )
 
-        drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","coefficient sgRNA_strength","coefficient concentration dependence","pval intercept","pval pred_logFC","pval concentration dependence"])
+        drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","coefficient sgrna_efficacy","coefficient concentration dependence","pval intercept","pval pred_logFC","pval concentration dependence"])
     
         mask = np.isfinite(drug_out_df["pval concentration dependence"])
         pval_corrected = np.full(
@@ -754,7 +744,7 @@ class Method:
                 cgi_folder=lambda : None,
                 combined_counts_file=lambda : None,
                 metadata_file=lambda : None,
-                sg_rna_strength_file=lambda : None,
+                sgrna_efficacy_file=lambda : None,
                 uninduced_atc_file=lambda : None,
             )
             def visulize_combined_counts(*args):
@@ -815,7 +805,7 @@ class Method:
                 self.value_getters.cgi_folder            = panel_helpers.create_folder_input(panel, main_sizer, button_label="CGI Folder", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='*', after_select=load_folder)
             self.value_getters.combined_counts_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="Combined counts file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_combined_counts)
             self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_metadata)
-            self.value_getters.sg_rna_strength_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA strength file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.sgrna_efficacy_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA strength file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.uninduced_atc_file        = panel_helpers.create_file_input(panel, main_sizer, button_label="uninduced ATC file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
@@ -856,7 +846,7 @@ class Method:
             df = Method.extract_abund(
                 combined_counts_file=arguments.combined_counts_file or f"{arguments.cgi_folder}/combined_counts.txt",
                 metadata_file=arguments.metadata_file or f"{arguments.cgi_folder}/samples_metadata.txt",
-                sg_rna_strength_file=arguments.sg_rna_strength_file or f"{arguments.cgi_folder}/sgRNA_info.txt",
+                sgrna_efficacy_file=arguments.sgrna_efficacy_file or f"{arguments.cgi_folder}/sgRNA_info.txt",
                 uninduced_atc_file=arguments.uninduced_atc_file or f"{arguments.cgi_folder}/uninduced_ATC_counts.txt",
                 control_condition=arguments.control_condition,
                 drug=arguments.drug,
@@ -869,7 +859,7 @@ class Method:
             print(f'''df = {df}''')
             Method.run_model(
                 frac_abund_file=frac_abund_file,
-                frac_abund_df=df,
+                #frac_abund_df=df,
                 cdr_output_file=arguments.output_path,
             )
 
