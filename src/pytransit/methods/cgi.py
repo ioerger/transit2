@@ -578,10 +578,8 @@ class Method:
 
         plot_df = pd.concat(df_list)
 
-        cmap = mpl.colors.LinearSegmentedColormap.from_list(
-            "", ["#8ecae6", "#219ebc", "#023047", "#ffb703", "#fb8500"], N=len(abund_df)
-        )
-        palette = [mpl.colors.rgb2hex(cmap(i)) for i in range(cmap.N)]
+        cmap = sns.color_palette("Spectral", as_cmap=True)
+        palette = [mpl.colors.rgb2hex(cmap(i)) for i in range(len(plot_df))]
 
         if origx == True:
             xmin = plot_df["Concentration"].min()
