@@ -534,8 +534,8 @@ class Method:
         abund_df = pd.read_csv(fractional_abundances_file, sep="\t", comment="#")
         
         abund_df_lowercased = pd.DataFrame(abund_df)
-        abund_df_lowercased["gene"] = tuple(each.lower() for each in abund_df["gene"].values)
-        abund_df_lowercased["orf"] = tuple(each.lower() for each in abund_df["orf"].values)
+        abund_df_lowercased["gene"] = tuple(str(each).lower() for each in abund_df["gene"].values.tolist())
+        abund_df_lowercased["orf"] = tuple(str(each).lower() for each in abund_df["orf"].values.tolist())
         gene_no_case = gene.lower()
         abund_df_filtered = abund_df_lowercased[(abund_df_lowercased["gene"] == gene_no_case) | (abund_df_lowercased["orf"] == gene_no_case)]
         if len(abund_df_filtered) == 0:
