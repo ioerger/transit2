@@ -580,7 +580,7 @@ class Method:
                 X_in = sm.add_constant(X, has_constant="add")
                 results = sm.OLS(Y, X_in).fit()
                 all_slopes.append(results.params[1])
-                data["sgRNA strength"] = [row["sgRNA strength"]] * len(data)
+                data["sgRNA efficacy"] = [row["sgRNA strength"]] * len(data)
                 data["slope"] = [results.params[1]] * len(data)
                 data["Concentration"] = raw_X
                 data["Relative Abundance"] = raw_Y
@@ -592,7 +592,8 @@ class Method:
         plot_df = pd.concat(df_list)
 
         cmap = sns.color_palette("Spectral", as_cmap=True)
-        palette = [mpl.colors.rgb2hex(cmap(i)) for i in range(len(plot_df))]
+        #palette = [mpl.colors.rgb2hex(cmap(i)) for i in range(len(abund_df))]
+        palette  = sns.color_palette("Spectral", len(abund_df))
 
         if origx == True:
             xmin = plot_df["Concentration"].min()
@@ -613,7 +614,7 @@ class Method:
                 data=plot_df,
                 x="Log (Concentration)",
                 y="Log (Relative Abundance)",
-                hue="sgRNA strength",
+                hue="sgRNA efficacy",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -625,7 +626,7 @@ class Method:
                 data=plot_df,
                 x="Log (Concentration)",
                 y="Relative Abundance",
-                hue="sgRNA strength",
+                hue="sgRNA efficacy",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -637,7 +638,7 @@ class Method:
                 data=plot_df,
                 x="Concentration",
                 y="Log (Relative Abundance)",
-                hue="sgRNA strength",
+                hue="sgRNA efficacy",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -649,7 +650,7 @@ class Method:
                 data=plot_df,
                 x="Concentration",
                 y="Relative Abundance",
-                hue="sgRNA strength",
+                hue="sgRNA efficacy",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -717,11 +718,11 @@ class Method:
 
         sm1 = mpl.cm.ScalarMappable(
             norm=mpl.colors.Normalize(
-                vmin=plot_df["sgRNA strength"].min(), vmax=0, clip=False
+                vmin=abund_df["sgRNA strength"].min(), vmax=abund_df["sgRNA strength"].max(), clip=False
             ),
             cmap=cmap,
         )
-        g.figure.colorbar(sm1, shrink=0.8, aspect=50, label="sgRNA strength")
+        g.figure.colorbar(sm1, shrink=0.8, aspect=50, label="sgRNA efficacy")
         g.set(ylim=(ymin, ymax), xlim=(xmin, xmax))
         plt.gca().set_title(gene, wrap=True)
         plt.tight_layout()

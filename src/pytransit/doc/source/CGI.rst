@@ -25,7 +25,7 @@ This is a longer process, taking a few minutes each. However, the number of read
 
 ::
 
-    > python3 ../src/transit.py cgi extract_counts <fastq_file> <ids_file> > <counts_file>
+    > python3 ../src/transit.py cgi extract_counts <fastq_file> <ids_file> <counts_file>
 
 * ids_file : List of sgRNAs used in the experiment, where each row is one sgRNA id. 
     * For H37Rv experiments, the ids file is available in : ``transit/src/pytransit/data/CGI/IDs.H37Rv.CRISPRi.lib.txt``
@@ -36,7 +36,7 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 
 ::
 
-    > python3 ../src/transit.py cgi combine_counts <comma separated headers> <counts file 1> <counts file 2>  ... <counts_file n> > <combined counts file>
+    > python3 ../src/transit.py cgi combine_counts <comma separated headers> <counts file 1> <counts file 2>  ... <counts_file n>  <combined counts file>
 
 * counts files : sgRNA ids as their first column, and can have any number of columns.
 * comma-separated headers: the column names of the combined counts file
@@ -50,7 +50,7 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 
 ::
 
-    > python3 ../src/transit.py cgi extract_abund <combined counts file> <counts metadata file> <control condition> <sgRNA strengths file> <uninduced ATC file> <drug> <days>  >  <fractional abundance file>
+    > python3 ../src/transit.py cgi extract_abund <combined counts file> <counts metadata file> <control condition> <sgRNA strengths file> <uninduced ATC file> <drug> <days>  <fractional abundance file>
 
 * counts metadata file (USER created):
 
@@ -81,7 +81,11 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 This is a relatively quick process, taking at most 3 minutes for a dataset of ~90,000 sgRNAs . This step fits the CRISPRi-DR model (statistical analysis of concentration dependence for each gene) to each gene in the file and prints each output to the <CRISPRi-DR results file> in a tab separated file. 
 ::
 
-    > python3 ../src/transit.py cgi run_model <fractional abundance file>  >  <CRISPRi-DR results file>
+    > python3 ../src/transit.py cgi run_model <fractional abundance file>  <CRISPRi-DR results file> [Optional Arguments]
+        
+    Optional Arguments: 
+        -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
+
 
 * Siginificant interacting genes are those with adjusted P-val (Q-val) < 0.05 and \|Z slope\| > 2, these are indicated by a "-1" for depleted and "1" for enriched in in the "Significant Interactions" column
 
@@ -99,7 +103,13 @@ This process is fairly quick, taking less than a minute to run. This figure visu
 
 ::
 
-    > python3 ../src/transit.py cgi visualize <fractional abundance file> <gene> <output plot location>
+    > python3 ../src/transit.py cgi visualize <fractional abundance file> <gene> <output plot location> [Optional Arguments]
+    
+    Optional Arguments: 
+        --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
+        --origx := flag to turn on original scale axes rather than log scale for Concentration default=off
+        --origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
+
 
 * fractional abundance file : Fractional abundance file as created in Step 2. 
 
@@ -176,40 +186,31 @@ CRISPRi library was treated with rifampicin (data from Jeremy Rock's lab;
 
 Tutorial
 -------
-**Data : Obtain FastQ files from NCBI using the following run numbers**
 
-Fetch and process the following fastq files from NCBI using the SRA toolkit and place them in the ``transit/src/pytransit/data/CGI`` directory :
+This tutorial shows commands relative to this directory. Files in the ``transit/src/pytransit/data/CGI`` directory are: 
 
-* FastQ files for the 3 replicates of control samples in this experiment. They are in a ATC-induced 0 drug concentration DMSO library with 1 day predepletion
-
-    * SRR14827863 -> extracts SRR14827863_1.fastq
-    * SRR14827862 -> extracts SRR14827862_1.fastq
-    * SRR14827799 -> extracts SRR14827799_1.fastq 
-
-* FastQ files for 3 replicates of high concentration RIF in a 1 day pre-depletion library
-
-    * SRR14827727 -> extracts SRR14827727_1.fastq
-    * SRR14827861 -> extracts SRR14827861_1.fastq
-    * SRR14827850 -> extracts SRR14827850_1.fastq
-* FastQ files for 3 replicates of medium concentration RIF in a 1 day pre-depletion library
-
-    * SRR14827760 -> extracts SRR14827760_1.fastq
-    * SRR14827749 -> extracts SRR14827749_1.fastq
-    * SRR14827738 -> extracts SRR14827738_1.fastq
-
-* FastQ files for 3 replicates of low concentration RIF in a 1 day pre-depletion library
-
-    * SRR14827769 -> extracts SRR14827769_1.fastq
-    * SRR14827614 -> extracts SRR14827614_1.fastq
-    * SRR14827870 -> extracts SRR14827870_1.fastq
-
-This tutorial shows commands relative to this directory. Other files in the ``transit/src/pytransit/data/CGI`` directory are: 
-
-* counts_metadata.txt - describes the samples
-* sgRNA_metadata.txt - contains extrapolated LFCs for each sgRNA
+* samples_metadata.txt - describes the samples
+* sgRNA_info.txt - contains extrapolated LFCs for each sgRNA
 * uninduced_ATC_counts.txt - counts for uninduced ATC (no induction of target depletion) library
 * IDs.H37Rv.CRISPRi.lib.txt - ids of the sgRNAs that target the genes in H37Rv used in these experiments 
-    
+* RIF_D1_combined_counts.txt - combined counts of the RIF 1 day predepletion data for uninduced ATC, zero, low, medium and high concentrations (output of data preprocessed and Step 1 completed)
+
+.. note::
+
+    If the user would like to evaluate the software, they can start with Step 2, using the *RIF_D1_combined_counts.txt* file in the ``transit/src/pytransit/data/CGI`` directory.
+
+
+**Raw Data : Obtain FastQ files from NCBI using the following run numbers**
+
+Fetch and process the following into fastQ files from `NCBI <https://www.ncbi.nlm.nih.gov/bioproject/PRJNA738381/>`_ using the SRA toolkit and place them in the ``transit/src/pytransit/data/CGI`` directory :
+
+* Control samples (ATC-induced 0 drug concentration DMSO library with 1 day predepletion) : SRR14827863, SRR14827862, SRR14827799
+
+* High concentration RIF in a 1 day pre-depletion library : SRR14827727, SRR14827861, SRR14827850
+
+* Medium concentration RIF in a 1 day pre-depletion library: SRR14827760, SRR14827749, SRR14827738
+
+* Low concentration RIF in a 1 day pre-depletion library: SRR14827769, SRR14827614, SRR14827870
 
 
 **Preprocessing: Fastq to Count Files**
@@ -273,7 +274,7 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 *Significantly depleted gene : RVBD3645*
 
-*RVBD3645* is one of the significantly depleted genes in this experiment. In this plot, notice how most of the slopes are negative but the amount of depletion varies, where the more blue slopes (higher sgRNA strength) are steeper than orange sgRNA slopes (lower sgRNA strength)
+*RVBD3645* is one of the significantly depleted genes in this experiment. In this plot, notice how most of the slopes are negative but the amount of depletion varies, where the more red slopes (higher sgRNA efficacy) are steeper than purple sgRNA slopes (lower sgRNA efficacy)
 
 .. image:: _images/RVBD3645_lmplot.png
   :width: 400
@@ -285,7 +286,7 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 *Significantly enriched gene : ndh*
 
-*ndh* is one of the signifincantly enriched genes in this experiment. In its plot, notice how sgRNAs of high strength (blue green ones) show a strong upwards trend but those will lower strength (the orange ones) do not. In fact there a few sgRNAs that show almost no change in fractional abundace as concentration increases.
+*ndh* is one of the signifincantly enriched genes in this experiment. In its plot, notice how sgRNAs of higher intermediate strength (yellow ones) show a strong upwards trend but those will lower strength (the purple ones) do not. In fact there a few sgRNAs that show almost no change in fractional abundace as concentration increases.
 
 .. image:: _images/ndh_lmplot.png
   :width: 400
@@ -297,7 +298,7 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 *Non-interacting gene : thiL*
 
-*thiL* is an example on an non-interacting gene. It was found to be neither signifinicantly enriched nor depleted. Notice how in its plot, most of the slopes are fairly flat. As seen in the plots of *RVBD3645* and *ndh*, the bluer slopes show greater depletion than the orange slopes, but there is no overall trend present
+*thiL* is an example on an non-interacting gene. It was found to be neither signifinicantly enriched nor depleted. Notice how in its plot, most of the slopes are fairly flat. As seen in the plots of *RVBD3645* and *ndh*, the reder slopes show greater depletion than the orange slopes, but there is no overall trend present
 
 .. image:: _images/thiL_lmplot.png
   :width: 400
