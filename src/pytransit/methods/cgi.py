@@ -497,6 +497,11 @@ class Method:
                         frac_abund_file=frac_abund_file,
                         # TODO: add the other parameters
                     ),
+                    results=dict(
+                        total_hits = n,
+                        depleted_hits = depl_n,
+                        enriched_hits = enrich_n
+                    )
                 ),
             )
         except Exception as error:
@@ -803,7 +808,7 @@ class Method:
                 self.value_getters.cgi_folder            = panel_helpers.create_folder_input(panel, main_sizer, button_label="CGI Folder", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='*', after_select=load_folder)
             self.value_getters.combined_counts_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="Combined counts file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_combined_counts)
             self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_metadata)
-            self.value_getters.sgrna_efficacy_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA strength file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.sgrna_efficacy_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA efficacy file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.uninduced_atc_file        = panel_helpers.create_file_input(panel, main_sizer, button_label="uninduced ATC file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
