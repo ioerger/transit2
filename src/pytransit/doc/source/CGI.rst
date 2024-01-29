@@ -86,6 +86,9 @@ This is a relatively quick process, taking at most 3 minutes for a dataset of ~9
     Optional Arguments: 
         -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
 
+.. warning::
+    The *use-negatives* flag allows the user to use sgRNAs ID containing "Negative" to calculate Zscores of coefficients of concentration dependence in the final filtering step, as opposed to using the distribution of coefficients for all genes. This may increase the number of significant genes detected. 
+
 
 * Siginificant interacting genes are those with adjusted P-val (Q-val) < 0.05 and \|Z slope\| > 2, these are indicated by a "-1" for depleted and "1" for enriched in in the "Significant Interactions" column
 
