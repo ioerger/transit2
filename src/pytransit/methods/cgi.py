@@ -352,7 +352,7 @@ class Method:
         
         return abund_df
 
-        abund_df.to_csv(f, sep="\t", index=False)
+        #abund_df.to_csv(f, sep="\t", index=False)
 
 
 
@@ -438,15 +438,21 @@ class Method:
                 "Gene",
                 "Nobs",
                 "intercept",
-                "coefficient sgrna_efficacy",
+                "coefficient sgrna efficacy",
                 "coefficient concentration dependence",
                 "pval intercept",
-                "pval pred_logFC",
+                "pval sgrna efficacy",
                 "pval concentration dependence",
             ],
         )
 
-        drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","coefficient sgrna_efficacy","coefficient concentration dependence","pval intercept","pval pred_logFC","pval concentration dependence"])
+        #drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","coefficient sgrna efficacy","coefficient concentration dependence","pval intercept","pval sgrna efficacy","pval concentration dependence"])
+        drug_out_df["intercept"] = round(drug_out_df["intercept"],6)
+        drug_out_df["coefficient sgrna efficacy"] = round(drug_out_df["coefficient sgrna efficacy"],6)
+        drug_out_df["coefficient concentration dependence"] = round(drug_out_df["coefficient concentration dependence"],6)
+        drug_out_df["pval intercept"] = round(drug_out_df["pval intercept"],6)
+        drug_out_df["pval sgrna efficacy"] = round(drug_out_df["pval sgrna efficacy"],6)
+        drug_out_df["pval concentration dependence"] = round(drug_out_df["pval concentration dependence"],6)
     
         mask = np.isfinite(drug_out_df["pval concentration dependence"])
         pval_corrected = np.full(
@@ -468,7 +474,9 @@ class Method:
         else:
             drug_out_df["Z"] = (drug_out_df["coefficient concentration dependence"] - drug_out_df["coefficient concentration dependence"].mean())/drug_out_df["coefficient concentration dependence"].std()
         
-        
+        drug_out_df["qval concentration dependence"] = round(drug_out_df["qval concentration dependence"],6)
+        drug_out_df["Z"] = round(drug_out_df["Z"],6)
+
         drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
         drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z"]<-2),"Significant Interactions"]=-1
         drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z"]>2),"Significant Interactions"]=1
