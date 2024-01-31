@@ -277,7 +277,7 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 *Significantly depleted gene : RVBD3645*
 
-*RVBD3645* is one of the significantly depleted genes in this experiment. In this plot, notice how most of the slopes are negative but the amount of depletion varies, where the more red slopes (higher sgRNA efficacy) are steeper than purple sgRNA slopes (lower sgRNA efficacy)
+*RVBD3645* is one of the significantly depleted genes in this experiment. In this plot, notice how most of the slopes are negative but the amount of depletion varies, where the more red slopes (higher sgRNA efficiency) are steeper than purple sgRNA slopes (lower sgRNA efficiency)
 
 .. image:: _images/RVBD3645_lmplot.png
   :width: 400
