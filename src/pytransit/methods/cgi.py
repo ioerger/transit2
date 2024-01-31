@@ -438,20 +438,19 @@ class Method:
                 "Gene",
                 "Nobs",
                 "intercept",
-                "coefficient sgrna efficacy",
+                "coefficient sgrna efficiency",
                 "coefficient concentration dependence",
                 "pval intercept",
-                "pval sgrna efficacy",
+                "pval sgrna efficiency",
                 "pval concentration dependence",
             ],
         )
 
-        #drug_out_df = pd.DataFrame(drug_output, columns=["Orf","Gene","Nobs", "intercept","coefficient sgrna efficacy","coefficient concentration dependence","pval intercept","pval sgrna efficacy","pval concentration dependence"])
         drug_out_df["intercept"] = round(drug_out_df["intercept"],6)
-        drug_out_df["coefficient sgrna efficacy"] = round(drug_out_df["coefficient sgrna efficacy"],6)
+        drug_out_df["coefficient sgrna efficiency"] = round(drug_out_df["coefficient sgrna efficiency"],6)
         drug_out_df["coefficient concentration dependence"] = round(drug_out_df["coefficient concentration dependence"],6)
         drug_out_df["pval intercept"] = round(drug_out_df["pval intercept"],6)
-        drug_out_df["pval sgrna efficacy"] = round(drug_out_df["pval sgrna efficacy"],6)
+        drug_out_df["pval sgrna efficiency"] = round(drug_out_df["pval sgrna efficiency"],6)
         drug_out_df["pval concentration dependence"] = round(drug_out_df["pval concentration dependence"],6)
     
         mask = np.isfinite(drug_out_df["pval concentration dependence"])
@@ -580,7 +579,7 @@ class Method:
                 X_in = sm.add_constant(X, has_constant="add")
                 results = sm.OLS(Y, X_in).fit()
                 all_slopes.append(results.params[1])
-                data["sgRNA efficacy"] = [row["sgRNA strength"]] * len(data)
+                data["sgRNA efficiency"] = [row["sgRNA strength"]] * len(data)
                 data["slope"] = [results.params[1]] * len(data)
                 data["Concentration"] = raw_X
                 data["Relative Abundance"] = raw_Y
@@ -614,7 +613,7 @@ class Method:
                 data=plot_df,
                 x="Log (Concentration)",
                 y="Log (Relative Abundance)",
-                hue="sgRNA efficacy",
+                hue="sgRNA efficiency",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -626,7 +625,7 @@ class Method:
                 data=plot_df,
                 x="Log (Concentration)",
                 y="Relative Abundance",
-                hue="sgRNA efficacy",
+                hue="sgRNA efficiency",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -638,7 +637,7 @@ class Method:
                 data=plot_df,
                 x="Concentration",
                 y="Log (Relative Abundance)",
-                hue="sgRNA efficacy",
+                hue="sgRNA efficiency",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -650,7 +649,7 @@ class Method:
                 data=plot_df,
                 x="Concentration",
                 y="Relative Abundance",
-                hue="sgRNA efficacy",
+                hue="sgRNA efficiency",
                 palette=palette,
                 legend=False,
                 ci=None,
@@ -722,7 +721,7 @@ class Method:
             ),
             cmap=cmap,
         )
-        g.figure.colorbar(sm1, shrink=0.8, aspect=50, label="sgRNA efficacy")
+        g.figure.colorbar(sm1, shrink=0.8, aspect=50, label="sgRNA efficiency")
         g.set(ylim=(ymin, ymax), xlim=(xmin, xmax))
         plt.gca().set_title(gene, wrap=True)
         plt.tight_layout()
@@ -817,7 +816,7 @@ class Method:
                 self.value_getters.cgi_folder            = panel_helpers.create_folder_input(panel, main_sizer, button_label="CGI Folder", tooltip_text="", popup_title="", default_folder=None, default_folder_name="", allowed_extensions='*', after_select=load_folder)
             self.value_getters.combined_counts_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="Combined counts file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_combined_counts)
             self.value_getters.metadata_file             = panel_helpers.create_file_input(panel, main_sizer, button_label="Metadata file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*', after_select=visulize_metadata)
-            self.value_getters.sgrna_efficacy_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA efficacy file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
+            self.value_getters.sgrna_efficacy_file      = panel_helpers.create_file_input(panel, main_sizer, button_label="sgRNA efficiency file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             self.value_getters.uninduced_atc_file        = panel_helpers.create_file_input(panel, main_sizer, button_label="uninduced ATC file", tooltip_text="", popup_title="", default_folder=None, default_file_name="", allowed_extensions='All files (*.*)|*.*')
             panel_helpers.create_run_button(
                 panel, main_sizer, from_gui_function=self.from_gui
