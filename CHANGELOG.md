@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.0.10, 2024-02-17
+#### TRANSIT2:
+
+Minor changes:
+  - fixed .tolist() bug in betageom normalization in 'export combined_wig'
+
+
 ## Version 1.0.9, 2024-01-31
 #### TRANSIT2:
 
