@@ -121,10 +121,7 @@ class Method:
                 wig_list=wig_list,
                 annotation_path=annotation_path,
             )
-            if type(factors[0]) == type(0.0):
-                extra_info.normalization_factors = factors.flatten().tolist()
-            else:
-                extra_info.normalization_factors = misc.flatten_once(factors.tolist())
+            extra_info.normalization_factors = misc.flatten_once(factors)
             
             # 
             # Genome Data
