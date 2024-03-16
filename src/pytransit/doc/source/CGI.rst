@@ -90,10 +90,39 @@ This is a relatively quick process, taking at most 3 minutes for a dataset of ~9
     The *use-negatives* flag allows the user to use sgRNAs ID containing "Negative" to calculate Zscores of coefficients of concentration dependence in the final filtering step, as opposed to using the distribution of coefficients for all genes. This may increase the number of significant genes detected. 
 
 
-* Siginificant interacting genes are those with adjusted P-val (Q-val) < 0.05 and \|Z slope\| > 2, these are indicated by a "-1" for depleted and "1" for enriched in in the "Significant Interactions" column
+The output file has the following columns:
+
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Column Header                        | Column Definition                                                                                             |
++======================================+===============================================================================================================+
+| Significant Interactions             | 0=no interactions. 1=enriched, -1=depleted are those with adjusted P-val (Q-val) < 0.05 and \|Z slope\| > 2   |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Orf                                  | Orf name of the gene                                                                                          |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Gene                                 | Gene Name                                                                                                     |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Nobs                                 | Number of sgRNAs targeting the gene                                                                           |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| intercept                            | Intercept of the CRISPRi-DR model fit to the gene                                                             |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| coefficient sgrna efficiency         | Measure of the affect of sgRNA efficiency on changes in abundances with increasing concentration              |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| coefficient concentration dependence | Measure of the affect of increasing concnetration on changes in abundances                                    |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| pval intercept                       | P-value of the intercept                                                                                      |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| pval sgrna efficiency                | P-value of the coefficient of sgRNA efficiency                                                                |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| pval concentration dependence        | P-value of the coefficient of concentration dependence                                                        |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| qval concentration dependence        | Adjustment of the P-values calculated from the coefficient of concentration dependence                        |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Z                                    | Z-scores of the coefficient of concentration dependence                                                       |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+
 
 .. note::
-    When the file is sorted on the slope of concentration dependence, the user can rank the genes based on amount of depletion.
+   The column of coefficient concentration dependence is the columns of interest. The Z-scores and adjusted P-values are calculated from this column and used to determine significant interactions. When the output file is sorted on the slope of concentration dependence, the user can rank the genes based on amount of depletion.
 
 
 **Visualize Concentration-Dependence of sgRNAs for Specific Genes**
@@ -125,6 +154,11 @@ This process is fairly quick, taking less than a minute to run. This figure visu
 .. note::
     If comparing plots from different genes, note the scale of sgRNA strength shown in the plots.
 
+Run-time
+--------
+
+| The CRISPRi-DR method is fairly quick process. The creation of abundance file should not take more than a minute and the running of the model itself takes a few minutes, dependent on the size of the library.
+|
 
 .. rst-class:: transit_sectionend
 ----
