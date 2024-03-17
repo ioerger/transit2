@@ -256,21 +256,21 @@ Create file of barcode counts from fastq files. Each fastq files reflect one rep
 
 ::
     
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827863_1.fastq IDs.H37Rv.CRISPRi.lib.txt > DMSO_D1_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827862_1.fastq IDs.H37Rv.CRISPRi.lib.txt > DMSO_D1_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827799_1.fastq IDs.H37Rv.CRISPRi.lib.txt > DMSO_D1_rep3.counts  
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827863_1.fastq IDs.H37Rv.CRISPRi.lib.txt DMSO_D1_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827862_1.fastq IDs.H37Rv.CRISPRi.lib.txt DMSO_D1_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827799_1.fastq IDs.H37Rv.CRISPRi.lib.txt DMSO_D1_rep3.counts  
 
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827769_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_Low_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827614_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_Low_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827870_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_Low_rep3.counts  
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827769_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Low_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827614_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Low_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827870_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Low_rep3.counts  
 
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827760_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_Med_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827749_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_Med_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827738_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_Med_rep3.counts 
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827760_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Med_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827749_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Med_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827738_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Med_rep3.counts 
 
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827727_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_High_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827861_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_High_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827850_1.fastq IDs.H37Rv.CRISPRi.lib.txt > RIF_D1_High_rep3.counts 
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827727_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_High_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827861_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_High_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827850_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_High_rep3.counts 
 
 
 
