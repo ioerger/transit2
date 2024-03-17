@@ -67,9 +67,9 @@ class Method:
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
         console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
 
-        fastq_file= args[1]
-        ids_file = args[2]
-        counts_file = args[3]
+        fastq_file= args[0]
+        ids_file = args[1]
+        counts_file = args[2]
         Method.extract_counts(fastq_file, ids_file, counts_file)
 
     @staticmethod
