@@ -200,6 +200,7 @@ class Method:
         for id in IDs:
             vals = [id, counts.get(id, 0)]
             f.write("\t".join([str(x) for x in vals]))
+            f.write("\n")
         f.close()
 
     def create_combined_counts(self, headers, counts_list, combined_counts_file):
