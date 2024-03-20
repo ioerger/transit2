@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.0.12, 2024-03-17
+#### TRANSIT2:
+
+Minor changes:
+  - fix minor bug in CRISPRi-DR (cgi) output
+
 ## Version 1.0.11, 2024-03-17
 #### TRANSIT2:
 
