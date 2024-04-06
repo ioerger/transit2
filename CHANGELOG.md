@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+
+## Version 1.0.13, 2024-04-04
+#### TRANSIT2:
+
+Minor changes:
+  - fixed a bug for making combined_wig files in GUI using gff files
+
 ## Version 1.0.12, 2024-03-17
 #### TRANSIT2:
 

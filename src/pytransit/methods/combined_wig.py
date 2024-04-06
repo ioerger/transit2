@@ -1,7 +1,6 @@
 import sys
 import os
 import time
-
 import numpy
 
 from pytransit.specific_tools import  gui_tools, transit_tools, tnseq_tools, norm_tools, console_tools

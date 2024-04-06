@@ -33,6 +33,7 @@ def create_pop_up(parent_wx_object, *, min_width=None, min_height=None, title=""
         def close(*args):
             nonlocal modal_status
             dialog_window.Destroy()
+            #dialog_window.EndModal(wx.ID_CANCEL)
         
         with gui_tools.nice_error_log:
             function_being_wrapped(dialog_window, pop_up_sizer, refresh, close)
