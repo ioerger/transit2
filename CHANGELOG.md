@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+## Version 1.0.14, 2024-04-04
+#### TRANSIT2:
+
+Minor changes:
+  - fixed a bug that caused GUI to hang after popup windows were closed
+
 ## Version 1.0.13, 2024-04-04
 #### TRANSIT2:
 
