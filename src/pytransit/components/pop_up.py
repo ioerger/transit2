@@ -16,7 +16,7 @@ def create_pop_up(parent_wx_object, *, min_width=None, min_height=None, title=""
         pop_up_sizer = wx.BoxSizer(wx.VERTICAL)
         dialog_window.SetSizer(pop_up_sizer)
         
-        modal_status = None
+        modal_status = 1
         def refresh(*args):
             nonlocal modal_status
             pop_up_sizer.Fit(dialog_window)
@@ -28,12 +28,12 @@ def create_pop_up(parent_wx_object, *, min_width=None, min_height=None, title=""
                 max((min_height or -1), fitted_height)
             ))
             dialog_window.Layout()
-            modal_status = dialog_window.ShowModal()
+            if modal_status==1: modal_status = 2; dialog_window.ShowModal() 
         
         def close(*args):
             nonlocal modal_status
+            modal_status = False
             dialog_window.Destroy()
-            #dialog_window.EndModal(wx.ID_CANCEL)
         
         with gui_tools.nice_error_log:
             function_being_wrapped(dialog_window, pop_up_sizer, refresh, close)
