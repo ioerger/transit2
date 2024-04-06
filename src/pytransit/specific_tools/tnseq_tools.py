@@ -2664,7 +2664,8 @@ class GffFile:
                     - strand
         """
         gff_data = GffFile(path=path)
-        for description, start, end, strand, size, _, _, gene_name, orf_id, _ in gff_data.as_prot_table_rows:
+        orf2info = {}
+        for description, start, end, strand, size, _, _, gene_name, orf_id, _ in gff_data.as_prot_table_rows():
             orf2info[orf] = (gene_name, description, start, end, strand)
         return orf2info
     
