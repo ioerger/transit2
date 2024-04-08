@@ -8,7 +8,7 @@ CRISPRi-DR is designed to analyze CRISPRi libraries from CGI experiments and ide
 
 Workflow
 --------
-Starting with fastq files, barcode counts are extracted. The user creates their own metadata file, for the counts. Fractional abundances are and used to run the CRISPRi-DR model. The output of this model is a file that lists genes with their statistacal parameters and significance. Genes with significant interactions are those with qval of condetration dependence < 0.05 and \|Z score of concentration dpendence|>2 on the slope coefficient. However, genes can be ranked by depletion by sorting the coefficient of concentration dependence in ascending order
+Starting with fastq files, barcode counts are extracted. The user creates their own metadata file, for the counts. Fractional abundances are and used to run the CRISPRi-DR model. The output of this model is a file that lists genes with their statistacal parameters and significance. Genes with significant interactions are those with qval of concentration dependence < 0.05 and ebFDR < 0.05 on the slope coefficient. However, genes can be ranked by depletion by sorting the coefficient of concentration dependence in ascending order
 
 
 .. image:: _images/CGI_workflow.png
@@ -95,7 +95,7 @@ The output file has the following columns:
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | Column Header                        | Column Definition                                                                                             |
 +======================================+===============================================================================================================+
-| Significant Interactions             | 0=no interactions. 1=enriched, -1=depleted are those with adjusted P-val (Q-val) < 0.05 and \|Z slope\| > 2   |
+| Significant Interactions             | 0=no interactions. 1=enriched, -1=depleted are those with adjusted P-val (Q-val) < 0.05 and ebFDR < 0.05      |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | Orf                                  | Orf name of the gene                                                                                          |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
@@ -113,11 +113,15 @@ The output file has the following columns:
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | pval sgrna efficiency                | P-value of the coefficient of sgRNA efficiency                                                                |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| pval concentration dependence        | P-value of the coefficient of concentration dependence                                                        |
+| pval concentration dependence        | P-value of the coefficient of concentration dependence based on Wald test                                     |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | qval concentration dependence        | Adjustment of the P-values calculated from the coefficient of concentration dependence                        |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| Z                                    | Z-scores of the coefficient of concentration dependence                                                       |
+| Z scores of concentration dependence | Z scores of the coefficient of concentration dependence                                                       |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| locfdr                               | Estimated local false discovery rate for each gene using Empirical Bayes                                      |
++--------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| ebFDR                                | Calculated global false discovery rate for each gene using Empirical Bayes                                    |
 +--------------------------------------+---------------------------------------------------------------------------------------------------------------+
 
 
@@ -300,7 +304,7 @@ The result of this command should be a file with a set of comments at the top, d
 
     > python3 ../../../transit.py cgi run_model RIF_D1_frac_abund.txt RIF_D1_CRISPRi-DR_results.txt
 
-There should be a total of 184 significant gene interactions, where 111 are significant depletions and 73 are significantly enriched. 
+There should be a total of 184 significant gene interactions, where 436 are significant depletions and 164 are significantly enriched. 
 
 .. note::
     When the file is sorted on the slope of concentration dependence, the user can rank the genes based on amount of depletion.

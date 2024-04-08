@@ -363,10 +363,10 @@ class Method:
         from mne.stats import fdr_correction
         import statsmodels.api as sm
         from pytransit.components import parameter_panel
+
+        transit_tools.require_r_to_be_installed(required_r_packages=[ "locfdr" ])
         
         frac_abund_df = pd.read_csv(frac_abund_file, sep="\t",comment='#')
-
-
         if use_negatives:
             logging.log("Alert : -use_negatives flag has been provided, signifincance of genes will be calculated using Negative controls")
             frac_abund_df= frac_abund_df[~(frac_abund_df["sgRNA"].str.contains("Empty"))]
@@ -470,16 +470,66 @@ class Method:
             negatives_output = drug_out_df[drug_out_df["Gene"].str.contains("Negative")]
             neg_mean = negatives_output["coefficient concentration dependence"].mean()
             neg_stdev = negatives_output["coefficient concentration dependence"].std()
-            drug_out_df["Z"] = (drug_out_df["coefficient concentration dependence"] - neg_mean)/neg_stdev
+            drug_out_df["Z score of concentration dependence"] = (drug_out_df["coefficient concentration dependence"] - neg_mean)/neg_stdev
         else:
-            drug_out_df["Z"] = (drug_out_df["coefficient concentration dependence"] - drug_out_df["coefficient concentration dependence"].mean())/drug_out_df["coefficient concentration dependence"].std()
+            drug_out_df["Z score of concentration dependence"] = (drug_out_df["coefficient concentration dependence"] - drug_out_df["coefficient concentration dependence"].mean())/drug_out_df["coefficient concentration dependence"].std()
         
         drug_out_df["qval concentration dependence"] = round(drug_out_df["qval concentration dependence"],6)
-        drug_out_df["Z"] = round(drug_out_df["Z"],6)
+        drug_out_df["Z score of concentration dependence"] = round(drug_out_df["Z score of concentration dependence"],6)
+
+        ## Empirical Bayes Adjustment 
+        drug_out_df.to_csv("./temp.txt", sep="\t", index=False)
+
+        
+        from pytransit.specific_tools.transit_tools import r, globalenv
+        import rpy2.robjects as ro
+        from rpy2.robjects import pandas2ri
+
+        pandas2ri.activate()
+
+        r('''
+        library('locfdr')
+        locfdr_R <- function(verbose=FALSE) {
+            data = read.table("./temp.txt", sep='\t',head=T)
+
+            lim=10
+            z = data$Z.score.of.concentration.dependence
+            z[z > lim] = lim
+            z[z > lim] = lim
+            z[z < -lim] = -lim
+          
+            NT = 1
+            mod = locfdr(z,nulltype=NT, df=20)
+            data$locfdr = mod$fdr
+
+            temp = data
+            temp = temp[order(temp$locfdr),]
+
+            EFDR = NULL
+            for (i in 1:nrow(temp))
+            {
+            efdr = mean(temp$locfdr[1:i])
+            EFDR = rbind(EFDR,efdr)
+            }
+            temp$ebfdr = EFDR
+            data$ebfdr = temp[rownames(data),"ebfdr"]
+          
+            write.table(data,"./temp.txt",sep="\t",row.names=F,quote=F)
+        }
+        ''')
+        r_f = globalenv['locfdr_R']
+        r_f()
+        drug_out_df = pd.read_csv("./temp.txt", sep="\t")
+        drug_out_df.columns = [c.replace(".", " ") for c in drug_out_df.columns]
+        
+
+        import os
+        os.remove("./temp.txt")
+        #################
 
         drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
-        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z"]<-2),"Significant Interactions"]=-1
-        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z"]>2),"Significant Interactions"]=1
+        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebfdr"]<0.05)& (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
+        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebfdr"]<0.05)& (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
 
         drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
 
@@ -518,6 +568,7 @@ class Method:
         # drug_out_df.to_csv(cdr_output_file, sep="\t", index=False)
     
     # logging.log("Done")
+
 
     def visualize(
         self, fractional_abundances_file, gene, fig_location, fixed, origx, origy
