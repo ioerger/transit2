@@ -52,6 +52,9 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 
     > python3 ../src/transit.py cgi extract_abund <combined counts file> <counts metadata file> <control condition> <sgRNA strengths file> <uninduced ATC file> <drug> <days>  <fractional abundance file>
 
+    Optional Arguments: 
+        -no_uninduced := flag to calculated fractional abundances without uninduced abundances. if this flag is set, do not provide an uninduced ATC file.
+
 * counts metadata file (USER created):
 
     * The columns expected in this file: column_name, drug, conc_xMIC, days_predepletion
@@ -69,7 +72,7 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 
 * sgRNA strengths file: A file that contains metadata for each sgRNA in the combined counts file, where the first column must be sgRNA id (as seen in the combined counts file) and the last column must be the strength measurement of the sgRNAs (in publication of this method, sgRNA strength is measurement as extrapolated LFCs calculated through a passaging experiment).
 
-* uninduced ATC file: A two column file of sgRNAs and their counts in uninduced ATC (no ATC) with 0 drug concentration 
+* uninduced ATC file: A two column file of sgRNAs and their counts in uninduced ATC (no ATC) with 0 drug concentration. If the no_uninduced flag is set, then uninduced abundances are calculated from the standard coefficient of variation (SCV) across the induced counts.
 
 * drug : Name of the drug in the "drug" column of the metadata file passed in to be fit in the model
 
