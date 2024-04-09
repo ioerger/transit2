@@ -33,6 +33,7 @@ class Method:
         "--fixed",  # fixed axes
         "-origx", # non-log axes
         "-origy", # non-log axes
+        "-no_uninduced", #no uninduced ATC values
     ]
     usage_string = f"""
         Usage (6 sub-commands):
@@ -42,7 +43,9 @@ class Method:
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
     
     {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  <fractional abundundance file>
-        
+        Optional Arguements:
+            -no_uninduced := flag to calculate fractional abundances without input uninduced ATC file. If this flag is set, then the uninduced ATC file should not be provided
+
     {console_tools.subcommand_prefix} {cli_name} run_model <fractional abundundance file>  <CRISPRi DR results file>
         Optional Arguements:
             -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
@@ -90,16 +93,25 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=8)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=7)
 
         combined_counts_file      = args[0]
         metadata_file             = args[1]
         control_condition         = args[2]
         sgrna_efficacy_file      = args[3]
-        uninduced_atc_file        = args[4]
-        drug                      = args[5]
-        days                      = args[6]
-        fractional_abundance_file = args[7]
+        no_uninduced = True if "no_uninduced" in kwargs else False
+
+        if no_uninduced:
+            uninduced_atc_file        = None
+            drug                      = args[4]
+            days                      = args[5]
+            fractional_abundance_file = args[6]
+        else:
+            uninduced_atc_file        = args[4]
+            drug                      = args[5]
+            days                      = args[6]
+            fractional_abundance_file = args[7]
+
         Method.extract_abund(
             combined_counts_file,
             metadata_file,
@@ -109,6 +121,7 @@ class Method:
             drug,
             days,
             fractional_abundance_file,
+            no_uninduced = no_uninduced
         )
 
     @staticmethod
@@ -235,6 +248,7 @@ class Method:
         days,
         fractional_abundance_file,
         PC=1e-8,
+        no_uninduced=False,
     ):
         import pandas as pd
 
@@ -289,6 +303,7 @@ class Method:
         combined_counts_df["sgRNA"] = out_val.str[:-1].str.join("_")
         combined_counts_df.set_index("sgRNA",inplace=True)
         combined_counts_df = combined_counts_df[column_names]
+        combined_counts_df = combined_counts_df[~combined_counts_df.index.str.contains("Empty")]
 
 
         if(len(combined_counts_df.columns)==0):
@@ -304,24 +319,33 @@ class Method:
         sgrna_efficacy["sgRNA"] = out_val.str[:-2].str.join("_")
         sgrna_efficacy.set_index("sgRNA",inplace=True)
 
-        no_dep_df = pd.read_csv(uninduced_atc_file, sep="\t", index_col=0, header=None, comment="#")
-        no_dep_df = no_dep_df.iloc[:, -1:]
-        no_dep_df.columns = ["uninduced ATC values"]
-        no_dep_df["uninduced ATC values"] = (
-            no_dep_df["uninduced ATC values"] / no_dep_df["uninduced ATC values"].sum()
-        )
-        no_dep_df["sgRNA"] = no_dep_df.index
-        out_val=no_dep_df["sgRNA"].str.split("_")
-        no_dep_df["sgRNA"] = out_val.str[:-2].str.join("_")
-        no_dep_df["sgRNA"]=no_dep_df["sgRNA"].str.split("_v", expand=True)[0]
-        no_dep_df.set_index("sgRNA",inplace=True)
+        if no_uninduced:
+            logging.log("Calculating Fractional Abundances without Uninduced Abundances")
+            conc0_cols = metadata[metadata["conc_xMIC"]==0]["column_name"].values.tolist()
+            no_dep_df = pd.DataFrame(index=combined_counts_df.index)
+            no_dep_df["SCV"] = combined_counts_df.std(axis=1)/combined_counts_df.mean(axis=1)
+            no_dep_df["Conc0 Mean"] = combined_counts_df[conc0_cols].mean(axis=1)
+            no_dep_df["uninduced ATC values"] = no_dep_df["Conc0 Mean"] * np.exp(2*no_dep_df["SCV"])
+            no_dep_df = no_dep_df[["uninduced ATC values"]]
+            no_dep_df["uninduced ATC values"] = (no_dep_df["uninduced ATC values"] / no_dep_df["uninduced ATC values"].sum())
+        else:
+            logging.log("Calculating Fractional Abundances with Uninduced Abundances")
+            no_dep_df = pd.read_csv(uninduced_atc_file, sep="\t", index_col=0, header=None, comment="#")
+            no_dep_df = no_dep_df.iloc[:, -1:]
+            no_dep_df.columns = ["uninduced ATC values"]
+            no_dep_df["uninduced ATC values"] = (no_dep_df["uninduced ATC values"] / no_dep_df["uninduced ATC values"].sum())
+            no_dep_df["sgRNA"] = no_dep_df.index
+            out_val=no_dep_df["sgRNA"].str.split("_")
+            no_dep_df["sgRNA"] = out_val.str[:-2].str.join("_")
+            no_dep_df["sgRNA"]=no_dep_df["sgRNA"].str.split("_v", expand=True)[0]
+            no_dep_df.set_index("sgRNA",inplace=True)
 
         abund_df = pd.concat([sgrna_efficacy, no_dep_df,combined_counts_df], axis=1)
-        #abund_df= abund_df[~(abund_df.index.str.contains("Negative") | abund_df.index.str.contains("Empty"))]
         abund_df= abund_df[~abund_df.index.str.contains("Empty")]
         logging.log("Disregarding Empty sgRNAs")
         logging.log("%d usable sgRNAs (including Negatives) are all of the following files : sgRNA strength metadata, uninduced ATC counts file, combined counts file"%len(abund_df))
         abund_df["uninduced ATC values"] = abund_df["uninduced ATC values"].replace(np.nan,1)
+
 
         headers = ["sgRNA strength", "uninduced ATC values"]
         if fractional_abundance_file != None:
@@ -340,7 +364,6 @@ class Method:
         abund_df[["orf-gene","remaining"]] = abund_df["sgRNA"].str.split('_',n=1,expand=True)
         abund_df[["orf","gene"]]= abund_df["orf-gene"].str.split(':',expand=True)
         abund_df = abund_df.drop(columns=["orf-gene","remaining"])
-        #abund_df = abund_df.dropna()
         
         abund_df.insert(0, "sgRNA strength", abund_df.pop("sgRNA strength"))
         abund_df.insert(0, "uninduced ATC values", abund_df.pop("uninduced ATC values"))
@@ -352,8 +375,6 @@ class Method:
             abund_df.to_csv(f, sep="\t", index=False)
         
         return abund_df
-
-        #abund_df.to_csv(f, sep="\t", index=False)
 
 
 
