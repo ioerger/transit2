@@ -532,8 +532,8 @@ class Method:
             efdr = mean(temp$locfdr[1:i])
             EFDR = rbind(EFDR,efdr)
             }
-            temp$ebfdr = EFDR
-            data$ebfdr = temp[rownames(data),"ebfdr"]
+            temp$ebFDR = EFDR
+            data$ebFDR = temp[rownames(data),"ebFDR"]
           
             write.table(data,"./temp.txt",sep="\t",row.names=F,quote=F)
         }
@@ -549,8 +549,8 @@ class Method:
         #################
 
         drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
-        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebfdr"]<0.05)& (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
-        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebfdr"]<0.05)& (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
+        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebFDR"]<0.05)& (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
+        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebFDR"]<0.05)& (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
 
         drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
 
