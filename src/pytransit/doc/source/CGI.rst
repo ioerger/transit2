@@ -298,7 +298,7 @@ The resulting file will have 13 columns, where the first column is sgRNA ids and
 
 ::
 
-    > python3 ../../../transit.py cgi extract_abund RIF_D1_combined_counts.txt counts_metadata.txt DMSO sgRNA_metadata.txt uninduced_ATC_counts.txt RIF 1 RIF_D1_frac_abund.txt
+    > python3 ../../../transit.py cgi extract_abund RIF_D1_combined_counts.txt samples_metadata.txt DMSO sgRNA_info.txt uninduced_ATC_counts.txt RIF 1 RIF_D1_frac_abund.txt
 
 The result of this command should be a file with a set of comments at the top, detailing the libraries used (DMSO and RIF). There should be a total of 17 columns, the last 12 of which are the calculated abundances, the first is the sgRNA ids followed by the orf/gene the sgRNA is targeting, uninduced ATC values, and sgRNA strength. 
 
