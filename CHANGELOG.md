@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.0, 2024-04-12
+#### TRANSIT2:
+
+Minor changes:
+  - added empirical Bayes FDR analysis to filter significant interacting genes in CGI
+  - added '-no_uninduced' flag to CGI command (see documentation)
 
 ## Version 1.0.14, 2024-04-04
 #### TRANSIT2:
