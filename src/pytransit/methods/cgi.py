@@ -42,17 +42,17 @@ class Method:
     
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
     
-    {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  <fractional abundundance file>
-        Optional Arguements:
+    {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA strength file> <uninduced ATC file> <drug> <days>  <fractional abundance file>
+        Optional Arguments:
             -no_uninduced := flag to calculate fractional abundances without input uninduced ATC file. If this flag is set, then the uninduced ATC file should not be provided
 
-    {console_tools.subcommand_prefix} {cli_name} run_model <fractional abundundance file>  <CRISPRi DR results file>
-        Optional Arguements:
+    {console_tools.subcommand_prefix} {cli_name} run_model <fractional abundance file>  <CRISPRi DR results file>
+        Optional Arguments:
             -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
 
     {console_tools.subcommand_prefix} {cli_name} visualize <fractional abundance> <gene> <output figure location> [Optional Arguments]
         Optional Arguments: 
-            --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
+            --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid argument is "xmin=0,ymax=5"
             --origx := flag to turn on original scale axes rather than log scale for Concentration default=off
             --origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
     """.replace("\n        ", "\n")
