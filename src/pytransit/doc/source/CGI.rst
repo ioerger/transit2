@@ -27,8 +27,12 @@ This is a longer process, taking a few minutes each. However, the number of read
 
     > python3 ../src/transit.py cgi extract_counts <fastq_file> <ids_file> <counts_file>
 
+    Optional Arguements:
+        -delete_temp_fastQ := if fast files are gz files, this flag indicates whether user would like to delete the temp files
+
 * ids_file : List of sgRNAs used in the experiment, where each row is one sgRNA id. 
     * For H37Rv experiments, the ids file is available in : ``transit/src/pytransit/data/CGI/IDs.H37Rv.CRISPRi.lib.txt``
+
 
 
 **Step 1: Combine Individual Counts File to a Combined Counts File**

@@ -8,6 +8,7 @@ import datetime
 import collections
 import heapq
 import numpy as np
+import gzip
 
 import numpy
 
@@ -34,11 +35,14 @@ class Method:
         "-origx", # non-log axes
         "-origy", # non-log axes
         "-no_uninduced", #no uninduced ATC values
+        "-delete_temp_fastQ", #if gz files, this flag indicates whether user would like to delete the temp files
     ]
     usage_string = f"""
         Usage (6 sub-commands):
 
     {console_tools.subcommand_prefix} {cli_name} extract_counts <fastq file> <ids file> <output counts file>
+        Optional Arguements:
+            -delete_temp_fastQ := if fast files are gz files, this flag indicates whether user would like to delete the temp files
     
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
     
@@ -68,12 +72,13 @@ class Method:
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=3)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=3)
 
         fastq_file= args[0]
         ids_file = args[1]
         counts_file = args[2]
-        Method.extract_counts(fastq_file, ids_file, counts_file)
+        delete_temp_fastQ = True if "delete_temp_fastQ" in kwargs else False
+        Method.extract_counts(fastq_file, ids_file, counts_file, delete_temp_fastQ= delete_temp_fastQ)
 
     @staticmethod
     @cli.add_command(cli_name, "create_combined_counts")
@@ -162,18 +167,35 @@ class Method:
         s = "".join(s)
         return s
 
-    def extract_counts(self, fastq_file, ids_file, counts_file):
+    def extract_counts(self, fastq_file_initial, ids_file, counts_file, delete_temp_fastQ= False):
+        is_gz_file = False
+        if fastq_file_initial[-3:]==".gz": 
+            is_gz_file = True 
+            logging.log("%s Detected as a gzipped file \n" % fastq_file_initial)
+        
+        if is_gz_file:
+            logging.log("Uncompressing %s \n" % fastq_file_initial)
+            fastq_file = "temp_"+fastq_file_initial[0:-3]
+            outfil = open(fastq_file, "wb+")
+            for line in gzip.open(fastq_file_initial):
+                outfil.write(line)
+        else:
+            fastq_file = fastq_file_initial
+
+
         f = open(counts_file, "w")
         IDs = []
         barcodemap = {}  # hash from barcode to full ids
         for line in open(ids_file):
             w = line.rstrip().split("\t")
             id = w[0]
+            ## TODO: barcodes
             v = id.split("_")
             if len(v) < 3:
                 continue
             barcode = v[2]
             IDs.append(id)
+
             # reverse-complement of barcodes appears in reads, so hash them that way
             barcodemap[self.reverse_complement(barcode)] = id
         counts = {}
@@ -215,6 +237,9 @@ class Method:
             f.write("\t".join([str(x) for x in vals]))
             f.write("\n")
         f.close()
+
+        if is_gz_file and delete_temp_fastQ:
+            os.remove(fastq_file)
 
     def create_combined_counts(self, headers, counts_list, combined_counts_file):
         import pandas as pd
@@ -299,8 +324,8 @@ class Method:
         logging.log("# Condition Tested : "+str(drug)+"-"+str(days))
         headers = []
         combined_counts_df = pd.read_csv(combined_counts_file,sep="\t")
-        out_val=combined_counts_df["sgRNA"].str.split("_")
-        combined_counts_df["sgRNA"] = out_val.str[:-1].str.join("_")
+        # out_val=combined_counts_df["sgRNA"].str.split("_")
+        # combined_counts_df["sgRNA"] = out_val.str[:-1].str.join("_")
         combined_counts_df.set_index("sgRNA",inplace=True)
         combined_counts_df = combined_counts_df[column_names]
         combined_counts_df = combined_counts_df[~combined_counts_df.index.str.contains("Empty")]
@@ -315,8 +340,8 @@ class Method:
         sgrna_efficacy = sgrna_efficacy.iloc[:,-1:]
         sgrna_efficacy.columns = ["sgRNA strength"]
         sgrna_efficacy["sgRNA"] = sgrna_efficacy.index
-        out_val=sgrna_efficacy["sgRNA"].str.split("_")
-        sgrna_efficacy["sgRNA"] = out_val.str[:-2].str.join("_")
+        #out_val=sgrna_efficacy["sgRNA"].str.split("_")
+        #sgrna_efficacy["sgRNA"] = out_val.str[:-2].str.join("_")
         sgrna_efficacy.set_index("sgRNA",inplace=True)
 
         if no_uninduced:
@@ -335,9 +360,9 @@ class Method:
             no_dep_df.columns = ["uninduced ATC values"]
             no_dep_df["uninduced ATC values"] = (no_dep_df["uninduced ATC values"] / no_dep_df["uninduced ATC values"].sum())
             no_dep_df["sgRNA"] = no_dep_df.index
-            out_val=no_dep_df["sgRNA"].str.split("_")
-            no_dep_df["sgRNA"] = out_val.str[:-2].str.join("_")
-            no_dep_df["sgRNA"]=no_dep_df["sgRNA"].str.split("_v", expand=True)[0]
+            #out_val=no_dep_df["sgRNA"].str.split("_")
+            #no_dep_df["sgRNA"] = out_val.str[:-2].str.join("_")
+            #no_dep_df["sgRNA"]=no_dep_df["sgRNA"].str.split("_v", expand=True)[0]
             no_dep_df.set_index("sgRNA",inplace=True)
 
         abund_df = pd.concat([sgrna_efficacy, no_dep_df,combined_counts_df], axis=1)
@@ -352,9 +377,8 @@ class Method:
             f = open(fractional_abundance_file, "w")
         for i, col in enumerate(column_names):
             abund_df[col] = abund_df[col] / abund_df[col].sum()
-            abund_df[col] = (abund_df[col] + PC) / (
-                abund_df["uninduced ATC values"] + PC
-            )
+            print(abund_df[col])
+            abund_df[col] = (abund_df[col] + PC) / (abund_df["uninduced ATC values"] + PC)
             headers.append(str(concs_list[i]) + "_" + str(i))
             if fractional_abundance_file != None:
                 f.write("# " + str(concs_list[i]) + " conc_xMIC" + " - " + col + "\n")
