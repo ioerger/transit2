@@ -40,13 +40,13 @@ class Method:
     usage_string = f"""
         Usage (6 sub-commands):
 
-    {console_tools.subcommand_prefix} {cli_name} extract_counts <fastq file> <sgRNA info file> barcode_col <output counts file>
+    {console_tools.subcommand_prefix} {cli_name} extract_counts <fastq file> <sgRNA info file> <barcode_col> <output counts file>
         Optional Arguements:
             -delete_temp_fastQ := if fast files are gz files, this flag indicates whether user would like to delete the temp files
     
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
     
-    {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA efficacy file> <efficacy column name> <orf column name> > <uninduced ATC file> <drug> <days>  <fractional abundance file>
+    {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA info file> <efficacy column name> <orf column name> <uninduced ATC file> <drug> <days>  <fractional abundance file>
         Optional Arguments:
             -no_uninduced := flag to calculate fractional abundances without input uninduced ATC file. If this flag is set, then the uninduced ATC file should not be provided
 
