@@ -15,7 +15,6 @@ Starting with fastq files, barcode counts are extracted. The user creates their 
   :width: 1000
   :alt: Alternative text
 
-
 Command-line Steps
 ------------------
 
@@ -25,14 +24,22 @@ This is a longer process, taking a few minutes each. However, the number of read
 
 ::
 
-    > python3 ../src/transit.py cgi extract_counts <fastq_file> <ids_file> <counts_file>
+    > python3 ../src/transit.py cgi extract_counts <fastq_file> <sgRNA info file> <barode column> <counts_file> [Optional Arguements]
 
     Optional Arguements:
         -delete_temp_fastQ := if fast files are gz files, this flag indicates whether user would like to delete the temp files
 
-* ids_file : List of sgRNAs used in the experiment, where each row is one sgRNA id. 
-    * For H37Rv experiments, the ids file is available in : ``transit/src/pytransit/data/CGI/IDs.H37Rv.CRISPRi.lib.txt``
+* barode column : Column name of the sgRNA info file that contains the barcodes of the sgRNA (first column is the sgRNA ids)
 
+* sgRNA info file : A file that contains metadata for each sgRNA, where the columns must be
+
+    1. sgRNA id (as seen in the combined counts file), 
+    2. orf targetted by the sgRNA, 
+    3. barcode of the sgRNA
+    4. efficacy measurement of the sgRNAs (in publication of this method, sgRNA efficacy is measurement as extrapolated LFCs calculated through a passaging experiment).
+
+    .. note::
+        The order of the sgRNA info file is assumed to be as listed if using the GUI implementation. Specific columns can be specified if using the command line option.
 
 
 **Step 1: Combine Individual Counts File to a Combined Counts File**
@@ -54,12 +61,12 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 
 ::
 
-    > python3 ../src/transit.py cgi extract_abund <combined counts file> <counts metadata file> <control condition> <sgRNA strengths file> <uninduced ATC file> <drug> <days>  <fractional abundance file>
+    > python3 ../src/transit.py cgi extract_abund <combined counts file> <samples metadata file> <control condition> <sgRNA info file> <efficacy column> <orf column> <uninduced ATC file> <drug> <days> <fractional abundance file> [Optional Arguments]
 
     Optional Arguments: 
         -no_uninduced := flag to calculated fractional abundances without uninduced abundances. if do not have a uninduced counts, you can set this flag and they will be approximated
 
-* counts metadata file (USER created):
+* samples metadata file (USER created):
 
     * The columns expected in this file: column_name, drug, conc_xMIC, days_predepletion
 
@@ -74,7 +81,7 @@ This is a fairly fast process. It takes at most a minute for the combination of 
 
 * control condition: The condition to to be considered the control for these set of experiments, as specificed in the "drug" column of the metadata file; typically an atc-induced (+ ATC) with 0 drug concentration condition.
 
-* sgRNA strengths file: A file that contains metadata for each sgRNA in the combined counts file, where the first column must be sgRNA id (as seen in the combined counts file) and the last column must be the strength measurement of the sgRNAs (in publication of this method, sgRNA strength is measurement as extrapolated LFCs calculated through a passaging experiment).
+* sgRNA info file: A file that contains metadata for each sgRNA in the combined counts file, where the columns are as specified above.
 
 * uninduced ATC file: A two column file of sgRNAs and their counts in uninduced ATC (no ATC) with 0 drug concentration. **If you do not have a file with uninduced counts, you can set the '-no_uninduced' flag**. If the **-no_uninduced** flag is set, then uninduced abundances are approximated from the standard coefficient of variation (SCV) across the induced counts.
 
@@ -222,7 +229,7 @@ CRISPRi library was treated with rifampicin (data from Jeremy Rock's lab;
 +----------------------------------+-----------------------------------------------------------------------------------------------+
 | Metadata file:                   | `samples_metadata.txt <https://orca1.tamu.edu/CRISPRi-DR/samples_metadata.txt>`_              |
 +----------------------------------+-----------------------------------------------------------------------------------------------+
-| sgRNA strengths:                 | `sgRNA_info.txt <https://orca1.tamu.edu/CRISPRi-DR/sgRNA_info.txt>`_                          |
+| sgRNA info:                      | `sgRNA_info.txt <https://orca1.tamu.edu/CRISPRi-DR/sgRNA_info.txt>`_                          |
 +----------------------------------+-----------------------------------------------------------------------------------------------+
 | Uninduced counts (-ATC control): | `uninduced_ATC_counts.txt <https://orca1.tamu.edu/CRISPRi-DR/uninduced_ATC_counts.txt>`_      |
 +----------------------------------+-----------------------------------------------------------------------------------------------+
