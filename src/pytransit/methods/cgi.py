@@ -530,7 +530,7 @@ class Method:
             z[z < -lim] = -lim
           
             NT = 1
-            mod = locfdr(z,nulltype=NT, df=20)
+            mod = locfdr(z,nulltype=NT, df=22)
             data$locfdr = mod$fdr
 
             temp = data
