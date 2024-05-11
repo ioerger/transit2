@@ -46,7 +46,7 @@ class Method:
     
     {console_tools.subcommand_prefix} {cli_name} create_combined_counts <comma seperated headers> <counts file 1> <counts file 2> ... <counts file n> <combined counts file>
     
-    {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA efficacy file> <uninduced ATC file> <drug> <days>  <fractional abundance file>
+    {console_tools.subcommand_prefix} {cli_name} extract_abund <combined counts file> <metadata file> <control condition> <sgRNA efficacy file> <efficacy column name> <orf column name> > <uninduced ATC file> <drug> <days>  <fractional abundance file>
         Optional Arguments:
             -no_uninduced := flag to calculate fractional abundances without input uninduced ATC file. If this flag is set, then the uninduced ATC file should not be provided
 
@@ -248,12 +248,7 @@ class Method:
         df_list = []
         for f in counts_list:
             logging.log("Adding in file # %s \n" % f)
-            counts_df = pd.read_csv(f, sep="\t", comment="#")
-            counts_df["sgRNA"] = counts_df[counts_df.columns[0]].str.split(
-                "_v", expand=True
-            )[0]
-            counts_df = counts_df.drop(columns=[counts_df.columns[0]])
-            counts_df.set_index("sgRNA", inplace=True)
+            counts_df = pd.read_csv(f, sep="\t", comment="#", index_col=0)
             df_list.append(counts_df)
         combined_df = pd.concat(df_list, axis=1)
         combined_df.columns = headers
@@ -337,10 +332,16 @@ class Method:
             logging.log("WARNING: Not all of the samples from the metadata based on this criteron have a column in the combined counts file")
       
         sgrna_info_df = pd.read_csv(sgRNA_info_file,sep="\t", index_col=0)
-        sgrna_efficacy = sgrna_info_df[[efficacy_col]]
+        if efficacy_col=="":
+            sgrna_efficacy = sgrna_info_df[sgrna_info_df.columns[-1]]
+        else:
+            sgrna_efficacy = sgrna_info_df[[efficacy_col]]
         sgrna_efficacy.columns = ["sgRNA efficacy"]
 
-        orf_info = sgrna_info_df[[orf_col]]
+        if orf_col=="":
+            orf_info = sgrna_info_df[sgrna_info_df.columns[0]]
+        else:  
+            orf_info = sgrna_info_df[[orf_col]]
         orf_info.columns = ["Orf"]
 
         if no_uninduced:
@@ -378,6 +379,11 @@ class Method:
 
         abund_df.columns = headers
         
+        #Lines to ensure first column name (index column) has sgRNA label and any orf names will nulls are dropped
+        abund_df = abund_df[~abund_df["Orf"].isna()]
+        abund_df["sgRNA"] = abund_df.index
+        abund_df.set_index("sgRNA", inplace=True)
+        
         if fractional_abundance_file != None:
             abund_df.to_csv(f, sep="\t")
         
@@ -399,7 +405,6 @@ class Method:
             logging.log("Alert : -use_negatives flag has been provided, signifincance of genes will be calculated using Negative controls")
             frac_abund_df= frac_abund_df[~(frac_abund_df["sgRNA"].str.contains("Empty"))]
             frac_abund_df = frac_abund_df.fillna(1)
-            #frac_abund_df = frac_abund_df[~frac_abund_df["sgRNA efficacy"].isna()]
             total_neg_genes= int(np.sqrt(len(frac_abund_df[frac_abund_df["Orf"].str.contains("Negative")])))
             counter =0
             for neg_sgRNA in set(frac_abund_df[frac_abund_df["Orf"].str.contains("Negative")]["sgRNA"]):
@@ -494,7 +499,6 @@ class Method:
 
         if use_negatives==True:
             negatives_output = drug_out_df[drug_out_df["Orf"].str.contains("Negative")]
-            print(negatives_output)
             neg_mean = negatives_output["coefficient concentration dependence"].mean()
             neg_stdev = negatives_output["coefficient concentration dependence"].std()
             drug_out_df["Z score of concentration dependence"] = (drug_out_df["coefficient concentration dependence"] - neg_mean)/neg_stdev
@@ -938,18 +942,19 @@ class Method:
                 metadata_file=arguments.metadata_file or f"{arguments.cgi_folder}/samples_metadata.txt",
                 sgRNA_info_file=arguments.sgRNA_info_file or f"{arguments.cgi_folder}/sgRNA_info.txt",
                 uninduced_atc_file=arguments.uninduced_atc_file or f"{arguments.cgi_folder}/uninduced_ATC_counts.txt",
+                efficacy_col="",
+                orf_col="",
                 control_condition=arguments.control_condition,
                 drug=arguments.drug,
                 days=arguments.days,
                 fractional_abundance_file=None,
             )
             frac_abund_file = misc.inject_path_extension(path=arguments.output_path, extension="abundances")
-            df.to_csv(frac_abund_file, sep="\t", encoding='utf-8', index=False)
+            df.to_csv(frac_abund_file, sep="\t", encoding='utf-8')
         
             print(f'''df = {df}''')
             Method.run_model(
                 frac_abund_file=frac_abund_file,
-                #frac_abund_df=df,
                 cdr_output_file=arguments.output_path,
             )
 
