@@ -108,7 +108,7 @@ This is a relatively quick process, taking at most 3 minutes for a dataset of ~9
         -use_negatives := flag to use negative controls to calculate significance of coefficients of concentration dependence
 
 .. warning::
-    The *use-negatives* flag allows the user to use sgRNAs ID containing "Negative" to calculate Zscores of coefficients of concentration dependence in the final filtering step, as opposed to using the distribution of coefficients for all genes. This may increase the number of significant genes detected. 
+    The *use-negatives* flag allows the user to use sgRNAs ID containing "Negative" to calculate Zscores of coefficients of concentration dependence in the final filtering step, as opposed to using the distribution of coefficients for all genes. The significant genes assessed with this flag are those with qval concentration dependence <0.05 and \|Z scores of concentration dependence\| > 2. It does NOT include the empirical Bayes filter. 
 
 
 The output file has the following columns:

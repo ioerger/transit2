@@ -513,8 +513,8 @@ class Method:
             drug_out_df["Z score of concentration dependence"] = round(drug_out_df["Z score of concentration dependence"],6)
 
             drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
-            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
-            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) &  (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
+            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["Z score of concentration dependence"]<-2),"Significant Interactions"]=-1
+            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) &  (drug_out_df["Z score of concentration dependence"]>2),"Significant Interactions"]=1
 
             drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
 
