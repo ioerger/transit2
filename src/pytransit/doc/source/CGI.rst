@@ -29,7 +29,7 @@ This is a longer process, taking a few minutes each. However, the number of read
     Optional Arguments:
         -delete_temp_fastQ := if fastq files are provided as gzipped files, this flag indicates whether user would like to delete the temp uncompressed files
 
-* **<fastq_file>** : raw reads in *.fastq or *.fastq.gz (gzipped) format (if gzipped, they will be automatically incompressed)
+* **<fastq_file>** : raw reads in *.fastq or *.fastq.gz (gzipped) format (if gzipped, they will be automatically uncompressed)
 
 * **-delete_temp_fastq** (optional flag) : if gzipped files were provided, the user can add this flag to automatically delete the temporary uncompressed files afterward, to help save disk space
 
@@ -38,7 +38,7 @@ This is a longer process, taking a few minutes each. However, the number of read
     1. sgRNA ids (user defined, must be unique per sgRNA). Must be first column for both command line and GUI usage
     2. Orfs targeted by the sgRNA, 
     3. Barcodes (nucleotide sequences) of the sgRNAs
-    4. sgRNA efficacies (measurements of effect on growth rate; in the publication of this method, sgRNA efficacy is measurement as extrapolated LFCs calculated through a passaging experiment).
+    4. sgRNA efficacies (measurements of effect on growth rate; in the publication of this method, sgRNA efficacy is estimated log2-fold-change in CFU at 25 generations (induced vs uninduced), calculated through a passaging experiment).
 
 * **<barcode column>** : Column name of the sgRNA info file that contains the barcodes of the sgRNA (first column is the sgRNA ids)
 
