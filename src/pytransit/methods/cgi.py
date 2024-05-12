@@ -509,72 +509,89 @@ class Method:
             neg_mean = negatives_output["coefficient concentration dependence"].mean()
             neg_stdev = negatives_output["coefficient concentration dependence"].std()
             drug_out_df["Z score of concentration dependence"] = (drug_out_df["coefficient concentration dependence"] - neg_mean)/neg_stdev
+            drug_out_df["qval concentration dependence"] = round(drug_out_df["qval concentration dependence"],6)
+            drug_out_df["Z score of concentration dependence"] = round(drug_out_df["Z score of concentration dependence"],6)
+
+            drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
+            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
+            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) &  (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
+
+            drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
+
+            n = len(drug_out_df[drug_out_df["Significant Interactions"] != 0])
+            depl_n = len(drug_out_df[drug_out_df["Significant Interactions"] == -1])
+            enrich_n = len(drug_out_df[drug_out_df["Significant Interactions"] == 1])
+            logging.log("%d Total Significant Gene Interactions" % n)
+            logging.log("%d Significant Gene Depletions" % depl_n)
+            logging.log("%d Significant Gene Enrichments" % enrich_n)
+
+
         else:
             drug_out_df["Z score of concentration dependence"] = (drug_out_df["coefficient concentration dependence"] - drug_out_df["coefficient concentration dependence"].mean())/drug_out_df["coefficient concentration dependence"].std()
         
-        drug_out_df["qval concentration dependence"] = round(drug_out_df["qval concentration dependence"],6)
-        drug_out_df["Z score of concentration dependence"] = round(drug_out_df["Z score of concentration dependence"],6)
+            drug_out_df["qval concentration dependence"] = round(drug_out_df["qval concentration dependence"],6)
+            drug_out_df["Z score of concentration dependence"] = round(drug_out_df["Z score of concentration dependence"],6)
 
-        ## Empirical Bayes Adjustment 
-        drug_out_df.to_csv("./temp.txt", sep="\t", index=False)
+            ## Empirical Bayes Adjustment 
+            drug_out_df.to_csv("./temp.txt", sep="\t", index=False)
 
         
-        from pytransit.specific_tools.transit_tools import r, globalenv
-        import rpy2.robjects as ro
-        from rpy2.robjects import pandas2ri
+            from pytransit.specific_tools.transit_tools import r, globalenv
+            import rpy2.robjects as ro
+            from rpy2.robjects import pandas2ri
 
-        pandas2ri.activate()
+            pandas2ri.activate()
 
-        r('''
-        library('locfdr')
-        locfdr_R <- function(verbose=TRUE) {
-            data = read.table("./temp.txt", sep='\t',head=T)
+            r('''
+            library('locfdr')
+            locfdr_R <- function(verbose=TRUE) {
+                data = read.table("./temp.txt", sep='\t',head=T)
 
-            lim=10
-            z = data$Z.score.of.concentration.dependence
-            z[z > lim] = lim
-            z[z < -lim] = -lim
-          
-            mod = locfdr(z,nulltype=1, df=20)
-            data$locfdr = mod$fdr
+                lim=10
+                z = data$Z.score.of.concentration.dependence
+                z[z > lim] = lim
+                z[z < -lim] = -lim
+            
+                mod = locfdr(z,nulltype=1, df=20)
+                data$locfdr = mod$fdr
 
-            temp = data
-            temp = temp[order(temp$locfdr),]
+                temp = data
+                temp = temp[order(temp$locfdr),]
 
-            EFDR = NULL
-            for (i in 1:nrow(temp))
-            {
-            efdr = mean(temp$locfdr[1:i])
-            EFDR = rbind(EFDR,efdr)
+                EFDR = NULL
+                for (i in 1:nrow(temp))
+                {
+                efdr = mean(temp$locfdr[1:i])
+                EFDR = rbind(EFDR,efdr)
+                }
+                temp$ebFDR = EFDR
+                data$ebFDR = temp[rownames(data),"ebFDR"]
+            
+                write.table(data,"./temp.txt",sep="\t",row.names=F,quote=F)
             }
-            temp$ebFDR = EFDR
-            data$ebFDR = temp[rownames(data),"ebFDR"]
-          
-            write.table(data,"./temp.txt",sep="\t",row.names=F,quote=F)
-        }
-        ''')
-        r_f = globalenv['locfdr_R']
-        r_f()
-        drug_out_df = pd.read_csv("./temp.txt", sep="\t")
-        drug_out_df.columns = [c.replace(".", " ") for c in drug_out_df.columns]
-        
+            ''')
+            r_f = globalenv['locfdr_R']
+            r_f()
+            drug_out_df = pd.read_csv("./temp.txt", sep="\t")
+            drug_out_df.columns = [c.replace(".", " ") for c in drug_out_df.columns]
+            
 
-        import os
-        os.remove("./temp.txt")
+            import os
+            os.remove("./temp.txt")
         #################
 
-        drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
-        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebFDR"]<0.05)& (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
-        drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebFDR"]<0.05)& (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
+            drug_out_df["Significant Interactions"] = [0] * len(drug_out_df)
+            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebFDR"]<0.05)& (drug_out_df["coefficient concentration dependence"]<0),"Significant Interactions"]=-1
+            drug_out_df.loc[(drug_out_df["qval concentration dependence"]<0.05) & (drug_out_df["ebFDR"]<0.05)& (drug_out_df["coefficient concentration dependence"]>0),"Significant Interactions"]=1
 
-        drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
+            drug_out_df.insert(0, "Significant Interactions", drug_out_df.pop("Significant Interactions"))
 
-        n = len(drug_out_df[drug_out_df["Significant Interactions"] != 0])
-        depl_n = len(drug_out_df[drug_out_df["Significant Interactions"] == -1])
-        enrich_n = len(drug_out_df[drug_out_df["Significant Interactions"] == 1])
-        logging.log("%d Total Significant Gene Interactions" % n)
-        logging.log("%d Significant Gene Depletions" % depl_n)
-        logging.log("%d Significant Gene Enrichments" % enrich_n)
+            n = len(drug_out_df[drug_out_df["Significant Interactions"] != 0])
+            depl_n = len(drug_out_df[drug_out_df["Significant Interactions"] == -1])
+            enrich_n = len(drug_out_df[drug_out_df["Significant Interactions"] == 1])
+            logging.log("%d Total Significant Gene Interactions" % n)
+            logging.log("%d Significant Gene Depletions" % depl_n)
+            logging.log("%d Significant Gene Enrichments" % enrich_n)
 
         #drug_out_df = drug_out_df.replace(r"\s+", np.nan, regex=True).replace("", np.nan)
         try:
@@ -599,9 +616,7 @@ class Method:
         except Exception as error:
             print("error", error)
             import code; code.interact(local={**globals(),**locals()})
-        # drug_out_df.to_csv(cdr_output_file, sep="\t", index=False)
-    
-    # logging.log("Done")
+
 
 
     def visualize(
