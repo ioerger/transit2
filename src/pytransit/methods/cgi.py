@@ -57,8 +57,8 @@ class Method:
     {console_tools.subcommand_prefix} {cli_name} visualize <fractional abundance> <gene> <output figure location> [Optional Arguments]
         Optional Arguments: 
             --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid argument is "xmin=0,ymax=5"
-            --origx := flag to turn on original scale axes rather than log scale for Concentration default=off
-            --origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
+            -origx := flag to turn on original scale axes rather than log scale for Concentration default=off
+            -origy := flag to turn on original scale axes rather than log scale for Realtive Abundances default=off
     """.replace("\n        ", "\n")
     
     @staticmethod
@@ -333,7 +333,7 @@ class Method:
       
         sgrna_info_df = pd.read_csv(sgRNA_info_file,sep="\t", index_col=0)
         if efficacy_col=="":
-            sgrna_efficacy = sgrna_info_df[sgrna_info_df.columns[-1]]
+            sgrna_efficacy = sgrna_info_df[sgrna_info_df.columns[2]]
         else:
             sgrna_efficacy = sgrna_info_df[[efficacy_col]]
         sgrna_efficacy.columns = ["sgRNA efficacy"]
@@ -345,10 +345,11 @@ class Method:
         orf_info.columns = ["Orf"]
 
         if no_uninduced:
+            PC = 1e-8
             logging.log("Calculating Fractional Abundances without Uninduced Abundances")
             conc0_cols = metadata[metadata["conc_xMIC"]==0]["column_name"].values.tolist()
             no_dep_df = pd.DataFrame(index=combined_counts_df.index)
-            no_dep_df["SCV"] = combined_counts_df.std(axis=1)/combined_counts_df.mean(axis=1)
+            no_dep_df["SCV"] = (combined_counts_df.std(axis=1)+PC)/(combined_counts_df.mean(axis=1)+PC)
             no_dep_df["Conc0 Mean"] = combined_counts_df[conc0_cols].mean(axis=1)
             no_dep_df["uninduced ATC values"] = no_dep_df["Conc0 Mean"] * np.exp(2*no_dep_df["SCV"])
             no_dep_df = no_dep_df[["uninduced ATC values"]]
@@ -402,7 +403,7 @@ class Method:
         
         frac_abund_df = pd.read_csv(frac_abund_file, sep="\t",comment='#')
         if use_negatives:
-            logging.log("Alert : -use_negatives flag has been provided, signifincance of genes will be calculated using Negative controls")
+            logging.log("Alert : -use_negatives flag has been provided, significance of genes will be calculated using Negative controls")
             frac_abund_df= frac_abund_df[~(frac_abund_df["sgRNA"].str.contains("Empty"))]
             frac_abund_df = frac_abund_df.fillna(1)
             total_neg_genes= int(np.sqrt(len(frac_abund_df[frac_abund_df["Orf"].str.contains("Negative")])))
@@ -445,8 +446,13 @@ class Method:
 
             melted_df = melted_df.dropna()
             if len(melted_df.index) < 2:
+                print("Found a small gene", orf)
                 drug_output.append([orf, len(gene_df)] + [np.nan] * 6)
                 continue
+            status = " "
+            if len(gene_df)<5:
+                logging.log("NOTE: ",orf," has less than 5 sgRNAs")
+                status = "< 5 sgRNAs"
 
             Y = melted_df["logsig abund"]
             X = melted_df.drop(columns=["abund", "logsig abund", "sgRNA", "conc"])
@@ -456,7 +462,7 @@ class Method:
             coeffs = results.params
             pvals = results.pvalues
             drug_output.append(
-                [orf, len(gene_df)]
+                [status, orf, len(gene_df)]
                 + coeffs.values.tolist()
                 + pvals.values.tolist()
             )
@@ -467,6 +473,7 @@ class Method:
         drug_out_df = pd.DataFrame(
             drug_output,
             columns=[
+                "Status",
                 "Orf",
                 "Nobs",
                 "intercept",
@@ -520,17 +527,15 @@ class Method:
 
         r('''
         library('locfdr')
-        locfdr_R <- function(verbose=FALSE) {
+        locfdr_R <- function(verbose=TRUE) {
             data = read.table("./temp.txt", sep='\t',head=T)
 
             lim=10
             z = data$Z.score.of.concentration.dependence
             z[z > lim] = lim
-            z[z > lim] = lim
             z[z < -lim] = -lim
           
-            NT = 1
-            mod = locfdr(z,nulltype=NT, df=22)
+            mod = locfdr(z,nulltype=1, df=20)
             data$locfdr = mod$fdr
 
             temp = data
@@ -571,9 +576,7 @@ class Method:
         logging.log("%d Significant Gene Depletions" % depl_n)
         logging.log("%d Significant Gene Enrichments" % enrich_n)
 
-        drug_out_df = drug_out_df.replace(r"\s+", np.nan, regex=True).replace(
-            "", np.nan
-        )
+        #drug_out_df = drug_out_df.replace(r"\s+", np.nan, regex=True).replace("", np.nan)
         try:
             transit_tools.write_result(
                 path=cdr_output_file,  # path=None means write to STDOUT

@@ -24,22 +24,29 @@ This is a longer process, taking a few minutes each. However, the number of read
 
 ::
 
-    > python3 ../src/transit.py cgi extract_counts <fastq_file> <sgRNA info file> <barode column> <counts_file> [Optional Arguements]
+    > python3 ../src/transit.py cgi extract_counts <fastq_file> <sgRNA info file> <barcode column> <counts_file> [Optional Arguements]
 
     Optional Arguements:
         -delete_temp_fastQ := if fast files are gz files, this flag indicates whether user would like to delete the temp files
 
 * barode column : Column name of the sgRNA info file that contains the barcodes of the sgRNA (first column is the sgRNA ids)
 
-* sgRNA info file : A file that contains metadata for each sgRNA, where the columns must be
+    *  The barcode sequence in this column will be reverse complemented before when scanning the reads.
 
-    1. sgRNA id (as seen in the combined counts file), 
-    2. orf targetted by the sgRNA, 
-    3. barcode of the sgRNA
-    4. efficacy measurement of the sgRNAs (in publication of this method, sgRNA efficacy is measurement as extrapolated LFCs calculated through a passaging experiment).
+* sgRNA info file : A file that contains metadata for each sgRNA, where the columns include:
+
+    1. sgRNA ids (user defined, must be unique per sgRNA). Must be first column for both command line and GUI usage
+    2. Orfs targeted by the sgRNA, 
+    3. Barcodes of the sgRNA
+    4. sgRNA efficacies (in publication of this method, sgRNA efficacy is measurement as extrapolated LFCs calculated through a passaging experiment).
 
     .. note::
-        The order of the sgRNA info file is assumed to be as listed if using the GUI implementation. Specific columns can be specified if using the command line option.
+        * The order of the sgRNA info file is assumed to be as listed if using the GUI implementation. Specific columns can be specified if using the command line option.
+        * Other columns are allowed in the sgRNA info file (in the case of GUI usage, these extra columns should be after the first four listed above)
+        * The sgRNA infor file must have a header/column names
+        * This file should be tab seperated
+
+
 
 
 **Step 1: Combine Individual Counts File to a Combined Counts File**
@@ -245,9 +252,8 @@ Tutorial
 This tutorial shows commands relative to this directory. Files in the ``transit/src/pytransit/data/CGI`` directory are: 
 
 * samples_metadata.txt - describes the samples
-* sgRNA_info.txt - contains extrapolated LFCs for each sgRNA
+* sgRNA_info.txt - contains metadata for sgRNAs including orfs targeted, barcode sequences and efficacies
 * uninduced_ATC_counts.txt - counts for uninduced ATC (no induction of target depletion) library
-* IDs.H37Rv.CRISPRi.lib.txt - ids of the sgRNAs that target the genes in H37Rv used in these experiments 
 * RIF_D1_combined_counts.txt - combined counts of the RIF 1 day predepletion data for uninduced ATC, zero, low, medium and high concentrations (output of data preprocessed and Step 1 completed)
 
 .. note::
@@ -274,21 +280,21 @@ Create file of barcode counts from fastq files. Each fastq files reflect one rep
 
 ::
     
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827863_1.fastq IDs.H37Rv.CRISPRi.lib.txt DMSO_D1_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827862_1.fastq IDs.H37Rv.CRISPRi.lib.txt DMSO_D1_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827799_1.fastq IDs.H37Rv.CRISPRi.lib.txt DMSO_D1_rep3.counts  
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827863_1.fastq sgRNA_info.txt Barcode DMSO_D1_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827862_1.fastq sgRNA_info.txt Barcode DMSO_D1_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827799_1.fastq sgRNA_info.txt Barcode DMSO_D1_rep3.counts  
 
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827769_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Low_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827614_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Low_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827870_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Low_rep3.counts  
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827769_1.fastq sgRNA_info.txt Barcode RIF_D1_Low_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827614_1.fastq sgRNA_info.txt Barcode RIF_D1_Low_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827870_1.fastq sgRNA_info.txt Barcode RIF_D1_Low_rep3.counts  
 
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827760_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Med_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827749_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Med_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827738_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_Med_rep3.counts 
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827760_1.fastq sgRNA_info.txt Barcode RIF_D1_Med_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827749_1.fastq sgRNA_info.txt Barcode RIF_D1_Med_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827738_1.fastq sgRNA_info.txt Barcode RIF_D1_Med_rep3.counts 
 
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827727_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_High_rep1.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827861_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_High_rep2.counts
-    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827850_1.fastq IDs.H37Rv.CRISPRi.lib.txt RIF_D1_High_rep3.counts 
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827727_1.fastq sgRNA_info.txt Barcode RIF_D1_High_rep1.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827861_1.fastq sgRNA_info.txt Barcode RIF_D1_High_rep2.counts
+    > python3 ../../../transit.py cgi extract_counts RIF_fastq_files/SRR14827850_1.fastq sgRNA_info.txt Barcode RIF_D1_High_rep3.counts 
 
 
 
@@ -309,7 +315,7 @@ The resulting file will have 13 columns, where the first column is sgRNA ids and
 
 ::
 
-    > python3 ../../../transit.py cgi extract_abund RIF_D1_combined_counts.txt samples_metadata.txt DMSO sgRNA_info.txt uninduced_ATC_counts.txt RIF 1 RIF_D1_frac_abund.txt
+    > python3 ../../../transit.py cgi extract_abund RIF_D1_combined_counts.txt samples_metadata.txt DMSO sgRNA_info.txt Efficacy Orf uninduced_ATC_counts.txt RIF 1 RIF_D1_frac_abund.txt
 
 The result of this command should be a file with a set of comments at the top, detailing the libraries used (DMSO and RIF). There should be a total of 17 columns, the last 12 of which are the calculated abundances, the first is the sgRNA ids followed by the orf/gene the sgRNA is targeting, uninduced ATC values, and sgRNA strength. 
 
@@ -318,7 +324,7 @@ The result of this command should be a file with a set of comments at the top, d
 
     > python3 ../../../transit.py cgi run_model RIF_D1_frac_abund.txt RIF_D1_CRISPRi-DR_results.txt
 
-There should be a total of 184 significant gene interactions, where 436 are significant depletions and 164 are significantly enriched. 
+There should be a total of about 184 significant gene interactions, where 436 are significant depletions and 164 are significantly enriched. 
 
 .. note::
     When the file is sorted on the slope of concentration dependence, the user can rank the genes based on amount of depletion.

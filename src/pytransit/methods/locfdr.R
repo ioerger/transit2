@@ -6,13 +6,13 @@ args = commandArgs(trailingOnly=TRUE)
 
 data = read.table(args[1],sep='\t',head=T)
 
-lim=10
+#lim=10
 z = data$Z.score.of.concentration.dependence
-z[z > lim] = lim
-z[z < -lim] = -lim
+#z[z > lim] = lim
+#z[z < -lim] = -lim
 
 
-NT = 1
+NT = 2
 mod = locfdr(z,nulltype=NT, df=20)
 data$locfdr = mod$fdr
 
