@@ -647,12 +647,12 @@ class Method:
         abund_df = pd.read_csv(fractional_abundances_file, sep="\t", comment="#")
         
         abund_df_lowercased = pd.DataFrame(abund_df)
-        abund_df_lowercased["gene"] = tuple(str(each).lower() for each in abund_df["gene"].values.tolist())
-        abund_df_lowercased["orf"] = tuple(str(each).lower() for each in abund_df["orf"].values.tolist())
+        #abund_df_lowercased["gene"] = tuple(str(each).lower() for each in abund_df["gene"].values.tolist())
+        abund_df_lowercased["Orf"] = tuple(str(each).lower() for each in abund_df["Orf"].values.tolist())
         gene_no_case = gene.lower()
-        abund_df_filtered = abund_df_lowercased[(abund_df_lowercased["gene"] == gene_no_case) | (abund_df_lowercased["orf"] == gene_no_case)]
+        abund_df_filtered = abund_df_lowercased[(abund_df_lowercased["Orf"] == gene_no_case)]
         if len(abund_df_filtered) == 0:
-            available_genes = list(set(abund_df["gene"].tolist()+abund_df["orf"].tolist()))
+            available_genes = list(abund_df["Orf"].tolist())
             logging.error(f"Gene {gene}, was not one of the available genes: {repr(available_genes)}")
         abund_df = abund_df_filtered.reset_index(drop=True)
         all_slopes = []

@@ -160,7 +160,7 @@ This process is fairly quick, taking less than a minute to run. This figure visu
 
 ::
 
-    > python3 ../src/transit.py cgi visualize <fractional abundance file> <gene> <output plot location> [Optional Arguments]
+    > python3 ../src/transit.py cgi visualize <fractional abundance file> <orf> <output plot location> [Optional Arguments]
     
     Optional Arguments: 
         --fixed xmin=x,xmax=x,ymin=y,ymax=y := set the values you would to be fixed in this comma seperated format. Not all values need to be set for ex, a valid arguement is "xmin=0,ymax=5"
@@ -173,7 +173,7 @@ This process is fairly quick, taking less than a minute to run. This figure visu
     .. warning::
         This visualization assumes the columns are in increasing order of concentration, with the first three abundance columns (after the column "sgRNA strength"), as the control. This order depends on the order of columns during the creation of the combined counts file in Step 1.
 
-* gene : select a gene to visualize. Use orf or gene name
+* gene : select a member from the orf column to visualize.
 * output plot location : The location where to save the generated plot.
 
 .. note::
@@ -343,7 +343,7 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 ::
 
-    > python3 ../../../transit.py cgi visualize RIF_D1_frac_abund.txt RVBD3645 ./RVBD3645_lmplot.png
+    > python3 ../../../transit.py cgi visualize RIF_D1_frac_abund.txt RVBD3645:RVBD3645 ./RVBD3645_lmplot.png
 
 *Significantly enriched gene : ndh*
 
@@ -355,7 +355,7 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 ::
 
-    > python3 ../../../transit.py cgi visualize RIF_D1_frac_abund.txt ndh ./ndh_lmplot.png #enriched
+    > python3 ../../../transit.py cgi visualize RIF_D1_frac_abund.txt RVBD1854c:ndh ./ndh_lmplot.png #enriched
 
 *Non-interacting gene : thiL*
 
@@ -368,4 +368,4 @@ Here are a few samples of the interactions visualized at the sgRNA level for thi
 
 ::
 
-    > python3 ../../../transit.py cgi visualize RIF_D1_frac_abund.txt thiL ./thiL_lmplot.png 
+    > python3 ../../../transit.py cgi visualize RIF_D1_frac_abund.txt RVBD2977c:thiL ./thiL_lmplot.png 
