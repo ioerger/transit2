@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.1, 2024-04-12
+#### TRANSIT2:
+
+Minor changes:
+  - updates to CGI functions (CRISPRi-DR) and documentation
+  - 'cgi extract_counts' can now process *.fastq.gz files (automatically unzips them)
+  - minor changes to how sgRNA ids are handled
+  - minor updates to format of input files like sgRNA_info.txt
+  - minor changes to command-line args and flags
+
 ## Version 1.1.0, 2024-04-12
 #### TRANSIT2:
 

@@ -18,33 +18,36 @@ Starting with fastq files, barcode counts are extracted. The user creates their 
 Command-line Steps
 ------------------
 
-**Preprocessing: Fastq to Count Files**
+**Preprocessing: Fastq to Count Files** 
 
 This is a longer process, taking a few minutes each. However, the number of reads processed is printed to the console to indicate progress.
 
 ::
 
-    > python3 ../src/transit.py cgi extract_counts <fastq_file> <sgRNA info file> <barcode column> <counts_file> [Optional Arguements]
+    > python3 ../src/transit.py cgi extract_counts <fastq_file> <sgRNA info file> <barcode column> <counts_file> [Optional Arguments]
 
-    Optional Arguements:
-        -delete_temp_fastQ := if fast files are gz files, this flag indicates whether user would like to delete the temp files
+    Optional Arguments:
+        -delete_temp_fastQ := if fastq files are provided as gzipped files, this flag indicates whether user would like to delete the temp uncompressed files
 
-* barode column : Column name of the sgRNA info file that contains the barcodes of the sgRNA (first column is the sgRNA ids)
+* **<fastq_file>** : raw reads in *.fastq or *.fastq.gz (gzipped) format (if gzipped, they will be automatically uncompressed)
 
-    *  The barcode sequence in this column will be reverse complemented before when scanning the reads.
+* **-delete_temp_fastq** (optional flag) : if gzipped files were provided, the user can add this flag to automatically delete the temporary uncompressed files afterward, to help save disk space
 
-* sgRNA info file : A file that contains metadata for each sgRNA, where the columns include:
+* **<sgRNA info file>** : A tab-separated text file that contains metadata for each sgRNA, where the columns include:
 
     1. sgRNA ids (user defined, must be unique per sgRNA). Must be first column for both command line and GUI usage
     2. Orfs targeted by the sgRNA, 
-    3. Barcodes of the sgRNA
-    4. sgRNA efficacies (in publication of this method, sgRNA efficacy is measurement as extrapolated LFCs calculated through a passaging experiment).
+    3. Barcodes (nucleotide sequences) of the sgRNAs
+    4. sgRNA efficacies (measurements of effect on growth rate; in the publication of this method, sgRNA efficacy is estimated log2-fold-change in CFU at 25 generations (induced vs uninduced), calculated through a passaging experiment).
 
-    .. note::
-        * The order of the sgRNA info file is assumed to be as listed if using the GUI implementation. Specific columns can be specified if using the command line option.
+* **<barcode column>** : Column name of the sgRNA info file that contains the barcodes of the sgRNA (first column is the sgRNA ids)
+
+    *  The barcode sequence in this column will be reverse complemented before when scanning the reads.
+    * If the column header has spaces, put it in quotes, like "barcode column"
+
+.. note::
+        * The order of columns in the sgRNA info file is required to be as listed above if using the GUI implementation.  Order of columns doesn't matter for the command-line option - the barcode column can be specified by name as an argument.
         * Other columns are allowed in the sgRNA info file (in the case of GUI usage, these extra columns should be after the first four listed above)
-        * The sgRNA infor file must have a header/column names
-        * This file should be tab seperated
 
 
 
