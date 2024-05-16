@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.2, 2024-04-16
+#### TRANSIT2:
+  - minor bug fix in 'cgi visualize'
+
+Minor changes:
 ## Version 1.1.1, 2024-04-12
 #### TRANSIT2:
 
