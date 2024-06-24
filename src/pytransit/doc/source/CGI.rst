@@ -4,7 +4,12 @@
 CRISPRi-DR
 ==========
 CRISPRi-DR is designed to analyze CRISPRi libraries from CGI experiments and identify significant CGIs ie genes that affect sensitivity to the drug when depleted. 
-[REF: TBA]
+
+`Choudhery S, DeJesus MA, Srinivasan A, Rock J, Schnappinger D, Ioerger
+TR. A dose-response model for statistical analysis of chemical genetic
+interactions in CRISPRi screens. PLoS Comput Biol. 2024 May
+20;20(5):e1011408. doi: 10.1371/journal.pcbi.1011408. PMID: 38768228;
+PMCID: PMC11104602. <https://pubmed.ncbi.nlm.nih.gov/38768228/>`_
 
 Workflow
 --------
