@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Version 1.1.3 (2024-09-14)
+#### Transit:
+
+Minor changes:
+ - allow wig file pathnames to have spaces in combined_wig and metadata files (e.g. for ANOVA and ZINB)
+ - changed default alg for BWA from 'mem' back to 'aln' (see documentation on TPP)
+
 
 ## Version 1.1.2, 2024-04-16
 #### TRANSIT2:
