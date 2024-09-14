@@ -303,7 +303,7 @@ class CombinedWigMetadata:
                 # skip comments
                 if each_line[0] == "#":
                     continue
-                row_as_list = each_line.split()
+                row_as_list = each_line.rstrip().split('\t') # allow spaces in Filenames
                 condition       = row_as_list[index_for_condition]
                 wig_fingerprint = row_as_list[index_for_wig_fingerprint]
                 
