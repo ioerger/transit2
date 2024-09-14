@@ -333,7 +333,7 @@ def extract_staggered(infile, outfile, vars):
             % (P, Q, origin, vars.window_size)
         )  # [RJ] Outputting P,Q values and origin/window size
     else:
-        message("Looking for start of Tn prefix within P,Q = [%d,%d]" % (P, Q))
+        message("Looking for start of Tn prefix within positions [%d,%d]" % (P, Q))
     tot = 0
     # print(infile)
     if vars.barseq_catalog_out != None:
@@ -1659,7 +1659,7 @@ def initialize_globals(vars, args=[], kwargs={}):
     vars.window_size = -1
     vars.primer_start_window = 0, 20
     vars.window = None
-    vars.bwa_alg = "mem"
+    vars.bwa_alg = "aln" # changed from "mem" back to 'aln' [TRI, 9/14/24]
 
     # Update defaults
     protocol = kwargs.get("protocol", "").lower()
@@ -1824,13 +1824,13 @@ def show_help():
     )
     print('    -flags "<STRING>"  # args to pass to BWA')
     print(
-        "    -bwa-alg [aln|mem]  # Default: mem. Algorithm to use for mapping reads with bwa"
+        "    -bwa-alg [aln|mem]  # Algorithm to use for mapping reads with bwa. Default: 'aln'"
     )
     print(
         "    -primer-start-window INT,INT # position in read to search for start of primer; default is [0,20]"
     )
     print("    -window-size INT   # automatic method to set window")
-    print("    -barseq_catalog_in|-barseq_catalog_out <file>")
+    #print("    -barseq_catalog_in|-barseq_catalog_out <file>")
     print(
         "    -replicon-ids <comma_separated_list_of_names> # if multiple replicons/genomes/contigs/sequences were provided in -ref, give them names."
     )

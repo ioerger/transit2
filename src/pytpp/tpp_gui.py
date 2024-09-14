@@ -454,7 +454,7 @@ The Mme1 protocol generally assumes reads do NOT include the primer prefix, and 
             if vars.bwa_alg == "aln":
                 self.bwa_alg.SetSelection(0)
             else:
-                self.bwa_alg.SetSelection(1)  # default
+                self.bwa_alg.SetSelection(1) 
             sizer0.Add(
                 self.bwa_alg, proportion=0, flag=wx.EXPAND | wx.ALL, border=5
             )  ##
