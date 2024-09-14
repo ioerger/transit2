@@ -96,8 +96,9 @@ class Method:
         from pytransit.components.parameter_panel import progress_update
         # Defaults (even if argument directly provided as None)
         normalization     = normalization     if normalization     is not None else "TTR"
-        output_path       = output_path       if output_path       is not None else "latest.comwig.tsv"
-        metadata_path     = metadata_path     if metadata_path     is not None else os.path.dirname(output_path)+"/"+os.path.basename(output_path).split(".")[0]+".metadata.tsv"
+        output_path       = output_path       if output_path       is not None else "comwig.tsv"
+        #metadata_path     = metadata_path     if metadata_path     is not None else os.path.dirname(output_path)+"/"+os.path.basename(output_path).split(".")[0]+".metadata.tsv"
+        if metadata_path is None: metadata_path = "metadata.tsv" # justput in local dir, rather than trying to put in same dir as combined_wig file
         
         with transit_tools.TimerAndOutputs(method_name=Method.identifier, output_paths=[output_path], disable=disable_logging) as timer:
             logging.log("Starting Combined Wig Export")
