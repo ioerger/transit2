@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## Version 1.1.4 (2024-10-14)
+#### Transit:
+
+Minor changes:
+ - fixed a bug in TrackView that was caused by deprecated function in recent version of Python Image Library (PIL v10.0)
+
+
 ## Version 1.1.3 (2024-09-14)
 #### Transit:
 
