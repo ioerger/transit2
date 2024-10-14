@@ -35,31 +35,33 @@ def normalize(X, old_min, old_max, new_min, new_max):
         return (((X - old_min) * new_range) / old_range) + new_min
 
 
-linuxFonts = []
-linuxFonts.append("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Bold.ttf")
-linuxFonts.append("/usr/share/fonts/dejavu-lgc/DejaVuLGCSerifCondensed-Bold.ttf")
-linuxFonts.append("/usr/share/fonts/dejavu-lgc/DejaVuLGCSansCondensed-Bold.ttf")
+script_directory = os.path.dirname(os.path.realpath(__file__))
+font = ImageFont.truetype("%s/DejaVuSans.ttf" % script_directory,size=12) # should be in transit/src/pytransit/
 
-winFonts = []
-winFonts.append("consolab.ttf")
-winFonts.append("courb.ttf")
-winFonts.append("arial.ttf")
-fontsize = 16
-
-font = ImageFont.load_default()
-if platform.system() == "Linux":
-    for fontpath in linuxFonts:
-        if os.path.isfile(fontpath):
-            font = ImageFont.truetype(fontpath, fontsize)
-            break
-
-elif platform.system() == "Windows":
-    for fontpath in winFonts:
-        try:
-            font = ImageFont.truetype(fontpath, fontsize)
-            break
-        except:
-            pass
+#linuxFonts = []
+#linuxFonts.append("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Bold.ttf")
+#linuxFonts.append("/usr/share/fonts/dejavu-lgc/DejaVuLGCSerifCondensed-Bold.ttf")
+#linuxFonts.append("/usr/share/fonts/dejavu-lgc/DejaVuLGCSansCondensed-Bold.ttf")
+#
+#winFonts = []
+#winFonts.append("consolab.ttf")
+#winFonts.append("courb.ttf")
+#winFonts.append("arial.ttf")
+#fontsize = 16
+#
+#font = ImageFont.load_default()
+#if platform.system() == "Linux":
+#    for fontpath in linuxFonts:
+#        if os.path.isfile(fontpath):
+#            font = ImageFont.truetype(fontpath, fontsize)
+#            break
+#elif platform.system() == "Windows":
+#    for fontpath in winFonts:
+#        try:
+#            font = ImageFont.truetype(fontpath, fontsize)
+#            break
+#        except:
+#            pass
 
 
 def draw_reads(
@@ -115,16 +117,26 @@ def draw_ta_sites(
         )
 
 
+# replaced newtextsize(), which was deprecated in v10 of Pillow (TRI, 10/12/24)
+
+def newtextsize(text, font):
+  # https://github.com/python-pillow/Pillow/issues/7322
+  left, top, right, bottom = font.getbbox(text)
+  width = right - left
+  height = bottom - top
+  return (width, height)
+
+
 def draw_scale(draw, start_x, start_y, height, max_read):
 
     # print("scale", start_x, start_y, height)
     MIDREAD = int(max_read / 2.0)
-    top_text_w, top_text_h = draw.textsize(str(max_read), font=font)
+    top_text_w, top_text_h = newtextsize(str(max_read), font=font)
     draw.text((start_x, start_y), str(max_read), font=font, fill="black")
 
     draw.text((start_x, start_y + height / 2.0), str(MIDREAD), font=font, fill="black")
 
-    bottom_text_w, bottom_text_h = draw.textsize(str(MIDREAD), font=font)
+    bottom_text_w, bottom_text_h = newtextsize(str(MIDREAD), font=font)
     draw.text(
         (start_x + bottom_text_w - (top_text_w / 2.0), start_y + height),
         "0",
@@ -136,7 +148,7 @@ def draw_scale(draw, start_x, start_y, height, max_read):
 def draw_features(draw, GENES, orf2data, start, end, start_x, start_y, width, height):
 
     padding_h = 3
-    text_w, text_h = draw.textsize("RV0001", font=font)
+    text_w, text_h = newtextsize("RV0001", font=font)
     gene_h = height - text_h
 
     triangle_size = 10
@@ -193,7 +205,7 @@ def draw_features(draw, GENES, orf2data, start, end, start_x, start_y, width, he
         if name == "-":
             name = gene
         if not name.startswith("non-coding"):
-            name_text_w, name_text_h = draw.textsize(name, font=font)
+            name_text_w, name_text_h = newtextsize(name, font=font)
             if abs(norm_start - norm_end) >= name_text_w:
                 draw.text(
                     (
@@ -211,7 +223,7 @@ def draw_genes(
 ):
 
     padding_h = 3
-    text_w, text_h = draw.textsize("RV0001", font=font)
+    text_w, text_h = newtextsize("RV0001", font=font)
     gene_h = height - text_h
 
     triangle_size = 10
@@ -285,7 +297,7 @@ def draw_genes(
         if name == "-":
             name = gene
         if not name.startswith("non-coding"):
-            name_text_w, name_text_h = draw.textsize(name, font=font)
+            name_text_w, name_text_h = newtextsize(name, font=font)
             if abs(norm_start - norm_end) >= name_text_w:
                 draw.text(
                     (
@@ -382,11 +394,11 @@ def draw_canvas(
     # print("Labels:")
     max_label_w = 0
     for L in labels:
-        label_text_w, label_text_h = temp_draw.textsize(L, font=font)
+        label_text_w, label_text_h = newtextsize(L, font=font)
         max_label_w = max(label_text_w, max_label_w)
         # print(L)
 
-    scale_text_w, scale_text_h = temp_draw.textsize(str(max(max_reads)), font=font)
+    scale_text_w, scale_text_h = newtextsize(str(max(max_reads)), font=font)
 
     # Set rest of heights and widths
     read_h = 100
@@ -427,7 +439,7 @@ def draw_canvas(
     half = 100 * 0.5
     start_x += 5
     for j in range(len(fulldata)):
-        temp_label_text_w, temp_label_text_h = temp_draw.textsize(labels[j], font=font)
+        temp_label_text_w, temp_label_text_h = newtextsize(labels[j], font=font)
         label_text_x = (start_x / 2.0) - (temp_label_text_w / 2.0)
         start_y += read_h + padding_h
         # draw.text((10, start_y - half), labels[j], font=font, fill="black")
@@ -453,14 +465,14 @@ def draw_canvas(
     # start_x+=5
 
     # TA sites
-    temp_label_text_w, temp_label_text_h = temp_draw.textsize("TA Sites", font=font)
+    temp_label_text_w, temp_label_text_h = newtextsize("TA Sites", font=font)
     label_text_x = (start_x / 2.0) - (temp_label_text_w / 2.0)
     # draw.text((30, start_y),'TA Sites', font=font, fill="black")
     draw.text((label_text_x, start_y), "TA Sites", font=font, fill="black")
     draw_ta_sites(draw, TA_SITES, start_x, start_y, read_w, ta_h, start, end)
 
     # Genes
-    temp_label_text_w, temp_label_text_h = temp_draw.textsize("Genes", font=font)
+    temp_label_text_w, temp_label_text_h = newtextsize("Genes", font=font)
     label_text_x = (start_x / 2.0) - (temp_label_text_w / 2.0)
     start_y += 50
     # draw.text((30, start_y+10),'Genes', font=font, fill="black")
@@ -472,7 +484,7 @@ def draw_canvas(
     # Features:
     for f in range(len(FEATURES)):
         start_y += gene_h + padding_h + 25
-        temp_label_text_w, temp_label_text_h = temp_draw.textsize(
+        temp_label_text_w, temp_label_text_h = newtextsize(
             "Feature-%d" % (f + 1), font=font
         )
         label_text_x = (start_x / 2.0) - (temp_label_text_w / 2.0)
