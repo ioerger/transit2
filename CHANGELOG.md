@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.5 (2024-10-16)
+#### Transit:
+
+Minor changes:
+ - ensure that font file is included in PyPi package
+
+
 ## Version 1.1.4 (2024-10-14)
 #### Transit:
 
