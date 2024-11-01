@@ -12,7 +12,7 @@ It provides an easy to use graphical interface and access to three different ana
 
 TRANSIT2 Home page: http://saclab.tamu.edu/essentiality/transit/index_transit2.html
 
-TRANSIT2 Documentation: https://transit2.readthedocs.io/en/latest/transit_overview.html
+TRANSIT2 Documentation: https://transit2.readthedocs.io/en/stable/transit_overview.html
 
 [Changelog](https://github.com/ioerger/transit2/blob/master/CHANGELOG.md)
 
@@ -49,7 +49,7 @@ For full instructions on how to install and run TRANSIT2 (and the optional pre-p
 please see the documentation included in this distribution ("src/pytransit/doc" folder) or visit the following web page:
 
 
-https://transit2.readthedocs.io/en/latest/
+https://transit2.readthedocs.io/en/stable/
 
 
 ## Datasets

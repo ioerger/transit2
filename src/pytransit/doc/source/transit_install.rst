@@ -201,7 +201,7 @@ Method 2: Upgrading source installation
 
 If you installed TRANSIT by downloading the raw source, then you can upgrade TRANSIT simply by replacing the old source code with the latest version. You can obtain a .zip archive with the latest version of the source through the following link:
 
-https://github.com/mad-lab/transit/archive/master.zip
+https://github.com/ioerger/transit2/archive/master.zip
 
 Simply extract the code, and replace your existing files or delete the directory with the old source doe and use the newest version.
 
