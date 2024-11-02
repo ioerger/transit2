@@ -819,7 +819,10 @@ class Method:
             # do all associations have a definition in pathways?
             # how many pathways have >1 gene? (out of total?) what is max?
 
-
+            # Hiearchy of flags:     
+            #  
+            #  START: qval (OPTIONAL) / topk [Mutually Exclusive | topk removes qval] -> focusLFC -> minLFC [END]
+            #
             focus_genes = genes
 
             # Filter by only returning the top k genes (by q-value)
@@ -836,7 +839,7 @@ class Method:
                 hits = list(set([w[0] for w in focus_genes]) & set(hits)) 
 
             # Q-value filtering
-            if self.inputs.qvalCutoff != 1 and self.inputs.topk == -1:# don't run the qvalCutoff filter if it's the default value and if topk is default (not being used)
+            if self.inputs.qvalCutoff != 0.05 and self.inputs.topk == -1:# don't run the qvalCutoff filter if it's the default value and if topk is default (not being used)
                 focus_genes = list(filter(lambda w: float(w[self.inputs.qval_col]) <= self.inputs.qvalCutoff, focus_genes))
                 hits = list(set([w[0] for w in focus_genes]) & set(hits)) 
 
