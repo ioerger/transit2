@@ -322,10 +322,10 @@ class Method:
                 label = "FocusLFC",
                 # default_value="all",
                 options= ["all", "pos", "neg"],
-                tooltip_text="filter the output to focus on results with positive (pos) or negative (neg) LFCs (default: \"all\", no filtering)")
-            self.value_getters.minLFC           = panel_helpers.create_int_getter(panel, main_sizer, label_text="MinLFC value", default_value=0, tooltip_text="filter the output to include only genes that have a magnitude of LFC greater than the specified value (default: 0) (e.g. '-minLFC 1' means analyze only genes with 2-fold change or greater)")
-            self.value_getters.qvalCutoff       = panel_helpers.create_float_getter(panel, main_sizer, label_text="qvalCutoff value", default_value=0.05, tooltip_text="filter the output to include only genes that have Qval less than to the value specified (default: 0.05)")
-            self.value_getters.topk             = panel_helpers.create_int_getter(panel, main_sizer, label_text="topk value", default_value=-1, tooltip_text="calculate enrichment among top k genes ranked by significance (Qval) regardless of cutoff (can combine with -focusLFC)")
+                tooltip_text="Filter the output to focus on results with positive (pos) or negative (neg) LFCs (default: \"all\", no filtering)")
+            self.value_getters.minLFC           = panel_helpers.create_int_getter(panel, main_sizer, label_text="MinLFC", default_value=0, tooltip_text="Filter the output to include only genes that have a magnitude of LFC greater than the specified value (default: 0) (e.g. '-minLFC 1' means analyze only genes with 2-fold change or greater)")
+            self.value_getters.qvalCutoff       = panel_helpers.create_float_getter(panel, main_sizer, label_text="Qval cutoff", default_value=0.05, tooltip_text="Filter the output to include only genes that have Qval less than to the value specified (default: 0.05)")
+            self.value_getters.topk             = panel_helpers.create_int_getter(panel, main_sizer, label_text="Top-k", default_value=-1, tooltip_text="Calculate enrichment among top k genes ranked by significance (Qval) regardless of cutoff (can combine with -focusLFC)")
             
 
 
