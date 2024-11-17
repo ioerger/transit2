@@ -55,7 +55,7 @@ You should be able to run it like this:
 
   > python3 <TRANSIT_PATH>/src/transit.py
 
-If you encounter problems, please :ref:`contact us <developers>` or head to the :ref:`Troubleshooting section <transit-troubleshoot>`.
+If you encounter problems, please `contact us <https://people.engr.tamu.edu/ioerger/index.html>`_ or head to the :ref:`Troubleshooting section <transit-troubleshoot>`.
 
 
 |
@@ -73,21 +73,24 @@ The following libraries/modules are required to run TRANSIT:
 + `Pillow 6.0 <https://github.com/python-pillow/Pillow>`_
 + `wxpython 4+ <http://www.wxpython.org/>`_
 + `PyPubSub 4+ <https://pypi.org/project/PyPubSub/>`_ (tested on 4.0.3)
-+ `Mne 1`_ (tested on mne==1.5.1)
++ `Mne <https://pypi.org/project/mne/>`_ (tested on 1.5.1)
++ `super-hash <https://pypi.org/project/super-hash/>`_ (tested on 1.4.0)
++ `ez_yaml <https://pypi.org/project/ez-yaml/>`_ (tested on 2.2.0)
 
 All of these dependencies can be installed using the following command.
 
 ::
 
-   > pip3 install numpy scipy pillow pypubsub matplotlib statsmodels wxPython
+   > pip3 install numpy scipy pillow pypubsub matplotlib statsmodels mne wxPython super_hash ez_yaml
 
 Pip and Python are usually preinstalled in most modern operating systems.
 
 |
+
 .. _install-zinb:
 
 Additional Requirements: R (statistical analysis package)
-~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 R is called by Transit for certain commands, such as :ref:`ZINB <zinb>`, corrplot, and heatmap.
 As of now, installing R is optional, and requires these additional steps...
@@ -97,6 +100,9 @@ Additional Installation Requirements for R:
  - install `R <https://www.r-project.org/>`_ (tested on v3.5.2)
  - R packages: **MASS, pscl** (run "install.packages(MASS)" etc. in R console)
  - Python packages (for python3): rpy2 (v>=3.0) (run "pip3 install rpy2" on command line) 
+ - Windows users will have to add a system variable for rpy2 to correctly work
+  - To set this up, go to **Control Panel** > **System** > **Advanced system settings** > **Environment Variables**, then add a new variable named ``R_HOME`` with the path to your R installation (e.g. ``C:\Program Files\R\R-4.0.5``).
+ 
  .. - Python packages (for python2.7): rpy2 (v<2.9.0) (run "pip install 'rpy2<2.9.0' " on command line)
 
 
@@ -107,7 +113,7 @@ Additional Installation Requirements for R:
 
 .. TRANSIT can be (optionally) installed as a python package. This can simplify the installation process as it will automatically install most of the requirements. In addition, it will allow users to use some of transit functions in their own scripts if they desire. Below is a brief example of importing transit functions into python. In this example, pair of .wig files are parsed into their read-counts (data) and genomic positions (position), and then normalization factors are calculated. See the documentation of the package for further examples:
 
-.. ::
+.. 
 
 ..         >>> import pytransit.norm_tools as norm_tools
 ..         >>> import pytransit.tnseq_tools as tnseq_tools
@@ -263,7 +269,7 @@ Please upgrade matplotlib to the latest version using:
 |
 
 2. pip3: SystemError: Cannot compile 'Python.h'.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This occurs when you do not have the development libraries for python. You can fix this by installing the python-dev packages:
 
@@ -288,7 +294,7 @@ This occurs when you do not have some dependencies that are necessary to build s
 |
 
 4. pip3: "No lapack/blas resources found"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This occurs when you do not have some dependencies that are necessary to build some of the python modules TRANSIT requires (usually numpy/scipy). Installing the following linux dependencies should fix this:
 

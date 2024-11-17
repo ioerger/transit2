@@ -42,7 +42,11 @@ class Method:
         lfc_col = 6,
         num_permutations = 10000,
         enrichment_exponent = 0, # for GSEA
-        pseudocount = 2
+        pseudocount = 2,
+        focusLFC = "all",
+        minLFC = 0,
+        topk = -1,
+        qvalCutoff=0.05,
     )
     
     default_significance = 0.05
@@ -55,7 +59,11 @@ class Method:
         "--LFC-col",
         "--p",
         "--n-perm",
-        "--PC"
+        "--PC",
+        "--focusLFC",
+        "--minLFC",
+        "--qval",
+        "--topk"
     ]
 
 
@@ -66,6 +74,10 @@ class Method:
             Optional Arguments:
                 --PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: --PC 2
                 --LFC-col   <int> := column index (starting at 0) for LFC's
+                --focusLFC pos|neg  :=  filter the output to focus on results with positive (pos) or negative (neg) LFCs (default: "all", no filtering)
+                --minLFC <float>    :=  filter the output to include only genes that have a magnitude of LFC greater than the specified value (default: 0) (e.g. '--minLFC 1' means analyze only genes with 2-fold change or greater)
+                --qval <float>      :=  filter the output to include only genes that have Qval less than to the value specified (default: 0.05)
+                --topk <int>        :=  calculate enrichment among top k genes ranked by significance (Qval) regardless of cutoff (can combine with --focusLFC)
         
         Usage 2:
             # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
@@ -306,6 +318,14 @@ class Method:
             self.value_getters.enrichment_exponent = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Enrichment Exponent (p)",    default_value=0,      tooltip_text="Exponent to use in calculating enrichment score; recommend trying 0 or 1 (as in Subramaniam et al, 2005). FIXME  By anecdotal testing we found 0 is better ")
             self.value_getters.num_permutations    = panel_helpers.create_int_getter(  panel, main_sizer, label_text="Number of Permutations", default_value=10000,  tooltip_text="Number of permutations to simulate for null distribution to determine p-value")
             self.value_getters.pseudocount         = panel_helpers.create_pseudocount_input(panel, main_sizer, default_value=2, tooltip="Pseudo-counts used in calculating pathway enrichment. Useful to dampen the effects of small counts which may lead to deceptively high enrichment scores.")
+            self.value_getters.focusLFC = panel_helpers.create_choice_input(panel, main_sizer,
+                label = "FocusLFC",
+                # default_value="all",
+                options= ["all", "pos", "neg"],
+                tooltip_text="Filter the output to focus on results with positive (pos) or negative (neg) LFCs (default: \"all\", no filtering)")
+            self.value_getters.minLFC           = panel_helpers.create_int_getter(panel, main_sizer, label_text="MinLFC", default_value=0, tooltip_text="Filter the output to include only genes that have a magnitude of LFC greater than the specified value (default: 0) (e.g. '-minLFC 1' means analyze only genes with 2-fold change or greater)")
+            self.value_getters.qvalCutoff       = panel_helpers.create_float_getter(panel, main_sizer, label_text="Qval cutoff", default_value=0.05, tooltip_text="Filter the output to include only genes that have Qval less than to the value specified (default: 0.05)")
+            self.value_getters.topk             = panel_helpers.create_int_getter(panel, main_sizer, label_text="Top-k", default_value=-1, tooltip_text="Calculate enrichment among top k genes ranked by significance (Qval) regardless of cutoff (can combine with -focusLFC)")
             
 
 
@@ -324,8 +344,11 @@ class Method:
             except Exception as error:
                 logging.error(f'''Failed to get value of "{each_key}" from GUI:\n{error}''')
         
-        #if Method.inputs.organism_pathway != "-":
-        if Method.inputs.associations_file == None or Method.inputs.pathways_file == None :
+        if Method.inputs.organism_pathway == "-":
+        # if Method.inputs.associations_file == None or Method.inputs.pathways_file == None :
+            # print(Method.inputs.organism_pathway)
+            # print(Method.inputs.associations_file)
+            # print(Method.inputs.pathways_file)
             logging.error("Select Association and Pathways File")
         else:
             organism,pathway = Method.inputs.organism_pathway.split("-")
@@ -393,7 +416,7 @@ class Method:
     @cli.add_command(cli_name)
     def from_args(args, kwargs):
         console_tools.handle_help_flag(kwargs, Method.usage_string)
-        console_tools.enforce_number_of_args(args, Method.usage_string, exactly=4)
+        console_tools.enforce_number_of_args(args, Method.usage_string, at_least=4)
         console_tools.handle_unrecognized_flags(Method.valid_cli_flags, kwargs, Method.usage_string)
 
         # save the data
@@ -407,9 +430,14 @@ class Method:
             #qval_col = int(kwargs.get("q-val-col", Method.inputs.qval_col)),
             ranking = kwargs.get("ranking", "SLPV"),
             lfc_col = int(kwargs.get("LFC-col", Method.inputs.lfc_col)),
-            enrichment_exponent = int(kwargs.get("p", "1")),
+            enrichment_exponent = int(kwargs.get("p", "0")),
             num_permutations = int(kwargs.get("n-perm", Method.inputs.num_permutations)),
             pseudocount = int(kwargs.get("PC", "2")),
+
+            focusLFC = kwargs.get("focusLFC", "all"),# for FET
+            minLFC = float(kwargs.get("minLFC", "0")),# for FET
+            topk = int(kwargs.get("topk", "-1")),# for FET
+            qvalCutoff = float(kwargs.get("qval", "0.05")),# for FET
         ))
         
         Method.Run()
@@ -518,6 +546,10 @@ class Method:
                     enrichment_exponent = self.inputs.enrichment_exponent,
                     num_permutations = self.inputs.num_permutations,
                     pseudocount = self.inputs.pseudocount,
+                    focusLFC = self.inputs.focusLFC,
+                    minLFC = self.inputs.minLFC,
+                    topk = self.inputs.topk,
+                    qvalCutoff = self.inputs.qvalCutoff,
                 ),
                 summary_info = self.hit_summary
             ),
@@ -787,8 +819,48 @@ class Method:
             # do all associations have a definition in pathways?
             # how many pathways have >1 gene? (out of total?) what is max?
 
+            # Hiearchy of flags:     
+            #  
+            #  START: qval (OPTIONAL) / topk [Mutually Exclusive | topk removes qval] -> focusLFC -> minLFC [END]
+            #
+            focus_genes = genes
+
+            # Filter by only returning the top k genes (by q-value)
+            if self.inputs.topk != -1:
+            # should this account if there are mulitple genes with qval == 0 ??
+
+                k_list = [(w[0], w[-1]) for w in focus_genes] # get a list of tuples, where it's just (orf, q-value)
+                k_list = sorted(k_list, key=lambda tup: tup[1]) # sort
+                k_list = k_list[:self.inputs.topk] # get top k genes
+
+                k_list = [k[0] for k in k_list] # remove the q-values, getting just the orfs
+
+                focus_genes = list(filter(lambda w: w[0] in k_list, focus_genes)) # then get all data points that are in our top-k subset
+                hits = list(set([w[0] for w in focus_genes]) & set(hits)) 
+
+            # Q-value filtering
+            if self.inputs.qvalCutoff != 0.05 and self.inputs.topk == -1:# don't run the qvalCutoff filter if it's the default value and if topk is default (not being used)
+                focus_genes = list(filter(lambda w: float(w[self.inputs.qval_col]) <= self.inputs.qvalCutoff, focus_genes))
+                hits = list(set([w[0] for w in focus_genes]) & set(hits)) 
+
+            # Sign-based log-fold-change filtering
+            if self.inputs.focusLFC == "pos":
+                focus_genes = list(filter(lambda w: float(w[self.inputs.lfc_col]) > 0, focus_genes))
+                hits = list(set([w[0] for w in focus_genes]) & set(hits)) # filter the hits to only include positive LFCs by doing an intersection between the newly filtered orfs and the hits (that include all LFCs)
+                                                                # by turning both lists into sets and intersecting (&) them, seemed to be the fastest way without adding too much more to MEM space
+            elif self.inputs.focusLFC == "neg":
+                focus_genes = list(filter(lambda w: float(w[self.inputs.lfc_col]) < 0, focus_genes))
+                hits = list(set([w[0] for w in focus_genes]) & set(hits))
+
+            # Minimum log-fold change filtering
+            if self.inputs.minLFC != 0: # don't run the minLFC filter if it's the default value
+                focus_genes = list(filter(lambda w: abs(float(w[self.inputs.lfc_col])) >= self.inputs.minLFC, focus_genes)) # we only want to keep values that are greater or equal to than the flag value
+                                                                                                        # This is done intentionally after the focusLFC filter and uses its results
+                hits = list(set([w[0] for w in focus_genes]) & set(hits))
+
+
             genes_with_associations = 0
-            for gene in genes:
+            for gene in focus_genes:
                 orf = gene[0]
                 if orf in associations:
                     genes_with_associations += 1
