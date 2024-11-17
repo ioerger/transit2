@@ -52,6 +52,10 @@ Command Line Usage
         Optional Arguments:
             --PC <int>        := pseudo-counts to use in calculating p-value based on hypergeometric distribution. Default: --PC 2
             --LFC-col <int>   := column index (starting at 0) for LFC's
+            --focusLFC pos|neg  :=  filter the output to focus on results with positive (pos) or negative (neg) LFCs (default: "all", no filtering)
+            --minLFC <float>    :=  filter the output to include only genes that have a magnitude of LFC greater than the specified value (default: 0) (e.g. '--minLFC 1' means analyze only genes with 2-fold change or greater)
+            --qval <float>      :=  filter the output to include only genes that have Qval less than to the value specified (default: 0.05)
+            --topk <int>        :=  calculate enrichment among top k genes ranked by significance (Qval) regardless of cutoff (can combine with --focusLFC)
 
     Usage 2: # GSEA for Gene Set Enrichment Method (Subramaniam et al, 2005)
         > python3 transit.py  pathway_enrichment <input_file> <associations> <pathways> <output_file> --M GSEA [Optional Arguments]
@@ -69,6 +73,7 @@ Command Line Usage
             --LFC-col <int>  := column index (starting at 0) for LFC's
 
 |
+
 
 
 Parameters
@@ -118,7 +123,13 @@ Parameters
 
     Additional flags for FET:
 
-    - **\-\-PC <int>**: Pseudocounts used in calculating the enrichment score and p-value by hypergeometic distribution. Default: PC=2.
+    - **-focusLFC pos|neg**  : filter the output to focus on genes with positive (pos) or negative (neg) LFCs (default: "all", no filtering)
+    - **-minLFC <float>**    : filter the output to include only genes that have |LFC| (magnitude of log2-fold change) >= the specified value (default: 0; e.g. '-minLFC 1' means restriction to genes with 2-fold change or greater)
+    - **-qval <float>**      : set Q-value cutoff (analyze genes with Qval<cutoff)  (default: 0.05)
+    - **-topk <int>**        : analyze enrichment in top K genes sorted by significance (Qval), regardless of Qval cutoff (can combine with -focusLFC)
+    - **-PC <int>**          : Pseudocounts used in calculating the enrichment score and p-value by hypergeometric distribution. Default: PC=2.
+
+
 
   **\-\-M GSEA**
     Gene Set Enrichment Analysis. GSEA assess the significance of a pathway by looking at how the members fall in the ranking of all genes.  The genes are first ranked by significance from resampling.  Specifically, they are sorted by signed-log-p-value, SLPV=sign(LFC)*(log(pval)), which puts them in order so that the most significant genes with negative LFC are at the top, the most significant with positive LFC are at the bottom, and insignificant genes fall in the middle.  Roughly, GSEA computes the mean rank of pathway members, and evaluates significance based on a simulated a null distribution.  p-values are again adjusted at the end by BH.
@@ -165,13 +176,15 @@ Parameters
   2. the relative abundance of genes with this GO term compared to those with a parent GO term   in the whole genome
 
 
-Auxilliary Pathway Files in Transit Data Directory
---------------------------------------------------
+Pathway Association Files
+------------------------
 
 ::
 
-These files for pathway analysis are distributed in the Transit data directory
-(e.g. transit/src/pytransit/data/).
+Pathway association files for several mycobacterial species (*M. tuberculosis,
+M. smegmatis, M. abscessus*, etc.) can be downloaded from our 
+`pathways.html <https://orca1.tamu.edu/essentiality/transit/pathways.html>`_ web page.
+The pathway annotations include COG, KEGG, Sanger, and GO terms.
 
 Note: The "Sanger" roles are custom pathway associations for
 *M. tuberculosis* defined in the original Nature paper on
@@ -182,40 +195,14 @@ organisms, one should be able to find GO terms (e.g. on PATRIC,
 Uniprot, or geneontology.org) and COG roles (from
 https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/, `(Galerpin et al, 2021)
 <https://academic.oup.com/nar/article/49/D1/D274/5964069>`_ ).
-For COG p20 athways, there are a list of organisms available ranging various genus.
 
-Pathway association files for *M. smegmatis* mc2 155 are also provided in the table below.
-
-
-+----------+----------+--------------------+--------------------------------------+------------------------------------+
-| system   | num roles| applicable methods | associations of genes with roles     | pathway definitions/role names     |
-+==========+==========+====================+======================================+====================================+
-| COG_20   | 5236     | FET*, GSEA         | H37Rv_COG_roles.dat;                 | COG_roles.dat                      |
-|          |          |                    | smeg_COG_roles.dat;                  |                                    |
-|          |          |                    | see cog-20.or.csv for all options    |                                    |
-+----------+----------+--------------------+--------------------------------------+------------------------------------+
-| Sanger   | 153      | FET*, GSEA*        | H37Rv_sanger_roles.dat               | sanger_roles.dat                   |
-+----------+----------+--------------------+--------------------------------------+------------------------------------+
-| GO       | 2545     | ONT*               | H37Rv_GO_terms.txt;                  | gene_ontology.1_2.3-11-18.obo      |
-|          |          |                    | smeg_GO_terms.txt                    |                                    |
-+----------+----------+--------------------+--------------------------------------+------------------------------------+
-|          |          | FET, GSEA          | H37Rv_GO_terms.txt;                  | GO_term_names.dat                  |
-|          |          |                    | smeg_GO_terms.txt                    |                                    |
-+----------+----------+--------------------+--------------------------------------+------------------------------------+
-| KEGG     | 600      | FET, GSEA          | H37Rv_KEGG_roles.txt                 | KEGG_roles.txt                     |
-+----------+----------+--------------------+--------------------------------------+------------------------------------+
-
-'\*' means *recommended* combination of method with system of functional categories
-
-
-Current Recommendations
------------------------
 
 Here are the recommended combinations of pathway methods to use for different systems of functional categories:
 
- * For COG_20, use '\-\-M FET'
- * For Sanger roles, try both FET and GSEA
- * For GO terms, use '\-\-M ONT'
+ * For COG, use '-M FET'
+ * For KEGG and Sanger pathways, try both FET and GSEA
+ * For GO terms, use 'M -ONT'
+
 
 
 Examples
