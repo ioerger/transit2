@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.6 (2024-11-17)
+#### Transit:
+
+Minor changes:
+  - added new flags pathway_enrichment (like --focusLFC and --minLFC)
+  - updated docs for these flags
+  - also add link to pathways.html page to download association files
+
+
 ## Version 1.1.5 (2024-10-16)
 #### Transit:
 
