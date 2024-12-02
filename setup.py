@@ -163,7 +163,8 @@ setup(
 
     # Choose your license
     license='GNU GPL',
-    python_requires='>=3.6, <3.12',
+    #python_requires='>=3.6, <3.12',
+    python_requires='>=3.6',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
 
     classifiers=[
