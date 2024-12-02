@@ -17,6 +17,7 @@ from setuptools import setup, find_packages, Command
 # To use a consistent encoding
 from codecs import open
 
+sys.path.append('src')
 import pytransit
 from pytransit.generic_tools import file_system_py as FS
 version =  pytransit.__version__[1:]
