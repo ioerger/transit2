@@ -24,7 +24,16 @@ it can be executed as a command ('transit').
    If you will be using the pre-processor, TPP, you will also need to install :ref:`install BWA <bwa-unix>`.
 
 .. NOTE::
-   The Transit package *does not* install wxPython. For graphical interface usage, this has to be done by the user. See :ref:`install wxPython <install-wxpython>`
+   The Transit package will try to install wxPython. If you encounter problems with it, see :ref:`install wxPython <install-wxpython>`
+
+.. NOTE::
+  **Note about Python3.12**: The update to Python3.12 made changes in the setuptools package that 
+  disrupted the installation of Transit as well as other python packages (including some Transit
+  dependencies, like wxPython).
+  
+  We are working on fixing these problems caused by 3.12.  In the meantime,
+  if you have difficulty installing Transit with Python3.12, we recommend trying it with Python3.11, with
+  which Transit should work fine.
 
 |
 
@@ -225,7 +234,7 @@ Or you may perform a 'git pull'
 Installing wxPython
 -------------------
 
-wxPython 4+ can be installed using pip
+wxPython 4+ can be manually installed using pip
 
 ::
 
@@ -249,6 +258,18 @@ See https://stackoverflow.com/questions/50688630/cannot-uninstall-wxpython-3-0-2
     > sudo apt-get install libgtk-3-dev
 
   depending on which version of *libgtk* you have installed.
+
+.. NOTE::
+
+  If you are still having problems, another solution might be to
+  install the appropriate version of wxPython directly from the
+  developer's website.  For example, on a recent Linux machine, I had
+  to manually do this step *before* doing 'pip install transit2' (in a
+  fresh virtual environment):
+
+    > pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
+
+  But you might have to adjust the URL to the version specific for your environment.
 
 .. _transit-troubleshoot:
 
