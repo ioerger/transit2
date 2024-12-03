@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.7 (2024-12-03)
+#### Transit:
+
+Minor changes:
+  - fixed setup (pip install) problems caused by updates to Python3.12
+  - added comments about installing Transit2 in Python3.12 to install documentation
+
+
 ## Version 1.1.6 (2024-11-17)
 #### Transit:
 
