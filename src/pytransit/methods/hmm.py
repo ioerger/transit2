@@ -204,8 +204,9 @@ class Method:
              indexes.append(i)
              ids.append(id)
 
-        logging.log("selected samples for gumbel (cond=%s): %s" % (condition,','.join(ids)))
+        logging.log("selected samples for HMM analysis (cond=%s): %s" % (condition,','.join(ids)))
         data = data[indexes]
+        if len(data)==0: print("error: it looks like there is a problem selecting samples"); sys.exit(0) # should I use error logging or transit_error?
         ctrldata = combined_wig
         ctrl_read_counts,ctrl_positions = data,position
         ##################

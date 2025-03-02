@@ -27,7 +27,7 @@ statistical significance of these.  Although Transit is primarily
 designed for Himar1 transposon libraries, some of the methods can also
 be applied to other transposons, like Tn5.
 
-**NEW in Transit 4.0:**
+**NEW in Transit2:**
 The GUI and command-line versions of Transit have been 
 overhauled to now take **combined_wig** files (and corresponding **metadata** files),
 instead of individual .wig files.
@@ -36,7 +36,7 @@ the multiple .wig file are combined together in a single combined_wig file
 with multiple columns.  This makes it much more convenient to 
 manage and analyze large datasets.
 
-Transit 4.0 represents a complete overhaul of the software and GUI interface.
+Transit2 represents a complete overhaul of the software and GUI interface.
 The commands and flags have changed, and the python API (internal data structures
 and functions) have changed substantially.  The new GUI is more integrated for ease-of-use,
 has some new features (like ANOVA and ZINB), and will make it easier to add new features
@@ -46,7 +46,7 @@ in the future.
 .. Note::
 
   For previous users of Transit who prefer backwards compatibility,
-  we will continue to maintain the original version of Transit (3.2.x). 
+  we will continue to maintain the original version of Transit (Transit1). 
   See the `documentation and installation instructions <https://transit.readthedocs.io/en/latest/transit_overview.html>`_
 
 
@@ -115,7 +115,7 @@ Combined_wig and Metadata Files
 -------------------------------
 
 Once the .wig files are created, they are combined into a :ref:`combined_wig <combined_wig_link>`
-file.  This is a new step in Transit 4.0.  Multiple .wig files are
+file.  This is a new step in Transit2.  Multiple .wig files are
 combined into a single combined_wig file using the **'transit export
 combined_wig'** command on the command line.  Users then prepare a
 :ref:`metadata <metadata_files>` file describing each of the samples (as a spreadsheet,
@@ -153,11 +153,6 @@ found :ref:`here <transit_quality_control>` (Quality Control).
 One can also evaluate and compare samples by making :ref:`scatter plots <scatterplot>` and pairwise :ref:`correlation plots <corrplot>`,
 to get a preview of how samples are related to each other.
 
-.. image:: _images/glyc_chol_corrplot.png
-   :width: 300
-   :align: center
-
-
 
 
 Genome Annotations (.prot_tables and .gff files)
@@ -187,7 +182,7 @@ for all subsequent analyses in Transit.
 GUI
 ---
 
-Here is a screenshot of the new GUI in Transit 4.0:
+Here is a screenshot of the new GUI in Transit2:
 
 .. image:: _images/Transit4.0_GUI.png
    :width: 1000
@@ -274,11 +269,11 @@ The main difference is that the Himar1 transposon is restricted to insertions at
 TA dinucleotide sites, whereas Tn5 is capable of inserting more broadly at any coordinate
 in the genome.
 
-**1/3/2023:** Previously (in Transit versions up through 3.2.7), we
+**1/3/2023:** Previously (in Transit1 versions up through 3.2.7), we
 had a few statistical methods that were customized for analyzing Tn5
 datasets.  These have been temporarily disabled during the transition
-to Transit 4.0.  We will be adding back in the Tn5 analysis methods
-soon... (in a future release, like 4.1)
+to Transit2.  We will be adding back in the Tn5 analysis methods
+soon... (in a future release)
 
 
 Results and Post-Processing
@@ -381,12 +376,12 @@ Developers
  Name                    Time Active          Contact Information
 =======================  ============  ==============================================================================
 Thomas R. Ioerger        2015-Present  `http://faculty.cs.tamu.edu/ioerger/ <http://faculty.cs.tamu.edu/ioerger/>`_
-Michael A. DeJesus       2015-2018     `http://mad-lab.org <http://mad-lab.org>`_
+Michael A. DeJesus       2015-2018     Rockefeller Univeristy (Bioinformatics Core)
 Chaitra Ambadipudi       2015
 Eric Nelson              2016
 Siddharth Subramaniyam   2018
-Sanjeevani Choudhery     2021-
-Jeff Hykin               2022-
+Jeff Hykin               2022-2023
+Sanjeevani Choudhery     2021-2025
 =======================  ============  ==============================================================================
 
 

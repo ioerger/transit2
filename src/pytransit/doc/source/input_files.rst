@@ -1,6 +1,6 @@
 .. _input_files:
 
-Input Files for Transit
+File Formats for Transit
 =======================
 
 .. _combined_wig_link:
@@ -140,8 +140,12 @@ containing the gene information in 9 specific columns:
 8. gene name (like "dnaA")
 9. ORF id (like Rv0001)
 
-Here is an example (transit/src/pytransit/genomes/H37Rv.prot_table):
+Examples of prot_tables for commonly used genomes can be found at:
+`https://orca1.tamu.edu/essentiality/transit/genomes/
+<https://orca1.tamu.edu/essentiality/transit/genomes/>`_.
 
+Here is an example (H37Rv.prot_table):
+  
 ::
 
   chromosomal replication initiation protein 	1	1524	+	507	15607143	885041	dnaA	Rv0001
@@ -153,7 +157,8 @@ Here is an example (transit/src/pytransit/genomes/H37Rv.prot_table):
   ... 
 
   (full file has ~4000 lines)
-  
+
+
 .. NOTE::
 
   *It is crucial* that the annotation file (.prot_table) used for
@@ -161,7 +166,7 @@ Here is an example (transit/src/pytransit/genomes/H37Rv.prot_table):
   (.fasta or .fna) that was used to generate the .wig files with TPP,
   because it is used to determine which TA sites are contained in which
   genes (by coordinates). For example, **H37Rv.fna** is paired with
-  **H37Rv.prot_table**, both derived from GenBank sequence NC_000962.3.
+  **H37Rv.prot_table**, both derived from GenBank sequence NC_000962.2.
 
 In many cases, users might often obtain annotations for their genome
 in **.gff (or .gff3)** file format, such as downloaded from NCBI.  .gff

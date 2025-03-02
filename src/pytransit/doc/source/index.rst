@@ -19,10 +19,12 @@ documentation, followed by a brief overview of TRANSIT2's features.
 
 .. NOTE::
 
-  TRANSIT2 is a re-implementation of the `original version of TRANSIT
+  TRANSIT2 is a re-implementation of the `original version of TRANSIT (Transit1)
   <https://transit.readthedocs.io/en/latest/>`_,
   which is still being maintained for backwards-compatibility.
   TRANSIT2 has most of the same analytical methods, but it has an enhanced GUI.
+  It relies more centrally on *combined_wig* files for storing insertion counts
+  for multiple samples.
   Also, some of the command-line arguments and flags have changed.
 
 
