@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.8 (2025-03-02)
+#### Transit:
+
+Minor changes:
+  - updated documenation
+
 ## Version 1.1.7 (2024-12-03)
 #### Transit:
 
