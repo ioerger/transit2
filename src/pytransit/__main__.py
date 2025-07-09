@@ -89,6 +89,7 @@ def main(args, kwargs):
 def run_main():
     from pytransit.specific_tools.console_tools import clean_args
     (args, kwargs) = clean_args(sys.argv[1:])
+    print("=== Transit2 %s ===" % pytransit.__version__)
     main(args, kwargs)
 
 if __name__ == "__main__":
