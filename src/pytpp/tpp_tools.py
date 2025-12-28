@@ -605,12 +605,17 @@ def template_counts(ref, sam, bcfile, vars):
                     vars.r1 += 1
                 if code[6] == "1" and code[3] == "0":
                     vars.r2 += 1
-                if bc == "XXXXXXXXXX":
-                    continue
-                if (
-                    code[6] == "1" and code[1] == "1"
-                ):  # both reads map properly (83 or 99) and has legit barcode
+                if bc == "XXXXXXXXXX": continue
+                # bit 6 means this is read 1; bit 1 means properly mapped pair
+                #if (code[6] == "1" and code[1] == "1"):  # both reads map properly (83 or 99) and has legit barcode
+                intcode = int(w[1])
+                if intcode in [0,16,81,83,97,99]: # allow improperly-mapped reads
+                    if intcode in [83,99]: vars.proper_read_pairs += 1 # code[6]==1 and code[1]==1; does not include 0 or 16 for single-read
+                    if intcode in [81,97]:
+                      vars.improper_read_pairs += 1
+                      if vars.allow_improper==False: continue
                     vars.mapped += 1
+
                     readlen = len(w[9])
                     pos, size = int(w[3]), int(w[8])  # note: size could be negative
                     strand, delta = "F", -2
@@ -1386,6 +1391,8 @@ def generate_output(vars):
     )
     output.write("# reads1_mapped: %s\n" % vars.r1)
     output.write("# reads2_mapped: %s\n" % vars.r2)
+    output.write("# properly_mapped_read_pairs: %s\n" % vars.proper_read_pairs)
+    output.write("# improperly_mapped_read_pairs: %s\n" % vars.improper_read_pairs)
     output.write(
         "# mapped_reads (both R1 and R2 map into genome, and R2 has a proper barcode): %s \n"
         % vars.mapped
@@ -1658,6 +1665,9 @@ def initialize_globals(vars, args=[], kwargs={}):
     vars.barseq_catalog_in = vars.barseq_catalog_out = None
     vars.window_size = -1
     vars.primer_start_window = 0, 20
+    vars.allow_improper = False
+    vars.improper_read_pairs = 0
+    vars.proper_read_pairs = 0
     vars.window = None
     vars.bwa_alg = "aln" # changed from "mem" back to 'aln' [TRI, 9/14/24]
 
@@ -1698,10 +1708,12 @@ def initialize_globals(vars, args=[], kwargs={}):
         vars.base = kwargs["output"]
     if "mismatches" in kwargs:
         vars.mm1 = int(kwargs["mismatches"])
-    if "barseq_catalog_in" in kwargs:
-        vars.barseq_catalog_in = kwargs["barseq_catalog_in"]
-    if "barseq_catalog_out" in kwargs:
-        vars.barseq_catalog_out = kwargs["barseq_catalog_out"]
+    if "allow-improperly-mapped-read-pairs" in kwargs:
+        vars.allow_improper = True
+    #if "barseq_catalog_in" in kwargs:
+    #    vars.barseq_catalog_in = kwargs["barseq_catalog_in"]
+    #if "barseq_catalog_out" in kwargs:
+    #    vars.barseq_catalog_out = kwargs["barseq_catalog_out"]
     if "flags" in kwargs:
         vars.flags = kwargs["flags"]
 
@@ -1808,35 +1820,20 @@ def save_config(vars):
 def show_help():
     # print('usage: python PATH/src/tpp.py -bwa <EXECUTABLE_WITH_PATH> -ref <fasta-file|comma_separated_list> -reads1 <FASTQ_OR_FASTA_FILE> [-reads2 <FASTQ_OR_FASTA_FILE>] -output <BASE_FILENAME> [-maxreads <N>] [-mismatches <N>] [-flags "<STRING>"] [-tn5|-himar1] [-primer <seq>] [-primer-start-window INT,INT] [-window-size INT] [-barseq_catalog_in|_out <file>] [-replicon-ids <comma_separated_list_of_names>]')
 
-    print(
-        "usage: python PATH/src/tpp.py -bwa <EXECUTABLE_WITH_PATH> -ref <fasta-file|comma_separated_list> -reads1 <FASTQ_OR_FASTA_FILE> [-reads2 <FASTQ_OR_FASTA_FILE>] -output <BASE_FILENAME> [OPTIONAL ARGS]"
-    )
+    print("usage: python PATH/src/tpp.py -bwa <EXECUTABLE_WITH_PATH> -ref <fasta-file|comma_separated_list> -reads1 <FASTQ_OR_FASTA_FILE> [-reads2 <FASTQ_OR_FASTA_FILE>] -output <BASE_FILENAME> [OPTIONAL ARGS]")
     print("  OPTIONAL ARGS:")
-    print(
-        "    -protocol [Sassetti|Tn5|Mme1] # which sample prep protocol was used?; sassetti protocol is the default; this sets the default transposon and primer sequence"
-    )
-    print(
-        "    -primer <seq>      # prefix of reads corresponding to end of transposon at junction with genomic sequence; can override default seq"
-    )
+    print("    -protocol [Sassetti|Tn5|Mme1] # which sample prep protocol was used?; sassetti protocol is the default; this sets the default transposon and primer sequence")
+    print("    -primer <seq>      # prefix of reads corresponding to end of transposon at junction with genomic sequence; can override default seq")
     print("    -maxreads <INT>")
-    print(
-        "    -mismatches <INT>  # when searching for constant regions in reads 1 and 2; default is 1"
-    )
+    print("    -mismatches <INT>  # when searching for constant regions in reads 1 and 2; default is 1")
     print('    -flags "<STRING>"  # args to pass to BWA')
-    print(
-        "    -bwa-alg [aln|mem]  # Algorithm to use for mapping reads with bwa. Default: 'aln'"
-    )
-    print(
-        "    -primer-start-window INT,INT # position in read to search for start of primer; default is [0,20]"
-    )
+    print("    -bwa-alg [aln|mem]  # Algorithm to use for mapping reads with bwa. Default: 'aln'")
+    print("    -primer-start-window INT,INT # position in read to search for start of primer; default is [0,20]")
     print("    -window-size INT   # automatic method to set window")
     #print("    -barseq_catalog_in|-barseq_catalog_out <file>")
-    print(
-        "    -replicon-ids <comma_separated_list_of_names> # if multiple replicons/genomes/contigs/sequences were provided in -ref, give them names."
-    )
-    print(
-        "                                                  # Enter 'auto' for autogenerated ids."
-    )
+    print("    -allow-improperly-mapped-read-pairs  # in rare cases, this can help increase mapped reads (e.g. if fragment size distribution is very short); see statistics in *.tn_stats output")
+    print("    -replicon-ids <comma_separated_list_of_names> # if multiple replicons/genomes/contigs/sequences were provided in -ref, give them names.")
+    print("                                                  # Enter 'auto' for autogenerated ids.")
 
 
 class Globals:

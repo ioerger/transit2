@@ -555,7 +555,7 @@ class Method:
         counts = data.flatten().tolist()
         if len(counts) < 3:
             return data
-        
+
         s = sorted(counts, reverse=True)
         if s[1] == 0:
             return data # don't do anything if there is only 1 non-zero value
