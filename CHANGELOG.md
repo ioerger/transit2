@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
+## Version 1.1.2 (2025-12-29)
+#### Transit2-TPP
+
+Minor changes:
+  - added new flag '-allow-improperly-mapped-read-pairs' to TPP, and report statistics in *.tn_stats output file
+
+
+
 ## Version 1.1.8 (2025-03-02)
 #### Transit:
 
